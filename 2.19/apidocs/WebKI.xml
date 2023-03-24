@@ -59,15 +59,15 @@
     <HelpKINode Title="SingleChunkBuffer.AccessBackingBytes Method " Url="html/M_MongoDB_Bson_IO_SingleChunkBuffer_AccessBackingBytes.htm" />
   </HelpKINode>
   <HelpKINode Title="Acknowledged class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_UpdateResult_Acknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_ReplaceOneResult_Acknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_UpdateResult_Acknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Acknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Acknowledged.htm" />
   </HelpKINode>
   <HelpKINode Title="Acknowledged property" Url="html/P_MongoDB_Driver_WriteConcern_Acknowledged.htm" />
@@ -212,8 +212,8 @@
   <HelpKINode Title="AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic enumeration member" Url="html/T_MongoDB_Driver_Encryption_EncryptionAlgorithm.htm" />
   <HelpKINode Title="AEAD_AES_256_CBC_HMAC_SHA_512_Random enumeration member" Url="html/T_MongoDB_Driver_Encryption_EncryptionAlgorithm.htm" />
   <HelpKINode Title="After enumeration member">
-    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
     <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_ReturnDocument.htm" />
+    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
   </HelpKINode>
   <HelpKINode Title="Aggregate method">
     <HelpKINode Title="IMongoCollection(TDocument).Aggregate Method " Url="html/Overload_MongoDB_Driver_IMongoCollection_1_Aggregate.htm" />
@@ -879,6 +879,8 @@
     <HelpKINode Title="BsonDeserializationContext.Builder.AllowDuplicateElementNames Property " Url="html/P_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder_AllowDuplicateElementNames.htm" />
   </HelpKINode>
   <HelpKINode Title="AllowDuplicateNames property" Url="html/P_MongoDB_Bson_BsonDocument_AllowDuplicateNames.htm" />
+  <HelpKINode Title="AllowedDeserializationTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_AllowedDeserializationTypes.htm" />
+  <HelpKINode Title="AllowedSerializationTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_AllowedSerializationTypes.htm" />
   <HelpKINode Title="AllowInsecureTls property">
     <HelpKINode Title="MongoClientSettings.AllowInsecureTls Property " Url="html/P_MongoDB_Driver_MongoClientSettings_AllowInsecureTls.htm" />
     <HelpKINode Title="MongoServerSettings.AllowInsecureTls Property " Url="html/P_MongoDB_Driver_MongoServerSettings_AllowInsecureTls.htm" />
@@ -1470,8 +1472,8 @@
   <HelpKINode Title="BatchTransformingAsyncCursor&lt;TFromDocument, TToDocument&gt;.MoveNext method" Url="html/M_MongoDB_Driver_BatchTransformingAsyncCursor_2_MoveNext.htm" />
   <HelpKINode Title="BatchTransformingAsyncCursor&lt;TFromDocument, TToDocument&gt;.MoveNextAsync method" Url="html/M_MongoDB_Driver_BatchTransformingAsyncCursor_2_MoveNextAsync.htm" />
   <HelpKINode Title="Before enumeration member">
-    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_ReturnDocument.htm" />
     <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
+    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_ReturnDocument.htm" />
   </HelpKINode>
   <HelpKINode Title="BeginArray enumeration member" Url="html/T_MongoDB_Bson_IO_JsonTokenType.htm" />
   <HelpKINode Title="BeginObject enumeration member" Url="html/T_MongoDB_Bson_IO_JsonTokenType.htm" />
@@ -4100,10 +4102,10 @@
   <HelpKINode Title="Build method" Url="html/M_MongoDB_Driver_Builders_PushEachOptionsBuilder_1_Build.htm" />
   <HelpKINode Title="BuildCluster method" Url="html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_BuildCluster.htm" />
   <HelpKINode Title="Builder class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
   </HelpKINode>
   <HelpKINode Title="BuilderBase class">
     <HelpKINode Title="BuilderBase Class" Url="html/T_MongoDB_Driver_Builders_BuilderBase.htm" />
@@ -7185,6 +7187,7 @@
     <HelpKINode Title="CreateIndexCommitQuorum.Create Method " Url="html/Overload_MongoDB_Driver_CreateIndexCommitQuorum_Create.htm" />
     <HelpKINode Title="CreateViewOptionsWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_CreateViewOptionsWrapper_Create.htm" />
     <HelpKINode Title="DocumentsWindow.Create Method " Url="html/Overload_MongoDB_Driver_DocumentsWindow_Create.htm" />
+    <HelpKINode Title="DowncastingSerializer.Create Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_Create.htm" />
     <HelpKINode Title="FieldsWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_FieldsWrapper_Create.htm" />
     <HelpKINode Title="GeoHaystackSearchOptionsWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_GeoHaystackSearchOptionsWrapper_Create.htm" />
     <HelpKINode Title="GeoNearOptionsWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_GeoNearOptionsWrapper_Create.htm" />
@@ -7206,7 +7209,9 @@
     <HelpKINode Title="RetryableWriteContext.Create Method " Url="html/M_MongoDB_Driver_Core_Operations_RetryableWriteContext_Create.htm" />
     <HelpKINode Title="ScopeWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_ScopeWrapper_Create.htm" />
     <HelpKINode Title="SortByWrapper.Create Method " Url="html/M_MongoDB_Driver_Wrappers_SortByWrapper_Create.htm" />
+    <HelpKINode Title="TupleSerializer.Create Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_Create.htm" />
     <HelpKINode Title="UpdateWrapper.Create Method " Url="html/Overload_MongoDB_Driver_Wrappers_UpdateWrapper_Create.htm" />
+    <HelpKINode Title="ValueTupleSerializer.Create Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_Create.htm" />
   </HelpKINode>
   <HelpKINode Title="Create(Of T) method" Url="html/M_MongoDB_Driver_Optional_Create__1.htm" />
   <HelpKINode Title="Create(Of TInput, TOutput) method" Url="html/M_MongoDB_Driver_AggregateFacet_Create__2.htm" />
@@ -8640,6 +8645,7 @@
     <HelpKINode Title="DiscriminatedInterfaceSerializer(TInterface).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DiscriminatedInterfaceSerializer_1_Deserialize.htm" />
     <HelpKINode Title="DiscriminatedWrapperSerializer(TValue).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DiscriminatedWrapperSerializer_1_Deserialize.htm" />
     <HelpKINode Title="DoubleSerializer.Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DoubleSerializer_Deserialize.htm" />
+    <HelpKINode Title="DowncastingSerializer(TBase, TDerived).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Deserialize.htm" />
     <HelpKINode Title="DynamicDocumentBaseSerializer(T).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DynamicDocumentBaseSerializer_1_Deserialize.htm" />
     <HelpKINode Title="ElementAppendingSerializer(TDocument).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ElementAppendingSerializer_1_Deserialize.htm" />
     <HelpKINode Title="EnumerableSerializerBase(TValue).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumerableSerializerBase_1_Deserialize.htm" />
@@ -8671,6 +8677,14 @@
     <HelpKINode Title="UInt16Serializer.Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt16Serializer_Deserialize.htm" />
     <HelpKINode Title="UInt32Serializer.Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt32Serializer_Deserialize.htm" />
     <HelpKINode Title="UInt64Serializer.Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Deserialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Deserialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Deserialize.htm" />
   </HelpKINode>
   <HelpKINode Title="DeserializeBaseMember method" Url="html/M_MongoDB_Driver_GeoJsonObjectModel_Serializers_GeoJsonObjectSerializerHelper_1_DeserializeBaseMember.htm" />
   <HelpKINode Title="DeserializeClass method" Url="html/M_MongoDB_Bson_Serialization_BsonClassMapSerializer_1_DeserializeClass.htm" />
@@ -8958,6 +8972,7 @@
     <HelpKINode Title="BsonClassMap.Discriminator Property " Url="html/P_MongoDB_Bson_Serialization_BsonClassMap_Discriminator.htm" />
     <HelpKINode Title="BsonDiscriminatorAttribute.Discriminator Property " Url="html/P_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute_Discriminator.htm" />
   </HelpKINode>
+  <HelpKINode Title="DiscriminatorConvention property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_DiscriminatorConvention.htm" />
   <HelpKINode Title="DiscriminatorIsRequired property" Url="html/P_MongoDB_Bson_Serialization_BsonClassMap_DiscriminatorIsRequired.htm" />
   <HelpKINode Title="Disjoint enumeration member" Url="html/T_MongoDB_Driver_Search_GeoShapeRelation.htm" />
   <HelpKINode Title="Dispose method">
@@ -9245,6 +9260,31 @@
     <HelpKINode Title="Int64JsonToken.DoubleValue Property " Url="html/P_MongoDB_Bson_IO_Int64JsonToken_DoubleValue.htm" />
     <HelpKINode Title="JsonToken.DoubleValue Property " Url="html/P_MongoDB_Bson_IO_JsonToken_DoubleValue.htm" />
   </HelpKINode>
+  <HelpKINode Title="DowncastingSerializer class">
+    <HelpKINode Title="DowncastingSerializer Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DowncastingSerializer(Of TBase, TDerived) class">
+    <HelpKINode Title="DowncastingSerializer(TBase, TDerived) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+    <HelpKINode Title="constructor" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DowncastingSerializer(Of TBase, TDerived).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Deserialize.htm" />
+  <HelpKINode Title="DowncastingSerializer(Of TBase, TDerived).DowncastingSerializer constructor" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2__ctor.htm" />
+  <HelpKINode Title="DowncastingSerializer(Of TBase, TDerived).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Serialize.htm" />
+  <HelpKINode Title="DowncastingSerializer(Of TBase, TDerived).TryGetMemberSerializationInfo method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_TryGetMemberSerializationInfo.htm" />
+  <HelpKINode Title="DowncastingSerializer.Create method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_Create.htm" />
+  <HelpKINode Title="DowncastingSerializer&lt;TBase, TDerived&gt; class">
+    <HelpKINode Title="DowncastingSerializer(TBase, TDerived) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+    <HelpKINode Title="constructor" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DowncastingSerializer&lt;TBase, TDerived&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Deserialize.htm" />
+  <HelpKINode Title="DowncastingSerializer&lt;TBase, TDerived&gt;.DowncastingSerializer constructor" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2__ctor.htm" />
+  <HelpKINode Title="DowncastingSerializer&lt;TBase, TDerived&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Serialize.htm" />
+  <HelpKINode Title="DowncastingSerializer&lt;TBase, TDerived&gt;.TryGetMemberSerializationInfo method" Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_TryGetMemberSerializationInfo.htm" />
   <HelpKINode Title="Download method" Url="html/Overload_MongoDB_Driver_GridFS_MongoGridFS_Download.htm" />
   <HelpKINode Title="DownloadAsBytes method">
     <HelpKINode Title="GridFSBucket(TFileId).DownloadAsBytes Method " Url="html/M_MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytes.htm" />
@@ -9934,12 +9974,12 @@
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.Representation property" Url="html/P_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_Representation.htm" />
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_Serialize.htm" />
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.WithRepresentation method" Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_WithRepresentation.htm" />
+  <HelpKINode Title="Eq method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Eq.htm" />
   <HelpKINode Title="EQ method">
     <HelpKINode Title="Query(TDocument).EQ Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_EQ.htm" />
     <HelpKINode Title="Query.EQ Method " Url="html/M_MongoDB_Driver_Builders_Query_EQ.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).EQ Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_EQ.htm" />
   </HelpKINode>
-  <HelpKINode Title="Eq method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Eq.htm" />
   <HelpKINode Title="Equality operator">
     <HelpKINode Title="BsonArray.Equality Operator " Url="html/M_MongoDB_Bson_BsonArray_op_Equality.htm" />
     <HelpKINode Title="BsonBinaryData.Equality Operator " Url="html/M_MongoDB_Bson_BsonBinaryData_op_Equality.htm" />
@@ -10522,10 +10562,10 @@
   <HelpKINode Title="ExpressionVisitor class">
     <HelpKINode Title="ExpressionVisitor Class" Url="html/T_MongoDB_Driver_Linq_ExpressionVisitor.htm" />
     <HelpKINode Title="ExpressionVisitor Class" Url="html/T_MongoDB_Bson_Serialization_ExpressionVisitor.htm" />
-    <HelpKINode Title="constructor" Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="constructor" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_ExpressionVisitor.htm" />
+    <HelpKINode Title="constructor" Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Linq_ExpressionVisitor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_ExpressionVisitor.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor(Of T) class">
     <HelpKINode Title="ExpressionVisitor(T) Class" Url="html/T_MongoDB_Driver_Linq_ExpressionVisitor_1.htm" />
@@ -10556,8 +10596,8 @@
   <HelpKINode Title="ExpressionVisitor(Of T).VisitTypeBinary method" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary.htm" />
   <HelpKINode Title="ExpressionVisitor(Of T).VisitUnary method" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary.htm" />
   <HelpKINode Title="ExpressionVisitor.ExpressionVisitor constructor">
-    <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
+    <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.Visit method">
     <HelpKINode Title="ExpressionVisitor.Visit Method " Url="html/Overload_MongoDB_Driver_Linq_ExpressionVisitor_Visit.htm" />
@@ -10568,12 +10608,12 @@
     <HelpKINode Title="ExpressionVisitor.VisitBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitConditional method">
-    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConditional.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitConstant method">
-    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConstant.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConstant.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConstant.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitElementInit method">
     <HelpKINode Title="ExpressionVisitor.VisitElementInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitElementInit.htm" />
@@ -10592,16 +10632,16 @@
     <HelpKINode Title="ExpressionVisitor.VisitLambda Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitLambda.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitListInit method">
-    <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitListInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitListInit.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitListInit.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMember method">
     <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMember.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMember.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberAssignment.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberBinding method">
     <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBinding.htm" />
@@ -10612,16 +10652,16 @@
     <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberInit method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberInit.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberInit.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding method">
     <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberListBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberListBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberMemberBinding.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberMemberBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMethodCall method">
     <HelpKINode Title="ExpressionVisitor.VisitMethodCall Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMethodCall.htm" />
@@ -10632,16 +10672,16 @@
     <HelpKINode Title="ExpressionVisitor.VisitNew Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNew.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitNewArray method">
-    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNewArray.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNewArray.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNewArray.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitParameter method">
     <HelpKINode Title="ExpressionVisitor.VisitParameter Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitParameter.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitParameter Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitParameter.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitTypeBinary method">
-    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitTypeBinary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitTypeBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitUnary method">
     <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitUnary.htm" />
@@ -12095,16 +12135,16 @@
   <HelpKINode Title="GeoHaystackSearchArgs.SetAdditionalField method" Url="html/Overload_MongoDB_Driver_GeoHaystackSearchArgs_SetAdditionalField.htm" />
   <HelpKINode Title="GeoHaystackSearchAs method" Url="html/Overload_MongoDB_Driver_MongoCollection_GeoHaystackSearchAs.htm" />
   <HelpKINode Title="GeoHaystackSearchHit class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHit.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHit.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoHaystackSearchHits class">
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHits.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHits.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoHaystackSearchOptions class">
     <HelpKINode Title="GeoHaystackSearchOptions Class" Url="html/T_MongoDB_Driver_Builders_GeoHaystackSearchOptions.htm" />
@@ -13228,14 +13268,14 @@
   <HelpKINode Title="GeoNearAs method" Url="html/Overload_MongoDB_Driver_MongoCollection_GeoNearAs.htm" />
   <HelpKINode Title="GeoNearCommand property" Url="html/P_MongoDB_Driver_Core_Misc_Feature_GeoNearCommand.htm" />
   <HelpKINode Title="GeoNearHit class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_1_GeoNearHit.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_GeoNearHit.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_1_GeoNearHit.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_1_GeoNearHit.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_GeoNearHit.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_1_GeoNearHit.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoNearHits class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_GeoNearHits.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_GeoNearHits.htm" />
   </HelpKINode>
@@ -13854,6 +13894,25 @@
   <HelpKINode Title="GetInsecurePassword method" Url="html/M_MongoDB_Driver_Core_Authentication_UsernamePasswordCredential_GetInsecurePassword.htm" />
   <HelpKINode Title="GetInstance method" Url="html/M_MongoDB_Bson_Serialization_IdGenerators_BsonBinaryDataGuidGenerator_GetInstance.htm" />
   <HelpKINode Title="GetIPEndPoint method" Url="html/M_MongoDB_Driver_MongoServerInstance_GetIPEndPoint.htm" />
+  <HelpKINode Title="GetItemSerializer method">
+    <HelpKINode Title="IBsonTupleSerializer.GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_IBsonTupleSerializer_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_GetItemSerializer.htm" />
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_GetItemSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).GetItemSerializer Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_GetItemSerializer.htm" />
+  </HelpKINode>
   <HelpKINode Title="GetKey method" Url="html/M_MongoDB_Driver_Encryption_ClientEncryption_GetKey.htm" />
   <HelpKINode Title="GetKeyAsync method" Url="html/M_MongoDB_Driver_Encryption_ClientEncryption_GetKeyAsync.htm" />
   <HelpKINode Title="GetKeyByAlternateKeyName method" Url="html/M_MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyName.htm" />
@@ -14559,13 +14618,13 @@
   </HelpKINode>
   <HelpKINode Title="GssapiException.GssapiException constructor" Url="html/Overload_MongoDB_Driver_Core_Authentication_GssapiException__ctor.htm" />
   <HelpKINode Title="Gt method">
-    <HelpKINode Title="FilterDefinitionBuilder(TDocument).Gt Method " Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gt.htm" />
     <HelpKINode Title="SearchRangeBuilder.Gt Method " Url="html/Overload_MongoDB_Driver_Search_SearchRangeBuilder_Gt.htm" />
+    <HelpKINode Title="FilterDefinitionBuilder(TDocument).Gt Method " Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gt.htm" />
   </HelpKINode>
   <HelpKINode Title="GT method">
-    <HelpKINode Title="QueryBuilder(TDocument).GT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_GT.htm" />
     <HelpKINode Title="Query(TDocument).GT Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_GT.htm" />
     <HelpKINode Title="Query.GT Method " Url="html/M_MongoDB_Driver_Builders_Query_GT.htm" />
+    <HelpKINode Title="QueryBuilder(TDocument).GT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_GT.htm" />
   </HelpKINode>
   <HelpKINode Title="Gte method">
     <HelpKINode Title="FilterDefinitionBuilder(TDocument).Gte Method " Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gte.htm" />
@@ -14613,6 +14672,7 @@
     <HelpKINode Title="MongoServerSettings.GuidRepresentation Property " Url="html/P_MongoDB_Driver_MongoServerSettings_GuidRepresentation.htm" />
     <HelpKINode Title="MongoUrl.GuidRepresentation Property " Url="html/P_MongoDB_Driver_MongoUrl_GuidRepresentation.htm" />
     <HelpKINode Title="MongoUrlBuilder.GuidRepresentation Property " Url="html/P_MongoDB_Driver_MongoUrlBuilder_GuidRepresentation.htm" />
+    <HelpKINode Title="ObjectSerializer.GuidRepresentation Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_GuidRepresentation.htm" />
   </HelpKINode>
   <HelpKINode Title="GuidRepresentationMode enumeration" Url="html/T_MongoDB_Bson_GuidRepresentationMode.htm" />
   <HelpKINode Title="GuidRepresentationMode property" Url="html/P_MongoDB_Bson_BsonDefaults_GuidRepresentationMode.htm" />
@@ -15255,6 +15315,11 @@
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_IBsonSerializerRegistry.htm" />
   </HelpKINode>
   <HelpKINode Title="IBsonSerializerRegistry.GetSerializer method" Url="html/Overload_MongoDB_Bson_Serialization_IBsonSerializerRegistry_GetSerializer.htm" />
+  <HelpKINode Title="IBsonTupleSerializer interface">
+    <HelpKINode Title="IBsonTupleSerializer Interface" Url="html/T_MongoDB_Bson_Serialization_Serializers_IBsonTupleSerializer.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_IBsonTupleSerializer.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IBsonTupleSerializer.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_IBsonTupleSerializer_GetItemSerializer.htm" />
   <HelpKINode Title="IBsonWriter interface">
     <HelpKINode Title="IBsonWriter Interface" Url="html/T_MongoDB_Bson_IO_IBsonWriter.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_IO_IBsonWriter.htm" />
@@ -17975,6 +18040,14 @@
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item1Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item1Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item1Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item1Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item1Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item2Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_Item2Serializer.htm" />
@@ -17984,6 +18057,13 @@
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item2Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item2Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item2Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item2Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item2Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item3Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2, T3).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item3Serializer.htm" />
@@ -17992,6 +18072,12 @@
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item3Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item3Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item3Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item3Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item3Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item4Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item4Serializer.htm" />
@@ -17999,21 +18085,35 @@
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item4Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item4Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item4Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item4Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item4Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item4Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item4Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item4Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item4Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item5Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item5Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item5Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item5Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item5Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item5Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item5Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item5Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item5Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item5Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item6Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item6Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item6Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item6Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item6Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item6Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item6Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item6Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Item7Serializer property">
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item7Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item7Serializer.htm" />
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item7Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item7Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Item7Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item7Serializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Item7Serializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item7Serializer.htm" />
   </HelpKINode>
   <HelpKINode Title="Items property">
     <HelpKINode Title="BatchableSource(T).Items Property " Url="html/P_MongoDB_Driver_Core_Misc_BatchableSource_1_Items.htm" />
@@ -19020,9 +19120,9 @@
     <HelpKINode Title="SearchRangeBuilder.Lt Method " Url="html/Overload_MongoDB_Driver_Search_SearchRangeBuilder_Lt.htm" />
   </HelpKINode>
   <HelpKINode Title="LT method">
-    <HelpKINode Title="Query.LT Method " Url="html/M_MongoDB_Driver_Builders_Query_LT.htm" />
-    <HelpKINode Title="Query(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_LT.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_LT.htm" />
+    <HelpKINode Title="Query(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_LT.htm" />
+    <HelpKINode Title="Query.LT Method " Url="html/M_MongoDB_Driver_Builders_Query_LT.htm" />
   </HelpKINode>
   <HelpKINode Title="LTE method">
     <HelpKINode Title="Query(TDocument).LTE Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_LTE.htm" />
@@ -19693,8 +19793,8 @@
   <HelpKINode Title="MemberType property" Url="html/P_MongoDB_Bson_Serialization_BsonMemberMap_MemberType.htm" />
   <HelpKINode Title="MemberTypeIsBsonValue property" Url="html/P_MongoDB_Bson_Serialization_BsonMemberMap_MemberTypeIsBsonValue.htm" />
   <HelpKINode Title="Merge enumeration member">
-    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_MapReduceOutputMode.htm" />
+    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MergeStageWhenMatched Enumeration" Url="html/T_MongoDB_Driver_MergeStageWhenMatched.htm" />
   </HelpKINode>
   <HelpKINode Title="Merge method">
@@ -21039,6 +21139,9 @@
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DiscriminatedWrapperSerializer(Of TValue) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DiscriminatedWrapperSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DiscriminatedWrapperSerializer&lt;TValue&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DiscriminatedWrapperSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DoubleSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DoubleSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DowncastingSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DowncastingSerializer(Of TBase, TDerived) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DowncastingSerializer&lt;TBase, TDerived&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DynamicDocumentBaseSerializer(Of T) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DynamicDocumentBaseSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.DynamicDocumentBaseSerializer&lt;T&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_DynamicDocumentBaseSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ElementAppendingSerializer(Of TDocument) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ElementAppendingSerializer_1.htm" />
@@ -21059,6 +21162,7 @@
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.EnumSerializer&lt;TEnum&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ExpandoObjectSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ExpandoObjectSerializer.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.GuidSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_GuidSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.IBsonTupleSerializer interface" Url="html/T_MongoDB_Bson_Serialization_Serializers_IBsonTupleSerializer.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.IEnumerableDeserializingAsCollectionSerializer(Of TIEnumerable, TItem, TCollection) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_IEnumerableDeserializingAsCollectionSerializer_3.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.IEnumerableDeserializingAsCollectionSerializer&lt;TIEnumerable, TItem, TCollection&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_IEnumerableDeserializingAsCollectionSerializer_3.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ImpliedImplementationInterfaceSerializer(Of TInterface, TImplementation) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ImpliedImplementationInterfaceSerializer_2.htm" />
@@ -21115,6 +21219,7 @@
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ThreeDimensionalArraySerializer(Of TItem) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ThreeDimensionalArraySerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ThreeDimensionalArraySerializer&lt;TItem&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ThreeDimensionalArraySerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.TimeSpanSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TimeSpanSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.TupleSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.TupleSerializer(Of T1) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.TupleSerializer(Of T1, T2) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.TupleSerializer(Of T1, T2, T3) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3.htm" />
@@ -21139,6 +21244,23 @@
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.UndiscriminatedActualTypeSerializer(Of TValue) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_UndiscriminatedActualTypeSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.UndiscriminatedActualTypeSerializer&lt;TValue&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_UndiscriminatedActualTypeSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.UriSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_UriSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3, T4) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3, T4, T5) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest) class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3, T4&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2, T3&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1, T2&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+  <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer&lt;T1&gt; class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.Serializers.VersionSerializer class" Url="html/T_MongoDB_Bson_Serialization_Serializers_VersionSerializer.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.TypeMappingSerializationProvider class" Url="html/T_MongoDB_Bson_Serialization_TypeMappingSerializationProvider.htm" />
   <HelpKINode Title="MongoDB.Bson.Serialization.TypeNameDiscriminator class" Url="html/T_MongoDB_Bson_Serialization_TypeNameDiscriminator.htm" />
@@ -23457,12 +23579,12 @@
     <HelpKINode Title="ValidateCollectionResult.Namespace Property " Url="html/P_MongoDB_Driver_ValidateCollectionResult_Namespace.htm" />
   </HelpKINode>
   <HelpKINode Title="Nanoseconds enumeration member" Url="html/T_MongoDB_Bson_Serialization_Options_TimeSpanUnits.htm" />
+  <HelpKINode Title="Ne method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Ne.htm" />
   <HelpKINode Title="NE method">
     <HelpKINode Title="Query(TDocument).NE Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_NE.htm" />
     <HelpKINode Title="Query.NE Method " Url="html/M_MongoDB_Driver_Builders_Query_NE.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).NE Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_NE.htm" />
   </HelpKINode>
-  <HelpKINode Title="Ne method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Ne.htm" />
   <HelpKINode Title="Near enumeration member" Url="html/T_MongoDB_Driver_Search_SearchSpanDefinition_1_ClauseType.htm" />
   <HelpKINode Title="Near method">
     <HelpKINode Title="FilterDefinitionBuilder(TDocument).Near Method " Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Near.htm" />
@@ -23906,10 +24028,14 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ObjectSerializer.htm" />
   </HelpKINode>
   <HelpKINode Title="ObjectSerializer.AllAllowedTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_AllAllowedTypes.htm" />
+  <HelpKINode Title="ObjectSerializer.AllowedDeserializationTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_AllowedDeserializationTypes.htm" />
+  <HelpKINode Title="ObjectSerializer.AllowedSerializationTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_AllowedSerializationTypes.htm" />
   <HelpKINode Title="ObjectSerializer.DefaultAllowedTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_DefaultAllowedTypes.htm" />
   <HelpKINode Title="ObjectSerializer.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_Deserialize.htm" />
+  <HelpKINode Title="ObjectSerializer.DiscriminatorConvention property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_DiscriminatorConvention.htm" />
   <HelpKINode Title="ObjectSerializer.Equals method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_Equals.htm" />
   <HelpKINode Title="ObjectSerializer.GetHashCode method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_GetHashCode.htm" />
+  <HelpKINode Title="ObjectSerializer.GuidRepresentation property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_GuidRepresentation.htm" />
   <HelpKINode Title="ObjectSerializer.Instance property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_Instance.htm" />
   <HelpKINode Title="ObjectSerializer.NoAllowedTypes property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ObjectSerializer_NoAllowedTypes.htm" />
   <HelpKINode Title="ObjectSerializer.ObjectSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ObjectSerializer__ctor.htm" />
@@ -26146,8 +26272,8 @@
   <HelpKINode Title="RecordCount property" Url="html/P_MongoDB_Driver_ValidateCollectionResult_RecordCount.htm" />
   <HelpKINode Title="RecoveryToken property" Url="html/P_MongoDB_Driver_Core_Bindings_CoreTransaction_RecoveryToken.htm" />
   <HelpKINode Title="Reduce enumeration member">
-    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_MapReduceOutputMode.htm" />
+    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
   </HelpKINode>
   <HelpKINode Title="Reduce method" Url="html/Overload_MongoDB_Driver_MapReduceOutputOptions_Reduce.htm" />
   <HelpKINode Title="ReduceFunction property">
@@ -26957,7 +27083,10 @@
     <HelpKINode Title="ResponseMessage.ResponseTo Property " Url="html/P_MongoDB_Driver_Core_WireProtocol_Messages_ResponseMessage_ResponseTo.htm" />
   </HelpKINode>
   <HelpKINode Title="RestrictSearchWithMatch property" Url="html/P_MongoDB_Driver_AggregateGraphLookupOptions_3_RestrictSearchWithMatch.htm" />
-  <HelpKINode Title="RestSerializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_RestSerializer.htm" />
+  <HelpKINode Title="RestSerializer property">
+    <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).RestSerializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_RestSerializer.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).RestSerializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_RestSerializer.htm" />
+  </HelpKINode>
   <HelpKINode Title="Result property">
     <HelpKINode Title="MongoBulkWriteException(TDocument).Result Property " Url="html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm" />
     <HelpKINode Title="MongoBulkWriteOperationException.Result Property " Url="html/P_MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_Result.htm" />
@@ -27919,6 +28048,7 @@
     <HelpKINode Title="DiscriminatedInterfaceSerializer(TInterface).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DiscriminatedInterfaceSerializer_1_Serialize.htm" />
     <HelpKINode Title="DiscriminatedWrapperSerializer(TValue).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DiscriminatedWrapperSerializer_1_Serialize.htm" />
     <HelpKINode Title="DoubleSerializer.Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DoubleSerializer_Serialize.htm" />
+    <HelpKINode Title="DowncastingSerializer(TBase, TDerived).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_Serialize.htm" />
     <HelpKINode Title="DynamicDocumentBaseSerializer(T).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DynamicDocumentBaseSerializer_1_Serialize.htm" />
     <HelpKINode Title="ElementAppendingSerializer(TDocument).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ElementAppendingSerializer_1_Serialize.htm" />
     <HelpKINode Title="EnumerableSerializerBase(TValue).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumerableSerializerBase_1_Serialize.htm" />
@@ -27951,6 +28081,14 @@
     <HelpKINode Title="UInt32Serializer.Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt32Serializer_Serialize.htm" />
     <HelpKINode Title="UInt64Serializer.Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_Serialize.htm" />
     <HelpKINode Title="UndiscriminatedActualTypeSerializer(TValue).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_UndiscriminatedActualTypeSerializer_1_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Serialize.htm" />
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest).Serialize Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Serialize.htm" />
   </HelpKINode>
   <HelpKINode Title="SerializeAsNominalType property" Url="html/P_MongoDB_Bson_Serialization_BsonSerializationArgs_SerializeAsNominalType.htm" />
   <HelpKINode Title="SerializeAsNominalTypeSerializer(Of TActualType, TNominalType) class">
@@ -29471,13 +29609,13 @@
     <HelpKINode Title="ReplaceOutputSerializerPipelineDefinition(TInput, TIntermediate, TOutput).Stages Property " Url="html/P_MongoDB_Driver_ReplaceOutputSerializerPipelineDefinition_3_Stages.htm" />
   </HelpKINode>
   <HelpKINode Title="Stale enumeration member" Url="html/T_MongoDB_Driver_Core_Events_ConnectionClosedReason.htm" />
-  <HelpKINode Title="StandAlone enumeration member" Url="html/T_MongoDB_Driver_MongoServerInstanceType.htm" />
   <HelpKINode Title="Standalone enumeration member">
     <HelpKINode Title="ClusterConnectionMode Enumeration" Url="html/T_MongoDB_Driver_Core_Clusters_ClusterConnectionMode.htm" />
     <HelpKINode Title="ClusterType Enumeration" Url="html/T_MongoDB_Driver_Core_Clusters_ClusterType.htm" />
     <HelpKINode Title="ConnectionMode Enumeration" Url="html/T_MongoDB_Driver_ConnectionMode.htm" />
     <HelpKINode Title="ServerType Enumeration" Url="html/T_MongoDB_Driver_Core_Servers_ServerType.htm" />
   </HelpKINode>
+  <HelpKINode Title="StandAlone enumeration member" Url="html/T_MongoDB_Driver_MongoServerInstanceType.htm" />
   <HelpKINode Title="Standard enumeration member" Url="html/T_MongoDB_Bson_GuidRepresentation.htm" />
   <HelpKINode Title="StandardDeviationPopulation method">
     <HelpKINode Title="ISetWindowFieldsPartitionExtensions.StandardDeviationPopulation Method " Url="html/Overload_MongoDB_Driver_Linq_ISetWindowFieldsPartitionExtensions_StandardDeviationPopulation.htm" />
@@ -30645,6 +30783,7 @@
     <HelpKINode Title="DictionarySerializerBase(TDictionary).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DictionarySerializerBase_1_TryGetMemberSerializationInfo.htm" />
     <HelpKINode Title="DictionarySerializerBase(TDictionary, TKey, TValue).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DictionarySerializerBase_3_TryGetMemberSerializationInfo.htm" />
     <HelpKINode Title="DiscriminatedInterfaceSerializer(TInterface).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DiscriminatedInterfaceSerializer_1_TryGetMemberSerializationInfo.htm" />
+    <HelpKINode Title="DowncastingSerializer(TBase, TDerived).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_DowncastingSerializer_2_TryGetMemberSerializationInfo.htm" />
     <HelpKINode Title="IBsonDocumentSerializer.TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_IBsonDocumentSerializer_TryGetMemberSerializationInfo.htm" />
     <HelpKINode Title="ImpliedImplementationInterfaceSerializer(TInterface, TImplementation).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_ImpliedImplementationInterfaceSerializer_2_TryGetMemberSerializationInfo.htm" />
     <HelpKINode Title="KeyValuePairSerializer(TKey, TValue).TryGetMemberSerializationInfo Method " Url="html/M_MongoDB_Bson_Serialization_Serializers_KeyValuePairSerializer_2_TryGetMemberSerializationInfo.htm" />
@@ -30676,10 +30815,15 @@
     <HelpKINode Title="SemanticVersion.TryParse Method " Url="html/M_MongoDB_Driver_Core_Misc_SemanticVersion_TryParse.htm" />
   </HelpKINode>
   <HelpKINode Title="TryParseHexString method" Url="html/M_MongoDB_Bson_BsonUtils_TryParseHexString.htm" />
+  <HelpKINode Title="TryParseItemName method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_TryParseItemName.htm" />
   <HelpKINode Title="TryRegisterClassMap method" Url="html/Overload_MongoDB_Bson_Serialization_BsonClassMap_TryRegisterClassMap.htm" />
   <HelpKINode Title="TryRegisterSerializer method">
     <HelpKINode Title="BsonSerializer.TryRegisterSerializer Method " Url="html/Overload_MongoDB_Bson_Serialization_BsonSerializer_TryRegisterSerializer.htm" />
     <HelpKINode Title="BsonSerializerRegistry.TryRegisterSerializer Method " Url="html/M_MongoDB_Bson_Serialization_BsonSerializerRegistry_TryRegisterSerializer.htm" />
+  </HelpKINode>
+  <HelpKINode Title="TupleSerializer class">
+    <HelpKINode Title="TupleSerializer Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1) class">
     <HelpKINode Title="TupleSerializer(T1) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1.htm" />
@@ -30688,6 +30832,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1).SerializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_SerializeValue.htm" />
   <HelpKINode Title="TupleSerializer(Of T1).TupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1__ctor.htm" />
@@ -30698,6 +30843,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2).SerializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_SerializeValue.htm" />
@@ -30709,6 +30855,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item3Serializer.htm" />
@@ -30721,6 +30868,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item3Serializer.htm" />
@@ -30734,6 +30882,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item3Serializer.htm" />
@@ -30748,6 +30897,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item3Serializer.htm" />
@@ -30763,6 +30913,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item3Serializer.htm" />
@@ -30779,6 +30930,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item3Serializer.htm" />
@@ -30789,6 +30941,8 @@
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).RestSerializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_RestSerializer.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).SerializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_SerializeValue.htm" />
   <HelpKINode Title="TupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).TupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8__ctor.htm" />
+  <HelpKINode Title="TupleSerializer.Create method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_Create.htm" />
+  <HelpKINode Title="TupleSerializer.TryParseItemName method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_TryParseItemName.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt; class">
     <HelpKINode Title="TupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8.htm" />
     <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8__ctor.htm" />
@@ -30796,6 +30950,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_8_Item3Serializer.htm" />
@@ -30813,6 +30968,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_7_Item3Serializer.htm" />
@@ -30829,6 +30985,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_6_Item3Serializer.htm" />
@@ -30844,6 +31001,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_5_Item3Serializer.htm" />
@@ -30858,6 +31016,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3, T4&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_4_Item3Serializer.htm" />
@@ -30871,6 +31030,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2, T3&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2, T3&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_3_Item3Serializer.htm" />
@@ -30883,6 +31043,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1, T2&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1, T2&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_Item2Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1, T2&gt;.SerializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_2_SerializeValue.htm" />
@@ -30894,6 +31055,7 @@
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1.htm" />
   </HelpKINode>
   <HelpKINode Title="TupleSerializer&lt;T1&gt;.DeserializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_DeserializeValue.htm" />
+  <HelpKINode Title="TupleSerializer&lt;T1&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_GetItemSerializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_Item1Serializer.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1&gt;.SerializeValue method" Url="html/M_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1_SerializeValue.htm" />
   <HelpKINode Title="TupleSerializer&lt;T1&gt;.TupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_TupleSerializer_1__ctor.htm" />
@@ -31072,16 +31234,16 @@
   <HelpKINode Title="UInt64Serializer.WithConverter method" Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_WithConverter.htm" />
   <HelpKINode Title="UInt64Serializer.WithRepresentation method" Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_WithRepresentation.htm" />
   <HelpKINode Title="Unacknowledged class">
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_BulkWriteResult_1_Unacknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Unacknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_DeleteResult_Unacknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
   </HelpKINode>
   <HelpKINode Title="Unacknowledged property" Url="html/P_MongoDB_Driver_WriteConcern_Unacknowledged.htm" />
   <HelpKINode Title="Unbounded property">
@@ -32004,6 +32166,243 @@
     <HelpKINode Title="NullableSerializer(T).ValueSerializer Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_NullableSerializer_1_ValueSerializer.htm" />
     <HelpKINode Title="RenderedFieldDefinition(TField).ValueSerializer Property " Url="html/P_MongoDB_Driver_RenderedFieldDefinition_1_ValueSerializer.htm" />
   </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer class">
+    <HelpKINode Title="ValueTupleSerializer Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1) class">
+    <HelpKINode Title="ValueTupleSerializer(T1) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Item7Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item7Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest) class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Item7Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item7Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).RestSerializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_RestSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer(Of T1, T2, T3, T4, T5, T6, T7, TRest).ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer.Create method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_Create.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7, TRest) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Item7Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Item7Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.RestSerializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_RestSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_8__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6, T7) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Item7Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item7Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5, T6) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Item6Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Item6Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_6__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4, T5) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Item5Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Item5Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_5__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3, T4) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Item4Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Item4Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3, T4&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_4__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2, T3) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.Item3Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Item3Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2, T3&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_3__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1, T2) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.Item2Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Item2Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1, T2&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_2__ctor.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt; class">
+    <HelpKINode Title="ValueTupleSerializer(T1) Class" Url="html/T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt;.Deserialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Deserialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt;.GetItemSerializer method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_GetItemSerializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt;.Item1Serializer property" Url="html/P_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Item1Serializer.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1_Serialize.htm" />
+  <HelpKINode Title="ValueTupleSerializer&lt;T1&gt;.ValueTupleSerializer constructor" Url="html/Overload_MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_1__ctor.htm" />
   <HelpKINode Title="ValueType property">
     <HelpKINode Title="ElementAppendingSerializer(TDocument).ValueType Property " Url="html/P_MongoDB_Bson_Serialization_Serializers_ElementAppendingSerializer_1_ValueType.htm" />
     <HelpKINode Title="IBsonSerializer.ValueType Property " Url="html/P_MongoDB_Bson_Serialization_IBsonSerializer_ValueType.htm" />
@@ -32062,22 +32461,22 @@
     <HelpKINode Title="ExpressionFormatter.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitConditional.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConditional.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConditional.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitConstant method">
     <HelpKINode Title="ExpressionFormatter.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitConstant.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitConstant.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConstant.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConstant.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConstant.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConstant.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitElementInit method">
     <HelpKINode Title="ExpressionFormatter.VisitElementInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitElementInit.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitElementInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitElementInit.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitElementInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInit.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitElementInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitElementInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitElementInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitElementInit.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitElementInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitElementInit.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitElementInitList method">
     <HelpKINode Title="ExpressionFormatter.VisitElementInitList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitElementInitList.htm" />
@@ -32126,22 +32525,22 @@
     <HelpKINode Title="ExpressionFormatter.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberBinding.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBinding.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBinding.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberBindingList method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBindingList.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBindingList.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberInit method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberInit.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberInit.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberInit.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberInit.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberInit.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberListBinding method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberListBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberListBinding.htm" />
@@ -32175,8 +32574,8 @@
     <HelpKINode Title="ExpressionFormatter.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitNewArray.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitNewArray.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNewArray.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNewArray.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNewArray.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNewArray.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitParameter method">
     <HelpKINode Title="CreatorMapDelegateCompiler.VisitParameter Method " Url="html/M_MongoDB_Bson_Serialization_CreatorMapDelegateCompiler_VisitParameter.htm" />
@@ -32191,8 +32590,8 @@
     <HelpKINode Title="ExpressionFormatter.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitTypeBinary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitTypeBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitUnary method">
     <HelpKINode Title="ExpressionFormatter.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitUnary.htm" />
