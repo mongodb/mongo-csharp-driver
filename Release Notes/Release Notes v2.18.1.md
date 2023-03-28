@@ -2,10 +2,6 @@
 
 This is a patch release that addresses some issues reported since 2.18.0 was released.
 
-The main new features in 2.18.1 include:
-
-* TODO
-
 An online version of these release notes is available at:
 
 https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.18.1.md
