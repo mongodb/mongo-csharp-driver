@@ -14,11 +14,6 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 
 namespace MongoDB.Bson.Serialization.IdGenerators
@@ -30,40 +25,23 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     /// as the storage representation.
     /// Internally the GUID is of the form
     /// 8 bytes: Ticks from DateTime.UtcNow.Ticks
-    /// 3 bytes: hash of machine name
-    /// 2 bytes: low order bytes of process Id
+    /// 5 bytes: Random value from ObjectId spec
     /// 3 bytes: increment
     /// </summary>
     public class AscendingGuidGenerator : IIdGenerator
     {
         // private static fields
         private static readonly AscendingGuidGenerator __instance = new AscendingGuidGenerator();
-        private static readonly byte[] __machineProcessId;
+        private static readonly byte[] __random;
         private static int __increment;
 
         // static constructor
         static AscendingGuidGenerator()
         {
-            var machineHash = GetMachineHash();
-            short processId;
-            try
-            {
-                // use low order two bytes only
-                processId = (short)GetCurrentProcessId();
-            }
-            catch (SecurityException)
-            {
-                processId = 0;
-            }
-
-            __machineProcessId = new byte[5]
-            {
-                machineHash[0],
-                machineHash[1],
-                machineHash[2],
-                (byte)(processId >> 8),
-                (byte)(processId)
-            };
+            var random = ObjectId.CalculateRandomValue();
+            var random8Bytes = BitConverter.GetBytes(random);
+            __random = new byte[5];
+            Array.Copy(random8Bytes, __random, 5); // the 5 bytes we need are the first 5 bytes assuming little-endian
         }
 
         // public static properties
@@ -89,7 +67,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         public object GenerateId(object container, object document)
         {
             var increment = Interlocked.Increment(ref __increment) & 0x00ffffff;
-            return GenerateId(DateTime.UtcNow.Ticks, __machineProcessId, increment);
+            return GenerateId(DateTime.UtcNow.Ticks, __random, increment);
         }
 
         /// <summary>
@@ -109,11 +87,14 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             byte[] machineProcessId,
             int increment)
         {
+            if (machineProcessId == null) { throw new ArgumentNullException(nameof(machineProcessId)); }
+            if (machineProcessId.Length != 5) { throw new ArgumentException($"{nameof(machineProcessId)} argument must be exactly 5 bytes", nameof(machineProcessId)); }
+            var random5Bytes = machineProcessId; // changing the parameter name could be considered a breaking change
             var a = (int)(tickCount >> 32);
             var b = (short)(tickCount >> 16);
             var c = (short)(tickCount);
             var d = new byte[8];
-            Array.Copy(machineProcessId, d, 5);
+            Array.Copy(random5Bytes, d, 5);
             d[5] = (byte)(increment >> 16);
             d[6] = (byte)(increment >> 8);
             d[7] = (byte)(increment);
@@ -128,33 +109,6 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         public bool IsEmpty(object id)
         {
             return id == null || (Guid)id == Guid.Empty;
-        }
-
-        // private static methods
-        /// <summary>
-        /// Gets the current process id.  This method exists because of how
-        /// CAS operates on the call stack, checking for permissions before
-        /// executing the method.  Hence, if we inlined this call, the calling
-        /// method would not execute before throwing an exception requiring the
-        /// try/catch at an even higher level that we don't necessarily control.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static int GetCurrentProcessId()
-        {
-            return Process.GetCurrentProcess().Id;
-        }
-
-        private static byte[] GetMachineHash()
-        {
-            // use instead of Dns.HostName so it will work offline
-            var machineName = GetMachineName();
-            var sha1 = SHA1.Create();
-            return sha1.ComputeHash(Encoding.UTF8.GetBytes(machineName));
-        }
-
-        private static string GetMachineName()
-        {
-            return Environment.MachineName;
         }
     }
 }
