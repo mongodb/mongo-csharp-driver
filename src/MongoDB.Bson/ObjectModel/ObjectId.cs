@@ -16,7 +16,6 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Security;
 using System.Threading;
 
 namespace MongoDB.Bson
@@ -385,17 +384,22 @@ namespace MongoDB.Bson
             increment = (bytes[9] << 16) + (bytes[10] << 8) + bytes[11];
         }
 
-        // private static methods
-        private static long CalculateRandomValue()
+        // internal static methods
+        internal static long CalculateRandomValue()
         {
+#if NET472_OR_GREATER
             var seed = (int)DateTime.UtcNow.Ticks ^ GetMachineHash() ^ GetPid();
             var random = new Random(seed);
+#else
+            var random = new Random();
+#endif
             var high = random.Next();
             var low = random.Next();
             var combined = (long)((ulong)(uint)high << 32 | (ulong)(uint)low);
             return combined & 0xffffffffff; // low order 5 bytes
         }
 
+        // private static methods
         private static ObjectId Create(int timestamp, long random, int increment)
         {
             if (random < 0 || random > 0xffffffffff)
@@ -421,7 +425,8 @@ namespace MongoDB.Bson
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static int GetCurrentProcessId()
         {
-            return Process.GetCurrentProcess().Id;
+            using var process = Process.GetCurrentProcess();
+            return process.Id;
         }
 
         private static int GetMachineHash()
@@ -433,7 +438,14 @@ namespace MongoDB.Bson
 
         private static string GetMachineName()
         {
-            return Environment.MachineName;
+            try
+            {
+                return Environment.MachineName;
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         private static short GetPid()
@@ -442,7 +454,7 @@ namespace MongoDB.Bson
             {
                 return (short)GetCurrentProcessId(); // use low order two bytes only
             }
-            catch (SecurityException)
+            catch
             {
                 return 0;
             }
