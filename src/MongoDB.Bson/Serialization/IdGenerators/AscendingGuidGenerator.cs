@@ -32,13 +32,16 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     {
         // private static fields
         private static readonly AscendingGuidGenerator __instance = new AscendingGuidGenerator();
-        private static readonly byte[] __machineProcessId;
+        private static readonly byte[] __random;
         private static int __increment;
 
         // static constructor
         static AscendingGuidGenerator()
         {
-            __machineProcessId = BitConverter.GetBytes(ObjectId.CalculateRandomValue());
+            var random = ObjectId.CalculateRandomValue();
+            var random8Bytes = BitConverter.GetBytes(random);
+            __random = new byte[5];
+            Array.Copy(random8Bytes, __random, 5); // the 5 bytes we need are the first 5 bytes assuming little-endian
         }
 
         // public static properties
@@ -64,7 +67,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         public object GenerateId(object container, object document)
         {
             var increment = Interlocked.Increment(ref __increment) & 0x00ffffff;
-            return GenerateId(DateTime.UtcNow.Ticks, __machineProcessId, increment);
+            return GenerateId(DateTime.UtcNow.Ticks, __random, increment);
         }
 
         /// <summary>
@@ -84,11 +87,14 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             byte[] machineProcessId,
             int increment)
         {
+            if (machineProcessId == null) { throw new ArgumentNullException(nameof(machineProcessId)); }
+            if (machineProcessId.Length != 5) { throw new ArgumentException($"{nameof(machineProcessId)} argument must be exactly 5 bytes", nameof(machineProcessId)); }
+            var random5Bytes = machineProcessId; // changing the parameter name could be considered a breaking change
             var a = (int)(tickCount >> 32);
             var b = (short)(tickCount >> 16);
             var c = (short)(tickCount);
             var d = new byte[8];
-            Array.Copy(machineProcessId, d, 5);
+            Array.Copy(random5Bytes, d, 5);
             d[5] = (byte)(increment >> 16);
             d[6] = (byte)(increment >> 8);
             d[7] = (byte)(increment);
