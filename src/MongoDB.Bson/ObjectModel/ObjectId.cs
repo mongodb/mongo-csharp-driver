@@ -387,7 +387,7 @@ namespace MongoDB.Bson
         // internal static methods
         internal static long CalculateRandomValue()
         {
-#if NET472
+#if NET472_OR_GREATER
             var seed = (int)DateTime.UtcNow.Ticks ^ GetMachineHash() ^ GetPid();
             var random = new Random(seed);
 #else
