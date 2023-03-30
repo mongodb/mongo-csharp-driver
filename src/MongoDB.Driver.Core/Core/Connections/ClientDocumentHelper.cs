@@ -98,12 +98,13 @@ namespace MongoDB.Driver.Core.Connections
 
             var name = GetName();
 
-            if (name != null &&
-                TryGetTimeoutSec(name, out var timeout) &&
-                TryGetMemoryMb(name, out var memoryDb) &&
-                TryGetRegion(name, out var region) &&
-                TryGetUrl(name, out var url))
+            if (name != null)
             {
+                var timeout = GetTimeoutSec(name);
+                var memoryDb = GetMemoryMb(name);
+                var region = GetRegion(name);
+                var url = GetUrl(name);
+
                 return new BsonDocument
                 {
                     { "name", name },
@@ -148,58 +149,39 @@ namespace MongoDB.Driver.Core.Connections
                 return result;
             }
 
-            bool TryGetRegion(string name, out string output)
-            {
-                var value = name switch
+            string GetRegion(string name) =>
+                name switch
                 {
-                    awsLambdaName => GetStringValue("AWS_REGION"),
-                    gcpFuncName => GetStringValue("FUNCTION_REGION"),
-                    vercelName => GetStringValue("VERCEL_REGION"),
-                    _ => (null, Valid: true),
+                    awsLambdaName => Environment.GetEnvironmentVariable("AWS_REGION"),
+                    gcpFuncName => Environment.GetEnvironmentVariable("FUNCTION_REGION"),
+                    vercelName => Environment.GetEnvironmentVariable("VERCEL_REGION"),
+                    _ => null
                 };
-                output = value.Value;
-                return value.Valid;
-            }
 
-            bool TryGetMemoryMb(string name, out int? output)
+            int? GetMemoryMb(string name) =>
+                name switch
             {
-                var value = name switch
-                {
-                    awsLambdaName => GetIntValue("AWS_LAMBDA_FUNCTION_MEMORY_SIZE"),
-                    gcpFuncName => GetIntValue("FUNCTION_MEMORY_MB"),
-                    _ => (null, Valid: true),
-                };
-                output = value.Value;
-                return value.Valid;
-            }
+                awsLambdaName => GetIntValue("AWS_LAMBDA_FUNCTION_MEMORY_SIZE"),
+                gcpFuncName => GetIntValue("FUNCTION_MEMORY_MB"),
+                _ => null,
+            };
 
-            bool TryGetTimeoutSec(string name, out int? output)
-            {
-                var value = name switch
+            int? GetTimeoutSec(string name) =>
+                name switch
                 {
                     gcpFuncName => GetIntValue("FUNCTION_TIMEOUT_SEC"),
-                    _ => (null, Valid: true),
+                    _ => null,
                 };
-                output = value.Value;
-                return value.Valid;
-            }
 
-            bool TryGetUrl(string name, out string output)
-            {
-                var value = name switch
+            string GetUrl(string name) =>
+                name switch
                 {
-                    vercelName => GetStringValue("VERCEL_URL"),
-                    _ => (null, Valid: true),
+                    vercelName => Environment.GetEnvironmentVariable("VERCEL_URL"),
+                    _ => null
                 };
-                output = value.Value;
-                return value.Valid;
-            }
 
-            (string Value, bool Valid) GetStringValue(string environmentVariable) =>
-                (Environment.GetEnvironmentVariable(environmentVariable), Valid: true);
-
-            (int? Value, bool Valid) GetIntValue(string environmentVariable) =>
-                int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? (value, Valid: true) : (null, Valid: true);
+            int? GetIntValue(string environmentVariable) =>
+                int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
         }
 
         internal static BsonDocument CreateOSDocument()
