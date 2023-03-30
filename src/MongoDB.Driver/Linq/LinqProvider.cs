@@ -23,12 +23,14 @@ namespace MongoDB.Driver.Linq
     public enum LinqProvider
     {
         /// <summary>
-        /// The LINQ provider that was first shipped with version 2.0 of the driver,
+        /// The LINQ provider that was first shipped with version 2.0 of the driver. The V3 LINQ provider is now the default,
+        /// but you can still select the V2 provider by configuring it in MongoClientSettings. The V2 LINQ provider is no
+        /// longer being actively maintained and will eventually be removed.
         /// </summary>
         V2 = 2,
 
         /// <summary>
-        /// The LINQ provider that is planned to be the default in version 3.0 of the driver and can be optionally used before that.
+        /// The current LINQ provider. The V3 LINQ provider is now the default LINQ provider.
         /// </summary>
         V3 = 3
     }
