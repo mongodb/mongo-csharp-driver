@@ -128,9 +128,10 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_acquire_connectionId_from_hello_response([Values(false, true)] bool async)
+        public void InitializeConnection_should_acquire_connectionId_from_hello_response([Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId, [Values(false, true)] bool async)
         {
-            var helloResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
+            var helloResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueCommandResponseMessage(helloResponse);
@@ -140,15 +141,15 @@ namespace MongoDB.Driver.Core.Connections
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(1);
-            result.ConnectionId.LongServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.ShouldBeEquivalentTo(serverConnectionId);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response([Values(false, true)] bool async)
+        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response([Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId, [Values(false, true)] bool async)
         {
-            var legacyHelloReply = MessageHelper.BuildReply(
-                RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
+            var legacyHelloReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(legacyHelloReply);
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(1);
-            result.ConnectionId.LongServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.ShouldBeEquivalentTo(serverConnectionId);
         }
 
         [Theory]

@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, int serverValue)
+        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, long serverValue)
         {
             var connectionId = description.ConnectionId.WithServerValue(serverValue);
             description = description.WithConnectionId(connectionId);
