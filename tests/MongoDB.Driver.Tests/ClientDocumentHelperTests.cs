@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -52,6 +53,8 @@ namespace MongoDB.Driver.Tests
             string environmentVariableDescription,
             [Values(false, true)] bool async)
         {
+            RequireServer.Check().Authentication(authentication: false); // speculaive authentication makes events asserting hard
+
             ClientDocumentHelperReflector.Initialize();
 
             var environmentVariableDescriptionDocument = BsonDocument.Parse(environmentVariableDescription);
