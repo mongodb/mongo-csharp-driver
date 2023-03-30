@@ -47,15 +47,19 @@ namespace MongoDB.Driver.Core.Connections
                 "{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.1' }")]
             string osDocumentString,
             [Values("net45", "net46")]
-            string platformString)
+            string platformString,
+            [Values(null, "aws.lambda", "versel")]
+            string env)
         {
             var driverDocument = BsonDocument.Parse(driverDocumentString);
             var osDocument = BsonDocument.Parse(osDocumentString);
 
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, null);
+            var envDocument = env != null ? new BsonDocument("name", env) : null;
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
-            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}' }}";
+            var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
+            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}'{envElement} }}";
             result.Should().Be(expectedResult);
         }
 
