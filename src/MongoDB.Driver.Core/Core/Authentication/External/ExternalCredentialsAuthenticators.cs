@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 
@@ -26,7 +25,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         IExternalAuthenticationCredentialsProvider<OidcCredentials> AwsForOidc { get; }
         IExternalAuthenticationCredentialsProvider<AzureCredentials> Azure { get; }
         IExternalAuthenticationCredentialsProvider<GcpCredentials> Gcp { get; }
-        IOidcExternalAuthenticationCredentialsProvider GetOidcProvider(OidcInputConfiguration inputConfiguration);
+        IOidcProvidersCache Oidc { get; }
     }
 
     internal sealed class ExternalCredentialsAuthenticators : IExternalCredentialsAuthenticators
@@ -37,14 +36,13 @@ namespace MongoDB.Driver.Core.Authentication.External
         public static ExternalCredentialsAuthenticators Instance => __instance.Value;
         #endregion
 
-        private readonly IClock _clock;
         private readonly IHttpClientWrapper _httpClientWrapper;
 
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>> _awsExternalAuthenticationCredentialsProvider;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<OidcCredentials>> _awsForOidcExternalAuthenticationCredentialsProvider;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>> _azureExternalAuthenticationCredentialsProvider;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>> _gcpExternalAuthenticationCredentialsProvider;
-        private readonly Lazy<ConcurrentDictionary<OidcCacheKey, IOidcExternalAuthenticationCredentialsProvider>> _oidcAuthenticationCredentialsProviderCache;
+        private readonly Lazy<IOidcProvidersCache> _oidcProvidersCache;
 
         internal ExternalCredentialsAuthenticators() : this(new HttpClientWrapper(), SystemClock.Instance, EnvironmentVariableProvider.Instance)
         {
@@ -52,13 +50,13 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         internal ExternalCredentialsAuthenticators(IHttpClientWrapper httpClientWrapper, IClock clock, IEnvironmentVariableProvider environmentVariableProvider)
         {
-            _clock = Ensure.IsNotNull(clock, nameof(clock));
+            Ensure.IsNotNull(clock, nameof(clock));
             _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
             _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new AwsAuthenticationCredentialsProvider(), isThreadSafe: true);
             _awsForOidcExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<OidcCredentials>>(() => FileOidcExternalAuthenticationCredentialsProvider.CreateProviderFromPathInEnvironmentVariableIfConfigured("AWS_WEB_IDENTITY_TOKEN_FILE", environmentVariableProvider), isThreadSafe: true);
             _azureExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>>(() => new CacheableCredentialsProvider<AzureCredentials>(new AzureAuthenticationCredentialsProvider(_httpClientWrapper)), isThreadSafe: true);
             _gcpExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>>(() => new GcpAuthenticationCredentialsProvider(_httpClientWrapper), isThreadSafe: true);
-            _oidcAuthenticationCredentialsProviderCache = new Lazy<ConcurrentDictionary<OidcCacheKey, IOidcExternalAuthenticationCredentialsProvider>>(() => new(), isThreadSafe: true);
+            _oidcProvidersCache = new Lazy<IOidcProvidersCache>(() => new OidcProvidersCache(clock), isThreadSafe: true);
         }
 
         // public properties
@@ -66,24 +64,9 @@ namespace MongoDB.Driver.Core.Authentication.External
         public IExternalAuthenticationCredentialsProvider<OidcCredentials> AwsForOidc => _awsForOidcExternalAuthenticationCredentialsProvider.Value;
         public IExternalAuthenticationCredentialsProvider<AzureCredentials> Azure => _azureExternalAuthenticationCredentialsProvider.Value;
         public IExternalAuthenticationCredentialsProvider<GcpCredentials> Gcp => _gcpExternalAuthenticationCredentialsProvider.Value;
+        public IOidcProvidersCache Oidc => _oidcProvidersCache.Value;
 
-        // public methods
-        public IOidcExternalAuthenticationCredentialsProvider GetOidcProvider(OidcInputConfiguration inputConfiguration)
-        {
-            var cacheStorage = _oidcAuthenticationCredentialsProviderCache.Value;
-
-            OidcCacheKey.RemoveInvalidRecords(cacheStorage);
-
-            return cacheStorage.AddOrUpdate(
-                new OidcCacheKey(inputConfiguration, _clock),
-                addValueFactory: (key) => new OidcExternalAuthenticationCredentialsProvider(key.OidcInputConfiguration, _clock),
-                updateValueFactory: (key, cached) =>
-                {
-                    key.TrackUsage();
-                    return cached;
-                });
-        }
-
+        // internal properties
         internal IHttpClientWrapper HttpClientWrapper => _httpClientWrapper;
     }
 }

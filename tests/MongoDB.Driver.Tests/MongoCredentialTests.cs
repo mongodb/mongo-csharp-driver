@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Core.TestHelpers.Authentication;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -65,17 +66,12 @@ namespace MongoDB.Driver.Tests
             var refreshTokenSyncDocument = new BsonDocument("refreshSync", 1);
             var refreshTokenAsyncDocument = new BsonDocument("refreshAsync", 1);
             RequestCallback requestFunc = (a, b, ct) => requestTokenSyncDocument;
-            RequestCallbackAsync requestAsyncFunc = (a, b, ct) => Task.FromResult(requestTokenAsyncDocument);
             RefreshCallback refreshFunc = (a, b, c, ct) => refreshTokenSyncDocument;
-            RefreshCallbackAsync refreshAsyncFunc = (a, b, c, ct) => Task.FromResult(refreshTokenAsyncDocument);
 
             var credential = MongoCredential.CreateOidcCredential(
-                principalName,
-                providerName,
-                requestTokenFunc: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? requestFunc : null,
-                requestTokenAsyncFunc: !onlySyncCallback.GetValueOrDefault() ? requestAsyncFunc : null,
-                refreshTokenFunc: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? refreshFunc : null,
-                refreshTokenAsyncFunc: !onlySyncCallback.GetValueOrDefault() ? refreshAsyncFunc : null);
+                requestCallbackProvider: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? new RequestCallbackProvider(requestFunc) : null,
+                refreshCallbackProvider: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? new RefreshCallbackProvider(refreshFunc) : null,
+                principalName);
 
             credential.Mechanism.Should().Be("MONGODB-OIDC");
             credential.Username.Should().Be(principalName);

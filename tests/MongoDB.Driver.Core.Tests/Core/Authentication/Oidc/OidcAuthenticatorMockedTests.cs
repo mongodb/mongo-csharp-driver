@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
             if (withExpiredOidcCredentials)
             {
-                clock.UtcNow += OidcCredentials.OverlapWhereExpiredTime + TimeSpan.FromMilliseconds(1);
+                clock.UtcNow += OidcCredentials.ExpirationWindow + TimeSpan.FromMilliseconds(1);
             }
 
             // attempt 3
@@ -375,9 +375,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             var authenticators = ExternalCredentialsAuthenticators.Instance;
             var clock = FrozenClock.FreezeUtcNow();
 
-            var lazyCache = OidcTestHelper.GetOidcProvidersCache<ExternalCredentialsAuthenticators, OidcCacheKey, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
-
-            lazyCache.IsValueCreated.Should().BeFalse();
 
             var authenticator = MongoOidcAuthenticator.CreateAuthenticator(
                 source: "$external",
@@ -387,10 +384,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators);  // no mocking
 
-            lazyCache.IsValueCreated.Should().BeTrue();
-            lazyCache.Value.ToList()
+            var lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            lazyCache.ToList()
                 .Should().ContainSingle()
-                .Which.Key.OidcInputConfiguration.PrincipalName
+                .Which.Key.PrincipalName
                 .Should().Be(PrincipalName);
 
             var exception = await Authenticate(
@@ -410,9 +407,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators); // no mocking
 
+            lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
             lazyCache
-                .Value.ToList()
-                .Should().ContainSingle().Which.Key.OidcInputConfiguration.PrincipalName
+                .ToList()
+                .Should().ContainSingle().Which.Key.PrincipalName
                 .Should().Be(PrincipalName);
 
             exception = await Authenticate(
@@ -438,9 +436,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators);  // no mocking
 
-            var expectedCachedRecords = lazyCache.Value.ToList().Should().HaveCount(2).And.Subject;
-            expectedCachedRecords.Select(r => r.Key.OidcInputConfiguration.PrincipalName).Should().Contain(new[] { PrincipalName, isPrincipalNameDifferent ? PrincipalName2 : PrincipalName });
-            expectedCachedRecords.Select(r => r.Key.OidcInputConfiguration.EndPoint).Should().Contain(new[] { __serverId.EndPoint, isPrincipalNameDifferent ? __serverId.EndPoint : __endpoint2 });
+            lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            var expectedCachedRecords = lazyCache.ToList().Should().HaveCount(2).And.Subject;
+            expectedCachedRecords.Select(r => r.Key.PrincipalName).Should().Contain(new[] { PrincipalName, isPrincipalNameDifferent ? PrincipalName2 : PrincipalName });
+            expectedCachedRecords.Select(r => r.Key.EndPoint).Should().Contain(new[] { __serverId.EndPoint, isPrincipalNameDifferent ? __serverId.EndPoint : __endpoint2 });
 
             exception = await Authenticate(
                 authenticator,
@@ -1026,10 +1025,17 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                         }
 
                         externalCredentialsAuthenticatorsMock
-                            .Setup(c => c.GetOidcProvider(It.IsAny<OidcInputConfiguration>()))
-                            .Returns((OidcInputConfiguration ic) =>
+                            .SetupGet(c => c.Oidc)
+                            .Returns(() =>
                             {
-                                return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock);
+                                var mockedCache = new Mock<IOidcProvidersCache>();
+                                mockedCache
+                                    .Setup(c => c.GetProvider(It.IsAny<OidcInputConfiguration>()))
+                                    .Returns((OidcInputConfiguration ic) =>
+                                    {
+                                        return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock);
+                                    });
+                                return mockedCache.Object;
                             });
 
                         verifyDeviceProviderCalls = (expectedCount) =>

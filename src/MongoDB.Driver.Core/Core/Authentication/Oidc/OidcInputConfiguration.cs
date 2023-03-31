@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Net;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -65,11 +64,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             var rhs = (OidcInputConfiguration)obj;
             return
                 // This class is used as an oidc cache key for a callback workflow.
-                _providerName == rhs._providerName&&
-                EndPointHelper.Equals(_endpoint, rhs._endpoint) &&
+                _providerName == rhs._providerName &&
+                _principalName == rhs._principalName &&
                 object.Equals(_requestCallbackProvider, rhs._requestCallbackProvider) &&
                 object.Equals(_refreshCallbackProvider, rhs._refreshCallbackProvider) &&
-                _principalName == rhs._principalName; 
+                EndPointHelper.Equals(_endpoint, rhs._endpoint);
         }
 
         private void EnsureOptionsValid()

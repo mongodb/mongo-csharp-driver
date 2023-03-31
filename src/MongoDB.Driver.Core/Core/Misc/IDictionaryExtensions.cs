@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Driver.Core
@@ -24,6 +25,24 @@ namespace MongoDB.Driver.Core
             foreach (var p in values)
             {
                 dictionary.Add(p);
+            }
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key,
+            Func<TValue> addValueFactory,
+            Func<TValue, TValue> updateValueFactory = null)
+        {
+            if (dictionary.TryGetValue(key, out var value))
+            {
+                return updateValueFactory != null ? updateValueFactory(value) : value;
+            }
+            else
+            {
+                value = addValueFactory();
+                dictionary.Add(key, value);
+                return value;
             }
         }
     }

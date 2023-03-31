@@ -14,7 +14,9 @@
 */
 
 using System.IO;
+#if !NETSTANDARD2_1_OR_GREATER
 using System.Text;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication.External;

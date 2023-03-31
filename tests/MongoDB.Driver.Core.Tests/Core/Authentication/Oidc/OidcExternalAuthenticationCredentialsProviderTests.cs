@@ -97,19 +97,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         {
             var endpoint = new DnsEndPoint("localhost", 27017);
 
-            RequestCallbackProvider requestCallbackProvider = null;
-            RefreshCallbackProvider refreshCallbackProvider = null;
+            IRequestCallbackProvider requestCallbackProvider = null;
+            IRefreshCallbackProvider refreshCallbackProvider = null;
             if (withRefreshCallback)
             {
-                var requestCallbackFunc = OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false, accessToken: "token");
-                requestCallbackProvider = new RequestCallbackProvider(requestCallbackFunc, null);
-                var refreshCallbackFunc = OidcTestHelper.CreateRefreshCallback(callbackCalled: (a, b, c, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
-                refreshCallbackProvider = new RefreshCallbackProvider(refreshCallbackFunc, null);
+                requestCallbackProvider = OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false, accessToken: "token");
+                refreshCallbackProvider = OidcTestHelper.CreateRefreshCallback(callbackCalled: (a, b, c, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
             }
             else
             {
-                var requestCallbackFunc = OidcTestHelper.CreateRequestCallback(callbackCalled: (a, b, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
-                requestCallbackProvider = new RequestCallbackProvider(requestCallbackFunc, null);
+                requestCallbackProvider = OidcTestHelper.CreateRequestCallback(callbackCalled: (a, b, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
             }
             var oidcInputConfiguration = new OidcInputConfiguration(endpoint, requestCallbackProvider: requestCallbackProvider, refreshCallbackProvider: refreshCallbackProvider);
             var provider = new OidcExternalAuthenticationCredentialsProvider(oidcInputConfiguration, clock);

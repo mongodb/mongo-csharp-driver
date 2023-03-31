@@ -55,19 +55,19 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     {
         #region static
         /// <summary>
-        /// Gets the name of a device name authorization property.
+        /// Provider name mechanism authorization property.
         /// </summary>
         public const string ProviderName = "PROVIDER_NAME";
         /// <summary>
-        /// Gets the name of the mechanism.
+        /// Mechanism name authorization property.
         /// </summary>
         public const string MechanismName = "MONGODB-OIDC";
         /// <summary>
-        /// Gets the name of a request callback authorization property.
+        /// Request callback mechanism authorization property.
         /// </summary>
         public const string RequestCallbackName = "REQUEST_TOKEN_CALLBACK";
         /// <summary>
-        /// Gets the name of a refresh callback authorization property.
+        /// Refresh callback mechanism authorization property.
         /// </summary>
         public const string RefreshCallbackName = "REFRESH_TOKEN_CALLBACK";
 
@@ -94,13 +94,14 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             IEnumerable<KeyValuePair<string, string>> properties,
             EndPoint endpoint,
             ServerApi serverApi,
-            IExternalCredentialsAuthenticators externalCredentialsAuthenticators)
-        {
-            var convertedProperties = properties
-              .Select(p => new KeyValuePair<string, object>(p.Key, p.Value))
-              .ToDictionary(k => k.Key, v => v.Value);
-            return CreateAuthenticator(source, principalName, convertedProperties, endpoint, serverApi, externalCredentialsAuthenticators);
-        }
+            IExternalCredentialsAuthenticators externalCredentialsAuthenticators) =>
+        CreateAuthenticator(
+            source,
+            principalName,
+            properties.Select(pair => new KeyValuePair<string, object>(pair.Key, pair.Value)),
+            endpoint,
+            serverApi,
+            externalCredentialsAuthenticators);
 
         /// <summary>
         /// Create OIDC authenticator.
@@ -140,8 +141,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             OidcSaslMechanism mechanism;
             if (inputConfiguration.IsCallbackWorkflow)
             {
-                var oidscredentialsProvider = externalCredentialsAuthenticators.GetOidcProvider(inputConfiguration);
-                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidscredentialsProvider);
+                var oidsCredentialsProvider = externalCredentialsAuthenticators.Oidc.GetProvider(inputConfiguration);
+                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider);
             }
             else
             {
@@ -162,52 +163,39 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 string principalName,
                 IEnumerable<KeyValuePair<string, object>> properties)
             {
-                if (properties != null)
+                if (properties == null)
                 {
-                    string providerName = null;
-                    IRequestCallbackProvider requestCallbackProvider = null;
-                    IRefreshCallbackProvider refreshCallbackProvider = null;
-                    foreach (var authorizationProperty in properties)
-                    {
-                        switch (authorizationProperty.Key)
-                        {
-                            case RequestCallbackName:
-                                {
-                                    if (authorizationProperty.Value is IRequestCallbackProvider request)
-                                    {
-                                        requestCallbackProvider = request;
-                                    }
-                                    else
-                                    {
-                                        var requestTokenFunc = authorizationProperty.Value as RequestCallback;
-                                        var requestTokenAsyncFunc = authorizationProperty.Value as RequestCallbackAsync;
-                                        requestCallbackProvider = new RequestCallbackProvider(requestTokenFunc, requestTokenAsyncFunc);
-                                    }
-                                }
-                                break;
-                            case RefreshCallbackName:
-                                {
-                                    if (authorizationProperty.Value is IRefreshCallbackProvider refresh)
-                                    {
-                                        refreshCallbackProvider = refresh;
-                                    }
-                                    else
-                                    {
-                                        var refreshTokenFunc = authorizationProperty.Value as RefreshCallback;
-                                        var refreshTokenAsyncFunc = authorizationProperty.Value as RefreshCallbackAsync;
-                                        refreshCallbackProvider = new RefreshCallbackProvider(refreshTokenFunc, refreshTokenAsyncFunc);
-                                    }
-                                }
-                                break;
-                            case ProviderName: providerName = authorizationProperty.Value.ToString(); break;
-                            default: throw new ArgumentException($"Unknown OIDC property '{authorizationProperty.Key}'.", nameof(authorizationProperty));
-                        }
-                    }
-
-                    return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider);
+                    return new OidcInputConfiguration(endpoint, principalName);
                 }
 
-                return new OidcInputConfiguration(endpoint, principalName);
+                string providerName = null;
+                IRequestCallbackProvider requestCallbackProvider = null;
+                IRefreshCallbackProvider refreshCallbackProvider = null;
+                foreach (var authorizationProperty in properties)
+                {
+                    var value = authorizationProperty.Value;
+                    switch (authorizationProperty.Key)
+                    {
+                        case RequestCallbackName:
+                            {
+                                requestCallbackProvider = value is IRequestCallbackProvider requestProvider
+                                    ? requestProvider
+                                    : throw new InvalidCastException($"The OIDC request callback must be inherited from {nameof(IRequestCallbackProvider)}, but was {value.GetType().FullName}.");
+                            }
+                            break;
+                        case RefreshCallbackName:
+                            {
+                                refreshCallbackProvider = value is IRefreshCallbackProvider refreshProvider
+                                    ? refreshProvider
+                                    : throw new InvalidCastException($"The OIDC refresh callback must be inherited from {nameof(IRefreshCallbackProvider)}, but was {value.GetType().FullName}.");
+                            }
+                            break;
+                        case ProviderName: providerName = value.ToString(); break;
+                        default: throw new ArgumentException($"Unknown OIDC property '{authorizationProperty.Key}'.", nameof(authorizationProperty));
+                    }
+                }
+
+                return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider);
             }
         }
         #endregion

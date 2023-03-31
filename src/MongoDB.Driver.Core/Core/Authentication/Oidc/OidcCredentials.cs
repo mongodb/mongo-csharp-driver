@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     {
         #region static
         private const string AccessTokenFieldName = "accessToken";
-        public static readonly TimeSpan OverlapWhereExpiredTime = TimeSpan.FromMinutes(5);
+        public static readonly TimeSpan ExpirationWindow = TimeSpan.FromMinutes(5);
 
         public static OidcCredentials Create(BsonDocument callbackAuthenticationData, BsonDocument saslServerResponse, IClock clock) =>
             new OidcCredentials(Ensure.IsNotNull(callbackAuthenticationData, nameof(callbackAuthenticationData)), Ensure.IsNotNull(saslServerResponse, nameof(saslServerResponse)), Ensure.IsNotNull(clock, nameof(clock)));
@@ -47,17 +47,28 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             _expiration = _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
             _serverResponse = serverResponse; // can be null
 
-            static BsonDocument EnsureAuthenticationDataValid(BsonDocument callbackAuthenticationData) =>
-                callbackAuthenticationData.Contains(AccessTokenFieldName)
-                    ? callbackAuthenticationData
-                    : throw new InvalidOperationException("The provided OIDC credentials must contain 'accessToken'.");
+            static BsonDocument EnsureAuthenticationDataValid(BsonDocument callbackAuthenticationData)
+            {
+                bool withAccessToken = false;
+                foreach (var item in callbackAuthenticationData)
+                {
+                    switch (item.Name)
+                    {
+                        case AccessTokenFieldName: withAccessToken = true; break;
+                        case "expiresInSeconds":
+                        case "refreshToken": /*optional fields, do nothing*/ break;
+                        default: throw new InvalidOperationException($"The provided OIDC credentials contain unsupported key: '{item.Name}'.");
+                    }
+                }
+                return withAccessToken ? callbackAuthenticationData : throw new InvalidOperationException($"The provided OIDC credentials must contain '{AccessTokenFieldName}'.");
+            }
         }
 
         public string AccessToken => _accessToken;
         public BsonDocument CallbackAuthenticationData => _callbackAuthenticationData;
         public DateTime? Expiration => _expiration;
         public BsonDocument ServerResponse => _serverResponse;
-        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < OverlapWhereExpiredTime : true;
+        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true;
 
         public void Expire() => _expiration = null;
         public BsonDocument GetKmsCredentials() =>

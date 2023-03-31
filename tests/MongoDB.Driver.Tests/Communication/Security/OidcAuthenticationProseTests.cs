@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var settings = MongoClientSettings.FromConnectionString(connectionString);
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: settings.Credential.Username),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: settings.Credential.Username),
                 principalName: settings.Credential.Username);
 
             await TestCase(async, settings);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             if (providerName == null)
             {
                 settings.Credential = MongoCredential.CreateOidcCredential(
-                    requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: settings.Credential.Username),
+                    requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: settings.Credential.Username),
                     principalName: settings.Credential.Username);
             }
             else
@@ -149,14 +149,14 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             settings.Credential = invalidState switch
             {
-                "invalidSyncRequest" => MongoCredential.CreateOidcCredential(requestTokenFunc: (a, b, ct) => InvalidDocument()),
-                "invalidAsyncRequest" => MongoCredential.CreateOidcCredential(requestTokenAsyncFunc: (a, b, ct) => Task.FromResult(InvalidDocument())),
-                "invalidSyncRefresh" => MongoCredential.CreateOidcCredential(requestTokenFunc: (a, b, ct) => validJwtToken, refreshTokenFunc: (a, b, c, ct) => InvalidDocument()),
-                "invalidAsyncRefresh" => MongoCredential.CreateOidcCredential(requestTokenFunc: (a, b, ct) => validJwtToken, refreshTokenAsyncFunc: (a, b, c, ct) => Task.FromResult(InvalidDocument())),
+                "invalidSyncRequest" => MongoCredential.CreateOidcCredential(requestCallbackProvider: new RequestCallbackProvider((a, b, ct) => InvalidDocument())),
+                "invalidAsyncRequest" => MongoCredential.CreateOidcCredential(requestCallbackProvider: new RequestCallbackProvider(requestCallbackFunc: null, (a, b, ct) => Task.FromResult(InvalidDocument()))),
+                "invalidSyncRefresh" => MongoCredential.CreateOidcCredential(requestCallbackProvider: new RequestCallbackProvider((a, b, ct) => validJwtToken), refreshCallbackProvider: new RefreshCallbackProvider((a, b, c, ct) => InvalidDocument())),
+                "invalidAsyncRefresh" => MongoCredential.CreateOidcCredential(requestCallbackProvider: new RequestCallbackProvider((a, b, ct) => validJwtToken), refreshCallbackProvider: new RefreshCallbackProvider(refreshCallbackFunc: null, refreshCallbackAsyncFunc: (a, b, c, ct) => Task.FromResult(InvalidDocument()))),
                 null => MongoCredential.CreateOidcCredential(
                     // the callbacks must also include an unexpected key in the result to confirm that it is ignored.
-                    requestTokenFunc: OidcTestHelper.CreateRequestCallback(invalidResponseDocument: true, validateInput: true, validateToken: true, accessToken: accessToken, expireInSeconds: 60, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                    refreshTokenFunc: OidcTestHelper.CreateRefreshCallback(invalidResponseDocument: true, validateInput: true, validateToken: true, accessToken: accessToken, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++)),
+                    requestCallbackProvider: OidcTestHelper.CreateRequestCallback(validateInput: true, validateToken: true, accessToken: accessToken, expireInSeconds: 60, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                    refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(validateInput: true, validateToken: true, accessToken: accessToken, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++)),
                 _ => throw new Exception($"Unexpected invalid state: {invalidState}."),
             };
             var exception = await Record.ExceptionAsync(() => TestCase(async, settings));
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                         exception
                             .Should().Match<Exception>(e => e is MongoConnectionException || e is InvalidOperationException).And.Subject.As<Exception>().InnerException
                             .Should().Match<Exception>(e => isNullResponse ? e is ArgumentNullException : e is InvalidOperationException).And.Subject.As<Exception>().Message
-                            .Should().Match<string>(m => m.Contains(isNullResponse ? "Value cannot be null" : "The provided OIDC credentials contain unsupported key: dummy."));
+                            .Should().Match<string>(m => m.Contains(isNullResponse ? "Value cannot be null" : "The provided OIDC credentials contain unsupported key: 'dummy'."));
                     }
                     break;
                 case var state when state.EndsWith("Refresh"):
@@ -193,13 +193,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
                         var requestCallback = settings.Credential.GetMechanismProperty<IRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null);
                         requestCallback.Should().NotBeNull();
-                        var provider = OidcTestHelper.GetOidcProvider<ExternalCredentialsAuthenticators, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
-                        provider.CachedCredentials.Expire();
+                        var credentials = GetCachedCredentials();
+                        credentials.Expire();
                         exception = await Record.ExceptionAsync(() => TestCase(async, settings));
                         exception
                             .Should().Match<Exception>(e => e is MongoConnectionException || e is InvalidOperationException).And.Subject.As<Exception>().InnerException
                             .Should().Match<Exception>(e => isNullResponse ? e is ArgumentNullException : e is InvalidOperationException).And.Subject.As<Exception>().Message
-                            .Should().Match<string>(m => m.Contains(isNullResponse ? "Value cannot be null" : "The provided OIDC credentials contain unsupported key: dummy."));
+                            .Should().Match<string>(m => m.Contains(isNullResponse ? "Value cannot be null" : "The provided OIDC credentials contain unsupported key: 'dummy'."));
                     }
                     break;
                 default: throw new Exception($"Unexpected state {invalidState}.");
@@ -225,8 +225,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             // 1. Cache with refresh.
             // Create a new client with a request callback that gives credentials that expire in on minute.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: 60, callbackCalled: (a,b,ct) => requestCallbackCalls++),
-                refreshTokenFunc: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: 60, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: 60, callbackCalled: (a,b,ct) => requestCallbackCalls++),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: 60, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
                 principalName: settings.Credential.Username);
             var client = await TestCase(async, settings, keepClientAlive: true);
 
@@ -250,8 +250,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             // Create a new client with a request callback that gives credentials that expire in one minute.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expireInSeconds: 60, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: null);
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expireInSeconds: 60, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: null);
 
             await TestCase(async, settings);
             // Ensure that a ``find`` operation adds credentials to the cache.
@@ -260,8 +260,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 0);
 
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: null);
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: null);
             await TestCase(async, settings);
             // Ensure that a ``find`` operation results in a call to the request callback.
             ValidateCallbacks(expectedRequestCallbackCalls: 2, expectedRefreshCallbackCalls: 0);
@@ -273,23 +273,24 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             //  Create a new client with a request callback that does not give an ```expiresInSeconds``` value.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: null, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: null,
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: null, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: null,
                 principalName: settings.Credential.Username);
             await TestCase(async, settings);
             // - Ensure that a ``find`` operation adds credentials to the cache.
             validCredentials = GetCachedCredentials();
             validCredentials.AccessToken.Should().Be(tokenContent);
-            var cache = OidcTestHelper.GetOidcProvidersCache<ExternalCredentialsAuthenticators, OidcCacheKey, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
-            cache.Value.Count.Should().Be(1);
+            var cache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, OidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            cache.Should().HaveCount(1);
 
             // Create a new client with a different request callback.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: null,
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: null,
                 principalName: settings.Credential.Username);
             await TestCase(async, settings);
-            cache.Value.Count.Should().Be(2);
+            cache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, OidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            cache.Count.Should().Be(2);
 
             requestCallbackCalls = 0;
             refreshCallbackCalls = 0;
@@ -301,8 +302,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             // refresh callback that gives invalid credentials.
             // that expire within 5 minutes and a refresh callback that gives invalid credentials.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: (int)TimeSpan.FromMinutes(5).TotalSeconds - 1, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: OidcTestHelper.CreateRefreshCallback(validateInput: false, accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, invalidResponseDocument: true, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, expireInSeconds: (int)TimeSpan.FromMinutes(5).TotalSeconds - 1, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(validateInput: false, accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, invalidResponseDocument: true, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
                 principalName: settings.Credential.Username);
             client = await TestCase(async, settings, keepClientAlive: true);
 
@@ -316,7 +317,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             exception
                 .Should().BeOfType<MongoConnectionException>().Which.InnerException
                 .Should().BeOfType<InvalidOperationException>().Which.Message
-                .Should().Contain("The provided OIDC credentials contain unsupported key: invalidField.");
+                .Should().Contain("The provided OIDC credentials contain unsupported key: 'invalidField'.");
 
             // Ensure that the cached token has been cleared.
             cachedCredentials = GetCachedCredentials();
@@ -326,8 +327,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             settings.Credential = MongoCredential.CreateOidcCredential(providerName: "aws");
             await TestCase(async, settings);
             // #. Ensure that a ``find`` operation does not add credentials to the cache.
-            cache = OidcTestHelper.GetOidcProvidersCache<ExternalCredentialsAuthenticators, OidcCacheKey, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
-            cache.Value.Any(c => c.Key.OidcInputConfiguration.ProviderName!= null).Should().BeFalse();
+            cache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, OidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            cache.Any(c => c.Key.ProviderName!= null).Should().BeFalse();
 
             void ValidateCallbacks(int expectedRequestCallbackCalls, int expectedRefreshCallbackCalls)
             {
@@ -357,8 +358,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             // 1. Succeeds
             // #. Create request and refresh callbacks that return valid credentials that will not expire soon.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, ct) => requestCallbackCalls++),
-                refreshTokenFunc: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
                 principalName: settings.Credential.Username);
 
             // #. Create a client with the callbacks and an event listener capable
@@ -455,7 +456,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             // #. Create a client with a request callback that returns a valid token that will not expire soon.
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username),
                 principalName: settings.Credential.Username);
 
             // # Set a fail point for ``saslStart`` commands of the form:
@@ -511,8 +512,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var connectionString = GetConnectionString(port, principalName);
             var settings = MongoClientSettings.FromConnectionString(connectionString);
             settings.Credential = MongoCredential.CreateOidcCredential(
-                requestTokenFunc: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: principalName, expireInSeconds: tokenExpiredInSeconds, validateToken: false),
-                refreshTokenFunc: OidcTestHelper.CreateRefreshCallback(accessToken: GetTokenPath(tokenName, allowExpired: false), expectedPrincipalName: principalName, expireInSeconds: tokenExpiredInSeconds, validateToken: false),
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(tokenName), expectedPrincipalName: principalName, expireInSeconds: tokenExpiredInSeconds, validateToken: false),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(accessToken: GetTokenPath(tokenName, allowExpired: false), expectedPrincipalName: principalName, expireInSeconds: tokenExpiredInSeconds, validateToken: false),
                 principalName: principalName);
 
             await TestCase(async, settings, expirationDate);
@@ -631,7 +632,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
         private OidcCredentials GetCachedCredentials() =>
             OidcTestHelper
-                .GetOidcProvider<ExternalCredentialsAuthenticators, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance)
+                .GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance)
+                .Single()
+                .Value
                 .CachedCredentials;
 
         private string GetTokenPath(string tokenName, bool allowExpired = true)
