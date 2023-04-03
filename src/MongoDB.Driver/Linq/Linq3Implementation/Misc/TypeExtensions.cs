@@ -216,6 +216,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
         {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+            {
+                idictionaryGenericInterface = type;
+                return true;
+            }
+
             foreach (var interfaceType in type.GetInterfaces())
             {
                 if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
