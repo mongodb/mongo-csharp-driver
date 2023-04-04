@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
-                    var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.PrincipalName, saslStartResponse, _cancellationToken));
+                    var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken));
                     var clientResponse = RunCallbackOrThrow(task);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
-                    var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.PrincipalName, saslStartResponse, _cancellationToken));
+                    var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken));
                     var clientResponse = await RunAsyncCallbackOrThrow(task).ConfigureAwait(false);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
-                    var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(_inputConfiguration.PrincipalName, saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken));
+                    var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken));
                     var clientResponse = RunCallbackOrThrow(task);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
-                    var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(_inputConfiguration.PrincipalName, saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken));
+                    var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken));
                     var clientResponse = await RunAsyncCallbackOrThrow(task).ConfigureAwait(false);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }

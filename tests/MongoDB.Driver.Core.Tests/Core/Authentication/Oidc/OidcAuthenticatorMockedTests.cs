@@ -60,11 +60,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         private static readonly OidcCredentials __awsForOidcCredentials;
         private static readonly AzureCredentials __azureCredentials;
         private static readonly CollectionNamespace __collectionNamespace;
-        private static readonly GcpCredentials __gcpCredentials;
-        private static readonly OidcCredentials __oidcCredentials;
         private static readonly ConnectionDescription __descriptionCommandWireProtocol;
         private static readonly EndPoint __endpoint2;
-        private static readonly BsonDocument __initialResponseSaslStartForCallbackWorkflow;
+        private static readonly GcpCredentials __gcpCredentials;
+        private static readonly BsonDocument __initialSaslStartResponseForCallbackWorkflow;
+        private static readonly OidcCredentials __oidcCredentials;
         private static readonly ServerId __serverId;
 
         // static constructor
@@ -86,14 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
                     .Add("maxWireVersion", WireVersion.Server70)));
 
-            __initialResponseSaslStartForCallbackWorkflow = new BsonDocument
+            __initialSaslStartResponseForCallbackWorkflow = new BsonDocument
             {
-                { "authorizationEndpoint", "https://corp.mongodb.com/oauth2/v1/authorize" },
-                { "tokenEndpoint", "https://corp.mongodb.com/oauth2/v1/token" },
-                { "deviceAuthorizationEndpoint", "https://corp.mongodb.com" },
                 { "clientId", "clientIdValue" },
-                { "clientSecret", "clientSecretValue" },
-                { "requestScopes", "requestScopes" }
+                { "requestScopes", "requestScopes" },
+                { "issuer", "issuer" }
             };
 
             // aws device workflow relies on file reading to get oidc token
@@ -112,87 +109,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             var exception = Record.Exception(() => MongoOidcAuthenticator.CreateAuthenticator("$external", principalName: "name", new KeyValuePair<string, string>[0], endPoint: null, serverApi: null));
 
             exception.Should().BeOfType<ArgumentNullException>().Which.Message.Should().Contain("endpoint");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Authenticate_with_callbacks_should_allow_only_single_thread_save_access_to_callback_calls(
-            [Values(false, true)] bool async)
-        {
-            var timeout = TimeSpan.FromSeconds(5);
-            var requestCallbackCall = new TaskCompletionSource<bool>();
-            int requestCallback1HasBeenCalled = 0;
-            int requestCallback1HasBeenFinished = 0;
-
-            var properties = CreateAuthorizationProperties(
-                withRequestCallback: true,
-                withRefreshCallback: true,
-                providerName: null,
-                requestCallbackCalled:
-                    (a, b, ct) =>
-                    {
-                        requestCallback1HasBeenCalled++;
-                        requestCallbackCall.Task.WaitOrThrow(timeout);
-                        requestCallback1HasBeenFinished++;
-                    });
-
-            using var mockConnection1 = CreateConnection();
-
-            var clock = FrozenClock.FreezeUtcNow();
-            var externalAuthenticators = ExternalCredentialsAuthenticators.Instance;
-
-            var authenticator = MongoOidcAuthenticator.CreateAuthenticator(
-                source: "$external",
-                principalName: PrincipalName,
-                properties,
-                __serverId.EndPoint,
-                serverApi: null,
-                externalAuthenticators);
-
-            // attempt 1
-            var thread1 = new Thread(
-                async () => await Authenticate(
-                    authenticator,
-                    mockConnection1,
-                    async,
-                    onlySaslStart: false))
-            {
-                IsBackground = true
-            };
-            thread1.Start();
-
-            SpinWait.SpinUntil(() => requestCallback1HasBeenCalled > 0, timeout).Should().BeTrue();
-            requestCallback1HasBeenCalled.Should().Be(1); // only first callback is in progress
-            requestCallback1HasBeenFinished.Should().Be(0); // the first callback is not finished
-
-            using var mockConnection2 = CreateConnection();
-
-            var thread2 = new Thread(
-                async () => await Authenticate(
-                authenticator,
-                mockConnection2,
-                async,
-                onlySaslStart: false))
-            {
-                IsBackground = true
-            };
-            thread2.Start();
-
-            SpinWait.SpinUntil(() => mockConnection2.GetSentMessages().Count > 0, timeout).Should().BeTrue(); // ensure step 1 is sent
-            Thread.Sleep(50);
-
-            requestCallback1HasBeenCalled.Should().Be(1); // still no more calls
-            requestCallback1HasBeenFinished.Should().Be(0); // still no more calls
-
-            requestCallbackCall.TrySetResult(true); // release waiting in request 1
-
-            SpinWait
-                .SpinUntil(
-                    () =>
-                        thread1.ThreadState == ThreadState.Stopped &&
-                        thread2.ThreadState == ThreadState.Stopped,
-                    timeout)
-                .Should().BeTrue(); // ensure all works as expected
         }
 
         [Theory]
@@ -384,7 +300,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators);  // no mocking
 
-            var lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            var lazyCache = GetCacheDictionary();
             lazyCache.ToList()
                 .Should().ContainSingle()
                 .Which.Key.PrincipalName
@@ -407,7 +323,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators); // no mocking
 
-            lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            lazyCache = GetCacheDictionary();
             lazyCache
                 .ToList()
                 .Should().ContainSingle().Which.Key.PrincipalName
@@ -436,7 +352,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 serverApi: null,
                 authenticators);  // no mocking
 
-            lazyCache = OidcTestHelper.GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, IOidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
+            lazyCache = GetCacheDictionary();
             var expectedCachedRecords = lazyCache.ToList().Should().HaveCount(2).And.Subject;
             expectedCachedRecords.Select(r => r.Key.PrincipalName).Should().Contain(new[] { PrincipalName, isPrincipalNameDifferent ? PrincipalName2 : PrincipalName });
             expectedCachedRecords.Select(r => r.Key.EndPoint).Should().Contain(new[] { __serverId.EndPoint, isPrincipalNameDifferent ? __serverId.EndPoint : __endpoint2 });
@@ -834,7 +750,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                             {{
                                 conversationId : 1,
                                 done : false,
-                                payload : BinData(0, ""{Convert.ToBase64String(__initialResponseSaslStartForCallbackWorkflow.ToBson())}""),
+                                payload : BinData(0, ""{Convert.ToBase64String(__initialSaslStartResponseForCallbackWorkflow.ToBson())}""),
                                 ok : 1
                             }}",
 
@@ -896,7 +812,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     OidcTestHelper.CreateRequestCallback(
                         validateToken: false,
                         accessToken: RequestAccessToken,
-                        expectedSaslResponseDocument: __initialResponseSaslStartForCallbackWorkflow,
+                        expectedSaslResponseDocument: __initialSaslStartResponseForCallbackWorkflow,
                         callbackCalled: requestCallbackCalled));
             }
             if (withRefreshCallback)
@@ -906,7 +822,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     OidcTestHelper.CreateRefreshCallback(
                         validateToken: false,
                         accessToken: RefreshAccessToken,
-                        expectedSaslResponseDocument: __initialResponseSaslStartForCallbackWorkflow,
+                        expectedSaslResponseDocument: __initialSaslStartResponseForCallbackWorkflow,
                         callbackCalled: refreshCallbackCalled));
             };
             if (providerName != null)
@@ -1132,6 +1048,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 .Which
                 .Document;
         }
+
+        private Dictionary<OidcInputConfiguration, OidcExternalAuthenticationCredentialsProvider> GetCacheDictionary() =>
+            OidcTestHelper
+                .GetCachedOidcProviders<ExternalCredentialsAuthenticators, OidcInputConfiguration, OidcExternalAuthenticationCredentialsProvider>(ExternalCredentialsAuthenticators.Instance);
 
         private async Task RunFindOperation(IConnectionHandle connection, bool async)
         {

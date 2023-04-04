@@ -14,7 +14,10 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -35,7 +38,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             IRequestCallbackProvider requestCallbackProvider = null,
             IRefreshCallbackProvider refreshCallbackProvider = null)
         {
-            _endpoint = Ensure.IsNotNull(endpoint, nameof(endpoint));
+            _endpoint = Ensure.IsNotNull(endpoint, nameof(endpoint)); // can be null
             _providerName = providerName; // can be null
             _principalName = principalName; // can be null
             _requestCallbackProvider = requestCallbackProvider; // can be null
@@ -50,6 +53,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public string ProviderName => _providerName;
         public IRequestCallbackProvider RequestCallbackProvider => _requestCallbackProvider;
         public IRefreshCallbackProvider RefreshCallbackProvider => _refreshCallbackProvider;
+
+        // public methods
+        public OidcClientInfo CreateClientInfo() => new OidcClientInfo(_principalName);
 
         public override int GetHashCode() =>
             new Hasher()

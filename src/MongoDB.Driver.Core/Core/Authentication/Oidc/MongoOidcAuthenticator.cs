@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -55,6 +56,10 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     {
         #region static
         /// <summary>
+        /// Allowed hosts mechanism authorization property.
+        /// </summary>
+        public const string AllowedHostsName = "ALLOWED_HOSTS";
+        /// <summary>
         /// Provider name mechanism authorization property.
         /// </summary>
         public const string ProviderName = "PROVIDER_NAME";
@@ -70,6 +75,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// Refresh callback mechanism authorization property.
         /// </summary>
         public const string RefreshCallbackName = "REFRESH_TOKEN_CALLBACK";
+
+        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost" };
 
         /// <summary>
         /// Create OIDC authenticator.
@@ -168,6 +175,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     return new OidcInputConfiguration(endpoint, principalName);
                 }
 
+                IEnumerable<string> allowedHostNames = DefaultAllowedHostNames;
                 string providerName = null;
                 IRequestCallbackProvider requestCallbackProvider = null;
                 IRefreshCallbackProvider refreshCallbackProvider = null;
@@ -176,26 +184,63 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     var value = authorizationProperty.Value;
                     switch (authorizationProperty.Key)
                     {
+                        case AllowedHostsName:
+                            {
+                                allowedHostNames = value is IEnumerable<string> enumerable
+                                    ? enumerable
+                                    : throw new InvalidCastException($"The {AllowedHostsName} must be array, but was {value.GetType()}.");
+                            }
+                            break;
                         case RequestCallbackName:
                             {
                                 requestCallbackProvider = value is IRequestCallbackProvider requestProvider
                                     ? requestProvider
-                                    : throw new InvalidCastException($"The OIDC request callback must be inherited from {nameof(IRequestCallbackProvider)}, but was {value.GetType().FullName}.");
+                                    : throw new InvalidCastException($"The {RequestCallbackName} must be inherited from {nameof(IRequestCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
                         case RefreshCallbackName:
                             {
                                 refreshCallbackProvider = value is IRefreshCallbackProvider refreshProvider
                                     ? refreshProvider
-                                    : throw new InvalidCastException($"The OIDC refresh callback must be inherited from {nameof(IRefreshCallbackProvider)}, but was {value.GetType().FullName}.");
+                                    : throw new InvalidCastException($"The {RefreshCallbackName} must be inherited from {nameof(IRefreshCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
-                        case ProviderName: providerName = value.ToString(); break;
+                        case ProviderName:
+                            {
+                                providerName = value is string @string
+                                    ? @string
+                                    : throw new InvalidCastException($"The {ProviderName} must be string, but was {value.GetType()}.");
+                            }
+                            break;
                         default: throw new ArgumentException($"Unknown OIDC property '{authorizationProperty.Key}'.", nameof(authorizationProperty));
                     }
                 }
 
+                EnsureHostsAreValid(endpoint, allowedHostNames);
                 return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider);
+            }
+
+            static IEnumerable<string> EnsureHostsAreValid(EndPoint endPoint, IEnumerable<string> allowedHosts)
+            {
+                var allowedHostsCount = Ensure.IsNotNull(allowedHosts, nameof(allowedHosts)).Count();
+                if (allowedHostsCount == 0)
+                {
+                    throw new InvalidOperationException($"{nameof(AllowedHostsName)} mechanism authentication property must contain at least one host.");
+                }
+
+                var host = EndPointHelper.GetHostAndPort(endPoint).Host;
+                if (allowedHosts.Any(ah => IsHostMatch(host, ah)))
+                {
+                    return allowedHosts;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"The used host '{host}' doesn't match allowed hosts list ['{string.Join("', '" , allowedHosts)}'].");
+                }
+
+                static bool IsHostMatch(string host, string pattern) =>
+                    pattern != null &&
+                    new Regex($"^{Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".")}$", RegexOptions.Singleline).IsMatch(host);
             }
         }
         #endregion

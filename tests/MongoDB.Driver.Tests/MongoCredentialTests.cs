@@ -81,12 +81,12 @@ namespace MongoDB.Driver.Tests
             var dummyDocument = new BsonDocument();
             var requestProvider = credential.GetMechanismProperty<IRequestCallbackProvider>(MongoOidcAuthenticator.RequestCallbackName, defaultValue: null)
                 .Should().BeOfType<RequestCallbackProvider>().Subject;
-            requestProvider.GetTokenResult(principalName, dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: true, isSync: true));
-            requestProvider.GetTokenResultAsync(principalName, dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: true, isSync: false));
+            requestProvider.GetTokenResult(new OidcClientInfo(principalName), dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: true, isSync: true));
+            requestProvider.GetTokenResultAsync(new OidcClientInfo(principalName), dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: true, isSync: false));
             var refreshProvider = credential.GetMechanismProperty<IRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null)
                 .Should().BeOfType<RefreshCallbackProvider>().Subject;
-            refreshProvider.GetTokenResult(principalName, dummyDocument, dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: false, isSync: true));
-            refreshProvider.GetTokenResultAsync(principalName, dummyDocument, dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: false, isSync: false));
+            refreshProvider.GetTokenResult(new OidcClientInfo(principalName), dummyDocument, dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: false, isSync: true));
+            refreshProvider.GetTokenResultAsync(new OidcClientInfo(principalName), dummyDocument, dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: false, isSync: false));
 
             BsonDocument GetExpectedDocument(bool isRequest, bool isSync)
             {

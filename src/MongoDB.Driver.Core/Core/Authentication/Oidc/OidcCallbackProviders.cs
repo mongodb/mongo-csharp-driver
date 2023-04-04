@@ -20,6 +20,26 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
     /// <summary>
+    /// Oidc client info.
+    /// </summary>
+    public sealed class OidcClientInfo
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OidcClientInfo" /> class.
+        /// </summary>
+        /// <param name="principalName">The principal name.</param>
+        public OidcClientInfo(string principalName)
+        {
+            PrincipalName = principalName;
+        }
+
+        /// <summary>
+        /// The principal name.
+        /// </summary>
+        public string PrincipalName { get; }
+    }
+
+    /// <summary>
     /// Represents OIDC request callback provider.
     /// </summary>
     public interface IRequestCallbackProvider
@@ -27,20 +47,20 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <summary>
         /// Get OIDC request token.
         /// </summary>
-        /// <param name="principalName">The principal name.</param>
+        /// <param name="clientInfo">The client info.</param>
         /// <param name="saslResponse">The server sasl response.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        BsonDocument GetTokenResult(string principalName, BsonDocument saslResponse, CancellationToken cancellationToken);
+        BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get OIDC request token.
         /// </summary>
-        /// <param name="principalName">The principal name.</param>
+        /// <param name="clientInfo">The client info.</param>
         /// <param name="saslResponse">The server sasl response.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        Task<BsonDocument> GetTokenResultAsync(string principalName, BsonDocument saslResponse, CancellationToken cancellationToken);
+        Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -51,21 +71,21 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <summary>
         /// Get OIDC refresh token.
         /// </summary>
-        /// <param name="principalName">The principal name.</param>
+        /// <param name="clientInfo">The client info.</param>
         /// <param name="saslResponse">The server sasl response.</param>
         /// <param name="previousCallbackAuthenticationData">The previous callback authentication data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        BsonDocument GetTokenResult(string principalName, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+        BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get OIDC refresh token.
         /// </summary>
-        /// <param name="principalName">The principal name.</param>
+        /// <param name="clientInfo">The client info.</param>
         /// <param name="saslResponse">The server sasl response.</param>
         /// <param name="previousCallbackAuthenticationData">The previous callback authentication data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        Task<BsonDocument> GetTokenResultAsync(string principalName, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+        Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
     }
 }
