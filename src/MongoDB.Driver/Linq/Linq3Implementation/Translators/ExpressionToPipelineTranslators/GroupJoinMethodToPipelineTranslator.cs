@@ -38,10 +38,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var outerExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, outerExpression);
+
+                AstExpression outerAst;
+                var rootVar = AstExpression.Var("ROOT", isCurrent: true);
                 var outerSerializer = pipeline.OutputSerializer;
+                if (outerSerializer is IWrappedValueSerializer wrappedSerializer)
+                {
+                    outerAst = AstExpression.GetField(rootVar, wrappedSerializer.FieldName);
+                    outerSerializer = wrappedSerializer.ValueSerializer;
+                }
+                else
+                {
+                    outerAst = rootVar;
+                }
 
                 var wrapOuterStage = AstStage.Project(
-                    AstProject.Set("_outer", AstExpression.Var("ROOT")),
+                    AstProject.Set("_outer", outerAst),
                     AstProject.ExcludeId());
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
