@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -31,8 +32,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var classMap = CreateClassMap(expression.Type);
 
             var newExpression = expression.NewExpression;
-            var constructorParameters = newExpression.Constructor.GetParameters();
+            var constructorInfo = newExpression.Constructor;
+            var constructorParameters = constructorInfo.GetParameters();
             var constructorArguments = newExpression.Arguments;
+            var memberNames = new string[constructorParameters.Length];
             for (var i = 0; i < constructorParameters.Length; i++)
             {
                 var constructorParameter = constructorParameters[i];
@@ -43,6 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, argumentTranslation.Ast));
 
                 memberMap.SetSerializer(argumentTranslation.Serializer);
+                memberNames[i] = memberMap.MemberName;
             }
 
             foreach (var binding in expression.Bindings)
@@ -60,6 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var ast = AstExpression.ComputedDocument(computedFields);
 
+            classMap.MapConstructor(constructorInfo, memberNames);
             classMap.Freeze();
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);

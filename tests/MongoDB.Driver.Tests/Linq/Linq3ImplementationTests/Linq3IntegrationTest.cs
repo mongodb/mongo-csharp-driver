@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
@@ -162,8 +163,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
             IMongoCollection<TDocument> collection,
+            IFindFluent<TDocument, TProjection> find)
+        {
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
+            return TranslateFindProjection(collection, find, linqProvider);
+        }
+
+        protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
+            IMongoCollection<TDocument> collection,
             IFindFluent<TDocument, TProjection> find,
-            LinqProvider linqProvider = LinqProvider.V3)
+            LinqProvider linqProvider)
         {
             var findOptions = ((FindFluent<TDocument, TProjection>)find).Options;
             var projection = findOptions.Projection;
