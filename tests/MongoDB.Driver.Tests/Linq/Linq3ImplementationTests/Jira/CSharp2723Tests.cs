@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 }",
                     @"{
                     '$project':{
-                        '_id':'$_id',
+                        '_id':1,
                         'ParentName':'$Name',
                         'Children':{
                             '$map':{
