@@ -518,6 +518,11 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             // #. Perform a ``find`` operation that succeeds.
             // #. Close the client.
+
+            // Failpoint details:
+            // * Find: triggeres reauthentication
+            // * SaslStart: makes the reauth call failed that will lead to full cache clearing and last Auth call from scratch
+            // * Successfull attempt
             await TestCase(async, client, failPoint: failPointCommand);
 
             // 3. Retries and Fails with no Cache
@@ -533,6 +538,11 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             // #. Force a reauthenication using a ``failCommand`` of the form:
             // #. Perform a ``find`` operation that fails.
+
+            // Failpoint details:
+            // * Find: triggeres reauthentication
+            // * SaslStart: makes the reauth call failed, but given there is no cache at this point,
+            // a new Auth attempt is not triggered and the whole operation is failed
             var exception = await Record.ExceptionAsync(() => TestCase(async, client, failPoint: failPointCommand));
             exception.Should().BeOfType<MongoAuthenticationException>().Which.InnerException.Should().BeOfType<MongoCommandException>();
 
@@ -585,7 +595,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 "test_user1_expires", // the credentials will be expired in N min
                 "test_user1", // the credentials are valid
                 "test_user2")] string tokenName, // the credentials are valid
-            [Values(false, true)] bool cacheInvolved,
+            [Values(false, true)] bool withExpiredCredentials,
             [Values(false)] bool async)
         {
             if (port == 27017 && tokenName.Contains("user2"))
@@ -593,7 +603,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 throw new SkipException("The user2 must be used only with port 27018.");
             }
 
-            int? tokenExpiredInSeconds = cacheInvolved ? 600 : null;
+            int? tokenExpiredInSeconds = withExpiredCredentials ? null : 600;
             var accessToken = JwtHelper.GetTokenContent(GetTokenPath(tokenName));
             var jwtDetails = JwtHelper.GetJwtDetails(accessToken);
             DateTime? expirationDate = null;
