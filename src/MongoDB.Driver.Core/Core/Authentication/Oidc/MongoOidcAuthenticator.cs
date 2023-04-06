@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// </summary>
         public const string RefreshCallbackName = "REFRESH_TOKEN_CALLBACK";
 
-        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost" };
+        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1" };
 
         /// <summary>
         /// Create OIDC authenticator.

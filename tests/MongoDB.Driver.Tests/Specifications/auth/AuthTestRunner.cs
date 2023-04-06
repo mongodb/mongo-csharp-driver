@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Authentication.Oidc;
 using System.Net;
 using System.Threading;
 using MongoDB.Driver.Core.Authentication.External;
+using Moq;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {
@@ -58,11 +59,11 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                         switch (callback.AsString)
                         {
                             case "oidcRequest":
-                                Func<string, BsonDocument, CancellationToken, BsonDocument> requesCallback = (a, b, ct) => b;
-                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requesCallback);
+                                IRequestCallbackProvider requestCallback = Mock.Of<IRequestCallbackProvider>();
+                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requestCallback);
                                 break;
                             case "oidcRefresh":
-                                Func<string, BsonDocument, BsonDocument, CancellationToken, BsonDocument> refreshCallback = (a, b, c, ct) => b;
+                                IRefreshCallbackProvider refreshCallback = Mock.Of<IRefreshCallbackProvider>();
                                 mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallback);
                                 break;
                             default: throw new NotSupportedException($"Not supported callback type: {callback.AsString}.");
@@ -170,7 +171,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                                         break;
                                     case MongoOidcAuthenticator.ProviderName:
                                         {
-                                            var provider = oidcAuthenticator._mechanism_deviceWorkflowCredentialsProvider();
+                                            var provider = oidcAuthenticator._mechanism_providerWorkflowCredentialsProvider();
                                             var providerName = expectedMechanismProperty.Value.ToString();
                                             switch (providerName)
                                             {
@@ -259,10 +260,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             return (OidcInputConfiguration)Reflector.GetFieldValue(credentialsProvider, "_inputConfiguration");
         }
 
-        public static IExternalAuthenticationCredentialsProvider<OidcCredentials> _mechanism_deviceWorkflowCredentialsProvider(this MongoOidcAuthenticator obj)
+        public static IExternalAuthenticationCredentialsProvider<OidcCredentials> _mechanism_providerWorkflowCredentialsProvider(this MongoOidcAuthenticator obj)
         {
             var mechanism = _mechanism(obj);
-            return (IExternalAuthenticationCredentialsProvider<OidcCredentials>)Reflector.GetFieldValue(mechanism, "_deviceWorkflowCredentialsProvider");
+            return (IExternalAuthenticationCredentialsProvider<OidcCredentials>)Reflector.GetFieldValue(mechanism, "_providerWorkflowCredentialsProvider");
         }
 
         private static IOidcExternalAuthenticationCredentialsProvider _oidsCredentialsProvider(object mechanism) =>

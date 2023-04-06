@@ -34,11 +34,13 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
 
     public sealed class RequestCallbackProvider : IRequestCallbackProvider
     {
+        private readonly bool _autoGenerateMissedCallback;
         private readonly RequestCallback _requestCallbackFunc;
         private readonly RequestCallbackAsync _requestCallbackAsyncFunc;
 
-        public RequestCallbackProvider(RequestCallback requestCallbackFunc, RequestCallbackAsync requestCallbackAsyncFunc = null)
+        public RequestCallbackProvider(RequestCallback requestCallbackFunc, RequestCallbackAsync requestCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
         {
+            _autoGenerateMissedCallback = autoGenerateMissedCallback;
             Ensure.That(requestCallbackFunc != null || requestCallbackAsyncFunc != null, "At least one request callback must be provided.");
             _requestCallbackFunc = requestCallbackFunc;
             _requestCallbackAsyncFunc = requestCallbackAsyncFunc;
@@ -47,13 +49,13 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
         public BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken) =>
             _requestCallbackFunc != null
                 ? _requestCallbackFunc(clientInfo, saslResponse, cancellationToken)
-                : _requestCallbackAsyncFunc(clientInfo, saslResponse, cancellationToken).GetAwaiter().GetResult();
+                : (_autoGenerateMissedCallback ? _requestCallbackAsyncFunc(clientInfo, saslResponse, cancellationToken).GetAwaiter().GetResult() : null);
         
 
         public Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken) =>
             _requestCallbackAsyncFunc != null
                 ? _requestCallbackAsyncFunc(clientInfo, saslResponse, cancellationToken)
-                : Task.Run(() => _requestCallbackFunc(clientInfo, saslResponse, cancellationToken));
+                : (_autoGenerateMissedCallback ? Task.Run(() => _requestCallbackFunc(clientInfo, saslResponse, cancellationToken)) : null);
 
         public override bool Equals(object obj)
         {
@@ -71,11 +73,13 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
 
     public sealed class RefreshCallbackProvider : IRefreshCallbackProvider
     {
+        private readonly bool _autoGenerateMissedCallback;
         private readonly RefreshCallback _refreshCallbackFunc;
         private readonly RefreshCallbackAsync _refreshCallbackAsyncFunc;
 
-        public RefreshCallbackProvider(RefreshCallback refreshCallbackFunc, RefreshCallbackAsync refreshCallbackAsyncFunc = null)
+        public RefreshCallbackProvider(RefreshCallback refreshCallbackFunc, RefreshCallbackAsync refreshCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
         {
+            _autoGenerateMissedCallback = autoGenerateMissedCallback;
             Ensure.That(refreshCallbackFunc != null || refreshCallbackAsyncFunc != null, "At least one refresh callback must be provided.");
             _refreshCallbackFunc = refreshCallbackFunc;
             _refreshCallbackAsyncFunc = refreshCallbackAsyncFunc;
@@ -84,12 +88,12 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
         public BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken) =>
             _refreshCallbackFunc != null
                 ? _refreshCallbackFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)
-                : _refreshCallbackAsyncFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken).GetAwaiter().GetResult();
+                : (_autoGenerateMissedCallback ? _refreshCallbackAsyncFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken).GetAwaiter().GetResult() : null);
 
         public Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken) =>
             _refreshCallbackAsyncFunc != null
                 ? _refreshCallbackAsyncFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)
-                : Task.Run(() => _refreshCallbackFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken));
+                : (_autoGenerateMissedCallback ? Task.Run(() => _refreshCallbackFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)) : null);
 
         public override bool Equals(object obj)
         {
