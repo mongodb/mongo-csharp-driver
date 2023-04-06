@@ -499,7 +499,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             var result = Project(x => new { Result = (double)x.C.E.F / x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$divide\": [\"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$divide\": [{ $toDouble : \"$C.E.F\" }, { $toDouble : \"$C.E.H\" }] }, _id: 0 }");
 
             result.Value.Result.Should().Be(0.5);
         }
@@ -509,7 +509,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             var result = Project(x => new { Result = (double)x.Id / x.C.E.F / x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$divide\": [{ \"$divide\": [\"$_id\", \"$C.E.F\"] }, \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$divide\": [{ \"$divide\": [{ $toDouble : \"$_id\" }, { $toDouble : \"$C.E.F\" }] }, { $toDouble : \"$C.E.H\" }] }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(0.04, .01);
         }
@@ -1699,7 +1699,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
 
-            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'pair', in: { $let : { vars : { a : { $arrayElemAt : ['$$pair', 0] }, b : { $arrayElemAt : ['$$pair', 1] } }, in : { $add : ['$$a', '$$b'] } } } } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'pair', in: { $let : { vars : { a : { $arrayElemAt : ['$$pair', 0] }, b : { $arrayElemAt : ['$$pair', 1] } }, in : { $add : [{ $toLong : '$$a' }, '$$b'] } } } } }, _id : 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(12L, 24L, 35L);
         }

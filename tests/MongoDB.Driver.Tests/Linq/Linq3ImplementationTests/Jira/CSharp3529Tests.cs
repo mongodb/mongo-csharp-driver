@@ -960,7 +960,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', '$Quantity'] } }, __agg1 : { $max : '$Quantity' } } }",
+                "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', { $toDouble : '$Quantity' }] } }, __agg1 : { $max : '$Quantity' } } }",
                 "{ $project : { Id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1', _id : 0 } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
@@ -990,7 +990,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', '$Quantity'] } }, __agg1 : { $max : '$Quantity' } } }",
+                "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', { $toDouble : '$Quantity' }] } }, __agg1 : { $max : '$Quantity' } } }",
                 "{ $project : { Id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1', _id : 0 } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);

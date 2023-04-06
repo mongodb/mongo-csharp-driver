@@ -43,12 +43,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression, because: "operand types are not compatible with each other");
             }
 
-            if (IsArithmeticExpression(expression))
-            {
-                leftExpression = ConvertHelper.RemoveWideningConvert(leftExpression);
-                rightExpression = ConvertHelper.RemoveWideningConvert(rightExpression);
-            }
-
             if (IsEnumExpression(expression))
             {
                 return TranslateEnumExpression(context, expression);

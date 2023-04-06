@@ -16,6 +16,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -75,6 +78,49 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             (typeof(float), typeof(decimal)),
             (typeof(double), typeof(decimal))
         };
+
+        public static IBsonSerializer CreateWiderSerializer(Expression expression, IBsonSerializer narrowerSerializer, Type widerType)
+        {
+            if (narrowerSerializer is IBsonNumericSerializer numericSerializer)
+            {
+                var converter = numericSerializer.Converter;
+                var representation = numericSerializer.Representation;
+                if (IsNumeric(representation))
+                {
+                    return widerType switch
+                    {
+                        Type type when type == typeof(short) => new Int16Serializer(BsonType.Int32, converter),
+                        Type type when type == typeof(ushort) => new UInt16Serializer(BsonType.Int32, converter),
+                        Type type when type == typeof(int) => new Int32Serializer(BsonType.Int32, converter),
+                        Type type when type == typeof(uint) => new UInt32Serializer(BsonType.Int32, converter),
+                        Type type when type == typeof(long) => new Int64Serializer(BsonType.Int64, converter),
+                        Type type when type == typeof(ulong) => new UInt64Serializer(BsonType.Int64, converter),
+                        Type type when type == typeof(float) => new SingleSerializer(BsonType.Double, converter),
+                        Type type when type == typeof(double) => new DoubleSerializer(BsonType.Double, converter),
+                        Type type when type == typeof(decimal) => new DecimalSerializer(BsonType.Decimal128, converter),
+                        _ => throw new ExpressionNotSupportedException(expression, because: $"type {widerType} is not a numeric type")
+                   };
+                }
+
+                throw new ExpressionNotSupportedException(expression, because: $"serializer for type {narrowerSerializer.ValueType} does not use a numeric representation");
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: $"serializer for type {narrowerSerializer.ValueType} is not a numeric serializer");
+
+            static bool IsNumeric(BsonType type)
+            {
+                return type switch
+                {
+                    BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
+                    _ => false
+                };
+            }
+        }
+
+        public static bool IsWideningConvert(Type sourceType, Type targetType)
+        {
+            return __wideningConverts.Contains((sourceType, targetType));
+        }
 
         public static Expression RemoveConvertToMongoQueryable(Expression expression)
         {
@@ -154,11 +200,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return expression;
-
-            static bool IsWideningConvert(Type sourceType, Type targetType)
-            {
-                return __wideningConverts.Contains((sourceType, targetType));
-            }
         }
     }
 }

@@ -54,6 +54,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return TranslateConvertToBaseType(expression, operandTranslation);
                 }
 
+                if (ConvertHelper.IsWideningConvert(sourceType: operandExpression.Type, targetType: expressionType))
+                {
+                    return TranslateWideningConvert(expression, operandTranslation);
+                }
+
                 if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var valueType = expressionType.GetGenericArguments()[0];
@@ -209,6 +214,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
+        }
+
+        private static AggregationExpression TranslateWideningConvert(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var narrowerSerializer = operandTranslation.Serializer;
+            var widerType = expression.Type;
+            var widerSerializer = ConvertHelper.CreateWiderSerializer(expression, narrowerSerializer, widerType);
+            var widerRepresentation = ((IBsonNumericSerializer)widerSerializer).Representation;
+
+            var to = widerRepresentation switch
+            {
+                BsonType.Decimal128 => "decimal",
+                BsonType.Double => "double",
+                BsonType.Int32 => "int",
+                BsonType.Int64 => "long",
+                _ => throw new ExpressionNotSupportedException(expression, because: $"representation {widerRepresentation} is not numeric")
+            };
+            var ast = AstExpression.Convert(operandTranslation.Ast, to);
+
+            return new AggregationExpression(expression, ast, widerSerializer);
         }
     }
 }
