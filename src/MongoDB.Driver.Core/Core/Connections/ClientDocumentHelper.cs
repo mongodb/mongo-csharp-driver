@@ -25,24 +25,36 @@ namespace MongoDB.Driver.Core.Connections
     {
         #region static
         // private static fields
-        private static readonly Lazy<BsonDocument> __driverDocument = new Lazy<BsonDocument>(CreateDriverDocument);
-        private static readonly Lazy<BsonDocument> __osDocument = new Lazy<BsonDocument>(CreateOSDocument);
-        private static readonly Lazy<string> __platformString = new Lazy<string>(GetPlatformString);
+        private static Lazy<BsonDocument> __driverDocument;
+        private static Lazy<BsonDocument> __envDocument;
+        private static Lazy<BsonDocument> __osDocument;
+        private static Lazy<string> __platformString;
+
+        private static void Initialize()
+        {
+            __driverDocument = new Lazy<BsonDocument>(CreateDriverDocument);
+            __envDocument = new Lazy<BsonDocument>(CreateEnvDocument);
+            __osDocument = new Lazy<BsonDocument>(CreateOSDocument);
+            __platformString = new Lazy<string>(GetPlatformString);
+        }
+
+        static ClientDocumentHelper() => Initialize();
 
         // private static methods
         internal static BsonDocument CreateClientDocument(string applicationName)
         {
-            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value);
+            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value, __envDocument.Value);
         }
 
-        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString)
+        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString, BsonDocument envDocument)
         {
             var clientDocument = new BsonDocument
             {
                 { "application", () => new BsonDocument("name", applicationName), applicationName != null },
                 { "driver", driverDocument },
                 { "os", osDocument.Clone() }, // clone because we might be removing optional fields from this particular clientDocument
-                { "platform", platformString }
+                { "platform", platformString },
+                { "env", () => envDocument.Clone(), envDocument != null } 
             };
 
             return RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes(clientDocument);
@@ -75,6 +87,101 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return Type.GetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy") != null;
             }
+        }
+
+        internal static BsonDocument CreateEnvDocument()
+        {
+            const string awsLambdaName = "aws.lambda";
+            const string azureFuncName = "azure.func";
+            const string gcpFuncName = "gcp.func";
+            const string vercelName = "vercel";
+
+            var name = GetName();
+
+            if (name != null)
+            {
+                var timeout = GetTimeoutSec(name);
+                var memoryDb = GetMemoryMb(name);
+                var region = GetRegion(name);
+                var url = GetUrl(name);
+
+                return new BsonDocument
+                {
+                    { "name", name },
+                    { "timeout_sec", timeout, timeout.HasValue },
+                    { "memory_mb", memoryDb, memoryDb.HasValue },
+                    { "region", region, region != null },
+                    { "url", url, url != null }
+                };
+            }
+            else
+            {
+                return null;
+            }
+
+            string GetName()
+            {
+                string result = null;
+
+                if (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV") != null || Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null)
+                {
+                    result = awsLambdaName;
+                }
+                if (Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null)
+                {
+                    if (result != null) return null;
+
+                    result = azureFuncName;
+                }
+                if (Environment.GetEnvironmentVariable("K_SERVICE") != null || Environment.GetEnvironmentVariable("FUNCTION_NAME") != null)
+                {
+                    if (result != null) return null;
+
+                    result = gcpFuncName;
+                }
+                if (Environment.GetEnvironmentVariable("VERCEL") != null)
+                {
+                    if (result != null) return null;
+
+                    result = vercelName;
+                }
+
+                return result;
+            }
+
+            string GetRegion(string name) =>
+                name switch
+                {
+                    awsLambdaName => Environment.GetEnvironmentVariable("AWS_REGION"),
+                    gcpFuncName => Environment.GetEnvironmentVariable("FUNCTION_REGION"),
+                    vercelName => Environment.GetEnvironmentVariable("VERCEL_REGION"),
+                    _ => null
+                };
+
+            int? GetMemoryMb(string name) =>
+                name switch
+            {
+                awsLambdaName => GetIntValue("AWS_LAMBDA_FUNCTION_MEMORY_SIZE"),
+                gcpFuncName => GetIntValue("FUNCTION_MEMORY_MB"),
+                _ => null,
+            };
+
+            int? GetTimeoutSec(string name) =>
+                name switch
+                {
+                    gcpFuncName => GetIntValue("FUNCTION_TIMEOUT_SEC"),
+                    _ => null,
+                };
+
+            string GetUrl(string name) =>
+                name switch
+                {
+                    vercelName => Environment.GetEnvironmentVariable("VERCEL_URL"),
+                    _ => null
+                };
+
+            int? GetIntValue(string environmentVariable) =>
+                int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
         }
 
         internal static BsonDocument CreateOSDocument()
@@ -198,37 +305,69 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static BsonDocument RemoveOneOptionalField(BsonDocument clientDocument)
         {
-            if (clientDocument.Contains("application"))
+            if (clientDocument.TryGetValue("env", out var env))
             {
-                clientDocument.Remove("application");
+                if (TryRemoveElement(env.AsBsonDocument, "name", onlyLeaveElement: true))
+                {
+                    return clientDocument;
+                }
+            }
+
+            if (clientDocument.TryGetValue("os", out var os))
+            {
+                if (TryRemoveElement(os.AsBsonDocument, "type", onlyLeaveElement: true))
+                {
+                    return clientDocument;
+                }
+            }
+
+            if (TryRemoveElement(clientDocument, "env"))
+            {
                 return clientDocument;
             }
 
-            var os = clientDocument["os"].AsBsonDocument;
-            if (os.Contains("version"))
+            if (TryRemoveElement(clientDocument, "platform"))
             {
-                os.Remove("version");
-                return clientDocument;
-            }
-            if (os.Contains("architecture"))
-            {
-                os.Remove("architecture");
-                return clientDocument;
-            }
-            if (os.Contains("name"))
-            {
-                os.Remove("name");
                 return clientDocument;
             }
 
-            if (clientDocument.Contains("platform"))
-            {
-                clientDocument.Remove("platform");
-                return clientDocument;
-            }
-
-            // no optional fields left to remove
             return null;
+
+            static bool TryRemoveElement(BsonDocument document, string elementName, bool onlyLeaveElement = false)
+            {
+                if (document.TryGetElement(elementName, out var element))
+                {
+                    if (onlyLeaveElement)
+                    {
+                        if (document.ElementCount == 1)
+                        {
+                            return false;
+                        }
+
+                        RemoveAll(document, elementName);
+                        return true;
+                    }
+                    else
+                    {
+                        document.RemoveElement(element);
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            static void RemoveAll(BsonDocument document, string protectedField = null)
+            {
+                for (int i = document.ElementCount - 1; i >= 0; i--)
+                {
+                    var element = document.GetElement(i);
+                    if (protectedField == null || element.Name != protectedField)
+                    {
+                        document.RemoveElement(element);
+                    }
+                }
+            }
         }
 
         internal static BsonDocument RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes(BsonDocument clientDocument)
@@ -241,6 +380,5 @@ namespace MongoDB.Driver.Core.Connections
             return clientDocument;
         }
         #endregion
-
     }
 }

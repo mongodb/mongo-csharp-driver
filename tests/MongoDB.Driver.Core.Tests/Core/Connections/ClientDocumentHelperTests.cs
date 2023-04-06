@@ -13,11 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -51,15 +47,19 @@ namespace MongoDB.Driver.Core.Connections
                 "{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.1' }")]
             string osDocumentString,
             [Values("net45", "net46")]
-            string platformString)
+            string platformString,
+            [Values(null, "aws.lambda", "versel")]
+            string env)
         {
             var driverDocument = BsonDocument.Parse(driverDocumentString);
             var osDocument = BsonDocument.Parse(osDocumentString);
 
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString);
+            var envDocument = env != null ? new BsonDocument("name", env) : null;
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
-            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}' }}";
+            var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
+            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}'{envElement} }}";
             result.Should().Be(expectedResult);
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void RemoveOneOptionalField_should_return_expected_result(
-            [Range(0, 6)]
+            [Range(0, 5)]
             int timesCalled)
         {
             var clientDocument = CreateClientDocument();
@@ -132,9 +132,9 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var expectedResult = CreateClientDocument();
-            if (timesCalled < 6)
+            if (timesCalled < 5)
             {
-                var optionalFieldNames = new[] { "application", "os.version", "os.architecture", "os.name", "platform" };
+                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform"};
                 for (var i = 0; i < timesCalled; i++)
                 {
                     var dottedFieldName = optionalFieldNames[i];
@@ -151,10 +151,11 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes_should_return_expected_result(
-            [Range(-1, 4)]
+            [Range(-1, 3)]
             int largeOptionalFieldNameIndex)
         {
-            var optionalFieldNames = new[] { "application", "os.version", "os.architecture", "os.name", "platform" };
+            var optionalFieldNames = new[] { "env.region", "os.version", "env.name", "platform" };
+            var removingOrder = new[] { "!env.name", "!os.type", "env.name", "platform", };
             var clientDocument = CreateClientDocument();
             if (largeOptionalFieldNameIndex != -1)
             {
@@ -169,25 +170,28 @@ namespace MongoDB.Driver.Core.Connections
             {
                 for (var i = 0; i <= largeOptionalFieldNameIndex; i++)
                 {
-                    RemoveField(expectedResult, optionalFieldNames[i]);
+                    RemoveField(expectedResult, removingOrder[i]);
                 }
             }
             result.Should().Be(expectedResult);
         }
 
         // private methods
-        private BsonDocument CreateClientDocument()
-        {
-            return new BsonDocument
+        private BsonDocument CreateClientDocument() =>
+            new BsonDocument
             {
                 { "application", new BsonDocument("name", "app") },
-                { "driver", new BsonDocument
+                {
+                    "driver",
+                    new BsonDocument
                     {
                         { "name", "mongo-csharp-driver" },
                         { "version", "3.6.x" }
                     }
                 },
-                { "os", new BsonDocument
+                {
+                    "os",
+                    new BsonDocument
                     {
                         { "type", "Windows" },
                         { "name", "Windows 10.0" },
@@ -195,9 +199,16 @@ namespace MongoDB.Driver.Core.Connections
                         { "version", "10.0" }
                     }
                 },
-                { "platform", ".NET Framework" }
+                { "platform", ".NET Framework" },
+                {
+                    "env",
+                    new BsonDocument
+                    {
+                        { "name", "aws.lambda" },
+                        { "region", "us-east-2" }
+                    }
+                }
             };
-        }
 
         private BsonDocument NavigateDots(BsonDocument document, string dottedFieldName, out string fieldName)
         {
@@ -215,8 +226,42 @@ namespace MongoDB.Driver.Core.Connections
         private void RemoveField(BsonDocument document, string dottedFieldName)
         {
             string fieldName;
+            var leaveOnlyMode = dottedFieldName[0] == '!';
+            if (leaveOnlyMode)
+            {
+                dottedFieldName = dottedFieldName.TrimStart('!');
+            }
+            var initialDocument = document;
             document = NavigateDots(document, dottedFieldName, out fieldName);
-            document.Remove(fieldName);
+            if (leaveOnlyMode)
+            {
+                RemoveAll(document, protectedField: fieldName);
+            }
+            else
+            {
+                document.Remove(fieldName);
+                if (document.ElementCount == 0)
+                {
+                    var dotIndex = dottedFieldName.IndexOf('.');
+                    if (dotIndex != -1)
+                    {
+                        var prefix = dottedFieldName.Substring(0, dotIndex);
+                        initialDocument.Remove(prefix);
+                    }
+                }
+            }
+
+            static void RemoveAll(BsonDocument document, string protectedField = null)
+            {
+                for (int i = document.ElementCount - 1; i >= 0; i--)
+                {
+                    var element = document.GetElement(i);
+                    if (protectedField == null || element.Name != protectedField)
+                    {
+                        document.RemoveElement(element);
+                    }
+                }
+            }
         }
 
         private void SetField(BsonDocument document, string dottedFieldName, BsonValue value)
