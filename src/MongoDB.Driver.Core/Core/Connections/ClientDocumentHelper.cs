@@ -305,11 +305,6 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static BsonDocument RemoveOneOptionalField(BsonDocument clientDocument)
         {
-            if (TryRemoveElement(clientDocument, "platform"))
-            {
-                return clientDocument;
-            }
-
             if (clientDocument.TryGetValue("env", out var env))
             {
                 if (TryRemoveElement(env.AsBsonDocument, "name", onlyLeaveElement: true))
@@ -331,18 +326,7 @@ namespace MongoDB.Driver.Core.Connections
                 return clientDocument;
             }
 
-            if (TryRemoveElement(clientDocument, "os"))
-            {
-                return clientDocument;
-            }
-
-            if (clientDocument.TryGetValue("driver", out var driver) && driver.AsBsonDocument.ElementCount > 0)
-            {
-                RemoveAll(driver.AsBsonDocument);
-                return clientDocument;
-            }
-
-            if (TryRemoveElement(clientDocument, "application"))
+            if (TryRemoveElement(clientDocument, "platform"))
             {
                 return clientDocument;
             }

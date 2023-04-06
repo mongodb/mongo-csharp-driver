@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void RemoveOneOptionalField_should_return_expected_result(
-            [Range(0, 8)]
+            [Range(0, 5)]
             int timesCalled)
         {
             var clientDocument = CreateClientDocument();
@@ -132,9 +132,9 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var expectedResult = CreateClientDocument();
-            if (timesCalled < 8)
+            if (timesCalled < 5)
             {
-                var optionalFieldNames = new[] { "platform", "!env.name", "!os.type", "env.name", "os.type", "driver.*", "application.name" };
+                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform"};
                 for (var i = 0; i < timesCalled; i++)
                 {
                     var dottedFieldName = optionalFieldNames[i];
@@ -151,11 +151,11 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes_should_return_expected_result(
-            [Range(-1, 6)]
+            [Range(-1, 3)]
             int largeOptionalFieldNameIndex)
         {
-            var optionalFieldNames = new[] { "platform", "env.region", "os.version", "env.name", "os.type", "driver.name", "application.name" };
-            var removingOrder = new[] { "platform", "!env.name", "!os.type", "env.name", "os.type", "driver.*", "application.name" };
+            var optionalFieldNames = new[] { "env.region", "os.version", "env.name", "platform" };
+            var removingOrder = new[] { "!env.name", "!os.type", "env.name", "platform", };
             var clientDocument = CreateClientDocument();
             if (largeOptionalFieldNameIndex != -1)
             {
@@ -239,21 +239,14 @@ namespace MongoDB.Driver.Core.Connections
             }
             else
             {
-                if (fieldName == "*")
+                document.Remove(fieldName);
+                if (document.ElementCount == 0)
                 {
-                    RemoveAll(document);
-                }
-                else
-                {
-                    document.Remove(fieldName);
-                    if (document.ElementCount == 0)
+                    var dotIndex = dottedFieldName.IndexOf('.');
+                    if (dotIndex != -1)
                     {
-                        var dotIndex = dottedFieldName.IndexOf('.');
-                        if (dotIndex != -1)
-                        {
-                            var prefix = dottedFieldName.Substring(0, dotIndex);
-                            initialDocument.Remove(prefix);
-                        }
+                        var prefix = dottedFieldName.Substring(0, dotIndex);
+                        initialDocument.Remove(prefix);
                     }
                 }
             }
