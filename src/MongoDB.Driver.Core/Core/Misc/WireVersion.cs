@@ -96,6 +96,10 @@ namespace MongoDB.Driver.Core.Misc
         /// Wire version 19.
         /// </summary>
         public const int Server62 = 19;
+        /// <summary>
+        /// Wire version 19.
+        /// </summary>
+        public const int Server70 = 21;
 
         #region static
         private static List<WireVersionInfo> __knownWireVersions = new()
