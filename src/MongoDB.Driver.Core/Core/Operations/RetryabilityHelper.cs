@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Determines whether the exception requests additional authentication attempt.
+        /// Value indicating whether the exception requests additional authentication attempt.
         /// </summary>
         /// <param name="mongoCommandException">The command exception.</param>
         /// <param name="command">The command.</param>
@@ -158,20 +158,20 @@ namespace MongoDB.Driver.Core.Operations
         /// <remarks>
         /// This logic is completely separate from a standard retry mechanism and related only to authentication.
         /// </remarks>
-        public static bool IsRetryableCommandAuthenticationException(MongoCommandException mongoCommandException, BsonDocument command) =>
+        public static bool IsReauthenticationRequested(MongoCommandException mongoCommandException, BsonDocument command) =>
             mongoCommandException.Code == (int)ServerErrorCode.ReauthenticationRequired &&
             // SASL commands should not be reauthenticated on sending level
-            !command.Names.Any(n => __saslCommands.Contains(n));
+            !command.Names.Any(__saslCommands.Contains);
 
         /// <summary>
-        /// Determines whether the exception requests additional authentication attempt.
+        /// Value indicating whether the exception requests additional authentication attempt.
         /// </summary>
         /// <param name="mongoAuthenticationexception">The authentication exception.</param>
         /// <returns>The flag.</returns>
         /// <remarks>
         /// This logic is completely separate from a standard retry mechanism and related only to authentication.
         /// </remarks>
-        public static bool IsRetryableSaslException(MongoAuthenticationException mongoAuthenticationexception) =>
+        public static bool IsReauthenticationRequested(MongoAuthenticationException mongoAuthenticationexception) =>
             mongoAuthenticationexception.InnerException is MongoCommandException mongoCommandException &&
             mongoCommandException.Code == (int)ServerErrorCode.ReauthenticationRequired;
 

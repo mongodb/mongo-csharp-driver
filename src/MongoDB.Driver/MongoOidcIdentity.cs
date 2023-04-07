@@ -18,7 +18,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents an OIDC identity.
     /// </summary>
-    public class MongoOidcIdentity : MongoIdentity
+    public sealed class MongoOidcIdentity : MongoIdentity
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoOidcIdentity" /> class.

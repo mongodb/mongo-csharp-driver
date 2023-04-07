@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
         /// Gets a value indicating whether this instance is complete.
         /// </summary>
         bool IsComplete { get; }
+
         /// <summary>
         /// Transitions the SASL conversation to the next step.
         /// </summary>
@@ -41,6 +42,7 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The next SASL step.</returns>
         ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Transitions the SASL conversation to the next step.
         /// </summary>
@@ -56,12 +58,14 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
         // properties
         /// <inheritdoc/>
         public abstract byte[] BytesToSendToServer { get; }
+
         /// <inheritdoc/>
         public abstract bool IsComplete { get; }
 
         // methods
         /// <inheritdoc/>
         public abstract ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken = default);
+
         /// <inheritdoc/>
         public virtual Task<ISaslStep> TransitionAsync(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken = default) =>
             // call sync version by default
@@ -104,7 +108,7 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
         /// <inheritdoc/>
         public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
         {
-            if (bytesReceivedFromServer.Length > 0)
+            if (bytesReceivedFromServer?.Length > 0)
             {
                 // should not be reached
                 throw new InvalidOperationException("Not all authentication response has been handled.");
@@ -138,7 +142,7 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
         /// <inheritdoc/>
         public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
         {
-            if (bytesReceivedFromServer.Length > 0)
+            if (bytesReceivedFromServer?.Length > 0)
             {
                 // should not be reached
                 throw new InvalidOperationException("Not all authentication response has been handled.");

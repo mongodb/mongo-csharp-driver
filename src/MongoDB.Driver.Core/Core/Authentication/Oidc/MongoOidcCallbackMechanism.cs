@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public override bool ShouldReauthenticateIfSaslError(IConnection connection, Exception ex) =>
             connection.IsInitialized && // reauthenticate case
             ex is MongoAuthenticationException mongoAuthenticationException && // consider only server errors
-            mongoAuthenticationException.AllowReauthenticationAfterError &&
-            RetryabilityHelper.IsRetryableSaslException(mongoAuthenticationException);
+            mongoAuthenticationException.AllowReauthentication &&
+            RetryabilityHelper.IsReauthenticationRequested(mongoAuthenticationException);
 
         public override ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description, CancellationToken cancellationToken)
         {

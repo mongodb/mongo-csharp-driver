@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using Xunit;
-using System.Linq;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -188,22 +188,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(new object[] { ServerErrorCode.ReauthenticationRequired, "saslStart" }, false)]
-        [InlineData(new object[] { ServerErrorCode.ReauthenticationRequired, "saslContinue" }, false)]
-        [InlineData(new object[] { ServerErrorCode.ReauthenticationRequired, "saslDummy" }, true)]
-        [InlineData(new object[] { ServerErrorCode.ReauthenticationRequired, "dummy" }, true)]
-        [InlineData(new object[] { 1, "saslStart" }, false)]
-        [InlineData(new object[] { 1, "saslContinue" }, false)]
-        [InlineData(new object[] { 1, "saslNotExisted" }, false)]
-        [InlineData(new object[] { 1, "dummy" }, false)]
-        public void IsRetryableCommandAuthenticationException_should_return_expected_result_using_exception_type(object[] inputArguments, bool expectedResult)
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslStart", false)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslContinue", false)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslDummy", true)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "dummy", true)]
+        [InlineData(1, "saslStart", false)]
+        [InlineData(1, "saslContinue", false)]
+        [InlineData(1, "saslNotExisted", false)]
+        [InlineData(1, "dummy", false)]
+        public void IsRetryableCommandAuthenticationException_should_return_expected_result_using_exception_type(int errorCode, string commandName, bool expectedResult)
         {
-            var arguments = inputArguments.Should().HaveCount(2).And.Subject.ToArray();
-            (int ErrorCode, string CommandName) inputDescription = ((int)arguments[0], arguments[1].ToString());
+            var exception = CoreExceptionHelper.CreateMongoCommandException(errorCode);
 
-            var exception = CoreExceptionHelper.CreateMongoCommandException(inputDescription.ErrorCode);
-
-            var result = RetryabilityHelper.IsRetryableCommandAuthenticationException(exception, new BsonDocument(inputDescription.CommandName, 1));
+            var result = RetryabilityHelper.IsReauthenticationRequested(exception, new BsonDocument(commandName, 1));
 
             result.Should().Be(expectedResult);
         }

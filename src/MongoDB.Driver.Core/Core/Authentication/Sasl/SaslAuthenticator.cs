@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Core.Authentication.Sasl
                 { "payload", currentStep.BytesToSendToServer }
             };
 
-        private bool IsCompleted(ISaslStep currentStep, BsonDocument result) => result.GetValue("done", false).ToBoolean() && currentStep.IsComplete;
+        private bool IsCompleted(ISaslStep currentStep, BsonDocument result) => currentStep.IsComplete && result.GetValue("done", false).ToBoolean();
 
         private ISaslStep Transition(
             SaslConversation conversation,

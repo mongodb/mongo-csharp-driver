@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     [Serializable]
     public class MongoAuthenticationException : MongoConnectionException
     {
-        private readonly bool _allowReauthenticationAfterError;
+        private readonly bool _allowReauthentication;
 
         // constructors
         /// <summary>
@@ -44,11 +44,11 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        /// <param name="allowReauthenticationAfterError">Determines whether reauthentication is allowed after error.</param>
-        public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException, bool allowReauthenticationAfterError = false)
+        /// <param name="allowReauthentication">Determines whether reauthentication is allowed.</param>
+        public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException, bool allowReauthentication = false)
             : base(connectionId, message, innerException)
         {
-            _allowReauthenticationAfterError = allowReauthenticationAfterError;
+            _allowReauthentication = allowReauthentication;
         }
 
         /// <summary>
@@ -59,23 +59,23 @@ namespace MongoDB.Driver
         public MongoAuthenticationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _allowReauthenticationAfterError = (bool)info.GetValue(nameof(_allowReauthenticationAfterError), typeof(bool));
+            _allowReauthentication = (bool)info.GetValue(nameof(_allowReauthentication), typeof(bool));
         }
 
         /// <inheritdoc/>
         public override bool IsNetworkException => false;
 
         /// <summary>
-        /// Determines whether authenticator allows calling reautentication calls if configured.
+        /// Allows reauthentication flag.
         /// </summary>
-        public virtual bool AllowReauthenticationAfterError => _allowReauthenticationAfterError;
+        public virtual bool AllowReauthentication => _allowReauthentication;
 
         // methods
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue(nameof(_allowReauthenticationAfterError), _allowReauthenticationAfterError);
+            info.AddValue(nameof(_allowReauthentication), _allowReauthentication);
         }
     }
 }

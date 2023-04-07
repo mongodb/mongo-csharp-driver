@@ -16,9 +16,6 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MongoDB.Driver.Core.TestHelpers.Authentication
 {
@@ -28,40 +25,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
         {
             var jwtSecurityToken = new JwtSecurityToken(accessToken);
             return (jwtSecurityToken.Subject, jwtSecurityToken.ValidTo);
-        }
-
-        public static string GenerateToken(string sourceAccessToken, DateTime expires)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(sourceAccessToken);
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                IssuedAt = jwtSecurityToken.IssuedAt,
-                Issuer = jwtSecurityToken.Issuer,
-                NotBefore = DateTime.Now,
-                Subject = new ClaimsIdentity(jwtSecurityToken.Claims),
-                Expires = expires,
-
-                SigningCredentials = jwtSecurityToken.SigningCredentials
-            };
-
-            var securitytoken = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(securitytoken);
-        }
-
-        public static string GetJwtDetails(string accessToken, DateTime forceExpiredDate)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(accessToken);
-            jwtSecurityToken = new JwtSecurityToken(
-                jwtSecurityToken.Issuer,
-                jwtSecurityToken.Audiences.SingleOrDefault(),
-                jwtSecurityToken.Claims,
-                jwtSecurityToken.ValidFrom,
-                jwtSecurityToken.ValidTo,
-                jwtSecurityToken.SigningCredentials);
-
-            return jwtSecurityToken.RawData;
         }
 
         public static string GetTokenContent(string token = null)

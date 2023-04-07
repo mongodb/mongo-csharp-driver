@@ -16,18 +16,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
-using Xunit;
-using MongoDB.Driver.Core.Authentication.Oidc;
-using System.Net;
-using System.Threading;
 using MongoDB.Driver.Core.Authentication.External;
+using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {

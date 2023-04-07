@@ -54,9 +54,9 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void Serialization_should_work([Values(false, true)] bool allowReauthenticationAfterError)
+        public void Serialization_should_work([Values(false, true)] bool allowReauthentication)
         {
-            var subject = new MongoAuthenticationException(_connectionId, _message, _innerException, allowReauthenticationAfterError);
+            var subject = new MongoAuthenticationException(_connectionId, _message, _innerException, allowReauthentication);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
-                rehydrated.AllowReauthenticationAfterError.Should().Be(allowReauthenticationAfterError);
+                rehydrated.AllowReauthentication.Should().Be(allowReauthentication);
             }
         }
     }

@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Connections
         bool IsExpired { get; }
 
         /// <summary>
-        /// Gets a flag whether the connection fully initialized or no.
+        /// Value indicating whether the connection fully initialized or no.
         /// </summary>
         /// <value>
         /// The flag.
