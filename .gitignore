@@ -47,7 +47,7 @@ Help
 src/packages
 
 # Nupkg artifacts
-#*.nupkg
+*.nupkg
 
 # NCrunch artifacts
 *.ncrunch*
