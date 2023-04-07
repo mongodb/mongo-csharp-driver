@@ -62,9 +62,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             RequirePlatform
                 .Check()
                 .SkipWhen(
-                    // spec wording requires skipping only "fle2-Range-<type>-Correctness" tests on macos,
-                    // but we see significant performance downgrade with the rest fle2-Range tests too, so skip them as well
-                    () => testCase.Name.Contains("fle2-Range"),
+                    // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
+                    // When fixing CSHARP-4606, skip fle2v2-Range tests on Mac because of: "spec wording requires skipping only "fle2-Range-<type>-Correctness" tests on macos,
+                    // but we see significant performance downgrade with the rest fle2-Range tests too, so skip them as well"
+                    () => testCase.Name.Contains("fle2v2"),
                     SupportedOperatingSystem.MacOS); ;
 
             RequirePlatform

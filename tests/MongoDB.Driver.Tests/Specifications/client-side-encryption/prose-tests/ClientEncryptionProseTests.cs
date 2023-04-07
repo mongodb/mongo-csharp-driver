@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 4)] int testCase,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider))
@@ -1217,7 +1217,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 5)] int testCase,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             var encryptedFields = JsonFileReader.Instance.Documents["etc.data.encryptedFields.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
@@ -1969,7 +1972,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values("DecimalNoPrecision", "DecimalPrecision", "DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
             [Values(false, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.CsfleRangeAlgorithm).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
             if (rangeType == "DecimalNoPrecision")
             {
                 // Tests for ``DecimalNoPrecision`` must only run against a replica set.

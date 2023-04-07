@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Packaging
         {
             var version = Library.Version;
 
-            version.Should().Be("1.7.0");
+            version.Should().Be("1.8.0-alpha0");
         }
 
 #pragma warning disable IDE0051 // Remove unused private members
