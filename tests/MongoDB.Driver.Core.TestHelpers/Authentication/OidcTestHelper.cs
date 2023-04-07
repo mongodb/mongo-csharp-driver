@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
     public delegate BsonDocument RefreshCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
     public delegate Task<BsonDocument> RefreshCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
 
-    public sealed class RequestCallbackProvider : IRequestCallbackProvider
+    public sealed class RequestCallbackProvider : IOidcRequestCallbackProvider
     {
         private readonly bool _autoGenerateMissedCallback;
         private readonly RequestCallback _requestCallbackFunc;
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
         public override int GetHashCode() => base.GetHashCode();
     }
 
-    public sealed class RefreshCallbackProvider : IRefreshCallbackProvider
+    public sealed class RefreshCallbackProvider : IOidcRefreshCallbackProvider
     {
         private readonly bool _autoGenerateMissedCallback;
         private readonly RefreshCallback _refreshCallbackFunc;
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
             externalAuthenticator._oidcProvidersCache(new Lazy<IOidcProvidersCache>(() => new OidcProvidersCache(clock))); // clear cache 
         }
 
-        public static IRequestCallbackProvider CreateRequestCallback(
+        public static IOidcRequestCallbackProvider CreateRequestCallback(
             string expectedPrincipalName = null,
             bool validateInput = true,
             bool validateToken = true,
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
             });
 
 
-        public static IRefreshCallbackProvider CreateRefreshCallback(
+        public static IOidcRefreshCallbackProvider CreateRefreshCallback(
             string expectedPrincipalName = null,
             bool validateInput = true,
             bool validateToken = true,

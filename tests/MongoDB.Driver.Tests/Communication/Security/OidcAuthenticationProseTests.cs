@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Bindings;
@@ -257,23 +256,21 @@ namespace MongoDB.Driver.Tests.Communication.Security
                     {
                         exception
                             .Should().Match<Exception>(e => e is MongoConnectionException || e is InvalidOperationException).And.Subject.As<Exception>().InnerException
-                            .Should().Match<Exception>(e => IsExpectedException(issueType, e)).And.Subject.As<Exception>().Message
-                            .Should().Match<string>(m => IsExpectedErrorMessage(issueType, m));
+                            .Should().Match<Exception>(e => IsExpectedException(issueType, e));
                     }
                     break;
                 case var state when state.EndsWith("Refresh"):
                     {
                         exception.Should().BeNull();
 
-                        var requestCallback = settings.Credential.GetMechanismProperty<IRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null);
+                        var requestCallback = settings.Credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null);
                         requestCallback.Should().NotBeNull();
                         var credentials = GetCachedCredentials();
                         credentials.Expire();
                         exception = await Record.ExceptionAsync(() => TestCase(async, settings));
                         exception
                             .Should().Match<Exception>(e => e is MongoConnectionException || e is InvalidOperationException).And.Subject.As<Exception>().InnerException
-                            .Should().Match<Exception>(e => IsExpectedException(issueType, e)).And.Subject.As<Exception>().Message
-                            .Should().Match<string>(m => IsExpectedErrorMessage(issueType, m));
+                            .Should().Match<Exception>(e => IsExpectedException(issueType, e));
                     }
                     break;
                 default: throw new Exception($"Unexpected state {invalidState}.");
@@ -290,21 +287,12 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 };
         }
 
-        private bool IsExpectedErrorMessage(string issueType, string errorMessage) =>
-            issueType switch
-            {
-                "null" => errorMessage.Contains("Value cannot be null"),
-                "missing" => errorMessage.Contains("The provided OIDC credentials must contain 'accessToken'."),
-                "extra" => errorMessage.Contains("The provided OIDC credentials contain unsupported key: 'dummy'."),
-                _ => throw new ArgumentException($"Unsupprted issue type: {issueType}.")
-            };
-
         private bool IsExpectedException(string issueType, Exception e) =>
             issueType switch
             {
-                "null" => e is ArgumentException,
-                "missing" => e is InvalidOperationException,
-                "extra" => e is InvalidOperationException,
+                "null" => e is ArgumentException ex && ex.Message.Contains("Value cannot be null"),
+                "missing" => e is InvalidOperationException ex && ex.Message.Contains("The provided OIDC credentials must contain 'accessToken'."),
+                "extra" => e is InvalidOperationException ex && ex.Message.Contains("The provided OIDC credentials contain unsupported key: 'dummy'."),
                 _ => throw new ArgumentException($"Unsupported issue type: {issueType}.")
             };
 

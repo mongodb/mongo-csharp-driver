@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         }
 
         // nested types
-        private class CallbackWorkflowClientFirst : SaslStepBase
+        private sealed class CallbackWorkflowClientFirst : SaslStepBase
         {
             private readonly byte[] _bytesToSendToServer;
             private readonly IOidcExternalAuthenticationCredentialsProvider _oidsCredentialsProvider;

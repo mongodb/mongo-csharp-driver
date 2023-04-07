@@ -97,8 +97,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         {
             var endpoint = new DnsEndPoint("localhost", 27017);
 
-            IRequestCallbackProvider requestCallbackProvider = null;
-            IRefreshCallbackProvider refreshCallbackProvider = null;
+            IOidcRequestCallbackProvider requestCallbackProvider = null;
+            IOidcRefreshCallbackProvider refreshCallbackProvider = null;
             if (withRefreshCallback)
             {
                 requestCallbackProvider = OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false, accessToken: "token");

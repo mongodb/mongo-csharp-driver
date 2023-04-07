@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 {
     internal abstract class OidcSaslMechanism : SaslMechanismBase
     {
-        public static ISaslStep CreateLastSaslStep(IExternalCredentials oidcCredentials)
+        protected static ISaslStep CreateLastSaslStep(IExternalCredentials oidcCredentials)
         {
             if (oidcCredentials == null)
             {
@@ -177,8 +177,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 IEnumerable<string> allowedHostNames = DefaultAllowedHostNames;
                 string providerName = null;
-                IRequestCallbackProvider requestCallbackProvider = null;
-                IRefreshCallbackProvider refreshCallbackProvider = null;
+                IOidcRequestCallbackProvider requestCallbackProvider = null;
+                IOidcRefreshCallbackProvider refreshCallbackProvider = null;
                 foreach (var authorizationProperty in properties)
                 {
                     var value = authorizationProperty.Value;
@@ -193,16 +193,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                             break;
                         case RequestCallbackName:
                             {
-                                requestCallbackProvider = value is IRequestCallbackProvider requestProvider
+                                requestCallbackProvider = value is IOidcRequestCallbackProvider requestProvider
                                     ? requestProvider
-                                    : throw new InvalidCastException($"The {RequestCallbackName} must be inherited from {nameof(IRequestCallbackProvider)}, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {RequestCallbackName} must be inherited from {nameof(IOidcRequestCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
                         case RefreshCallbackName:
                             {
-                                refreshCallbackProvider = value is IRefreshCallbackProvider refreshProvider
+                                refreshCallbackProvider = value is IOidcRefreshCallbackProvider refreshProvider
                                     ? refreshProvider
-                                    : throw new InvalidCastException($"The {RefreshCallbackName} must be inherited from {nameof(IRefreshCallbackProvider)}, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {RefreshCallbackName} must be inherited from {nameof(IOidcRefreshCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
                         case ProviderName:

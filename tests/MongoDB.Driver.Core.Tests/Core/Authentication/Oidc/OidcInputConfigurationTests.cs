@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     endpoint,
                     principalName,
                     providerName,
-                    requestCallbackProvider: withRequestCallback ? Mock.Of<IRequestCallbackProvider>() : null,
-                    refreshCallbackProvider: withRefreshCallback ? Mock.Of<IRefreshCallbackProvider>() : null));
+                    requestCallbackProvider: withRequestCallback ? Mock.Of<IOidcRequestCallbackProvider>() : null,
+                    refreshCallbackProvider: withRefreshCallback ? Mock.Of<IOidcRefreshCallbackProvider>() : null));
 
             (exception != null).Should().Be(shouldFail);
         }

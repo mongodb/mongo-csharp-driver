@@ -28,15 +28,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly EndPoint _endpoint;
         private readonly string _principalName;
         private readonly string _providerName;
-        private readonly IRequestCallbackProvider _requestCallbackProvider;
-        private readonly IRefreshCallbackProvider _refreshCallbackProvider;
+        private readonly IOidcRequestCallbackProvider _requestCallbackProvider;
+        private readonly IOidcRefreshCallbackProvider _refreshCallbackProvider;
 
         public OidcInputConfiguration(
             EndPoint endpoint,
             string principalName = null,
             string providerName = null,
-            IRequestCallbackProvider requestCallbackProvider = null,
-            IRefreshCallbackProvider refreshCallbackProvider = null)
+            IOidcRequestCallbackProvider requestCallbackProvider = null,
+            IOidcRefreshCallbackProvider refreshCallbackProvider = null)
         {
             _endpoint = Ensure.IsNotNull(endpoint, nameof(endpoint)); // can be null
             _providerName = providerName; // can be null
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public bool IsCallbackWorkflow => _requestCallbackProvider != null || _refreshCallbackProvider != null;
         public string PrincipalName => _principalName;
         public string ProviderName => _providerName;
-        public IRequestCallbackProvider RequestCallbackProvider => _requestCallbackProvider;
-        public IRefreshCallbackProvider RefreshCallbackProvider => _refreshCallbackProvider;
+        public IOidcRequestCallbackProvider RequestCallbackProvider => _requestCallbackProvider;
+        public IOidcRefreshCallbackProvider RefreshCallbackProvider => _refreshCallbackProvider;
 
         // public methods
         public OidcClientInfo CreateClientInfo() => new OidcClientInfo(_principalName);

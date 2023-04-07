@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     /// <summary>
     /// Represents OIDC request callback provider.
     /// </summary>
-    public interface IRequestCallbackProvider
+    public interface IOidcRequestCallbackProvider
     {
         /// <summary>
         /// Get OIDC request token.
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     /// <summary>
     /// Represents OIDC refresh callback provider.
     /// </summary>
-    public interface IRefreshCallbackProvider
+    public interface IOidcRefreshCallbackProvider
     {
         /// <summary>
         /// Get OIDC refresh token.

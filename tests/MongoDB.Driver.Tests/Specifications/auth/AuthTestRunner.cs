@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                         switch (callback.AsString)
                         {
                             case "oidcRequest":
-                                IRequestCallbackProvider requestCallback = Mock.Of<IRequestCallbackProvider>();
+                                var requestCallback = Mock.Of<IOidcRequestCallbackProvider>();
                                 mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requestCallback);
                                 break;
                             case "oidcRefresh":
-                                IRefreshCallbackProvider refreshCallback = Mock.Of<IRefreshCallbackProvider>();
+                                var refreshCallback = Mock.Of<IOidcRefreshCallbackProvider>();
                                 mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallback);
                                 break;
                             default: throw new NotSupportedException($"Not supported callback type: {callback.AsString}.");

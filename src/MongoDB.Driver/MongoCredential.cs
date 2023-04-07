@@ -273,8 +273,8 @@ namespace MongoDB.Driver
         /// <param name="allowedHost">The allowed host names.</param>
         /// <returns>The oidc credential.</returns>
         public static MongoCredential CreateOidcCredential(
-            IRequestCallbackProvider requestCallbackProvider,
-            IRefreshCallbackProvider refreshCallbackProvider = null,
+            IOidcRequestCallbackProvider requestCallbackProvider,
+            IOidcRefreshCallbackProvider refreshCallbackProvider = null,
             string principalName = null,
             IEnumerable<string> allowedHost = null)
             => CreateOidcCredential(requestCallbackProvider, refreshCallbackProvider, principalName, providerName: null, allowedHost);
@@ -291,8 +291,8 @@ namespace MongoDB.Driver
             => CreateOidcCredential(requestCallbackProvider: null, refreshCallbackProvider: null, principalName: null, providerName: providerName, allowedHost);
 
         private static MongoCredential CreateOidcCredential(
-            IRequestCallbackProvider requestCallbackProvider = null,
-            IRefreshCallbackProvider refreshCallbackProvider = null,
+            IOidcRequestCallbackProvider requestCallbackProvider = null,
+            IOidcRefreshCallbackProvider refreshCallbackProvider = null,
             string principalName = null,
             string providerName = null,
             IEnumerable<string> allowedHost = null)
