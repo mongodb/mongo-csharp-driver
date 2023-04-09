@@ -64,15 +64,58 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static bool IsContainsParameterExpression(Expression predicateBody, ParameterExpression predicateParameter, out Expression innerSourceExpression)
         {
             if (predicateBody is MethodCallExpression methodCallExpression &&
-                methodCallExpression.Method.Is(EnumerableMethod.Contains) &&
-                methodCallExpression.Arguments[1] == predicateParameter)
+                IsContainsMethodCall(methodCallExpression, out var sourceExpression, out var valueExpression) &&
+                valueExpression == predicateParameter)
             {
-                innerSourceExpression = methodCallExpression.Arguments[0];
+                innerSourceExpression = sourceExpression;
                 return true;
             }
 
             innerSourceExpression = null;
             return false;
+
+            static bool IsContainsMethodCall(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+            {
+                var method = methodCallExpression.Method;
+                var arguments = methodCallExpression.Arguments;
+
+                if (method.Name == "Contains" && method.ReturnType == typeof(bool))
+                {
+                    if (method.IsStatic && arguments.Count == 2)
+                    {
+                        sourceExpression = arguments[0];
+                        valueExpression = arguments[1];
+                        if (ValueTypeIsElementTypeOfSourceType(valueExpression, sourceExpression))
+                        {
+                            return true;
+                        }
+                    }
+                    else if (!method.IsStatic && arguments.Count == 1)
+                    {
+                        sourceExpression = methodCallExpression.Object;
+                        valueExpression = arguments[0];
+                        if (ValueTypeIsElementTypeOfSourceType(valueExpression, sourceExpression))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                sourceExpression = null;
+                valueExpression = null;
+                return false;
+            }
+
+            static bool ValueTypeIsElementTypeOfSourceType(Expression valueExpression, Expression sourceExpression)
+            {
+                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
+                {
+                    var elementType = ienumerableInterface.GetGenericArguments()[0];
+                    return elementType.IsAssignableFrom(valueExpression.Type);
+                }
+
+                return false;
+            }
         }
     }
 }
