@@ -159,13 +159,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 settings.Credential = MongoCredential.CreateOidcCredential(
                     requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: GetTokenPath(), expectedPrincipalName: settings.Credential.Username),
                     principalName: settings.Credential.Username,
-                    allowedHost: allowedHostsList);
+                    allowedHosts: allowedHostsList);
             }
             else
             {
                 settings.Credential = MongoCredential.CreateOidcCredential(
                     providerName: providerName,
-                    allowedHost: allowedHostsList);
+                    allowedHosts: allowedHostsList);
             }
 
             var exception = await Record.ExceptionAsync(() => TestCase(async, settings));
@@ -471,7 +471,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 0);
 
             // #. Force a reauthenication using a ``failCommand`` of the form:
-            var failPointCommand = FailPoint.CreateFailPointCommand(times: 1, errorCode: 391, applicationName, commandName);
+            var failPointCommand = FailPoint.CreateFailPointCommand(times: 1, errorCode: (int)ServerErrorCode.ReauthenticationRequired, applicationName, commandName);
             // #. Perform another find operation that succeeds.
             await TestCase(async, client: client, failPoint: failPointCommand);
 
@@ -502,7 +502,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             client = await TestCase(async, settings, applicationName: applicationName, keepClientAlive: true);
 
             // #. Force a reauthenication using a ``failCommand`` of the form:
-            failPointCommand = FailPoint.CreateFailPointCommand(times: 2, errorCode: 391, applicationName, commandName, "saslStart");
+            failPointCommand = FailPoint.CreateFailPointCommand(times: 2, errorCode: (int)ServerErrorCode.ReauthenticationRequired, applicationName, commandName, "saslStart");
 
             // #. Perform a ``find`` operation that succeeds.
             // #. Close the client.

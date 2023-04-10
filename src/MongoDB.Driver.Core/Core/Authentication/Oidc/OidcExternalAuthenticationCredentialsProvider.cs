@@ -142,6 +142,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
         }
 
+        // private methods
         private void ThrowIfDisposed()
         {
             if (_state.Value == State.Disposed)
@@ -205,7 +206,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
                 catch
                 {
-                    // ignore it, may be already disposed
+                    // ignore it, semaphore might be already disposed by provider.
                 }
             }
 
@@ -267,22 +268,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             public void AcquireSlot()
             {
-                if (!_semaphore.Wait(_timeout, _cancellationToken))
+                if (!(_acquired = _semaphore.Wait(_timeout, _cancellationToken)))
                 {
-                    _cancellationTokenSource.Cancel();
                     throw CreateException();
                 }
-                _acquired = true;
             }
 
             public async Task AcquireSlotAsync()
             {
-                if (!await _semaphore.WaitAsync(_timeout, _cancellationToken).ConfigureAwait(false))
+                if (!(_acquired = await _semaphore.WaitAsync(_timeout, _cancellationToken).ConfigureAwait(false)))
                 {
-                    _cancellationTokenSource.Cancel();
                     throw CreateException();
                 }
-                _acquired = true;
             }
 
             // private methods

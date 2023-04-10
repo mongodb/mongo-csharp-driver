@@ -270,32 +270,32 @@ namespace MongoDB.Driver
         /// <param name="requestCallbackProvider">The request callback provider.</param>
         /// <param name="refreshCallbackProvider">The refresh callback provider.</param>
         /// <param name="principalName">The principal name.</param>
-        /// <param name="allowedHost">The allowed host names.</param>
+        /// <param name="allowedHosts">The allowed host names.</param>
         /// <returns>The oidc credential.</returns>
         public static MongoCredential CreateOidcCredential(
             IOidcRequestCallbackProvider requestCallbackProvider,
             IOidcRefreshCallbackProvider refreshCallbackProvider = null,
             string principalName = null,
-            IEnumerable<string> allowedHost = null)
-            => CreateOidcCredential(requestCallbackProvider, refreshCallbackProvider, principalName, providerName: null, allowedHost);
+            IEnumerable<string> allowedHosts = null)
+            => CreateOidcCredential(requestCallbackProvider, refreshCallbackProvider, principalName, providerName: null, allowedHosts);
 
         /// <summary>
         /// Creates a credential used with MONGODB-OIDC.
         /// </summary>
         /// <param name="providerName">The provider name.</param>
-        /// <param name="allowedHost">The allowed host names.</param>
+        /// <param name="allowedHosts">The allowed host names.</param>
         /// <returns>The oidc credential.</returns>
         public static MongoCredential CreateOidcCredential(
             string providerName = null,
-            IEnumerable<string> allowedHost = null)
-            => CreateOidcCredential(requestCallbackProvider: null, refreshCallbackProvider: null, principalName: null, providerName: providerName, allowedHost);
+            IEnumerable<string> allowedHosts = null)
+            => CreateOidcCredential(requestCallbackProvider: null, refreshCallbackProvider: null, principalName: null, providerName: providerName, allowedHosts);
 
         private static MongoCredential CreateOidcCredential(
             IOidcRequestCallbackProvider requestCallbackProvider = null,
             IOidcRefreshCallbackProvider refreshCallbackProvider = null,
             string principalName = null,
             string providerName = null,
-            IEnumerable<string> allowedHost = null)
+            IEnumerable<string> allowedHosts = null)
         {
             var credentials = FromComponents(
                 mechanism: "MONGODB-OIDC",
@@ -319,9 +319,9 @@ namespace MongoDB.Driver
                 credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallbackProvider);
             }
 
-            if (allowedHost != null)
+            if (allowedHosts != null)
             {
-                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsName, allowedHost);
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsName, allowedHosts);
             }
 
             return credentials;

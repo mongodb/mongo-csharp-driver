@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
                 requestCallbackProvider: (RequestCallbackProvider)GetCallbackProvider(isRequest: true),
                 refreshCallbackProvider: withRefreshCallbackProvider ? (RefreshCallbackProvider)GetCallbackProvider(isRequest: false) : null,
                 principalName,
-                allowedHost: new[] { allowedHost });
+                allowedHosts: new[] { allowedHost });
 
             credential.Mechanism.Should().Be("MONGODB-OIDC");
             credential.Username.Should().Be(principalName);
