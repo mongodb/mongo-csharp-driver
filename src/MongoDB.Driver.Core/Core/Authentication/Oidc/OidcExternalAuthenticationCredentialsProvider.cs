@@ -167,6 +167,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         // nested types
         private sealed class FetchCredentialsHelper : IDisposable
         {
+            private bool _acquired = false;
             private readonly CancellationTokenSource _cancellationTokenSource;
             private readonly CancellationToken _cancellationToken;
             private readonly IClock _clock;
@@ -197,7 +198,10 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 _cancellationTokenSource.Dispose();
                 try
                 {
-                    _semaphore.Release();
+                    if (_acquired)
+                    {
+                        _semaphore.Release();
+                    }
                 }
                 catch
                 {
@@ -210,7 +214,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
                     var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
-                    var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, "", _cancellationToken);
+                    var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
@@ -224,7 +228,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
                     var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
-                    var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, "", _cancellationToken).ConfigureAwait(false);
+                    var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
                     return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
@@ -268,6 +272,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     _cancellationTokenSource.Cancel();
                     throw CreateException();
                 }
+                _acquired = true;
             }
 
             public async Task AcquireSlotAsync()
@@ -277,6 +282,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     _cancellationTokenSource.Cancel();
                     throw CreateException();
                 }
+                _acquired = true;
             }
 
             // private methods
