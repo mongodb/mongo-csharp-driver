@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 {
     internal interface IOidcProvidersCache
     {
+        IOidcTimeSynchronizer TimeSynchronizer { get; }
         IOidcExternalAuthenticationCredentialsProvider GetProvider(OidcInputConfiguration inputConfiguration);
     }
 
@@ -54,10 +55,12 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly IClock _clock;
         private readonly Dictionary<OidcInputConfiguration, OidcCacheValue> _providersCache;
         private readonly object _lock = new();
+        private readonly IOidcTimeSynchronizer _oidcTimeSynchronizer;
 
         public OidcProvidersCache(IClock clock)
         {
             _clock = clock;
+            _oidcTimeSynchronizer = new OidcTimeSynchronizer();
             _providersCache = new();
         }
 
@@ -86,7 +89,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 var cacheValue = _providersCache.GetOrAdd(
                     inputConfiguration,
-                    () => new OidcCacheValue(new OidcExternalAuthenticationCredentialsProvider(inputConfiguration, _clock), _clock),
+                    () => new OidcCacheValue(new OidcExternalAuthenticationCredentialsProvider(inputConfiguration, _clock, _oidcTimeSynchronizer), _clock),
                     (value) =>
                     {
                         value.Touch();
@@ -95,5 +98,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 return cacheValue.Provider;
             }
         }
+
+        public IOidcTimeSynchronizer TimeSynchronizer => _oidcTimeSynchronizer;
     }
 }

@@ -30,11 +30,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     {
         private readonly IOidcExternalAuthenticationCredentialsProvider _oidsCredentialsProvider;
         private readonly string _principalName;
+        private readonly OidcTimeSynchronizerContext _oidcTimeSynchronizerContext;
 
-        public MongoOidcCallbackMechanism(string principalName, IOidcExternalAuthenticationCredentialsProvider oidsCredentialsProvider)
+        public MongoOidcCallbackMechanism(
+            string principalName,
+            IOidcExternalAuthenticationCredentialsProvider oidsCredentialsProvider,
+            OidcTimeSynchronizerContext oidcTimeSynchronizerContext)
         {
             _oidsCredentialsProvider = Ensure.IsNotNull(oidsCredentialsProvider, nameof(oidsCredentialsProvider));
             _principalName = principalName; // can be null
+            _oidcTimeSynchronizerContext = Ensure.IsNotNull(oidcTimeSynchronizerContext, nameof(oidcTimeSynchronizerContext));
         }
 
         public override ICredentialsCache<OidcCredentials> CredentialsCache => _oidsCredentialsProvider;
@@ -89,10 +94,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             var cachedCredentials = _oidsCredentialsProvider.CachedCredentials;
             if (cachedCredentials != null)
             {
-                if ((connection?.IsInitialized).GetValueOrDefault() ||  // ignore cached token if a connection is already authenticated
-                    cachedCredentials.ShouldBeRefreshed)
+                if ((connection?.IsInitialized).GetValueOrDefault() &&
+                    cachedCredentials.TimeVersion <= _oidcTimeSynchronizerContext.InitialTimeVersion)
                 {
+                    // ensure, that for a reauthenticate case with more than one affected connections,
+                    // we expire credentials only once
                     cachedCredentials.Expire();
+                }
+
+                if (cachedCredentials.ShouldBeRefreshed)
+                {
                     return (SaslStep: null, cachedCredentials.ServerResponse);
                 }
                 else

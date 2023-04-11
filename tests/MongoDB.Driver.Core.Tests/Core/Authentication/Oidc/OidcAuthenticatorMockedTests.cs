@@ -25,7 +25,6 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Bindings;
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             __azureCredentials = new AzureCredentials("azureToken", expiration: null);
             __collectionNamespace = CollectionNamespace.FromFullName("db.coll");
             __gcpCredentials = new GcpCredentials("gcpToken");
-            __oidcCredentials = OidcCredentials.Create("oidcToken");
+            __oidcCredentials = OidcCredentials.Create(new BsonDocument("accessToken", 1), new BsonDocument(), Mock.Of<IClock>(), OidcTimeSynchronizer.Instance);
             __endpoint2 = new DnsEndPoint("localhost", 27018);
 
             __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
@@ -298,7 +297,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticators);  // no mocking
+                authenticators);  // no mocking 
 
             var lazyCache = GetCacheDictionary();
             lazyCache.ToList()
@@ -321,7 +320,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticators); // no mocking
+                authenticators);  // no mocking
 
             lazyCache = GetCacheDictionary();
             lazyCache
@@ -350,7 +349,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 isPrincipalNameDifferent ? __serverId.EndPoint : __endpoint2,
                 serverApi: null,
-                authenticators);  // no mocking
+                authenticators); // no mocking
 
             lazyCache = GetCacheDictionary();
             var expectedCachedRecords = lazyCache.ToList().Should().HaveCount(2).And.Subject;
@@ -672,6 +671,109 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Reauthenticate_workflow_should_expire_credentials_only_once([Values(false, true)] bool async)
+        {
+            int requestCallbackCalled = 0;
+            int refreshCallbackCalled = 0;
+
+            var timeout = TimeSpan.FromMinutes(1);
+            bool ensureNoCallbackCalls = false;
+            var properties = CreateAuthorizationProperties(
+                withRequestCallback: true,
+                withRefreshCallback: true,
+                providerName: null,
+                requestCallbackCalled:
+                    (a, b, ct) =>
+                    {
+                        if (ensureNoCallbackCalls)
+                        {
+                            throw new Exception("Should not be reached.");
+                        }
+                        requestCallbackCalled++;
+                    },
+                refreshCallbackCalled: (a, b, c, ct) =>
+                {
+                    if (ensureNoCallbackCalls)
+                    {
+                        throw new Exception("Should not be reached.");
+                    }
+                    refreshCallbackCalled++;
+                });
+
+            using var mockConnection = CreateConnection();
+            mockConnection.IsInitialized = false; // regular workflow
+
+            var clock = FrozenClock.FreezeUtcNow();
+
+            var prepareAuthenticator = MongoOidcAuthenticator.CreateAuthenticator(
+                source: "$external",
+                PrincipalName,
+                properties,
+                __serverId.EndPoint,
+                serverApi: null,
+                ExternalCredentialsAuthenticators.Instance);
+
+            // attempt 0. Cache is saved
+            var exception = await Authenticate(
+                prepareAuthenticator,
+                mockConnection,
+                async,
+                onlySaslStart: false);
+            var cache = GetCacheDictionary();
+
+            cache.Single().Value.CachedCredentials.ShouldBeRefreshed.Should().BeFalse(); // there is a cache before reauth logic
+
+            AssertCallbacksCall(requestCount: 1, refreshCount: 0);
+
+            var authenticator = MongoOidcAuthenticator.CreateAuthenticator(
+                source: "$external",
+                PrincipalName,
+                properties,
+                __serverId.EndPoint,
+                serverApi: null,
+                ExternalCredentialsAuthenticators.Instance);
+            mockConnection.IsInitialized = true; // reautentication workflow is enabled
+
+            // attempt 1
+            exception = await Authenticate(
+                authenticator,
+                mockConnection,
+                async,
+                onlySaslStart: true);
+            exception.Should().BeNull();
+
+            AssertCallbacksCall(requestCount: 1, refreshCount: 1);
+            ensureNoCallbackCalls = true; // the cache won't be touched anymore, otherwise the callback will trigger exception
+
+            // attempt 2
+            exception = await Authenticate(
+                authenticator,
+                mockConnection,
+                async,
+                onlySaslStart: true);
+            exception.Should().BeNull();
+
+            AssertCallbacksCall(requestCount: 1, refreshCount: 1);
+
+            // attempt 3
+            exception = await Authenticate(
+                authenticator,
+                mockConnection,
+                async,
+                onlySaslStart: true);
+            exception.Should().BeNull();
+
+            AssertCallbacksCall(requestCount: 1, refreshCount: 1);
+
+            void AssertCallbacksCall(int requestCount, int refreshCount)
+            {
+                requestCallbackCalled.Should().Be(requestCount);
+                refreshCallbackCalled.Should().Be(refreshCount);
+            }
+        }
+
         public void Dispose() => OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
 
         // private methods
@@ -949,7 +1051,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                                     .Setup(c => c.GetProvider(It.IsAny<OidcInputConfiguration>()))
                                     .Returns((OidcInputConfiguration ic) =>
                                     {
-                                        return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock);
+                                        return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock, OidcTimeSynchronizer.Instance);
                                     });
                                 return mockedCache.Object;
                             });

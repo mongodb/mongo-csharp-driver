@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             IEnumerable<KeyValuePair<string, object>> properties,
             EndPoint endpoint,
             ServerApi serverApi) =>
-            CreateAuthenticator(source, principalName, properties, endpoint, serverApi, ExternalCredentialsAuthenticators.Instance);
+            CreateAuthenticator(source, principalName, properties, endpoint, serverApi);
 
         internal static MongoOidcAuthenticator CreateAuthenticator(
             string source,
@@ -148,8 +148,10 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             OidcSaslMechanism mechanism;
             if (inputConfiguration.IsCallbackWorkflow)
             {
-                var oidsCredentialsProvider = externalCredentialsAuthenticators.Oidc.GetProvider(inputConfiguration);
-                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider);
+                var oidcAuthenticator = externalCredentialsAuthenticators.Oidc;
+                var oidsCredentialsProvider = oidcAuthenticator.GetProvider(inputConfiguration);
+                var oidcTimeSynchronizerContext = new OidcTimeSynchronizerContext(oidcAuthenticator.TimeSynchronizer ?? OidcTimeSynchronizer.Instance);
+                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider, oidcTimeSynchronizerContext);
             }
             else
             {
