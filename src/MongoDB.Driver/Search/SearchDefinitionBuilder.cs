@@ -67,14 +67,17 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a builder for a compound search definition.
         /// </summary>
-        /// <returns></returns>
-        public CompoundSearchDefinitionBuilder<TDocument> Compound(SearchScoreDefinition<TDocument> score = null) => new CompoundSearchDefinitionBuilder<TDocument>(score);
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A compound search definition builder.</returns>
+        public CompoundSearchDefinitionBuilder<TDocument> Compound(SearchScoreDefinition<TDocument> score = null) =>
+            new CompoundSearchDefinitionBuilder<TDocument>(score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
         /// Supported value types are boolean, numeric, ObjectId and date.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="score">The score modifier.</param>
@@ -91,6 +94,7 @@ namespace MongoDB.Driver.Search
         /// to the specified value.
         /// Supported value types are boolean, numeric, ObjectId and date.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="score">The score modifier.</param>
@@ -151,12 +155,10 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="path">Indexed geo type field or fields to search.</param>
         /// <param name="geometry">
-        /// <param name="relation">
         /// GeoJSON object specifying the Polygon, MultiPolygon, or LineString shape or point
         /// to search.
         /// </param>
-        /// Relation of the query shape geometry to the indexed field geometry.
-        /// </param>
+        /// <param name="relation">Relation of the query shape geometry to the indexed field geometry.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A geo shape search definition.</returns>
         public SearchDefinition<TDocument> GeoShape<TCoordinates>(
@@ -174,12 +176,10 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">Indexed geo type field or fields to search.</param>
         /// <param name="geometry">
-        /// <param name="relation">
         /// GeoJSON object specifying the Polygon, MultiPolygon, or LineString shape or point
         /// to search.
         /// </param>
-        /// Relation of the query shape geometry to the indexed field geometry.
-        /// </param>
+        /// <param name="relation">Relation of the query shape geometry to the indexed field geometry.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A geo shape search definition.</returns>
         public SearchDefinition<TDocument> GeoShape<TCoordinates, TField>(
@@ -504,10 +504,13 @@ namespace MongoDB.Driver.Search
                 QueryString(new ExpressionFieldDefinition<TDocument>(defaultPath), query, score);
 
         /// <summary>
-        /// Creates a search definition that queries for documents where a floating-point
-        /// field is in the specified range.
+        /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
-        /// <returns>A fluent range interface.</returns>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A a range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, TField>> path,
             SearchRange<TField> range,
@@ -516,10 +519,13 @@ namespace MongoDB.Driver.Search
                 Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
 
         /// <summary>
-        /// Creates a search definition that queries for documents where a floating-point
-        /// field is in the specified range.
+        /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
-        /// <returns>A fluent range interface.</returns>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A a range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             SearchPathDefinition<TDocument> path,
             SearchRange<TField> range,

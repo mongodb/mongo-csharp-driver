@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a greater than search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRange<TValue> Gt<TValue>(TValue value) where TValue : struct, IComparable<TValue>
@@ -78,6 +79,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Adds a greater than value to a search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
@@ -87,6 +89,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a greater or equal than search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRange<TValue> Gte<TValue>(TValue value) where TValue : struct, IComparable<TValue>
@@ -95,6 +98,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Adds a greater or equal than value to a search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
@@ -104,6 +108,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a less than search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRange<TValue> Lt<TValue>(TValue value) where TValue : struct, IComparable<TValue>
@@ -112,6 +117,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Adds a less than value to a search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
@@ -121,6 +127,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a less than or equal search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>search range.</returns>
         public static SearchRange<TValue> Lte<TValue>(TValue value) where TValue : struct, IComparable<TValue>
@@ -129,6 +136,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Adds a less than or equal value to a search range.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>search range.</returns>
