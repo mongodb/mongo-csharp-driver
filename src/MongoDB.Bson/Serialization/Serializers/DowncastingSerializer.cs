@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="baseType">The base type.</param>
         /// <param name="derivedType">The derived type.</param>
         /// <param name="derivedTypeSerializer">The derived type serializer.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="DowncastingSerializer"/> instance.</returns>
         public static IBsonSerializer Create(
             Type baseType,
             Type derivedType,

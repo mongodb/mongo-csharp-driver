@@ -24,6 +24,9 @@ namespace MongoDB.Driver.Search
     /// <typeparam name="TDocument"></typeparam>
     public abstract class SearchSpanDefinition<TDocument>
     {
+        /// <summary>
+        /// Span clause type.
+        /// </summary>
         private protected enum ClauseType
         {
             First,
@@ -35,6 +38,10 @@ namespace MongoDB.Driver.Search
 
         private readonly ClauseType _clauseType;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchSpanDefinition{TDocument}"/> class.
+        /// </summary>
+        /// <param name="clauseType">The clause type.</param>
         private protected SearchSpanDefinition(ClauseType clauseType) => _clauseType = clauseType;
 
         /// <summary>

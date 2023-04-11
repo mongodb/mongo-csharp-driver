@@ -52,6 +52,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel" isDocumented="True">Classes used to build GeoJson objects in a type-safe manner.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel.Serializers" isDocumented="True">GeoJson object model serializers.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Search" isDocumented="True">The MongoDB.Driver.Search namespace contains the Atlas Search related classes.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core" isDocumented="True">The MongoDB.Driver.Core namespace contains classes from Core.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication" isDocumented="True">The MongoDB.Driver.Core.Authentication namespace contains classes related to authentication.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Libgssapi" isDocumented="False" />

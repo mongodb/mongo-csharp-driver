@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Search
     /// <summary>
     /// Object that specifies the center point and the radius in meters to search within.
     /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public sealed class GeoWithinCircle<TCoordinates> : GeoWithinArea<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         /// <summary>
