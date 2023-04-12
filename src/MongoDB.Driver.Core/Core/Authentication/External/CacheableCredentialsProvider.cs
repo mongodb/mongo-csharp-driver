@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         public TCredentials CachedCredentials => _cachedCredentials;
 
+        public void Clear() => _cachedCredentials = default;
+
         public TCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken = default)
         {
             if (!TryGetCachedCredentials(out var credentials))
@@ -81,22 +83,19 @@ namespace MongoDB.Driver.Core.Authentication.External
             }
         }
 
-        public void Clear() => _cachedCredentials = default;
-
-        // private methods
         private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
 
-        private bool TryGetCachedCredentials(out TCredentials externalCredentials)
+        private bool TryGetCachedCredentials(out TCredentials credentials)
         {
-            var credentials = GetValidCredentials();
-            if (credentials != null)
+            var cachedCredentials = GetValidCredentials();
+            if (cachedCredentials != null)
             {
-                externalCredentials = credentials;
+                credentials = cachedCredentials;
                 return true;
             }
             else
             {
-                externalCredentials = default;
+                credentials = default;
                 return false;
             }
         }

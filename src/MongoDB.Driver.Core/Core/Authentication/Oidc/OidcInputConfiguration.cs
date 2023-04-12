@@ -78,22 +78,22 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         {
             if (_providerName != null && (_requestCallbackProvider != null || _refreshCallbackProvider != null))
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderName} and OIDC callbacks cannot both be set.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} and OIDC callbacks cannot both be set.");
             }
 
             if (_providerName == null && _requestCallbackProvider == null && _refreshCallbackProvider == null)
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderName} or OIDC callbacks must be configured.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} or OIDC callbacks must be configured.");
             }
 
             if (_refreshCallbackProvider != null && _requestCallbackProvider == null)
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.RequestCallbackName} must be provided with {MongoOidcAuthenticator.RefreshCallbackName}.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.RequestCallbackMechanismProperyName} must be provided with {MongoOidcAuthenticator.RefreshCallbackMechanismProperyName}.");
             }
 
             if (_principalName != null && _providerName != null)
             {
-                throw new InvalidOperationException($"PrincipalName is mutually exclusive with {MongoOidcAuthenticator.ProviderName}.");
+                throw new InvalidOperationException($"PrincipalName is mutually exclusive with {MongoOidcAuthenticator.ProviderMechanismProperyName}.");
             }
         }
     }

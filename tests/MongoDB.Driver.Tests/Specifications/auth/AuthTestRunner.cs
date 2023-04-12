@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                         {
                             case "oidcRequest":
                                 var requestCallback = Mock.Of<IOidcRequestCallbackProvider>();
-                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requestCallback);
+                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackMechanismProperyName, requestCallback);
                                 break;
                             case "oidcRefresh":
                                 var refreshCallback = Mock.Of<IOidcRefreshCallbackProvider>();
-                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallback);
+                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, refreshCallback);
                                 break;
                             default: throw new NotSupportedException($"Not supported callback type: {callback.AsString}.");
                         }
@@ -156,19 +156,19 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                                 var mechanismName = expectedMechanismProperty.Name;
                                 switch (mechanismName)
                                 {
-                                    case MongoOidcAuthenticator.RequestCallbackName:
+                                    case MongoOidcAuthenticator.RequestCallbackMechanismProperyName:
                                         {
                                             var inputConfiguration = oidcAuthenticator._mechanism_oidsCredentialsProvider_inputConfiguration();
                                             (inputConfiguration.RequestCallbackProvider != null).Should().Be(expectedMechanismProperty.Value.ToBoolean());
                                         }
                                         break;
-                                    case MongoOidcAuthenticator.RefreshCallbackName:
+                                    case MongoOidcAuthenticator.RefreshCallbackMechanismProperyName:
                                         {
                                             var inputConfiguration = oidcAuthenticator._mechanism_oidsCredentialsProvider_inputConfiguration();
                                             (inputConfiguration.RefreshCallbackProvider != null).Should().Be(expectedMechanismProperty.Value.ToBoolean());
                                         }
                                         break;
-                                    case MongoOidcAuthenticator.ProviderName:
+                                    case MongoOidcAuthenticator.ProviderMechanismProperyName:
                                         {
                                             var provider = oidcAuthenticator._mechanism_providerWorkflowCredentialsProvider();
                                             var providerName = expectedMechanismProperty.Value.ToString();
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                                                 case "aws": provider.Should().BeOfType<OidcAuthenticationCredentialsProviderAdapter<OidcCredentials>>(); break;
                                                 case "azure": provider.Should().BeOfType<OidcAuthenticationCredentialsProviderAdapter<AzureCredentials>>(); break;
                                                 case "gcp": provider.Should().BeOfType<OidcAuthenticationCredentialsProviderAdapter<GcpCredentials>>(); break;
-                                                default: throw new ArgumentException($"Unsupported device name {providerName}.");
+                                                default: throw new ArgumentException($"Unsupported provider name {providerName}.");
                                             }
                                         }
                                         break;

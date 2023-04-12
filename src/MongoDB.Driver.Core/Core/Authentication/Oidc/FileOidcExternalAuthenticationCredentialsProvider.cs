@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             var accessToken = await File.ReadAllTextAsync(_path, cancellationToken).ConfigureAwait(false);
 #else
             using var streamReader = new StreamReader(_path, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-            var accessToken = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+            var accessToken = await streamReader.ReadToEndAsync().ConfigureAwait(false); // no support for cancellationToken
 #endif
             return OidcCredentials.Create(accessToken);
         }

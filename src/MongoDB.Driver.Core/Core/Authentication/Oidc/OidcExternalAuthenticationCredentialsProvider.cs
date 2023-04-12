@@ -218,6 +218,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             public OidcCredentials GetCredentialsWithRequestTokenIfConfigured(BsonDocument saslStartResponse)
             {
+                ThrowIfNotAcquired();
+
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
                     var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
@@ -232,6 +234,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             public async Task<OidcCredentials> GetCredentialsWithRequestTokenIfConfiguredAsync(BsonDocument saslStartResponse)
             {
+                ThrowIfNotAcquired();
+
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
                     var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
@@ -246,6 +250,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             public OidcCredentials GetCredentialsWithRefreshTokenIfConfigured(BsonDocument saslStartResponse, BsonDocument cachedCallbackAuthenticationData)
             {
+                ThrowIfNotAcquired();
+
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
                     var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
@@ -260,6 +266,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             public async Task<OidcCredentials> GetCredentialsWithRefreshTokenIfConfiguredAsync(BsonDocument saslStartResponse, BsonDocument cachedCallbackAuthenticationData)
             {
+                ThrowIfNotAcquired();
+
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
                     var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
@@ -290,6 +298,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             // private methods
             private Exception CreateException() => new TimeoutException(_timeoutErrorMessage);
+
+            private void ThrowIfNotAcquired()
+            {
+                if (!_acquired)
+                {
+                    // should not be reached
+                    throw new InvalidOperationException("The OIDC lock must be acquired.");
+                }
+            }
         }
 
         private static class State

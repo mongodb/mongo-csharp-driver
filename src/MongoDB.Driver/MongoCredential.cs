@@ -306,22 +306,22 @@ namespace MongoDB.Driver
 
             if (providerName != null)
             {
-                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.ProviderName, providerName);
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.ProviderMechanismProperyName, providerName);
             }
 
             if (requestCallbackProvider != null)
             {
-                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requestCallbackProvider);
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackMechanismProperyName, requestCallbackProvider);
             }
 
             if (refreshCallbackProvider != null)
             {
-                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallbackProvider);
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, refreshCallbackProvider);
             }
 
             if (allowedHosts != null)
             {
-                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsName, allowedHosts);
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsMechanismProperyName, allowedHosts);
             }
 
             return credentials;

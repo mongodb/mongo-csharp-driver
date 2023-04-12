@@ -1237,7 +1237,7 @@ tasks:
             ORCHESTRATION_FILE: "auth-oidc.json"
         - func: run-oidc-auth-test-with-aws-credentials
           vars:
-            AWS_WEB_IDENTITY_TOKEN_FILE: /tmp/tokens/test1         
+            AWS_WEB_IDENTITY_TOKEN_FILE: /tmp/tokens/test1
 
     - name: stable-api-tests-net472
       commands:

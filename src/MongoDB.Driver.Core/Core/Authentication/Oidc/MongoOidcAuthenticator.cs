@@ -55,26 +55,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     internal sealed class MongoOidcAuthenticator : SaslAuthenticator
     {
         #region static
-        /// <summary>
-        /// Allowed hosts mechanism authorization property.
-        /// </summary>
-        public const string AllowedHostsName = "ALLOWED_HOSTS";
-        /// <summary>
-        /// Provider name mechanism authorization property.
-        /// </summary>
-        public const string ProviderName = "PROVIDER_NAME";
-        /// <summary>
-        /// Mechanism name authorization property.
-        /// </summary>
+        public const string AllowedHostsMechanismProperyName = "ALLOWED_HOSTS";
+        public const string ProviderMechanismProperyName = "PROVIDER_NAME";
         public const string MechanismName = "MONGODB-OIDC";
-        /// <summary>
-        /// Request callback mechanism authorization property.
-        /// </summary>
-        public const string RequestCallbackName = "REQUEST_TOKEN_CALLBACK";
-        /// <summary>
-        /// Refresh callback mechanism authorization property.
-        /// </summary>
-        public const string RefreshCallbackName = "REFRESH_TOKEN_CALLBACK";
+        public const string RequestCallbackMechanismProperyName = "REQUEST_TOKEN_CALLBACK";
+        public const string RefreshCallbackMechanismProperyName = "REFRESH_TOKEN_CALLBACK";
 
         public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1" };
 
@@ -150,7 +135,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 var oidcAuthenticator = externalCredentialsAuthenticators.Oidc;
                 var oidsCredentialsProvider = oidcAuthenticator.GetProvider(inputConfiguration);
-                var oidcTimeSynchronizerContext = new OidcTimeSynchronizerContext(oidcAuthenticator.TimeSynchronizer ?? OidcTimeSynchronizer.Instance);
+                var oidcTimeSynchronizerContext = new OidcTimeSynchronizerContext(oidcAuthenticator.TimeSynchronizer);
                 mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider, oidcTimeSynchronizerContext);
             }
             else
@@ -186,32 +171,32 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     var value = authorizationProperty.Value;
                     switch (authorizationProperty.Key)
                     {
-                        case AllowedHostsName:
+                        case AllowedHostsMechanismProperyName:
                             {
                                 allowedHostNames = value is IEnumerable<string> enumerable
                                     ? enumerable
-                                    : throw new InvalidCastException($"The {AllowedHostsName} must be array, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {AllowedHostsMechanismProperyName} must be array, but was {value.GetType()}.");
                             }
                             break;
-                        case RequestCallbackName:
+                        case RequestCallbackMechanismProperyName:
                             {
                                 requestCallbackProvider = value is IOidcRequestCallbackProvider requestProvider
                                     ? requestProvider
-                                    : throw new InvalidCastException($"The {RequestCallbackName} must be inherited from {nameof(IOidcRequestCallbackProvider)}, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {RequestCallbackMechanismProperyName} must be inherited from {nameof(IOidcRequestCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
-                        case RefreshCallbackName:
+                        case RefreshCallbackMechanismProperyName:
                             {
                                 refreshCallbackProvider = value is IOidcRefreshCallbackProvider refreshProvider
                                     ? refreshProvider
-                                    : throw new InvalidCastException($"The {RefreshCallbackName} must be inherited from {nameof(IOidcRefreshCallbackProvider)}, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {RefreshCallbackMechanismProperyName} must be inherited from {nameof(IOidcRefreshCallbackProvider)}, but was {value.GetType()}.");
                             }
                             break;
-                        case ProviderName:
+                        case ProviderMechanismProperyName:
                             {
                                 providerName = value is string @string
                                     ? @string
-                                    : throw new InvalidCastException($"The {ProviderName} must be string, but was {value.GetType()}.");
+                                    : throw new InvalidCastException($"The {ProviderMechanismProperyName} must be string, but was {value.GetType()}.");
                             }
                             break;
                         default: throw new ArgumentException($"Unknown OIDC property '{authorizationProperty.Key}'.", nameof(authorizationProperty));
@@ -227,7 +212,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 var allowedHostsCount = Ensure.IsNotNull(allowedHosts, nameof(allowedHosts)).Count();
                 if (allowedHostsCount == 0)
                 {
-                    throw new InvalidOperationException($"{nameof(AllowedHostsName)} mechanism authentication property must contain at least one host.");
+                    throw new InvalidOperationException($"{nameof(AllowedHostsMechanismProperyName)} mechanism authentication property must contain at least one host.");
                 }
 
                 var host = EndPointHelper.GetHostAndPort(endPoint).Host;

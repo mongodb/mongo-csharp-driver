@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var connectionString = split[1];
 
             var settings = MongoClientSettings.FromConnectionString(connectionString);
-            var providerName = settings.Credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderName, defaultValue: null);
+            var providerName = settings.Credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderMechanismProperyName, defaultValue: null);
             DisposableEnvironmentVariable disposableEnvironmentVariable = null;
 
             try
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                     {
                         exception.Should().BeNull();
 
-                        var requestCallback = settings.Credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null);
+                        var requestCallback = settings.Credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, defaultValue: null);
                         requestCallback.Should().NotBeNull();
                         var credentials = GetCachedCredentials();
                         credentials.Expire();
@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var tokenContent = JwtHelper.GetValidTokenOrThrow(GetTokenPath());
 
-            var commandName = "find";
+            const string commandName = "find";
             var connectionString = GetConnectionString();
             var settings = MongoClientSettings.FromConnectionString(connectionString);
 

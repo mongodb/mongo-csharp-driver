@@ -27,18 +27,18 @@ using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Core.TestHelpers.Authentication
 {
-    public delegate BsonDocument RequestCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
-    public delegate Task<BsonDocument> RequestCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
-    public delegate BsonDocument RefreshCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
-    public delegate Task<BsonDocument> RefreshCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+    public delegate BsonDocument OidcTokenRequestCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
+    public delegate Task<BsonDocument> OidcTokenRequestCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
+    public delegate BsonDocument OidcTokenRefreshCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+    public delegate Task<BsonDocument> OidcTokenRefreshCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
 
     public sealed class RequestCallbackProvider : IOidcRequestCallbackProvider
     {
         private readonly bool _autoGenerateMissedCallback;
-        private readonly RequestCallback _requestCallbackFunc;
-        private readonly RequestCallbackAsync _requestCallbackAsyncFunc;
+        private readonly OidcTokenRequestCallback _requestCallbackFunc;
+        private readonly OidcTokenRequestCallbackAsync _requestCallbackAsyncFunc;
 
-        public RequestCallbackProvider(RequestCallback requestCallbackFunc, RequestCallbackAsync requestCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
+        public RequestCallbackProvider(OidcTokenRequestCallback requestCallbackFunc, OidcTokenRequestCallbackAsync requestCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
         {
             _autoGenerateMissedCallback = autoGenerateMissedCallback;
             Ensure.That(requestCallbackFunc != null || requestCallbackAsyncFunc != null, "At least one request callback must be provided.");
@@ -74,10 +74,10 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
     public sealed class RefreshCallbackProvider : IOidcRefreshCallbackProvider
     {
         private readonly bool _autoGenerateMissedCallback;
-        private readonly RefreshCallback _refreshCallbackFunc;
-        private readonly RefreshCallbackAsync _refreshCallbackAsyncFunc;
+        private readonly OidcTokenRefreshCallback _refreshCallbackFunc;
+        private readonly OidcTokenRefreshCallbackAsync _refreshCallbackAsyncFunc;
 
-        public RefreshCallbackProvider(RefreshCallback refreshCallbackFunc, RefreshCallbackAsync refreshCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
+        public RefreshCallbackProvider(OidcTokenRefreshCallback refreshCallbackFunc, OidcTokenRefreshCallbackAsync refreshCallbackAsyncFunc = null, bool autoGenerateMissedCallback = true)
         {
             _autoGenerateMissedCallback = autoGenerateMissedCallback;
             Ensure.That(refreshCallbackFunc != null || refreshCallbackAsyncFunc != null, "At least one refresh callback must be provided.");

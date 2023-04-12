@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticators);  // no mocking 
+                authenticators);  // no mocking
 
             var lazyCache = GetCacheDictionary();
             lazyCache.ToList()
@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
             var clock = FrozenClock.FreezeUtcNow();
 
-            var authenticatorsMock = CreateExternalCredentialsAuthenticators(
+            var externalAuthenticatorsMock = CreateExternalCredentialsAuthenticators(
                 provider: provider,
                 clock,
                 async,
@@ -401,7 +401,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticatorsMock.Object);
+                externalAuthenticatorsMock.Object);
 
             verifyClearCalls(0);
 
@@ -410,7 +410,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 authenticator,
                 mockConnection,
                 async,
-                onlySaslStart: true); // no actual cached value configured in mock, so still need 2 server calls
+                onlySaslStart: true);
 
             exception.Should().Be(requestException);
             verifyClearCalls(1);
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
             var clock = FrozenClock.FreezeUtcNow();
 
-            var authenticatorsMock = CreateExternalCredentialsAuthenticators(
+            var externalAuthenticatorsMock = CreateExternalCredentialsAuthenticators(
                 provider,
                 clock,
                 async,
@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticatorsMock.Object);
+                externalAuthenticatorsMock.Object);
 
             // attempt 1
             var exception = await Authenticate(
@@ -501,7 +501,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
             var clock = FrozenClock.FreezeUtcNow();
 
-            var authenticatorsMock = CreateExternalCredentialsAuthenticators(
+            var externalAuthenticatorsMock = CreateExternalCredentialsAuthenticators(
                 provider: provider,
                 clock,
                 async,
@@ -515,7 +515,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 properties,
                 __serverId.EndPoint,
                 serverApi: null,
-                authenticatorsMock.Object);
+                externalAuthenticatorsMock.Object);
 
             verifyClearCalls(0);
 
@@ -910,7 +910,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             if (withRequestCallback)
             {
                 properties.Add(
-                    MongoOidcAuthenticator.RequestCallbackName,
+                    MongoOidcAuthenticator.RequestCallbackMechanismProperyName,
                     OidcTestHelper.CreateRequestCallback(
                         validateToken: false,
                         accessToken: RequestAccessToken,
@@ -920,7 +920,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             if (withRefreshCallback)
             {
                 properties.Add(
-                    MongoOidcAuthenticator.RefreshCallbackName,
+                    MongoOidcAuthenticator.RefreshCallbackMechanismProperyName,
                     OidcTestHelper.CreateRefreshCallback(
                         validateToken: false,
                         accessToken: RefreshAccessToken,
@@ -929,7 +929,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             };
             if (providerName != null)
             {
-                properties.Add(MongoOidcAuthenticator.ProviderName, providerName);
+                properties.Add(MongoOidcAuthenticator.ProviderMechanismProperyName, providerName);
             }
 
             return properties;
@@ -1050,8 +1050,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                                     .Setup(c => c.GetProvider(It.IsAny<OidcInputConfiguration>()))
                                     .Returns((OidcInputConfiguration ic) =>
                                     {
+                                        // use a mocked provider or create a real one
                                         return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock, OidcTimeSynchronizer.Instance);
                                     });
+                                mockedCache.SetupGet(c => c.TimeSynchronizer).Returns(OidcTimeSynchronizer.Instance);
                                 return mockedCache.Object;
                             });
 

@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             var cachedCredentials = _oidsCredentialsProvider.CachedCredentials;
             if (cachedCredentials != null)
             {
-                if ((connection?.IsInitialized).GetValueOrDefault() &&
+                if ((connection?.IsInitialized).GetValueOrDefault() &&  // reauthenticate case
                     cachedCredentials.TimeVersion <= _oidcTimeSynchronizerContext.InitialTimeVersion)
                 {
                     // ensure, that for a reauthenticate case with more than one affected connections,
