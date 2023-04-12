@@ -128,7 +128,9 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_acquire_connectionId_from_hello_response([Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId, [Values(false, true)] bool async)
+        public void InitializeConnection_should_acquire_connectionId_from_hello_response(
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+            [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
             var helloResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
@@ -146,7 +148,9 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response([Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId, [Values(false, true)] bool async)
+        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response(
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+            [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
             var legacyHelloReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
