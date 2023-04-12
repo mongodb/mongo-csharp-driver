@@ -72,13 +72,13 @@ namespace MongoDB.Driver.Core.Connections
         /// <summary>
         /// Gets the connection id server value.
         /// </summary>
-        public int? ConnectionIdServerValue
+        public long? ConnectionIdServerValue
         {
             get
             {
                 if (_wrapped.TryGetValue("connectionId", out var connectionIdBsonValue))
                 {
-                    return connectionIdBsonValue.ToInt32();
+                    return connectionIdBsonValue.ToInt64();
                 }
 
                 return null;
