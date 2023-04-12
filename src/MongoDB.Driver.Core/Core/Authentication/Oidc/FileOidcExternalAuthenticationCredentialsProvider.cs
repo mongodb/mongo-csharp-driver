@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     internal class FileOidcExternalAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<OidcCredentials>
     {
         #region static
-        public static FileOidcExternalAuthenticationCredentialsProvider CreateProviderFromPathInEnvironmentVariableIfConfigured(
+        public static FileOidcExternalAuthenticationCredentialsProvider CreateProviderFromPathInEnvironmentVariable(
             string environmentVariableName,
             IEnvironmentVariableProvider environmentVariableProvider)
         {

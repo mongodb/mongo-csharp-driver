@@ -1007,7 +1007,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     break;
                 case null: // oidc
                     {
-                        // oidc
                         Mock<IOidcExternalAuthenticationCredentialsProvider> oidcMockedProvider = null;
                         if (!useActualOidcProvider)
                         {

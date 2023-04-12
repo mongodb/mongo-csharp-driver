@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Authentication.External
             Ensure.IsNotNull(clock, nameof(clock));
             _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
             _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new AwsAuthenticationCredentialsProvider(), isThreadSafe: true);
-            _awsForOidcExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<OidcCredentials>>(() => FileOidcExternalAuthenticationCredentialsProvider.CreateProviderFromPathInEnvironmentVariableIfConfigured("AWS_WEB_IDENTITY_TOKEN_FILE", environmentVariableProvider), isThreadSafe: true);
+            _awsForOidcExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<OidcCredentials>>(() => FileOidcExternalAuthenticationCredentialsProvider.CreateProviderFromPathInEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE", environmentVariableProvider), isThreadSafe: true);
             _azureExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>>(() => new CacheableCredentialsProvider<AzureCredentials>(new AzureAuthenticationCredentialsProvider(_httpClientWrapper)), isThreadSafe: true);
             _gcpExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>>(() => new GcpAuthenticationCredentialsProvider(_httpClientWrapper), isThreadSafe: true);
             _oidcProvidersCache = new Lazy<IOidcProvidersCache>(() => new OidcProvidersCache(clock), isThreadSafe: true);

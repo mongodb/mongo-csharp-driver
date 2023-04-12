@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             IEnumerable<KeyValuePair<string, object>> properties,
             EndPoint endpoint,
             ServerApi serverApi) =>
-            CreateAuthenticator(source, principalName, properties, endpoint, serverApi);
+            CreateAuthenticator(source, principalName, properties, endpoint, serverApi, ExternalCredentialsAuthenticators.Instance);
 
         internal static MongoOidcAuthenticator CreateAuthenticator(
             string source,
