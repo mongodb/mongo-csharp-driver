@@ -147,9 +147,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [Theory]
         [ParameterAttributeData]
         public async Task Oidc_authentication_should_correctly_handle_allowed_hosts(
-            [Values("localhost", "127.0.0.1")] string host,
+            [Values("localhost", "127.0.0.1", "[::1]")] string host,
             [Values(null, "aws")] string providerName,
-            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "?ocalhost", "localhost;dummy")] string allowedHosts,
+            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "?ocalhost", "localhost;dummy", "::1")] string allowedHosts,
             [Values(false, true)] bool async)
         {
             var allowedHostsList = allowedHosts?.Split(';');
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
 
             var exception = await Record.ExceptionAsync(() => TestCase(async, settings));
-            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "").Replace('?', host[0]) == host);
+            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "").Replace('?', host[0]) == host.Replace("[", "").Replace("]", ""));
             if (isValidCase.GetValueOrDefault())
             {
                 exception.Should().BeNull();
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 exception
                     .Should().BeOfType<MongoConnectionException>().Which.InnerException
                     .Should().BeOfType<InvalidOperationException>().Which.Message
-                    .Should().Be($"The used host '{host}' doesn't match allowed hosts list ['{expectedHostsList}'].");
+                    .Should().Be($"The used host '{host.Replace("[", "").Replace("]", "")}' doesn't match allowed hosts list ['{expectedHostsList}'].");
             }
         }
 

@@ -40,9 +40,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly string _accessToken;
         private readonly BsonDocument _callbackAuthenticationData;
         private readonly IClock _clock;
-        private readonly long? _timeVersion;
         private DateTime? _expiration;
         private readonly BsonDocument _serverResponse;
+        private readonly long? _timeVersion;
 
         private OidcCredentials(
             BsonDocument callbackAuthenticationData,
@@ -53,9 +53,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             _callbackAuthenticationData = EnsureAuthenticationDataValid(Ensure.IsNotNull(callbackAuthenticationData, nameof(callbackAuthenticationData)));
             _accessToken = Ensure.IsNotNullOrEmpty(_callbackAuthenticationData.GetValue(AccessTokenFieldName, null)?.ToString(), paramName: AccessTokenFieldName);
             _clock = clock; // can be null
-            _timeVersion = oidcTimeSynchronizer?.GetCurrentTimeVersion();
             _expiration = _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
             _serverResponse = serverResponse; // can be null
+            _timeVersion = oidcTimeSynchronizer?.GetCurrentTimeVersion(); // can be null
 
             static BsonDocument EnsureAuthenticationDataValid(BsonDocument callbackAuthenticationData)
             {
