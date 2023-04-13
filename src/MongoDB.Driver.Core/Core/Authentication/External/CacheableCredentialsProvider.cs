@@ -69,35 +69,14 @@ namespace MongoDB.Driver.Core.Authentication.External
             return credentials;
         }
 
-        // private methods
-        private TCredentials GetValidCredentials()
-        {
-            var cache = _cachedCredentials;
-            if (IsValidCache(cache))
-            {
-                return cache;
-            }
-            else
-            {
-                return default;
-            }
-        }
-
-        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
-
+        // private method
         private bool TryGetCachedCredentials(out TCredentials credentials)
         {
-            var cachedCredentials = GetValidCredentials();
-            if (cachedCredentials != null)
-            {
-                credentials = cachedCredentials;
-                return true;
-            }
-            else
-            {
-                credentials = default;
-                return false;
-            }
+            var cachedCredentials = _cachedCredentials;
+            var result = cachedCredentials != null && !cachedCredentials.ShouldBeRefreshed;
+            credentials = result ? cachedCredentials : default;
+
+            return result;
         }
     }
 }
