@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
