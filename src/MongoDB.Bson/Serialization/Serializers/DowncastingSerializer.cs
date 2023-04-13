@@ -18,6 +18,27 @@ using System;
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
+    /// An interface implemented by DowncastingSerializer.
+    /// </summary>
+    public interface IDowncastingSerializer
+    {
+        /// <summary>
+        /// The base type that the serializer will downcast from.
+        /// </summary>
+        Type BaseType { get; }
+
+        /// <summary>
+        /// The serializer for the derived type.
+        /// </summary>
+        IBsonSerializer DerivedSerializer { get; }
+
+        /// <summary>
+        /// The derived type that the serializer will downcast to.
+        /// </summary>
+        Type DerivedType { get; }
+    }
+
+    /// <summary>
     /// Static factory class for DowncastingSerializer.
     /// </summary>
     public static class DowncastingSerializer
@@ -44,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TBase">The base type.</typeparam>
     /// <typeparam name="TDerived">The derived type.</typeparam>
-    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonDocumentSerializer
+    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonDocumentSerializer, IDowncastingSerializer
         where TDerived : TBase
     {
         private readonly IBsonSerializer<TDerived> _derivedSerializer;
@@ -58,6 +79,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             _derivedSerializer = derivedSerializer ?? throw new ArgumentNullException(nameof(derivedSerializer));
         }
+
+        /// <inheritdoc/>
+        public Type BaseType => typeof(TBase);
+
+        /// <inheritdoc/>
+        public IBsonSerializer<TDerived> DerivedSerializer => _derivedSerializer;
+
+        IBsonSerializer IDowncastingSerializer.DerivedSerializer => _derivedSerializer;
+
+        /// <inheritdoc/>
+        public Type DerivedType => typeof(TDerived);
 
         /// <inheritdoc/>
         public override TBase Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

@@ -38,6 +38,13 @@ namespace MongoDB.Driver
             // these will normally be equal unless we've removed some Convert(s) that the compiler put in
             if (fieldType == valueType)
             {
+                if (fieldSerializer is IDowncastingSerializer downcastingSerializer)
+                {
+                    var derivedSerializer = downcastingSerializer.DerivedSerializer;
+                    var derivedType = derivedSerializer.ValueType;
+                    return ConvertIfPossibleSerializer.Create(valueType, derivedType, derivedSerializer, serializerRegistry);
+                }
+
                 return fieldSerializer;
             }
 
@@ -54,7 +61,6 @@ namespace MongoDB.Driver
 
             var fieldTypeInfo = fieldType.GetTypeInfo();
             var fieldSerializerInterfaceType = typeof(IBsonSerializer<>).MakeGenericType(fieldType);
-            var valueTypeInfo = valueType.GetTypeInfo();
 
             // synthesize a NullableSerializer using the field serializer
             if (valueType.IsNullable() && valueType.GetNullableUnderlyingType() == fieldType)
@@ -132,9 +138,7 @@ namespace MongoDB.Driver
             }
 
             // if we can't return a value serializer based on the field serializer return a converting serializer
-            var convertIfPossibleSerializerType = typeof(ConvertIfPossibleSerializer<,>).MakeGenericType(valueType, fieldType);
-            var convertIfPossibleSerializerConstructor = convertIfPossibleSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializerInterfaceType, typeof(IBsonSerializerRegistry) });
-            return (IBsonSerializer)convertIfPossibleSerializerConstructor.Invoke(new object[] { fieldSerializer, serializerRegistry });
+            return ConvertIfPossibleSerializer.Create(valueType, fieldType, fieldSerializer, serializerRegistry);
         }
 
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, object value)
@@ -177,6 +181,20 @@ namespace MongoDB.Driver
         }
 
         // nested types
+        private static class ConvertIfPossibleSerializer
+        {
+            public static IBsonSerializer Create(
+                Type valueType,
+                Type fieldType,
+                IBsonSerializer fieldSerializer,
+                IBsonSerializerRegistry serializerRegistry)
+            {
+                var convertIfPossibleSerializerType = typeof(ConvertIfPossibleSerializer<,>).MakeGenericType(valueType, fieldType);
+                var convertIfPossibleSerializerConstructor = convertIfPossibleSerializerType.GetTypeInfo().GetConstructor(new[] { fieldSerializer.GetType(), typeof(IBsonSerializerRegistry) });
+                return (IBsonSerializer)convertIfPossibleSerializerConstructor.Invoke(new object[] { fieldSerializer, serializerRegistry });
+            }
+        }
+
         private class ConvertIfPossibleSerializer<TFrom, TTo> : SerializerBase<TFrom>
         {
             private readonly IBsonSerializer<TTo> _serializer;
