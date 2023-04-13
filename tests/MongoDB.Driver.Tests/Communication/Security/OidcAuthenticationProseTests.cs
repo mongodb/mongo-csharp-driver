@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public async Task Oidc_authentication_should_correctly_handle_allowed_hosts(
             [Values("localhost", "127.0.0.1", "[::1]")] string host,
             [Values(null, "aws")] string providerName,
-            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "?ocalhost", "localhost;dummy", "::1")] string allowedHosts,
+            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "localhost;dummy", "::1")] string allowedHosts,
             [Values(false, true)] bool async)
         {
             var allowedHostsList = allowedHosts?.Split(';');
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
 
             var exception = await Record.ExceptionAsync(() => TestCase(async, settings));
-            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "").Replace('?', host[0]) == host.Replace("[", "").Replace("]", ""));
+            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "") == host.Replace("[", "").Replace("]", ""));
             if (isValidCase.GetValueOrDefault())
             {
                 exception.Should().BeNull();

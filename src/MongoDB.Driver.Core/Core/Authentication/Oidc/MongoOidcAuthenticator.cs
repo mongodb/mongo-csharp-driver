@@ -225,9 +225,33 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     throw new InvalidOperationException($"The used host '{host}' doesn't match allowed hosts list ['{string.Join("', '" , allowedHosts)}'].");
                 }
 
-                static bool IsHostMatch(string host, string pattern) =>
-                    pattern != null &&
-                    new Regex($"^{Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".")}$", RegexOptions.Singleline).IsMatch(host);
+                static bool IsHostMatch(string host, string pattern)
+                {
+                    if (pattern != null)
+                    {
+                        var index = pattern.IndexOf('*');
+                        if (index != -1)
+                        {
+                            var filterPattern = pattern.Substring(index + 1);
+                            if (filterPattern.Length > 0)
+                            {
+                                return host.EndsWith(filterPattern);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return pattern == host;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
             }
         }
         #endregion
