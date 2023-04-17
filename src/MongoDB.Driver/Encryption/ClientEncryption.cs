@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
@@ -119,6 +120,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+            EnsureFeatureSupported(database.Client.Cluster, Feature.Csfle2QEv2, cancellationToken);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
@@ -181,6 +183,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+            await EnsureFeatureSupportedAsync(database.Client.Cluster, Feature.Csfle2QEv2, cancellationToken).ConfigureAwait(false);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
@@ -437,6 +440,18 @@ namespace MongoDB.Driver.Encryption
                 // should not be reached
                 throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but was {encryptedValue?.GetType()?.Name ?? "null"}.");
             }
+        }
+
+        private void EnsureFeatureSupported(ICluster cluster, Feature feaure, CancellationToken cancellationToken)
+        {
+            var maxWireVersion = cluster.SelectServer(WritableServerSelector.Instance, cancellationToken).Description.MaxWireVersion;
+            feaure.ThrowIfNotSupported(maxWireVersion);
+        }
+
+        private async Task EnsureFeatureSupportedAsync(ICluster cluster, Feature feaure, CancellationToken cancellationToken)
+        {
+            var maxWireVersion = (await cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false)).Description.MaxWireVersion;
+            feaure.ThrowIfNotSupported(maxWireVersion);
         }
     }
 }

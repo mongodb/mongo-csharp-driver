@@ -45,9 +45,7 @@ tests:
                 },
                 "schema": {
                     "default.default": {
-                        "fields": [],
-                        "escCollection": "enxcol_.default.esc",
-                        "ecocCollection": "enxcol_.default.ecoc"
+                        "fields": []
                     }
                 }
               }

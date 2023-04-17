@@ -483,14 +483,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(new[] { "'escCollection' : 'escCollectionName'", "escCollectionName" }, new[] { "'eccCollection' : 'eccCollectionName'", "eccCollectionName" }, new[] { "'ecocCollection' : 'ecocCollectionName'", "ecocCollectionName" })]
-        [InlineData(new[] { null, "esc" }, new[] { null, "ecc" }, new[] { null, "ecoc" })]
-        public void CreateEncryptedCreateCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_set(string[] escCollectionStrElement, string[] eccCollectionStrElement, string[] ecocCollectionStrElement)
+        [InlineData(new[] { "'escCollection' : 'escCollectionName'", "escCollectionName" }, new[] { "'ecocCollection' : 'ecocCollectionName'", "ecocCollectionName" })]
+        [InlineData(new[] { null, "esc" }, new[] { null, "ecoc" })]
+        public void CreateEncryptedCreateCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_set(string[] escCollectionStrElement, string[] ecocCollectionStrElement)
         {
             var encryptedFields = BsonDocument.Parse($@"
             {{
                 {GetFirstElementWithCommaOrEmpty(escCollectionStrElement)}
-                {GetFirstElementWithCommaOrEmpty(eccCollectionStrElement)}
                 {GetFirstElementWithCommaOrEmpty(ecocCollectionStrElement)}
                 ""fields"" :
                 [{{
@@ -517,21 +516,15 @@ namespace MongoDB.Driver.Core.Operations
                 new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(escCollectionStrElement)),
                 encryptedFields: null,
                 isMainOperation: false);
-            // ecc
-            AssertCreateCollectionCommand(
-                operations[1],
-                new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(eccCollectionStrElement)),
-                encryptedFields: null,
-                isMainOperation: false);
             // eco
             AssertCreateCollectionCommand(
-                operations[2],
+                operations[1],
                 new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(ecocCollectionStrElement)),
                 encryptedFields: null,
                 isMainOperation: false);
             // main
             AssertCreateCollectionCommand(
-                operations[3],
+                operations[2],
                 _collectionNamespace,
                 encryptedFields,
                 isMainOperation: true,

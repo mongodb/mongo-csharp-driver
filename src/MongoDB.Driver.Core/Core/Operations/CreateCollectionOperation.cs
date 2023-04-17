@@ -51,7 +51,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return new CompositeWriteOperation<BsonDocument>(
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
-                    (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecc)), IsMainOperation: false),
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false),
                     (mainOperation, IsMainOperation: true),
                     (new CreateIndexesOperation(collectionNamespace, new[] { new CreateIndexRequest(EncryptedCollectionHelper.AdditionalCreateIndexDocument) }, messageEncoderSettings), IsMainOperation: false));
@@ -82,6 +81,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
+
         private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
@@ -98,6 +98,14 @@ namespace MongoDB.Driver.Core.Operations
         public CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, messageEncoderSettings, supportedFeature: null)
+        {
+        }
+
+        private CreateCollectionOperation(
+            CollectionNamespace collectionNamespace,
+            MessageEncoderSettings messageEncoderSettings,
+            Feature supportedFeature)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
@@ -406,11 +414,14 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
-                return operation.Execute(channelBinding, cancellationToken);
+                EnsureServerIsValid(channelSource.ServerDescription.MaxWireVersion);
+                using (var channel = channelSource.GetChannel(cancellationToken))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+                {
+                    var operation = CreateOperation(channelBinding.Session);
+                    return operation.Execute(channelBinding, cancellationToken);
+                }
             }
         }
 
@@ -420,18 +431,30 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                EnsureServerIsValid(channelSource.ServerDescription.MaxWireVersion);
+                using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+                {
+                    var operation = CreateOperation(channelBinding.Session);
+                    return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
+        // private methods
         private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
         {
             var command = CreateCommand(session);
             return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        }
+
+        private void EnsureServerIsValid(int maxWireVersion)
+        {
+            if (_encryptedFields != null)
+            {
+                Feature.Csfle2QEv2.ThrowIfNotSupported(maxWireVersion);
+            }
         }
 
         [Flags]
