@@ -103,15 +103,13 @@ namespace MongoDB.Driver.Core.Connections
                 var timeout = GetTimeoutSec(name);
                 var memoryDb = GetMemoryMb(name);
                 var region = GetRegion(name);
-                var url = GetUrl(name);
 
                 return new BsonDocument
                 {
                     { "name", name },
                     { "timeout_sec", timeout, timeout.HasValue },
                     { "memory_mb", memoryDb, memoryDb.HasValue },
-                    { "region", region, region != null },
-                    { "url", url, url != null }
+                    { "region", region, region != null }
                 };
             }
             else
@@ -141,7 +139,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 if (Environment.GetEnvironmentVariable("VERCEL") != null)
                 {
-                    if (result != null) return null;
+                    if (result != null && result != awsLambdaName) return null;
 
                     result = vercelName;
                 }
@@ -171,13 +169,6 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     gcpFuncName => GetIntValue("FUNCTION_TIMEOUT_SEC"),
                     _ => null,
-                };
-
-            string GetUrl(string name) =>
-                name switch
-                {
-                    vercelName => Environment.GetEnvironmentVariable("VERCEL_URL"),
-                    _ => null
                 };
 
             int? GetIntValue(string environmentVariable) =>

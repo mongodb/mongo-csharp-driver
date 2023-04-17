@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests
             // Valid GCP
             "{ 'K_SERVICE' : 'servicename', 'FUNCTION_MEMORY_MB' : '1024', 'FUNCTION_TIMEOUT_SEC' : '60', 'FUNCTION_REGION' : 'us-central1', expected: { 'name' : 'gcp.func', 'timeout_sec' : 60, 'memory_mb' : 1024, 'region' : 'us-central1' } }",
             // Valid VERCEL
-            "{ 'VERCEL' : '1', 'VERCEL_URL' : '*.vercel.app', 'VERCEL_REGION' : 'cdg1', expected: { 'name' : 'vercel', 'region' : 'cdg1', 'url' : '*.vercel.app' } }",
+            "{ 'VERCEL' : '1', 'VERCEL_REGION' : 'cdg1', expected: { 'name' : 'vercel', 'region' : 'cdg1' } }",
             // Invalid - multiple providers
             "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'FUNCTIONS_WORKER_RUNTIME' : 'node', expected: null }",
             // Invalid - long string

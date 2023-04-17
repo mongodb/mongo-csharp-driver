@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -148,6 +149,58 @@ namespace MongoDB.Driver.Core.Connections
             result.Should().Be(expectedResult);
         }
 
+        const string awsEnv = "AWS_EXECUTION_ENV";
+        const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
+        const string gcpEnv = "K_SERVICE";
+        const string vercelEnv = "VERCEL";
+
+        const string awsLambdaName = "aws.lambda";
+        const string azureFuncName = "azure.func";
+        const string gcpFuncName = "gcp.func";
+        const string vercelName = "vercel";
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Prefer_vercel_over_aws_env_name_when_both_specified(
+            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
+            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
+        {
+            RequireEnvironment
+                .Check()
+                .EnvironmentVariable("AWS_EXECUTION_ENV", isDefined: false)
+                .EnvironmentVariable("AWS_LAMBDA_RUNTIME_API", isDefined: false)
+                .EnvironmentVariable("FUNCTIONS_WORKER_RUNTIME", isDefined: false)
+                .EnvironmentVariable("K_SERVICE", isDefined: false)
+                .EnvironmentVariable("FUNCTION_NAME", isDefined: false)
+                .EnvironmentVariable("VERCEL", isDefined: false);
+
+            using (new DisposableEnvironmentVariable(left, "dummy"))
+            using (new DisposableEnvironmentVariable(right, "dummy"))
+            {
+                var clientEnvDocument = ClientDocumentHelper.CreateEnvDocument();
+                if (left == right)
+                {
+                    var expectedName = left switch
+                    {
+                        awsEnv => awsLambdaName,
+                        azureEnv => azureFuncName,
+                        gcpEnv => gcpFuncName,
+                        vercelEnv => vercelName,
+                        _ => throw new Exception($"Unexpected env {left}."),
+                    };
+                    clientEnvDocument["name"].Should().Be(BsonValue.Create(expectedName));
+                }
+                else if ((left == awsEnv && right == vercelEnv) || (left == vercelEnv && right == awsEnv)) // exception
+                {
+                    clientEnvDocument["name"].Should().Be(BsonValue.Create(vercelName));
+                }
+                else
+                {
+                    clientEnvDocument.Should().BeNull();
+                }
+            }
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes_should_return_expected_result(
@@ -269,6 +322,22 @@ namespace MongoDB.Driver.Core.Connections
             string fieldName;
             document = NavigateDots(document, dottedFieldName, out fieldName);
             document[fieldName] = value;
+        }
+
+        // nested type
+        private class DisposableEnvironmentVariable : IDisposable
+        {
+            private readonly string _initialValue;
+            private readonly string _name;
+
+            public DisposableEnvironmentVariable(string name, string value)
+            {
+                _name = name;
+                _initialValue = Environment.GetEnvironmentVariable(name);
+                Environment.SetEnvironmentVariable(name, value);
+            }
+
+            public void Dispose() => Environment.SetEnvironmentVariable(_name, _initialValue);
         }
     }
 }
