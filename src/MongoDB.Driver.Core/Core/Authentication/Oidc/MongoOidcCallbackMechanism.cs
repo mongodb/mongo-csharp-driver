@@ -45,7 +45,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public override ICredentialsCache<OidcCredentials> CredentialsCache => _oidsCredentialsProvider;
 
         public override bool ShouldReauthenticateIfSaslError(IConnection connection, Exception ex) =>
-            connection.IsInitialized && // reauthenticate case
             ex is MongoAuthenticationException mongoAuthenticationException && // consider only server errors
             mongoAuthenticationException.AllowReauthentication &&
             RetryabilityHelper.IsReauthenticationRequested(mongoAuthenticationException);

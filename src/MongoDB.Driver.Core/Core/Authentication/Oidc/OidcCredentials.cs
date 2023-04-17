@@ -26,6 +26,13 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private const string AccessTokenFieldName = "accessToken";
         public static readonly TimeSpan ExpirationWindow = TimeSpan.FromMinutes(5);
 
+        public static OidcCredentials Create(BsonDocument saslServerResponse, IClock clock, IOidcTimeSynchronizer oidcTimeSynchronizer) =>
+            new OidcCredentials(
+                callbackAuthenticationData: null,
+                Ensure.IsNotNull(saslServerResponse, nameof(saslServerResponse)),
+                Ensure.IsNotNull(clock, nameof(clock)),
+                Ensure.IsNotNull(oidcTimeSynchronizer, nameof(oidcTimeSynchronizer)));
+
         public static OidcCredentials Create(BsonDocument callbackAuthenticationData, BsonDocument saslServerResponse, IClock clock, IOidcTimeSynchronizer oidcTimeSynchronizer) =>
             new OidcCredentials(
                 Ensure.IsNotNull(callbackAuthenticationData, nameof(callbackAuthenticationData)),
@@ -50,7 +57,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             IClock clock,
             IOidcTimeSynchronizer oidcTimeSynchronizer)
         {
-            _callbackAuthenticationData = EnsureAuthenticationDataValid(Ensure.IsNotNull(callbackAuthenticationData, nameof(callbackAuthenticationData)));
+            _callbackAuthenticationData = EnsureAuthenticationDataValid(callbackAuthenticationData);
             _accessToken = Ensure.IsNotNullOrEmpty(_callbackAuthenticationData.GetValue(AccessTokenFieldName, null)?.ToString(), paramName: AccessTokenFieldName);
             _clock = clock; // can be null
             _expiration = _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
@@ -59,6 +66,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
             static BsonDocument EnsureAuthenticationDataValid(BsonDocument callbackAuthenticationData)
             {
+                if (callbackAuthenticationData == null) return null;
+
                 bool withAccessToken = false;
                 foreach (var item in callbackAuthenticationData)
                 {
@@ -78,7 +87,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public BsonDocument CallbackAuthenticationData => _callbackAuthenticationData;
         public DateTime? Expiration => _expiration;
         public BsonDocument ServerResponse => _serverResponse;
-        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true;
+        public bool ShouldBeRefreshed => _callbackAuthenticationData == null || _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true;
         public long TimeVersion => _timeVersion
             // should not be reached
             ?? throw new InvalidOperationException("OIDC time synchronizer has not been initialized.");

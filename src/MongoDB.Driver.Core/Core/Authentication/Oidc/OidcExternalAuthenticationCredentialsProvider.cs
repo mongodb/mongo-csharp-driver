@@ -84,7 +84,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 if (oidcCredentials == null)
                 {
-                    oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfigured(saslStartResponse);
+                    try
+                    {
+                        oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfigured(saslStartResponse);
+                    }
+                    catch
+                    {
+                        // at least we can cache server response
+                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock, _oidcTimeSynchronizer);
+                        throw;
+                    }
                 }
 
                 if (oidcCredentials != null)
@@ -122,7 +131,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 if (oidcCredentials == null)
                 {
-                    oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfiguredAsync(saslStartResponse).ConfigureAwait(false);
+                    try
+                    {
+                        oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfiguredAsync(saslStartResponse).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // at least we can cache server response
+                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock, _oidcTimeSynchronizer);
+                        throw;
+                    }
                 }
 
                 if (oidcCredentials != null)

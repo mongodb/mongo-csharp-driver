@@ -96,10 +96,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             File.WriteAllText(path: "awsToken", contents: "awsToken");
         }
 
-        public OidcAuthenticatorMockedTests()
-        {
-            OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
-        }
+        public OidcAuthenticatorMockedTests() => OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
         #endregion
 
         [Fact]
