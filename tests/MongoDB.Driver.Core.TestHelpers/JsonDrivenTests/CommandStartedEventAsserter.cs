@@ -172,6 +172,37 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                             }
                         }
                         break;
+                    case "encryptedFields":
+                        if (commandName == "create") // create encrypted collection
+                        {
+                            var encryptedFieldsDocument = actualCommand[name].AsBsonDocument;
+                            foreach (var expectedItem in expectedValue.AsBsonDocument)
+                            {
+                                switch (expectedItem.Name)
+                                {
+                                    case "escCollection":
+                                    case "ecocCollection" :
+                                    case "eccCollection":
+                                        {
+                                            encryptedFieldsDocument.Should().NotContain(expectedItem.Name);
+                                            continue;
+                                        }
+                                    case "fields":
+                                        {
+                                            var fields = encryptedFieldsDocument["fields"].AsBsonArray;
+                                            var expectedFields = expectedValue["fields"].AsBsonArray;
+                                            if (BsonValueEquivalencyComparer.Compare(fields, expectedFields))
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        break;
+                                    default: goto default;
+                                }
+                            }
+                            return;
+                        }
+                        break;
                 }
 
                 throw new AssertionFailedException($"Expected field '{name}' in command '{commandName}' to be {expectedValue.ToJson()} but found {actualValue.ToJson()}.");
