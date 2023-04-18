@@ -530,7 +530,7 @@ namespace MongoDB.Driver.Core.Operations
                 isMainOperation: true,
                 withClusteredIndex: false);
             // __safeContent__
-            AssertIndex(operations[4], _collectionNamespace, index: new BsonDocument("__safeContent__", 1));
+            AssertIndex(operations[3], _collectionNamespace, index: new BsonDocument("__safeContent__", 1));
 
             void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation, bool withClusteredIndex = true)
             {
