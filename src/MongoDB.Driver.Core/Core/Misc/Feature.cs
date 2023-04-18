@@ -280,7 +280,6 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         public static Feature ClientSideEncryption => __clientSideEncryption;
 
-
         /// <summary>
         /// Gets the clustered indexes feature.
         /// </summary>
