@@ -67,7 +67,11 @@ tests:
             encryptionInformation:
               type: 1
               schema:
-                default.default: *encrypted_fields
+                default.default:
+                  # libmongocrypt applies escCollection and ecocCollection to outgoing command.
+                  escCollection: "enxcol_.default.esc"
+                  ecocCollection: "enxcol_.default.ecoc"
+                  <<: *encrypted_fields
           command_name: insert
       - command_started_event:
           command:
@@ -78,7 +82,11 @@ tests:
             encryptionInformation:
               type: 1
               schema:
-                default.default: *encrypted_fields
+                default.default:
+                  # libmongocrypt applies escCollection and ecocCollection to outgoing command.
+                  escCollection: "enxcol_.default.esc"
+                  ecocCollection: "enxcol_.default.ecoc"
+                  <<: *encrypted_fields
           command_name: insert
       - command_started_event:
           command:
@@ -98,10 +106,15 @@ tests:
                       "limit": 1
                   }
               ]
+            ordered: true
             encryptionInformation:
               type: 1
               schema:
-                default.default: *encrypted_fields
+                default.default:
+                  # libmongocrypt applies escCollection and ecocCollection to outgoing command.
+                  escCollection: "enxcol_.default.esc"
+                  ecocCollection: "enxcol_.default.ecoc"
+                  <<: *encrypted_fields
           command_name: delete
     outcome:
       collection:

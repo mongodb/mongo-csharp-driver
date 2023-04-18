@@ -184,20 +184,25 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                                     case "ecocCollection" :
                                     case "eccCollection":
                                         {
-                                            encryptedFieldsDocument.Should().NotContain(expectedItem.Name);
-                                            continue;
+                                            var collectionValue = expectedValue[expectedItem.Name];
+                                            if (collectionValue.IsBsonNull)
+                                            {
+                                                encryptedFieldsDocument.Should().NotContain(expectedItem.Name);
+                                            }
+                                            else
+                                            {
+                                                encryptedFieldsDocument[expectedItem.Name].Should().Be(collectionValue);
+                                            }
+                                            break;
                                         }
                                     case "fields":
                                         {
                                             var fields = encryptedFieldsDocument["fields"].AsBsonArray;
                                             var expectedFields = expectedValue["fields"].AsBsonArray;
-                                            if (BsonValueEquivalencyComparer.Compare(fields, expectedFields))
-                                            {
-                                                return;
-                                            }
+                                            fields.Should().Be(expectedFields);
+                                            break;
                                         }
-                                        break;
-                                    default: goto default;
+                                    default: throw new AssertionFailedException($"Unexpected encryptedFields field: {expectedItem.Name}.");
                                 }
                             }
                             return;

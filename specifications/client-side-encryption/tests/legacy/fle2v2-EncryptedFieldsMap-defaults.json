@@ -74,6 +74,8 @@
                 },
                 "schema": {
                   "default.default": {
+                    "escCollection": "enxcol_.default.esc",
+                    "ecocCollection": "enxcol_.default.ecoc",
                     "fields": []
                   }
                 }
