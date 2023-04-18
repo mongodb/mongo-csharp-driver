@@ -442,16 +442,16 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private void EnsureFeatureSupported(ICluster cluster, Feature feaure, CancellationToken cancellationToken)
+        private void EnsureFeatureSupported(ICluster cluster, Feature feature, CancellationToken cancellationToken)
         {
             var maxWireVersion = cluster.SelectServer(WritableServerSelector.Instance, cancellationToken).Description.MaxWireVersion;
-            feaure.ThrowIfNotSupported(maxWireVersion);
+            feature.ThrowIfNotSupported(maxWireVersion);
         }
 
-        private async Task EnsureFeatureSupportedAsync(ICluster cluster, Feature feaure, CancellationToken cancellationToken)
+        private async Task EnsureFeatureSupportedAsync(ICluster cluster, Feature feature, CancellationToken cancellationToken)
         {
             var maxWireVersion = (await cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false)).Description.MaxWireVersion;
-            feaure.ThrowIfNotSupported(maxWireVersion);
+            feature.ThrowIfNotSupported(maxWireVersion);
         }
     }
 }
