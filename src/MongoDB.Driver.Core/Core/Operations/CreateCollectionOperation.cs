@@ -81,7 +81,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
-
         private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
