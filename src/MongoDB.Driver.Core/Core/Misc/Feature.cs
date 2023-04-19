@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __sortArrayOperator = new Feature("SortArrayOperator", WireVersion.Server52);
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
+        private static readonly Feature __stableApi = new Feature("StableAPI", WireVersion.Server50);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", WireVersion.Server32);
         private static readonly Feature __toConversionOperators = new Feature("ToConversionOperators", WireVersion.Server40);
@@ -643,6 +644,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the speculative authentication feature.
         /// </summary>
         public static Feature SpeculativeAuthentication => __speculativeAuthentication;
+
+        /// <summary>
+        /// Gets the speculative authentication feature.
+        /// </summary>
+        public static Feature StableApi => __stableApi;
 
         /// <summary>
         /// Gets the streaming hello feature.

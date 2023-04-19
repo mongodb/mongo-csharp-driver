@@ -630,6 +630,79 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void GridFS_should_work_with_strict_stable_api(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.StableApi);
+
+            var settings = DriverTestConfiguration.GetClientSettings();
+            settings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true, deprecationErrors: true);
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var subject = new GridFSBucket<ObjectId>(database);
+
+            if (async)
+            {
+                subject.DropAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Drop();
+            }
+
+            const string filename = "hello.txt";
+            const string content = "Hello, world!";
+            var bytes = Encoding.UTF8.GetBytes(content);
+            var id = ObjectId.GenerateNewId();
+            if (async)
+            {
+                subject.UploadFromBytesAsync(id, filename, bytes).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UploadFromBytes(id, filename, bytes);
+            }
+
+            var filter = Builders<GridFSFileInfo<ObjectId>>.Filter.Eq(x => x.Id, id);
+            List<GridFSFileInfo<ObjectId>> results;
+            if (async)
+            {
+                results = subject.FindAsync(filter).GetAwaiter().GetResult().ToList();
+            }
+            else
+            {
+                results = subject.Find(filter).ToList();
+            }
+
+            results.Count.Should().Be(1);
+            results.First().Filename.Should().Be(filename);
+
+            byte[] downloadedBytes;
+            if (async)
+            {
+                downloadedBytes = subject.DownloadAsBytesAsync(id).GetAwaiter().GetResult();
+            }
+            else
+            {
+                downloadedBytes = subject.DownloadAsBytes(id);
+            }
+
+            var downloadedContent = Encoding.UTF8.GetString(downloadedBytes);
+            downloadedContent.Should().Be(content);
+
+            if (async)
+            {
+                subject.DropAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Drop();
+            }
+        }
+
         // private methods
         private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {
