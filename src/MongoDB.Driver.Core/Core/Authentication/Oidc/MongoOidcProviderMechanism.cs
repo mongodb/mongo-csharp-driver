@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public override ICredentialsCache<OidcCredentials> CredentialsCache => _credentialsCache;
 
-        public override OidcCredentials UsedCredentials => null;
+        public override OidcCredentials UsedCredentials => null; /* only for callbacks workflow */
 
         public override bool ShouldReauthenticateIfSaslError(IConnection connection, Exception ex) => false; /* only for callbacks workflow */
 

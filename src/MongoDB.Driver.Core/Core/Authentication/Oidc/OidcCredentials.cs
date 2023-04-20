@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly BsonDocument _callbackAuthenticationData;
         private readonly IClock _clock;
         private DateTime? _expiration;
+        private InterlockedInt32 _expired;
         private readonly BsonDocument _serverResponse;
 
         private OidcCredentials(
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             _callbackAuthenticationData = EnsureAuthenticationDataValid(callbackAuthenticationData);
             _accessToken = _callbackAuthenticationData?.GetValue(AccessTokenFieldName, null)?.ToString();
             _clock = clock; // can be null
+            _expired = new InterlockedInt32(0); /*not force expired*/
             _expiration = _callbackAuthenticationData != null && _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
             _serverResponse = serverResponse; // can be null
 
@@ -82,8 +84,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public BsonDocument CallbackAuthenticationData => _callbackAuthenticationData;
         public DateTime? Expiration => _expiration;
         public BsonDocument ServerResponse => _serverResponse;
-        public bool ShouldBeRefreshed => _callbackAuthenticationData == null || _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true;
-        public void Expire() => _expiration = null;
+        public bool ShouldBeRefreshed =>
+            _expired.Value == 1 /* force expired */ ||
+            _callbackAuthenticationData == null || // no credentials yet
+            _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true; // expired by time
+        public void Expire() => _expired.TryChange(1);
         public BsonDocument GetKmsCredentials() =>
             // should not be reached
             throw new NotSupportedException("OIDC authentication is not supported with KMS.");
