@@ -18,6 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Tests.Builders
             var indexes = collection.GetIndexes();
             var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
             index["key"]["$**"].AsInt32.Should().Be(1);
-            index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ b : 1, _id : 0 }"));
+            index["wildcardProjection"].WithComparer(BsonValueEquivalencyComparer.Instance).Should().Be(BsonDocument.Parse("{ b : 1, _id : 0 }"));
         }
 
         [Fact]
