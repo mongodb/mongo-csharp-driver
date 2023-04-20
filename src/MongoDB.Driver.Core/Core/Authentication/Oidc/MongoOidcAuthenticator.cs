@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -29,9 +28,29 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
-    internal abstract class OidcSaslMechanism : SaslMechanismBase
+    internal sealed class OidcAuthenticationContext : IAuthenticationContext
     {
-        protected static ISaslStep CreateLastSaslStep(IExternalCredentials oidcCredentials)
+        public OidcAuthenticationContext(EndPoint endPoint, OidcCredentials usedCredentials)
+        {
+            CurrentEndPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
+            UsedCredentials = usedCredentials;
+        }
+
+        public EndPoint CurrentEndPoint { get; }
+
+        public OidcCredentials UsedCredentials { get; }
+    }
+
+    internal interface IOidcStepsFactory
+    {
+        ISaslStep CreateLastSaslStep(OidcCredentials oidcCredentials);
+    }
+
+    internal abstract class OidcSaslMechanism : SaslMechanismBase, IOidcStepsFactory, IWithAuthenticationContext
+    {
+        private readonly EndPoint _endPoint;
+
+        public virtual ISaslStep CreateLastSaslStep(OidcCredentials oidcCredentials)
         {
             if (oidcCredentials == null)
             {
@@ -40,9 +59,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             return new NoTransitionClientLast(new BsonDocument("jwt", oidcCredentials.AccessToken).ToBson());
         }
 
+        public OidcSaslMechanism(EndPoint endPoint) => _endPoint = endPoint;
+
         public abstract ICredentialsCache<OidcCredentials> CredentialsCache { get; }
 
         public override string Name => MongoOidcAuthenticator.MechanismName;
+
+        public abstract OidcCredentials UsedCredentials { get; }
+
+        public IAuthenticationContext AuthenticationContext => new OidcAuthenticationContext(_endPoint, UsedCredentials);
 
         public abstract ISaslStep CreateSpeculativeAuthenticationSaslStep(CancellationToken cancellationToken);
         public virtual Task<ISaslStep> CreateSpeculativeAuthenticationSaslStepAsync(CancellationToken cancellationToken) => Task.FromResult(CreateSpeculativeAuthenticationSaslStep(cancellationToken));
@@ -52,7 +77,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     /// <summary>
     /// The Mongo OIDC authenticator.
     /// </summary>
-    internal sealed class MongoOidcAuthenticator : SaslAuthenticator
+    internal sealed class MongoOidcAuthenticator : SaslAuthenticator, IWithAuthenticationContext
     {
         #region static
         public const string AllowedHostsMechanismProperyName = "ALLOWED_HOSTS";
@@ -69,29 +94,29 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <param name="source">The source.</param>
         /// <param name="principalName">The principalName.</param>
         /// <param name="properties">The properties.</param>
-        /// <param name="endPoint">The endpoint.</param>
+        /// <param name="context">The authentication context.</param>
         /// <param name="serverApi">The server API.</param>
         /// <returns>The oidc authenticator.</returns>
         public static MongoOidcAuthenticator CreateAuthenticator(
             string source,
             string principalName,
             IEnumerable<KeyValuePair<string, string>> properties,
-            EndPoint endPoint,
+            IAuthenticationContext context,
             ServerApi serverApi) =>
-            CreateAuthenticator(source, principalName, properties, endPoint, serverApi, ExternalCredentialsAuthenticators.Instance);
+            CreateAuthenticator(source, principalName, properties, context, serverApi, ExternalCredentialsAuthenticators.Instance);
 
         internal static MongoOidcAuthenticator CreateAuthenticator(
             string source,
             string principalName,
             IEnumerable<KeyValuePair<string, string>> properties,
-            EndPoint endpoint,
+            IAuthenticationContext context,
             ServerApi serverApi,
             IExternalCredentialsAuthenticators externalCredentialsAuthenticators) =>
         CreateAuthenticator(
             source,
             principalName,
             properties.Select(pair => new KeyValuePair<string, object>(pair.Key, pair.Value)),
-            endpoint,
+            context,
             serverApi,
             externalCredentialsAuthenticators);
 
@@ -101,26 +126,27 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <param name="source">The source.</param>
         /// <param name="principalName">The principal name.</param>
         /// <param name="properties">The properties.</param>
-        /// <param name="endpoint">The current endpoint.</param>
+        /// <param name="context">The authentication context.</param>
         /// <param name="serverApi">The server API.</param>
         /// <returns>The oidc authenticator.</returns>
         public static MongoOidcAuthenticator CreateAuthenticator(
             string source,
             string principalName,
             IEnumerable<KeyValuePair<string, object>> properties,
-            EndPoint endpoint,
+            IAuthenticationContext context,
             ServerApi serverApi) =>
-            CreateAuthenticator(source, principalName, properties, endpoint, serverApi, ExternalCredentialsAuthenticators.Instance);
+            CreateAuthenticator(source, principalName, properties, context, serverApi, ExternalCredentialsAuthenticators.Instance);
 
         internal static MongoOidcAuthenticator CreateAuthenticator(
             string source,
             string principalName,
             IEnumerable<KeyValuePair<string, object>> properties,
-            EndPoint endpoint,
+            IAuthenticationContext context,
             ServerApi serverApi,
             IExternalCredentialsAuthenticators externalCredentialsAuthenticators)
         {
-            Ensure.IsNotNull(endpoint, nameof(endpoint));
+            Ensure.IsNotNull(context, nameof(context));
+            var endPoint = Ensure.IsNotNull(context.CurrentEndPoint, nameof(context.CurrentEndPoint));
             Ensure.IsNotNull(externalCredentialsAuthenticators, nameof(externalCredentialsAuthenticators));
 
             if (source != "$external")
@@ -128,15 +154,14 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 throw new ArgumentException("MONGODB-OIDC authentication may only use the $external source.", nameof(source));
             }
 
-            var inputConfiguration = CreateInputConfiguration(endpoint, principalName, properties);
+            var inputConfiguration = CreateInputConfiguration(endPoint, principalName, properties);
 
             OidcSaslMechanism mechanism;
             if (inputConfiguration.IsCallbackWorkflow)
             {
                 var oidcAuthenticator = externalCredentialsAuthenticators.Oidc;
                 var oidsCredentialsProvider = oidcAuthenticator.GetProvider(inputConfiguration);
-                var oidcTimeSynchronizerContext = new OidcTimeSynchronizerContext(oidcAuthenticator.TimeSynchronizer);
-                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider, oidcTimeSynchronizerContext);
+                mechanism = new MongoOidcCallbackMechanism(inputConfiguration.PrincipalName, oidsCredentialsProvider, context);
             }
             else
             {
@@ -148,7 +173,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     "gcp" => new OidcAuthenticationCredentialsProviderAdapter<GcpCredentials>(externalCredentialsAuthenticators.Gcp),
                     _ => throw new NotSupportedException($"Not supported provider name: {providerName} for OIDC authentication.")
                 };
-                mechanism = new MongoOidcProviderMechanism(provider);
+                mechanism = new MongoOidcProviderMechanism(provider, endPoint);
             }
             return new MongoOidcAuthenticator(mechanism, serverApi);
 
@@ -270,6 +295,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// The database name.
         /// </summary>
         public override string DatabaseName => "$external";
+
+        public IAuthenticationContext AuthenticationContext => _mechanism.AuthenticationContext; 
 
         /// <inheritdoc/>
         public override void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)

@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Bindings;
@@ -65,6 +66,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         private static readonly BsonDocument __initialSaslStartResponseForCallbackWorkflow;
         private static readonly OidcCredentials __oidcCredentials;
         private static readonly ServerId __serverId;
+        private static readonly IAuthenticationContext __defaultAuthenticationContext;
 
         // static constructor
         static OidcAuthenticatorMockedTests()
@@ -73,10 +75,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             __azureCredentials = new AzureCredentials("azureToken", expiration: null);
             __collectionNamespace = CollectionNamespace.FromFullName("db.coll");
             __gcpCredentials = new GcpCredentials("gcpToken");
-            __oidcCredentials = OidcCredentials.Create(new BsonDocument("accessToken", 1), new BsonDocument(), Mock.Of<IClock>(), OidcTimeSynchronizer.Instance);
+            __oidcCredentials = OidcCredentials.Create(new BsonDocument("accessToken", 1), new BsonDocument(), Mock.Of<IClock>());
             __endpoint2 = new DnsEndPoint("localhost", 27018);
 
             __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            __defaultAuthenticationContext = new DefaultAuthenticationContext(__serverId.EndPoint);
 
             __descriptionCommandWireProtocol = new ConnectionDescription(
                 new ConnectionId(__serverId),
@@ -102,9 +105,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         [Fact]
         public void Constructor_should_throw_when_endpoint_is_null()
         {
-            var exception = Record.Exception(() => MongoOidcAuthenticator.CreateAuthenticator("$external", principalName: "name", new KeyValuePair<string, string>[0], endPoint: null, serverApi: null));
+            var exception = Record.Exception(() => MongoOidcAuthenticator.CreateAuthenticator("$external", principalName: "name", new KeyValuePair<string, string>[0], context: null, serverApi: null));
 
-            exception.Should().BeOfType<ArgumentNullException>().Which.Message.Should().Contain("endpoint");
+            exception.Should().BeOfType<ArgumentNullException>().Which.Message.Should().Contain("context");
         }
 
         [Theory]
@@ -138,7 +141,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 externalAuthenticatorsMock.Object);
 
@@ -231,7 +234,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 externalAuthenticatorsMock.Object);
 
@@ -292,7 +295,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 authenticators);  // no mocking
 
@@ -315,7 +318,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 authenticators);  // no mocking
 
@@ -344,7 +347,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 isPrincipalNameDifferent ? PrincipalName2 : PrincipalName,
                 properties,
-                isPrincipalNameDifferent ? __serverId.EndPoint : __endpoint2,
+                isPrincipalNameDifferent ? __defaultAuthenticationContext : new DefaultAuthenticationContext(__endpoint2),
                 serverApi: null,
                 authenticators); // no mocking
 
@@ -396,7 +399,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 principalName: null,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 externalAuthenticatorsMock.Object);
 
@@ -442,7 +445,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 principalName: null,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 externalAuthenticatorsMock.Object);
 
@@ -510,7 +513,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 principalName: null,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 externalAuthenticatorsMock.Object);
 
@@ -708,7 +711,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                __defaultAuthenticationContext,
                 serverApi: null,
                 ExternalCredentialsAuthenticators.Instance);
 
@@ -724,39 +727,39 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
             AssertCallbacksCall(requestCount: 1, refreshCount: 0);
 
-            var authenticator = MongoOidcAuthenticator.CreateAuthenticator(
+            var authenticator1 = MongoOidcAuthenticator.CreateAuthenticator(
                 source: "$external",
                 PrincipalName,
                 properties,
-                __serverId.EndPoint,
+                new OidcAuthenticationContext(__serverId.EndPoint, (prepareAuthenticator.AuthenticationContext as OidcAuthenticationContext).UsedCredentials),
                 serverApi: null,
                 ExternalCredentialsAuthenticators.Instance);
             mockConnection.IsInitialized = true; // reautentication workflow is enabled
 
-            // attempt 1
+            var authenticator2 = MongoOidcAuthenticator.CreateAuthenticator(
+                source: "$external",
+                PrincipalName,
+                properties,
+                new OidcAuthenticationContext(__serverId.EndPoint, (prepareAuthenticator.AuthenticationContext as OidcAuthenticationContext).UsedCredentials),
+                serverApi: null,
+                ExternalCredentialsAuthenticators.Instance);
+            mockConnection.IsInitialized = true; // reautentication workflow is enabled
+
+            // attempt 1.1
             exception = await Authenticate(
-                authenticator,
+                authenticator1,
                 mockConnection,
                 async,
                 onlySaslStart: true);
             exception.Should().BeNull();
 
             AssertCallbacksCall(requestCount: 1, refreshCount: 1);
+
             ensureNoCallbackCalls = true; // the cache won't be touched anymore, otherwise the callback will trigger exception
 
-            // attempt 2
+            // attempt 2.1
             exception = await Authenticate(
-                authenticator,
-                mockConnection,
-                async,
-                onlySaslStart: true);
-            exception.Should().BeNull();
-
-            AssertCallbacksCall(requestCount: 1, refreshCount: 1);
-
-            // attempt 3
-            exception = await Authenticate(
-                authenticator,
+                authenticator2,
                 mockConnection,
                 async,
                 onlySaslStart: true);
@@ -836,7 +839,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             CancellationToken cancellationToken = default,
             params string[] mockedResponsesAfterAuthentication)
         {
-            List<string> saslResponses = new ();
+            List<string> saslResponses = new();
             if (onlySaslStart.HasValue)
             {
                 if (!onlySaslStart.Value)
@@ -1048,9 +1051,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                                     .Returns((OidcInputConfiguration ic) =>
                                     {
                                         // use a mocked provider or create a real one
-                                        return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock, OidcTimeSynchronizer.Instance);
+                                        return oidcMockedProvider?.Object ?? new OidcExternalAuthenticationCredentialsProvider(ic, clock);
                                     });
-                                mockedCache.SetupGet(c => c.TimeSynchronizer).Returns(OidcTimeSynchronizer.Instance);
                                 return mockedCache.Object;
                             });
 
@@ -1121,7 +1123,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 return mockedDeviceProvider;
             }
 
-            static void ValidateMockProvider<TCredentials>(Mock<IExternalAuthenticationCredentialsProvider<TCredentials>> provider, int expectedCount, bool async) where TCredentials: IExternalCredentials
+            static void ValidateMockProvider<TCredentials>(Mock<IExternalAuthenticationCredentialsProvider<TCredentials>> provider, int expectedCount, bool async) where TCredentials : IExternalCredentials
             {
                 if (async)
                 {

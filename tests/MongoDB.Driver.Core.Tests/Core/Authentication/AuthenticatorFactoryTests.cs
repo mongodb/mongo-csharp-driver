@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         {
             var endpoint = new DnsEndPoint("localhost", 80);
             var subject = new AuthenticatorFactory((endpoint) => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password"), serverApi: null));
-            var authenticator = subject.Create(endpoint);
+            var authenticator = subject.Create(new DefaultAuthenticationContext(endpoint));
 
             var typedAuthenticator = authenticator.Should().BeOfType<PlainAuthenticator>().Subject;
             typedAuthenticator.DatabaseName.Should().Be("source");
@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         {
             var endpoint = new DnsEndPoint("localhost", 80);
             var subject = new AuthenticatorFactory((endpoint) => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password"), serverApi: null));
-            var authenticator1 = subject.Create(endpoint);
-            var authenticator2 = subject.Create(endpoint);
+            var authenticator1 = subject.Create(new DefaultAuthenticationContext(endpoint));
+            var authenticator2 = subject.Create(new DefaultAuthenticationContext(endpoint));
 
             authenticator1.Should().NotBeSameAs(authenticator2);
         }

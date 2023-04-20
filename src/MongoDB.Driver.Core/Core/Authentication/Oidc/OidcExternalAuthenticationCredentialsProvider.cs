@@ -35,20 +35,17 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly OidcInputConfiguration _inputConfiguration;
         private OidcCredentials _cachedValue;
         private readonly IClock _oidcClock;
-        private readonly IOidcTimeSynchronizer _oidcTimeSynchronizer;
         private readonly SemaphoreSlim _semaphore;
         private readonly InterlockedInt32 _state;
         private readonly TimeSpan _timeout;
 
         public OidcExternalAuthenticationCredentialsProvider(
             OidcInputConfiguration inputConfiguration,
-            IClock oidcClock,
-            IOidcTimeSynchronizer oidcTimeSynchronizer)
+            IClock oidcClock)
         {
             _globalCancellationTokenSource = new CancellationTokenSource();
             _globalCancellationToken = _globalCancellationTokenSource.Token;
             _oidcClock = Ensure.IsNotNull(oidcClock, nameof(oidcClock));
-            _oidcTimeSynchronizer = Ensure.IsNotNull(oidcTimeSynchronizer, nameof(oidcTimeSynchronizer));
             _inputConfiguration = Ensure.IsNotNull(inputConfiguration, nameof(inputConfiguration));
             _semaphore = new SemaphoreSlim(1, 1);
             _state = new InterlockedInt32(State.Ready);
@@ -64,7 +61,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             ThrowIfDisposed();
 
             OidcCredentials oidcCredentials = null;
-            using (var fetchCredentialsHelper = new FetchCredentialsHelper(_semaphore, _inputConfiguration, _oidcClock, _oidcTimeSynchronizer, _timeout, _globalCancellationToken, cancellationToken))
+            using (var fetchCredentialsHelper = new FetchCredentialsHelper(_semaphore, _inputConfiguration, _oidcClock, _timeout, _globalCancellationToken, cancellationToken))
             {
                 fetchCredentialsHelper.AcquireSlot();
 
@@ -91,7 +88,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     catch
                     {
                         // at least we can cache server response
-                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock, _oidcTimeSynchronizer);
+                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock);
                         throw;
                     }
                 }
@@ -111,7 +108,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             ThrowIfDisposed();
 
             OidcCredentials oidcCredentials = null;
-            using (var fetchCredentialsHelper = new FetchCredentialsHelper(_semaphore, _inputConfiguration, _oidcClock, _oidcTimeSynchronizer, _timeout, _globalCancellationToken, cancellationToken))
+            using (var fetchCredentialsHelper = new FetchCredentialsHelper(_semaphore, _inputConfiguration, _oidcClock, _timeout, _globalCancellationToken, cancellationToken))
             {
                 await fetchCredentialsHelper.AcquireSlotAsync().ConfigureAwait(false);
 
@@ -138,7 +135,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     catch
                     {
                         // at least we can cache server response
-                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock, _oidcTimeSynchronizer);
+                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock);
                         throw;
                     }
                 }
@@ -194,7 +191,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             private readonly CancellationToken _cancellationToken;
             private readonly IClock _clock;
             private readonly OidcInputConfiguration _inputConfiguration;
-            private readonly IOidcTimeSynchronizer _oidcTimeSynchronizer;
             private readonly SemaphoreSlim _semaphore;
             private readonly TimeSpan _timeout;
             private readonly string _timeoutErrorMessage;
@@ -203,7 +199,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 SemaphoreSlim semaphore,
                 OidcInputConfiguration inputConfiguration,
                 IClock clock,
-                IOidcTimeSynchronizer oidcTimeSynchronizer,
                 TimeSpan timeout,
                 params CancellationToken[] cancellationTokens)
             {
@@ -211,7 +206,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 _cancellationToken = _cancellationTokenSource.Token;
                 _clock = Ensure.IsNotNull(clock, nameof(clock));
                 _inputConfiguration = Ensure.IsNotNull(inputConfiguration, nameof(inputConfiguration));
-                _oidcTimeSynchronizer = Ensure.IsNotNull(oidcTimeSynchronizer, nameof(oidcTimeSynchronizer));
                 _semaphore = Ensure.IsNotNull(semaphore, nameof(semaphore));
                 _timeout = timeout;
                 _timeoutErrorMessage = $"Waiting for fetching OIDC credentials exceeded timeout {_timeout}.";
@@ -242,7 +236,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 {
                     var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
                     var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock, _oidcTimeSynchronizer);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
                 {
@@ -258,7 +252,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 {
                     var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
                     var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock, _oidcTimeSynchronizer);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
                 {
@@ -274,7 +268,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 {
                     var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
                     var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock, _oidcTimeSynchronizer);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
                 {
@@ -290,7 +284,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 {
                     var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
                     var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock, _oidcTimeSynchronizer);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
                 }
                 else
                 {

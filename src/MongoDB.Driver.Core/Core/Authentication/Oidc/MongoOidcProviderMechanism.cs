@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication.External;
@@ -28,13 +29,17 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly ICredentialsCache<OidcCredentials> _credentialsCache;
         private readonly IExternalAuthenticationCredentialsProvider<OidcCredentials> _providerWorkflowCredentialsProvider;
 
-        public MongoOidcProviderMechanism(IExternalAuthenticationCredentialsProvider<OidcCredentials> providerWorkflowCredentialsProvider)
+        public MongoOidcProviderMechanism(
+            IExternalAuthenticationCredentialsProvider<OidcCredentials> providerWorkflowCredentialsProvider,
+            EndPoint endPoint) : base(endPoint)
         {
             _providerWorkflowCredentialsProvider = Ensure.IsNotNull(providerWorkflowCredentialsProvider, nameof(providerWorkflowCredentialsProvider));
             _credentialsCache = _providerWorkflowCredentialsProvider as ICredentialsCache<OidcCredentials>;
         }
 
         public override ICredentialsCache<OidcCredentials> CredentialsCache => _credentialsCache;
+
+        public override OidcCredentials UsedCredentials => null;
 
         public override bool ShouldReauthenticateIfSaslError(IConnection connection, Exception ex) => false; /* only for callbacks workflow */
 

@@ -26,22 +26,20 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private const string AccessTokenFieldName = "accessToken";
         public static readonly TimeSpan ExpirationWindow = TimeSpan.FromMinutes(5);
 
-        public static OidcCredentials Create(BsonDocument saslServerResponse, IClock clock, IOidcTimeSynchronizer oidcTimeSynchronizer) =>
+        public static OidcCredentials Create(BsonDocument saslServerResponse, IClock clock) =>
             new OidcCredentials(
                 callbackAuthenticationData: null,
                 Ensure.IsNotNull(saslServerResponse, nameof(saslServerResponse)),
-                Ensure.IsNotNull(clock, nameof(clock)),
-                Ensure.IsNotNull(oidcTimeSynchronizer, nameof(oidcTimeSynchronizer)));
+                Ensure.IsNotNull(clock, nameof(clock)));
 
-        public static OidcCredentials Create(BsonDocument callbackAuthenticationData, BsonDocument saslServerResponse, IClock clock, IOidcTimeSynchronizer oidcTimeSynchronizer) =>
+        public static OidcCredentials Create(BsonDocument callbackAuthenticationData, BsonDocument saslServerResponse, IClock clock) =>
             new OidcCredentials(
                 Ensure.IsNotNull(callbackAuthenticationData, nameof(callbackAuthenticationData)),
                 Ensure.IsNotNull(saslServerResponse, nameof(saslServerResponse)),
-                Ensure.IsNotNull(clock, nameof(clock)),
-                Ensure.IsNotNull(oidcTimeSynchronizer, nameof(oidcTimeSynchronizer)));
+                Ensure.IsNotNull(clock, nameof(clock)));
 
         public static OidcCredentials Create(string accessToken) =>
-            new OidcCredentials(new BsonDocument(AccessTokenFieldName, Ensure.IsNotNull(accessToken, nameof(accessToken))), serverResponse: null, clock: null, oidcTimeSynchronizer: null);
+            new OidcCredentials(new BsonDocument(AccessTokenFieldName, Ensure.IsNotNull(accessToken, nameof(accessToken))), serverResponse: null, clock: null);
         #endregion
 
         private readonly string _accessToken;
@@ -49,20 +47,17 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         private readonly IClock _clock;
         private DateTime? _expiration;
         private readonly BsonDocument _serverResponse;
-        private readonly long? _timeVersion;
 
         private OidcCredentials(
             BsonDocument callbackAuthenticationData,
             BsonDocument serverResponse,
-            IClock clock,
-            IOidcTimeSynchronizer oidcTimeSynchronizer)
+            IClock clock)
         {
             _callbackAuthenticationData = EnsureAuthenticationDataValid(callbackAuthenticationData);
-            _accessToken = Ensure.IsNotNullOrEmpty(_callbackAuthenticationData.GetValue(AccessTokenFieldName, null)?.ToString(), paramName: AccessTokenFieldName);
+            _accessToken = _callbackAuthenticationData?.GetValue(AccessTokenFieldName, null)?.ToString();
             _clock = clock; // can be null
-            _expiration = _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
+            _expiration = _callbackAuthenticationData != null && _callbackAuthenticationData.TryGetValue("expiresInSeconds", out var expiresInSeconds) ? _clock.UtcNow.AddSeconds(expiresInSeconds.ToInt32()) : null;
             _serverResponse = serverResponse; // can be null
-            _timeVersion = oidcTimeSynchronizer?.GetCurrentTimeVersion(); // can be null
 
             static BsonDocument EnsureAuthenticationDataValid(BsonDocument callbackAuthenticationData)
             {
@@ -88,10 +83,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public DateTime? Expiration => _expiration;
         public BsonDocument ServerResponse => _serverResponse;
         public bool ShouldBeRefreshed => _callbackAuthenticationData == null || _expiration.HasValue ? (_expiration.Value - _clock.UtcNow) < ExpirationWindow : true;
-        public long TimeVersion => _timeVersion
-            // should not be reached
-            ?? throw new InvalidOperationException("OIDC time synchronizer has not been initialized.");
-
         public void Expire() => _expiration = null;
         public BsonDocument GetKmsCredentials() =>
             // should not be reached

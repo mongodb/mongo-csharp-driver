@@ -461,7 +461,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal IAuthenticator ToAuthenticator(EndPoint endpoint, ServerApi serverApi)
+        internal IAuthenticator ToAuthenticator(IAuthenticationContext authenticationContext, ServerApi serverApi)
         {
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
@@ -539,7 +539,7 @@ namespace MongoDB.Driver
                         _identity.Source,
                         _identity.Username,
                         _mechanismProperties,
-                        endpoint,
+                        authenticationContext,
                         serverApi);
                 }
             }

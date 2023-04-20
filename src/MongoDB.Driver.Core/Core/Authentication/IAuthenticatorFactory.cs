@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System.Net;
-
 namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
@@ -25,8 +23,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <summary>
         /// Create an authenticator.
         /// </summary>
-        /// <param name="endpoint">The current endpoint.</param>
+        /// <param name="authenticationContext">The current authentication context.</param>
         /// <returns>The authenticator.</returns>
-        IAuthenticator Create(EndPoint endpoint);
+        IAuthenticator Create(IAuthenticationContext authenticationContext);
     }
 }

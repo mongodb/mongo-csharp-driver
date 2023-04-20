@@ -23,9 +23,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -48,6 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ICompressorSource _compressorSource;
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
+        private ConnectionInitializerContext _connectionInitializerContext;
         private EndPoint _endPoint;
         private ConnectionDescription _description;
         private readonly Dropbox _dropbox = new Dropbox();
@@ -277,9 +276,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                var connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
-                handshakeDescription = connectionInitializerContext.Description;
-                _description = _connectionInitializer.Authenticate(this, connectionInitializerContext, cancellationToken);
+                _connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
+                handshakeDescription = _connectionInitializerContext.Description;
+                _description = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -303,9 +302,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                var connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
-                handshakeDescription = connectionInitializerContext.Description;
-                _description = await _connectionInitializer.AuthenticateAsync(this, connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = _connectionInitializerContext.Description;
+                _description = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -321,12 +320,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void Reauthenticate(CancellationToken cancellationToken)
         {
-            _connectionInitializer.Authenticate(this, new ConnectionInitializerContext(_description, null), cancellationToken);
+            _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
         }
 
         public Task ReauthenticateAsync(CancellationToken cancellationToken)
         {
-            return _connectionInitializer.AuthenticateAsync(this, new ConnectionInitializerContext(_description, null), cancellationToken);
+            return _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken);
         }
 
         private IByteBuffer ReceiveBuffer(CancellationToken cancellationToken)

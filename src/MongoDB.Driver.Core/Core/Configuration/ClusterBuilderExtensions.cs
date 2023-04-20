@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
-                var authenticatorFactory = new AuthenticatorFactory((currentEndpoint) => CreateAuthenticator(connectionString, currentEndpoint, serverApi));
+                var authenticatorFactory = new AuthenticatorFactory((context) => CreateAuthenticator(connectionString, context, serverApi));
                 builder = builder.ConfigureConnection(s => s.With(authenticatorFactories: new[] { authenticatorFactory }));
             }
             if (connectionString.ApplicationName != null)
@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, EndPoint endpoint, ServerApi serverApi)
+        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, IAuthenticationContext context, ServerApi serverApi)
         {
             if (connectionString.Password != null)
             {
@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
                 {
-                    return MongoOidcAuthenticator.CreateAuthenticator(connectionString.AuthSource, connectionString.Username, connectionString.AuthMechanismProperties, endpoint, serverApi);
+                    return MongoOidcAuthenticator.CreateAuthenticator(connectionString.AuthSource, connectionString.Username, connectionString.AuthMechanismProperties, context, serverApi);
                 }
             }
 

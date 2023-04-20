@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Connections
                 new ServerApi(ServerApiVersion.V1)); // use serverApi to choose command message protocol
             var authenticatorFactoryMock = new Mock<IAuthenticatorFactory>();
             authenticatorFactoryMock
-                .Setup(a => a.Create(It.IsAny<EndPoint>()))
+                .Setup(a => a.Create(It.IsAny<IAuthenticationContext>()))
                 .Returns(Mock.Of<IAuthenticator>(a => a.CustomizeInitialHelloCommand(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()) == new BsonDocument(OppressiveLanguageConstants.LegacyHelloCommandName, 1)));
 
             using var subject = new BinaryConnection(
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Connections
                 subject.Open(CancellationToken.None);
             }
 
-            authenticatorFactoryMock.Verify(f => f.Create(It.IsAny<EndPoint>()), Times.Once());
+            authenticatorFactoryMock.Verify(f => f.Create(It.IsAny<IAuthenticationContext>()), Times.Once());
 
             ResponseMessage CreateResponseMessage()
             {

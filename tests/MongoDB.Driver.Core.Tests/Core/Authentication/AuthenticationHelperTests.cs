@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory((e) => mockAuthenticator.Object) });
-            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create(description.ConnectionId.ServerId.EndPoint)).ToList();
+            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create(new DefaultAuthenticationContext(description.ConnectionId.ServerId.EndPoint))).ToList();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory((e) => mockAuthenticator.Object) });
-            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create(description.ConnectionId.ServerId.EndPoint)).ToList();
+            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create(new DefaultAuthenticationContext(description.ConnectionId.ServerId.EndPoint))).ToList();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);

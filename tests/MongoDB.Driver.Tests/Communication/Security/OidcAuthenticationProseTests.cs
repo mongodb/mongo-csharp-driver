@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -149,10 +150,16 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public async Task Oidc_authentication_should_correctly_handle_allowed_hosts(
             [Values("localhost", "127.0.0.1", "[::1]")] string host,
             [Values(null, "aws")] string providerName,
-            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "localhost;dummy", "::1")] string allowedHosts,
+            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "localhost;dummy", "::1", "example.com")] string allowedHosts,
+            [Values(false, true)] bool withIgnoredExampleComArgument,
             [Values(false, true)] bool async)
         {
             var allowedHostsList = allowedHosts?.Split(';');
+            var connectionString = GetConnectionString(host, providerName: providerName);
+            if (withIgnoredExampleComArgument)
+            {
+                connectionString += "&ignored=example.com";
+            }
             var settings = MongoClientSettings.FromConnectionString(GetConnectionString(host, providerName: providerName));
             if (providerName == null)
             {
@@ -617,6 +624,135 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             await TestCase(async, settings, expirationDate);
         }
+
+        // Lock Avoids Extra Callback Calls
+        [Theory]
+        [ParameterAttributeData]
+        public void Oidc_authentication_should_avoid_extra_callbacks([Values(false, true)] bool async)
+        {
+            int requestCallbackCalls = 0;
+            int refreshCallbackCalls = 0;
+
+            var applicationName = $"lockCallbacks_{async}";
+
+            var tokenContent = JwtHelper.GetValidTokenOrThrow(GetTokenPath());
+
+            var connectionString = GetConnectionString();
+            var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+            // #. Create a request callback that returns a token that will expire soon, and
+            // a refresh callback.Ensure that the request callback has a time delay, and
+            // that we can record the number of times each callback is called.
+            settings.Credential = MongoCredential.CreateOidcCredential(
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(
+                    accessToken: tokenContent,
+                    expectedPrincipalName: settings.Credential.Username,
+                    expireInSeconds: (int)TimeSpan.FromMinutes(1).TotalSeconds,
+                    callbackCalled: (a, b, ct) =>
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(1)); // the second thread should start waiting on a lock
+                        requestCallbackCalls++;
+                    }),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
+                principalName: settings.Credential.Username);
+
+            // *Spawn two threads that do the following:
+            var thread1 = new Thread(async () =>
+            {
+                //* -Create a client with the callbacks.
+                //* -Run a find operation that succeeds.
+                //* -Close the client.
+                //* -Create a new client with the callbacks.
+                //* -Run a find operation that succeeds.
+                //* -Close the client
+                await TestCase(async, settings, applicationName: applicationName);
+                await TestCase(async, settings, applicationName: applicationName);
+            })
+            {
+                IsBackground = true
+            };
+            var thread2 = new Thread(async () =>
+            {
+                //* -Create a client with the callbacks.
+                //* -Run a find operation that succeeds.
+                //* -Close the client.
+                //* -Create a new client with the callbacks.
+                //* -Run a find operation that succeeds.
+                //* -Close the client
+                await TestCase(async, settings, applicationName: applicationName);
+                await TestCase(async, settings, applicationName: applicationName);
+            })
+            {
+                IsBackground = true
+            };
+            thread1.Start();
+            thread2.Start();
+
+            thread1.Join();
+            thread2.Join();
+
+            ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 2);
+
+            void ValidateCallbacks(int expectedRequestCallbackCalls, int expectedRefreshCallbackCalls)
+            {
+                requestCallbackCalls.Should().Be(requestCallbackCalls);
+                refreshCallbackCalls.Should().Be(refreshCallbackCalls);
+            }
+        }
+
+        // Separate Connections Avoid Extra Callback Calls
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Oidc_authentication_should_avoid_extra_callbacks_with_separate_connections([Values(false, true)] bool async)
+        {
+            int requestCallbackCalls = 0;
+            int refreshCallbackCalls = 0;
+
+            var applicationName = $"lockCallbacksSeparateConnections_{async}";
+
+            var tokenContent = JwtHelper.GetValidTokenOrThrow(GetTokenPath());
+
+            var connectionString = GetConnectionString();
+            var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+            // Create request and refresh callbacks that return tokens that will not expire
+            // soon.Ensure that we can record the number of times each callback is called.
+            settings.Credential = MongoCredential.CreateOidcCredential(
+                requestCallbackProvider: OidcTestHelper.CreateRequestCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, ct) => requestCallbackCalls++),
+                refreshCallbackProvider: OidcTestHelper.CreateRefreshCallback(accessToken: tokenContent, expectedPrincipalName: settings.Credential.Username, callbackCalled: (a, b, c, ct) => refreshCallbackCalls++),
+                principalName: settings.Credential.Username);
+
+            // Create two clients using the callbacks
+            // Peform a find operation on each client that succeeds.
+            var client1 = await TestCase(async: async, settings, applicationName: applicationName, keepClientAlive: true);
+            var client2 = await TestCase(async: async, settings, applicationName: applicationName, keepClientAlive: true);
+
+            // Ensure that the request callback has been called once and the refresh callback has not been called.
+            ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 0);
+
+            requestCallbackCalls = 0;
+            refreshCallbackCalls = 0;
+            var failPointCommand = FailPoint.CreateFailPointCommand(times: 1, errorCode: (int)ServerErrorCode.ReauthenticationRequired, applicationName, "find");
+            // Perform a ``find`` operation that succeds.
+            await TestCase(async, client: client1, failPoint: failPointCommand);
+            // Ensure that the request callback has been called once and the refresh callback has been called once.
+            ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 1);
+
+            requestCallbackCalls = 0;
+            refreshCallbackCalls = 0;
+            // Perform a ``find`` operation that succeds.
+            await TestCase(async, client: client2, failPoint: failPointCommand);
+            // Ensure that the request callback has been called once and the refresh callback has been called once.
+            ValidateCallbacks(expectedRequestCallbackCalls: 1, expectedRefreshCallbackCalls: 1);
+
+
+            void ValidateCallbacks(int expectedRequestCallbackCalls, int expectedRefreshCallbackCalls)
+            {
+                requestCallbackCalls.Should().Be(requestCallbackCalls);
+                refreshCallbackCalls.Should().Be(refreshCallbackCalls);
+            }
+        }
+
 
         public void Dispose() => OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
 

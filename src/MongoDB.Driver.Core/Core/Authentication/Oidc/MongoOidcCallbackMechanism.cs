@@ -30,19 +30,23 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     {
         private readonly IOidcExternalAuthenticationCredentialsProvider _oidsCredentialsProvider;
         private readonly string _principalName;
-        private readonly OidcTimeSynchronizerContext _oidcTimeSynchronizerContext;
+        private OidcCredentials _usedCredentials;
 
         public MongoOidcCallbackMechanism(
             string principalName,
             IOidcExternalAuthenticationCredentialsProvider oidsCredentialsProvider,
-            OidcTimeSynchronizerContext oidcTimeSynchronizerContext)
+            IAuthenticationContext context) : base(context.CurrentEndPoint)
         {
             _oidsCredentialsProvider = Ensure.IsNotNull(oidsCredentialsProvider, nameof(oidsCredentialsProvider));
             _principalName = principalName; // can be null
-            _oidcTimeSynchronizerContext = Ensure.IsNotNull(oidcTimeSynchronizerContext, nameof(oidcTimeSynchronizerContext));
+
+            // represents the last used credentials from previous authentication calls even not successful
+            _usedCredentials = (context as OidcAuthenticationContext)?.UsedCredentials; // can be null. 
         }
 
         public override ICredentialsCache<OidcCredentials> CredentialsCache => _oidsCredentialsProvider;
+
+        public override OidcCredentials UsedCredentials => _usedCredentials;
 
         public override bool ShouldReauthenticateIfSaslError(IConnection connection, Exception ex) =>
             ex is MongoAuthenticationException mongoAuthenticationException && // consider only server errors
@@ -87,22 +91,28 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public override ISaslStep CreateSpeculativeAuthenticationSaslStep(CancellationToken cancellationToken) => CreateSaslStartOrGetServerResponse(connection: null).SaslStep;
 
+        public override ISaslStep CreateLastSaslStep(OidcCredentials oidcCredentials)
+        {
+            _usedCredentials = oidcCredentials;
+            return base.CreateLastSaslStep(oidcCredentials);
+        }
+
         // private methods
         private (ISaslStep SaslStep, BsonDocument ServerResponse) CreateSaslStartOrGetServerResponse(IConnection connection)
         {
+            if ((connection?.IsInitialized).GetValueOrDefault()) // reauthenticate case
+            {
+                // The value related to this connection, might be not the last version in the cache, in this case this step will be no-op
+                // Might be saved based on failed command, in this case will be no-op too
+                _usedCredentials?.Expire();
+            }
+
             var cachedCredentials = _oidsCredentialsProvider.CachedCredentials;
             if (cachedCredentials != null)
             {
-                if ((connection?.IsInitialized).GetValueOrDefault() &&  // reauthenticate case
-                    cachedCredentials.TimeVersion <= _oidcTimeSynchronizerContext.InitialTimeVersion)
-                {
-                    // ensure, that for a reauthenticate case with more than one affected connections,
-                    // we expire credentials only once
-                    cachedCredentials.Expire();
-                }
-
                 if (cachedCredentials.ShouldBeRefreshed)
                 {
+                    _usedCredentials = null;
                     return (SaslStep: null, cachedCredentials.ServerResponse);
                 }
                 else
@@ -120,7 +130,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 var clientMessageBytes = document.ToBson();
 
-                var saslStep = new CallbackWorkflowClientFirst(clientMessageBytes, _oidsCredentialsProvider);
+                var saslStep = new CallbackWorkflowClientFirst(clientMessageBytes, _oidsCredentialsProvider, this);
                 return (SaslStep: saslStep, ServerResponse: null);
             }
         }
@@ -130,13 +140,16 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         {
             private readonly byte[] _bytesToSendToServer;
             private readonly IOidcExternalAuthenticationCredentialsProvider _oidsCredentialsProvider;
+            private readonly IOidcStepsFactory _oidcSaslStepFactory;
 
             public CallbackWorkflowClientFirst(
                 byte[] bytesToSendToServer,
-                IOidcExternalAuthenticationCredentialsProvider oidsCredentialsProvider)
+                IOidcExternalAuthenticationCredentialsProvider oidsCredentialsProvider,
+                IOidcStepsFactory oidcSaslStepFactory)
             {
                 _bytesToSendToServer = Ensure.IsNotNull(bytesToSendToServer, nameof(bytesToSendToServer));
                 _oidsCredentialsProvider = Ensure.IsNotNull(oidsCredentialsProvider, nameof(oidsCredentialsProvider));
+                _oidcSaslStepFactory = Ensure.IsNotNull(oidcSaslStepFactory, nameof(oidcSaslStepFactory));
             }
 
             public override byte[] BytesToSendToServer => _bytesToSendToServer;
@@ -147,14 +160,14 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
                 var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(serverFirstMessageDocument, cancellationToken);
-                return CreateLastSaslStep(oidcCredentials);
+                return _oidcSaslStepFactory.CreateLastSaslStep(oidcCredentials);
             }
 
             public override async Task<ISaslStep> TransitionAsync(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
                 var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(serverFirstMessageDocument, cancellationToken).ConfigureAwait(false);
-                return CreateLastSaslStep(oidcCredentials);
+                return _oidcSaslStepFactory.CreateLastSaslStep(oidcCredentials);
             }
         }
     }

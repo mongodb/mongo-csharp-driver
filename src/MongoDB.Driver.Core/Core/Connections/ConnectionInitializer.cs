@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
-            var authenticators = connectionInitializerContext.Authenticators ?? GetAuthenticators(connection.EndPoint, connection.Settings);
+            var authenticators = GetAuthenticators(connection, connectionInitializerContext.Authenticators);
             var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
-            var authenticators = connectionInitializerContext.Authenticators ?? GetAuthenticators(connection.EndPoint, connection.Settings);
+            var authenticators = GetAuthenticators(connection, connectionInitializerContext.Authenticators);
             var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Connections
         public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.EndPoint, connection.Settings);
+            var authenticators = GetAuthenticators(connection, previousAuthenticators: null);
             var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced, cancellationToken);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
             var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Connections
         public async Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.EndPoint, connection.Settings);
+            var authenticators = GetAuthenticators(connection, previousAuthenticators: null);
             var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced, cancellationToken);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
             var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
@@ -171,7 +171,31 @@ namespace MongoDB.Driver.Core.Connections
             return HelloHelper.CustomizeCommand(command, authenticators, cancellationToken);
         }
 
-        private List<IAuthenticator> GetAuthenticators(EndPoint endpoint, ConnectionSettings settings) => settings.AuthenticatorFactories.Select(f => f.Create(endpoint)).ToList();
+        private List<IAuthenticator> GetAuthenticators(IConnection connection, IEnumerable<IAuthenticator> previousAuthenticators)
+        {
+            var endPoint = connection.EndPoint;
+            var authenticatorFactories = connection.Settings.AuthenticatorFactories;
+            if (!connection.IsInitialized)
+            {
+                // use regular workflow to support speculative authentication
+                return (previousAuthenticators ?? authenticatorFactories.Select(c => c.Create(new DefaultAuthenticationContext(endPoint)))).ToList();
+            }
+
+            // reauthentication case
+            // TODO: use a single authentication instance for connection all the time?
+            Ensure.That(previousAuthenticators == null || authenticatorFactories.Count == previousAuthenticators.Count(), $"The {nameof(previousAuthenticators)} count must match to {authenticatorFactories.Count}."); // should not be reached
+
+            var result = new List<IAuthenticator>();
+            for (int i = 0; i < authenticatorFactories.Count; i++)
+            {
+                var previousAuthenticatorContext = (previousAuthenticators?.ElementAt(i) as IWithAuthenticationContext)?.AuthenticationContext;
+                var factory = authenticatorFactories[i];
+                var newAuthenticator = factory.Create(previousAuthenticatorContext ?? new DefaultAuthenticationContext(endPoint));
+                result.Add(newAuthenticator);
+            }
+
+            return result;
+        }
 
         private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {

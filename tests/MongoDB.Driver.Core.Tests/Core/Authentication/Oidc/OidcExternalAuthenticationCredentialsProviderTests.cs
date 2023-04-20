@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_response_waiting_should_be_failed_after_timeout(
-            [Values(false, true)] bool withRefreshCallback, 
+            [Values(false, true)] bool withRefreshCallback,
             [Values(false, true)] bool async)
         {
             var testTimeout = TimeSpan.FromMinutes(15);
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 requestCallbackProvider = OidcTestHelper.CreateRequestCallback(callbackCalled: (a, b, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
             }
             var oidcInputConfiguration = new OidcInputConfiguration(endpoint, requestCallbackProvider: requestCallbackProvider, refreshCallbackProvider: refreshCallbackProvider);
-            var provider = new OidcExternalAuthenticationCredentialsProvider(oidcInputConfiguration, clock, OidcTimeSynchronizer.Instance);
+            var provider = new OidcExternalAuthenticationCredentialsProvider(oidcInputConfiguration, clock);
             if (withRefreshCallback)
             {
                 provider._cachedValue(OidcCredentials.Create("token"));

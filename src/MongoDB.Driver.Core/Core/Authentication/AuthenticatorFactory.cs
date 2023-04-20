@@ -20,25 +20,45 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
+    /// Represent authentication state.
+    /// </summary>
+    public interface IAuthenticationContext
+    {
+        /// <summary>
+        /// The current endpoint.
+        /// </summary>
+        EndPoint CurrentEndPoint { get; }
+    }
+
+    internal interface IWithAuthenticationContext
+    {
+        IAuthenticationContext AuthenticationContext { get; }
+    }
+
+    internal class DefaultAuthenticationContext : IAuthenticationContext
+    {
+        public DefaultAuthenticationContext(EndPoint endPoint) => CurrentEndPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
+
+        public EndPoint CurrentEndPoint { get; }
+    }
+
+    /// <summary>
     /// Represents an authenticator factory.
     /// </summary>
     public class AuthenticatorFactory : IAuthenticatorFactory
     {
-        private readonly Func<EndPoint, IAuthenticator> _authenticatorFactoryFunc;
+        private readonly Func<IAuthenticationContext, IAuthenticator> _authenticatorFactoryFunc;
 
         /// <summary>
         /// Create an authenticatorFactory.
         /// </summary>
         /// <param name="authenticatorFactoryFunc">The authenticatorFactoryFunc.</param>
-        public AuthenticatorFactory(Func<EndPoint, IAuthenticator> authenticatorFactoryFunc)
+        public AuthenticatorFactory(Func<IAuthenticationContext, IAuthenticator> authenticatorFactoryFunc)
         {
             _authenticatorFactoryFunc = Ensure.IsNotNull(authenticatorFactoryFunc, nameof(authenticatorFactoryFunc));
         }
 
         /// <inheritdoc/>
-        public IAuthenticator Create(EndPoint endpoint)
-        {
-            return _authenticatorFactoryFunc(endpoint);
-        }
+        public IAuthenticator Create(IAuthenticationContext authenticationContext) => _authenticatorFactoryFunc(authenticationContext);
     }
 }

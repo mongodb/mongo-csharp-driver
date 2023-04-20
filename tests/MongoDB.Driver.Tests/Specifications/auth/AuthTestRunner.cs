@@ -1,4 +1,4 @@
-/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             IAuthenticator authenticator = null;
             if (parseException == null && !SkipActualAuthenticatorCreating(testCase.Name))
             {
-                parseException = Record.Exception(() => authenticator = mongoCredential?.ToAuthenticator(dummyEndpoint, serverApi: null));
+                parseException = Record.Exception(() => authenticator = mongoCredential?.ToAuthenticator(new DefaultAuthenticationContext(dummyEndpoint), serverApi: null));
             }
             if (parseException == null)
             {
