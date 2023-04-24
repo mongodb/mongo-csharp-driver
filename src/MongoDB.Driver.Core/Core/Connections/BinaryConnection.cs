@@ -278,7 +278,8 @@ namespace MongoDB.Driver.Core.Connections
                 helper.InitializingConnection();
                 _connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _description = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+                _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -304,7 +305,8 @@ namespace MongoDB.Driver.Core.Connections
                 helper.InitializingConnection();
                 _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _description = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -320,12 +322,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void Reauthenticate(CancellationToken cancellationToken)
         {
-            _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+            _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
         }
 
-        public Task ReauthenticateAsync(CancellationToken cancellationToken)
+        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
         {
-            return _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken);
+            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
         }
 
         private IByteBuffer ReceiveBuffer(CancellationToken cancellationToken)

@@ -24,8 +24,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 {
     internal interface IOidcExternalAuthenticationCredentialsProvider : ICredentialsCache<OidcCredentials>
     {
-        OidcCredentials CreateCredentialsFromExternalSource(BsonDocument saslStartResponse, CancellationToken cancellationToken = default);
-        Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(BsonDocument saslStartResponse, CancellationToken cancellationToken = default);
+        OidcCredentials CreateCredentialsFromExternalSource(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default);
+        Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default);
     }
 
     internal sealed class OidcExternalAuthenticationCredentialsProvider : IOidcExternalAuthenticationCredentialsProvider, IDisposable
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public void Clear() => InternalClear(onlyExpire: false);
 
-        public OidcCredentials CreateCredentialsFromExternalSource(BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
+        public OidcCredentials CreateCredentialsFromExternalSource(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 var cachedValue = _cachedValue;
                 if (cachedValue != null)
                 {
-                    if (cachedValue.ShouldBeRefreshed)
+                    if (cachedValue.ShouldBeRefreshed || ShouldForceExpire(invalidCredentials))
                     {
                         InternalClear();
                         oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfigured(saslStartResponse, cachedValue.CallbackAuthenticationData);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             return oidcCredentials ?? throw CreateException("OIDC credentials have not been provided.");
         }
 
-        public async Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
+        public async Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 var cachedValue = _cachedValue;
                 if (cachedValue != null)
                 {
-                    if (cachedValue.ShouldBeRefreshed)
+                    if (cachedValue.ShouldBeRefreshed || ShouldForceExpire(invalidCredentials))
                     {
                         InternalClear();
                         oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfiguredAsync(saslStartResponse, cachedValue.CallbackAuthenticationData).ConfigureAwait(false);
@@ -161,6 +161,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         }
 
         // private methods
+        private bool ShouldForceExpire(OidcCredentials invalidCredentials) => _cachedValue != null && invalidCredentials != null && _cachedValue.AccessToken == invalidCredentials.AccessToken;
+
         private void ThrowIfDisposed()
         {
             if (_state.Value == State.Disposed)

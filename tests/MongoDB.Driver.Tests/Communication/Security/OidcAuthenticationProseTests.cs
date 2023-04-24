@@ -29,27 +29,30 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Authentication;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
     [Trait("Category", "Authentication")]
     [Trait("Category", "OidcMechanism")]
-    public class OidcAuthenticationProseTests : IDisposable
+    public class OidcAuthenticationProseTests : LoggableTestClass
     {
         // some auth configuration may support only this name
         private const string DatabaseName = "test";
         private const string CollectionName = "coll";
+
         private const string ExpiredTokenNamePrefix = "_expires";
         private const string SecondaryPreferedConnectionStringSuffix = "&readPreference=secondaryPreferred";
         private const string DirectConnectionStringSuffix = "&directConnection=true";
         private const string DirectConnectionSecondaryPreferedConnectionStringSuffix = SecondaryPreferedConnectionStringSuffix + DirectConnectionStringSuffix;
         private const string DefaultTokenName = "test_user1";
 
-        public OidcAuthenticationProseTests()
+        public OidcAuthenticationProseTests(ITestOutputHelper output) : base(output)
         {
             OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
             EnsureOidcIsConfigured();
@@ -306,7 +309,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
         // Cached Credentials
         [Theory]
         [ParameterAttributeData]
-        public async Task Oidc_authentication_should_correctly_cache_creds_with_callbacks_workflow([Values(false, true)] bool async)
+        public async Task Oidc_authentication_should_correctly_cache_creds_with_callbacks_workflow(
+            [Values(false, true)] bool async)
         {
             int requestCallbackCalls = 0;
             int refreshCallbackCalls = 0;
@@ -657,7 +661,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 principalName: settings.Credential.Username);
 
             // *Spawn two threads that do the following:
-            var thread1 = new Thread(async () =>
+            var thread1 = new Thread(() =>
             {
                 //* -Create a client with the callbacks.
                 //* -Run a find operation that succeeds.
@@ -665,13 +669,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 //* -Create a new client with the callbacks.
                 //* -Run a find operation that succeeds.
                 //* -Close the client
-                await TestCase(async, settings, applicationName: applicationName);
-                await TestCase(async, settings, applicationName: applicationName);
+                TestCase(async, settings, applicationName: applicationName).GetAwaiter().GetResult();
+                TestCase(async, settings, applicationName: applicationName).GetAwaiter().GetResult();
             })
             {
                 IsBackground = true
             };
-            var thread2 = new Thread(async () =>
+            var thread2 = new Thread(() =>
             {
                 //* -Create a client with the callbacks.
                 //* -Run a find operation that succeeds.
@@ -679,8 +683,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 //* -Create a new client with the callbacks.
                 //* -Run a find operation that succeeds.
                 //* -Close the client
-                await TestCase(async, settings, applicationName: applicationName);
-                await TestCase(async, settings, applicationName: applicationName);
+                TestCase(async, settings, applicationName: applicationName).GetAwaiter().GetResult();
+                TestCase(async, settings, applicationName: applicationName).GetAwaiter().GetResult();
             })
             {
                 IsBackground = true
@@ -753,8 +757,11 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
         }
 
-
-        public void Dispose() => OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
+        protected override void DisposeInternal()
+        {
+            OidcTestHelper.ClearStaticCache(ExternalCredentialsAuthenticators.Instance);
+            base.DisposeInternal();
+        }
 
         // private methods
         private string GetConnectionString(string host = "localhost", int port = 27017, string principalName = null, string providerName = null, bool onlyPrimary = false)

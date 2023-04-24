@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             _oidsCredentialsProvider = Ensure.IsNotNull(oidsCredentialsProvider, nameof(oidsCredentialsProvider));
             _principalName = principalName; // can be null
 
-            // represents the last used credentials from previous authentication calls even not successful
+            // represents the last used credentials from previous Authenticate calls
             _usedCredentials = (context as OidcAuthenticationContext)?.UsedCredentials; // can be null. 
         }
 
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
             else
             {
-                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(stepResult.ServerResponse, cancellationToken);
+                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(stepResult.InvalidCredentials, stepResult.ServerResponse, cancellationToken);
                 return CreateLastSaslStep(oidcCredentials);
             }
         }
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
             else
             {
-                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(stepResult.ServerResponse, cancellationToken).ConfigureAwait(false);
+                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(stepResult.InvalidCredentials, stepResult.ServerResponse, cancellationToken).ConfigureAwait(false);
                 return CreateLastSaslStep(oidcCredentials);
             }
         }
@@ -93,32 +93,30 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public override ISaslStep CreateLastSaslStep(OidcCredentials oidcCredentials)
         {
-            _usedCredentials = oidcCredentials;
+            _usedCredentials = oidcCredentials;  // track actually used credentials
             return base.CreateLastSaslStep(oidcCredentials);
         }
 
         // private methods
-        private (ISaslStep SaslStep, BsonDocument ServerResponse) CreateSaslStartOrGetServerResponse(IConnection connection)
+        private (ISaslStep SaslStep, BsonDocument ServerResponse, OidcCredentials InvalidCredentials) CreateSaslStartOrGetServerResponse(IConnection connection)
         {
-            if ((connection?.IsInitialized).GetValueOrDefault()) // reauthenticate case
-            {
-                // The value related to this connection, might be not the last version in the cache, in this case this step will be no-op
-                // Might be saved based on failed command, in this case will be no-op too
-                _usedCredentials?.Expire();
-            }
-
             var cachedCredentials = _oidsCredentialsProvider.CachedCredentials;
             if (cachedCredentials != null)
             {
-                if (cachedCredentials.ShouldBeRefreshed)
+                var reauthenticationRequested = (connection?.IsInitialized).GetValueOrDefault();
+                if (cachedCredentials.ShouldBeRefreshed || reauthenticationRequested)
                 {
-                    _usedCredentials = null;
-                    return (SaslStep: null, cachedCredentials.ServerResponse);
+                    return (
+                        SaslStep: null,
+                        cachedCredentials.ServerResponse,
+                        InvalidCredentials: reauthenticationRequested
+                            ? _usedCredentials // force expiring used credentials for reauthentication, do nothing in the rest of cases
+                            : null);
                 }
                 else
                 {
                     var saslStep = CreateLastSaslStep(cachedCredentials);
-                    return (SaslStep: saslStep, ServerResponse: null);
+                    return (SaslStep: saslStep, ServerResponse: null, InvalidCredentials: null);
                 }
             }
             else
@@ -131,7 +129,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 var clientMessageBytes = document.ToBson();
 
                 var saslStep = new CallbackWorkflowClientFirst(clientMessageBytes, _oidsCredentialsProvider, this);
-                return (SaslStep: saslStep, ServerResponse: null);
+                return (SaslStep: saslStep, ServerResponse: null, InvalidCredentials: null);
             }
         }
 
@@ -159,14 +157,14 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
-                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(serverFirstMessageDocument, cancellationToken);
+                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(invalidCredentials: null, serverFirstMessageDocument, cancellationToken);
                 return _oidcSaslStepFactory.CreateLastSaslStep(oidcCredentials);
             }
 
             public override async Task<ISaslStep> TransitionAsync(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
-                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(serverFirstMessageDocument, cancellationToken).ConfigureAwait(false);
+                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(invalidCredentials: null, serverFirstMessageDocument, cancellationToken).ConfigureAwait(false);
                 return _oidcSaslStepFactory.CreateLastSaslStep(oidcCredentials);
             }
         }

@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
+        public ConnectionInitializerContext Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
@@ -79,10 +78,10 @@ namespace MongoDB.Driver.Core.Connections
                 }
             }
 
-            return description;
+            return new ConnectionInitializerContext(description, authenticators);
         }
 
-        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
@@ -116,7 +115,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
             }
 
-            return description;
+            return new ConnectionInitializerContext(description, authenticators);
         }
 
         public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)

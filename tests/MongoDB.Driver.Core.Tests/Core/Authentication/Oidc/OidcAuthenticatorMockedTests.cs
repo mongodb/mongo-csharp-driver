@@ -290,7 +290,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             var authenticators = ExternalCredentialsAuthenticators.Instance;
             var clock = FrozenClock.FreezeUtcNow();
 
-
             var authenticator = MongoOidcAuthenticator.CreateAuthenticator(
                 source: "$external",
                 PrincipalName,
@@ -673,7 +672,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Reauthenticate_workflow_should_expire_credentials_only_once([Values(false, true)] bool async)
+        public async Task Reauthenticate_workflow_should_works_correctly([Values(false, true)] bool async)
         {
             int requestCallbackCalled = 0;
             int refreshCallbackCalled = 0;
@@ -1022,21 +1021,21 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                             if (clearException != null)
                             {
                                 oidcMockedProvider
-                                    .SetupSequence(p => p.CreateCredentialsFromExternalSource(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
+                                    .SetupSequence(p => p.CreateCredentialsFromExternalSource(It.IsAny<OidcCredentials>(), It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
                                     .Returns(__oidcCredentials)
                                     .Throws(clearException);
                                 oidcMockedProvider
-                                    .SetupSequence(p => p.CreateCredentialsFromExternalSourceAsync(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
+                                    .SetupSequence(p => p.CreateCredentialsFromExternalSourceAsync(It.IsAny<OidcCredentials>(), It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
                                     .ReturnsAsync(__oidcCredentials)
                                     .Throws(clearException);
                             }
                             else
                             {
                                 oidcMockedProvider
-                                    .Setup(p => p.CreateCredentialsFromExternalSource(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
+                                    .Setup(p => p.CreateCredentialsFromExternalSource(It.IsAny<OidcCredentials>(), It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
                                     .Returns(__oidcCredentials);
                                 oidcMockedProvider
-                                    .Setup(p => p.CreateCredentialsFromExternalSourceAsync(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
+                                    .Setup(p => p.CreateCredentialsFromExternalSourceAsync(It.IsAny<OidcCredentials>(), It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
                                     .ReturnsAsync(__oidcCredentials);
                             }
                         }

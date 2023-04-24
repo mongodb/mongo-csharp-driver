@@ -114,7 +114,7 @@ functions:
             # If this was a patch build, doing a fresh clone would not actually test the patch
             cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
           else
-            git clone https://github.com/DmitryLukyanov/drivers-evergreen-tools.git $DRIVERS_TOOLS
+            git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
           fi
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
@@ -1772,6 +1772,11 @@ axes:
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
+      - id: "ubuntu-1804"
+        display_name: "Ubuntu 18.04"
+        variables:
+          OS: "ubuntu-1804"
+        run_on: ubuntu1804-test
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
         variables:
@@ -1973,7 +1978,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression-linux"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1997,7 +2002,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression-linux"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2013,7 +2018,7 @@ buildvariants:
 
   # ubuntu 18 does not support SSL until 4.0
 - matrix_name: "secure-tests-linux"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
+  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2021,7 +2026,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-linux"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2043,7 +2048,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression-posix"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2072,10 +2077,10 @@ buildvariants:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-linux
-  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-1804" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
-    - ubuntu2004-test
+    - ubuntu1804-test
   tasks:
     - name: aws-auth-tests
 
@@ -2104,14 +2109,14 @@ buildvariants:
     - name: plain-auth-tests
 
 - matrix_name: load-balancer-tests
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2004" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: load-balancer-tests-secure
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
@@ -2126,7 +2131,7 @@ buildvariants:
     - name: test-serverless-netstandard21
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804" }
   display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
     - name: test-serverless-netstandard20
@@ -2157,7 +2162,7 @@ buildvariants:
 
 - name: gssapi-auth-tests-linux
   run_on:
-    - ubuntu2004-test
+    - ubuntu1804-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard20
@@ -2175,7 +2180,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard20
@@ -2191,7 +2196,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
   display_name: "CSFLE with AZURE KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2199,7 +2204,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-gcp-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
   display_name: "CSFLE with GCP KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2218,7 +2223,7 @@ buildvariants:
     - name: test-smoke-tests-net60
 
 - matrix_name: "smoke-tests-linux"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:

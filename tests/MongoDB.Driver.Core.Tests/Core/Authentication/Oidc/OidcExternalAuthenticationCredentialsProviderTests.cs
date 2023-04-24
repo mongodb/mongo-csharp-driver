@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Authentication;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
@@ -52,8 +53,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 });
             subject._timeout(TimeSpan.FromSeconds(1));
             var exception = async
-                ? await Record.ExceptionAsync(() => subject.CreateCredentialsFromExternalSourceAsync(new BsonDocument()))
-                : Record.Exception(() => subject.CreateCredentialsFromExternalSource(new BsonDocument()));
+                ? await Record.ExceptionAsync(() => subject.CreateCredentialsFromExternalSourceAsync(It.IsAny<OidcCredentials>(), new BsonDocument()))
+                : Record.Exception(() => subject.CreateCredentialsFromExternalSource(It.IsAny<OidcCredentials>(), new BsonDocument()));
 
             exception.Should().BeOfType<TimeoutException>();
             callbackCancellationToken.IsCancellationRequested.Should().BeTrue();
@@ -84,8 +85,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     taskCompletionSource.Task.WaitOrThrow(testTimeout);
                 });
             var exception = async
-                ? await Record.ExceptionAsync(() => subject.CreateCredentialsFromExternalSourceAsync(new BsonDocument()))
-                : Record.Exception(() => subject.CreateCredentialsFromExternalSource(new BsonDocument()));
+                ? await Record.ExceptionAsync(() => subject.CreateCredentialsFromExternalSourceAsync(It.IsAny<OidcCredentials>(), new BsonDocument()))
+                : Record.Exception(() => subject.CreateCredentialsFromExternalSource(It.IsAny<OidcCredentials>(), new BsonDocument()));
             callbackCancellationToken.IsCancellationRequested.Should().BeTrue();
             exception.Should().BeOfType<OperationCanceledException>();
 
