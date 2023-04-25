@@ -31,12 +31,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public OidcClientInfo(string principalName)
         {
             PrincipalName = principalName;
+            Version = 0;
         }
 
         /// <summary>
         /// The principal name.
         /// </summary>
         public string PrincipalName { get; }
+
+        /// <summary>
+        /// A version identifying breaking changes in the callback protocol.
+        /// </summary>
+        public int Version { get; }
     }
 
     /// <summary>
