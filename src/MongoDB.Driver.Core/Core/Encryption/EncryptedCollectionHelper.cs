@@ -42,7 +42,6 @@ namespace MongoDB.Driver.Encryption
             helperCollection switch
             {
                 HelperCollectionForEncryption.Esc => encryptedFields.GetValue("escCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.esc").ToString(),
-                HelperCollectionForEncryption.Ecc => encryptedFields.GetValue("eccCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.ecc").ToString(),
                 HelperCollectionForEncryption.Ecos => encryptedFields.GetValue("ecocCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.ecoc").ToString(),
                 _ => throw new InvalidOperationException($"Not supported encryption helper collection {helperCollection}."),
             };
@@ -103,7 +102,6 @@ namespace MongoDB.Driver.Encryption
         public enum HelperCollectionForEncryption
         {
             Esc,
-            Ecc,
             Ecos
         }
     }

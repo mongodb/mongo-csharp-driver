@@ -28,6 +28,10 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using System.Threading;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Servers;
+using System.Net;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
@@ -35,6 +39,8 @@ namespace MongoDB.Driver.Tests.Encryption
     public class ClientEncryptionTests
     {
         #region static
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("datakeys.keyvault");
         #endregion
 
@@ -114,7 +120,18 @@ namespace MongoDB.Driver.Tests.Encryption
             const string kmsProvider = "local";
             const string collectionName = "collName";
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
-            var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
+            var serverDescription = new ServerDescription(new ServerId(__clusterId, __endPoint), __endPoint, wireVersionRange: new Range<int>(20, 21));
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Returns(Mock.Of<IServer>(s => s.Description == serverDescription));
+            mockCluster
+                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Mock.Of<IServer>(s => s.Description == serverDescription));
+
+            var database = Mock.Of<IMongoDatabase>(d =>
+                d.DatabaseNamespace == new DatabaseNamespace("db") &&
+                d.Client == Mock.Of<IMongoClient>(c => c.Cluster == mockCluster.Object));
 
             var masterKey = new BsonDocument();
 
@@ -177,7 +194,18 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             const string kmsProvider = "local";
             const string collectionName = "collName";
-            var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
+            var serverDescription = new ServerDescription(new ServerId(__clusterId, __endPoint), __endPoint, wireVersionRange: new Range<int>(20, 21));
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Returns(Mock.Of<IServer>(s => s.Description == serverDescription));
+            mockCluster
+                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Mock.Of<IServer>(s => s.Description == serverDescription));
+
+            var database = Mock.Of<IMongoDatabase>(d =>
+                d.DatabaseNamespace == new DatabaseNamespace("db") &&
+                d.Client == Mock.Of<IMongoClient>(c => c.Cluster == mockCluster.Object));
 
             var masterKey = new BsonDocument();
 

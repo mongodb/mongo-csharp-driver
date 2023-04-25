@@ -172,6 +172,42 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                             }
                         }
                         break;
+                    case "encryptedFields":
+                        if (commandName == "create") // create encrypted collection
+                        {
+                            var encryptedFieldsDocument = actualCommand[name].AsBsonDocument;
+                            foreach (var expectedItem in expectedValue.AsBsonDocument)
+                            {
+                                switch (expectedItem.Name)
+                                {
+                                    case "escCollection":
+                                    case "ecocCollection" :
+                                    case "eccCollection":
+                                        {
+                                            var collectionValue = expectedValue[expectedItem.Name];
+                                            if (collectionValue.IsBsonNull)
+                                            {
+                                                encryptedFieldsDocument.Should().NotContain(expectedItem.Name);
+                                            }
+                                            else
+                                            {
+                                                encryptedFieldsDocument[expectedItem.Name].Should().Be(collectionValue);
+                                            }
+                                            break;
+                                        }
+                                    case "fields":
+                                        {
+                                            var fields = encryptedFieldsDocument["fields"].AsBsonArray;
+                                            var expectedFields = expectedValue["fields"].AsBsonArray;
+                                            fields.Should().Be(expectedFields);
+                                            break;
+                                        }
+                                    default: throw new AssertionFailedException($"Unexpected encryptedFields field: {expectedItem.Name}.");
+                                }
+                            }
+                            return;
+                        }
+                        break;
                 }
 
                 throw new AssertionFailedException($"Expected field '{name}' in command '{commandName}' to be {expectedValue.ToJson()} but found {actualValue.ToJson()}.");
