@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -444,14 +445,24 @@ namespace MongoDB.Driver.Encryption
 
         private void EnsureFeatureSupported(ICluster cluster, Feature feature, CancellationToken cancellationToken)
         {
-            var maxWireVersion = cluster.SelectServer(WritableServerSelector.Instance, cancellationToken).Description.MaxWireVersion;
-            feature.ThrowIfNotSupported(maxWireVersion);
+            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            {
+                // Use WireVersion from a connection since server level value may be null
+                feature.ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
+            }
         }
 
         private async Task EnsureFeatureSupportedAsync(ICluster cluster, Feature feature, CancellationToken cancellationToken)
         {
-            var maxWireVersion = (await cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false)).Description.MaxWireVersion;
-            feature.ThrowIfNotSupported(maxWireVersion);
+            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            {
+                // Use WireVersion from a connection since server level value may be null
+                feature.ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
+            }
         }
     }
 }
