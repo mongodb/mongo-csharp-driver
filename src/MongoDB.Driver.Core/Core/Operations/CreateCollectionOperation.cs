@@ -413,9 +413,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                EnsureServerIsValid(channelSource.ServerDescription.MaxWireVersion);
-                using (var channel = channelSource.GetChannel(cancellationToken))
+                EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
                 using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
                     var operation = CreateOperation(channelBinding.Session);
@@ -430,9 +430,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                EnsureServerIsValid(channelSource.ServerDescription.MaxWireVersion);
-                using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+                EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
                 using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
                     var operation = CreateOperation(channelBinding.Session);

@@ -32,6 +32,8 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
 using System.Net;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
@@ -120,14 +122,29 @@ namespace MongoDB.Driver.Tests.Encryption
             const string kmsProvider = "local";
             const string collectionName = "collName";
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
-            var serverDescription = new ServerDescription(new ServerId(__clusterId, __endPoint), __endPoint, wireVersionRange: new Range<int>(20, 21));
+            var serverId = new ServerId(__clusterId, __endPoint);
+            var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<ICluster>();
+#pragma warning disable CS0618 // Type or member is obsolete
+            var clusterDescription = new ClusterDescription(
+                __clusterId,
+                ClusterConnectionMode.Automatic,
+                ClusterType.ReplicaSet,
+                new[] { serverDescription });
+#pragma warning restore CS0618 // Type or member is obsolete
+            mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
+            var mockServer = new Mock<IServer>();
+            mockServer.SetupGet(s => s.Description).Returns(serverDescription);
+            var channel = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).ReturnsAsync(channel);
+
             mockCluster
                 .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
-                .Returns(Mock.Of<IServer>(s => s.Description == serverDescription));
+                .Returns(mockServer.Object);
             mockCluster
                 .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Mock.Of<IServer>(s => s.Description == serverDescription));
+                .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>
                 d.DatabaseNamespace == new DatabaseNamespace("db") &&
@@ -194,14 +211,29 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             const string kmsProvider = "local";
             const string collectionName = "collName";
-            var serverDescription = new ServerDescription(new ServerId(__clusterId, __endPoint), __endPoint, wireVersionRange: new Range<int>(20, 21));
+            var serverId = new ServerId(__clusterId, __endPoint);
+            var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<ICluster>();
+#pragma warning disable CS0618 // Type or member is obsolete
+            var clusterDescription = new ClusterDescription(
+                __clusterId,
+                ClusterConnectionMode.Automatic,
+                ClusterType.ReplicaSet,
+                new[] { serverDescription });
+#pragma warning restore CS0618 // Type or member is obsolete
+            mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
+            var mockServer = new Mock<IServer>();
+            mockServer.SetupGet(s => s.Description).Returns(serverDescription);
+            var channel = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).ReturnsAsync(channel);
+
             mockCluster
                 .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
-                .Returns(Mock.Of<IServer>(s => s.Description == serverDescription));
+                .Returns(mockServer.Object);
             mockCluster
                 .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Mock.Of<IServer>(s => s.Description == serverDescription));
+                .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>
                 d.DatabaseNamespace == new DatabaseNamespace("db") &&
