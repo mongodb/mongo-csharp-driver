@@ -22,27 +22,21 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     /// <summary>
     /// Oidc client info.
     /// </summary>
-    public sealed class OidcClientInfo
+    public sealed class OidcRefreshParameters
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OidcClientInfo" /> class.
+        /// Initializes a new instance of the <see cref="OidcRefreshParameters" /> class.
         /// </summary>
-        /// <param name="principalName">The principal name.</param>
-        public OidcClientInfo(string principalName)
+        /// <param name="refreshToken">The refresh token.</param>
+        public OidcRefreshParameters(string refreshToken)
         {
-            PrincipalName = principalName;
-            Version = 0;
+            RefreshToken = refreshToken;
         }
 
         /// <summary>
-        /// The principal name.
+        /// The refresh token.
         /// </summary>
-        public string PrincipalName { get; }
-
-        /// <summary>
-        /// A version identifying breaking changes in the callback protocol.
-        /// </summary>
-        public int Version { get; }
+        public string RefreshToken { get; }
     }
 
     /// <summary>
@@ -53,20 +47,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <summary>
         /// Get OIDC request token.
         /// </summary>
-        /// <param name="clientInfo">The client info.</param>
-        /// <param name="saslResponse">The server sasl response.</param>
+        /// <param name="idpServerInfo">The information used by callbacks to authenticate with the Identity Provider.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
+        BsonDocument GetTokenResult(BsonDocument idpServerInfo, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get OIDC request token.
         /// </summary>
-        /// <param name="clientInfo">The client info.</param>
-        /// <param name="saslResponse">The server sasl response.</param>
+        /// <param name="idpServerInfo">The information used by callbacks to authenticate with the Identity Provider.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
+        Task<BsonDocument> GetTokenResultAsync(BsonDocument idpServerInfo, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -77,21 +69,19 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         /// <summary>
         /// Get OIDC refresh token.
         /// </summary>
-        /// <param name="clientInfo">The client info.</param>
-        /// <param name="saslResponse">The server sasl response.</param>
-        /// <param name="previousCallbackAuthenticationData">The previous callback authentication data.</param>
+        /// <param name="idpServerInfo">The information used by callbacks to authenticate with the Identity Provider.</param>
+        /// <param name="parameters">The refresh callback parameters.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+        BsonDocument GetTokenResult(BsonDocument idpServerInfo, OidcRefreshParameters parameters, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get OIDC refresh token.
         /// </summary>
-        /// <param name="clientInfo">The client info.</param>
-        /// <param name="saslResponse">The server sasl response.</param>
-        /// <param name="previousCallbackAuthenticationData">The previous callback authentication data.</param>
+        /// <param name="idpServerInfo">The information used by callbacks to authenticate with the Identity Provider.</param>
+        /// <param name="parameters">The refresh callback parameters.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The jwt token.</returns>
-        Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+        Task<BsonDocument> GetTokenResultAsync(BsonDocument idpServerInfo, OidcRefreshParameters parameters, CancellationToken cancellationToken);
     }
 }

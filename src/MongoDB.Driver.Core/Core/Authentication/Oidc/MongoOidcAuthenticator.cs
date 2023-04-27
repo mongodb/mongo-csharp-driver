@@ -86,8 +86,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public const string RequestCallbackMechanismProperyName = "REQUEST_TOKEN_CALLBACK";
         public const string RefreshCallbackMechanismProperyName = "REFRESH_TOKEN_CALLBACK";
 
-        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1" };
-
         /// <summary>
         /// Create OIDC authenticator.
         /// </summary>
@@ -187,7 +185,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     return new OidcInputConfiguration(endpoint, principalName);
                 }
 
-                IEnumerable<string> allowedHostNames = DefaultAllowedHostNames;
+                IEnumerable<string> allowedHostNames = null;
                 string providerName = null;
                 IOidcRequestCallbackProvider requestCallbackProvider = null;
                 IOidcRefreshCallbackProvider refreshCallbackProvider = null;
@@ -228,55 +226,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     }
                 }
 
-                EnsureHostsAreValid(endpoint, allowedHostNames);
-                return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider);
-            }
-
-            static IEnumerable<string> EnsureHostsAreValid(EndPoint endPoint, IEnumerable<string> allowedHosts)
-            {
-                var allowedHostsCount = Ensure.IsNotNull(allowedHosts, nameof(allowedHosts)).Count();
-                if (allowedHostsCount == 0)
-                {
-                    throw new InvalidOperationException($"{nameof(AllowedHostsMechanismProperyName)} mechanism authentication property must contain at least one host.");
-                }
-
-                var host = EndPointHelper.GetHostAndPort(endPoint).Host;
-                if (allowedHosts.Any(ah => IsHostMatch(host, ah)))
-                {
-                    return allowedHosts;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"The used host '{host}' doesn't match allowed hosts list ['{string.Join("', '" , allowedHosts)}'].");
-                }
-
-                static bool IsHostMatch(string host, string pattern)
-                {
-                    if (pattern != null)
-                    {
-                        var index = pattern.IndexOf('*');
-                        if (index != -1)
-                        {
-                            var filterPattern = pattern.Substring(index + 1);
-                            if (filterPattern.Length > 0)
-                            {
-                                return host.EndsWith(filterPattern);
-                            }
-                            else
-                            {
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            return pattern == host;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider, allowedHostNames);
             }
         }
         #endregion

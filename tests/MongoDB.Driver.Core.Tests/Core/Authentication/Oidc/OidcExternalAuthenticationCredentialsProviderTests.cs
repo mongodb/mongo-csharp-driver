@@ -103,11 +103,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             if (withRefreshCallback)
             {
                 requestCallbackProvider = OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false, accessToken: "token");
-                refreshCallbackProvider = OidcTestHelper.CreateRefreshCallback(callbackCalled: (a, b, c, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
+                refreshCallbackProvider = OidcTestHelper.CreateRefreshCallback(callbackCalled: (a, b, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
             }
             else
             {
-                requestCallbackProvider = OidcTestHelper.CreateRequestCallback(callbackCalled: (a, b, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
+                requestCallbackProvider = OidcTestHelper.CreateRequestCallback(callbackCalled: (a, ct) => callbackAction(ct), validateInput: false, validateToken: false, accessToken: "token");
             }
             var oidcInputConfiguration = new OidcInputConfiguration(endpoint, requestCallbackProvider: requestCallbackProvider, refreshCallbackProvider: refreshCallbackProvider);
             var provider = new OidcExternalAuthenticationCredentialsProvider(oidcInputConfiguration, clock);

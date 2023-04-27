@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -22,6 +24,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 {
     internal sealed class OidcInputConfiguration
     {
+        #region static
+        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1" };
+        #endregion
+
+        private readonly IEnumerable<string> _allowedHosts;
         private readonly EndPoint _endpoint;
         private readonly string _principalName;
         private readonly string _providerName;
@@ -33,8 +40,10 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             string principalName = null,
             string providerName = null,
             IOidcRequestCallbackProvider requestCallbackProvider = null,
-            IOidcRefreshCallbackProvider refreshCallbackProvider = null)
+            IOidcRefreshCallbackProvider refreshCallbackProvider = null,
+            IEnumerable<string> allowedHosts = null)
         {
+            _allowedHosts = allowedHosts; // can be null
             _endpoint = Ensure.IsNotNull(endpoint, nameof(endpoint)); // can be null
             _providerName = providerName; // can be null
             _principalName = principalName; // can be null
@@ -42,6 +51,12 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             _refreshCallbackProvider = refreshCallbackProvider; // can be null
 
             EnsureOptionsValid();
+
+            if (IsCallbackWorkflow)
+            {
+                _allowedHosts = _allowedHosts ?? DefaultAllowedHostNames;
+                EnsureHostsAreValid(_endpoint, _allowedHosts);
+            }
         }
 
         public EndPoint EndPoint => _endpoint;
@@ -52,8 +67,6 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public IOidcRefreshCallbackProvider RefreshCallbackProvider => _refreshCallbackProvider;
 
         // public methods
-        public OidcClientInfo CreateClientInfo() => new OidcClientInfo(_principalName);
-
         public override int GetHashCode() =>
             new Hasher()
                 .Hash(_providerName)
@@ -94,6 +107,58 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             if (_principalName != null && _providerName != null)
             {
                 throw new InvalidOperationException($"PrincipalName is mutually exclusive with {MongoOidcAuthenticator.ProviderMechanismProperyName}.");
+            }
+
+            if (_providerName != null && _allowedHosts != null)
+            {
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} is mutually exclusive with {MongoOidcAuthenticator.AllowedHostsMechanismProperyName}.");
+            }
+        }
+
+        private IEnumerable<string> EnsureHostsAreValid(EndPoint endPoint, IEnumerable<string> allowedHosts)
+        {
+            var allowedHostsCount = Ensure.IsNotNull(allowedHosts, nameof(allowedHosts)).Count();
+            if (allowedHostsCount == 0)
+            {
+                throw new InvalidOperationException($"{nameof(MongoOidcAuthenticator.AllowedHostsMechanismProperyName)} mechanism authentication property must contain at least one host.");
+            }
+
+            var host = EndPointHelper.GetHostAndPort(endPoint).Host;
+            if (allowedHosts.Any(ah => IsHostMatch(host, ah)))
+            {
+                return allowedHosts;
+            }
+            else
+            {
+                throw new InvalidOperationException($"The used host '{host}' doesn't match allowed hosts list ['{string.Join("', '", allowedHosts)}'].");
+            }
+
+            static bool IsHostMatch(string host, string pattern)
+            {
+                if (pattern != null)
+                {
+                    var index = pattern.IndexOf('*');
+                    if (index != -1)
+                    {
+                        var filterPattern = pattern.Substring(index + 1);
+                        if (filterPattern.Length > 0)
+                        {
+                            return host.EndsWith(filterPattern);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return pattern == host;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
     }

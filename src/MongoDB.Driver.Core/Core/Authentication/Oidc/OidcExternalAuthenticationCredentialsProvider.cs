@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public void Clear() => InternalClear(onlyExpire: false);
 
-        public OidcCredentials CreateCredentialsFromExternalSource(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
+        public OidcCredentials CreateCredentialsFromExternalSource(OidcCredentials invalidCredentials, BsonDocument idpServerInfo, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     if (cachedValue.ShouldBeRefreshed || ShouldForceExpire(invalidCredentials))
                     {
                         InternalClear();
-                        oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfigured(saslStartResponse, cachedValue.CallbackAuthenticationData);
+                        oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfigured(idpServerInfo, cachedValue.RefreshToken);
                     }
                     else
                     {
@@ -81,16 +81,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 if (oidcCredentials == null)
                 {
-                    try
-                    {
-                        oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfigured(saslStartResponse);
-                    }
-                    catch
-                    {
-                        // at least we can cache server response
-                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock);
-                        throw;
-                    }
+                    // do not try saving at least idpServerInfo in case of callback failure because the next step will be full cache clear
+                    oidcCredentials = fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfigured(idpServerInfo);
                 }
 
                 if (oidcCredentials != null)
@@ -103,7 +95,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             return oidcCredentials ?? throw CreateException("OIDC credentials have not been provided.");
         }
 
-        public async Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(OidcCredentials invalidCredentials, BsonDocument saslStartResponse, CancellationToken cancellationToken = default)
+        public async Task<OidcCredentials> CreateCredentialsFromExternalSourceAsync(OidcCredentials invalidCredentials, BsonDocument idpServerInfo, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -118,7 +110,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     if (cachedValue.ShouldBeRefreshed || ShouldForceExpire(invalidCredentials))
                     {
                         InternalClear();
-                        oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfiguredAsync(saslStartResponse, cachedValue.CallbackAuthenticationData).ConfigureAwait(false);
+                        oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRefreshTokenIfConfiguredAsync(idpServerInfo, cachedValue.RefreshToken).ConfigureAwait(false);
                     }
                     else
                     {
@@ -128,16 +120,8 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
                 if (oidcCredentials == null)
                 {
-                    try
-                    {
-                        oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfiguredAsync(saslStartResponse).ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        // at least we can cache server response
-                        _cachedValue = OidcCredentials.Create(saslStartResponse, _oidcClock);
-                        throw;
-                    }
+                    // do not try saving at least idpServerInfo in case of callback failure because the next step will be full cache clear
+                    oidcCredentials = await fetchCredentialsHelper.GetCredentialsWithRequestTokenIfConfiguredAsync(idpServerInfo).ConfigureAwait(false);
                 }
 
                 if (oidcCredentials != null)
@@ -230,15 +214,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
             }
 
-            public OidcCredentials GetCredentialsWithRequestTokenIfConfigured(BsonDocument saslStartResponse)
+            public OidcCredentials GetCredentialsWithRequestTokenIfConfigured(BsonDocument idpServerInfo)
             {
                 ThrowIfNotAcquired();
 
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
-                    var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
+                    var task = Task.Factory.StartNew(() => _inputConfiguration.RequestCallbackProvider.GetTokenResult(idpServerInfo, _cancellationToken), _cancellationToken);
                     var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, idpServerInfo, _clock);
                 }
                 else
                 {
@@ -246,15 +230,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
             }
 
-            public async Task<OidcCredentials> GetCredentialsWithRequestTokenIfConfiguredAsync(BsonDocument saslStartResponse)
+            public async Task<OidcCredentials> GetCredentialsWithRequestTokenIfConfiguredAsync(BsonDocument idpServerInfo)
             {
                 ThrowIfNotAcquired();
 
                 if (_inputConfiguration.RequestCallbackProvider != null)
                 {
-                    var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, _cancellationToken), _cancellationToken);
+                    var task = Task.Run(() => _inputConfiguration.RequestCallbackProvider.GetTokenResultAsync(idpServerInfo, _cancellationToken), _cancellationToken);
                     var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
+                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, idpServerInfo, _clock);
                 }
                 else
                 {
@@ -262,15 +246,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
             }
 
-            public OidcCredentials GetCredentialsWithRefreshTokenIfConfigured(BsonDocument saslStartResponse, BsonDocument cachedCallbackAuthenticationData)
+            public OidcCredentials GetCredentialsWithRefreshTokenIfConfigured(BsonDocument idpServerInfo, string refreshToken)
             {
                 ThrowIfNotAcquired();
 
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
-                    var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
-                    var clientResponse = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
+                    var task = Task.Factory.StartNew(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResult(idpServerInfo, new OidcRefreshParameters(refreshToken), _cancellationToken), _cancellationToken);
+                    var callbackAuthenticationData = TaskUtils.RunCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken);
+                    return OidcCredentials.Create(callbackAuthenticationData, idpServerInfo, _clock);
                 }
                 else
                 {
@@ -278,15 +262,15 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
             }
 
-            public async Task<OidcCredentials> GetCredentialsWithRefreshTokenIfConfiguredAsync(BsonDocument saslStartResponse, BsonDocument cachedCallbackAuthenticationData)
+            public async Task<OidcCredentials> GetCredentialsWithRefreshTokenIfConfiguredAsync(BsonDocument idpServerInfo, string refreshToken)
             {
                 ThrowIfNotAcquired();
 
                 if (_inputConfiguration.RefreshCallbackProvider != null)
                 {
-                    var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(_inputConfiguration.CreateClientInfo(), saslStartResponse, cachedCallbackAuthenticationData, _cancellationToken), _cancellationToken);
-                    var clientResponse = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
-                    return OidcCredentials.Create(callbackAuthenticationData: clientResponse, saslStartResponse, _clock);
+                    var task = Task.Run(() => _inputConfiguration.RefreshCallbackProvider.GetTokenResultAsync(idpServerInfo, new OidcRefreshParameters(refreshToken), _cancellationToken), _cancellationToken);
+                    var callbackAuthenticationData = await TaskUtils.RunAsyncCallbackOrThrow(task, _timeout, _timeoutErrorMessage, _cancellationToken).ConfigureAwait(false);
+                    return OidcCredentials.Create(callbackAuthenticationData, idpServerInfo, _clock);
                 }
                 else
                 {

@@ -27,10 +27,10 @@ using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Core.TestHelpers.Authentication
 {
-    public delegate BsonDocument OidcTokenRequestCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
-    public delegate Task<BsonDocument> OidcTokenRequestCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken);
-    public delegate BsonDocument OidcTokenRefreshCallback(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
-    public delegate Task<BsonDocument> OidcTokenRefreshCallbackAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken);
+    public delegate BsonDocument OidcTokenRequestCallback(BsonDocument idpServerInfo, CancellationToken cancellationToken);
+    public delegate Task<BsonDocument> OidcTokenRequestCallbackAsync(BsonDocument idpServerInfo, CancellationToken cancellationToken);
+    public delegate BsonDocument OidcTokenRefreshCallback(BsonDocument idpServerInfo, OidcRefreshParameters parameteres, CancellationToken cancellationToken);
+    public delegate Task<BsonDocument> OidcTokenRefreshCallbackAsync(BsonDocument idpServerInfo, OidcRefreshParameters parameteres, CancellationToken cancellationToken);
 
     public sealed class RequestCallbackProvider : IOidcRequestCallbackProvider
     {
@@ -46,16 +46,16 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
             _requestCallbackAsyncFunc = requestCallbackAsyncFunc;
         }
 
-        public BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken) =>
+        public BsonDocument GetTokenResult(BsonDocument idpServerInfo, CancellationToken cancellationToken) =>
             _requestCallbackFunc != null
-                ? _requestCallbackFunc(clientInfo, saslResponse, cancellationToken)
-                : (_autoGenerateMissedCallback ? _requestCallbackAsyncFunc(clientInfo, saslResponse, cancellationToken).GetAwaiter().GetResult() : null);
+                ? _requestCallbackFunc(idpServerInfo, cancellationToken)
+                : (_autoGenerateMissedCallback ? _requestCallbackAsyncFunc(idpServerInfo, cancellationToken).GetAwaiter().GetResult() : null);
         
 
-        public Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, CancellationToken cancellationToken) =>
+        public Task<BsonDocument> GetTokenResultAsync(BsonDocument idpServerInfo, CancellationToken cancellationToken) =>
             _requestCallbackAsyncFunc != null
-                ? _requestCallbackAsyncFunc(clientInfo, saslResponse, cancellationToken)
-                : (_autoGenerateMissedCallback ? Task.Run(() => _requestCallbackFunc(clientInfo, saslResponse, cancellationToken)) : null);
+                ? _requestCallbackAsyncFunc(idpServerInfo, cancellationToken)
+                : (_autoGenerateMissedCallback ? Task.Run(() => _requestCallbackFunc(idpServerInfo, cancellationToken)) : null);
 
         public override bool Equals(object obj)
         {
@@ -85,15 +85,15 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
             _refreshCallbackAsyncFunc = refreshCallbackAsyncFunc;
         }
 
-        public BsonDocument GetTokenResult(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken) =>
+        public BsonDocument GetTokenResult(BsonDocument idpServerInfo, OidcRefreshParameters parameters, CancellationToken cancellationToken) =>
             _refreshCallbackFunc != null
-                ? _refreshCallbackFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)
-                : (_autoGenerateMissedCallback ? _refreshCallbackAsyncFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken).GetAwaiter().GetResult() : null);
+                ? _refreshCallbackFunc(idpServerInfo, parameters, cancellationToken)
+                : (_autoGenerateMissedCallback ? _refreshCallbackAsyncFunc(idpServerInfo, parameters, cancellationToken).GetAwaiter().GetResult() : null);
 
-        public Task<BsonDocument> GetTokenResultAsync(OidcClientInfo clientInfo, BsonDocument saslResponse, BsonDocument previousCallbackAuthenticationData, CancellationToken cancellationToken) =>
+        public Task<BsonDocument> GetTokenResultAsync(BsonDocument idpServerInfo, OidcRefreshParameters parameters, CancellationToken cancellationToken) =>
             _refreshCallbackAsyncFunc != null
-                ? _refreshCallbackAsyncFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)
-                : (_autoGenerateMissedCallback ? Task.Run(() => _refreshCallbackFunc(clientInfo, saslResponse, previousCallbackAuthenticationData, cancellationToken)) : null);
+                ? _refreshCallbackAsyncFunc(idpServerInfo, parameters, cancellationToken)
+                : (_autoGenerateMissedCallback ? Task.Run(() => _refreshCallbackFunc(idpServerInfo, parameters, cancellationToken)) : null);
 
         public override bool Equals(object obj)
         {
@@ -137,38 +137,32 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
         }
 
         public static IOidcRequestCallbackProvider CreateRequestCallback(
-            string expectedPrincipalName = null,
             bool validateInput = true,
             bool validateToken = true,
             int? expireInSeconds = 600, // 10 mins
             bool invalidResponseDocument = false,
             string accessToken = null,
-            Action<string, BsonDocument, CancellationToken> callbackCalled = null,
-            BsonDocument expectedSaslResponseDocument = null) =>
-            new RequestCallbackProvider((clientInfo, serverResponse, ct) =>
+            Action<BsonDocument, CancellationToken> callbackCalled = null,
+            BsonDocument expectedIdpServerInfo = null) =>
+            new RequestCallbackProvider((idpServerInfo, ct) =>
             {
-                if (expectedPrincipalName != null)
+                if (expectedIdpServerInfo != null)
                 {
-                    clientInfo.PrincipalName.Should().Be(expectedPrincipalName);
-                }
-
-                if (expectedSaslResponseDocument != null)
-                {
-                    serverResponse.Should().Be(expectedSaslResponseDocument);
+                    idpServerInfo.Should().Be(expectedIdpServerInfo);
                 }
 
                 accessToken = validateToken ? JwtHelper.GetValidTokenOrThrow(accessToken) : JwtHelper.GetTokenContent(accessToken);
 
                 if (validateInput)
                 {
-                    serverResponse
+                    idpServerInfo
                         .Elements
                         .Select(c => c.Name)
                         .Should()
                         .OnlyContain(e => __supportedFieldsInServerResponse.Contains(e));
                 }
 
-                callbackCalled?.Invoke(clientInfo.PrincipalName, serverResponse, ct);
+                callbackCalled?.Invoke(idpServerInfo, ct);
                 var response = new BsonDocument
                 {
                     { "accessToken", accessToken },
@@ -180,43 +174,37 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
 
 
         public static IOidcRefreshCallbackProvider CreateRefreshCallback(
-            string expectedPrincipalName = null,
             bool validateInput = true,
             bool validateToken = true,
             int? expireInSeconds = 600, // 10 mins
             bool invalidResponseDocument = false,
             string accessToken = null,
-            Action<string, BsonDocument, BsonDocument, CancellationToken> callbackCalled = null,
-            BsonDocument expectedSaslResponseDocument = null) =>
-            new RefreshCallbackProvider((clientInfo, serverResponse, previousCache, ct) =>
+            Action<BsonDocument, OidcRefreshParameters, CancellationToken> callbackCalled = null,
+            BsonDocument expectedIdpServerInfo = null) =>
+            new RefreshCallbackProvider((idpServerInfo, parameters, ct) =>
             {
-                if (expectedPrincipalName != null)
+                if (expectedIdpServerInfo != null)
                 {
-                    clientInfo.PrincipalName.Should().Be(expectedPrincipalName);
-                }
-
-                if (expectedSaslResponseDocument != null)
-                {
-                    serverResponse.Should().Be(expectedSaslResponseDocument);
+                    idpServerInfo.Should().Be(expectedIdpServerInfo);
                 }
 
                 accessToken = validateToken ? JwtHelper.GetValidTokenOrThrow(accessToken) : JwtHelper.GetTokenContent(accessToken);
 
                 if (validateInput)
                 {
-                    serverResponse
+                    idpServerInfo
                         .Elements
                         .Select(c => c.Name)
                         .Should()
                         .OnlyContain(e => __supportedFieldsInServerResponse.Contains(e));
-                    previousCache
-                        .Elements
-                        .Select(c => c.Name)
-                        .Should()
-                        .OnlyContain(e => __supportedCallbackResponse.Contains(e));
+                    //parameters
+                    //    .Elements
+                    //    .Select(c => c.Name)
+                    //    .Should()
+                    //    .OnlyContain(e => __supportedCallbackResponse.Contains(e));
                 }
 
-                callbackCalled?.Invoke(clientInfo.PrincipalName, serverResponse, previousCache, ct);
+                callbackCalled?.Invoke(idpServerInfo, parameters, ct);
 
                 var response = new BsonDocument // OIDCRequestTokenResult
                 {

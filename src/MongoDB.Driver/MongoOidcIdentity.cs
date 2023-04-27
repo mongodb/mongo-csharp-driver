@@ -24,7 +24,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="MongoOidcIdentity" /> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        public MongoOidcIdentity(string username)
+        public MongoOidcIdentity(string username = null)
             : base("$external", username, allowNullUsername: true)
         { }
     }

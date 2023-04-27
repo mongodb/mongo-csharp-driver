@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
             else
             {
-                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(stepResult.InvalidCredentials, stepResult.ServerResponse, cancellationToken);
+                var oidcCredentials = _oidsCredentialsProvider.CreateCredentialsFromExternalSource(stepResult.InvalidCredentials, stepResult.IdpServerInfo, cancellationToken);
                 return CreateLastSaslStep(oidcCredentials);
             }
         }
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
             else
             {
-                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(stepResult.InvalidCredentials, stepResult.ServerResponse, cancellationToken).ConfigureAwait(false);
+                var oidcCredentials = await _oidsCredentialsProvider.CreateCredentialsFromExternalSourceAsync(stepResult.InvalidCredentials, stepResult.IdpServerInfo, cancellationToken).ConfigureAwait(false);
                 return CreateLastSaslStep(oidcCredentials);
             }
         }
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         }
 
         // private methods
-        private (ISaslStep SaslStep, BsonDocument ServerResponse, OidcCredentials InvalidCredentials) CreateSaslStartOrGetServerResponse(IConnection connection)
+        private (ISaslStep SaslStep, BsonDocument IdpServerInfo, OidcCredentials InvalidCredentials) CreateSaslStartOrGetServerResponse(IConnection connection)
         {
             var cachedCredentials = _oidsCredentialsProvider.CachedCredentials;
             if (cachedCredentials != null)
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 {
                     return (
                         SaslStep: null,
-                        cachedCredentials.ServerResponse,
+                        cachedCredentials.IdpServerInfo,
                         InvalidCredentials: reauthenticationRequested
                             ? _usedCredentials // force expiring used credentials for reauthentication, do nothing in the rest of cases
                             : null);
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 else
                 {
                     var saslStep = CreateLastSaslStep(cachedCredentials);
-                    return (SaslStep: saslStep, ServerResponse: null, InvalidCredentials: null);
+                    return (SaslStep: saslStep, IdpServerInfo: null, InvalidCredentials: null);
                 }
             }
             else
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 var clientMessageBytes = document.ToBson();
 
                 var saslStep = new CallbackWorkflowClientFirst(clientMessageBytes, _oidsCredentialsProvider, this);
-                return (SaslStep: saslStep, ServerResponse: null, InvalidCredentials: null);
+                return (SaslStep: saslStep, IdpServerInfo: null, InvalidCredentials: null);
             }
         }
 

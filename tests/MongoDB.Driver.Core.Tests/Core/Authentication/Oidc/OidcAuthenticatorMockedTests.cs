@@ -123,8 +123,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 withRequestCallback: true,
                 withRefreshCallback: true,
                 providerName: null,
-                requestCallbackCalled: (a, b, ct) => requestCallbackCalled++,
-                refreshCallbackCalled: (a, b, c, ct) => refreshCallbackCalled++);
+                requestCallbackCalled: (a, ct) => requestCallbackCalled++,
+                refreshCallbackCalled: (a, b, ct) => refreshCallbackCalled++);
 
             using var mockConnection = CreateConnection();
 
@@ -283,8 +283,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 withRequestCallback: true,
                 withRefreshCallback: true,
                 providerName: null,
-                requestCallbackCalled: (a, b, ct) => requestCallbackCalled++,
-                refreshCallbackCalled: (a, b, c, ct) => refreshCallbackCalled++);
+                requestCallbackCalled: (a, ct) => requestCallbackCalled++,
+                refreshCallbackCalled: (a, b, ct) => refreshCallbackCalled++);
 
             using var mockConnection = CreateConnection();
             var authenticators = ExternalCredentialsAuthenticators.Instance;
@@ -340,8 +340,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 withRequestCallback: true,
                 withRefreshCallback: true,
                 providerName: null,
-                requestCallbackCalled: (a, b, ct) => requestCallbackCalled++,
-                refreshCallbackCalled: (a, b, c, ct) => refreshCallbackCalled++);
+                requestCallbackCalled: (a, ct) => requestCallbackCalled++,
+                refreshCallbackCalled: (a, b, ct) => refreshCallbackCalled++);
             authenticator = MongoOidcAuthenticator.CreateAuthenticator(
                 source: "$external",
                 isPrincipalNameDifferent ? PrincipalName2 : PrincipalName,
@@ -684,7 +684,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 withRefreshCallback: true,
                 providerName: null,
                 requestCallbackCalled:
-                    (a, b, ct) =>
+                    (a, ct) =>
                     {
                         if (ensureNoCallbackCalls)
                         {
@@ -692,7 +692,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                         }
                         requestCallbackCalled++;
                     },
-                refreshCallbackCalled: (a, b, c, ct) =>
+                refreshCallbackCalled: (a, b, ct) =>
                 {
                     if (ensureNoCallbackCalls)
                     {
@@ -902,8 +902,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             bool withRequestCallback,
             bool withRefreshCallback,
             string providerName,
-            Action<string, BsonDocument, CancellationToken> requestCallbackCalled = null,
-            Action<string, BsonDocument, BsonDocument, CancellationToken> refreshCallbackCalled = null)
+            Action<BsonDocument, CancellationToken> requestCallbackCalled = null,
+            Action<BsonDocument, OidcRefreshParameters, CancellationToken> refreshCallbackCalled = null)
         {
             Dictionary<string, object> properties = new();
             if (withRequestCallback)
@@ -913,7 +913,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     OidcTestHelper.CreateRequestCallback(
                         validateToken: false,
                         accessToken: RequestAccessToken,
-                        expectedSaslResponseDocument: __initialSaslStartResponseForCallbackWorkflow,
                         callbackCalled: requestCallbackCalled));
             }
             if (withRefreshCallback)
@@ -923,7 +922,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     OidcTestHelper.CreateRefreshCallback(
                         validateToken: false,
                         accessToken: RefreshAccessToken,
-                        expectedSaslResponseDocument: __initialSaslStartResponseForCallbackWorkflow,
                         callbackCalled: refreshCallbackCalled));
             };
             if (providerName != null)

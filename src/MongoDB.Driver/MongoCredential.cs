@@ -283,12 +283,14 @@ namespace MongoDB.Driver
         /// Creates a credential used with MONGODB-OIDC.
         /// </summary>
         /// <param name="providerName">The provider name.</param>
-        /// <param name="allowedHosts">The allowed host names.</param>
         /// <returns>The oidc credential.</returns>
-        public static MongoCredential CreateOidcCredential(
-            string providerName = null,
-            IEnumerable<string> allowedHosts = null)
-            => CreateOidcCredential(requestCallbackProvider: null, refreshCallbackProvider: null, principalName: null, providerName: providerName, allowedHosts);
+        public static MongoCredential CreateOidcCredential(string providerName)
+            => CreateOidcCredential(
+                requestCallbackProvider: null,
+                refreshCallbackProvider: null,
+                principalName: null,
+                providerName: Ensure.IsNotNullOrEmpty(providerName, nameof(providerName)),
+                allowedHosts: null);
 
         private static MongoCredential CreateOidcCredential(
             IOidcRequestCallbackProvider requestCallbackProvider = null,
