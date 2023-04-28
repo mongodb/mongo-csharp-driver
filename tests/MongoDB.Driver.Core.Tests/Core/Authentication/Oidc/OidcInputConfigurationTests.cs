@@ -58,10 +58,36 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         }
 
         [Theory]
-        [ParameterAttributeData]
+        // full match
+        [InlineData("localhost", "localhost", true)]
+        [InlineData("127.0.0.1", "127.0.0.1", true)]
+        [InlineData("[::1]", "::1", true)]
+        [InlineData("evilmongodb.com", "evilmongodb.com", true)]
+        [InlineData("domain.subdomain", "domain.subdomain", true)]
+        // not match
+        [InlineData("localhost", "dummy", false)]
+        [InlineData("127.0.0.1", "127.0.0.2", false)]
+        [InlineData("[::1]", "::2", false)]
+        [InlineData("evilmongodb.com", "dummy.com", false)]
+        [InlineData("domain.subdomain", "domain.subdomain.subsubdomain", false)]
+        // only one allowed
+        [InlineData("localhost", "localhost;dummy", true)]
+        [InlineData("127.0.0.1", "127.0.0.1;dummy", true)]
+        [InlineData("[::1]", "dummy;::1", true)]
+        [InlineData("evilmongodb.com", "dummy;evilmongodb.com", true)]
+        [InlineData("domain.subdomain", "domain.subdomain;dummy", true)]
+        // with correct *.
+        [InlineData("domain.subdomain", "*.subdomain", true)]
+        // with incourrect correct *.
+        [InlineData("domain.subdomain", "*.subdomain.subsubdomain", false)]
+        [InlineData("domain.subdomain", "*subsubdomain", false)]
+        [InlineData("evilmongodb.com", "*mongodb.com", false)]
+        // just in case
+        [InlineData("evilmongodb.com", "*.", false)]
         public void Constructor_should_validate_allowed_hosts_for_callback_mode(
-            [Values("localhost", "127.0.0.1", "[::1]", "evilmongodb.com")] string host,
-            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*.localhost", "localhost;dummy", "::1", "example.com", "*mongodb.com")] string allowedHosts)
+            string host,
+            string allowedHosts,
+            bool result)
         {
             var endPoint = EndPointHelper.Parse(host).Should().NotBeNull().And.Subject.As<EndPoint>();
             var allowedHostsList = allowedHosts?.Split(';');
@@ -71,8 +97,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                     requestCallbackProvider: OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false),
                     allowedHosts: allowedHostsList));
 
-            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "") == host.Replace("[", "").Replace("]", ""));
-            if (isValidCase.GetValueOrDefault())
+            if (result)
             {
                 exception.Should().BeNull();
             }

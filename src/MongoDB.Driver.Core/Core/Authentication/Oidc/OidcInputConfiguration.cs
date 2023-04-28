@@ -140,10 +140,10 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     var index = pattern.IndexOf("*.");
                     if (index != -1)
                     {
-                        var filterPattern = pattern.Substring(index + 1);
+                        var filterPattern = pattern.Substring(index + 2);
                         if (filterPattern.Length > 0)
                         {
-                            return host.EndsWith(filterPattern);
+                            return host.EndsWith(filterPattern) && host != filterPattern;
                         }
                         else
                         {
