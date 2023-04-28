@@ -80,11 +80,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     internal sealed class MongoOidcAuthenticator : SaslAuthenticator, IWithAuthenticationContext
     {
         #region static
-        public const string AllowedHostsMechanismProperyName = "ALLOWED_HOSTS";
-        public const string ProviderMechanismProperyName = "PROVIDER_NAME";
+        public const string AllowedHostsMechanismPropertyName = "ALLOWED_HOSTS";
+        public const string ProviderMechanismPropertyName = "PROVIDER_NAME";
         public const string MechanismName = "MONGODB-OIDC";
-        public const string RequestCallbackMechanismProperyName = "REQUEST_TOKEN_CALLBACK";
-        public const string RefreshCallbackMechanismProperyName = "REFRESH_TOKEN_CALLBACK";
+        public const string RequestCallbackMechanismPropertyName = "REQUEST_TOKEN_CALLBACK";
+        public const string RefreshCallbackMechanismPropertyName = "REFRESH_TOKEN_CALLBACK";
 
         /// <summary>
         /// Create OIDC authenticator.
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             ServerApi serverApi) =>
             CreateAuthenticator(source, principalName, properties, context, serverApi, ExternalCredentialsAuthenticators.Instance);
 
-        internal static MongoOidcAuthenticator CreateAuthenticator(
+        private static MongoOidcAuthenticator CreateAuthenticator(
             string source,
             string principalName,
             IEnumerable<KeyValuePair<string, string>> properties,
@@ -194,32 +194,28 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     var value = authorizationProperty.Value;
                     switch (authorizationProperty.Key)
                     {
-                        case AllowedHostsMechanismProperyName:
+                        case AllowedHostsMechanismPropertyName:
                             {
-                                allowedHostNames = value is IEnumerable<string> enumerable
-                                    ? enumerable
-                                    : throw new InvalidCastException($"The {AllowedHostsMechanismProperyName} must be array, but was {value.GetType()}.");
+                                allowedHostNames = value as IEnumerable<string>
+                                    ?? throw new InvalidCastException(GetErrorMessage<IEnumerable<string>>(AllowedHostsMechanismPropertyName, value));
                             }
                             break;
-                        case RequestCallbackMechanismProperyName:
+                        case RequestCallbackMechanismPropertyName:
                             {
-                                requestCallbackProvider = value is IOidcRequestCallbackProvider requestProvider
-                                    ? requestProvider
-                                    : throw new InvalidCastException($"The {RequestCallbackMechanismProperyName} must be inherited from {nameof(IOidcRequestCallbackProvider)}, but was {value.GetType()}.");
+                                requestCallbackProvider = value as IOidcRequestCallbackProvider
+                                    ?? throw new InvalidCastException(GetErrorMessage<IOidcRequestCallbackProvider>(RequestCallbackMechanismPropertyName, value));
                             }
                             break;
-                        case RefreshCallbackMechanismProperyName:
+                        case RefreshCallbackMechanismPropertyName:
                             {
-                                refreshCallbackProvider = value is IOidcRefreshCallbackProvider refreshProvider
-                                    ? refreshProvider
-                                    : throw new InvalidCastException($"The {RefreshCallbackMechanismProperyName} must be inherited from {nameof(IOidcRefreshCallbackProvider)}, but was {value.GetType()}.");
+                                refreshCallbackProvider = value as IOidcRefreshCallbackProvider
+                                    ?? throw new InvalidCastException(GetErrorMessage<IOidcRefreshCallbackProvider>(RefreshCallbackMechanismPropertyName, value));
                             }
                             break;
-                        case ProviderMechanismProperyName:
+                        case ProviderMechanismPropertyName:
                             {
-                                providerName = value is string @string
-                                    ? @string
-                                    : throw new InvalidCastException($"The {ProviderMechanismProperyName} must be string, but was {value.GetType()}.");
+                                providerName = value as string
+                                    ?? throw new InvalidCastException(GetErrorMessage<string>(ProviderMechanismPropertyName, value));
                             }
                             break;
                         default: throw new ArgumentException($"Unknown OIDC property '{authorizationProperty.Key}'.", nameof(authorizationProperty));
@@ -227,6 +223,12 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
 
                 return new OidcInputConfiguration(endpoint, principalName, providerName, requestCallbackProvider, refreshCallbackProvider, allowedHostNames);
+            }
+
+            static string GetErrorMessage<TValue>(string propertyName, object value)
+            {
+                var messageEnd = typeof(TValue) == typeof(string) ? "be string" : $"inherit from {typeof(TValue).Name}";
+                return $"The {propertyName} {value?.GetType()} must {messageEnd}.";
             }
         }
         #endregion

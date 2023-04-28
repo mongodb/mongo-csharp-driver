@@ -83,11 +83,11 @@ namespace MongoDB.Driver.Tests
             credential.Evidence.Should().BeOfType<ExternalEvidence>();
 
             var dummyDocument = new BsonDocument();
-            var requestProvider = credential.GetMechanismProperty<IOidcRequestCallbackProvider>(MongoOidcAuthenticator.RequestCallbackMechanismProperyName, defaultValue: null)
+            var requestProvider = credential.GetMechanismProperty<IOidcRequestCallbackProvider>(MongoOidcAuthenticator.RequestCallbackMechanismPropertyName, defaultValue: null)
                 .Should().BeOfType<RequestCallbackProvider>().Subject;
             requestProvider.GetTokenResult(dummyDocument, CancellationToken.None).Should().Be(async ? null : requestTokenSyncDocument);
             requestProvider.GetTokenResultAsync(dummyDocument, CancellationToken.None)?.GetAwaiter().GetResult().Should().Be(async ? requestTokenAsyncDocument : null);
-            var refreshProvider = credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, defaultValue: null);
+            var refreshProvider = credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName, defaultValue: null);
             if (withRefreshCallbackProvider)
             {
                 string refreshToken = "dummyRefreshToken";
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
             {
                 refreshProvider.Should().BeNull();
             }
-            credential.GetMechanismProperty<IEnumerable<string>>(MongoOidcAuthenticator.AllowedHostsMechanismProperyName, defaultValue: null)
+            credential.GetMechanismProperty<IEnumerable<string>>(MongoOidcAuthenticator.AllowedHostsMechanismPropertyName, defaultValue: null)
                 .Should().BeAssignableTo<IEnumerable<string>>().Subject.Single()
                 .Should().Be(allowedHost);
 
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests
             credential.Mechanism.Should().Be("MONGODB-OIDC");
             credential.Username.Should().BeNull();
             credential.Evidence.Should().BeOfType<ExternalEvidence>();
-            credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderMechanismProperyName, defaultValue: null)
+            credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderMechanismPropertyName, defaultValue: null)
                 .Should().BeOfType<string>().Subject
                 .Should().Be(providerName);
         }

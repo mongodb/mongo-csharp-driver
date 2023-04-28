@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var connectionString = split[1];
 
             var settings = MongoClientSettings.FromConnectionString(connectionString);
-            var providerName = settings.Credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderMechanismProperyName, defaultValue: null);
+            var providerName = settings.Credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderMechanismPropertyName, defaultValue: null);
             DisposableEnvironmentVariable disposableEnvironmentVariable = null;
 
             try
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [ParameterAttributeData]
         public async Task Oidc_authentication_should_correctly_handle_allowed_hosts_with_callback_workflow(
             [Values("localhost", "127.0.0.1", "[::1]")] string host,
-            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*localhost", "localhost;dummy", "::1", "example.com", "*mongodb.com")] string allowedHosts,
+            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*.localhost", "localhost;dummy", "::1", "example.com", "*mongodb.com")] string allowedHosts,
             [Values(false, true)] bool withIgnoredExampleComArgument,
             [Values(false, true)] bool async)
         {
@@ -202,8 +202,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 mechanism: MongoOidcAuthenticator.MechanismName,
                 new MongoOidcIdentity(),
                 new ExternalEvidence())
-                .WithMechanismProperty(MongoOidcAuthenticator.ProviderMechanismProperyName, providerName)
-                .WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsMechanismProperyName, Enumerable.Empty<string>());
+                .WithMechanismProperty(MongoOidcAuthenticator.ProviderMechanismPropertyName, providerName)
+                .WithMechanismProperty(MongoOidcAuthenticator.AllowedHostsMechanismPropertyName, Enumerable.Empty<string>());
 
             var exception = await Record.ExceptionAsync(() => TestCase(async, settings));
             exception
@@ -293,7 +293,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                     {
                         exception.Should().BeNull();
 
-                        var requestCallback = settings.Credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, defaultValue: null);
+                        var requestCallback = settings.Credential.GetMechanismProperty<IOidcRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName, defaultValue: null);
                         requestCallback.Should().NotBeNull();
                         var credentials = GetCachedCredentials();
                         credentials.Expire();

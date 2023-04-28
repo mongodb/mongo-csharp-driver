@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                         {
                             case "oidcRequest":
                                 var requestCallback = Mock.Of<IOidcRequestCallbackProvider>();
-                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackMechanismProperyName, requestCallback);
+                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackMechanismPropertyName, requestCallback);
                                 break;
                             case "oidcRefresh":
                                 var refreshCallback = Mock.Of<IOidcRefreshCallbackProvider>();
-                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackMechanismProperyName, refreshCallback);
+                                mongoCredential = mongoCredential.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName, refreshCallback);
                                 break;
                             default: throw new NotSupportedException($"Not supported callback type: {callback.AsString}.");
                         }
@@ -156,19 +156,19 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                                 var mechanismName = expectedMechanismProperty.Name;
                                 switch (mechanismName)
                                 {
-                                    case MongoOidcAuthenticator.RequestCallbackMechanismProperyName:
+                                    case MongoOidcAuthenticator.RequestCallbackMechanismPropertyName:
                                         {
                                             var inputConfiguration = oidcAuthenticator._mechanism_oidsCredentialsProvider_inputConfiguration();
                                             (inputConfiguration.RequestCallbackProvider != null).Should().Be(expectedMechanismProperty.Value.ToBoolean());
                                         }
                                         break;
-                                    case MongoOidcAuthenticator.RefreshCallbackMechanismProperyName:
+                                    case MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName:
                                         {
                                             var inputConfiguration = oidcAuthenticator._mechanism_oidsCredentialsProvider_inputConfiguration();
                                             (inputConfiguration.RefreshCallbackProvider != null).Should().Be(expectedMechanismProperty.Value.ToBoolean());
                                         }
                                         break;
-                                    case MongoOidcAuthenticator.ProviderMechanismProperyName:
+                                    case MongoOidcAuthenticator.ProviderMechanismPropertyName:
                                         {
                                             var provider = oidcAuthenticator._mechanism_providerWorkflowCredentialsProvider();
                                             var providerName = expectedMechanismProperty.Value.ToString();

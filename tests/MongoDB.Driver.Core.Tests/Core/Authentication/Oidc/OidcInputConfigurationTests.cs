@@ -13,9 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Authentication;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -23,6 +29,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
 {
     public class OidcInputConfigurationTests
     {
+        private readonly EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
+
         [Theory]
         // doesn't fail
         [InlineData(null, "providerName", false, false, false)]
@@ -38,16 +46,43 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
         [InlineData("principalName", "providerName", false, false, true)]
         public void Constructor_should_validate_input_arguments(string principalName, string providerName, bool withRequestCallback, bool withRefreshCallback, bool shouldFail)
         {
-            var endpoint = new DnsEndPoint("localhost", 27017);
             var exception = Record.Exception(
                 () => new OidcInputConfiguration(
-                    endpoint,
+                    __endPoint,
                     principalName,
                     providerName,
                     requestCallbackProvider: withRequestCallback ? Mock.Of<IOidcRequestCallbackProvider>() : null,
                     refreshCallbackProvider: withRefreshCallback ? Mock.Of<IOidcRefreshCallbackProvider>() : null));
 
             (exception != null).Should().Be(shouldFail);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Constructor_should_validate_allowed_hosts_for_callback_mode(
+            [Values("localhost", "127.0.0.1", "[::1]", "evilmongodb.com")] string host,
+            [Values("", "dummy", "localhost", "localhost1", "127.0.0.1", "*.localhost", "localhost;dummy", "::1", "example.com", "*mongodb.com")] string allowedHosts)
+        {
+            var endPoint = EndPointHelper.Parse(host).Should().NotBeNull().And.Subject.As<EndPoint>();
+            var allowedHostsList = allowedHosts?.Split(';');
+            var exception = Record.Exception(
+                () => new OidcInputConfiguration(
+                    endPoint,
+                    requestCallbackProvider: OidcTestHelper.CreateRequestCallback(validateInput: false, validateToken: false),
+                    allowedHosts: allowedHostsList));
+
+            var isValidCase = allowedHostsList?.Any(h => h?.Replace("*", "") == host.Replace("[", "").Replace("]", ""));
+            if (isValidCase.GetValueOrDefault())
+            {
+                exception.Should().BeNull();
+            }
+            else
+            {
+                var expectedHostsList = string.Join("', '", allowedHostsList ?? OidcInputConfiguration.DefaultAllowedHostNames);
+                exception
+                    .Should().BeOfType<InvalidOperationException>().Which.Message
+                    .Should().Be($"The used host '{host.Replace("[", "").Replace("]", "")}' doesn't match allowed hosts list ['{expectedHostsList}'].");
+            }
         }
     }
 }

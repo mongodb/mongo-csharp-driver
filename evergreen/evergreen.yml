@@ -674,7 +674,7 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        #silent: true
+        silent: true
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_oidc.sh"

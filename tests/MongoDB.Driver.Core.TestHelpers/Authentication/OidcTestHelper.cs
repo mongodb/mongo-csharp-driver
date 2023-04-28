@@ -119,13 +119,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Authentication
             "issuer"
         };
 
-        private static readonly string[] __supportedCallbackResponse = new[]
-        {
-            "accessToken",
-            "expiresInSeconds",
-            "refreshToken"
-        };
-
         /// <summary>
         /// NOTE: externalAuthenticators must be an instance of <see cref="ExternalCredentialsAuthenticators"/>.
         /// </summary>

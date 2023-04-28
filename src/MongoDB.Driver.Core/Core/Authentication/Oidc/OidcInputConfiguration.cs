@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
     internal sealed class OidcInputConfiguration
     {
         #region static
-        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1" };
+        public static readonly IEnumerable<string> DefaultAllowedHostNames = new[] { "*.mongodb.net", "*.mongodb-dev.net", "*.mongodbgov.net", "localhost", "::1", "127.0.0.1" };
         #endregion
 
         private readonly IEnumerable<string> _allowedHosts;
@@ -91,27 +91,27 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         {
             if (_providerName != null && (_requestCallbackProvider != null || _refreshCallbackProvider != null))
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} and OIDC callbacks cannot both be set.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismPropertyName} and OIDC callbacks cannot both be set.");
             }
 
             if (_providerName == null && _requestCallbackProvider == null && _refreshCallbackProvider == null)
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} or OIDC callbacks must be configured.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismPropertyName} or OIDC callbacks must be configured.");
             }
 
             if (_refreshCallbackProvider != null && _requestCallbackProvider == null)
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.RequestCallbackMechanismProperyName} must be provided with {MongoOidcAuthenticator.RefreshCallbackMechanismProperyName}.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.RequestCallbackMechanismPropertyName} must be provided with {MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName}.");
             }
 
             if (_principalName != null && _providerName != null)
             {
-                throw new InvalidOperationException($"PrincipalName is mutually exclusive with {MongoOidcAuthenticator.ProviderMechanismProperyName}.");
+                throw new InvalidOperationException($"PrincipalName is mutually exclusive with {MongoOidcAuthenticator.ProviderMechanismPropertyName}.");
             }
 
             if (_providerName != null && _allowedHosts != null)
             {
-                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismProperyName} is mutually exclusive with {MongoOidcAuthenticator.AllowedHostsMechanismProperyName}.");
+                throw new InvalidOperationException($"{MongoOidcAuthenticator.ProviderMechanismPropertyName} is mutually exclusive with {MongoOidcAuthenticator.AllowedHostsMechanismPropertyName}.");
             }
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             var allowedHostsCount = Ensure.IsNotNull(allowedHosts, nameof(allowedHosts)).Count();
             if (allowedHostsCount == 0)
             {
-                throw new InvalidOperationException($"{nameof(MongoOidcAuthenticator.AllowedHostsMechanismProperyName)} mechanism authentication property must contain at least one host.");
+                throw new InvalidOperationException($"{nameof(MongoOidcAuthenticator.AllowedHostsMechanismPropertyName)} mechanism authentication property must contain at least one host.");
             }
 
             var host = EndPointHelper.GetHostAndPort(endPoint).Host;
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 if (pattern != null)
                 {
-                    var index = pattern.IndexOf('*');
+                    var index = pattern.IndexOf("*.");
                     if (index != -1)
                     {
                         var filterPattern = pattern.Substring(index + 1);

@@ -909,7 +909,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             if (withRequestCallback)
             {
                 properties.Add(
-                    MongoOidcAuthenticator.RequestCallbackMechanismProperyName,
+                    MongoOidcAuthenticator.RequestCallbackMechanismPropertyName,
                     OidcTestHelper.CreateRequestCallback(
                         validateToken: false,
                         accessToken: RequestAccessToken,
@@ -918,7 +918,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             if (withRefreshCallback)
             {
                 properties.Add(
-                    MongoOidcAuthenticator.RefreshCallbackMechanismProperyName,
+                    MongoOidcAuthenticator.RefreshCallbackMechanismPropertyName,
                     OidcTestHelper.CreateRefreshCallback(
                         validateToken: false,
                         accessToken: RefreshAccessToken,
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             };
             if (providerName != null)
             {
-                properties.Add(MongoOidcAuthenticator.ProviderMechanismProperyName, providerName);
+                properties.Add(MongoOidcAuthenticator.ProviderMechanismPropertyName, providerName);
             }
 
             return properties;
