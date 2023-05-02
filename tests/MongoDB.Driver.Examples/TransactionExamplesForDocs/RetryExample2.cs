@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                     }
                     else
                     {
-                        Console.WriteLine($"Excpetion during commit: {exception.Message}.");
+                        Console.WriteLine($"Exception during commit: {exception.Message}.");
                         throw;
                     }
                 }
