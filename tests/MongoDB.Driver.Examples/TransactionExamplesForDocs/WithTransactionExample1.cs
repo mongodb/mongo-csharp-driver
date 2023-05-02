@@ -58,8 +58,6 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             {
                 // Step 2: Optional. Define options to use for the transaction.
                 var transactionOptions = new TransactionOptions(
-                    readPreference: ReadPreference.Primary,
-                    readConcern: ReadConcern.Local,
                     writeConcern: WriteConcern.WMajority);
 
                 // Step 3: Define the sequence of operations to perform inside the transactions
