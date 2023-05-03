@@ -81,8 +81,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
 
             session.StartTransaction(new TransactionOptions(
                 readConcern: ReadConcern.Snapshot,
-                writeConcern: WriteConcern.WMajority,
-                readPreference: ReadPreference.Primary));
+                writeConcern: WriteConcern.WMajority));
 
             try
             {
