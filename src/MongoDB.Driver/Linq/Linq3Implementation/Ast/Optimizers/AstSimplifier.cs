@@ -307,21 +307,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
         }
 
-        public override AstNode VisitMatchStage(AstMatchStage node)
-        {
-            node = (AstMatchStage)base.VisitMatchStage(node);
-
-            if (node.Filter is AstExprFilter exprFilter &&
-                exprFilter.Expression is AstConstantExpression constantExpression &&
-                constantExpression.Value is BsonBoolean booleanValue)
-            {
-                var simpleFilter = booleanValue.Value ? AstFilter.MatchesEverything() : AstFilter.MatchesNothing();
-                return AstStage.Match(simpleFilter);
-            }
-
-            return node;
-        }
-
         public override AstNode VisitProjectStageSetFieldSpecification(AstProjectStageSetFieldSpecification node)
         {
             node = (AstProjectStageSetFieldSpecification)base.VisitProjectStageSetFieldSpecification(node);
