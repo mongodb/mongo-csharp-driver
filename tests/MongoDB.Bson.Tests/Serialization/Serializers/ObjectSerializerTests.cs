@@ -142,6 +142,34 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
+        public void BsonTestDecimal128()
+        {
+            var c = new C { Obj = new Decimal128(1.5M) };
+            var json = c.ToJson();
+            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(rehydrated.Obj is Decimal128);
+        }
+
+        [Fact]
+        public void PureTestDecimal128()
+        {
+            var c = new C { Obj = 1.5M };
+            var json = c.ToJson();
+            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.True(rehydrated.Obj is Decimal);
+        }
+
+        [Fact]
         public void TestDouble()
         {
             var c = new C { Obj = 1.5 };
