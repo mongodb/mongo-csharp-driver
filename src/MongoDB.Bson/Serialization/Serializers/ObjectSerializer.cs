@@ -217,7 +217,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonDateTime.ToUniversalTime();
 
                 case BsonType.Decimal128:
-                    return bsonReader.ReadDecimal128();
+                    var decimal128 = bsonReader.ReadDecimal128();
+                    return Decimal128.ToDecimal(decimal128);
 
                 case BsonType.Document:
                     return DeserializeDiscriminatedValue(context, args);
