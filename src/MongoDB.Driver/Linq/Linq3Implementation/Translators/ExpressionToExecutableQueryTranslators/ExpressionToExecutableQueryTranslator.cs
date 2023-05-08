@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 case "AverageAsync":
                     return AverageMethodToExecutableQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Contains":
-                    return ContainsMethodToExecutableQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>(); ;
+                    return ContainsMethodToExecutableQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "Count":
                 case "CountAsync":
                     return CountMethodToExecutableQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
