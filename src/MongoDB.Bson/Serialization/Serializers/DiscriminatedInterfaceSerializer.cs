@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="DiscriminatedInterfaceSerializer{TInterface}" /> class.
         /// </summary>
         public DiscriminatedInterfaceSerializer()
-            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)))
+            : this(discriminatorConvention: null)
         {
         }
 
@@ -80,8 +80,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _discriminatorConvention = discriminatorConvention;
-            _objectSerializer = ((ObjectSerializer)BsonSerializer.LookupSerializer<object>()).WithDiscriminatorConvention(_discriminatorConvention);
+            _discriminatorConvention = discriminatorConvention ?? BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface));
+            _objectSerializer = BsonSerializer.LookupSerializer<object>();
+            if (_objectSerializer is ObjectSerializer standardObjectSerializer)
+            {
+                _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);
+            }
+            else
+            {
+                if (discriminatorConvention != null)
+                {
+                    throw new BsonSerializationException("Can't set discriminator convention on custom object serializer.");
+                }
+            }
+
             _interfaceSerializer = interfaceSerializer;
         }
 
