@@ -303,10 +303,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 bsonWriter.WriteDateTime(bsonDateTime.MillisecondsSinceEpoch);
                                 return;
 
-                            case TypeCode.Decimal:
-                                bsonWriter.WriteDecimal128((decimal)value);
-                                return;
-
                             case TypeCode.Double:
                                 bsonWriter.WriteDouble((double)value);
                                 return;
@@ -571,6 +567,11 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             private static bool AllowedTypesImplementation(Type type)
             {
+                if (typeof(BsonValue).IsAssignableFrom(type))
+                {
+                    return true;
+                }
+
                 return type.IsConstructedGenericType ? IsAllowedGenericType(type) : IsAllowedType(type);
 
                 static bool IsAllowedType(Type type) =>

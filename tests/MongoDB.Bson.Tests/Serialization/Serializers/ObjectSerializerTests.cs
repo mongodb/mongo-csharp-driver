@@ -103,6 +103,23 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
+        public void TestBsonDecimal128()
+        {
+            var value = (BsonDecimal128)1.5M;
+            var c = new C { Obj = value };
+
+            var json = c.ToJson();
+            json.Should().Be("{ \"Obj\" : { \"_t\" : \"MongoDB.Bson.BsonDecimal128, MongoDB.Bson\", \"_v\" : NumberDecimal(\"1.5\") } }");
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            rehydrated.Obj.Should().BeOfType<BsonDecimal128>();
+            rehydrated.Obj.Should().Be(value);
+
+            rehydrated.ToBson().Should().Equal(bson);
+        }
+
+        [Fact]
         public void TestDateTime()
         {
             var c = new C { Obj = BsonConstants.UnixEpoch };
@@ -118,27 +135,35 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestDecimal()
         {
-            var c = new C { Obj = 1.5M };
+            var value = 1.5M;
+            var c = new C { Obj = value };
+
             var json = c.ToJson();
-            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
-            Assert.Equal(expected, json);
+            json.Should().Be("{ \"Obj\" : { \"_t\" : \"System.Decimal\", \"_v\" : \"1.5\" } }");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            rehydrated.Obj.Should().BeOfType<decimal>();
+            rehydrated.Obj.Should().Be(value);
+
+            rehydrated.ToBson().Should().Equal(bson);
         }
 
         [Fact]
         public void TestDecimal128()
         {
-            var c = new C { Obj = (Decimal128)1.5M };
+            var value = (Decimal128)1.5M;
+            var c = new C { Obj = value };
+
             var json = c.ToJson();
-            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
-            Assert.Equal(expected, json);
+            json.Should().Be("{ \"Obj\" : NumberDecimal(\"1.5\") }");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            rehydrated.Obj.Should().BeOfType<Decimal128>();
+            rehydrated.Obj.Should().Be(value);
+
+            rehydrated.ToBson().Should().Equal(bson);
         }
 
         [Fact]
