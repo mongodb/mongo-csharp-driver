@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
@@ -20,6 +21,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
 {
     internal static class ExpressionExtensions
     {
+        public static object Evaluate(this Expression expression)
+        {
+            if (expression is ConstantExpression constantExpression)
+            {
+                return constantExpression.Value;
+            }
+            else
+            {
+                LambdaExpression lambda = Expression.Lambda(expression);
+                Delegate fn = lambda.Compile();
+                return fn.DynamicInvoke(null);
+            }
+        }
+
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
         {
             if (innerExpression is ConstantExpression constantExpression &&
