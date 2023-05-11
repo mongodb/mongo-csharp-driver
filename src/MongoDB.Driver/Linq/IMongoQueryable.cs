@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
