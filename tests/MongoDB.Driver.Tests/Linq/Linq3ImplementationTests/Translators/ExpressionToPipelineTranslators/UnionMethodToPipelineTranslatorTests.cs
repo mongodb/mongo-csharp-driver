@@ -15,6 +15,8 @@
 
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.ExpressionToPipelineTranslators
@@ -39,6 +41,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Union_should_combine_collections()
         {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
             var queryable = _firstCollection
                 .AsQueryable()
                 .Union(_secondCollection.AsQueryable());
@@ -53,6 +57,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Union_should_combine_collection_with_itself()
         {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
             var queryable = _firstCollection
                 .AsQueryable()
                 .Union(_firstCollection.AsQueryable());
@@ -67,6 +73,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Union_should_combine_filtered_collections()
         {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
             var queryable = _firstCollection
                 .AsQueryable()
                 .Where(c => c.Name.StartsWith("second"))
@@ -84,6 +92,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Union_should_support_projection()
         {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
             var queryable = _firstCollection
                 .AsQueryable()
                 .Where(c => c.Name.StartsWith("second"))
@@ -103,6 +113,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Union_should_support_projection_to_anonymous()
         {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
             var queryable = _firstCollection
                 .AsQueryable()
                 .Where(c => c.Name.StartsWith("second"))
