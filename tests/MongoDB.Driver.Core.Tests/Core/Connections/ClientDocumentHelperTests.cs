@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Connections
             result.Should().Be(expectedResult);
         }
 
-        const string awsEnv = "AWS_EXECUTION_ENV";
+        const string awsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
         const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
         const string gcpEnv = "K_SERVICE";
         const string vercelEnv = "VERCEL";
@@ -174,8 +174,8 @@ namespace MongoDB.Driver.Core.Connections
                 .EnvironmentVariable("FUNCTION_NAME", isDefined: false)
                 .EnvironmentVariable("VERCEL", isDefined: false);
 
-            using (new DisposableEnvironmentVariable(left, "dummy"))
-            using (new DisposableEnvironmentVariable(right, "dummy"))
+            using (new DisposableEnvironmentVariable(left))
+            using (new DisposableEnvironmentVariable(right))
             {
                 var clientEnvDocument = ClientDocumentHelper.CreateEnvDocument();
                 if (left == right)
@@ -330,11 +330,13 @@ namespace MongoDB.Driver.Core.Connections
             private readonly string _initialValue;
             private readonly string _name;
 
-            public DisposableEnvironmentVariable(string name, string value)
+            public DisposableEnvironmentVariable(string variable)
             {
-                _name = name;
-                _initialValue = Environment.GetEnvironmentVariable(name);
-                Environment.SetEnvironmentVariable(name, value);
+                var parts = variable.Split(new [] {'='}, StringSplitOptions.RemoveEmptyEntries);
+                _name = parts[0];
+                var value = parts.Length > 1 ? parts[1] : "dummy";
+                _initialValue = Environment.GetEnvironmentVariable(_name);
+                Environment.SetEnvironmentVariable(_name, value);
             }
 
             public void Dispose() => Environment.SetEnvironmentVariable(_name, _initialValue);

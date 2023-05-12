@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "driver", driverDocument },
                 { "os", osDocument.Clone() }, // clone because we might be removing optional fields from this particular clientDocument
                 { "platform", platformString },
-                { "env", () => envDocument.Clone(), envDocument != null } 
+                { "env", () => envDocument.Clone(), envDocument != null }
             };
 
             return RemoveOptionalFieldsUntilDocumentIsLessThan512Bytes(clientDocument);
@@ -121,7 +121,8 @@ namespace MongoDB.Driver.Core.Connections
             {
                 string result = null;
 
-                if (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV") != null || Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null)
+                if ((Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
+                    Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null)
                 {
                     result = awsLambdaName;
                 }

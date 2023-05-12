@@ -38,6 +38,8 @@ namespace MongoDB.Driver.Tests
             [Values(
             // Valid AWS
             "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'AWS_REGION' : 'us-east-2', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE' : '1024', expected : { 'name' : 'aws.lambda', 'memory_mb' : 1024, 'region' : 'us-east-2' } }",
+            // Invalid - AWS_EXECUTION_ENV should start with AWS_Lambda_
+            "{ 'AWS_EXECUTION_ENV' : 'EC2', 'AWS_REGION' : 'us-east-2', expected : null }",
             // Valid Azure
             "{ 'FUNCTIONS_WORKER_RUNTIME' : 'node', expected: { 'name' : 'azure.func' } }",
             // Valid GCP
@@ -120,5 +122,5 @@ namespace MongoDB.Driver.Tests
     internal static class ClientDocumentHelperReflector
     {
         public static void Initialize() => Reflector.InvokeStatic(typeof(ClientDocumentHelper), nameof(Initialize));
-    }   
+    }
 }
