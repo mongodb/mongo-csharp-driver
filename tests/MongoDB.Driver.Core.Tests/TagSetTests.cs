@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -85,6 +81,15 @@ namespace MongoDB.Driver
             var tagSet = new TagSet(new[] { new Tag("name1", "value1"), new Tag("name2", "value2") });
             var required = new TagSet(new[] { new Tag("name1", "value1") });
             tagSet.ContainsAll(required).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Equals_should_ignore_order()
+        {
+            var tagSet1 = new TagSet(new[] { new Tag("name1", "value1"), new Tag("name2", "value2") });
+            var tagSet2 = new TagSet(new[] { new Tag("name2", "value2"), new Tag("name1", "value1") });
+            tagSet1.Equals(tagSet2).Should().BeTrue();
+            tagSet1.Equals((object)tagSet2).Should().BeTrue();
         }
 
         [Fact]
