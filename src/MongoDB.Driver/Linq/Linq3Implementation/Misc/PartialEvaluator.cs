@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             protected override Expression VisitConditional(ConditionalExpression node)
             {
-                var test = base.Visit(node.Test);
+                var test = Visit(node.Test);
                 if (test is ConstantExpression constantTestExpression)
                 {
                     var value = (bool)constantTestExpression.Value;
