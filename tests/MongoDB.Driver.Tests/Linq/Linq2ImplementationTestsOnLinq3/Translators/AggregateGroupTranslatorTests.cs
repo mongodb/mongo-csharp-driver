@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             AssertStages(
                 result.Stages,
                 "{ $group : { _id : '$A' } }",
-                "{ $project : { _id : 1 } }");
+                "{ $project : { _id : '$_id' } }");
 
             result.Value._id.Should().Be("Amazing");
         }

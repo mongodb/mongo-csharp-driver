@@ -391,7 +391,7 @@ namespace MongoDB.Driver
         /// </returns>
         public ProjectionDefinition<TSource, TProjection> Expression<TProjection>(Expression<Func<TSource, TProjection>> expression)
         {
-            return new FindExpressionProjectionDefinition<TSource, TProjection>(expression);
+            return new ExpressionProjectionDefinition<TSource, TProjection>(expression, null);
         }
 
         /// <summary>

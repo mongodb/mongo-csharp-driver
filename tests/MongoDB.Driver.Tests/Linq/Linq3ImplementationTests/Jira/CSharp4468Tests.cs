@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                     "{ $project : { _v : '$Lines', _id : 0 } }",
                     "{ $unwind : '$_v' }",
                     "{ $group : { _id : '$_v.ItemId', __agg0 : { $sum : '$_v.TotalAmount' } } }",
-                    "{ $project : { _id : 1, TotalAmount : '$__agg0' } }"
+                    "{ $project : { _id : '$_id', TotalAmount : '$__agg0' } }"
                 };
             }
             AssertStages(stages, expectedStages);
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 expectedStages = new[]
                 {
                     "{ $group : { _id : '$_id', __agg0 : { $sum : '$TotalAmount' } } }",
-                    "{ $project : { _id : 1, TotalAmount : '$__agg0' } }" // only difference from LINQ2 is "_id" vs "Id"
+                    "{ $project : { _id : '$_id', TotalAmount : '$__agg0' } }" // only difference from LINQ2 is "_id" vs "Id"
                 };
             }
             AssertStages(stages, expectedStages);

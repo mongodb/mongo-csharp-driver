@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { X : 1, _id : 0 } }",
+                "{ $project : { X : '$X', _id : 0 } }",
                 "{ $project : { R : '$X', S : '$Y', _id : 0 } }",
                 "{ $project : { T : '$R', U : '$S', _id : 0 } }");
         }
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { X : 1, Y : { $literal : 123 }, _id : 0 } }",
+                "{ $project : { X : '$X', Y : { $literal : 123 }, _id : 0 } }",
                 "{ $project : { R : '$X', S : '$Y', _id : 0 } }",
                 "{ $project : { T : '$R', U : '$S', _id : 0 } }");
         }

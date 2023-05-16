@@ -181,11 +181,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             IFindFluent<TDocument, TProjection> find,
             LinqProvider linqProvider)
         {
-            var findOptions = ((FindFluent<TDocument, TProjection>)find).Options;
-            var projection = findOptions.Projection;
+            var projection = ((FindFluent<TDocument, TProjection>)find).Options.Projection;
+            return TranslateFindProjection(collection, projection, linqProvider);
+        }
+
+        protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
+            IMongoCollection<TDocument> collection,
+            ProjectionDefinition<TDocument, TProjection> projection,
+            LinqProvider linqProvider)
+        {
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedProjection = projection.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedProjection = projection.RenderForFind(documentSerializer, serializerRegistry, linqProvider);
             return renderedProjection.Document;
         }
     }

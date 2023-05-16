@@ -139,9 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             Expression<Func<TSource, TProjection>> expression,
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry)
-        {
-            return TranslateExpressionToProjection(expression, sourceSerializer, serializerRegistry, translationOptions: null);
-        }
+            => TranslateExpressionToProjectionInternal(expression, sourceSerializer, new AstFindProjectionSimplifier());
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
             Expression<Func<TInput, TKey>> idExpression,
@@ -158,12 +156,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TInput> inputSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
+            => TranslateExpressionToProjectionInternal(expression, inputSerializer, new AstSimplifier());
+
+        private RenderedProjectionDefinition<TOutput> TranslateExpressionToProjectionInternal<TInput, TOutput>(
+            Expression<Func<TInput, TOutput>> expression,
+            IBsonSerializer<TInput> inputSerializer,
+            AstSimplifier simplifier)
         {
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, inputSerializer);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
             var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(translation);
-            var simplifiedProjectStage = AstSimplifier.Simplify(projectStage);
+            var simplifiedProjectStage =  simplifier.Visit(projectStage);
             var renderedProjection = simplifiedProjectStage.Render().AsBsonDocument["$project"].AsBsonDocument;
 
             return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);

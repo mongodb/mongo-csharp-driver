@@ -33,10 +33,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             var results = find.ToList();
             var projection = find.Options.Projection;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<MyData>();
-            var renderedProjection = projection.Render(documentSerializer, serializerRegistry, LinqProvider.V2);
-            renderedProjection.Document.Should().Be("{ SpawnPeriod : 1, StartDate : 1, _id : 0 }");
+
+            var renderedProjection = TranslateFindProjection(collection, projection, LinqProvider.V2);
+            renderedProjection.Should().Be("{ SpawnPeriod : 1, StartDate : 1, _id : 0 }");
 
             results.Should().HaveCount(1);
             results[0].Date.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));

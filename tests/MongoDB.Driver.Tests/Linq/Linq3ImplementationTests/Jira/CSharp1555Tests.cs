@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(p => new Person { Id = p.Id, Name = p.Name });
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _id : 1, Name : 1 } }");
+            AssertStages(stages, "{ $project : { _id : '$_id', Name : '$Name' } }");
 
             var result = queryable.ToList().Single();
             result.ShouldBeEquivalentTo(new Person { Id = 1, Name = "A" });
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(p => new Person { Id = p.Id });
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _id : 1 } }");
+            AssertStages(stages, "{ $project : { _id : '$_id' } }");
 
             var result = queryable.ToList().Single();
             result.ShouldBeEquivalentTo(new Person { Id = 1, Name = null });
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(p => new Person { Name = p.Name });
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Name : 1, _id : 0 } }");
+            AssertStages(stages, "{ $project : { Name : '$Name', _id : 0 } }");
 
             var result = queryable.ToList().Single();
             result.ShouldBeEquivalentTo(new Person { Id = 0, Name = "A" });

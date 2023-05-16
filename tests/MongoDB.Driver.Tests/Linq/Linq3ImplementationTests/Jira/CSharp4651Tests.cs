@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 AssertStages(
                     stages,
                     "{ $match : { VehicleType : 0 } }",
-                    "{ $project : { _id : 1, Description : 1 } }");
+                    "{ $project : { _id : '$_id', Description : '$Description' } }");
             }
 
             var results = queryable.ToList();
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 AssertStages(
                     stages,
                     "{ $match : { VehicleType : 1 } }",
-                    "{ $project : { _id : 1, Description : 'No description available for trucks' } }");
+                    "{ $project : { _id : '$_id', Description : 'No description available for trucks' } }");
             }
 
             var results = queryable.ToList();
