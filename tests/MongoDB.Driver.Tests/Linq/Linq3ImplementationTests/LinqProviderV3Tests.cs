@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
                 var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions);
                 expectedResult.Document.Should().Be("{ id : '$_id', x : '$X', _id : 0 }");
                 expectedResult.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));
-                result.Document.Should().Be(expectedResult.Document);
+                result.Document.Should().Be("{ _id : '$_id', x : '$X' }");
                 result.ProjectionSerializer.ValueType.Should().Be(expectedResult.ProjectionSerializer.ValueType);
             }
         }

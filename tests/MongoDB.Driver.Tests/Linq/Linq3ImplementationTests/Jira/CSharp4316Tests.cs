@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         {
             var collection = CreateCollection();
             var matchStage = "{ $match : { 'ActualNullable' : { $ne : null } } }";
-            var projectStage = "{ $project : { Id : '$_id', Value : '$ActualNullable', HasValue : { $ne : ['$ActualNullable', null] }, _id : 0 } }";
+            var projectStage = "{ $project : { _id : '$_id', Value : '$ActualNullable', HasValue : { $ne : ['$ActualNullable', null] } } }";
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.ActualNullable.HasValue)
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         {
             var collection = CreateCollection();
             var matchStage = "{ $match : { 'OnlyLooksLikeNullable.HasValue' : true } }";
-            var projectStage = "{ $project : { Id : '$_id', Value : '$OnlyLooksLikeNullable.Value', HasValue : '$OnlyLooksLikeNullable.HasValue', _id : 0 } }";
+            var projectStage = "{ $project : { _id : '$_id', Value : '$OnlyLooksLikeNullable.Value', HasValue : '$OnlyLooksLikeNullable.HasValue' } }";
 
             var queryable = collection
                 .AsQueryable()

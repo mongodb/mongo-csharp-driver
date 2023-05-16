@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Jira
             var expectedStage = linqProvider switch
             {
                 LinqProvider.V2 => "{ $project : { Id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 1] } } } }, _id : 0 } }",
-                LinqProvider.V3 => "{ $project : { Id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 'refund'] } } } }, _id : 0 } }",
+                LinqProvider.V3 => "{ $project : { _id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 'refund'] } } } } } }",
                 _ => throw new ArgumentException($"Invalid linqProvider: {linqProvider}.", nameof(linqProvider))
             };
             AssertStages(stages, expectedStage);

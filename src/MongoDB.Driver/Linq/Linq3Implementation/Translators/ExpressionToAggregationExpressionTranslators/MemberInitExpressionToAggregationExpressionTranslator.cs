@@ -27,13 +27,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class MemberInitExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
+            => Translate(context, expression, expression.NewExpression, expression.Bindings);
+
+        public static AggregationExpression Translate(
+            TranslationContext context,
+            Expression expression,
+            NewExpression newExpression,
+            IReadOnlyList<MemberBinding> bindings)
         {
-            var newExpression = expression.NewExpression;
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
             var computedFields = new List<AstComputedField>();
 
-            var classMap = CreateClassMap(expression.Type, constructorInfo, out var creatorMap);
+            var classMap = CreateClassMap(newExpression.Type, constructorInfo, out var creatorMap);
             if (constructorInfo != null && creatorMap != null)
             {
                 var creatorMapParameters = creatorMap.Arguments?.ToArray();
@@ -50,12 +56,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var constructorArgumentType = constructorArgumentExpression.Type;
                     var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? BsonSerializer.LookupSerializer(constructorArgumentType);
                     var memberMap = EnsureMemberMap(expression, classMap, creatorMapParameter);
+                    EnsureDefaultValue(memberMap);
                     memberMap.SetSerializer(constructorArgumentSerializer);
                     computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, constructorArgumentTranslation.Ast));
                 }
             }
 
-            foreach (var binding in expression.Bindings)
+            foreach (var binding in bindings)
             {
                 var memberAssignment = (MemberAssignment)binding;
                 var member = memberAssignment.Member;
@@ -68,7 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var ast = AstExpression.ComputedDocument(computedFields);
             classMap.Freeze();
-            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
+            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(newExpression.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
             return new AggregationExpression(expression, ast, serializer);
@@ -77,7 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static BsonClassMap CreateClassMap(Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
         {
             BsonClassMap baseClassMap = null;
-            if (classType.BaseType  != null)
+            if (classType.BaseType != null)
             {
                 baseClassMap = CreateClassMap(classType.BaseType, null, out _);
             }
@@ -130,6 +137,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     memberInfo.MemberType == creatorMapParameter.MemberType &&
                     memberInfo.Name.Equals(creatorMapParameter.Name, StringComparison.OrdinalIgnoreCase);
             }
+        }
+
+        private static void EnsureDefaultValue(BsonMemberMap memberMap)
+        {
+            if (memberMap.IsDefaultValueSpecified)
+            {
+                return;
+            }
+
+            var defaultValue = memberMap.MemberType.IsValueType ? Activator.CreateInstance(memberMap.MemberType) : null;
+            memberMap.SetDefaultValue(defaultValue);
         }
 
         private static BsonMemberMap FindMemberMap(Expression expression, BsonClassMap classMap, string memberName)

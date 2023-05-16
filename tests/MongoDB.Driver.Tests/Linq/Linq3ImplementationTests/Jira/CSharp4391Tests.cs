@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(x => new S(x.Id, x.X + 1, x.Y + 1));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Id : '$_id', X : { $add : ['$X', 1] }, Y : { $add : ['$Y', 1] }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _id : '$_id', X : { $add : ['$X', 1] }, Y : { $add : ['$Y', 1] } } }");
 
             var results = queryable.ToList();
             results.Should().Equal(new S(1, 3, 4), new S(2, 4, 5));
