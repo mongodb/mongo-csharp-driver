@@ -15,9 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -85,6 +82,38 @@ namespace MongoDB.Driver
             var tagSet = new TagSet(new[] { new Tag("name1", "value1"), new Tag("name2", "value2") });
             var required = new TagSet(new[] { new Tag("name1", "value1") });
             tagSet.ContainsAll(required).Should().BeTrue();
+        }
+
+        public static IEnumerable<object[]> Equals_should_ignore_order_memberdata()
+        {
+            var data = new TagSet[][]
+            {
+                new TagSet[]
+                {
+                    new (new Tag[] { new ("name1", "value1"), new ("name2", "value2") }),
+                    new (new Tag[] { new ("name2", "value2"), new ("name1", "value1") })
+                },
+                new TagSet[]
+                {
+                    new (new Tag[] { new ("name1", "value1"), new ("name1", "value2") }),
+                    new (new Tag[] { new ("name1", "value2"), new ("name1", "value1") })
+                },
+                new TagSet[]
+                {
+                    new (new Tag[] { new ("name1", "value1"), new ("name2", "value2"), new ("name2", "value1"), new ("name1", "value2") }),
+                    new (new Tag[] { new ("name1", "value2"), new ("name2", "value1"), new ("name1", "value1"), new ("name2", "value2") })
+                }
+            };
+
+            return data;
+        }
+
+        [Theory]
+        [MemberData(nameof(Equals_should_ignore_order_memberdata))]
+        public void Equals_should_ignore_order(TagSet tagSet1, TagSet tagSet2)
+        {
+            tagSet1.Equals(tagSet2).Should().BeTrue();
+            tagSet1.Equals((object)tagSet2).Should().BeTrue();
         }
 
         [Fact]

@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -46,7 +44,7 @@ namespace MongoDB.Driver
         /// <param name="tags">The tags.</param>
         public TagSet(IEnumerable<Tag> tags)
         {
-            _tags = Ensure.IsNotNull(tags, nameof(tags)).ToList();
+            _tags = Ensure.IsNotNull(tags, nameof(tags)).OrderBy(t => t.Name).ThenBy(t => t.Value).ToArray();
         }
 
         // properties
