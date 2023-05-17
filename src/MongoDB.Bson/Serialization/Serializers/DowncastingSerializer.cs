@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TBase">The base type.</typeparam>
     /// <typeparam name="TDerived">The derived type.</typeparam>
-    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonDocumentSerializer, IDowncastingSerializer
+    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonArraySerializer, IBsonDocumentSerializer, IDowncastingSerializer
         where TDerived : TBase
     {
         private readonly IBsonSerializer<TDerived> _derivedSerializer;
@@ -94,13 +94,24 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override TBase Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return _derivedSerializer.Deserialize(context, args);
+            return _derivedSerializer.Deserialize(context);
         }
 
         /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TBase value)
         {
-            _derivedSerializer.Serialize(context, args, (TDerived)value);
+            _derivedSerializer.Serialize(context, (TDerived)value);
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+        {
+            if (_derivedSerializer is IBsonArraySerializer arraySerializer)
+            {
+                return arraySerializer.TryGetItemSerializationInfo(out serializationInfo);
+            }
+
+            throw new InvalidOperationException($"The class {_derivedSerializer.GetType().FullName} does not implement IBsonArraySerializer.");
         }
 
         /// <inheritdoc/>
