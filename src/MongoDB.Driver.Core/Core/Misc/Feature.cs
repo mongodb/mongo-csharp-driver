@@ -47,6 +47,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __arrayFilters = new Feature("ArrayFilters", WireVersion.Server36);
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
+        private static readonly Feature __changeStreamAllChangesForCluster = new Feature("ChangeStreamAllChangesForCluster", WireVersion.Server40);
+        private static readonly Feature __changeStreamForDatabase = new Feature("ChangeStreamForDatabase", WireVersion.Server40);
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
         private static readonly Feature __changeStreamPrePostImages = new Feature("ChangeStreamPrePostImages", WireVersion.Server60);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
@@ -265,6 +267,16 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature ChangeStreamStage => __changeStreamStage;
+
+        /// <summary>
+        /// Gets the change stream all changes for cluster feature.
+        /// </summary>
+        public static Feature ChangeStreamAllChangesForCluster => __changeStreamAllChangesForCluster;
+
+        /// <summary>
+        /// Gets the change stream for database feature.
+        /// </summary>
+        public static Feature ChangeStreamForDatabase => __changeStreamForDatabase;
 
         /// <summary>
         /// Gets the change stream post batch resume token feature.

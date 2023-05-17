@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
-    internal class ChangeStreamDocumentDatabaseNamespaceSerializer : SealedClassSerializerBase<DatabaseNamespace>
+    internal class ChangeStreamDocumentDatabaseNamespaceSerializer : SealedClassSerializerBase<DatabaseNamespace>, IBsonDocumentSerializer
     {
         #region static
         // private static fields
@@ -61,6 +61,18 @@ namespace MongoDB.Driver
             }
 
             return null;
+        }
+
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (memberName == "DatabaseName")
+            {
+                serializationInfo = new BsonSerializationInfo("db", StringSerializer.Instance, typeof(string));
+                return true;
+            }
+
+            serializationInfo = null;
+            return false;
         }
 
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, DatabaseNamespace value)
