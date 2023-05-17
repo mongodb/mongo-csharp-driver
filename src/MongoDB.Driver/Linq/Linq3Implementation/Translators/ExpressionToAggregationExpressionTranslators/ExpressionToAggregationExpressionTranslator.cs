@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
@@ -115,7 +116,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true) :
                     context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: false);
             var lambdaContext = context.WithSymbol(parameterSymbol);
-            return Translate(lambdaContext, lambdaExpression.Body);
+            var translatedBody = Translate(lambdaContext, lambdaExpression.Body);
+
+            var lambdaReturnType = lambdaExpression.ReturnType;
+            var bodySerializer = translatedBody.Serializer;
+            var bodyType = bodySerializer.ValueType;
+            if (bodyType != lambdaReturnType)            
+            {
+                if (lambdaReturnType.IsAssignableFrom(bodyType))
+                {
+                    var downcastingSerializer = DowncastingSerializer.Create(baseType: lambdaReturnType, derivedType: bodyType, derivedTypeSerializer: bodySerializer);
+                    translatedBody = new AggregationExpression(translatedBody.Expression, translatedBody.Ast, downcastingSerializer);
+                }
+                else
+                {
+                    throw new ExpressionNotSupportedException(lambdaExpression, because: "lambda body type is not convertible to lambda return type");
+                }
+            }
+
+            return translatedBody;
         }
     }
 }
