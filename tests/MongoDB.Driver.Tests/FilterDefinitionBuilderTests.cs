@@ -46,145 +46,68 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void And()
+        public void FilterDefinition_and_operator()
         {
             var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                subject.Eq("a", 1),
-                subject.Eq("b", 2));
+            var filter = subject.Eq("a", 1) & "{ a: 2 }";
 
-            Assert(filter, "{a: 1, b: 2}");
-        }
-
-        [Fact]
-        public void And_with_clashing_keys_should_get_promoted_to_dollar_form()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                subject.Eq("a", 1),
-                subject.Eq("a", 2));
-
-            Assert(filter, "{$and: [{a: 1}, {a: 2}]}");
-        }
-
-        [Fact]
-        public void And_with_clashing_keys_but_different_operators_should_get_merged()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                subject.Gt("a", 1),
-                subject.Lt("a", 10));
-
-            Assert(filter, "{a: {$gt: 1, $lt: 10}}");
+            Assert(filter, "{ $and : [ { a: 1 }, { a: 2 } ] }");
         }
 
         [Theory]
-        [InlineData("{ geoField : { $geoWithin : { $box : [ [ 1.0, 2.0 ], [ 3.0, 4.0 ] ] } } }", "{ geoField : { $near : [ 5.0, 6.0 ] } }")]
-        [InlineData("{ geoField : { $near : [ 5.0, 6.0 ] } }", "{ geoField : { $geoWithin : { $box : [ [ 1.0, 2.0 ], [ 3.0, 4.0 ] ] } } }")]
-        [InlineData("{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [ 1, 2 ] } } } }", "{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [ [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ] ] } } } }")]
-        [InlineData("{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [ [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ] ] } } } }", "{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [ 1, 2 ] } } } }")]
-        public void And_with_clashing_keys_and_different_operators_but_with_filters_that_support_only_dollar_form_should_get_promoted_to_dollar_form(string firstFilter, string secondFilter)
+        [InlineData("{ $and : [] }")]
+        [InlineData("{}", "{}")]
+        [InlineData("{}", "{}", "{}")]
+        [InlineData("{ a : 10 }", "{}", "{ a : 10 }")]
+        [InlineData("{ a : 10 }", "{ a : 10 }", "{}")]
+        [InlineData("{ a : 1, b : 2, c : 3 }", "{ a : 1 }", "{ b : 2 }", "{ c : 3 }")]
+        [InlineData("{ a : 1, b : 2, c : 3 }", "{ a : 1 }", "{ $and: [{ b : 2 }, { c : 3 }] }")]
+        [InlineData("{ a : { $gt : 1, $lt : 10 } }", "{ a : { $gt : 1 } }", "{ a : { $lt : 10 } }")]
+        [InlineData("{ $and : [{ a : { $lt : 1 } }, { a : { $lt : 2 } }] }", "{ a : { $lt : 1 } }", "{ a : { $lt : 2 } }")]
+        [InlineData("{ $and : [{ a : 1 }, { a : 2 }] }", "{ a : 1 }", "{ a : 2 }")]
+        [InlineData("{ $and : [{ a : 1 }, { a : 2 }, { c : 3 }] }", "{ a : 1 }", "{ a : 2 }", "{ c : 3 }")]
+        [InlineData("{ $and : [{ c : 3 }, { a : 1 }, { a : 2 }] }", "{ c : 3 }", "{ a : 1 }", "{ a : 2 }")]
+        [InlineData("{ $and : [{ a : 1 }, { a : 2 }, { c : 3 }] }", "{ $and : [{ a : 1 }, { a : 2 }] }", "{ c : 3}")]
+        [InlineData("{ $and : [{ a : 1 }, { a : 2 }, { c : 3 }] }", "{ $and : [{ a : 1 }, { $and : [{ a : 2 }] }] }", "{ c : 3 }")]
+        [InlineData("{ $and : [{ a : 1 }, { a : 2 }, { c : 3 }] }", "{ a : 1 }", "{ $and : [{ a : 2 }, { c : 3 }] }")]
+
+        [InlineData("{ geoField : { $near : [5.0, 6.0] } }", "{ geoField : { $near : [5.0, 6.0] } }", "{}")]
+        [InlineData(
+            "{ $and : [{ geoField : { $near : [40.0, 18.0] } }, { geoField : { $near : [42.0, 10.0] } }] }",
+            "{ geoField: { $near : [40.0, 18.0] } }",
+            "{ geoField : { $near : [42.0, 10.0] } }")]
+        [InlineData(
+            "{ $and : [{ geoField : { $geoWithin : { $box : [[1.0, 2.0], [3.0, 4.0]] } } }, { geoField : { $near : [5.0, 6.0] } }] }",
+            "{ geoField : { $geoWithin : { $box : [[1.0, 2.0], [3.0, 4.0]] } } }",
+            "{ geoField : { $near : [5.0, 6.0] } }")]
+        [InlineData(
+            "{ $and : [{ geoField : { $near : [5.0, 6.0] } }, { geoField : { $geoWithin : { $box : [[1.0, 2.0], [3.0, 4.0]] } } }] }",
+            "{ geoField : { $near : [5.0, 6.0] } }",
+            "{ geoField : { $geoWithin : { $box : [[1.0, 2.0], [3.0, 4.0]] } } }")]
+        [InlineData(
+            "{ $and : [{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [1, 2] } } } }, { geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [[[1, 2], [3, 4], [5, 6], [7, 8]]] } } } }] }",
+            "{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [1, 2] } } } }",
+            "{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [[[1, 2], [3, 4], [5, 6], [7, 8]]] } } } }")]
+        [InlineData(
+            "{ $and : [{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [[[1, 2], [3, 4], [5, 6], [7, 8]]] } } } }, { geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [1, 2] } } } }] }",
+            "{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [[[1, 2], [3, 4], [5, 6], [7, 8]]] } } } }",
+            "{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [1, 2] } } } }")]
+
+        [InlineData("{ a : 1 , $expr : { $eq : ['$_id', 1] } }", "{ a : 1 }", "{ $expr : { $eq : ['$_id', 1] } }")]
+        [InlineData("{ $expr : { $eq : ['$_id', 1] }, a: 1 }", "{ $expr : { $eq : ['$_id', 1] } }", "{ a: 1 }")]
+        [InlineData("{ $expr : { $eq : ['$_id', 1] } }", "{ $expr : { $eq : ['$_id', 1] } }", "{}")]
+        [InlineData(
+            "{ $and : [{ $expr : { $eq : ['$_id', 1] } }, { $expr : { $ne : ['$a', ''] } }] }",
+            "{ $expr : { $eq : ['$_id', 1] } }",
+            "{ $expr : { $ne : ['$a', ''] } }")]
+        public void And(string expected, params string[] clauses)
         {
             var subject = CreateSubject<BsonDocument>();
+            var args = clauses.Select(c => new JsonFilterDefinition<BsonDocument>(c));
 
-            var combinedFilter = subject.And(firstFilter, secondFilter);
+            var filter = subject.And(args);
 
-            Assert(combinedFilter, $"{{ $and : [ {firstFilter}, {secondFilter} ] }}");
-        }
-
-        [Fact]
-        public void And_with_clashing_keys_and_different_operators_but_with_filters_that_support_only_dollar_form_and_empty_filter_should_ignore_empty_filter()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            var combinedFilter = subject.And(
-                "{ geoField : { $near : [ 5.0, 6.0 ] } }",
-                "{ geoField : { } }");
-
-            Assert(combinedFilter, "{ geoField : { $near : [ 5.0, 6.0 ] } }");
-        }
-
-        [Fact]
-        public void And_with_an_empty_filter()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                "{}",
-                subject.Eq("a", 10));
-
-            Assert(filter, "{a: 10}");
-        }
-
-        [Fact]
-        public void And_with_a_nested_and_should_get_flattened()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                subject.And("{a: 1}", new BsonDocument("b", 2)),
-                subject.Eq("c", 3));
-
-            Assert(filter, "{a: 1, b: 2, c: 3}");
-        }
-
-        [Fact]
-        public void And_with_a_nested_and_and_clashing_keys()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.And(
-                subject.And(subject.Eq("a", 1), subject.Eq("a", 2)),
-                subject.Eq("c", 3));
-
-            Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
-        }
-
-        [Fact]
-        public void And_with_a_nested_and_and_clashing_operators_on_the_same_key()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.Lt("a", 1) & subject.Lt("a", 2);
-
-            Assert(filter, "{$and: [{a: {$lt: 1}}, {a: {$lt: 2}}]}");
-        }
-
-        [Fact]
-        public void And_with_a_nested_and_and_clashing_keys_using_ampersand()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var filter = subject.Eq("a", 1) & "{a: 2}" & new BsonDocument("c", 3);
-
-            Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
-        }
-
-        [Fact]
-        public void And_with_no_clauses()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            var filter = subject.And();
-
-            Assert(filter, "{ $and : [] }");
-        }
-
-        [Fact]
-        public void And_with_one_empty_clause()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var empty = Builders<BsonDocument>.Filter.Empty;
-
-            var filter = subject.And(empty);
-
-            Assert(filter, "{ }");
-        }
-
-        [Fact]
-        public void And_with_two_empty_clauses()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var empty = Builders<BsonDocument>.Filter.Empty;
-
-            var filter = subject.And(empty, empty);
-
-            Assert(filter, "{ }");
+            Assert(filter, expected);
         }
 
         [Fact]
