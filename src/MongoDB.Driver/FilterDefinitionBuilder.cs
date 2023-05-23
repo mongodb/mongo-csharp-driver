@@ -1711,7 +1711,9 @@ namespace MongoDB.Driver
 
         private static void AddClause(BsonDocument document, BsonElement clause)
         {
-            if (clause.Name == "$and")
+            var fieldOrOperatorName = clause.Name;
+
+            if (fieldOrOperatorName == "$and")
             {
                 // flatten out nested $and
                 foreach (var item in (BsonArray)clause.Value)
@@ -1726,10 +1728,12 @@ namespace MongoDB.Driver
             {
                 ((BsonArray)document[0]).Add(new BsonDocument(clause));
             }
-            else if (document.Contains(clause.Name))
+            else if (document.Contains(fieldOrOperatorName))
             {
-                var existingClause = document.GetElement(clause.Name);
-                if (existingClause.Value is BsonDocument existingClauseValue && clause.Value is BsonDocument clauseValue)
+                var existingClause = document.GetElement(fieldOrOperatorName);
+                if (IsFieldName(fieldOrOperatorName) &&
+                    existingClause.Value is BsonDocument existingClauseValue &&
+                    clause.Value is BsonDocument clauseValue)
                 {
                     var clauseOperator = clauseValue.ElementCount > 0 ? clauseValue.GetElement(0).Name : null;
                     if (clauseValue.Names.Any(op => existingClauseValue.Contains(op)) ||
@@ -1751,6 +1755,8 @@ namespace MongoDB.Driver
             {
                 document.Add(clause);
             }
+
+            static bool IsFieldName(string fieldOrOperatorName) => !fieldOrOperatorName.StartsWith("$");
         }
 
         private static void PromoteFilterToDollarForm(BsonDocument document, BsonElement clause)

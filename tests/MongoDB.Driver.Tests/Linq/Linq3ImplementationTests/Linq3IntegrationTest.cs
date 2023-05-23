@@ -168,6 +168,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             return filter.Render(documentSerializer, serializerRegistry, linqProvider);
         }
 
+        protected BsonDocument TranslateFindFilter<TDocument, TProjection>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TProjection> find)
+        {
+            var filterDefinition = ((FindFluent<TDocument, TProjection>)find).Filter;
+            return filterDefinition.Render(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+        }
+
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
             IMongoCollection<TDocument> collection,
             IFindFluent<TDocument, TProjection> find)
