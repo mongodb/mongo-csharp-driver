@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                     stages,
                     "{ $group : { _id : '', __agg0 : { $sum : 1 } } }",
                     "{ $project : { Count : '$__agg0', _id : 0 } }",
-                    "{ $project : { NotId : '', Count : 1, _id : 0 } }");
+                    "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
             }
         }
 
