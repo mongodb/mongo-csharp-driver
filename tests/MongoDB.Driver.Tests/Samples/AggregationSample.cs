@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Tests.Samples
                 "{ \"$sort\" : { \"Population\" : 1 } }, " +
                 "{ \"$group\" : { \"_id\" : \"$StateAndCity.State\", \"__agg0\" : { \"$last\" : \"$$ROOT\" }, \"__agg1\" : { \"$first\" : \"$$ROOT\" } } }, " +
                 "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : \"$__agg0.StateAndCity.City\", \"BiggestPopulation\" : \"$__agg0.Population\", \"SmallestCity\" : \"$__agg1.StateAndCity.City\", \"SmallestPopulation\" : \"$__agg1.Population\", \"_id\" : 0 } }, " +
-                "{ \"$project\" : { \"State\" : 1, \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
+                "{ \"$project\" : { \"State\" : \"$State\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
                 "{ \"$sort\" : { \"State\" : 1 } }])";
             pipelineTranslation.Should().Be(expectedTranslation);
 

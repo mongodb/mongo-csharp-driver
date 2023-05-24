@@ -14,12 +14,10 @@
 */
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -59,7 +57,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, nameof(find));
             Ensure.IsNotNull(projection, nameof(projection));
 
-            return find.Project<TNewProjection>(new FindExpressionProjectionDefinition<TDocument, TNewProjection>(projection));
+            return find.Project<TNewProjection>(new ExpressionProjectionDefinition<TDocument, TNewProjection>(projection, null));
         }
 
         /// <summary>
@@ -75,7 +73,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, nameof(find));
             Ensure.IsNotNull(field, nameof(field));
 
-            // We require an implementation of IFindFluent<TDocument, TProjection> 
+            // We require an implementation of IFindFluent<TDocument, TProjection>
             // to also implement IOrderedFindFluent<TDocument, TProjection>
             return (IOrderedFindFluent<TDocument, TProjection>)find.Sort(
                 new DirectionalSortDefinition<TDocument>(new ExpressionFieldDefinition<TDocument>(field), SortDirection.Ascending));
@@ -94,7 +92,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, nameof(find));
             Ensure.IsNotNull(field, nameof(field));
 
-            // We require an implementation of IFindFluent<TDocument, TProjection> 
+            // We require an implementation of IFindFluent<TDocument, TProjection>
             // to also implement IOrderedFindFluent<TDocument, TProjection>
             return (IOrderedFindFluent<TDocument, TProjection>)find.Sort(
                 new DirectionalSortDefinition<TDocument>(new ExpressionFieldDefinition<TDocument>(field), SortDirection.Descending));

@@ -147,6 +147,9 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedProjectionDefinition{TProjection}"/>.</returns>
         public abstract RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
+        internal virtual RenderedProjectionDefinition<TProjection> RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+            => Render(sourceSerializer, serializerRegistry, linqProvider);
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource, TProjection}"/>.
         /// </summary>

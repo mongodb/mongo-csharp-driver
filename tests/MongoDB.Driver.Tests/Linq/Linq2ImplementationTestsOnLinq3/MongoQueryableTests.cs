@@ -215,9 +215,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
             Assert(query,
                 1,
-                "{ $project: { 'A': 1, 'B': 1, '_id': 0 } }",
-                "{ $match: { 'A': 'Awesome' } }",
-                "{ $group: { '_id': '$$ROOT' } }",
+                "{ $project: { 'A' : '$A', 'B' : '$B', '_id': 0 } }",
+                "{ $match: { 'A' : 'Awesome' } }",
+                "{ $group: { '_id' : '$$ROOT' } }",
                 "{ $replaceRoot : { newRoot : '$_id' } }");
         }
 
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
             Assert(query,
                 1,
                 "{ $match : { 'A' : 'Awesome' } }",
-                "{ $project : { A : 1, B : 1, _id : 0  } }",
+                "{ $project : { A : '$A', B : '$B', _id : 0  } }",
                 "{ $group : { '_id' : '$$ROOT' } }",
                 "{ $replaceRoot : { newRoot : '$_id' } }");
         }
@@ -999,7 +999,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
             Assert(query,
                 2,
-                "{ $project : { _id : 1, A : 1 } }");
+                "{ $project : { _id : '$_id', A : '$A' } }");
         }
 
         [Fact]

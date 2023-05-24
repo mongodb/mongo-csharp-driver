@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 });
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _id : 1, PageCount : 1, Author : { $cond : { if : { $eq : ['$Author', null] }, then : null, else : { _id : '$Author._id', Name : '$Author.Name' } } } } }");
+            AssertStages(stages, "{ $project : { _id : '$_id', PageCount : '$PageCount', Author : { $cond : { if : { $eq : ['$Author', null] }, then : null, else : { _id : '$Author._id', Name : '$Author.Name' } } } } }");
 
             var results = queryable.ToList().OrderBy(r => r.Id).ToList();
             results.Should().HaveCount(2);
