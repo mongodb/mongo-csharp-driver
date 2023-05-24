@@ -307,20 +307,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
         }
 
-        public override AstNode VisitProjectStageSetFieldSpecification(AstProjectStageSetFieldSpecification node)
-        {
-            node = (AstProjectStageSetFieldSpecification)base.VisitProjectStageSetFieldSpecification(node);
-
-            // { path : '$path' } => { path : 1 }
-            if (node.Value is AstFieldPathExpression fieldPathExpression &&
-                fieldPathExpression.Path == $"${node.Path}")
-            {
-                return AstProject.Include(node.Path);
-            }
-
-            return node;
-        }
-
         public override AstNode VisitUnaryExpression(AstUnaryExpression node)
         {
             // { $first : <arg> } => { $arrayElemAt : [<arg>, 0] } (or -1 for $last)

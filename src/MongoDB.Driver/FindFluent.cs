@@ -197,7 +197,7 @@ namespace MongoDB.Driver
 
             if (_options.Projection != null)
             {
-                var renderedProjection = Render(_options.Projection.Render);
+                var renderedProjection = Render(_options.Projection.RenderForFind);
                 if (renderedProjection.Document != null)
                 {
                     sb.Append(", " + renderedProjection.Document.ToString());

@@ -1059,7 +1059,7 @@ namespace MongoDB.Driver
         private FindOperation<TProjection> CreateFindOperation<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
 
             return new FindOperation<TProjection>(
                 _collectionNamespace,

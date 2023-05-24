@@ -1305,7 +1305,7 @@ namespace MongoDB.Driver
             ExpressionTranslationOptions translationOptions = null)
         {
             Ensure.IsNotNull(projection, nameof(projection));
-            return Project(new ProjectExpressionProjection<TInput, TOutput>(projection, translationOptions));
+            return Project(new ExpressionProjectionDefinition<TInput, TOutput>(projection, translationOptions));
         }
 
         /// <summary>
@@ -1905,6 +1905,11 @@ namespace MongoDB.Driver
 
             return linqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
+
+        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
     internal sealed class GroupExpressionProjection<TInput, TKey, TOutput> : ProjectionDefinition<TInput, TOutput>
@@ -1938,14 +1943,19 @@ namespace MongoDB.Driver
             }
             return linqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
+
+        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
-    internal sealed class ProjectExpressionProjection<TInput, TOutput> : ProjectionDefinition<TInput, TOutput>
+    internal sealed class ExpressionProjectionDefinition<TInput, TOutput> : ProjectionDefinition<TInput, TOutput>
     {
         private readonly Expression<Func<TInput, TOutput>> _expression;
         private readonly ExpressionTranslationOptions _translationOptions;
 
-        public ProjectExpressionProjection(Expression<Func<TInput, TOutput>> expression, ExpressionTranslationOptions translationOptions)
+        public ExpressionProjectionDefinition(Expression<Func<TInput, TOutput>> expression, ExpressionTranslationOptions translationOptions)
         {
             _expression = Ensure.IsNotNull(expression, nameof(expression));
             _translationOptions = translationOptions; // can be null
@@ -1959,6 +1969,11 @@ namespace MongoDB.Driver
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return linqProvider.GetAdapter().TranslateExpressionToProjection(_expression, inputSerializer, serializerRegistry, _translationOptions);
+        }
+
+        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return linqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
         }
     }
 
