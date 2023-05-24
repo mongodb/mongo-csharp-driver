@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -22,25 +23,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
 {
     public class MemberInitExpressionToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
-        private readonly IMongoCollection<MyData> _collection;
-
-        public MemberInitExpressionToAggregationExpressionTranslatorTests()
-        {
-            _collection = CreateCollection(LinqProvider.V3);
-        }
-
         [Fact]
-        public void Should_project_via_parameterless_constructor()
+        public void Should_project_class_via_parameterless_constructor()
         {
-            var queryable = _collection.AsQueryable()
-                .Select(x => new SpawnDataParameterless
+            var collection = CreateCollection();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new SpawnDataClassParameterless
                 {
                     Identifier = x.Id,
                     SpawnDate = x.Date,
                     SpawnText = x.Text
                 });
 
-            var stages = Translate(_collection, queryable);
+            var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', SpawnText : '$Text', _id : 0 } }");
 
             var results = queryable.Single();
@@ -51,15 +47,61 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         }
 
         [Fact]
-        public void Should_project_via_constructor()
+        public void Should_project_struct_via_parameterless_constructor()
         {
-            var queryable = _collection.AsQueryable()
-                .Select(x => new SpawnData(x.Id, x.Date)
+            var collection = CreateCollection();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new SpawnDataStructParameterless
+                {
+                    Identifier = x.Id,
+                    SpawnDate = x.Date,
+                    SpawnText = x.Text
+                });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', SpawnText : '$Text', _id : 0 } }");
+
+            var results = queryable.Single();
+
+            results.SpawnDate.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));
+            results.SpawnText.Should().Be("data text");
+            results.Identifier.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_project_class_via_constructor()
+        {
+            var collection = CreateCollection();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new SpawnDataClass(x.Id, x.Date)
                 {
                     SpawnText = x.Text
                 });
 
-            var stages = Translate(_collection, queryable);
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', SpawnText : '$Text', _id : 0 } }");
+
+            var results = queryable.Single();
+
+            results.SpawnDate.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));
+            results.SpawnText.Should().Be("data text");
+            results.Identifier.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_project_struct_via_constructor()
+        {
+            var collection = CreateCollection();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new SpawnDataStruct(x.Id, x.Date)
+                {
+                    SpawnText = x.Text
+                });
+
+            var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', SpawnText : '$Text', _id : 0 } }");
 
             var results = queryable.Single();
@@ -72,13 +114,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Should_project_via_constructor_with_inheritance()
         {
-            var queryable = _collection.AsQueryable()
+            var collection = CreateCollection();
+
+            var queryable = collection.AsQueryable()
                 .Select(x => new InheritedSpawnData(x.Id, x.Date)
                 {
                     SpawnText = x.Text
                 });
 
-            var stages = Translate(_collection, queryable);
+            var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', SpawnText : '$Text', _id : 0 } }");
 
             var results = queryable.Single();
@@ -88,9 +132,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             results.Identifier.Should().Be(1);
         }
 
-        private IMongoCollection<MyData> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<MyData> CreateCollection()
         {
-            var collection = GetCollection<MyData>("data", linqProvider);
+            var collection = GetCollection<MyData>("data");
 
             CreateCollection(
                 collection,
@@ -106,20 +150,36 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             public string Text;
         }
 
-        public class SpawnDataParameterless
+        public class SpawnDataClassParameterless
         {
             public int Identifier;
             public DateTime SpawnDate;
             public string SpawnText;
         }
 
-        public class SpawnData
+        public struct SpawnDataStructParameterless
+        {
+            public int Identifier;
+            public DateTime SpawnDate;
+            public string SpawnText;
+
+            // this constructor is required to be able to deserialize instances of this struct
+            [BsonConstructor]
+            public SpawnDataStructParameterless(int identifier, DateTime spawnDate, string spawnText)
+            {
+                Identifier = identifier;
+                SpawnDate = spawnDate;
+                SpawnText = spawnText;
+            }
+        }
+
+        public class SpawnDataClass
         {
             public readonly int Identifier;
             public DateTime SpawnDate;
             private string spawnText;
 
-            public SpawnData(int identifier, DateTime spawnDate)
+            public SpawnDataClass(int identifier, DateTime spawnDate)
             {
                 Identifier = identifier;
                 SpawnDate = spawnDate;
@@ -132,7 +192,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             }
         }
 
-        public class InheritedSpawnData : SpawnData
+        public struct SpawnDataStruct
+        {
+            [BsonElement]
+            public readonly int Identifier;
+            public DateTime SpawnDate;
+            private string spawnText;
+
+            // this constructor is required for the test to compile
+            public SpawnDataStruct(int identifier, DateTime spawnDate)
+            {
+                Identifier = identifier;
+                SpawnDate = spawnDate;
+                spawnText = default;
+            }
+
+            // this constructor is required to be able to deserialize instances of this struct
+            [BsonConstructor]
+            public SpawnDataStruct(int identifier, DateTime spawnDate, string spawnText)
+            {
+                Identifier = identifier;
+                SpawnDate = spawnDate;
+                this.spawnText = spawnText;
+            }
+
+            public string SpawnText
+            {
+                get => spawnText;
+                set => spawnText = value;
+            }
+        }
+
+        public class InheritedSpawnData : SpawnDataClass
         {
             public InheritedSpawnData(int identifier, DateTime spawnDate)
                 : base(identifier, spawnDate)
