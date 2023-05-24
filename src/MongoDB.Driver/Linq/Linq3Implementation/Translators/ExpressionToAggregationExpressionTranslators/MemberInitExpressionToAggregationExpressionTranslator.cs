@@ -29,27 +29,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
         {
             var newExpression = expression.NewExpression;
-            var constructorInfo = newExpression.Constructor;
+            var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
+            var computedFields = new List<AstComputedField>();
 
             var classMap = CreateClassMap(expression.Type, constructorInfo, out var creatorMap);
-            var creatorMapParameters = creatorMap.Arguments?.ToArray();
-            if (constructorInfo.GetParameters().Length > 0 && creatorMapParameters == null )
+            if (constructorInfo != null && creatorMap != null)
             {
-                throw new ExpressionNotSupportedException(expression, because: $"couldn't find matching properties for constructor parameters.");
-            }
+                var creatorMapParameters = creatorMap.Arguments?.ToArray();
+                if (constructorInfo.GetParameters().Length > 0 && creatorMapParameters == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"couldn't find matching properties for constructor parameters.");
+                }
 
-            var computedFields = new List<AstComputedField>();
-            for (var i = 0; i < creatorMapParameters.Length; i++)
-            {
-                var creatorMapParameter = creatorMapParameters[i];
-                var constructorArgumentExpression = constructorArguments[i];
-                var constructorArgumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, constructorArgumentExpression);
-                var constructorArgumentType = constructorArgumentExpression.Type;
-                var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? BsonSerializer.LookupSerializer(constructorArgumentType);
-                var memberMap = EnsureMemberMap(expression, classMap, creatorMapParameter);
-                memberMap.SetSerializer(constructorArgumentSerializer);
-                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, constructorArgumentTranslation.Ast));
+                for (var i = 0; i < creatorMapParameters.Length; i++)
+                {
+                    var creatorMapParameter = creatorMapParameters[i];
+                    var constructorArgumentExpression = constructorArguments[i];
+                    var constructorArgumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, constructorArgumentExpression);
+                    var constructorArgumentType = constructorArgumentExpression.Type;
+                    var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? BsonSerializer.LookupSerializer(constructorArgumentType);
+                    var memberMap = EnsureMemberMap(expression, classMap, creatorMapParameter);
+                    memberMap.SetSerializer(constructorArgumentSerializer);
+                    computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, constructorArgumentTranslation.Ast));
+                }
             }
 
             foreach (var binding in expression.Bindings)
@@ -57,12 +60,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var memberAssignment = (MemberAssignment)binding;
                 var member = memberAssignment.Member;
                 var memberMap = FindMemberMap(expression, classMap, member.Name);
-
                 var valueExpression = memberAssignment.Expression;
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, valueTranslation.Ast));
-
                 memberMap.SetSerializer(valueTranslation.Serializer);
+                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, valueTranslation.Ast));
             }
 
             var ast = AstExpression.ComputedDocument(computedFields);
