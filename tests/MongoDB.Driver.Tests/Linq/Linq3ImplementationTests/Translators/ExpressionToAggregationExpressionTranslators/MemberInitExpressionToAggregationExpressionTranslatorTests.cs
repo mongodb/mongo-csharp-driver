@@ -189,15 +189,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             public int Identifier;
             public DateTime SpawnDate;
             public string SpawnText;
-
-            // this constructor is required to be able to deserialize instances of this struct
-            [BsonConstructor]
-            public SpawnDataStructParameterless(int identifier, DateTime spawnDate, string spawnText)
-            {
-                Identifier = identifier;
-                SpawnDate = spawnDate;
-                SpawnText = spawnText;
-            }
         }
 
         public class SpawnDataClass

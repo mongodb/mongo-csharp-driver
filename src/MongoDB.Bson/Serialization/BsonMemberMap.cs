@@ -577,6 +577,12 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
 
+            if (fieldInfo.DeclaringType.IsValueType)
+            {
+                // Fallback to reflection for value type to avoid boxing-unboxing problems
+                return (instance, value) => fieldInfo.SetValue(instance, value);
+            }
+
             var objParameter = Expression.Parameter(typeof(object), "obj");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var field = Expression.Field(Expression.Convert(objParameter, fieldInfo.DeclaringType), fieldInfo);
@@ -628,6 +634,12 @@ namespace MongoDB.Bson.Serialization
                     "The property '{0} {1}' of class '{2}' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
                     propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
+            }
+
+            if (propertyInfo.DeclaringType.IsValueType)
+            {
+                // Fallback to reflection for value type to avoid boxing-unboxing problems
+                return (instance, value) => propertyInfo.SetValue(instance, value);
             }
 
             // lambdaExpression = (obj, value) => ((TClass) obj).SetMethod((TMember) value)

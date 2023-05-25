@@ -30,8 +30,6 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private readonly BsonClassMap _classMap;
-        private readonly bool _isReferenceType;
-        private readonly bool _isValueType;
 
         // constructors
         /// <summary>
@@ -42,12 +40,12 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
             if (classMap.ClassType != typeof(TClass))
             {
                 var message = string.Format("Must be a BsonClassMap for the type {0}.", typeof(TClass));
-                throw new ArgumentException(message, "classMap");
+                throw new ArgumentException(message, nameof(classMap));
             }
             if (!classMap.IsFrozen)
             {
@@ -55,8 +53,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             _classMap = classMap;
-            _isValueType = _classMap.ClassType.IsValueType;
-            _isReferenceType = !_isValueType;
         }
 
         // public properties
@@ -87,22 +83,17 @@ namespace MongoDB.Bson.Serialization
                 bsonReader.ReadNull();
                 return default(TClass);
             }
-            else
+
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+
+            var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
+            if (actualType == typeof(TClass))
             {
-                var discriminatorConvention = _classMap.GetDiscriminatorConvention();
-
-                var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
-                if (actualType == typeof(TClass))
-                {
-                    return DeserializeClass(context);
-                }
-                else
-                {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
-                    return (TClass)serializer.Deserialize(context);
-                }
-
+                return DeserializeClass(context);
             }
+
+            var serializer = BsonSerializer.LookupSerializer(actualType);
+            return (TClass)serializer.Deserialize(context);
         }
 
         /// <summary>
@@ -124,7 +115,9 @@ namespace MongoDB.Bson.Serialization
             }
 
             Dictionary<string, object> values = null;
-            var document = default(TClass);
+            // Important for struct support:
+            // should use object variable here, so created value should be boxed right away!
+            object document = null;
 
             ISupportInitialize supportsInitialization = null;
             if (_classMap.HasCreatorMaps)
@@ -135,13 +128,7 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 // for mutable classes we deserialize the values directly into the result object
-                if (_isValueType)
-                {
-                    var message = string.Format("Value class {0} cannot be deserialized without a constructor.", _classMap.ClassType.FullName);
-                    throw new BsonSerializationException(message);
-                }
-
-                document = (TClass)_classMap.CreateInstance();
+                document = _classMap.CreateInstance();
 
                 if (document == null)
                 {
@@ -173,7 +160,7 @@ namespace MongoDB.Bson.Serialization
                     var memberMap = allMemberMaps[memberMapIndex];
                     if (memberMapIndex != extraElementsMemberMapIndex)
                     {
-                        if (_isReferenceType && document != null)
+                        if (document != null)
                         {
                             if (memberMap.IsReadOnly)
                             {
@@ -193,7 +180,7 @@ namespace MongoDB.Bson.Serialization
                     }
                     else
                     {
-                        if (_isReferenceType && document != null)
+                        if (document != null)
                         {
                             DeserializeExtraElementMember(context, document, elementName, memberMap);
                         }
@@ -215,7 +202,7 @@ namespace MongoDB.Bson.Serialization
                     if (extraElementsMemberMapIndex >= 0)
                     {
                         var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;
-                        if (_isReferenceType && document != null)
+                        if (document != null)
                         {
                             DeserializeExtraElementMember(context, document, elementName, extraElementsMemberMap);
                         }
@@ -267,7 +254,7 @@ namespace MongoDB.Bson.Serialization
                             throw new FormatException(message);
                         }
 
-                        if (_isReferenceType && document != null)
+                        if (document != null)
                         {
                             memberMap.ApplyDefaultValue(document);
                         }
@@ -289,18 +276,16 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            if (_isReferenceType && document != null)
+            if (document != null)
             {
                 if (supportsInitialization != null)
                 {
                     supportsInitialization.EndInit();
                 }
-                return document;
+                return (TClass)document;
             }
-            else
-            {
-                return CreateInstanceUsingCreator(values);
-            }
+
+            return CreateInstanceUsingCreator(values);
         }
 
         /// <summary>
@@ -372,20 +357,18 @@ namespace MongoDB.Bson.Serialization
             if (value == null)
             {
                 bsonWriter.WriteNull();
+                return;
             }
-            else
+
+            var actualType = value.GetType();
+            if (actualType == typeof(TClass))
             {
-                var actualType = value.GetType();
-                if (actualType == typeof(TClass))
-                {
-                    SerializeClass(context, args, value);
-                }
-                else
-                {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
-                    serializer.Serialize(context, args, value);
-                }
+                SerializeClass(context, args, value);
+                return;
             }
+
+            var serializer = BsonSerializer.LookupSerializer(actualType);
+            serializer.Serialize(context, args, value);
         }
 
         /// <summary>
@@ -433,14 +416,7 @@ namespace MongoDB.Bson.Serialization
         private TClass CreateInstanceUsingCreator(Dictionary<string, object> values)
         {
             var creatorMap = ChooseBestCreator(values);
-            var document = creatorMap.CreateInstance(values); // removes values consumed
-
-            if (values.Count > 0 && _isValueType)
-            {
-                var message = string.Format("Value class {0} cannot be deserialized unless all values can be passed to a constructor.", _classMap.ClassType.FullName);
-                throw new BsonSerializationException(message);
-            }
-
+            object document = creatorMap.CreateInstance(values); // removes values consumed
             var supportsInitialization = document as ISupportInitialize;
             if (supportsInitialization != null)
             {
@@ -473,8 +449,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
@@ -514,8 +488,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 BsonDocument extraElements;
@@ -561,8 +533,6 @@ namespace MongoDB.Bson.Serialization
 
         private object DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap memberMap)
         {
-            var bsonReader = context.Reader;
-
             try
             {
                 return memberMap.GetSerializer().Deserialize(context);
