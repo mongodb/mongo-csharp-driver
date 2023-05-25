@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Events
         ClusterRemovingServer,
         ClusterSelectedServer,
         ClusterSelectingServer,
+        ClusterEnteredSelectionWaitQueue,
         ClusterSelectingServerFailed,
         CommandFailed,
         CommandStarted,

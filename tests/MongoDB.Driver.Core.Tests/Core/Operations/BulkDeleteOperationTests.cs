@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
+
     public class BulkDeleteOperationTests : OperationTestBase
     {
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            var subject = new BulkDeleteOperation(_collectionNamespace, new[] { new DeleteRequest(new BsonDocument("x", 1)) }, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "delete");
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Execute_with_collation_should_throw_when_collation_is_not_supported(

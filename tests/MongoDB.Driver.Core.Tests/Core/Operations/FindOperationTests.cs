@@ -14,17 +14,18 @@
 */
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -904,6 +905,17 @@ namespace MongoDB.Driver.Core.Operations
             var result = ReadCursorToEnd(cursor);
 
             result.Should().HaveCount(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)]bool async)
+        {
+            RequireServer.Check();
+
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "find");
         }
 
         [Theory]

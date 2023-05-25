@@ -14,18 +14,19 @@
 */
 
 using System;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using Xunit;
-using System.Reflection;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -905,6 +906,17 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "aggregate");
         }
 
         private void EnsureTestData()

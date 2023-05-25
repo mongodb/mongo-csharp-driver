@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Connections
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private BlockingMemoryStream _stream;
         private Mock<IStreamFactory> _mockStreamFactory;
+
         private BinaryConnection _subject;
         private IDisposable _operationIdDisposer;
 

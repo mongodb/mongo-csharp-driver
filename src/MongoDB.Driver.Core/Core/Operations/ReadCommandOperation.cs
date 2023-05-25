@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
+            using (EventContext.BeginOperation(Command.GetElement(0).Name))
             {
                 return RetryableReadOperationExecutor.Execute(this, context, cancellationToken);
             }
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
+            using (EventContext.BeginOperation(Command.GetElement(0).Name))
             {
                 return await RetryableReadOperationExecutor.ExecuteAsync(this, context, cancellationToken).ConfigureAwait(false);
             }

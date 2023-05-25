@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Tests.Core.Operations;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -910,6 +911,17 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "create", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "create");
         }
 
         [Theory]

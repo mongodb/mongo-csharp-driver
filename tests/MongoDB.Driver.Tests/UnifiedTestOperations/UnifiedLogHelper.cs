@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 "error" => LogLevel.Error,
                 "warning" => LogLevel.Warning,
-                "informational" or "notice" => LogLevel.Information,
+                "info" or "notice" => LogLevel.Information,
                 "debug" => LogLevel.Debug,
                 "trace" => LogLevel.Trace,
                 _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel)

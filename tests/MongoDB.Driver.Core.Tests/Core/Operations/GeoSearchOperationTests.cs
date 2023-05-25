@@ -15,14 +15,15 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -225,6 +226,25 @@ namespace MongoDB.Driver.Core.Operations
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).VersionLessThan("4.8.0");
+            EnsureTestData();
+            var subject = new GeoSearchOperation<BsonDocument>(
+                _collectionNamespace,
+                new BsonArray { 1, 2 },
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings)
+            {
+                MaxDistance = 20,
+                Search = new BsonDocument("Type", "restaraunt")
+            };
+
+            await VerifyOperationNameIsSet(subject, async, "geoSearch");
         }
 
         // helper methods

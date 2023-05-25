@@ -157,6 +157,22 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, ICluster cluster, bool async)
+        {
+            using (var binding = CreateReadBinding(cluster))
+            using (var bindingHandle = new ReadBindingHandle(binding))
+            {
+                if (async)
+                {
+                    return operation.Execute(bindingHandle, CancellationToken.None);
+                }
+                else
+                {
+                    return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
+                }
+            }
+        }
+
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, IReadBinding binding, bool async)
         {
             if (async)
@@ -234,6 +250,22 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, ICluster cluster, bool async)
+        {
+            using (var binding = CreateReadWriteBinding(cluster: cluster))
+            using (var bindingHandle = new ReadWriteBindingHandle(binding))
+            {
+                if (async)
+                {
+                    return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
+                }
+                else
+                {
+                    return operation.Execute(bindingHandle, CancellationToken.None);
+                }
+            }
+        }
+
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
             return await operation.ExecuteAsync(binding, CancellationToken.None);
@@ -249,21 +281,21 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        protected IReadBinding CreateReadBinding()
+        protected IReadBinding CreateReadBinding(ICluster cluster = null)
         {
-            return CreateReadBinding(ReadPreference.Primary);
+            return CreateReadBinding(ReadPreference.Primary, cluster);
         }
 
-        protected IReadBinding CreateReadBinding(ReadPreference readPreference)
+        protected IReadBinding CreateReadBinding(ReadPreference readPreference, ICluster cluster = null)
         {
-            return new ReadPreferenceBinding(_cluster, readPreference, _session.Fork());
+            return new ReadPreferenceBinding(cluster ?? _cluster, readPreference, _session.Fork());
         }
 
-        protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false)
+        protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, ICluster cluster = null)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
-            var session = CoreTestConfiguration.StartSession(_cluster, options);
-            return new WritableServerBinding(_cluster, session);
+            var session = CoreTestConfiguration.StartSession(cluster ?? _cluster, options);
+            return new WritableServerBinding(cluster ?? _cluster, session);
         }
 
         protected void Insert(params BsonDocument[] documents)
@@ -430,6 +462,34 @@ namespace MongoDB.Driver.Core.Operations
         protected void Update(string filter, string update)
         {
             Update(BsonDocument.Parse(filter), BsonDocument.Parse(update));
+        }
+
+        protected async Task VerifyOperationNameIsSet<TResult>(
+            IReadOperation<TResult> operation,
+            bool async,
+            string operationName)
+        {
+            var eventCapturer = new EventCapturer().Capture<ClusterSelectingServerEvent>();
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                await ExecuteOperationAsync(operation, cluster, async);
+                var @event = eventCapturer.Events.OfType<ClusterSelectingServerEvent>().Single();
+                @event.OperationName.ShouldBeEquivalentTo(operationName);
+            }
+        }
+
+        protected async Task VerifyOperationNameIsSet<TResult>(
+           IWriteOperation<TResult> operation,
+           bool async,
+           string operationName)
+        {
+            var eventCapturer = new EventCapturer().Capture<ClusterSelectingServerEvent>();
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                await ExecuteOperationAsync(operation, cluster, async);
+                var @event = eventCapturer.Events.OfType<ClusterSelectingServerEvent>().Single();
+                @event.OperationName.ShouldBeEquivalentTo(operationName);
+            }
         }
 
         protected void VerifySessionIdWasNotSentIfUnacknowledgedWrite<TResult>(

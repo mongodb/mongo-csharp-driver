@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -502,6 +503,18 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "createIndexes", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "createIndexes");
         }
 
         [Theory]

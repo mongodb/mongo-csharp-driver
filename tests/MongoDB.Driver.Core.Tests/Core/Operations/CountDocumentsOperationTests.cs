@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -393,6 +394,17 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "aggregate");
         }
 
         [Fact]

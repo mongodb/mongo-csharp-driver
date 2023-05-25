@@ -14,15 +14,16 @@
 */
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -720,6 +721,17 @@ namespace MongoDB.Driver.Core.Operations
             ReadAllFromCollection().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 10, x : 0, y : 'a' }"),
                 BsonDocument.Parse("{ _id : 11, x : 2, y : 'A' }"));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+
+            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, _findAndModifyValueDeserializer, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "findAndModify");
         }
 
         [Theory]

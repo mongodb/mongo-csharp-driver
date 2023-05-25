@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -471,6 +472,17 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result.Should().Be(caseSensitive ? 1 : 2);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "aggregate");
         }
 
         [Theory]

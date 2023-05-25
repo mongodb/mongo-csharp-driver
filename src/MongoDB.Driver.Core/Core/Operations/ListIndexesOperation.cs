@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -114,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
                 var operation = CreateOperation(context.Channel);
@@ -127,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 var operation = CreateOperation(context.Channel);
@@ -136,6 +137,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
+
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
             return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)

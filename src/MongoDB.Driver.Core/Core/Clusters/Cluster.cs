@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private void EnterServerSelectionWaitQueue()
+        private void EnterServerSelectionWaitQueue(IServerSelector selector, ClusterDescription clusterDescription, long? operationId, TimeSpan remainingTime)
         {
             lock (_serverSelectionWaitQueueLock)
             {
@@ -205,6 +205,13 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     _rapidHeartbeatTimer.Change(TimeSpan.Zero, _minHeartbeatInterval);
                 }
+
+                _serverSelectionEventLogger.LogAndPublish(new ClusterEnteredSelectionQueueEvent(
+                    clusterDescription,
+                    selector,
+                    operationId,
+                    EventContext.OperationName,
+                    remainingTime));
             }
         }
 
@@ -472,7 +479,8 @@ namespace MongoDB.Driver.Core.Clusters
                     _description,
                     _selector,
                     exception,
-                    EventContext.OperationId));
+                    EventContext.OperationId,
+                    EventContext.OperationName));
             }
 
             public IServer SelectServer()
@@ -489,7 +497,8 @@ namespace MongoDB.Driver.Core.Clusters
                     _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                         _description,
                         _selector,
-                        EventContext.OperationId));
+                        EventContext.OperationId,
+                        EventContext.OperationName));
                 }
 
                 MongoIncompatibleDriverException.ThrowIfNotSupported(_description);
@@ -525,13 +534,14 @@ namespace MongoDB.Driver.Core.Clusters
                 if (selectedServer != null)
                 {
                     _stopwatch.Stop();
-
+                    
                     _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                         _description,
                         _selector,
                         selectedServer.Description,
                         _stopwatch.Elapsed,
-                        EventContext.OperationId));
+                        EventContext.OperationId,
+                        EventContext.OperationName));
                 }
 
                 return selectedServer;
@@ -541,7 +551,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (!_serverSelectionWaitQueueEntered)
                 {
-                    _cluster.EnterServerSelectionWaitQueue();
+                    _cluster.EnterServerSelectionWaitQueue(_selector, _description, EventContext.OperationId, _timeoutAt - DateTime.UtcNow);
                     _serverSelectionWaitQueueEntered = true;
                 }
 

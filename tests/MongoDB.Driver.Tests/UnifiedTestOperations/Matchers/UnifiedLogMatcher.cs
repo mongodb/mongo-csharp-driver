@@ -32,6 +32,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         public void AssertLogsMatch(LogEntry[] actualLogs, BsonArray expectedLogs)
         {
+            var t = expectedLogs.Select(t => t.ToString()).ToList();
+            var t2 = actualLogs.Select(t => t.ToString()).ToList();
+
+            if (t.Count != t2.Count)
+            {
+
+            }
             actualLogs.Length.Should().Be(expectedLogs.Count);
 
             for (int i = 0; i < expectedLogs.Count; i++)

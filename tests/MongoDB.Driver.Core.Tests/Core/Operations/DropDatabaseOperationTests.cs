@@ -14,16 +14,12 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -103,6 +99,16 @@ namespace MongoDB.Driver.Core.Operations
 
                 result["ok"].ToBoolean().Should().BeTrue();
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "dropDatabase");
         }
 
         [Theory]

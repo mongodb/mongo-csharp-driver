@@ -17,14 +17,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -198,6 +199,27 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<MongoCommandException>();
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name(
+            [Values(false, true)] bool async,
+            [Values("delete", "insert", "update")] string operationName)
+        {
+            RequireServer.Check();
+
+            WriteRequest request = operationName switch
+            {
+                "delete" => new DeleteRequest(new BsonDocument("x", 1)),
+                "insert" => new InsertRequest(new BsonDocument("x", 1)),
+                "update" => new UpdateRequest(UpdateType.Update, new BsonDocument("x", 1), new BsonDocument("$set", new BsonDocument("x", 2))),
+                _ => throw new ArgumentOutOfRangeException(nameof(operationName), operationName)
+            };
+
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, new[] { request }, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, operationName);
         }
 
         [Theory]

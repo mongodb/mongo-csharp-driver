@@ -15,11 +15,9 @@
 
 using System;
 using System.Net;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -27,6 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations

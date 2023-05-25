@@ -17,8 +17,8 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -101,6 +101,17 @@ namespace MongoDB.Driver.Core.Operations
             {
                 try { DropDatabase(); } catch { }
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropDatabase();
+            var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "listDatabases");
         }
     }
 }

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -136,25 +138,37 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            return RetryableWriteOperationExecutor.Execute(this, binding, _retryRequested, cancellationToken);
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(this, binding, _retryRequested, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
         public TResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            return RetryableWriteOperationExecutor.Execute(this, context, cancellationToken);
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(this, context, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            return RetryableWriteOperationExecutor.ExecuteAsync(this, binding, _retryRequested, cancellationToken);
+            using (BeginOperation())
+            { 
+                return RetryableWriteOperationExecutor.ExecuteAsync(this, binding, _retryRequested, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationToken);
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
@@ -192,6 +206,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
+        private IDisposable BeginOperation() => EventContext.BeginOperation("findAndModify");
+
         internal abstract BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
 
         private WriteCommandOperation<RawBsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)

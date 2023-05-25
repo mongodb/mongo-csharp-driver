@@ -8,21 +8,22 @@
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.e
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -296,6 +297,16 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "count", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "count");
         }
 
         // private methods

@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
+            using (EventContext.BeginOperation("parallelCollectionScan"))
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
+            using (EventContext.BeginOperation("parallelCollectionScan"))
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))

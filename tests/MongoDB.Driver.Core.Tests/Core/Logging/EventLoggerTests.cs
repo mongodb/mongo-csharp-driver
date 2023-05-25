@@ -20,6 +20,7 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
@@ -93,7 +94,7 @@ namespace MongoDB.Driver.Core.Logging
                 (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, connectionId)),
                 (new LogCategories.Connection(), new ConnectionCreatedEvent(connectionId, null, 1)),
                 (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(connectionId, true)),
-                (new LogCategories.ServerSelection(), new ClusterSelectingServerEvent(clusterDescription, default, default))
+                (new LogCategories.ServerSelection(), new ClusterSelectingServerEvent(clusterDescription, new RandomServerSelector(), default, default))
             };
 
             var booleanValues = new[] { true, false };

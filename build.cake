@@ -282,7 +282,7 @@ Task("TestLoadBalanced")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-            RunTests(buildConfig, testProject, filter: "Category=\"SupportLoadBalancing\""));
+            RunTests(buildConfig, testProject, filter: "Category=\"SupportLoadBalancing1\""));
 
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");

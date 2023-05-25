@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
         private static readonly AsyncLocal<int?> __findOperationLimit = new AsyncLocal<int?>();
         private static readonly AsyncLocal<CollectionNamespace> __killCursorsCollectionNamespace = new AsyncLocal<CollectionNamespace>();
         private static readonly AsyncLocal<long?> __operationId = new AsyncLocal<long?>();
+        private static readonly AsyncLocal<string> __operationName = new AsyncLocal<string>();
 
         public static int? FindOperationBatchSize
         {
@@ -74,6 +75,18 @@ namespace MongoDB.Driver.Core.Events
             }
         }
 
+        public static string OperationName
+        {
+            get
+            {
+                return __operationName.Value;
+            }
+            private set
+            {
+                __operationName.Value = value;
+            }
+        }
+
         public static IDisposable BeginFind(int? batchSize, int? limit)
         {
             return FindOperationBatchSize == null ?
@@ -90,13 +103,18 @@ namespace MongoDB.Driver.Core.Events
 
         public static IDisposable BeginOperation()
         {
-            return BeginOperation(null);
+            return BeginOperation(null, null);
         }
 
-        public static IDisposable BeginOperation(long? operationId)
+        public static IDisposable BeginOperation(string commandName)
+        {
+            return commandName != null ? new OperationNameDisposer(commandName) : NoOpDisposer.Instance;
+        }
+
+        public static IDisposable BeginOperation(long? operationId, string commandName = null)
         {
             return OperationId == null ?
-                (IDisposable)new OperationIdDisposer(operationId ?? LongIdGenerator<OperationIdDisposer>.GetNextId()) :
+                new OperationIdDisposer(operationId ?? LongIdGenerator<OperationIdDisposer>.GetNextId(), commandName) :
                 NoOpDisposer.Instance;
         }
 
@@ -140,14 +158,29 @@ namespace MongoDB.Driver.Core.Events
 
         private sealed class OperationIdDisposer : IDisposable
         {
-            public OperationIdDisposer(long operationId)
+            public OperationIdDisposer(long operationId, string operationName)
             {
                 EventContext.OperationId = operationId;
+                EventContext.OperationName = operationName;
             }
 
             public void Dispose()
             {
                 EventContext.OperationId = null;
+                EventContext.OperationName = null;
+            }
+        }
+
+        private sealed class OperationNameDisposer : IDisposable
+        {
+            public OperationNameDisposer(string operationName)
+            {
+                EventContext.OperationName = operationName;
+            }
+
+            public void Dispose()
+            {
+                EventContext.OperationName = null;
             }
         }
     }

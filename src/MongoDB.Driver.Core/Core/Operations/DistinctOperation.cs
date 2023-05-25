@@ -22,9 +22,9 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -183,6 +183,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
                 var operation = CreateOperation(context);
@@ -199,6 +200,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 var operation = CreateOperation(context);
@@ -225,6 +227,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "readConcern", readConcern, readConcern != null }
             };
         }
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation("distinct");
 
         private ReadCommandOperation<DistinctResult> CreateOperation(RetryableReadContext context)
         {

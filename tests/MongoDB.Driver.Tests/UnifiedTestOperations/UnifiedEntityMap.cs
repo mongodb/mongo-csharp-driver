@@ -520,6 +520,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 switch (option.Name)
                                 {
                                     case "appname":
+                                    case "appName":
                                         appName = option.Value.AsString;
                                         break;
                                     case "heartbeatFrequencyMS":
@@ -912,6 +913,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             break;
                         case "serverdescriptionchangedevent":
                             eventCapturer = eventCapturer.Capture<ServerDescriptionChangedEvent>();
+                            break;
+                        case "topologydescriptionchangedevent":
+                            eventCapturer = eventCapturer.Capture<ClusterDescriptionChangedEvent>();
                             break;
                         default:
                             throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
