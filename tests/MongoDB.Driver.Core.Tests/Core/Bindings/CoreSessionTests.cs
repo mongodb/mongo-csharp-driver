@@ -14,18 +14,17 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -252,20 +251,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void EnsureTransactionsAreSupported_should_throw_when_there_are_no_connected_servers(
-            [Values(0, 1, 2, 3)] int numberOfDisconnectedServers)
-        {
-            var clusterDescription = CreateClusterDescriptionWithDisconnectedServers(numberOfDisconnectedServers);
-            var subject = CreateSubject(clusterDescription);
-
-            var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
-
-            var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Be("StartTransaction cannot determine if transactions are supported because there are no connected servers.");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void EnsureTransactionsAreSupported_should_not_throw_when_there_are_no_connected_servers_with_LB(
             [Values(0, 1, 2, 3)] int numberOfDisconnectedServers) // 0 - no servers at all
         {
@@ -273,7 +258,7 @@ namespace MongoDB.Driver.Core.Bindings
             clusterDescription = clusterDescription.WithType(ClusterType.LoadBalanced);
             var subject = CreateSubject(clusterDescription);
 
-            subject.EnsureTransactionsAreSupported();       
+            subject.EnsureTransactionsAreSupported();
         }
 
         // EnsureTransactionsAreSupported scenario codes
@@ -325,7 +310,7 @@ namespace MongoDB.Driver.Core.Bindings
         [InlineData("CA,DU")]
         [InlineData("CA,CA")]
         [InlineData("CA,DL")]
-        public void EnsureTransactionsAreSupported_should_throw_when_there_are_no_connected_data_bearing_servers(string scenarios)
+        public void EnsureTransactionsAreSupported_should_ignore_no_data_bearing_servers(string scenarios)
         {
             var clusterId = new ClusterId(1);
             var servers =
@@ -342,10 +327,7 @@ namespace MongoDB.Driver.Core.Bindings
             var cluster = CreateClusterDescription(clusterId, servers: servers);
             var subject = CreateSubject(cluster);
 
-            var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
-
-            var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Be("StartTransaction cannot determine if transactions are supported because there are no connected servers.");
+            subject.EnsureTransactionsAreSupported();
         }
 
         [Theory]

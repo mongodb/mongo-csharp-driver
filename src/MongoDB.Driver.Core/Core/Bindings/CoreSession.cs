@@ -521,11 +521,6 @@ namespace MongoDB.Driver.Core.Bindings
 
             var connectedDataBearingServers = _cluster.Description.Servers.Where(s => s.State == ServerState.Connected && s.IsDataBearing).ToList();
 
-            if (connectedDataBearingServers.Count == 0)
-            {
-                throw new NotSupportedException("StartTransaction cannot determine if transactions are supported because there are no connected servers.");
-            }
-
             foreach (var connectedDataBearingServer in connectedDataBearingServers)
             {
                 var serverType = connectedDataBearingServer.Type;
