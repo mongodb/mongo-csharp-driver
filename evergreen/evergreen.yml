@@ -114,7 +114,7 @@ functions:
             # If this was a patch build, doing a fresh clone would not actually test the patch
             cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
           else
-            git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
+            git clone --branch PYTHON-3692-2 https://github.com/blink1073/drivers-evergreen-tools.git $DRIVERS_TOOLS
           fi
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
@@ -452,18 +452,23 @@ functions:
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate-authawsvenv.sh
-          mongo aws_e2e_regular_aws.js
+          python aws_tester.py regular
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
+        shell: "bash"
         script: |
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          pushd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate-authawsvenv.sh
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
-            alias urlencode='python -c "import sys, urllib as ul; sys.stdout.write(ul.quote_plus(sys.argv[1]))"'
+            alias urlencode='python -c "import sys, urllib.parse as ulp; sys.stdout.write(ulp.quote_plus(sys.argv[1]))"'
             USER=$(urlencode "${iam_auth_ecs_account}")
             PASS=$(urlencode "${iam_auth_ecs_secret_access_key}")
             MONGODB_URI="mongodb://$USER:$PASS@localhost"
           EOF
+          popd
           PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=${OS} evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-assume-role-credentials:
@@ -478,15 +483,19 @@ functions:
           # The aws_e2e_assume_role script requires python3 with boto3.
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate-authawsvenv.sh
-          mongo aws_e2e_assume_role.js
+          python --version
+          python aws_tester.py assume-role
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
+        shell: "bash"
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          pushd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate-authawsvenv.sh
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
-            alias urlencode='python -c "import sys, urllib as ul; sys.stdout.write(ul.quote_plus(sys.argv[1]))"'
+            alias urlencode='python -c "import sys, urllib.parse as ulp; sys.stdout.write(ulp.quote_plus(sys.argv[1]))"'
             alias jsonkey='python -c "import json,sys;sys.stdout.write(json.load(sys.stdin)[sys.argv[1]])" < ${DRIVERS_TOOLS}/.evergreen/auth_aws/creds.json'
             USER=$(jsonkey AccessKeyId)
             USER=$(urlencode $USER)
@@ -496,6 +505,7 @@ functions:
             SESSION_TOKEN=$(urlencode $SESSION_TOKEN)
             MONGODB_URI="mongodb://$USER:$PASS@localhost"
           EOF
+          popd
           PROJECT_DIRECTORY=${PROJECT_DIRECTORY} DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-EC2-credentials:
@@ -513,7 +523,7 @@ functions:
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate-authawsvenv.sh
-          mongo aws_e2e_ec2.js
+          python aws_tester.py ec2
     - command: shell.exec
       type: test
       params:
@@ -553,11 +563,9 @@ functions:
           # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
           mkdir $SRC_DIRECTORY/.evergreen
           cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
-          cat <<EOF > setup.js
-          const mongo_binaries = "$MONGODB_BINARIES";
-          const project_dir = "$SRC_DIRECTORY"
-          EOF
-          mongo --nodb setup.js aws_e2e_ecs.js
+          export MONGODB_BINARIES="${MONGODB_BINARIES}";
+          export PROJECT_DIRECTORY="${SRC_DIRECTORY}";
+          python aws_tester.py ecs
           cd -
 
   run-aws-auth-test-with-aws-web-identity-credentials:
@@ -574,7 +582,7 @@ functions:
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate-authawsvenv.sh
-          mongo aws_e2e_web_identity.js
+          python aws_tester.py web-identity
     - command: shell.exec
       type: test
       params:
