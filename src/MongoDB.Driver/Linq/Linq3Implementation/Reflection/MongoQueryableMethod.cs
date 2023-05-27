@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __anyAsync;
         private static readonly MethodInfo __anyWithPredicateAsync;
         private static readonly MethodInfo __appendStage;
+        private static readonly MethodInfo __as;
         private static readonly MethodInfo __averageDecimalAsync;
         private static readonly MethodInfo __averageDecimalWithSelectorAsync;
         private static readonly MethodInfo __averageDoubleAsync;
@@ -177,6 +178,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __anyAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.AnyAsync(cancellationToken));
             __anyWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.AnyAsync(predicate, cancellationToken));
             __appendStage = ReflectionInfo.Method((IMongoQueryable<object> source, PipelineStageDefinition<object, object> stage, IBsonSerializer<object> resultSerializer) => source.AppendStage(stage, resultSerializer));
+            __as = ReflectionInfo.Method((IMongoQueryable<object> source, IBsonSerializer<object> resultSerializer) => source.As(resultSerializer));
             __averageDecimalAsync = ReflectionInfo.Method((IMongoQueryable<decimal> source, CancellationToken cancellationToken) => source.AverageAsync(cancellationToken));
             __averageDecimalWithSelectorAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, decimal>> selector, CancellationToken cancellationToken) => source.AverageAsync(selector, cancellationToken));
             __averageDoubleAsync = ReflectionInfo.Method((IMongoQueryable<double> source, CancellationToken cancellationToken) => source.AverageAsync(cancellationToken));
@@ -325,6 +327,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AnyAsync => __anyAsync;
         public static MethodInfo AnyWithPredicateAsync => __anyWithPredicateAsync;
         public static MethodInfo AppendStage => __appendStage;
+        public static MethodInfo As => __as;
         public static MethodInfo AverageDecimalAsync => __averageDecimalAsync;
         public static MethodInfo AverageDecimalWithSelectorAsync => __averageDecimalWithSelectorAsync;
         public static MethodInfo AverageDoubleAsync => __averageDoubleAsync;
