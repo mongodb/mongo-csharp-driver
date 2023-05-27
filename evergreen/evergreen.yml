@@ -544,11 +544,11 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          set -ex
           if [ "${skip_ECS_auth_test}" = "true" ]; then
              echo "This platform does not support the ECS auth test, skipping..."
              exit 0
