@@ -544,7 +544,6 @@ functions:
     - command: shell.exec
       type: test
       params:
-        silent: true
         shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
