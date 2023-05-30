@@ -30,7 +30,6 @@ using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
@@ -44,6 +43,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -2270,6 +2270,29 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     decrypted.Should().Be(BsonValue.Create(value));
                 }
             }
+        }
+
+        [Fact]
+        public void RewrapManyDataKeyOptions_ctor_should_validate_provider_is_set()
+        {
+            // rewrap prose test case 2
+            var exception = Record.Exception(() => new RewrapManyDataKeyOptions(null, new BsonDocument()));
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("provider");
+
+            exception = Record.Exception(() => new RewrapManyDataKeyOptions("", new BsonDocument()));
+            exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
+        }
+
+        [Fact]
+        public void RewrapManyDataKeyOptions_with_should_validate_provider_is_set()
+        {
+            // rewrap prose test case 2
+            var subject = new RewrapManyDataKeyOptions("provider", new BsonDocument());
+            var exception = Record.Exception(() => subject.With(provider: null));
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("provider");
+
+            exception = Record.Exception(() => subject.With(provider: ""));
+            exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
         }
 
         [Theory]
