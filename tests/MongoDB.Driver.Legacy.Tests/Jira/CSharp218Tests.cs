@@ -13,10 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp218
@@ -49,32 +46,26 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
         }
 
         [Fact]
-        public void TestDeserializeClassWithStructPropertyWithoutConstructorFails()
+        public void TestDeserializeClassWithStructPropertyWithoutConstructorSucceeds()
         {
             _collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Insert(c);
-            try
-            {
-                _collection.FindOneAs<C>();
-                Assert.True(false, "Expected an exception to be thrown.");
-            }
-            catch (Exception ex)
-            {
-                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized without a constructor.";
-                Assert.IsType<FormatException>(ex);
-                Assert.IsType<BsonSerializationException>(ex.InnerException);
-                Assert.Equal(expectedMessage, ex.Message);
-            }
+
+            var result = _collection.FindOneAs<C>();
+            Assert.Equal(1, result.P.X);
+            Assert.Equal(2, result.P.Y);
         }
 
         [Fact]
-        public void TestDeserializeStructFails()
+        public void TestDeserializeStructSucceeds()
         {
             _collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             _collection.Insert(s);
-            Assert.Throws<BsonSerializationException>(() => _collection.FindOneAs<S>());
+            var result = _collection.FindOneAs<S>();
+            Assert.Equal(1, result.P.X);
+            Assert.Equal(2, result.P.Y);
         }
 
         [Fact]

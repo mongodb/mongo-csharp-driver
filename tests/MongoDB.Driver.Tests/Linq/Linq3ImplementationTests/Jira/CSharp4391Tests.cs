@@ -65,25 +65,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 
         [Fact]
-        public void Deserializing_struct_with_partial_constructor_should_fail()
+        public void Deserializing_struct_with_partial_constructor_should_work()
         {
             var json = "{ _id : 1, X : 2, Y : 3 }";
 
-            var expection = Record.Exception(() => { _ = BsonSerializer.Deserialize<T>(json); });
+            var result = BsonSerializer.Deserialize<T>(json);
 
-            expection.Should().BeOfType<BsonSerializationException>();
-            expection.Message.Should().Contain("cannot be deserialized unless all values can be passed to a constructor");
+            result.Id.Should().Be(1);
+            result.X.Should().Be(2);
+            result.Y.Should().Be(3);
         }
 
         [Fact]
-        public void Deserializing_struct_with_no_constructor_should_fail()
+        public void Deserializing_struct_with_no_constructor_should_work()
         {
             var json = "{ _id : 1, X : 2, Y : 3 }";
 
-            var expection = Record.Exception(() => { _ = BsonSerializer.Deserialize<U>(json); });
+            var result = BsonSerializer.Deserialize<U>(json);
 
-            expection.Should().BeOfType<BsonSerializationException>();
-            expection.Message.Should().Contain("cannot be deserialized without a constructor");
+            result.Id.Should().Be(1);
+            result.X.Should().Be(2);
+            result.Y.Should().Be(3);
         }
 
         [Fact]
