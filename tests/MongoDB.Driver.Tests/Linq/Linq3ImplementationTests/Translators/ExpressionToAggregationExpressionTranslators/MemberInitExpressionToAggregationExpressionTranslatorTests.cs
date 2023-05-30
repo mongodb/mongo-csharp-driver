@@ -132,6 +132,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             results.Identifier.Should().Be(1);
         }
 
+        [Fact] public void Should_project_to_class_with_additional_parameters()
+        {
+            CreateCollection();
+            var collection = GetCollection<MyDataWithExtraField>("data");
+
+            var queryable = collection.AsQueryable()
+                .Select(d => new SpawnDataClassWithAdditionalParameter(d.Id, d.Date, d.AdditionalField));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { Identifier : '$_id', SpawnDate : '$Date', AdditionalField: '$AdditionalField', _id : 0 } }");
+
+            var results = queryable.Single();
+
+            results.SpawnDate.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));
+            results.Identifier.Should().Be(1);
+            results.AdditionalField.Should().Be(0);
+        }
+
         private IMongoCollection<MyData> CreateCollection()
         {
             var collection = GetCollection<MyData>("data");
@@ -148,6 +166,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             public int Id { get; set; }
             public DateTime Date;
             public string Text;
+        }
+
+        public class MyDataWithExtraField
+        {
+            public int Id { get; set; }
+            public DateTime Date;
+            public string Text;
+
+            public int AdditionalField;
         }
 
         public class SpawnDataClassParameterless
@@ -189,6 +216,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
             {
                 get => spawnText;
                 set => spawnText = value;
+            }
+        }
+
+        public class SpawnDataClassWithAdditionalParameter
+        {
+            public readonly int Identifier;
+            public DateTime SpawnDate;
+            public int AdditionalField;
+
+            public SpawnDataClassWithAdditionalParameter(int identifier, DateTime spawnDate, int additionalField)
+            {
+                Identifier = identifier;
+                SpawnDate = spawnDate;
+                AdditionalField = additionalField;
             }
         }
 

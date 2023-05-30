@@ -1230,8 +1230,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
             Assert(query,
                 2,
-                "{ $project : { Id : '$_id', First : '$A', Second : '$B', _id : 0 } }",
-                "{ $group : { _id : '$First', __agg0 : { $push : { Id : '$Id', Second : '$Second' } } } }",
+                "{ $project : { _id : '$_id', First : '$A', Second : '$B' } }",
+                "{ $group : { _id : '$First', __agg0 : { $push : { _id : '$_id', Second : '$Second' } } } }",
                 "{ $project : { First : '$_id', Stuff :  '$__agg0', _id : 0 } }");
         }
 

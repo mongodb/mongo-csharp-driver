@@ -37,14 +37,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Project(Builders<Model>.Projection.Expression(m => new View1(m.Id)));
 
             var projection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                projection.Should().Be("{ _id : 1 }");
-            }
-            else
-            {
-                projection.Should().Be("{ Id : '$_id', _id : 0 }");
-            }
+            projection.Should().Be("{ _id : 1 }");
 
             var results = find.ToList();
             results.Should().HaveCount(1);
@@ -92,14 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Project(Builders<Model>.Projection.Expression(m => new View2(m.Id)));
 
             var projection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                projection.Should().Be("{ _id : 1 }");
-            }
-            else
-            {
-                projection.Should().Be("{ Id : '$_id', _id : 0 }");
-            }
+            projection.Should().Be("{ _id : 1 }");
 
             var results = find.ToList();
             results.Should().HaveCount(1);

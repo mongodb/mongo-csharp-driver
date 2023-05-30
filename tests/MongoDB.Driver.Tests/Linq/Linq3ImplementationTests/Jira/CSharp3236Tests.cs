@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { Id : '$_id', Comments : { $filter : { input : '$Comments', as : 'c', cond : { $gte : [{ $indexOfCP : ['$$c.Text', 'test'] }, 0] } } }, _id : 0 } }");
+                "{ $project : { _id : '$_id', Comments : { $filter : { input : '$Comments', as : 'c', cond : { $gte : [{ $indexOfCP : ['$$c.Text', 'test'] }, 0] } } } } }");
 
             var result = queryable.Single();
             result.Id.Should().Be(1);

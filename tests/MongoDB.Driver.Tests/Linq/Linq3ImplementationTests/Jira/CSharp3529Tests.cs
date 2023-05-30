@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $bottom : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().Equal(new { Id = "G1", PlayerId = new { P = "PlayerD", S = 1 } });
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $bottom : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().Equal(new { Id = "G1", PlayerId = new { P = "PlayerD", S = 1 } });
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $bottom : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0' , _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().Equal(
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $bottom : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0' , _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().Equal(
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $bottomN : { sortBy : { Score : -1 }, output : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -400,7 +400,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Item : 1, Date : 1 } }",
                 "{ $group : { _id : '$Item', __agg0 : { $first : '$Date' } } }",
-                "{ $project : { Id : '$_id', FirstSale : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', FirstSale : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Item : 1, Date : 1 } }",
                 "{ $group : { _id : '$Item', __agg0 : { $first : '$Date' } } }",
-                "{ $project : { Id : '$_id', FirstSale : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', FirstSale : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $firstN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', FirstThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', FirstThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -497,7 +497,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $firstN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', FirstThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', FirstThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -529,7 +529,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Score : -1 } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $firstN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -563,7 +563,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Score : -1 } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $firstN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -596,7 +596,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $firstN : { input : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $firstN : { input : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -681,7 +681,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Item : 1, Date : 1 } }",
                 "{ $group : { _id : '$Item', __agg0 : { $last : '$Date' } } }",
-                "{ $project : { Id : '$_id', LastSalesDate : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', LastSalesDate : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -712,7 +712,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Item : 1, Date : 1 } }",
                 "{ $group : { _id : '$Item', __agg0 : { $last : '$Date' } } }",
-                "{ $project : { Id : '$_id', LastSalesDate : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', LastSalesDate : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -746,7 +746,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $lastN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', LastThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', LastThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -778,7 +778,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $lastN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', LastThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', LastThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -810,7 +810,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Score : -1 } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $lastN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -844,7 +844,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $sort : { Score : -1 } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $lastN : { input : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -862,7 +862,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
-                    x => new { GameId = x.GameId },                
+                    x => new { GameId = x.GameId },
                     (key, elements) =>
                         new
                         {
@@ -877,7 +877,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $lastN : { input : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -910,7 +910,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $lastN : { input : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -961,7 +961,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', '$Quantity'] } }, __agg1 : { $max : '$Quantity' } } }",
-                "{ $project : { Id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -991,7 +991,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$Item', __agg0 : { $max : { $multiply : ['$Price', '$Quantity'] } }, __agg1 : { $max : '$Quantity' } } }",
-                "{ $project : { Id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxTotalAmount : '$__agg0', MaxQuantity : '$__agg1' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -1025,7 +1025,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MaxThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1057,7 +1057,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MaxThreeScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxThreeScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1087,7 +1087,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MaxScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1119,7 +1119,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MaxScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1152,7 +1152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', MaxScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -1185,7 +1185,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $maxN : { input : { S : '$Score', P : '$PlayerId' }, n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', MaxScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MaxScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -1235,7 +1235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$Item', __agg0 : { $min : '$Quantity' } } }",
-                "{ $project : { Id : '$_id', MinQuantity : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinQuantity : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -1264,7 +1264,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$Item', __agg0 : { $min : '$Quantity' } } }",
-                "{ $project : { Id : '$_id', MinQuantity : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinQuantity : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id);
             results.Should().Equal(
@@ -1298,7 +1298,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1330,7 +1330,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1360,7 +1360,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1392,7 +1392,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1425,7 +1425,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -1458,7 +1458,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $minN : { input : { S : '$Score', P : '$PlayerId' }, n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', MinScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', MinScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -1512,7 +1512,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $top : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().Equal(new { Id = "G1", PlayerId = new { P = "PlayerC", S = 99 } });
@@ -1542,7 +1542,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $top : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().Equal(new { Id = "G1", PlayerId = new { P = "PlayerC", S = 99 } });
@@ -1570,7 +1570,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $top : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0' , _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().Equal(
@@ -1600,7 +1600,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $top : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' } } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0' , _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().Equal(
@@ -1648,7 +1648,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $topN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1681,7 +1681,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 stages,
                 "{ $match : { GameId : 'G1' } }",
                 "{ $group : { _id : '$GameId', __agg0 : { $topN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
@@ -1712,7 +1712,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $topN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1745,7 +1745,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : '$GameId', __agg0 : { $topN : { sortBy : { Score : -1 }, output : { P : '$PlayerId', S : '$Score' }, n : 3 } } } }",
-                "{ $project : { Id : '$_id', PlayerId : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', PlayerId : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id).ToList();
             results.Should().HaveCount(2);
@@ -1779,7 +1779,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $topN : { sortBy : { Score : -1 }, output : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);
@@ -1813,7 +1813,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(
                 stages,
                 "{ $group : { _id : { GameId : '$GameId' }, __agg0 : { $topN : { sortBy : { Score : -1 }, output : '$Score', n : { $cond : { if : { $eq : ['$GameId', 'G2'] }, then : 1, else : 3 } } } } } }",
-                "{ $project : { Id : '$_id', GameScores : '$__agg0', _id : 0 } }");
+                "{ $project : { _id : '$_id', GameScores : '$__agg0' } }");
 
             var results = queryable.ToList().OrderBy(x => x.Id.GameId).ToList();
             results.Should().HaveCount(2);

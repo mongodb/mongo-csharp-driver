@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(_p0 => new { Id = _p0.Id, A = _p0.A.Select(_p1 => Math.Abs(_p1)) });
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Id : '$_id', A : { $map : { input : '$A', as : 'v__0', in : { $abs : '$$v__0' } } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _id : '$_id', A : { $map : { input : '$A', as : 'v__0', in : { $abs : '$$v__0' } } } } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(1);
