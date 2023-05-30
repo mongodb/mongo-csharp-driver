@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         AEAD_AES_256_CBC_HMAC_SHA_512_Random,
         /// <summary>
-        /// [Beta] Indexed algorithm.
+        /// Indexed algorithm.
         /// </summary>
         /// <remarks>
         /// To insert or query with an "Indexed" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Encryption
         /// </remarks>
         Indexed,
         /// <summary>
-        /// [Beta] Unindexed algorithm.
+        /// Unindexed algorithm.
         /// </summary>
         Unindexed,
         /// <summary>

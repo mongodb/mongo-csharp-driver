@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Encryption;
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// [Beta] Represents settings for a crypt client.
+    /// Represents settings for a crypt client.
     /// </summary>
     public sealed class CryptClientSettings
     {
