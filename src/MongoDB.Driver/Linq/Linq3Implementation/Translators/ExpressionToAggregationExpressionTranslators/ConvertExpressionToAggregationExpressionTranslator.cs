@@ -54,6 +54,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return TranslateConvertToBaseType(expression, operandTranslation);
                 }
 
+                if (IsConvertToDerivedType(sourceType: operandExpression.Type, targetType: expressionType))
+                {
+                    return TranslateConvertToDerivedType(expression, operandTranslation);
+                }
+
                 if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var valueType = expressionType.GetGenericArguments()[0];
@@ -116,6 +121,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return sourceType.IsSubclassOf(targetType);
         }
 
+        private static bool IsConvertToDerivedType(Type sourceType, Type targetType)
+        {
+            return targetType.IsSubclassOf(sourceType);
+        }
+
         private static bool IsConvertUnderlyingTypeToEnum(UnaryExpression expression)
         {
             var sourceType = expression.Operand.Type;
@@ -134,6 +144,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var downcastingSerializer = DowncastingSerializer.Create(baseType, derivedType, derivedTypeSerializer);
 
             return new AggregationExpression(expression, operandTranslation.Ast, downcastingSerializer);
+        }
+
+        private static AggregationExpression TranslateConvertToDerivedType(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var serializer = BsonSerializer.LookupSerializer(expression.Type);
+
+            return new AggregationExpression(expression, operandTranslation.Ast, serializer);
         }
 
         private static AggregationExpression TranslateConvertToBsonValue(TranslationContext context, UnaryExpression expression, Expression operand)
