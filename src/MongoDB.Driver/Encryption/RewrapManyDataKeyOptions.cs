@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Encryption
             string provider,
             Optional<BsonDocument> masterKey = default)
         {
-            _provider = Ensure.IsNotNull(provider, nameof(provider));
+            _provider = Ensure.IsNotNullOrEmpty(provider, nameof(provider));
             _masterKey = masterKey.WithDefault(null);
         }
 
