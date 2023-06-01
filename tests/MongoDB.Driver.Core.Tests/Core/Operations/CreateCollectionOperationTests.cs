@@ -16,15 +16,15 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Tests.Core.Operations;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {

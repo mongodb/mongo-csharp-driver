@@ -534,7 +534,7 @@ namespace MongoDB.Driver.Core.Clusters
                 if (selectedServer != null)
                 {
                     _stopwatch.Stop();
-                    
+
                     _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                         _description,
                         _selector,
