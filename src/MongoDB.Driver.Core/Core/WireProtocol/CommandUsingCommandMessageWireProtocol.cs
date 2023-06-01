@@ -334,7 +334,20 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             if (_session.Id != null)
             {
-                if (IsSessionAcknowledged())
+                var areSessionsSupported = connectionDescription.HelloResult.LogicalSessionTimeout.HasValue;
+
+                if (!areSessionsSupported)
+                {
+                    if (_session.IsImplicit)
+                    {
+                        // do not set sessionId if session is implicit and sessions are not supported
+                    }
+                    else
+                    {
+                        throw new MongoClientException("Sessions are not supported.");
+                    }
+                }
+                else if (IsSessionAcknowledged())
                 {
                     AddIfNotAlreadyAdded("lsid", _session.Id);
                 }
@@ -350,7 +363,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                 }
             }
-
 
             var snapshotReadConcernDocument = ReadConcernHelper.GetReadConcernForSnapshotSesssion(_session, connectionDescription);
             if (snapshotReadConcernDocument != null)

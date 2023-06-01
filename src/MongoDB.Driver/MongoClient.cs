@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,10 +23,8 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Linq;
@@ -37,23 +34,6 @@ namespace MongoDB.Driver
     /// <inheritdoc/>
     public class MongoClient : MongoClientBase
     {
-        #region static
-        // private static methods
-        private static IEnumerable<ServerDescription> SelectServersThatDetermineWhetherSessionsAreSupported(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
-        {
-            var connectedServers = servers.Where(s => s.State == ServerState.Connected);
-
-            if (cluster.IsDirectConnection)
-            {
-                return connectedServers;
-            }
-            else
-            {
-                return connectedServers.Where(s => s.IsDataBearing);
-            }
-        }
-        #endregion
-
         // private fields
         private readonly ICluster _cluster;
         private readonly AutoEncryptionLibMongoCryptController _libMongoCryptController;
@@ -145,9 +125,6 @@ namespace MongoDB.Driver
                 messageEncoderSettings.Add(MessageEncoderSettingsName.BinaryDocumentFieldDecryptor, _libMongoCryptController);
             }
         }
-
-        // private static methods
-
 
         // public methods
         /// <inheritdoc/>
@@ -346,32 +323,28 @@ namespace MongoDB.Driver
         /// <returns>A session.</returns>
         internal IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
         {
-            var areSessionsSupported = AreSessionsSupported(cancellationToken);
-            return StartImplicitSession(areSessionsSupported);
+            return StartImplicitSession();
         }
 
         /// <summary>
         /// Starts an implicit session.
         /// </summary>
         /// <returns>A Task whose result is a session.</returns>
-        internal async Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
+        internal Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
         {
-            var areSessionsSupported = await AreSessionsSupportedAsync(cancellationToken).ConfigureAwait(false);
-            return StartImplicitSession(areSessionsSupported);
+            return Task.FromResult(StartImplicitSession());
         }
 
         /// <inheritdoc/>
         public sealed override IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var areSessionsSupported = AreSessionsSupported(cancellationToken);
-            return StartSession(options, areSessionsSupported);
+            return StartSession(options);
         }
 
         /// <inheritdoc/>
-        public sealed override async Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public sealed override Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var areSessionsSupported = await AreSessionsSupportedAsync(cancellationToken).ConfigureAwait(false);
-            return StartSession(options, areSessionsSupported);
+            return Task.FromResult(StartSession(options));
         }
 
         /// <inheritdoc/>
@@ -446,52 +419,6 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private bool AreSessionsSupported(CancellationToken cancellationToken)
-        {
-            return AreSessionsSupported(_cluster.Description) ?? AreSessionsSupportedAfterServerSelection(cancellationToken);
-        }
-
-        private async Task<bool> AreSessionsSupportedAsync(CancellationToken cancellationToken)
-        {
-            return AreSessionsSupported(_cluster.Description) ?? await AreSessionsSupportedAfterServerSelectionAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        private bool? AreSessionsSupported(ClusterDescription clusterDescription)
-        {
-            if (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced)
-            {
-                return true;
-            }
-            else
-            {
-                var selectedServers = SelectServersThatDetermineWhetherSessionsAreSupported(clusterDescription, clusterDescription.Servers).ToList();
-                if (selectedServers.Count == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        private bool AreSessionsSupportedAfterServerSelection(CancellationToken cancellationToken)
-        {
-            var selector = new AreSessionsSupportedServerSelector();
-            var selectedServer = _cluster.SelectServer(selector, cancellationToken);
-            var clusterDescription = selector.ClusterDescription ?? _cluster.Description; // LB cluster doesn't use server selector, so clusterDescription is null for this case
-            return AreSessionsSupported(clusterDescription) ?? false;
-        }
-
-        private async Task<bool> AreSessionsSupportedAfterServerSelectionAsync(CancellationToken cancellationToken)
-        {
-            var selector = new AreSessionsSupportedServerSelector();
-            var selectedServer = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
-            var clusterDescription = selector.ClusterDescription ?? _cluster.Description;  // LB cluster doesn't use server selector, so clusterDescription is null for this case
-            return AreSessionsSupported(clusterDescription) ?? false;
-        }
-
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
         {
             return new BatchTransformingAsyncCursor<BsonDocument, string>(
@@ -608,7 +535,7 @@ namespace MongoDB.Driver
             return messageEncoderSettings;
         }
 
-        private IClientSessionHandle StartImplicitSession(bool areSessionsSupported)
+        private IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
 
@@ -616,7 +543,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
             var areMultipleUsersAuthenticated = _settings.Credentials.Count() > 1;
 #pragma warning restore
-            if (areSessionsSupported && !areMultipleUsersAuthenticated)
+            if (!areMultipleUsersAuthenticated)
             {
                 coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
             }
@@ -628,13 +555,8 @@ namespace MongoDB.Driver
             return new ClientSessionHandle(this, options, coreSession);
         }
 
-        private IClientSessionHandle StartSession(ClientSessionOptions options, bool areSessionsSupported)
+        private IClientSessionHandle StartSession(ClientSessionOptions options)
         {
-            if (!areSessionsSupported)
-            {
-                throw new NotSupportedException("Sessions are not supported by this version of the server.");
-            }
-
             if (options != null && options.Snapshot && options.CausalConsistency == true)
             {
                 throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
@@ -675,18 +597,6 @@ namespace MongoDB.Driver
             using (var session = await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await funcAsync(session).ConfigureAwait(false);
-            }
-        }
-
-        // nested types
-        private class AreSessionsSupportedServerSelector : IServerSelector
-        {
-            public ClusterDescription ClusterDescription;
-
-            public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
-            {
-                ClusterDescription = cluster;
-                return SelectServersThatDetermineWhetherSessionsAreSupported(cluster, servers);
             }
         }
     }

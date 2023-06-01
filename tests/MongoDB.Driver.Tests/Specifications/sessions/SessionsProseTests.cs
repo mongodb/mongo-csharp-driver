@@ -20,11 +20,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -52,6 +55,66 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
             var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_explicit_session_raises_error_if_connection_does_not_support_sessions([Values(true, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using var mongocryptdContext = GetMongocryptdContext();
+            using var session = mongocryptdContext.DisposableMongoClient.StartSession();
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.FindAsync(session, FilterDefinition<BsonDocument>.Empty)) :
+                Record.Exception(() => mongocryptdContext.MongocryptdCollection.Find(session, FilterDefinition<BsonDocument>.Empty).ToList());
+            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
+
+            exception = async ?
+                await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.InsertOneAsync(session, new BsonDocument())) :
+                Record.Exception(() => mongocryptdContext.MongocryptdCollection.InsertOne(session, new BsonDocument()));
+
+            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_implicit_session_is_ignored_if_connection_does_not_support_sessions([Values(true, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using var mongocryptdContext = GetMongocryptdContext();
+
+            try
+            {
+                if (async)
+                {
+                    await mongocryptdContext.MongocryptdCollection.FindAsync(FilterDefinition<BsonDocument>.Empty);
+                }
+                else
+                {
+                    mongocryptdContext.MongocryptdCollection.Find(FilterDefinition<BsonDocument>.Empty).ToList();
+                }
+            }
+            catch { } // Ignore command errors from mongocryptd
+
+            try
+            {
+                if (async)
+                {
+                    await mongocryptdContext.MongocryptdCollection.InsertOneAsync(new BsonDocument());
+                }
+                else
+                {
+                    mongocryptdContext.MongocryptdCollection.InsertOne(new BsonDocument());
+                }
+            }
+            catch { } // Ignore command errors from mongocryptd
+
+            var commandEvents = mongocryptdContext.EventCapturer.Events.OfType<CommandStartedEvent>().ToArray();
+            commandEvents.Single(c => c.CommandName == "find").Command.Contains("lsid").Should().BeFalse();
+            commandEvents.Single(c => c.CommandName == "insert").Command.Contains("lsid").Should().BeFalse();
         }
 
         [Theory]
@@ -238,6 +301,40 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
             collection.InsertOne(new BsonDocument("x", 1));
             await eventsTask.WithTimeout(1000);
+        }
+
+        private sealed class MongocryptdContext : IDisposable
+        {
+            public DisposableMongoClient DisposableMongoClient { get; }
+            public EventCapturer EventCapturer { get; }
+            public IMongoCollection<BsonDocument> MongocryptdCollection { get; }
+
+            public MongocryptdContext(DisposableMongoClient disposableMongoClient, IMongoCollection<BsonDocument> mongocryptdCollection, EventCapturer eventCapturer)
+            {
+                DisposableMongoClient = disposableMongoClient;
+                EventCapturer = eventCapturer;
+                MongocryptdCollection = mongocryptdCollection;
+            }
+
+            public void Dispose() => DisposableMongoClient.Dispose();
+        }
+
+        private MongocryptdContext GetMongocryptdContext()
+        {
+            var extraOptions = new Dictionary<string, object>()
+            {
+                { "cryptSharedLibPath", "non_existing_path_to_use_mongocryptd" }
+            };
+
+            var eventCapturer = new EventCapturer();
+            eventCapturer.Capture<CommandStartedEvent>();
+
+            var mongocryptdFactory = new MongocryptdFactory(extraOptions, false, eventCapturer);
+            var client = mongocryptdFactory.CreateMongocryptdClient();
+            mongocryptdFactory.SpawnMongocryptdProcessIfRequired();
+
+            var collection = client.GetDatabase("db").GetCollection<BsonDocument>("coll");
+            return new MongocryptdContext(new DisposableMongoClient(client, CreateLogger<DisposableMongoClient>()), collection, eventCapturer);
         }
     }
 }

@@ -16,18 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -390,38 +385,6 @@ namespace MongoDB.Driver.Tests
             result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
 
-        [Theory]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Standalone', servers : [ { state : 'Disconnected', type : 'Unknown' } ] }", null)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Standalone', servers : [ { state : 'Connected', type : 'Standalone' } ] }", false)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Standalone', servers : [ { state : 'Connected', type : 'Standalone', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Disconnected', type : 'Unknown' } ] }", null)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetPrimary' } ] }", false)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetSecondary' } ] }", false)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetArbiter' } ] }", null)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetSecondary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ReplicaSetArbiter', logicalSessionTimeoutMinutes : 30 } ] }", null)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Sharded', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Disconnected', type : 'Unknown' } ] }", null)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Sharded', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ShardRouter' } ] }", false)]
-        [InlineData("{ connectionMode : 'Automatic', clusterType : 'Sharded', servers : [ { state : 'Disconnected', type : 'Unknown' }, { state : 'Connected', type : 'ShardRouter', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Disconnected', type : 'Unknown' } ] }", null)]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetOther' } ] }", false)]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetOther', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary' } ] }", false)]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ directConnection : true, clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ directConnection : false, clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
-        [InlineData("{ directConnection : false, clusterType : 'LoadBalanced', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary' } ] }", true)]
-        public void AreSessionsSupported_should_return_expected_result(string clusterDescriptionJson, bool? expectedResult)
-        {
-            var subject = new MongoClient("mongodb://localhost");
-            var clusterDescription = ClusterDescriptionParser.Parse(clusterDescriptionJson);
-
-            var result = subject.AreSessionsSupported(clusterDescription);
-
-            result.Should().Be(expectedResult);
-        }
-
         // private methods
         private IClientSessionHandle CreateClientSession()
         {
@@ -435,72 +398,5 @@ namespace MongoDB.Driver.Tests
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             return new ClientSessionHandle(client, options, coreSessionHandle);
         }
-    }
-
-    public class AreSessionsSupportedServerSelectorTests
-    {
-        [Theory]
-        [InlineData("{ clusterType : 'Standalone', servers : [ { state : 'Disconnected', type : 'Unknown' } ]}")]
-        public void SelectServers_should_set_ClusterDescription(string clusterDescriptionJson)
-        {
-            var subject = CreateSubject();
-            var cluster = ClusterDescriptionParser.Parse(clusterDescriptionJson);
-            var connectedServers = cluster.Servers.Where(s => s.State == ServerState.Connected);
-
-            var result = subject.SelectServers(cluster, connectedServers);
-
-            AreSessionsSupportedServerSelectorReflector.ClusterDescription(subject).Should().BeSameAs(cluster);
-        }
-
-        [Theory]
-        [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetArbiter' } ]}")]
-        [InlineData("{ directConnection : true, connectionModeSwitch : 'UseDirectConnection', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetArbiter' } ]}")]
-        public void SelectServers_should_return_all_servers_when_connection_mode_is_direct(string clusterDescriptionJson)
-        {
-            var subject = CreateSubject();
-            var cluster = ClusterDescriptionParser.Parse(clusterDescriptionJson);
-            var connectedServers = cluster.Servers.Where(s => s.State == ServerState.Connected).ToList();
-
-            var result = subject.SelectServers(cluster, connectedServers);
-
-            result.Should().Equal(connectedServers);
-        }
-
-        [Theory]
-        [InlineData("{ clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetArbiter' }, { state : 'Connected', type : 'ReplicaSetPrimary' } ]}")]
-        [InlineData("{ directConnection : false, connectionModeSwitch : 'UseDirectConnection', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetArbiter' }, { state : 'Connected', type : 'ReplicaSetPrimary' } ]}")]
-        public void SelectServers_should_return_data_bearing_servers_when_connection_mode_is__not_direct(string clusterDescriptionJson)
-        {
-            var subject = CreateSubject();
-            var cluster = ClusterDescriptionParser.Parse(clusterDescriptionJson);
-            var connectedServers = cluster.Servers.Where(s => s.State == ServerState.Connected).ToList();
-            var dataBearingServers = connectedServers.Skip(1).Take(1);
-
-            var result = subject.SelectServers(cluster, connectedServers);
-
-            result.Should().Equal(dataBearingServers);
-        }
-
-        // private methods
-        private IServerSelector CreateSubject()
-        {
-            return AreSessionsSupportedServerSelectorReflector.CreateInstance();
-        }
-    }
-
-    public static class MongoClientReflector
-    {
-        public static bool? AreSessionsSupported(this MongoClient obj, ClusterDescription clusterDescription) => (bool?)Reflector.Invoke(obj, nameof(AreSessionsSupported), clusterDescription);
-    }
-
-    public static class AreSessionsSupportedServerSelectorReflector
-    {
-        public static IServerSelector CreateInstance()
-        {
-            var type = typeof(MongoClient).GetTypeInfo().Assembly.GetType("MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector");
-            return (IServerSelector)Activator.CreateInstance(type);
-        }
-
-        public static ClusterDescription ClusterDescription(IServerSelector obj) => (ClusterDescription)Reflector.GetFieldValue(obj, nameof(ClusterDescription), BindingFlags.Public | BindingFlags.Instance);
     }
 }

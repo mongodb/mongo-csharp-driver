@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
@@ -74,11 +75,13 @@ namespace MongoDB.Driver.Encryption
     internal class MongocryptdFactory
     {
         private readonly bool? _bypassQueryAnalysis;
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
 
-        public MongocryptdFactory(IReadOnlyDictionary<string, object> extraOptions, bool? bypassQueryAnalysis)
+        public MongocryptdFactory(IReadOnlyDictionary<string, object> extraOptions, bool? bypassQueryAnalysis, IEventSubscriber eventSubscriber = null)
         {
             _bypassQueryAnalysis = bypassQueryAnalysis;
+            _eventSubscriber = eventSubscriber;
             _extraOptions = extraOptions ?? new Dictionary<string, object>();
         }
 
@@ -86,6 +89,12 @@ namespace MongoDB.Driver.Encryption
         public IMongoClient CreateMongocryptdClient()
         {
             var clientSettings = CreateMongocryptdClientSettings();
+
+            if (_eventSubscriber != null)
+            {
+                clientSettings.ClusterConfigurator = c => c.Subscribe(_eventSubscriber);
+            }
+
             return new MongoClient(clientSettings);
         }
 
