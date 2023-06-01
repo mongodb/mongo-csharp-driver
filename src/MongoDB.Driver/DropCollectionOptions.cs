@@ -25,7 +25,7 @@ namespace MongoDB.Driver
         private BsonDocument _encryptedFields;
 
         /// <summary>
-        /// [Beta] Gets or sets encrypted fields.
+        /// Gets or sets encrypted fields.
         /// </summary>
         public BsonDocument EncryptedFields
         {

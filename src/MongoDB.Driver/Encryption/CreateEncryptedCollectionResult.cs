@@ -18,7 +18,7 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// [Beta] Represents the result of a create encrypted collection.
+    /// Represents the result of a create encrypted collection.
     /// </summary>
     public sealed class CreateEncryptedCollectionResult
     {

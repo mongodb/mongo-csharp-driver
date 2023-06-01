@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="connectionModeSwitch">The connection mode switch.</param>
-        /// <param name="cryptClientSettings">[Beta] Crypt client settings.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="loadBalanced">The load balanced.</param>
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// [Beta] Gets the crypt client settings.
+        /// Gets the crypt client settings.
         /// </summary>
         public CryptClientSettings CryptClientSettings
         {
@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="connectionModeSwitch">The connection mode switch.</param>
-        /// <param name="cryptClientSettings">[Beta] Crypt client settings.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="loadBalanced">The load balanced.</param>

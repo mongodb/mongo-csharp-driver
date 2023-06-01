@@ -115,8 +115,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
-        /// <param name="contentionFactor">[Beta] The contention factor.</param>
-        /// <param name="queryType">[Beta] The query type.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
         /// <param name="rangeOptions">The range options.</param>
         public EncryptOptions(
             string algorithm,
@@ -150,8 +150,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
-        /// <param name="contentionFactor">[Beta] The contention factor.</param>
-        /// <param name="queryType">[Beta] The query type.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
         /// <param name="rangeOptions">The range options.</param>
         public EncryptOptions(
             EncryptionAlgorithm algorithm,
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Encryption
         public string AlternateKeyName => _alternateKeyName;
 
         /// <summary>
-        /// [Beta] Gets the contention factor.
+        /// Gets the contention factor.
         /// </summary>
         /// <value>
         /// The contention factor.
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Encryption
         public Guid? KeyId => _keyId;
 
         /// <summary>
-        /// [Beta] Gets the query type.
+        /// Gets the query type.
         /// </summary>
         /// <value>
         /// The query type.
@@ -230,8 +230,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The keyId.</param>
-        /// <param name="contentionFactor">[Beta] The contention factor.</param>
-        /// <param name="queryType">[Beta] The query type.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
         /// <param name="rangeOptions">The range options.</param>
         /// <returns>A new EncryptOptions instance.</returns>
         public EncryptOptions With(
