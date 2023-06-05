@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -35,6 +34,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.Connections
                 var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                     new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                     RawBsonDocumentSerializer.Instance);
-                return new CommandResponseMessage(new CommandMessage(1, RequestMessage.CurrentGlobalRequestId + 1, new[] { section0 }, false));
+                return new CommandResponseMessage(new CommandMessage(1, 1 /* will be overriden by IgnoreWritesMemoryStream */, new[] { section0 }, false));
             }
         }
 
@@ -877,9 +877,19 @@ namespace MongoDB.Driver.Core.Connections
         private sealed class IgnoreWritesMemoryStream : MemoryStream
         {
             public IgnoreWritesMemoryStream(byte[] bytes) : base(bytes) { }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                return base.Read(buffer, offset, count);
+            }
+
             public override void Write(byte[] buffer, int offset, int count)
             {
-                // Do nothing
+                Position = 4;
+                base.Write(buffer, 4, 4); // copy requestId
+                base.Write(buffer, 4, 4); // set responseTo to requestId
+                Position = 0;
+                // do nothing else
             }
         }
     }
