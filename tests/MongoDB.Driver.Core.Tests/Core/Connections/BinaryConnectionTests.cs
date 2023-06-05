@@ -878,11 +878,6 @@ namespace MongoDB.Driver.Core.Connections
         {
             public IgnoreWritesMemoryStream(byte[] bytes) : base(bytes) { }
 
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                return base.Read(buffer, offset, count);
-            }
-
             public override void Write(byte[] buffer, int offset, int count)
             {
                 Position = 4;
