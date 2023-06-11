@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.IO
 {
@@ -418,12 +419,12 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= 8)
             {
                 _position += 8;
-                return BitConverter.ToDouble(segment.Array, segment.Offset);
+                return BinaryPrimitivesCompat.ReadDoubleLittleEndian(new ReadOnlySpan<byte>(segment.Array, segment.Offset, 8));
             }
             else
             {
                 this.ReadBytes(_temp, 0, 8);
-                return BitConverter.ToDouble(_temp, 0);
+                return BinaryPrimitivesCompat.ReadDoubleLittleEndian(_temp);
             }
         }
 
@@ -458,12 +459,12 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= 8)
             {
                 _position += 8;
-                return BitConverter.ToInt64(segment.Array, segment.Offset);
+                return BinaryPrimitives.ReadInt64LittleEndian(new ReadOnlySpan<byte>(segment.Array, segment.Offset, 8));
             }
             else
             {
                 this.ReadBytes(_temp, 0, 8);
-                return BitConverter.ToInt64(_temp, 0);
+                return BinaryPrimitives.ReadInt64LittleEndian(_temp);
             }
         }
 
@@ -637,7 +638,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
             _buffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
@@ -677,7 +679,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
             _buffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
@@ -731,7 +734,8 @@ namespace MongoDB.Bson.IO
                 var bytes = rentedSegmentEncoded.Segment.Array;
                 actualLength = rentedSegmentEncoded.Segment.Count;
 
-                var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
+                var lengthPlusOneBytes = new byte[4];
+                BinaryPrimitives.WriteInt32LittleEndian(lengthPlusOneBytes, actualLength + 1);
 
                 _buffer.SetBytes(_position, lengthPlusOneBytes, 0, 4);
                 _buffer.SetBytes(_position + 4, bytes, 0, actualLength);

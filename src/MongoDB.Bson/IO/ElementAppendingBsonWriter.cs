@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Buffers.Binary;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -83,7 +84,7 @@ namespace MongoDB.Bson.IO
                 // just copy the bytes (without the length and terminating null)
                 var lengthBytes = new byte[4];
                 slice.GetBytes(0, lengthBytes, 0, 4);
-                var length = BitConverter.ToInt32(lengthBytes, 0);
+                var length = BinaryPrimitives.ReadInt32LittleEndian(lengthBytes);
                 using (var elements = slice.GetSlice(4, length - 5))
                 {
                     var stream = binaryWriter.BsonStream;

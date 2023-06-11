@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Serialization.IdGenerators
 {
@@ -39,7 +40,8 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         static AscendingGuidGenerator()
         {
             var random = ObjectId.CalculateRandomValue();
-            var random8Bytes = BitConverter.GetBytes(random);
+            var random8Bytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(random8Bytes, random);
             __random = new byte[5];
             Array.Copy(random8Bytes, __random, 5); // the 5 bytes we need are the first 5 bytes assuming little-endian
         }

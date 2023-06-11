@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.IO
 {
@@ -556,8 +557,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var value = Decimal128.Parse(valueString);
             var bytes = new byte[16];
-            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, bytes, 0, 8);
-            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, bytes, 8, 8);
+            BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(bytes, 0, 8), value.GetIEEELowBits());
+            BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(bytes, 8, 8), value.GetIEEEHighBits());
             var subject = CreateSubject(bytes, numberOfChunks);
 
             var result = subject.ReadDecimal128();
@@ -599,7 +600,8 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1.0, 0.0, 1.0, double.Epsilon, double.MaxValue, double.MinValue, double.NaN, double.NegativeInfinity, double.PositiveInfinity)]
             double value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
             var subject = CreateSubject(bytes, numberOfChunks);
 
             var result = subject.ReadDouble();
@@ -652,7 +654,8 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1, 0, 1, int.MaxValue, int.MinValue)]
             int value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(bytes, value);
             var subject = CreateSubject(bytes, numberOfChunks);
 
             var result = subject.ReadInt32();
@@ -705,7 +708,8 @@ namespace MongoDB.Bson.Tests.IO
             [Values(-1, 0, 1, long.MaxValue, long.MinValue)]
             long value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
             var subject = CreateSubject(bytes, numberOfChunks);
 
             var result = subject.ReadInt64();
@@ -887,7 +891,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void ReadString_should_throw_when_length_is_less_than_zero()
         {
-            var bytes = BitConverter.GetBytes(-1);
+            var bytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(bytes, -1);
             var subject = CreateSubject(bytes);
 
             Action action = () => subject.ReadString(Utf8Encodings.Strict);
@@ -1378,8 +1383,8 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubject();
             var mockBuffer = Mock.Get(subject.Buffer);
             var expectedBytes = new byte[16];
-            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEELowBits()), 0, expectedBytes, 0, 8);
-            Buffer.BlockCopy(BitConverter.GetBytes(value.GetIEEEHighBits()), 0, expectedBytes, 8, 8);
+            BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(expectedBytes, 0, 8), value.GetIEEELowBits());
+            BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(expectedBytes, 8, 8), value.GetIEEEHighBits());
 
             subject.WriteDecimal128(value);
 
@@ -1407,7 +1412,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var subject = CreateSubject();
             var mockBuffer = Mock.Get(subject.Buffer);
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
 
             subject.WriteDouble(value);
 
@@ -1435,7 +1441,8 @@ namespace MongoDB.Bson.Tests.IO
             int value)
         {
             var subject = CreateSubject(0, CalculateChunkSizes(4, numberOfChunks));
-            var expectedBytes = BitConverter.GetBytes(value);
+            var expectedBytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(expectedBytes, value);
 
             subject.WriteInt32(value);
 
@@ -1463,7 +1470,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var subject = CreateSubject();
             var mockBuffer = Mock.Get(subject.Buffer);
-            var expectedBytes = BitConverter.GetBytes(value);
+            var expectedBytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(expectedBytes, value);
 
             subject.WriteInt64(value);
 
@@ -1522,7 +1530,9 @@ namespace MongoDB.Bson.Tests.IO
             var encoding = Utf8Encodings.Strict;
             var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             var subject = CreateSubject(0, CalculateChunkSizes(maxLength, numberOfChunks));
-            var expectedBytes = BitConverter.GetBytes(value.Length + 1).Concat(encoding.GetBytes(value)).Concat(new byte[] { 0 }).ToArray();
+            var lengthPlusOneBytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(lengthPlusOneBytes, value.Length + 1);
+            var expectedBytes = lengthPlusOneBytes.Concat(encoding.GetBytes(value)).Concat(new byte[] { 0 }).ToArray();
             var expectedLength = expectedBytes.Length;
             var expectedPosition = expectedLength;
 
