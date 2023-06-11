@@ -83,7 +83,7 @@ namespace MongoDB.Bson.IO
                 // just copy the bytes (without the length and terminating null)
                 var lengthBytes = new byte[4];
                 slice.GetBytes(0, lengthBytes, 0, 4);
-                var length = BitConverter.ToInt32(lengthBytes, 0);
+                var length = PacketBitConverter.ToInt32(lengthBytes, 0);
                 using (var elements = slice.GetSlice(4, length - 5))
                 {
                     var stream = binaryWriter.BsonStream;

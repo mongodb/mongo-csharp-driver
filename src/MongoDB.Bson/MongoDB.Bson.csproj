@@ -10,6 +10,7 @@
     <Description>Official MongoDB supported BSON library. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>MongoDB's Official Bson Library.</PackageDescription>
     <PackageTags>$(PackageTags);bson</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
