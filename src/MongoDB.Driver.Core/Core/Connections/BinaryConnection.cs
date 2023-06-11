@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var messageSizeBytes = new byte[4];
                 _stream.ReadBytes(messageSizeBytes, 0, 4, cancellationToken);
-                var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+                var messageSize = PacketBitConverter.ToInt32(messageSizeBytes, 0);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Core.Connections
                 var messageSizeBytes = new byte[4];
                 var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
                 await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, readTimeout, cancellationToken).ConfigureAwait(false);
-                var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+                var messageSize = PacketBitConverter.ToInt32(messageSizeBytes, 0);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
@@ -797,7 +797,7 @@ namespace MongoDB.Driver.Core.Connections
             private int GetResponseTo(IByteBuffer message)
             {
                 var backingBytes = message.AccessBackingBytes(8);
-                return BitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
+                return PacketBitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
             }
         }
 

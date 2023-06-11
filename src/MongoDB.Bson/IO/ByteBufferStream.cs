@@ -418,12 +418,12 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= 8)
             {
                 _position += 8;
-                return BitConverter.ToDouble(segment.Array, segment.Offset);
+                return PacketBitConverter.ToDouble(segment.Array, segment.Offset);
             }
             else
             {
                 this.ReadBytes(_temp, 0, 8);
-                return BitConverter.ToDouble(_temp, 0);
+                return PacketBitConverter.ToDouble(_temp, 0);
             }
         }
 
@@ -458,12 +458,12 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= 8)
             {
                 _position += 8;
-                return BitConverter.ToInt64(segment.Array, segment.Offset);
+                return PacketBitConverter.ToInt64(segment.Array, segment.Offset);
             }
             else
             {
                 this.ReadBytes(_temp, 0, 8);
-                return BitConverter.ToInt64(_temp, 0);
+                return PacketBitConverter.ToInt64(_temp, 0);
             }
         }
 
@@ -637,7 +637,7 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = PacketBitConverter.GetBytes(value);
             _buffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
@@ -677,7 +677,7 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = BitConverter.GetBytes(value);
+            var bytes = PacketBitConverter.GetBytes(value);
             _buffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
@@ -731,7 +731,7 @@ namespace MongoDB.Bson.IO
                 var bytes = rentedSegmentEncoded.Segment.Array;
                 actualLength = rentedSegmentEncoded.Segment.Count;
 
-                var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
+                var lengthPlusOneBytes = PacketBitConverter.GetBytes(actualLength + 1);
 
                 _buffer.SetBytes(_position, lengthPlusOneBytes, 0, 4);
                 _buffer.SetBytes(_position + 4, bytes, 0, actualLength);

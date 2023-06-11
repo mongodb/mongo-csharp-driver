@@ -39,31 +39,19 @@ namespace MongoDB.Bson
             switch (representation)
             {
                 case GuidRepresentation.CSharpLegacy:
-                    if (!BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
                     break;
                 case GuidRepresentation.JavaLegacy:
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
+                    Array.Reverse(bytes, 0, 4);
+                    Array.Reverse(bytes, 4, 2);
+                    Array.Reverse(bytes, 6, 2);
                     break;
                 case GuidRepresentation.PythonLegacy:
                 case GuidRepresentation.Standard:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
+                    Array.Reverse(bytes, 0, 4);
+                    Array.Reverse(bytes, 4, 2);
+                    Array.Reverse(bytes, 6, 2);
                     break;
                 case GuidRepresentation.Unspecified:
                     throw new InvalidOperationException("Unable to convert byte array to Guid because GuidRepresentation is Unspecified.");
@@ -107,31 +95,19 @@ namespace MongoDB.Bson
             switch (guidRepresentation)
             {
                 case GuidRepresentation.CSharpLegacy:
-                    if (!BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
                     break;
                 case GuidRepresentation.JavaLegacy:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
+                    Array.Reverse(bytes, 0, 4);
+                    Array.Reverse(bytes, 4, 2);
+                    Array.Reverse(bytes, 6, 2);
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
                     break;
                 case GuidRepresentation.PythonLegacy:
                 case GuidRepresentation.Standard:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
+                    Array.Reverse(bytes, 0, 4);
+                    Array.Reverse(bytes, 4, 2);
+                    Array.Reverse(bytes, 6, 2);
                     break;
                 case GuidRepresentation.Unspecified:
                     throw new InvalidOperationException("Unable to convert Guid to byte array because GuidRepresentation is Unspecified.");
