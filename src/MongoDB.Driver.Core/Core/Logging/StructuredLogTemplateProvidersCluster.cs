@@ -80,15 +80,14 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ClusterSelectingServerFailedEvent>(
                 LogLevel.Debug,
                 ServerSelectionCommonParams(Failure),
-                (e, _) => GetParams(
+                (e, s) => GetParams(
                     e.ClusterId,
                     e.ServerSelector.ToString(),
                     e.OperationId,
                     e.OperationName,
                     e.ClusterDescription.ToString(),
                     "Server selection failed",
-                    "exception123"));
-                    //e.Exception?.ToString()));
+                    FormatException(e.Exception, s)));
 
             AddTemplateProvider<ClusterDescriptionChangedEvent>(
                 LogLevel.Debug,

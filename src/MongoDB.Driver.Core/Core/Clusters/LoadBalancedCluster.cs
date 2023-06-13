@@ -228,10 +228,10 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
-               _description,
-               selector,
-               -1,
-               EventContext.OperationName));
+                _description,
+                selector,
+                null,
+                EventContext.OperationName));
 
             var timeoutTask = Task.Delay(_settings.ServerSelectionTimeout, cancellationToken);
             var triggeredTask = await Task.WhenAny(_serverReadyTaskCompletionSource.Task, timeoutTask).ConfigureAwait(false);
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.Clusters
                    selector,
                    _server.Description,
                    TimeSpan.FromSeconds(1),
-                   -1,
+                   null,
                    EventContext.OperationName));
             }
 
