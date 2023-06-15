@@ -116,8 +116,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
                 static ServerType MapServerType(string value) => value switch
                 {
-                    "Unknown" => ServerType.Unknown,
                     "LoadBalancer" => ServerType.LoadBalanced,
+                    "Unknown" => ServerType.Unknown,
                     _ => throw new Exception($"Unsupported event filter server type: {value}."),
                 };
             }
