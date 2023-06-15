@@ -103,8 +103,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
-
         private ListDatabasesOperation CreateOperation()
         {
             return new ListDatabasesOperation(_messageEncoderSettings)
