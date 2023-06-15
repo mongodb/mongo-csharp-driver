@@ -46,7 +46,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { "poolClearedEvent", (EventType.ConnectionPoolCleared, EventSetType.Cmap) },
             { "poolReadyEvent", (EventType.ConnectionPoolReady, EventSetType.Cmap) },
 
-            { "serverDescriptionChangedEvent", (EventType.ServerDescriptionChanged, EventSetType.Sdam) }
+            { "serverDescriptionChangedEvent", (EventType.ServerDescriptionChanged, EventSetType.Sdam) },
+            { "topologyDescriptionChangedEvent", (EventType.ClusterDescriptionChanged, EventSetType.Sdam) }
         };
 
         private static readonly Dictionary<EventSetType, Dictionary<EventType, string>> __eventsMapBySetType;

@@ -580,6 +580,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
                 return Execute(context, cancellationToken);
@@ -591,7 +592,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
@@ -605,6 +605,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
@@ -616,7 +617,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
@@ -624,6 +624,8 @@ namespace MongoDB.Driver.Core.Operations
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
         }
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "find");
 
         private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
         {

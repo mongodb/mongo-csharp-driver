@@ -49,10 +49,11 @@ namespace MongoDB.Driver.Core.Clusters
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
             _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId _, IClusterClock _, EndPoint endPoint) =>
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
+                    mockServer.SetupGet(s => s.Description).Returns(new ServerDescription(new ServerId(clusterId, endPoint), endPoint));
                     return mockServer.Object;
                 });
             _capturedEvents = new EventCapturer();
@@ -288,6 +289,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<TimeoutException>();
 
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterEnteredSelectionQueueEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -321,6 +323,7 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<TimeoutException>();
 
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterEnteredSelectionQueueEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -375,6 +378,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             Task.Run(() =>
             {
+                _capturedEvents.WaitForEventOrThrowIfTimeout<ClusterEnteredSelectionQueueEvent>(TimeSpan.FromSeconds(1));
+
                 var descriptions = new Queue<ServerDescription>(new[] { connecting, connecting, connecting, connected });
                 while (descriptions.Count > 0)
                 {
@@ -397,7 +402,9 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             result.Should().NotBeNull();
+
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterEnteredSelectionQueueEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
@@ -444,10 +451,11 @@ namespace MongoDB.Driver.Core.Clusters
             bool async)
         {
             _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId _, IClusterClock clusterClock, EndPoint endPoint) =>
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
+                    mockServer.SetupGet(s => s.Description).Returns(new ServerDescription(new ServerId(clusterId, endPoint), endPoint));
                     return mockServer.Object;
                 });
 
@@ -530,6 +538,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 exception.Should().BeOfType<TimeoutException>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+                _capturedEvents.Next().Should().BeOfType<ClusterEnteredSelectionQueueEvent>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
             }
 

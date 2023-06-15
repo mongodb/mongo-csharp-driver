@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -152,9 +153,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (BeginOperation())
             {
-                return Execute(context, cancellationToken);
+                using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+                {
+                    return Execute(context, cancellationToken);
+                }
             }
         }
 
@@ -163,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             {
                 var operation = CreateOperation();
                 var result = operation.Execute(context, cancellationToken);
@@ -176,9 +180,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (BeginOperation())
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+                {
+                    return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
@@ -187,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             {
                 var operation = CreateOperation();
                 var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
@@ -196,6 +203,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listCollections");
+
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var command = new BsonDocument

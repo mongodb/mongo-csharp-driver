@@ -278,6 +278,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
                 return Execute(context, cancellationToken);
@@ -306,6 +307,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
@@ -369,6 +371,8 @@ namespace MongoDB.Driver.Core.Operations
 
             return command;
         }
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "aggregate");
 
         private ReadCommandOperation<AggregateResult> CreateOperation(RetryableReadContext context)
         {

@@ -13,12 +13,14 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -124,18 +126,26 @@ namespace MongoDB.Driver.Core.Operations
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var reply = operation.Execute(binding, cancellationToken);
-            return CreateCursor(reply);
+
+            using (BeginOperation())
+            {
+                var operation = CreateOperation();
+                var reply = operation.Execute(binding, cancellationToken);
+                return CreateCursor(reply);
+            }
         }
 
         /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var reply = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return CreateCursor(reply);
+
+            using (BeginOperation())
+            {
+                var operation = CreateOperation();
+                var reply = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                return CreateCursor(reply);
+            }
         }
 
         // private methods
@@ -150,6 +160,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "comment", _comment, _comment != null }
             };
         }
+
+        // private methods
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
 
         private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)
         {

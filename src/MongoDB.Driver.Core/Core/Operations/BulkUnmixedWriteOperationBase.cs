@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
@@ -160,6 +160,9 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
+        private IDisposable BeginOperation() =>
+            EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
+
         private BulkWriteBatchResult CreateBatchResult(
             Batch batch,
             BsonDocument writeCommandResult,

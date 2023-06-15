@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ClusterDescription _clusterDescription;
         private readonly Exception _exception;
         private readonly long? _operationId;
+        private readonly string _operationName;
         private readonly IServerSelector _serverSelector;
         private readonly DateTime _timestamp;
 
@@ -37,12 +38,14 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverSelector">The server selector.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
-        public ClusterSelectingServerFailedEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, Exception exception, long? operationId)
+        /// <param name="operationName">The operation name.</param>
+        public ClusterSelectingServerFailedEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, Exception exception, long? operationId, string operationName)
         {
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
             _exception = exception;
             _operationId = operationId;
+            _operationName = operationName;
             _timestamp = DateTime.UtcNow;
         }
 
@@ -76,6 +79,14 @@ namespace MongoDB.Driver.Core.Events
         public long? OperationId
         {
             get { return _operationId; }
+        }
+
+        /// <summary>
+        /// Gets the operation name.
+        /// </summary>
+        public string OperationName
+        {
+            get { return _operationName; }
         }
 
         /// <summary>

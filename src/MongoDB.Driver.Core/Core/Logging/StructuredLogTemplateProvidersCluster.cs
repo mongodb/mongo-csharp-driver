@@ -26,29 +26,73 @@ namespace MongoDB.Driver.Core.Logging
             Message,
         };
 
+        private static string[] __serverSelectionCommonParams = new[]
+        {
+            ClusterId,
+            Selector,
+            OperationId,
+            Operation,
+            TopologyDescription,
+            Message,
+        };
+
         private static string ClusterCommonParams(params string[] @params) => Concat(__clusterCommonParams, @params);
+
+        private static string ServerSelectionCommonParams(params string[] @params) => Concat(__serverSelectionCommonParams, @params);
 
         private static void AddClusterTemplates()
         {
+            AddTemplateProvider<ClusterSelectingServerEvent>(
+              LogLevel.Debug,
+              ServerSelectionCommonParams(),
+              (e, _) => GetParams(
+                  e.ClusterId,
+                  e.ServerSelector.ToString(),
+                  e.OperationId,
+                  e.OperationName,
+                  e.ClusterDescription.ToString(),
+                  "Server selection started"));
+
+            AddTemplateProvider<ClusterEnteredSelectionQueueEvent>(
+                LogLevel.Information,
+                ServerSelectionCommonParams("remainingTimeMS"),
+                (e, _) => GetParams(
+                    e.ClusterId,
+                    e.ServerSelector.ToString(),
+                    e.OperationId,
+                    e.OperationName,
+                    e.ClusterDescription.ToString(),
+                    "Waiting for suitable server to become available",
+                    (long)e.RemainingTimeout.TotalMilliseconds));
+
+            AddTemplateProvider<ClusterSelectedServerEvent>(
+                LogLevel.Debug,
+                ServerSelectionCommonParams(ServerHost, ServerPort),
+                (e, _) => GetParams(
+                    e.ClusterId,
+                    e.ServerSelector.ToString(),
+                    e.OperationId,
+                    e.OperationName,
+                    e.ClusterDescription.ToString(),
+                    "Server selection succeeded",
+                    e.SelectedServer.ServerId.EndPoint));
+
+            AddTemplateProvider<ClusterSelectingServerFailedEvent>(
+                LogLevel.Debug,
+                ServerSelectionCommonParams(Failure),
+                (e, s) => GetParams(
+                    e.ClusterId,
+                    e.ServerSelector.ToString(),
+                    e.OperationId,
+                    e.OperationName,
+                    e.ClusterDescription.ToString(),
+                    "Server selection failed",
+                    FormatException(e.Exception, s)));
+
             AddTemplateProvider<ClusterDescriptionChangedEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
                 (e, _) => GetParams(e.ClusterId, "Description changed"));
-
-            AddTemplateProvider<ClusterSelectingServerEvent>(
-                LogLevel.Debug,
-                ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Selecting server"));
-
-            AddTemplateProvider<ClusterSelectedServerEvent>(
-                LogLevel.Debug,
-                ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Selected server"));
-
-            AddTemplateProvider<ClusterSelectingServerFailedEvent>(
-                LogLevel.Debug,
-                ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Selecting server failed"));
 
             AddTemplateProvider<ClusterClosingEvent>(
                 LogLevel.Debug,

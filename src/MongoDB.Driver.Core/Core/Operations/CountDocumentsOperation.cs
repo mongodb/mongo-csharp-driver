@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -191,10 +192,13 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            var operation = CreateOperation();
-            var cursor = operation.Execute(binding, cancellationToken);
-            var result = cursor.ToList(cancellationToken);
-            return ExtractCountFromResult(result);
+            using (BeginOperation())
+            {
+                var operation = CreateOperation();
+                var cursor = operation.Execute(binding, cancellationToken);
+                var result = cursor.ToList(cancellationToken);
+                return ExtractCountFromResult(result);
+            }
         }
 
         /// <inheritdoc/>
@@ -202,13 +206,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            var operation = CreateOperation();
-            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-            return ExtractCountFromResult(result);
+            using (BeginOperation())
+            {
+                var operation = CreateOperation();
+                var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                return ExtractCountFromResult(result);
+            }
         }
 
         // private methods
+        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+
         private AggregateOperation<BsonDocument> CreateOperation()
         {
             var pipeline = CreatePipeline();

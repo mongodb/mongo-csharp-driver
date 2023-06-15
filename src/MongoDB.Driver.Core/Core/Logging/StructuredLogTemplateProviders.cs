@@ -41,15 +41,18 @@ namespace MongoDB.Driver.Core.Logging
         public const string MaxPoolSize = nameof(MaxPoolSize);
         public const string Message = nameof(Message);
         public const string MinPoolSize = nameof(MinPoolSize);
+        public const string Operation = nameof(Operation);
         public const string OperationId = nameof(OperationId);
         public const string RequestId = nameof(RequestId);
         public const string Reply = nameof(Reply);
         public const string Reason = nameof(Reason);
+        public const string Selector = nameof(Selector);
         public const string ServerHost = nameof(ServerHost);
         public const string ServerPort = nameof(ServerPort);
         public const string ServerConnectionId = nameof(ServerConnectionId);
         public const string ServiceId = nameof(ServiceId);
         public const string SharedLibraryVersion = nameof(SharedLibraryVersion);
+        public const string TopologyDescription = nameof(TopologyDescription);
         public const string WaitQueueTimeoutMS = nameof(WaitQueueTimeoutMS);
         public const string WaitQueueSize = nameof(WaitQueueSize);
 
@@ -90,6 +93,22 @@ namespace MongoDB.Driver.Core.Logging
             var (host, port) = endPoint.GetHostAndPort();
 
             return new object[] { clusterId.Value, host, port, arg1 };
+        }
+
+        public static object[] GetParams(ClusterId clusterId, object arg1, object arg2, object arg3, object arg4, object arg5)
+        {
+            return new object[] { clusterId.Value, arg1, arg2, arg3, arg4, arg5 };
+        }
+
+        public static object[] GetParams(ClusterId clusterId, object arg1, object arg2, object arg3, object arg4, object arg5, EndPoint endPoint)
+        {
+            var (host, port) = endPoint.GetHostAndPort();
+            return new object[] { clusterId.Value, arg1, arg2, arg3, arg4, arg5, host, port };
+        }
+
+        public static object[] GetParams(ClusterId clusterId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+        {
+            return new object[] { clusterId.Value, arg1, arg2, arg3, arg4, arg5, arg6 };
         }
 
         public static object[] GetParams(ServerId serverId, object arg1)

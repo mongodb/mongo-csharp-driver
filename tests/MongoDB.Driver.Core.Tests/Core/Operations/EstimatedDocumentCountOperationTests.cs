@@ -14,15 +14,16 @@
 */
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -296,6 +297,16 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "count", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "count");
         }
 
         // private methods

@@ -15,16 +15,13 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -293,6 +290,17 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "dropIndexes", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureIndexExists();
+            var subject = new DropIndexOperation(_collectionNamespace, "x_1", _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "dropIndexes");
         }
 
         [Fact]

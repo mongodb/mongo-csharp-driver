@@ -15,12 +15,12 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -171,6 +171,16 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "listIndexes", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "listIndexes");
         }
 
         [Fact]

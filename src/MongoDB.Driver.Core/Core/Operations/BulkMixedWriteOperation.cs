@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            using (BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
@@ -269,6 +269,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
+        private IDisposable BeginOperation() =>
+            // Execution starts with the first request
+            EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
+
         private IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateBulkDeleteOperation(Batch batch)
         {
             var requests = batch.Requests.Cast<DeleteRequest>();

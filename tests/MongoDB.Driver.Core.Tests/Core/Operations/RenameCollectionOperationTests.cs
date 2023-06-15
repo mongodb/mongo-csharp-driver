@@ -14,17 +14,12 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -193,6 +188,18 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result["ok"].ToBoolean().Should().BeTrue();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureCollectionExists(_collectionNamespace, async);
+            EnsureCollectionDoesNotExist(_newCollectionNamespace, async);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+
+            await VerifyOperationNameIsSet(subject, async, "renameCollection");
         }
 
         [Theory]
