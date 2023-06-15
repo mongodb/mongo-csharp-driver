@@ -62,7 +62,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             CreateCollectionOperation CreateInnerCollectionOperation(string collectionName)
-                => new CreateCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings) { ClusteredIndex = new BsonDocument { { "key", new BsonDocument("_id", 1) }, { "unique", true } } };
+                => new(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings, Feature.Csfle2QEv2)
+                   {
+                      ClusteredIndex = new BsonDocument { { "key", new BsonDocument("_id", 1) }, { "unique", true } }
+                   };
         }
         #endregion
 
@@ -89,6 +92,8 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _validator;
         private WriteConcern _writeConcern;
 
+        private readonly Feature _supportedFeature;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
@@ -109,6 +114,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
+            _supportedFeature = supportedFeature;
         }
 
         // properties
@@ -431,7 +437,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -458,6 +463,11 @@ namespace MongoDB.Driver.Core.Operations
             if (_encryptedFields != null)
             {
                 Feature.Csfle2QEv2.ThrowIfNotSupported(maxWireVersion);
+            }
+
+            if (_supportedFeature != null && _supportedFeature != Feature.Csfle2QEv2)
+            {
+                _supportedFeature.ThrowIfNotSupported(maxWireVersion);
             }
         }
 
