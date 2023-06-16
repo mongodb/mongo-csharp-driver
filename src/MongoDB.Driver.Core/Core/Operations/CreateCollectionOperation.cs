@@ -41,7 +41,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mainOperation = new CreateCollectionOperation(
                 collectionNamespace,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                encryptedFields != null ? Feature.Csfle2QEv2 : null)
             {
                 EncryptedFields = encryptedFields
             };
@@ -437,6 +438,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -460,15 +462,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void EnsureServerIsValid(int maxWireVersion)
         {
-            if (_encryptedFields != null)
-            {
-                Feature.Csfle2QEv2.ThrowIfNotSupported(maxWireVersion);
-            }
-
-            if (_supportedFeature != null && _supportedFeature != Feature.Csfle2QEv2)
-            {
-                _supportedFeature.ThrowIfNotSupported(maxWireVersion);
-            }
+            _supportedFeature?.ThrowIfNotSupported(maxWireVersion);
         }
 
         [Flags]
