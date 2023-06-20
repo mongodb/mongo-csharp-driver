@@ -4,8 +4,8 @@ This is the general availability release for the 2.20.0 version of the driver.
 
 The main new features in 2.20.0 include:
 
-* Support for MongoDB server version 7.0.0 GA
-* Support for Queryable Encryption GA
+* Support for MongoDB server version 7.0.0
+* Support for equality query types in Queryable Encryption GA
 * LINQ3 bug fixes and improvements
 * Serialization bug fixes and improvements
 * Logging improvements
