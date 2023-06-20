@@ -24,6 +24,8 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
+using System.ComponentModel;
+using MongoDB.Driver.Convertion;
 
 namespace MongoDB.Driver.Tests
 {
@@ -455,6 +457,30 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrl(connectionString);
 
             subject.SrvMaxHosts.Should().Be(2);
+        }
+
+        [Fact]
+        public void Decorated_with_TypeConverter()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            converter.Should().BeOfType<MongoUrlTypeConverter>();
+        }
+
+        [Fact]
+        public void Converts_from_string()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            converter.ConvertFrom("mongodb://localhost").Should().Be(new MongoUrl("mongodb://localhost"));
+        }
+
+        [Fact]
+        public void Converts_to_string()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            converter.ConvertTo(new MongoUrl("mongodb://localhost"), typeof(string)).Should().Be("mongodb://localhost");
         }
 
         // private methods

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
     [Serializable]
+    [TypeConverter(typeof(Convertion.MongoUrlTypeConverter))]
     public class MongoUrl : IEquatable<MongoUrl>
     {
         // private static fields
