@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
+using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Moq;
 using System;
 using System.Collections.Generic;

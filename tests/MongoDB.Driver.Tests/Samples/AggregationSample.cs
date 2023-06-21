@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
+using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 

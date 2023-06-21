@@ -19,7 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
+using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
