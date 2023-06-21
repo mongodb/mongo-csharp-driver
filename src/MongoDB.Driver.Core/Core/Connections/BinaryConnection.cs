@@ -22,6 +22,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Buffers.Binary;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
@@ -315,7 +316,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var messageSizeBytes = new byte[4];
                 _stream.ReadBytes(messageSizeBytes, 0, 4, cancellationToken);
-                var messageSize = PacketBitConverter.ToInt32(messageSizeBytes, 0);
+                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
@@ -385,7 +386,7 @@ namespace MongoDB.Driver.Core.Connections
                 var messageSizeBytes = new byte[4];
                 var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
                 await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, readTimeout, cancellationToken).ConfigureAwait(false);
-                var messageSize = PacketBitConverter.ToInt32(messageSizeBytes, 0);
+                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
@@ -797,7 +798,7 @@ namespace MongoDB.Driver.Core.Connections
             private int GetResponseTo(IByteBuffer message)
             {
                 var backingBytes = message.AccessBackingBytes(8);
-                return PacketBitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
+                return BinaryPrimitives.ReadInt32LittleEndian(new ReadOnlySpan<byte>(backingBytes.Array, backingBytes.Offset, 4));
             }
         }
 

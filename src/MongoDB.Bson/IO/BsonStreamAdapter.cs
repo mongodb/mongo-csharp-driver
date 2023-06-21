@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -304,10 +305,11 @@ namespace MongoDB.Bson.IO
 
         /// <inheritdoc/>
         public override double ReadDouble()
+
         {
             ThrowIfDisposed();
             this.ReadBytes(_temp, 0, 8);
-            return PacketBitConverter.ToDouble(_temp, 0);
+            return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(_temp));
         }
 
         /// <inheritdoc/>
@@ -323,7 +325,7 @@ namespace MongoDB.Bson.IO
         {
             ThrowIfDisposed();
             this.ReadBytes(_temp, 0, 8);
-            return PacketBitConverter.ToInt64(_temp, 0);
+            return BinaryPrimitives.ReadInt64LittleEndian(_temp);
         }
 
         /// <inheritdoc/>
@@ -494,7 +496,8 @@ namespace MongoDB.Bson.IO
         public override void WriteDouble(double value)
         {
             ThrowIfDisposed();
-            var bytes = PacketBitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes, BitConverter.DoubleToInt64Bits(value));
             _stream.Write(bytes, 0, 8);
         }
 
@@ -513,7 +516,8 @@ namespace MongoDB.Bson.IO
         public override void WriteInt64(long value)
         {
             ThrowIfDisposed();
-            var bytes = PacketBitConverter.GetBytes(value);
+            var bytes = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
             _stream.Write(bytes, 0, 8);
         }
 

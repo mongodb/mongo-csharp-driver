@@ -14,7 +14,7 @@
 */
 
 using System;
-using MongoDB.Bson.IO;
+using System.Buffers.Binary;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -31,9 +31,9 @@ namespace MongoDB.Driver.Core.Connections
         public byte[] ToBytes()
         {
             var bytes = new byte[12];
-            Array.Copy(PacketBitConverter.GetBytes(OnOff), 0, bytes, 0, 4);
-            Array.Copy(PacketBitConverter.GetBytes(KeepAliveTime), 0, bytes, 4, 4);
-            Array.Copy(PacketBitConverter.GetBytes(KeepAliveInterval), 0, bytes, 8, 4);
+            BinaryPrimitives.WriteUInt32LittleEndian(new Span<byte>(bytes, 0, 4), OnOff);
+            BinaryPrimitives.WriteUInt32LittleEndian(new Span<byte>(bytes, 0, 4), KeepAliveTime);
+            BinaryPrimitives.WriteUInt32LittleEndian(new Span<byte>(bytes, 0, 4), KeepAliveInterval);
             return bytes;
         }
     }
