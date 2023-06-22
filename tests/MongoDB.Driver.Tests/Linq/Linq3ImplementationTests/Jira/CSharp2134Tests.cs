@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using Xunit;
 
@@ -29,12 +30,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         public void Projection_of_ArrayOfDocuments_dictionary_keys_and_values_should_work(bool includeNullId, bool expectedResult)
         {
             var collection = CreateCollection(includeNullId);
-
             var queryable = collection.AsQueryable();
+
             var result = queryable.All(x => x.Id != null);
 
-            var provider = (MongoQueryProvider)queryable.Provider;
-            var stages = provider.GetMostRecentPipelineStages();
+            var provider = (IMongoQueryProvider)queryable.Provider;
+            var stages = provider.MostRecentlyExecutedStages;
             AssertStages(
                 stages,
                 "{ $match : { _id : null } }",

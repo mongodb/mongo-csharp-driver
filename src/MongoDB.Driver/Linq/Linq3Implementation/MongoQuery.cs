@@ -62,13 +62,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override IAsyncCursor<TOutput> Execute()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.Execute(_provider.Session, CancellationToken.None);
+            return _provider.Execute(executableQuery, CancellationToken.None);
         }
 
         public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.ExecuteAsync(_provider.Session, CancellationToken.None);
+            return _provider.ExecuteAsync(executableQuery, CancellationToken.None);
         }
 
         public IEnumerator<TOutput> GetEnumerator()
@@ -90,13 +90,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public IAsyncCursor<TOutput> ToCursor(CancellationToken cancellationToken = default)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.Execute(_provider.Session, cancellationToken);
+            return _provider.Execute(executableQuery, cancellationToken);
         }
 
         public Task<IAsyncCursor<TOutput>> ToCursorAsync(CancellationToken cancellationToken = default)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.ExecuteAsync(_provider.Session, cancellationToken);
+            return _provider.ExecuteAsync(executableQuery, cancellationToken);
         }
 
         public override string ToString()

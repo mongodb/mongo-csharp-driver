@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
@@ -30,6 +32,16 @@ namespace MongoDB.Driver.Linq
         /// Gets the collection namespace.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
+
+        /// <summary>
+        /// Gets or sets the ExecutedStagesLogger method that is called when a pipeline is executed.
+        /// </summary>
+        Action<BsonDocument[]> ExecutedStagesLogger { get; set; }
+
+        /// <summary>
+        /// Gets the most recently executed stages.
+        /// </summary>
+        BsonDocument[] MostRecentlyExecutedStages { get; }
 
         /// <summary>
         /// Gets the pipeline input serializer (the DocumentSerializer for collection queries and NoPipelineInputSerializer for database queries).

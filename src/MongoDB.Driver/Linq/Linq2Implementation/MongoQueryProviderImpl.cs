@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq2Implementation.Processors;
@@ -42,6 +43,17 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
         }
 
         public CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
+
+        public Action<BsonDocument[]> ExecutedStagesLogger
+        {
+            get => throw new InvalidOperationException($"The {nameof(ExecutedStagesLogger)} property is only valid when using LINQ3.");
+            set => throw new InvalidOperationException($"The {nameof(ExecutedStagesLogger)} property is only valid when using LINQ3.");
+        }
+
+        public BsonDocument[] MostRecentlyExecutedStages
+        {
+            get => throw new InvalidOperationException($"The {nameof(MostRecentlyExecutedStages)} property is only valid when using LINQ3.");
+        }
 
         public IBsonSerializer PipelineInputSerializer => _collection.DocumentSerializer;
 

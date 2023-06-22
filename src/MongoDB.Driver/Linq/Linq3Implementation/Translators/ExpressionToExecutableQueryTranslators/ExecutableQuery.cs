@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,17 +40,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             AstPipeline unoptimizedPipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
-            var pipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            var optimizedPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            var executedStagesLogger = provider.ExecutedStagesLogger;
             return provider.Collection == null ?
-                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, unoptimizedPipeline, pipeline, finalizer) :
-                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Collection, provider.Options, unoptimizedPipeline, pipeline, finalizer);
+                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, optimizedPipeline, finalizer, executedStagesLogger) :
+                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Collection, provider.Options, optimizedPipeline, finalizer, executedStagesLogger);
         }
     }
 
     internal abstract class ExecutableQuery<TDocument>
     {
+        public abstract BsonDocument[] ExecutedStages { get; }
         public abstract AstPipeline Pipeline { get; }
-        public abstract AstPipeline UnoptimizedPipeline { get; }
     }
 
     internal abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
@@ -63,19 +65,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IMongoDatabase _database;
+        private BsonDocument[] _executedStages = null;
+        private readonly Action<BsonDocument[]> _executedStagesLogger;
         private readonly IExecutableQueryFinalizer<TOutput, TResult> _finalizer;
         private readonly AggregateOptions _options;
         private readonly AstPipeline _pipeline;
-        private readonly AstPipeline _unoptimizedPipeline;
 
         // constructors
         public ExecutableQuery(
             IMongoCollection<TDocument> collection,
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
-            IExecutableQueryFinalizer<TOutput, TResult> finalizer)
-            : this(options, unoptimizedPipeline, pipeline, finalizer)
+            IExecutableQueryFinalizer<TOutput, TResult> finalizer,
+            Action<BsonDocument[]> executedStagesLogger)
+            : this(options, pipeline, finalizer, executedStagesLogger)
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
         }
@@ -83,29 +86,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         public ExecutableQuery(
             IMongoDatabase database,
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
-            IExecutableQueryFinalizer<TOutput, TResult> finalizer)
-            : this(options, unoptimizedPipeline, pipeline, finalizer)
+            IExecutableQueryFinalizer<TOutput, TResult> finalizer,
+            Action<BsonDocument[]> executedStagesLogger)
+            : this(options, pipeline, finalizer, executedStagesLogger)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
         }
 
         private ExecutableQuery(
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
-            IExecutableQueryFinalizer<TOutput, TResult> finalizer)
+            IExecutableQueryFinalizer<TOutput, TResult> finalizer,
+            Action<BsonDocument[]> executedStagesLogger)
         {
             _options = options;
-            _unoptimizedPipeline = unoptimizedPipeline;
             _pipeline = pipeline;
             _finalizer = finalizer;
+            _executedStagesLogger = executedStagesLogger;
         }
 
         // public properties
+        public override BsonDocument[] ExecutedStages => _executedStages;
         public override AstPipeline Pipeline => _pipeline;
-        public override AstPipeline UnoptimizedPipeline => _unoptimizedPipeline;
 
         // public methods
         public override TResult Execute(IClientSessionHandle session, CancellationToken cancellationToken)
@@ -143,14 +146,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         // private methods
         private BsonDocumentStagePipelineDefinition<TDocument, TOutput> CreateCollectionPipelineDefinition()
         {
-            var stages = _pipeline.Stages.Select(s => (BsonDocument)s.Render());
-            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
+            _executedStages = _pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            if (_executedStagesLogger != null)
+            {
+                _executedStagesLogger(_executedStages);
+            }
+            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(_executedStages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
         }
 
         private BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput> CreateDatabasePipelineDefinition()
         {
-            var stages = _pipeline.Stages.Select(s => (BsonDocument)s.Render());
-            return new BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
+            _executedStages = _pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            if (_executedStagesLogger != null)
+            {
+                _executedStagesLogger(_executedStages);
+            }
+            return new BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput>(_executedStages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
         }
     }
 }
