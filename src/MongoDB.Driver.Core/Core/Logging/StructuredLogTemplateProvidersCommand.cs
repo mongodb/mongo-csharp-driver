@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Logging
 
             AddTemplateProvider<CommandSucceededEvent>(
                 LogLevel.Debug,
-                CommandCommonParams(DurationMS, Reply),
+                CommandCommonParams(DatabaseName, DurationMS, Reply),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
                     e.ConnectionId.LongServerValue,
@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Logging
                     e.OperationId,
                     "Command succeeded",
                     e.CommandName,
+                    e.DatabaseNamespace.DatabaseName,
                     e.Duration.TotalMilliseconds,
                     CommandDocumentToString(e.Reply, o),
                     ommitableParam: e.ServiceId),
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Logging
 
             AddTemplateProvider<CommandFailedEvent>(
                 LogLevel.Debug,
-                CommandCommonParams(DurationMS, Failure),
+                CommandCommonParams(DatabaseName, DurationMS, Failure),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
                     e.ConnectionId.LongServerValue,
@@ -84,6 +85,7 @@ namespace MongoDB.Driver.Core.Logging
                     e.OperationId,
                     "Command failed",
                     e.CommandName,
+                    e.DatabaseNamespace.DatabaseName,
                     e.Duration.TotalMilliseconds,
                     FormatCommandException(e.Failure, o),
                     ommitableParam: e.ServiceId),

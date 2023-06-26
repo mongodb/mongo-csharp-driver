@@ -197,6 +197,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         {
                             switch (element.Name)
                             {
+                                case "databaseName":
+                                    commandSucceededEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
+                                    break;
                                 case "reply":
                                     _valueMatcher.AssertValuesMatch(commandSucceededEvent.Reply, element.Value);
                                     break;
@@ -219,6 +222,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         {
                             switch (element.Name)
                             {
+                                case "databaseName":
+                                    commandFailedEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
+                                    break;
                                 case "commandName":
                                     commandFailedEvent.CommandName.Should().Be(element.Value.AsString);
                                     break;
