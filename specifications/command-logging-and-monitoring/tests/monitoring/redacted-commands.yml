@@ -94,7 +94,7 @@ tests:
 
   - description: "getnonce"
     runOnRequirements:
-      - maxServerVersion: "6.1.99"  
+    - maxServerVersion: 6.1.99 # getnonce removed as of 6.2 via SERVER-71007
     operations:
       - name: runCommand
         object: *database
@@ -161,6 +161,8 @@ tests:
                 roles: { $$exists: false }
 
   - description: "copydbgetnonce"
+    runOnRequirements:
+    - maxServerVersion: 3.6.99 # copydbgetnonce was removed as of 4.0 via SERVER-32276
     operations:
       - name: runCommand
         object: *database
@@ -178,6 +180,8 @@ tests:
               command: { copydbgetnonce: { $$exists: false } }
 
   - description: "copydbsaslstart"
+    runOnRequirements:
+    - maxServerVersion: 4.0.99 # copydbsaslstart was removed as of 4.2 via SERVER-36211
     operations:
       - name: runCommand
         object: *database
@@ -195,6 +199,8 @@ tests:
               command: { copydbsaslstart: { $$exists: false } }
 
   - description: "copydb"
+    runOnRequirements:
+    - maxServerVersion: 4.0.99 # copydb was removed as of 4.2 via SERVER-36257
     operations:
       - name: runCommand
         object: *database

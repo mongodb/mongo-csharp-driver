@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
             #endregion
 
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring.tests.unified.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring.tests.monitoring.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
