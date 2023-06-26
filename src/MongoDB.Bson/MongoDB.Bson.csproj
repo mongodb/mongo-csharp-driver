@@ -10,12 +10,11 @@
     <Description>Official MongoDB supported BSON library. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>MongoDB's Official Bson Library.</PackageDescription>
     <PackageTags>$(PackageTags);bson</PackageTags>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
-    <PackageReference Include="Snappier" Version="1.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
   <ItemGroup>
