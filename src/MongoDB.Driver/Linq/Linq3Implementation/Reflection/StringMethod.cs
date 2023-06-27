@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __indexOfWithStringAndStartIndexAndComparisonType;
         private static readonly MethodInfo __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         private static readonly MethodInfo __isNullOrEmpty;
+        private static readonly MethodInfo __isNullOrWhiteSpace;
         private static readonly MethodInfo __splitWithChars;
         private static readonly MethodInfo __splitWithCharsAndCount;
         private static readonly MethodInfo __splitWithCharsAndCountAndOptions;
@@ -124,6 +125,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __indexOfWithStringAndStartIndexAndComparisonType = ReflectionInfo.Method((string s, string value, int startIndex, StringComparison comparisonType) => s.IndexOf(value, startIndex, comparisonType));
             __indexOfWithStringAndStartIndexAndCountAndComparisonType = ReflectionInfo.Method((string s, string value, int startIndex, int count, StringComparison comparisonType) => s.IndexOf(value, startIndex, count, comparisonType));
             __isNullOrEmpty = ReflectionInfo.Method((string value) => string.IsNullOrEmpty(value));
+            __isNullOrWhiteSpace = ReflectionInfo.Method((string value) => string.IsNullOrWhiteSpace(value));
             __splitWithChars = ReflectionInfo.Method((string s, char[] separator) => s.Split(separator));
             __splitWithCharsAndCount = ReflectionInfo.Method((string s, char[] separator, int count) => s.Split(separator, count));
             __splitWithCharsAndCountAndOptions = ReflectionInfo.Method((string s, char[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
@@ -183,6 +185,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo IndexOfWithStringAndStartIndexAndComparisonType => __indexOfWithStringAndStartIndexAndComparisonType;
         public static MethodInfo IndexOfWithStringAndStartIndexAndCountAndComparisonType => __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         public static MethodInfo IsNullOrEmpty => __isNullOrEmpty;
+        public static MethodInfo IsNullOrWhiteSpace => __isNullOrWhiteSpace;
         public static MethodInfo SplitWithChars => __splitWithChars;
         public static MethodInfo SplitWithCharsAndCount => __splitWithCharsAndCount;
         public static MethodInfo SplitWithCharsAndCountAndOptions => __splitWithCharsAndCountAndOptions;

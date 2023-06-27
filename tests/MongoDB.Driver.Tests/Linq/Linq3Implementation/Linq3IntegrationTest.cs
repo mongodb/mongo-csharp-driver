@@ -170,8 +170,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         protected BsonDocument TranslateFindFilter<TDocument, TProjection>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TProjection> find)
         {
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
+            return TranslateFindFilter(collection, find, linqProvider);
+        }
+
+        protected BsonDocument TranslateFindFilter<TDocument, TProjection>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TProjection> find, LinqProvider linqProvider)
+        {
             var filterDefinition = ((FindFluent<TDocument, TProjection>)find).Filter;
-            return filterDefinition.Render(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            return filterDefinition.Render(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
         }
 
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
