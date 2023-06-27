@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -52,6 +52,11 @@ namespace MongoDB.Driver
         /// Gets the index manager.
         /// </summary>
         IMongoIndexManager<TDocument> Indexes { get; }
+
+        /// <summary>
+        /// Gets the search index manager.
+        /// </summary>
+        IMongoSearchIndexManager SearchIndexes { get; }
 
         /// <summary>
         /// Gets the settings.

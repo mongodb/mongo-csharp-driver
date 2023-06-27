@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -81,6 +82,11 @@ namespace MongoDB.Driver
         public override IMongoIndexManager<TDocument> Indexes
         {
             get { return new MongoIndexManager(this); }
+        }
+
+        public override IMongoSearchIndexManager SearchIndexes
+        {
+            get { return new MongoSearchIndexManager(this); }
         }
 
         public override MongoCollectionSettings Settings
@@ -1677,6 +1683,109 @@ namespace MongoDB.Driver
                     RetryRequested = _collection.Database.Client.Settings.RetryReads
                 };
             }
+        }
+
+        internal sealed class MongoSearchIndexManager : IMongoSearchIndexManager
+        {
+            // private fields
+            private readonly MongoCollectionImpl<TDocument> _collection;
+
+            // constructors
+            public MongoSearchIndexManager(MongoCollectionImpl<TDocument> collection)
+            {
+                _collection = Ensure.IsNotNull(collection, nameof(collection));
+            }
+
+            public IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
+            {
+                var operation = CreateCreateIndexesOperation(models);
+                var result = _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
+                var indexNames = GetIndexNames(result);
+
+                return indexNames;
+            }
+
+            public async Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
+            {
+                var operation = CreateCreateIndexesOperation(models);
+                var result = await _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken).ConfigureAwait(false);
+                var indexNames = GetIndexNames(result);
+
+                return indexNames;
+            }
+
+            public string CreateOne(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
+                CreateOne(new CreateSearchIndexModel(name, definition), cancellationToken);
+
+            public string CreateOne(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
+            {
+                var result = CreateMany(new[] { model }, cancellationToken);
+                return result.Single();
+            }
+
+            public Task<string> CreateOneAsync(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
+                CreateOneAsync(new CreateSearchIndexModel(name, definition), cancellationToken);
+
+            public async Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
+            {
+                var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
+                return result.Single();
+            }
+
+            public void DropOne(string indexName, CancellationToken cancellationToken = default)
+            {
+                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
+                _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
+            }
+
+            public Task DropOneAsync(string indexName, CancellationToken cancellationToken = default)
+            {
+                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
+                return _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken);
+            }
+
+            public IAsyncCursor<BsonDocument> List(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
+            {
+                return _collection.Aggregate(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+            }
+
+            public Task<IAsyncCursor<BsonDocument>> ListAsync(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
+            {
+                return _collection.AggregateAsync(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+            }
+
+            public void Update(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
+            {
+                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
+
+                _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
+            }
+
+            public async Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
+            {
+                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
+
+                await _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken).ConfigureAwait(false);
+            }
+
+            // private methods
+            private PipelineDefinition<TDocument, BsonDocument> CreateListIndexesStage(string indexName)
+            {
+                var nameDocument = new BsonDocument() { { "name", indexName, indexName != null } };
+                var stage = new BsonDocument("$listSearchIndexes", nameDocument);
+                return new BsonDocumentStagePipelineDefinition<TDocument, BsonDocument>(new[] { stage });
+            }
+
+            private CreateSearchIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateSearchIndexModel> models) =>
+                new(_collection._collectionNamespace,
+                    models.Select(m => new CreateSearchIndexRequest(m.Name, m.Definition)),
+                    _collection._messageEncoderSettings);
+
+            private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>
+                createSearchIndexesResponse["indexesCreated"]
+                    .AsBsonArray
+                    .Select(bsonValue => bsonValue["name"].AsString)
+                    .ToArray();
         }
     }
 }
