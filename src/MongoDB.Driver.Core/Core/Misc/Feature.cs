@@ -107,6 +107,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
+        private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", WireVersion.Server30);
@@ -599,6 +600,12 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature ReadConcern => __readConcern;
+
+
+        /// <summary>
+        /// Gets the regex match feature.
+        /// </summary>
+        public static Feature RegexMatch => __regexMatch;
 
         /// <summary>
         /// Gets the retryable reads feature.

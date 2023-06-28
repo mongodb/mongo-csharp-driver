@@ -16,29 +16,30 @@
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
+namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    internal static class IsMatchMethodToFilterTranslator
+    internal static class IsMatchMethodToAggregationExpressionTranslator
     {
         // public static methods
-        public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (RegexMethod.IsMatchMethod(expression, out var inputExpression, out var regex))
             {
-                var inputFieldAst = ExpressionToFilterFieldTranslator.Translate(context, inputExpression);
+                var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, inputExpression);
                 var regularExpression = new BsonRegularExpression(regex);
 
-                if (inputFieldAst.Serializer is IRepresentationConfigurable representationConfigurable &&
+                if (inputTranslation.Serializer is IRepresentationConfigurable representationConfigurable &&
                     representationConfigurable.Representation != BsonType.String)
                 {
-                    throw new ExpressionNotSupportedException(inputExpression, expression, because: $"field \"{inputFieldAst.Path}\" is not represented as a string");
+                    throw new ExpressionNotSupportedException(inputExpression, expression, because: "input expression is not represented as a string");
                 }
 
-                return AstFilter.Regex(inputFieldAst, regularExpression.Pattern, regularExpression.Options);
+                var ast = AstExpression.RegexMatch(inputTranslation.Ast, regularExpression.Pattern, regularExpression.Options);
+                return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);
