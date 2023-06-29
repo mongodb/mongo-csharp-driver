@@ -115,13 +115,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override TResult Execute<TResult>(Expression expression)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
+            return Execute(executableQuery);
+        }
+
+        public TResult Execute<TResult>(ExecutableQuery<TDocument, TResult> executableQuery)
+        {
+            return Execute(executableQuery, CancellationToken.None);
+        }
+
+        public TResult Execute<TResult>(ExecutableQuery<TDocument, TResult> executableQuery, CancellationToken cancellationToken)
+        {
             _mostRecentExecutableQuery = executableQuery;
-            return executableQuery.Execute(_session, CancellationToken.None);
+            return executableQuery.Execute(_session, cancellationToken);
         }
 
         public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
+            return ExecuteAsync(executableQuery, cancellationToken);
+        }
+
+        public Task<TResult> ExecuteAsync<TResult>(ExecutableQuery<TDocument, TResult> executableQuery)
+        {
+            return ExecuteAsync(executableQuery, CancellationToken.None);
+        }
+
+        public Task<TResult> ExecuteAsync<TResult>(ExecutableQuery<TDocument, TResult> executableQuery, CancellationToken cancellationToken)
+        {
             _mostRecentExecutableQuery = executableQuery;
             return executableQuery.ExecuteAsync(_session, cancellationToken);
         }

@@ -57,6 +57,11 @@ namespace MongoDB.Driver
         /// <returns>True if the cursor contains any documents.</returns>
         public static bool Any<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
+            {
+                return Queryable.Any(queryable);
+            }
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.Any(cancellationToken);
@@ -72,6 +77,11 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is true if the cursor contains any documents.</returns>
         public static async Task<bool> AnyAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
+            {
+                return await queryableForwarder.AnyAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.AnyAsync(cancellationToken).ConfigureAwait(false);
@@ -87,6 +97,11 @@ namespace MongoDB.Driver
         /// <returns>The first document.</returns>
         public static TDocument First<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
+            {
+                return Queryable.First(queryable);
+            }
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.First(cancellationToken);
@@ -102,6 +117,11 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document.</returns>
         public static async Task<TDocument> FirstAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
+            {
+                return await queryableForwarder.FirstAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.FirstAsync(cancellationToken).ConfigureAwait(false);
@@ -117,6 +137,11 @@ namespace MongoDB.Driver
         /// <returns>The first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument FirstOrDefault<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
+            {
+                return Queryable.FirstOrDefault(queryable);
+            }
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.FirstOrDefault(cancellationToken);
@@ -132,6 +157,11 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
+            {
+                return await queryableForwarder.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -221,6 +251,11 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor.</returns>
         public static TDocument Single<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
+            {
+                return Queryable.Single(queryable);
+            }
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.Single(cancellationToken);
@@ -236,6 +271,11 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor.</returns>
         public static async Task<TDocument> SingleAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
+            {
+                return await queryableForwarder.SingleAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.SingleAsync(cancellationToken).ConfigureAwait(false);
@@ -252,6 +292,11 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument SingleOrDefault<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
+            {
+                return Queryable.SingleOrDefault(queryable);
+            }
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.SingleOrDefault(cancellationToken);
@@ -268,6 +313,11 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
+            {
+                return await queryableForwarder.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);

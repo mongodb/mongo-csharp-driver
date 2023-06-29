@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract Task<IAsyncCursor<TOutput>> ExecuteAsync();
     }
 
-    internal class MongoQuery<TDocument, TOutput> : MongoQuery<TOutput>, IOrderedMongoQueryable<TOutput>
+    internal class MongoQuery<TDocument, TOutput> : MongoQuery<TOutput>, IOrderedMongoQueryable<TOutput>, IMongoQueryableForwarder<TOutput>
     {
         // private fields
         private readonly Expression _expression;
@@ -62,13 +62,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override IAsyncCursor<TOutput> Execute()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.Execute(_provider.Session, CancellationToken.None);
+            return _provider.Execute(executableQuery);
         }
 
         public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.ExecuteAsync(_provider.Session, CancellationToken.None);
+            return _provider.ExecuteAsync(executableQuery);
         }
 
         public IEnumerator<TOutput> GetEnumerator()
@@ -90,13 +90,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public IAsyncCursor<TOutput> ToCursor(CancellationToken cancellationToken = default)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.Execute(_provider.Session, cancellationToken);
+            return _provider.Execute(executableQuery, cancellationToken);
         }
 
         public Task<IAsyncCursor<TOutput>> ToCursorAsync(CancellationToken cancellationToken = default)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return executableQuery.ExecuteAsync(_provider.Session, cancellationToken);
+            return _provider.ExecuteAsync(executableQuery, cancellationToken);
         }
 
         public override string ToString()
@@ -115,5 +115,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
                 return ex.ToString();
             }
         }
+
+        Task<bool> IMongoQueryableForwarder<TOutput>.AnyAsync(CancellationToken cancellationToken) => MongoQueryable.AnyAsync(this, cancellationToken);
+        Task<TOutput> IMongoQueryableForwarder<TOutput>.FirstAsync(CancellationToken cancellationToken) => MongoQueryable.FirstAsync(this, cancellationToken);
+        Task<TOutput> IMongoQueryableForwarder<TOutput>.FirstOrDefaultAsync(CancellationToken cancellationToken) => MongoQueryable.FirstOrDefaultAsync(this, cancellationToken);
+        Task<TOutput> IMongoQueryableForwarder<TOutput>.SingleAsync(CancellationToken cancellationToken) => MongoQueryable.SingleAsync(this, cancellationToken);
+        Task<TOutput> IMongoQueryableForwarder<TOutput>.SingleOrDefaultAsync(CancellationToken cancellationToken) => MongoQueryable.SingleOrDefaultAsync(this, cancellationToken);
     }
 }
