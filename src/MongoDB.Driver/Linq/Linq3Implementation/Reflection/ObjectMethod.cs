@@ -21,17 +21,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         // private static fields
         private static readonly MethodInfo __equals;
+        private static readonly MethodInfo __getType;
         private static readonly MethodInfo __toString;
 
         // static constructor
         static ObjectMethod()
         {
             __equals = ReflectionInfo.Method((object o, object obj) => o.Equals(obj));
+            __getType = ReflectionInfo.Method((object o) => o.GetType());
             __toString = ReflectionInfo.Method((object o) => o.ToString());
         }
 
         // public properties
         public static new MethodInfo Equals => __equals;
+        public static new MethodInfo GetType => __getType;
         public static new MethodInfo ToString => __toString;
     }
 }

@@ -77,6 +77,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return NewArrayInitExpressionToAggregationExpressionTranslator.Translate(context, (NewArrayExpression)expression);
                 case ExpressionType.Parameter:
                     return ParameterExpressionToAggregationExpressionTranslator.Translate(context, (ParameterExpression)expression);
+                case ExpressionType.TypeIs:
+                    return TypeIsExpressionToAggregationExpressionTranslator.Translate(context, (TypeBinaryExpression)expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

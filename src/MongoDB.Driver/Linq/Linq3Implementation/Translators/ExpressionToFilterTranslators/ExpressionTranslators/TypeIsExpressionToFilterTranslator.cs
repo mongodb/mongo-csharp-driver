@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -29,14 +31,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var fieldExpression = expression.Expression;
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-
                 var nominalType = fieldExpression.Type;
                 var actualType = expression.TypeOperand;
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(actualType);
-                var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
-                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
-                return AstFilter.Eq(discriminatorField, discriminator);
+                var discriminatorConvention = field.Serializer is ObjectSerializer objectSerializer ?
+                    objectSerializer.DiscriminatorConvention :
+                    BsonSerializer.LookupDiscriminatorConvention(actualType);
+                var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                if (discriminatorValue is BsonArray array)
+                {
+                    discriminatorValue = array.Last();
+                }
+
+                return AstFilter.Eq(discriminatorField, discriminatorValue); // will match subclasses also
             }
 
             throw new ExpressionNotSupportedException(expression);

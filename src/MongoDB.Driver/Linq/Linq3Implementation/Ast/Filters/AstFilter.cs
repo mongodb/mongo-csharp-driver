@@ -195,6 +195,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             return new AstNorFilter(new[] { filter });
         }
 
+        public static AstFieldOperationFilter NotExists(AstFilterField field)
+        {
+            return new AstFieldOperationFilter(field, new AstExistsFilterOperation(exists: false));
+        }
+
         public static AstFilter Or(params AstFilter[] filters)
         {
             Ensure.IsNotNull(filters, nameof(filters));
@@ -234,6 +239,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
         public static AstFieldOperationFilter Size(AstFilterField field, BsonValue size)
         {
             return new AstFieldOperationFilter(field, new AstSizeFilterOperation(size));
+        }
+
+        public static AstFieldOperationFilter Type(AstFilterField field, BsonType type)
+        {
+            return new AstFieldOperationFilter(field, new AstTypeFilterOperation(type));
         }
         #endregion
 

@@ -453,6 +453,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstIndexOfCPExpression(@string, value, start, end);
         }
 
+        public static AstExpression IsArray(AstExpression value)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.IsArray, value);
+        }
+
         public static AstExpression Last(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Last, array);

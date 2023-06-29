@@ -30,6 +30,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
         {
+            if (GetTypeComparisonExpressionToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return GetTypeComparisonExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
             if (StringGetCharsComparisonExpressionToAggregationExpressionTranslator.CanTranslate(expression, out var getCharsExpression))
             {
                 return StringGetCharsComparisonExpressionToAggregationExpressionTranslator.Translate(context, expression, getCharsExpression);
