@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [InlineData(null, null, "{ $project : { _v : { $dateToString : { date : '$D' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "2021-01-02T03:04:05.123Z" })]
         [InlineData("%H:%M:%S", null, "{ $project : { _v : { $dateToString : { date : '$D', format : '%H:%M:%S' } }, _id : 0 } }", new[] { "03:04:05", "03:04:05" })]
-        [InlineData(null, "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', timezone : '-04:00' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "2021-01-01T23:04:05.123Z" })]
+        [InlineData(null, "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', timezone : '-04:00' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", "2021-01-01T23:04:05.123" })]
         [InlineData("%H:%M:%S", "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', format : '%H:%M:%S', timezone : '-04:00' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_constants_should_work(string format, string timezone, string expectedProjectStage, string[] expectedResults)
         {
@@ -94,13 +95,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 expectedProjectStage);
 
             var results = queryable.ToList();
+            if (format == null && timezone != null)
+            {
+                results = RemoveTrailingZFromResults(results); // older servers incorrectly added a trailing Z in this case
+            }
             results.Should().Equal(expectedResults);
         }
 
         [Theory]
         [InlineData(false, false, "{ $project : { _v : { $dateToString : { date : '$D' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "2021-01-02T03:04:05.123Z" })]
         [InlineData(true, false, "{ $project : { _v : { $dateToString : { date : '$D', format : '$Format' } }, _id : 0 } }", new[] { "03:04:05", "03:04:05" })]
-        [InlineData(false, true, "{ $project : { _v : { $dateToString : { date : '$D', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "2021-01-01T23:04:05.123Z" })]
+        [InlineData(false, true, "{ $project : { _v : { $dateToString : { date : '$D', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", "2021-01-01T23:04:05.123" })]
         [InlineData(true, true, "{ $project : { _v : { $dateToString : { date : '$D', format : '$Format', timezone : '$Timezone' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_expressions_should_work(bool withFormat, bool withTimezone, string expectedProjectStage, string[] expectedResults)
         {
@@ -128,6 +133,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 expectedProjectStage);
 
             var results = queryable.ToList();
+            if (!withFormat && withTimezone)
+            {
+                results = RemoveTrailingZFromResults(results); // older servers incorrectly added a trailing Z in this case
+            }
             results.Should().Equal(expectedResults);
         }
 
@@ -158,8 +167,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(null, null, "xx", "{ $project : { _v : { $dateToString : { date : '$N', onNull : 'xx' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "xx" })]
         [InlineData("%H:%M:%S", null, null, "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S' } }, _id : 0 } }", new[] { "03:04:05", null })]
         [InlineData("%H:%M:%S", null, "xx", "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S', onNull : 'xx' } }, _id : 0 } }", new[] { "03:04:05", "xx" })]
-        [InlineData(null, "-04:00", null, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '-04:00' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", null })]
-        [InlineData(null, "-04:00", "xx", "{ $project : { _v : { $dateToString : { date : '$N', timezone : '-04:00', onNull : 'xx' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "xx" })]
+        [InlineData(null, "-04:00", null, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '-04:00' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", null })]
+        [InlineData(null, "-04:00", "xx", "{ $project : { _v : { $dateToString : { date : '$N', timezone : '-04:00', onNull : 'xx' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", "xx" })]
         [InlineData("%H:%M:%S", "-04:00", null, "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S', timezone : '-04:00' } }, _id : 0 } }", new[] { "23:04:05", null })]
         [InlineData("%H:%M:%S", "-04:00", "xx", "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S', timezone : '-04:00', onNull : 'xx' } }, _id : 0 } }", new[] { "23:04:05", "xx" })]
         public void NullableDateTime_ToString_with_format_and_timezone_and_onNull_constants_should_work(string format, string timezone, string onNull, string expectedProjectStage, string[] expectedResults)
@@ -183,14 +192,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 expectedProjectStage);
 
             var results = queryable.ToList();
+            if (format == null && timezone != null)
+            {
+                results = RemoveTrailingZFromResults(results); // older servers incorrectly added a trailing Z in this case
+            }
             results.Should().Equal(expectedResults);
         }
 
         [Theory]
         [InlineData(false, false, false, "{ $project : { _v : { $dateToString : { date : '$N' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", null })]
         [InlineData(false, false, true, "{ $project : { _v : { $dateToString : { date : '$N', onNull : '$OnNull' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "missing" })]
-        [InlineData(false, true, false, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", null })]
-        [InlineData(false, true, true, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '$Timezone', onNull : '$OnNull' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "missing" })]
+        [InlineData(false, true, false, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", null })]
+        [InlineData(false, true, true, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '$Timezone', onNull : '$OnNull' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123", "missing" })]
         [InlineData(true, false, false, "{ $project : { _v : { $dateToString : { date : '$N', format : '$Format' } }, _id : 0 } }", new[] { "03:04:05", null })]
         [InlineData(true, false, true, "{ $project : { _v : { $dateToString : { date : '$N', format : '$Format', onNull : '$OnNull' } }, _id : 0 } }", new[] { "03:04:05", "missing" })]
         [InlineData(true, true, false, "{ $project : { _v : { $dateToString : { date : '$N', format : '$Format', timezone : '$Timezone' } }, _id : 0 } }", new[] { "23:04:05", null })]
@@ -225,6 +238,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 expectedProjectStage);
 
             var results = queryable.ToList();
+            if (!withFormat && withTimezone)
+            {
+                results = RemoveTrailingZFromResults(results); // older servers incorrectly added a trailing Z in this case
+            }
             results.Should().Equal(expectedResults);
         }
 
@@ -238,6 +255,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new C { Id = 2, D = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), N = null, Format = "%H:%M:%S", Timezone = "-04:00", OnNull = "missing" });
 
             return collection;
+        }
+
+        private List<string> RemoveTrailingZFromResults(List<string> results)
+        {
+            return results.Select(RemoveTrailingZ).ToList();
+
+            static string RemoveTrailingZ(string value)
+            {
+                return value != null && value.EndsWith("Z") ? value.Substring(0, value.Length - 1) : value;
+            }
         }
 
         private class C
