@@ -668,6 +668,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.ReverseArray, array);
         }
 
+        public static AstExpression Round(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.Round, arg);
+        }
+
+        public static AstExpression Round(AstExpression arg, AstExpression place)
+        {
+            return new AstBinaryExpression(AstBinaryOperator.Round, arg, place);
+        }
+
         public static AstExpression RTrim(AstExpression input, AstExpression chars = null)
         {
             return new AstRTrimExpression(input, chars);

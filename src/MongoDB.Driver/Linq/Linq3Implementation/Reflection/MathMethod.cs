@@ -46,6 +46,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __logWithNewBase;
         private static readonly MethodInfo __log10;
         private static readonly MethodInfo __pow;
+        private static readonly MethodInfo __roundWithDecimal;
+        private static readonly MethodInfo __roundWithDecimalAndDecimals;
+        private static readonly MethodInfo __roundWithDouble;
+        private static readonly MethodInfo __roundWithDoubleAndDigits;
         private static readonly MethodInfo __sin;
         private static readonly MethodInfo __sinh;
         private static readonly MethodInfo __sqrt;
@@ -88,6 +92,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __logWithNewBase = ReflectionInfo.Method((double a, double newBase) => Math.Log(a, newBase));
             __log10 = ReflectionInfo.Method((double d) => Math.Log10(d));
             __pow = ReflectionInfo.Method((double x, double y) => Math.Pow(x, y));
+            __roundWithDecimal = ReflectionInfo.Method((decimal d) => Math.Round(d));
+            __roundWithDecimalAndDecimals = ReflectionInfo.Method((decimal d, int decimals) => Math.Round(d, decimals));
+            __roundWithDouble = ReflectionInfo.Method((double d) => Math.Round(d));
+            __roundWithDoubleAndDigits = ReflectionInfo.Method((double d, int digits) => Math.Round(d, digits));
             __sin = ReflectionInfo.Method((double a) => Math.Sin(a));
             __sinh = ReflectionInfo.Method((double a) => Math.Sinh(a));
             __sqrt = ReflectionInfo.Method((double d) => Math.Sqrt(d));
@@ -123,6 +131,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo LogWithNewBase => __logWithNewBase;
         public static MethodInfo Log10 => __log10;
         public static MethodInfo Pow => __pow;
+        public static MethodInfo RoundWithDecimal => __roundWithDecimal;
+        public static MethodInfo RoundWithDecimalAndDecimals => __roundWithDecimalAndDecimals;
+        public static MethodInfo RoundWithDouble => __roundWithDouble;
+        public static MethodInfo RoundWithDoubleAndDigits => __roundWithDoubleAndDigits;
         public static MethodInfo Sin => __sin;
         public static MethodInfo Sinh => __sinh;
         public static MethodInfo Sqrt => __sqrt;
