@@ -660,6 +660,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstReduceExpression(input, initialValue, @in);
         }
 
+        public static AstExpression RegexMatch(AstExpression input, string pattern, string options)
+            => new AstRegexExpression(AstRegexOperator.Match, input, pattern, options);
+
         public static AstExpression ReverseArray(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.ReverseArray, array);

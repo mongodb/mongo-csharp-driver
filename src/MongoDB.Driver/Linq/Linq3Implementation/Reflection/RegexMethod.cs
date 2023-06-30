@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
@@ -37,5 +39,61 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo IsMatch => __isMatch;
         public static MethodInfo StaticIsMatch => __staticIsMatch;
         public static MethodInfo StaticIsMatchWithOptions => __staticIsMatchWithOptions;
+
+        // public methods
+        public static bool IsMatchMethod(MethodCallExpression expression, out Expression inputExpression, out Regex regex)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(__isMatch))
+            {
+                var objectExpression = expression.Object;
+                if (objectExpression is ConstantExpression objectConstantExpression)
+                {
+                    regex = (Regex)objectConstantExpression.Value;
+                    inputExpression = arguments[0];
+                    return true;
+                }
+            }
+
+            if (method.IsOneOf(__staticIsMatch, __staticIsMatchWithOptions))
+            {
+                inputExpression = arguments[0];
+                var patternExpression = arguments[1];
+                var optionsExpression = arguments.Count < 3 ? null : arguments[2];
+
+                string pattern;
+                if (patternExpression is ConstantExpression patternConstantExpression)
+                {
+                    pattern = (string)patternConstantExpression.Value;
+                }
+                else
+                {
+                    goto returnFalse;
+                }
+
+                var options = RegexOptions.None;
+                if (optionsExpression != null)
+                {
+                    if (optionsExpression is ConstantExpression optionsConstantExpression)
+                    {
+                        options = (RegexOptions)optionsConstantExpression.Value;
+                    }
+                    else
+                    {
+                        goto returnFalse;
+                    }
+                }
+
+                regex = new Regex(pattern, options);
+                return true;
+            }
+
+        returnFalse:
+            inputExpression = null;
+            regex = null;
+            return false;
+        }
     }
 }
