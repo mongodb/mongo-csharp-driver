@@ -1179,6 +1179,10 @@ namespace MongoDB.Driver
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
         /// </param>
+        /// <param name="scoreDetails">
+        /// Flag that specifies whether to return a detailed breakdown
+        /// of the score for each document in the result. 
+        /// </param>
         /// <returns>
         /// A new pipeline with an additional stage.
         /// </returns>
@@ -1188,10 +1192,11 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TOutput> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            bool returnStoredSource = false)
+            bool returnStoredSource = false,
+            bool scoreDetails = false)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource, scoreDetails));
         }
 
         /// <summary>

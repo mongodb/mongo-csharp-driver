@@ -365,13 +365,18 @@ namespace MongoDB.Driver
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
         /// </param>
+        /// <param name="scoreDetails">
+        /// Flag that specifies whether to return a detailed breakdown
+        /// of the score for each document in the result. 
+        /// </param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TResult> Search(
             SearchDefinition<TResult> searchDefinition,
             SearchHighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            bool returnStoredSource = false);
+            bool returnStoredSource = false,
+            bool scoreDetails = false);
 
         /// <summary>
         /// Appends a $searchMeta stage to the pipeline.

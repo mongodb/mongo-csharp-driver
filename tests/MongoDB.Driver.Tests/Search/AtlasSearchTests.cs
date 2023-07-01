@@ -256,13 +256,15 @@ namespace MongoDB.Driver.Tests.Search
                 .Search(Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     new SearchHighlightOptions<HistoricalDocument>(x => x.Body),
                     indexName: "default",
-                    returnStoredSource: true)
+                    returnStoredSource: true,
+                    scoreDetails: true)
                 .Limit(1)
                 .Project<HistoricalDocument>(Builders.Projection
                     .Include(x => x.Title)
                     .Include(x => x.Body)
                     .MetaSearchScore("score")
-                    .MetaSearchHighlights("highlights"))
+                    .MetaSearchHighlights("highlights")
+                    .MetaSearchScoreDetails("scoreDetails"))
                 .ToList();
 
             var result = results.Should().ContainSingle().Subject;
@@ -280,6 +282,13 @@ namespace MongoDB.Driver.Tests.Search
 
             var highlightRangeStr = string.Join(string.Empty, highlightTexts.Skip(1).Select(x => x.Value));
             highlightRangeStr.Should().Be("Life, Liberty and the pursuit of Happiness.");
+
+            var scoreDetails = result.ScoreDetails.Value.Should().NotBe(0);
+
+            foreach (var scoreDetail in result.ScoreDetails.Details)
+            {
+                scoreDetail.Value.Should().NotBe(0);
+            }
         }
 
         [Fact]
@@ -493,6 +502,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("metaResult")]
             public SearchMetaResult MetaResult { get; set; }
+
+            [BsonElement("scoreDetails")]
+            public SearchScoreDetails ScoreDetails { get; set; }
         }
 
         [BsonIgnoreExtraElements]

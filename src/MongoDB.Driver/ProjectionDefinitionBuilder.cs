@@ -191,6 +191,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Combines an existing projection with a search score details projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchScoreDetails<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            string field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
+        }
+
+        /// <summary>
         /// Combines an existing projection with a text score projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -453,6 +470,18 @@ namespace MongoDB.Driver
         public ProjectionDefinition<TSource> MetaSearchScore(string field)
         {
             return Meta(field, "searchScore");
+        }
+
+        /// <summary>
+        /// Creates a search score details projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search score details projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchScoreDetails(string field)
+        {
+            return Meta(field, "searchScoreDetails");
         }
 
         /// <summary>

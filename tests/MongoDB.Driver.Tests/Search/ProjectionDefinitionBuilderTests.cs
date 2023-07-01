@@ -39,6 +39,14 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void MetaSearchScoreDetails()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(subject.MetaSearchScoreDetails("a"), "{ a : { $meta: 'searchScoreDetails' } }");
+        }
+
+        [Fact]
         public void SearchMeta()
         {
             var subject = CreateSubject<BsonDocument>();
