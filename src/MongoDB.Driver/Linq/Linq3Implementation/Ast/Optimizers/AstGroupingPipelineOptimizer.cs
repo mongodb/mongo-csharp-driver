@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -169,11 +170,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 static bool IsLastStageThatCanBeOptimized(AstStage stage)
                 {
-                    return stage.NodeType switch
+                    return stage switch
                     {
-                        AstNodeType.ProjectStage => true,
+                        AstProjectStage projectStage => !ProjectsRoot(projectStage),
                         _ => false
                     };
+
+                    static bool ProjectsRoot(AstProjectStage projectStage)
+                    {
+                        return projectStage.Specifications.Any(
+                            specification =>
+                                specification is AstProjectStageSetFieldSpecification setFieldSpecification &&
+                                setFieldSpecification.Value is AstVarExpression varExpression &&
+                                varExpression.Name == "ROOT");
+                    }
                 }
             }
         }
