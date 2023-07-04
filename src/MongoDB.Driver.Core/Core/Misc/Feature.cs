@@ -110,6 +110,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
+        private static readonly Feature __round = new Feature("Round", WireVersion.Server42);
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", WireVersion.Server30);
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", WireVersion.Server34);
@@ -618,6 +619,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature RetryableWrites => __retryableWrites;
+
+        /// <summary>
+        /// Gets the $round feature.
+        /// </summary>
+        public static Feature Round => __round;
 
         /// <summary>
         /// Gets the scram sha1 authentication feature.
