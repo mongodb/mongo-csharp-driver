@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var fieldType = field.Serializer.ValueType;
                 var targetType = expression.Type;
 
+                if (targetType == fieldType)
+                {
+                    return field;
+                }
+
                 if (IsConvertEnumToUnderlyingType(fieldType, targetType))
                 {
                     return TranslateConvertEnumToUnderlyingType(field, targetType);
