@@ -39,6 +39,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var operandExpression = expression.Operand;
                 var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
 
+                if (expressionType == operandExpression.Type)
+                {
+                    return operandTranslation;
+                }
+
                 if (IsConvertEnumToUnderlyingType(expression))
                 {
                     return TranslateConvertEnumToUnderlyingType(expression, operandTranslation);
