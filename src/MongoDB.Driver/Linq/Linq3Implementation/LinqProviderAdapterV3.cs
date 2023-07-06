@@ -171,13 +171,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
             static bool IsFieldNamePath(string path, out string fieldName)
             {
-                if (path[0] == '$')
+                if (path.Length >= 2 && path[0] == '$' && !path.Contains("."))
                 {
                     fieldName = path.Substring(1);
-                    if (!fieldName.Contains("."))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
 
                 fieldName = null;
