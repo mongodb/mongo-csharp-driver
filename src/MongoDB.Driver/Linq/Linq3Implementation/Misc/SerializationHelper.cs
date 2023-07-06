@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -24,6 +25,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
+        public static void EnsureRepresentationIsNumeric(Expression expression, IBsonSerializer serializer)
+        {
+            if (serializer is IRepresentationConfigurable representationConfigurableSerializer)
+            {
+                EnsureRepresentationIsNumeric(expression, serializer.ValueType, representationConfigurableSerializer.Representation);
+            }
+
+            static void EnsureRepresentationIsNumeric(Expression expression, Type valueType, BsonType representation)
+            {
+                if (!IsNumericRepresentation(representation))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer for type {valueType} uses a non-numeric representation: {representation}");
+                }
+            }
+
+            static bool IsNumericRepresentation(BsonType representation)
+            {
+                return representation switch
+                {
+                    BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
+                    _ => false
+                };
+            }
+        }
+
         public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
         {
             var value = constantExpression.Value;

@@ -19,7 +19,6 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -71,6 +70,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return MemberExpressionToAggregationExpressionTranslator.Translate(context, (MemberExpression)expression);
                 case ExpressionType.MemberInit:
                     return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, (MemberInitExpression)expression);
+                case ExpressionType.Negate:
+                    return NegateExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.New:
                     return NewExpressionToAggregationExpressionTranslator.Translate(context, (NewExpression)expression);
                 case ExpressionType.NewArrayInit:
@@ -123,7 +124,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var lambdaReturnType = lambdaExpression.ReturnType;
             var bodySerializer = translatedBody.Serializer;
             var bodyType = bodySerializer.ValueType;
-            if (bodyType != lambdaReturnType)            
+            if (bodyType != lambdaReturnType)
             {
                 if (lambdaReturnType.IsAssignableFrom(bodyType))
                 {
