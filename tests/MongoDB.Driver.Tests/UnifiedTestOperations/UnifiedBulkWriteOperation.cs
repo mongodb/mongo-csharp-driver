@@ -342,16 +342,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         public OperationResult Convert(BulkWriteResult<BsonDocument> result)
         {
-            var document = new BsonDocument
+            BsonDocument document;
+            if (result is not BulkWriteResult<BsonDocument>.Unacknowledged)
             {
-                { "deletedCount", result.DeletedCount },
-                { "insertedCount", result.InsertedCount },
-                { "matchedCount", result.MatchedCount },
-                { "modifiedCount", result.ModifiedCount },
-                { "upsertedCount", result.Upserts.Count },
-                { "insertedIds", PrepareInsertedIds(result.ProcessedRequests) },
-                { "upsertedIds", PrepareUpsertedIds(result.Upserts) }
-            };
+                document = new BsonDocument
+                {
+                    { "deletedCount", result.DeletedCount },
+                    { "insertedCount", result.InsertedCount },
+                    { "matchedCount", result.MatchedCount },
+                    { "modifiedCount", result.ModifiedCount },
+                    { "upsertedCount", result.Upserts.Count },
+                    { "insertedIds", PrepareInsertedIds(result.ProcessedRequests) },
+                    { "upsertedIds", PrepareUpsertedIds(result.Upserts) }
+                };
+            }
+            else
+            {
+                document = new BsonDocument();
+            }
 
             return OperationResult.FromResult(document);
         }
