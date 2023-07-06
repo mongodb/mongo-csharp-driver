@@ -27,7 +27,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_with_nullable_value_should_work()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = CreateCollection();
 
             var find = collection

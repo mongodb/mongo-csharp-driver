@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
@@ -144,35 +143,46 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             var renderedProjection = TranslateExpressionToProjectionInternal(expression, sourceSerializer, new AstFindProjectionSimplifier());
 
-            // { _v : '$field', _id : 0 } => { field : 1, _id : 0 } or { _id : 1 } for compatibility with older servers
+            // { _v : '$field', _id : 0 } => { field : 1, _id : 0 } or { _id : 1 } for compatibility with servers before 4.4
             if (renderedProjection.ProjectionSerializer is IWrappedValueSerializer wrappedValueSerializer)
             {
                 var projectionDocument = renderedProjection.Document;
-                var elements = projectionDocument.Elements.ToArray();
-                if (elements.Length == 2)
+                var projectionElements = projectionDocument.Elements.ToArray();
+                if (projectionElements.Length == 2)
                 {
-                    if (elements[0].Name == wrappedValueSerializer.FieldName &&
-                        elements[0].Value is BsonString wrappedValueExpression &&
-                        elements[1].Name == "_id" &&
-                        elements[1].Value == 0)
+                    if (projectionElements[0].Name == wrappedValueSerializer.FieldName &&
+                        projectionElements[0].Value is BsonString wrappedValueExpression &&
+                        projectionElements[1].Name == "_id" &&
+                        projectionElements[1].Value == 0 &&
+                        IsFieldNamePath(wrappedValueExpression.AsString, out var fieldName))
                     {
-                        var fieldPath = wrappedValueExpression.AsString;
-                        if (Regex.IsMatch(fieldPath, @"^\$[^.$]+"))
+                        var newProjectionDocument = new BsonDocument(fieldName, 1);
+                        if (fieldName != "_id")
                         {
-                            var fieldName = fieldPath.Substring(1);
-                            var newProjectionDocument = new BsonDocument(fieldName, 1);
-                            if (fieldName != "_id")
-                            {
-                                newProjectionDocument.Add("_id", 0);
-                            }
-                            var newWrappedValueSerializer = (IBsonSerializer<TProjection>)WrappedValueSerializer.Create(fieldName, wrappedValueSerializer.ValueSerializer);
-                            return new RenderedProjectionDefinition<TProjection>(newProjectionDocument, newWrappedValueSerializer);
+                            newProjectionDocument.Add("_id", 0);
                         }
+                        var newWrappedValueSerializer = (IBsonSerializer<TProjection>)WrappedValueSerializer.Create(fieldName, wrappedValueSerializer.ValueSerializer);
+                        return new RenderedProjectionDefinition<TProjection>(newProjectionDocument, newWrappedValueSerializer);
                     }
                 }
             }
 
             return renderedProjection;
+
+            static bool IsFieldNamePath(string path, out string fieldName)
+            {
+                if (path[0] == '$')
+                {
+                    fieldName = path.Substring(1);
+                    if (!fieldName.Contains("."))
+                    {
+                        return true;
+                    }
+                }
+
+                fieldName = null;
+                return false;
+            }
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
