@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,12 +25,12 @@ public sealed class MongoUrlTypeConverter : TypeConverter
 {
     /// <inheritdoc />
     [Pure]
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 
     /// <inheritdoc />
     [Pure]
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value)
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         => value is string str
         ? new MongoUrl(str)
         : base.ConvertFrom(context, culture, value);
