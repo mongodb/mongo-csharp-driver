@@ -18,20 +18,21 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 
-namespace MongoDB.Driver.Convertion;
-
-/// <summary>Implements a <see cref="TypeConverter"/> for converting <see cref="MongoUrl"/>.</summary>
-public sealed class MongoUrlTypeConverter : TypeConverter
+namespace MongoDB.Driver.Convertion
 {
-    /// <inheritdoc />
-    [Pure]
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+    /// <summary>Implements a <see cref="TypeConverter"/> for converting <see cref="MongoUrl"/>.</summary>
+    public sealed class MongoUrlTypeConverter : TypeConverter
+    {
+        /// <inheritdoc />
+        [Pure]
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 
-    /// <inheritdoc />
-    [Pure]
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        => value is string str
-        ? new MongoUrl(str)
-        : base.ConvertFrom(context, culture, value);
+        /// <inheritdoc />
+        [Pure]
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            => value is string str
+            ? new MongoUrl(str)
+            : base.ConvertFrom(context, culture, value);
+    }
 }
