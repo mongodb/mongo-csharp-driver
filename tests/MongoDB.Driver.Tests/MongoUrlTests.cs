@@ -468,19 +468,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Converts_from_string()
+        public void Convert_from_string_should_work()
         {
             var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
 
-            converter.ConvertFrom("mongodb://localhost").Should().Be(new MongoUrl("mongodb://localhost"));
+            var result = converter.ConvertFrom("mongodb://localhost");
+
+            result.Should().Be(new MongoUrl("mongodb://localhost"));
         }
 
         [Fact]
-        public void Converts_to_string()
+        public void Convert_to_string_should_work()
         {
             var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
 
-            converter.ConvertTo(new MongoUrl("mongodb://localhost"), typeof(string)).Should().Be("mongodb://localhost");
+            var result = converter.ConvertTo(new MongoUrl("mongodb://localhost"), typeof(string));
+
+            result.Should().Be("mongodb://localhost");
         }
 
         // private methods
