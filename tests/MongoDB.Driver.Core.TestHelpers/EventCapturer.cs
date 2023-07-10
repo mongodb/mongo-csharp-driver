@@ -264,6 +264,7 @@ namespace MongoDB.Driver.Core
                 @event = new CommandSucceededEvent(
                     @event.CommandName,
                     RecursivelyMaterialize(@event.Reply),
+                    @event.DatabaseNamespace,
                     @event.OperationId,
                     @event.RequestId,
                     @event.ConnectionId,
@@ -288,6 +289,7 @@ namespace MongoDB.Driver.Core
 
                 @event = new CommandFailedEvent(
                     @event.CommandName,
+                    @event.DatabaseNamespace,
                     exception,
                     @event.OperationId,
                     @event.RequestId,

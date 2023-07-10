@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly string _commandName;
         private readonly ConnectionId _connectionId;
+        private readonly DatabaseNamespace _databaseNamespace;
         private readonly TimeSpan _duration;
         private readonly long? _operationId;
         private readonly int _requestId;
@@ -35,34 +36,37 @@ namespace MongoDB.Driver.Core.Events
         private readonly DateTime _timestamp;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandSucceededEvent"/> struct.
+        /// Initializes a new instance of the <see cref="CommandSucceededEvent" /> struct.
         /// </summary>
         /// <param name="commandName">Name of the command.</param>
         /// <param name="reply">The reply.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="requestId">The request identifier.</param>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration.</param>
-        public CommandSucceededEvent(string commandName, BsonDocument reply, long? operationId, int requestId, ConnectionId connectionId, TimeSpan duration)
-            : this(commandName, reply, operationId, requestId, connectionId, serviceId: null, duration)
+        public CommandSucceededEvent(string commandName, BsonDocument reply, DatabaseNamespace databaseNamespace, long? operationId, int requestId, ConnectionId connectionId, TimeSpan duration)
+            : this(commandName, reply, databaseNamespace, operationId, requestId, connectionId, serviceId: null, duration)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandSucceededEvent"/> struct.
+        /// Initializes a new instance of the <see cref="CommandSucceededEvent" /> struct.
         /// </summary>
         /// <param name="commandName">Name of the command.</param>
         /// <param name="reply">The reply.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="requestId">The request identifier.</param>
         /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="duration">The duration.</param>
         /// <param name="serviceId">The service identifier.</param>
-        public CommandSucceededEvent(string commandName, BsonDocument reply, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId, TimeSpan duration)
+        /// <param name="duration">The duration.</param>
+        public CommandSucceededEvent(string commandName, BsonDocument reply, DatabaseNamespace databaseNamespace, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId, TimeSpan duration)
         {
             _commandName = Ensure.IsNotNullOrEmpty(commandName, "commandName");
             _reply = Ensure.IsNotNull(reply, "reply");
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
@@ -84,6 +88,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        public DatabaseNamespace DatabaseNamespace
+        {
+            get { return _databaseNamespace; }
         }
 
         /// <summary>

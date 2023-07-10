@@ -160,6 +160,16 @@ namespace MongoDB.Driver.Core.Logging
             return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2 };
         }
 
+        public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object ommitableParam)
+        {
+            var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
+
+            if (ommitableParam == null)
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, };
+            else
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, ommitableParam };
+        }
+
         public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object ommitableParam)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();

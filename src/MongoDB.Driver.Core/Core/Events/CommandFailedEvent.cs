@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly string _commandName;
         private readonly ConnectionId _connectionId;
+        private readonly DatabaseNamespace _databaseNamespace;
         private readonly TimeSpan _duration;
         private readonly Exception _exception;
         private readonly long? _operationId;
@@ -38,13 +39,14 @@ namespace MongoDB.Driver.Core.Events
         /// Initializes a new instance of the <see cref="CommandFailedEvent" /> struct.
         /// </summary>
         /// <param name="commandName">Name of the command.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="requestId">The request identifier.</param>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration.</param>
-        public CommandFailedEvent(string commandName, Exception exception, long? operationId, int requestId, ConnectionId connectionId, TimeSpan duration)
-            : this(commandName, exception, operationId, requestId, connectionId, serviceId: null, duration)
+        public CommandFailedEvent(string commandName, DatabaseNamespace databaseNamespace, Exception exception, long? operationId, int requestId, ConnectionId connectionId, TimeSpan duration)
+            : this(commandName, databaseNamespace, exception, operationId, requestId, connectionId, serviceId: null, duration)
         {
         }
 
@@ -52,17 +54,19 @@ namespace MongoDB.Driver.Core.Events
         /// Initializes a new instance of the <see cref="CommandFailedEvent" /> struct.
         /// </summary>
         /// <param name="commandName">Name of the command.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="requestId">The request identifier.</param>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="serviceId">The service identifier.</param>
         /// <param name="duration">The duration.</param>
-        public CommandFailedEvent(string commandName, Exception exception, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId, TimeSpan duration)
+        public CommandFailedEvent(string commandName, DatabaseNamespace databaseNamespace, Exception exception, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId, TimeSpan duration)
         {
             _commandName = Ensure.IsNotNullOrEmpty(commandName, "commandName");
             _exception = Ensure.IsNotNull(exception, "exception");
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
@@ -84,6 +88,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        public DatabaseNamespace DatabaseNamespace
+        {
+            get { return _databaseNamespace; }
         }
 
         /// <summary>

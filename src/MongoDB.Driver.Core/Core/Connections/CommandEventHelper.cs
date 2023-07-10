@@ -117,6 +117,7 @@ namespace MongoDB.Driver.Core.Connections
                         _eventLogger.LogAndPublish(new CommandSucceededEvent(
                             state.CommandName,
                             new BsonDocument("ok", 1),
+                            state.QueryNamespace.DatabaseNamespace,
                             state.OperationId,
                             message.RequestId,
                             connectionId,
@@ -139,6 +140,7 @@ namespace MongoDB.Driver.Core.Connections
                     state.Stopwatch.Stop();
                     _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
+                        state.QueryNamespace.DatabaseNamespace,
                         exception,
                         state.OperationId,
                         message.RequestId,
@@ -182,6 +184,7 @@ namespace MongoDB.Driver.Core.Connections
 
             _eventLogger.LogAndPublish(new CommandFailedEvent(
                 state.CommandName,
+                state.QueryNamespace.DatabaseNamespace,
                 exception,
                 state.OperationId,
                 responseTo,
@@ -207,6 +210,7 @@ namespace MongoDB.Driver.Core.Connections
                     state.Stopwatch.Stop();
                     _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
+                        state.QueryNamespace.DatabaseNamespace,
                         exception,
                         state.OperationId,
                         requestId,
@@ -313,6 +317,7 @@ namespace MongoDB.Driver.Core.Connections
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
+                    state.QueryNamespace.DatabaseNamespace,
                     state.OperationId,
                     message.ResponseTo,
                     connectionId,
@@ -326,6 +331,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
+                        state.QueryNamespace.DatabaseNamespace,
                         new MongoCommandException(
                             connectionId,
                             string.Format("{0} command failed", state.CommandName),
@@ -446,6 +452,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         _eventLogger.LogAndPublish(new CommandFailedEvent(
                             state.CommandName,
+                            state.QueryNamespace.DatabaseNamespace,
                             new MongoCommandException(
                                 connectionId,
                                 string.Format("{0} command failed", state.CommandName),
@@ -502,6 +509,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
+                        state.QueryNamespace.DatabaseNamespace,
                         new MongoCommandException(
                             connectionId,
                             string.Format("{0} command failed", state.CommandName),
@@ -519,6 +527,7 @@ namespace MongoDB.Driver.Core.Connections
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
+                    state.QueryNamespace.DatabaseNamespace,
                     state.OperationId,
                     replyMessage.ResponseTo,
                     connectionId,
@@ -555,6 +564,7 @@ namespace MongoDB.Driver.Core.Connections
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
+                    state.QueryNamespace.DatabaseNamespace,
                     state.OperationId,
                     replyMessage.ResponseTo,
                     connectionId,

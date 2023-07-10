@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 14, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 15, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
