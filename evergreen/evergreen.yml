@@ -459,7 +459,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
-            alias urlencode='python -c "import sys, urllib as ul; sys.stdout.write(ul.quote_plus(sys.argv[1]))"'
+            alias urlencode='${python3_binary} -c "import sys, urllib.parse as ulp; sys.stdout.write(ulp.quote_plus(sys.argv[1]))"'
             USER=$(urlencode "${iam_auth_ecs_account}")
             PASS=$(urlencode "${iam_auth_ecs_secret_access_key}")
             MONGODB_URI="mongodb://$USER:$PASS@localhost"
@@ -486,8 +486,8 @@ functions:
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
-            alias urlencode='python -c "import sys, urllib as ul; sys.stdout.write(ul.quote_plus(sys.argv[1]))"'
-            alias jsonkey='python -c "import json,sys;sys.stdout.write(json.load(sys.stdin)[sys.argv[1]])" < ${DRIVERS_TOOLS}/.evergreen/auth_aws/creds.json'
+            alias urlencode='${python3_binary} -c "import sys, urllib.parse as ulp; sys.stdout.write(ulp.quote_plus(sys.argv[1]))"'
+            alias jsonkey='${python3_binary} -c "import json,sys;sys.stdout.write(json.load(sys.stdin)[sys.argv[1]])" < ${DRIVERS_TOOLS}/.evergreen/auth_aws/creds.json'
             USER=$(jsonkey AccessKeyId)
             USER=$(urlencode $USER)
             PASS=$(jsonkey SecretAccessKey)
@@ -661,7 +661,7 @@ functions:
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
-            alias jsonkey='python -c "import json,sys;sys.stdout.write(json.load(sys.stdin)[sys.argv[1]])" < ${DRIVERS_TOOLS}/.evergreen/auth_aws/creds.json'
+            alias jsonkey='${python3_binary} -c "import json,sys;sys.stdout.write(json.load(sys.stdin)[sys.argv[1]])" < ${DRIVERS_TOOLS}/.evergreen/auth_aws/creds.json'
             export AWS_ACCESS_KEY_ID=$(jsonkey AccessKeyId)
             export AWS_SECRET_ACCESS_KEY=$(jsonkey SecretAccessKey)
             export AWS_SESSION_TOKEN=$(jsonkey SessionToken)
@@ -1714,6 +1714,7 @@ axes:
         display_name: "Windows 64-bit"
         variables:
           OS: "windows-64"
+          python3_binary: "C:/python/Python38/python.exe"
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
@@ -1721,11 +1722,13 @@ axes:
         display_name: "Ubuntu 18.04"
         variables:
           OS: "ubuntu-1804"
+          python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu1804-test
       - id: "macos-1100"
         display_name: "macOS 11.00"
         variables:
           OS: "macos-1100"
+          python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
@@ -1734,6 +1737,7 @@ axes:
         display_name: "macOS 11.00 M1"
         variables:
           OS: "macos-1100-arm64"
+          python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
