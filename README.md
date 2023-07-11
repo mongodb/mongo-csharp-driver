@@ -78,8 +78,8 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 
 ### Maintainers:
 * Boris Dogadov             boris.dogadov@mongodb.com
-* Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
 * James Kovacs              james.kovacs@mongodb.com
+* Oleksandr Poliakov        oleksandr.poliakov@mongodb.com
 * Robert Stam               robert@mongodb.com
 
 ### Contributors:
@@ -163,5 +163,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Zhmayev Yaroslav          https://github.com/salaros
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
 * Samir Boulema             https://github.com/sboulema
+* Dmitry Lukyanov           https://github.com/DmitryLukyanov
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
