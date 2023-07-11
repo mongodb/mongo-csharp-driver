@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// A search count result set.
+    /// Represents the scoreDetails object for a document in the result.
     /// </summary>
     public sealed class SearchScoreDetails
     {
