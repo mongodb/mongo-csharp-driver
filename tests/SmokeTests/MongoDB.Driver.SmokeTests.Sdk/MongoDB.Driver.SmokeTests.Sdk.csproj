@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="[0.0.0.0]" Condition="'$(ReferenceDriverAsPackage)' == 'true'" />
+    <PackageReference Include="MongoDB.Driver" Version="[2.19.0]" Condition="'$(ReferenceDriverAsPackage)' == 'true'" />
     <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(ReferenceDriverAsPackage)' != 'true'" />
   </ItemGroup>
 
