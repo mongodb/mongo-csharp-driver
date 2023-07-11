@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Project(x => x.D);
 
             var projection = TranslateFindProjection(collection, find);
-            projection.Should().Be("{ _v : '$D', _id : 0  }");
+            projection.Should().Be("{ D : 1, _id : 0 }");
 
             var results = find.ToList();
             results.Should().Equal(1.0, null, null);

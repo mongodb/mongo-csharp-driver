@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, aggregate);
 
-            AssertStages(stages, "{ $project : { _v : true, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $literal : true }, _id : 0 } }");
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, aggregate);
 
-            AssertStages(stages, "{ $project : { _v : 1, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $literal : 1 }, _id : 0 } }");
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $project : { _v : true, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $literal : true }, _id : 0 } }");
         }
 
         [Fact]
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $project : { _v : 1, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $literal : 1 }, _id : 0 } }");
         }
 
         private class C

@@ -27,54 +27,95 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class ProjectionHelper
     {
         // public static methods
+        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateAggregationProjection(AggregationExpression expression)
+        {
+            return expression.Ast.NodeType switch
+            {
+                AstNodeType.ComputedDocumentExpression => CreateComputedDocumentProjection(expression),
+                _ => CreateWrappedValueProjection(expression)
+            };
+        }
+
+        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindProjection(AggregationExpression expression)
+        {
+            return expression.Ast.NodeType switch
+            {
+                AstNodeType.GetFieldExpression => CreateFindGetFieldProjection(expression),
+                _ => CreateAggregationProjection(expression)
+            };
+        }
+
         public static (AstProjectStage, IBsonSerializer) CreateProjectStage(AggregationExpression expression)
         {
-            if (expression.Ast.NodeType == AstNodeType.ComputedDocumentExpression)
-            {
-                return CreateComputedDocumentProjectStage(expression);
-            }
-            else
-            {
-                return CreateWrappedValueProjectStage(expression);
-            }
+            var (specifications, projectionSerializer) = CreateAggregationProjection(expression);
+            var projectStage = AstStage.Project(specifications);
+            return (projectStage, projectionSerializer);
         }
 
         // private static methods
-        private static (AstProjectStage, IBsonSerializer) CreateComputedDocumentProjectStage(AggregationExpression expression)
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateComputedDocumentProjection(AggregationExpression expression)
         {
             var computedDocument = (AstComputedDocumentExpression)expression.Ast;
 
             var specifications = new List<AstProjectStageSpecification>();
-
             var isIdProjected = false;
             foreach (var computedField in computedDocument.Fields)
             {
                 var path = computedField.Path;
-                var value = computedField.Value;
-
-                if (value is AstConstantExpression astConstantExpression)
-                {
-                    if (ValueNeedsToBeQuoted(astConstantExpression.Value))
-                    {
-                        value = AstExpression.Literal(value);
-                    }
-                }
+                var value = QuoteIfNecessary(computedField.Value);
                 specifications.Add(AstProject.Set(path, value));
                 isIdProjected |= path == "_id";
             }
-
             if (!isIdProjected)
             {
                 specifications.Add(AstProject.ExcludeId());
             }
 
-            var projectStage = AstStage.Project(specifications);
+            return (specifications, expression.Serializer);
+        }
 
-            return (projectStage, expression.Serializer);
-
-            bool ValueNeedsToBeQuoted(BsonValue constantValue)
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindGetFieldProjection(AggregationExpression expression)
+        {
+            var getFieldExpressionAst = (AstGetFieldExpression)expression.Ast;
+            if (getFieldExpressionAst.HasSafeFieldName(out var fieldName))
             {
-                switch (constantValue.BsonType)
+                var specifications = fieldName == "_id" ?
+                    new List<AstProjectStageSpecification> { AstProject.Include(fieldName) } :
+                    new List<AstProjectStageSpecification> { AstProject.Include(fieldName), AstProject.Exclude("_id") };
+                var wrappedValueSerializer = WrappedValueSerializer.Create(fieldName, expression.Serializer);
+                return (specifications, wrappedValueSerializer);
+            }
+
+            return CreateWrappedValueProjection(expression);
+        }
+
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateWrappedValueProjection(AggregationExpression expression)
+        {
+            var wrappedValueSerializer = WrappedValueSerializer.Create("_v", expression.Serializer);
+            var specifications = new List<AstProjectStageSpecification>
+            {
+                AstProject.Set(wrappedValueSerializer.FieldName, QuoteIfNecessary(expression.Ast)),
+                AstProject.ExcludeId()
+            };
+
+            return (specifications, wrappedValueSerializer);
+        }
+
+        private static AstExpression QuoteIfNecessary(AstExpression expression)
+        {
+            if (expression is AstConstantExpression constantExpression)
+            {
+                if (ValueNeedsToBeQuoted(constantExpression.Value))
+                {
+                    return AstExpression.Literal(constantExpression);
+                }
+            }
+
+            return expression;
+
+            bool ValueNeedsToBeQuoted(BsonValue value)
+            {
+                switch (value.BsonType)
                 {
                     case BsonType.Boolean:
                     case BsonType.Decimal128:
@@ -87,17 +128,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                         return false;
                 }
             }
-        }
-
-        private static (AstProjectStage, IBsonSerializer) CreateWrappedValueProjectStage(AggregationExpression expression)
-        {
-            var wrappedValueSerializer = WrappedValueSerializer.Create("_v", expression.Serializer);
-            var projectStage =
-                AstStage.Project(
-                    AstProject.Set("_v", expression.Ast),
-                    AstProject.ExcludeId());
-
-            return (projectStage, wrappedValueSerializer);
         }
     }
 }
