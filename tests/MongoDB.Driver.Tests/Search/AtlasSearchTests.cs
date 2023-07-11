@@ -283,12 +283,13 @@ namespace MongoDB.Driver.Tests.Search
             var highlightRangeStr = string.Join(string.Empty, highlightTexts.Skip(1).Select(x => x.Value));
             highlightRangeStr.Should().Be("Life, Liberty and the pursuit of Happiness.");
 
-            var scoreDetails = result.ScoreDetails.Value.Should().NotBe(0);
+            result.ScoreDetails.Description.Should().Contain("life liberty and the pursuit of happiness");
+            result.ScoreDetails.Value.Should().NotBe(0);
 
-            foreach (var scoreDetail in result.ScoreDetails.Details)
-            {
-                scoreDetail.Value.Should().NotBe(0);
-            }
+            var scoreDetail = result.ScoreDetails.Details.Should().ContainSingle().Subject;
+            scoreDetail.Description.Should().NotBeNullOrEmpty();
+            scoreDetail.Value.Should().NotBe(0);
+            scoreDetail.Details.Should().NotBeEmpty();
         }
 
         [Fact]
