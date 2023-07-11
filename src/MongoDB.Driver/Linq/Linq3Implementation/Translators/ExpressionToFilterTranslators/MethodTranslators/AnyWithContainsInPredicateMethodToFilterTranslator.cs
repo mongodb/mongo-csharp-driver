@@ -15,6 +15,7 @@
 
 using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -72,10 +73,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static bool IsContainsParameterExpression(Expression predicateBody, ParameterExpression predicateParameter, out Expression innerSourceExpression)
         {
             if (predicateBody is MethodCallExpression methodCallExpression &&
-                methodCallExpression.Method.Is(EnumerableMethod.Contains) &&
-                methodCallExpression.Arguments[1] == predicateParameter)
+                EnumerableMethod.IsContainsMethod(methodCallExpression, out innerSourceExpression, out var valueExpression) &&
+                valueExpression == predicateParameter)
             {
-                innerSourceExpression = methodCallExpression.Arguments[0];
                 return true;
             }
 

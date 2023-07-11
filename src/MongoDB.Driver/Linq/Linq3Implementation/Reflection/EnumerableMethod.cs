@@ -17,7 +17,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
@@ -510,6 +512,45 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Zip => __zip;
 
         // public methods
+        public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+        {
+            var method = methodCallExpression.Method;
+            var parameters = method.GetParameters();
+            var arguments = methodCallExpression.Arguments;
+
+            if (method.Name == "Contains" && method.ReturnType == typeof(bool))
+            {
+                if (method.IsStatic)
+                {
+                    if (parameters.Length == 2)
+                    {
+                        if (parameters[0].ParameterType.ImplementsIEnumerableOf(parameters[1].ParameterType))
+                        {
+                            sourceExpression = arguments[0];
+                            valueExpression = arguments[1];
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (parameters.Length == 1)
+                    {
+                        if (method.DeclaringType.ImplementsIEnumerableOf(parameters[0].ParameterType))
+                        {
+                            sourceExpression = methodCallExpression.Object;
+                            valueExpression = arguments[0];
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            sourceExpression = null;
+            valueExpression = null;
+            return false;
+        }
+
         public static MethodInfo MakeSelect(Type sourceType, Type resultType)
         {
             return __select.MakeGenericMethod(sourceType, resultType);

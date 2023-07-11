@@ -95,6 +95,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool ImplementsIEnumerableOf(this Type type, Type itemType)
+        {
+            return
+                ImplementsIEnumerable(type, out var actualItemType) &&
+                actualItemType == itemType;
+        }
+
         public static bool Is(this Type type, Type comparand)
         {
             if (type == comparand)

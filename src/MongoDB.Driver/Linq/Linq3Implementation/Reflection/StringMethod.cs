@@ -28,6 +28,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __anyStringInWithParams;
         private static readonly MethodInfo __anyStringNinWithEnumerable;
         private static readonly MethodInfo __anyStringNinWithParams;
+        private static readonly MethodInfo __concatWith2Strings;
+        private static readonly MethodInfo __concatWith3Strings;
+        private static readonly MethodInfo __concatWith4Strings;
+        private static readonly MethodInfo __concatWithStringArray;
         private static readonly MethodInfo __containsWithChar;
         private static readonly MethodInfo __containsWithCharAndComparisonType;
         private static readonly MethodInfo __containsWithString;
@@ -104,6 +108,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __anyStringInWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringIn(values));
             __anyStringNinWithEnumerable = ReflectionInfo.Method((IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values) => s.AnyStringNin(values));
             __anyStringNinWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringNin(values));
+            __concatWith2Strings = ReflectionInfo.Method((string str0, string str1) => string.Concat(str0, str1));
+            __concatWith3Strings = ReflectionInfo.Method((string str0, string str1, string str2) => string.Concat(str0, str1, str2));
+            __concatWith4Strings = ReflectionInfo.Method((string str0, string str1, string str2, string str3) => string.Concat(str0, str1, str2, str3));
+            __concatWithStringArray = ReflectionInfo.Method((string[] s) => string.Concat(s));
             __containsWithString = ReflectionInfo.Method((string s, string value) => s.Contains(value));
             __endsWithWithString = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
             __endsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
@@ -160,6 +168,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo AnyStringInWithParams => __anyStringInWithParams;
         public static MethodInfo AnyStringNinWithEnumerable => __anyStringNinWithEnumerable;
         public static MethodInfo AnyStringNinWithParams => __anyStringNinWithParams;
+        public static MethodInfo ConcatWith2Strings => __concatWith2Strings;
+        public static MethodInfo ConcatWith3Strings => __concatWith3Strings;
+        public static MethodInfo ConcatWith4Strings => __concatWith4Strings;
+        public static MethodInfo ConcatWithStringArray => __concatWithStringArray;
         public static MethodInfo ContainsWithChar => __containsWithChar;
         public static MethodInfo ContainsWithCharAndComparisonType => __containsWithCharAndComparisonType;
         public static MethodInfo ContainsWithString => __containsWithString;

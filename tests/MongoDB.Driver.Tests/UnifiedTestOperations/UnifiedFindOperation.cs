@@ -112,6 +112,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Hint = argument.Value.AsBsonDocument;
+                        break;
                     case "let":
                         options ??= new FindOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
@@ -120,12 +124,36 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOptions<BsonDocument>();
                         options.Limit = argument.Value.AsInt32;
                         break;
+                    case "max":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Max = argument.Value.AsBsonDocument;
+                        break;
+                    case "maxTimeMS":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
+                    case "min":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Min = argument.Value.AsBsonDocument;
+                        break;
                     case "projection":
                         options ??= new FindOptions<BsonDocument>();
                         options.Projection = argument.Value.AsBsonDocument;
                         break;
+                    case "returnKey":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.ReturnKey = argument.Value.AsBoolean;
+                        break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "showRecordId":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.ShowRecordId = argument.Value.AsBoolean;
+                        break;
+                    case "skip":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Skip = argument.Value.AsInt32;
                         break;
                     case "sort":
                         options ??= new FindOptions<BsonDocument>();

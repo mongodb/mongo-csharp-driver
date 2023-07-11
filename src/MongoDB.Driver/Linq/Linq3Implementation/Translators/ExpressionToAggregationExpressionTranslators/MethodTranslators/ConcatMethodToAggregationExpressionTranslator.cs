@@ -14,10 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -25,19 +21,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (method.Is(EnumerableMethod.Concat))
+            if (EnumerableConcatMethodToAggregationExpressionTranslator.CanTranslate(expression))
             {
-                var firstExpression = arguments[0];
-                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
-                var secondExpression = arguments[1];
-                var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
-                var ast = AstExpression.ConcatArrays(firstTranslation.Ast, secondTranslation.Ast);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
-                var serializer = IEnumerableSerializer.Create(itemSerializer);
-                return new AggregationExpression(expression, ast, serializer);
+                return EnumerableConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
+            if (StringConcatMethodToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return StringConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var projectStage = AstStage.Project(
                     AstProject.Exclude("_id"),
-                    AstProject.Set("_document", AstExpression.FieldPath("$$ROOT")),
+                    AstProject.Set("_document", AstExpression.Var("ROOT")),
                     AstProject.Set("_key1", keySelectorTranslation.Ast));
                 var sortStage = AstStage.Sort(AstSort.Field("_key1", sortOrder));
                 var replaceRootStage = AstStage.ReplaceRoot(AstExpression.FieldPath("$_document"));
