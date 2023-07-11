@@ -244,9 +244,10 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            bool returnStoredSource = false)
+            bool returnStoredSource = false,
+            bool scoreDetails = false)
         {
-            return WithPipeline(_pipeline.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
+            return WithPipeline(_pipeline.Search(searchDefinition, highlight, indexName, count, returnStoredSource, scoreDetails));
         }
 
         public override IAggregateFluent<SearchMetaResult> SearchMeta(

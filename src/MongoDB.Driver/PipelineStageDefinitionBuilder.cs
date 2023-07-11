@@ -1320,13 +1320,18 @@ namespace MongoDB.Driver
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
         /// </param>
+        /// <param name="scoreDetails">
+        /// Flag that specifies whether to return a detailed breakdown
+        /// of the score for each document in the result. 
+        /// </param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
             SearchDefinition<TInput> searchDefinition,
             SearchHighlightOptions<TInput> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            bool returnStoredSource = false)
+            bool returnStoredSource = false,
+            bool scoreDetails = false)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
@@ -1340,6 +1345,7 @@ namespace MongoDB.Driver
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
                     renderedSearchDefinition.Add("returnStoredSource", returnStoredSource, returnStoredSource);
+                    renderedSearchDefinition.Add("scoreDetails", scoreDetails, scoreDetails);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);

@@ -183,6 +183,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Search_should_add_expected_stage_with_score_details()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+
+            var result = pipeline.Search(builder.Text("bar", "foo"), scoreDetails: true);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, scoreDetails: true } }");
+        }
+
+        [Fact]
         public void Search_should_throw_when_pipeline_is_null()
         {
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
