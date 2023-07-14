@@ -14,11 +14,12 @@
 */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -28,49 +29,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class GetItemMethodToAggregationExpressionTranslator
     {
+        // public static methods
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            Expression sourceExpression, indexExpression, keyExpression;
+            var sourceExpression = expression.Object;
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+            return Translate(context, expression, method, sourceExpression, arguments);
+        }
 
-            if (IsBsonValueGetItemMethodWithIntIndex(expression, out sourceExpression, out indexExpression))
+        public static AggregationExpression Translate(TranslationContext context, Expression expression, MethodInfo method, Expression sourceExpression, ReadOnlyCollection<Expression> arguments)
+        {
+            if (BsonValueMethod.IsGetItemWithIntMethod(method))
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-                var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
-                var valueSerializer = BsonValueSerializer.Instance;
-                return new AggregationExpression(expression, ast, valueSerializer);
+                return TranslateBsonValueGetItemWithInt(context, expression, sourceExpression, arguments[0]);
             }
 
-            if (IsBsonValueGetItemMethodWithStringKey(expression, out sourceExpression, out keyExpression))
+            if (BsonValueMethod.IsGetItemWithStringMethod(method))
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
-                var ast = AstExpression.GetField(sourceTranslation.Ast, keyTranslation.Ast);
-                var valueSerializer = BsonValueSerializer.Instance;
-                return new AggregationExpression(expression, ast, valueSerializer);
+                return TranslateBsonValueGetItemWithString(context, expression, sourceExpression, arguments[0]);
             }
 
-            if (IsEnumerableGetItemMethodWithIntIndex(expression, out sourceExpression, out indexExpression))
+            if (IListMethod.IsGetItemWithIntMethod(method))
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-                var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
-                var serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                return new AggregationExpression(expression, ast, serializer);
+                return TranslateIListGetItemWithInt(context, expression, sourceExpression, arguments[0]);
             }
 
-            if (IsDictionaryGetItemMethodWithStringKey(expression, out sourceExpression, out keyExpression))
+            if (IDictionaryMethod.IsGetItemWithStringMethod(method))
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
-                var ast = AstExpression.GetField(sourceTranslation.Ast, key); // TODO: verify that dictionary is using Document representation
-                var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
-                return new AggregationExpression(expression, ast, valueSerializer);
+                return TranslateIDictionaryGetItemWithString(context, expression, sourceExpression, arguments[0]);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
+        // private static methods
         private static IBsonSerializer GetDictionaryValueSerializer(IBsonSerializer serializer)
         {
             if (serializer is IBsonDictionarySerializer dictionarySerializer)
@@ -81,96 +74,51 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new InvalidOperationException($"Unable to determine value serializer for dictionary serializer: {serializer.GetType().FullName}.");
         }
 
-        private static bool IsBsonValueGetItemMethodWithIntIndex(MethodCallExpression expression, out Expression sourceExpression, out Expression indexExpression)
+        private static AggregationExpression TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
 
-            if (method.Is(BsonValueMethod.GetItemWithInt))
+            AstExpression ast;
+            if (sourceExpression.Type == typeof(BsonDocument) || sourceExpression.Type.IsSubclassOf(typeof(BsonDocument)))
             {
-                sourceExpression = expression.Object;
-                indexExpression = arguments[0];
-                return true;
+                var objectArray = AstExpression.Unary(AstUnaryOperator.ObjectToArray, sourceTranslation.Ast);
+                var objectArrayItem = AstExpression.ArrayElemAt(objectArray, indexTranslation.Ast);
+                ast = AstExpression.GetField(objectArrayItem, "v");
             }
-
-            sourceExpression = null;
-            indexExpression = null;
-            return false;
+            else
+            {
+                ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
+            }
+            var valueSerializer = BsonValueSerializer.Instance;
+            return new AggregationExpression(expression, ast, valueSerializer);
         }
 
-        private static bool IsBsonValueGetItemMethodWithStringKey(MethodCallExpression expression, out Expression sourceExpression, out Expression keyExpression)
+        private static AggregationExpression TranslateBsonValueGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (method.Is(BsonValueMethod.GetItemWithString))
-            {
-                sourceExpression = expression.Object;
-                keyExpression = arguments[0];
-                return true;
-            }
-
-            sourceExpression = null;
-            keyExpression = null;
-            return false;
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+            var ast = AstExpression.GetField(sourceTranslation.Ast, keyTranslation.Ast);
+            var valueSerializer = BsonValueSerializer.Instance;
+            return new AggregationExpression(expression, ast, valueSerializer);
         }
 
-        private static bool IsEnumerableGetItemMethodWithIntIndex(MethodCallExpression expression, out Expression sourceExpression, out Expression indexExpression)
+        private static AggregationExpression TranslateIListGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (!method.IsStatic && method.Name == "get_Item")
-            {
-                sourceExpression = expression.Object;
-                indexExpression = arguments[0];
-
-                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var sourceEnumerableInterface))
-                {
-                    var sourceItemType = sourceEnumerableInterface.GetGenericArguments()[0];
-                    if (expression.Type == sourceItemType)
-                    {
-                        if (indexExpression.Type == typeof(int))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            sourceExpression = null;
-            indexExpression = null;
-            return false;
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
+            var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
+            var serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+            return new AggregationExpression(expression, ast, serializer);
         }
 
-        private static bool IsDictionaryGetItemMethodWithStringKey(MethodCallExpression expression, out Expression sourceExpression, out Expression keyExpression)
+        private static AggregationExpression TranslateIDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (!method.IsStatic && method.Name == "get_Item")
-            {
-                sourceExpression = expression.Object;
-                keyExpression = arguments[0];
-
-                if (sourceExpression.Type.TryGetIDictionaryGenericInterface(out var sourceDictionaryInterface))
-                {
-                    var sourceTypeParameters = sourceDictionaryInterface.GetGenericArguments();
-                    var sourceKeyType = sourceTypeParameters[0];
-                    var sourceValueType = sourceTypeParameters[1];
-                    if (sourceKeyType == typeof(string) && expression.Type == sourceValueType)
-                    {
-                        if (keyExpression.Type == typeof(string))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            sourceExpression = null;
-            keyExpression = null;
-            return false;
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
+            var ast = AstExpression.GetField(sourceTranslation.Ast, key); // TODO: verify that dictionary is using Document representation
+            var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
+            return new AggregationExpression(expression, ast, valueSerializer);
         }
     }
 }

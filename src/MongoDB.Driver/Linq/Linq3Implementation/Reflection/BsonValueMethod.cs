@@ -31,8 +31,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __getItemWithString = ReflectionInfo.IndexerGet((BsonValue v, string index) => v[index]);
         }
 
-        // public properties
+        // public static properties
         public static MethodInfo GetItemWithInt => __getItemWithInt;
         public static MethodInfo GetItemWithString => __getItemWithString;
+
+        // public static methods
+        public static bool IsGetItemWithIntMethod(MethodInfo method)
+        {
+            return
+                (method.DeclaringType == typeof(BsonValue) || method.DeclaringType.IsSubclassOf(typeof(BsonValue))) &&
+                !method.IsStatic &&
+                method.Name == "get_Item" &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 1 &&
+                parameters[0].ParameterType == typeof(int) &&
+                method.ReturnType == typeof(BsonValue);
+        }
+
+        public static bool IsGetItemWithStringMethod(MethodInfo method)
+        {
+            return
+                (method.DeclaringType == typeof(BsonValue) || method.DeclaringType.IsSubclassOf(typeof(BsonValue))) &&
+                !method.IsStatic &&
+                method.Name == "get_Item" &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 1 &&
+                parameters[0].ParameterType == typeof(string) &&
+                method.ReturnType == typeof(BsonValue);
+        }
     }
 }

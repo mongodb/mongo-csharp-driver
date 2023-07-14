@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case ExpressionType.ArrayIndex: return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, (BinaryExpression)expression);
                 case ExpressionType.MemberAccess: return MemberExpressionToFilterFieldTranslator.Translate(context, (MemberExpression)expression);
                 case ExpressionType.Call: return MethodCallExpressionToFilterFieldTranslator.Translate(context, (MethodCallExpression)expression);
+                case ExpressionType.Index: return IndexExpressionToFilterFieldTranslator.Translate(context, (IndexExpression)expression);
                 case ExpressionType.Parameter: return ParameterExpressionToFilterFieldTranslator.Translate(context, (ParameterExpression)expression);
 
                 case ExpressionType.Convert:

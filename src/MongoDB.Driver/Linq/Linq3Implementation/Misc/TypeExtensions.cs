@@ -83,6 +83,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool ImplementsIDictionary(this Type type, out Type keyType, out Type valueType)
+        {
+            if (TryGetIDictionaryGenericInterface(type, out var idictionaryType))
+            {
+                var genericArguments = idictionaryType.GetGenericArguments();
+                keyType = genericArguments[0];
+                valueType = genericArguments[1];
+                return true;
+            }
+
+            keyType = null;
+            valueType = null;
+            return false;
+        }
+
         public static bool ImplementsIEnumerable(this Type type, out Type itemType)
         {
             if (TryGetIEnumerableGenericInterface(type, out var ienumerableType))
@@ -100,6 +115,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return
                 ImplementsIEnumerable(type, out var actualItemType) &&
                 actualItemType == itemType;
+        }
+
+        public static bool ImplementsIList(this Type type, out Type itemType)
+        {
+            if (TryGetIListGenericInterface(type, out var ilistType))
+            {
+                itemType = ilistType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
         }
 
         public static bool Is(this Type type, Type comparand)
@@ -260,6 +287,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             ienumerableGenericInterface = null;
+            return false;
+        }
+
+        public static bool TryGetIListGenericInterface(this Type type, out Type ilistGenericInterface)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IList<>))
+            {
+                ilistGenericInterface = type;
+                return true;
+            }
+
+            foreach (var interfaceType in type.GetInterfaces())
+            {
+                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>))
+                {
+                    ilistGenericInterface = interfaceType;
+                    return true;
+                }
+            }
+
+            ilistGenericInterface = null;
             return false;
         }
     }
