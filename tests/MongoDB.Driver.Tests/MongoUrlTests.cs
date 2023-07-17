@@ -15,14 +15,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -455,6 +456,34 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrl(connectionString);
 
             subject.SrvMaxHosts.Should().Be(2);
+        }
+
+        [Fact]
+        public void Decorated_with_TypeConverter()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            converter.Should().BeOfType<MongoUrlTypeConverter>();
+        }
+
+        [Fact]
+        public void Convert_from_string_should_work()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            var result = converter.ConvertFrom("mongodb://localhost");
+
+            result.Should().Be(new MongoUrl("mongodb://localhost"));
+        }
+
+        [Fact]
+        public void Convert_to_string_should_work()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
+
+            var result = converter.ConvertTo(new MongoUrl("mongodb://localhost"), typeof(string));
+
+            result.Should().Be("mongodb://localhost");
         }
 
         // private methods
