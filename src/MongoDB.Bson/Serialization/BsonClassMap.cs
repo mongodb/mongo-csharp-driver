@@ -1026,7 +1026,7 @@ namespace MongoDB.Bson.Serialization
             _creatorMaps.Clear();
             _creator = null;
             _declaredMemberMaps = new List<BsonMemberMap>();
-            _discriminator = _classType.Name;
+            _discriminator = _classType.FullName;
             _discriminatorIsRequired = false;
             _extraElementsMemberMap = null;
             _idMemberMap = null;
