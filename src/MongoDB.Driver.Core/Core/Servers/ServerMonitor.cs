@@ -247,10 +247,11 @@ namespace MongoDB.Driver.Core.Servers
                     catch (Exception unexpectedException)
                     {
                         // if we catch an exception here it's because of a bug in the driver (but we need to defend ourselves against that)
-                        _eventLoggerSdam.LogAndPublish(new SdamInformationEvent(
+                        _eventLoggerSdam.LogAndPublish(
+                            unexpectedException,
+                            new SdamInformationEvent(
                                 "Unexpected exception in ServerMonitor.MonitorServer: {0}",
-                                unexpectedException),
-                            unexpectedException);
+                                unexpectedException));
 
                         // since an unexpected exception was thrown set the server description to Unknown (with the unexpected exception)
                         try
@@ -428,19 +429,20 @@ namespace MongoDB.Driver.Core.Servers
 
             _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.HelloResult.TopologyVersion != null));
 
+            var stopwatch = Stopwatch.StartNew();
             try
             {
-                var stopwatch = Stopwatch.StartNew();
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 stopwatch.Stop();
 
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null, helloResult.Wrapped));
 
                 return helloResult;
             }
             catch (Exception ex)
             {
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex, connection.Description.HelloResult.TopologyVersion != null));
+                stopwatch.Stop();
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, connection.Description.HelloResult.TopologyVersion != null));
 
                 throw;
             }

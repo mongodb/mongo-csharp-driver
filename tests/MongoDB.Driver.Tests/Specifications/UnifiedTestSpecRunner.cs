@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SDAM")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase) =>
-            Run(testCase, eventsProcessor: new SdamRunnerEventsProcessor(testCase.Name));
+            Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests.Specifications
 
         #region CMAP helpers
 
-        private static readonly HashSet<string> __ignoredLogsMessages = new HashSet<string>(
+        private static readonly HashSet<string> __ignoredCmapLogsMessages = new HashSet<string>(
             new[]
             {
                "Connection pool opening",
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Tests.Specifications
 
         private static bool IsCmapLogValid(LogEntry logEntry) =>
             logEntry.Category != __connectionCategoryName ||
-            !__ignoredLogsMessages.Contains(logEntry.GetParameter<string>(StructuredLogTemplateProviders.Message));
+            !__ignoredCmapLogsMessages.Contains(logEntry.GetParameter<string>(StructuredLogTemplateProviders.Message));
 
         #endregion
 
@@ -313,6 +313,25 @@ namespace MongoDB.Driver.Tests.Specifications
                 }
             }
         }
+
+        private static readonly HashSet<string> __ignoredSdamLogsMessages = new HashSet<string>(
+          new[]
+          {
+               "Added server",
+               "Adding server",
+               "Removed server",
+               "Removing server",
+               "Started server monitoring",
+               "Stopping server monitoring",
+               "Started topology monitoring",
+               "Stopping topology monitoring"
+          });
+
+        private static string __sdamCategoryName = LogCategoryHelper.GetCategoryName<LogCategories.SDAM>();
+
+        private static bool IsSdamLogValid(LogEntry logEntry) =>
+            logEntry.Category != __sdamCategoryName ||
+            !__ignoredSdamLogsMessages.Contains(logEntry.GetParameter<string>(StructuredLogTemplateProviders.Message));
 
         #endregion
     }

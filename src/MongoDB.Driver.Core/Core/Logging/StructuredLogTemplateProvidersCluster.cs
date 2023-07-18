@@ -22,13 +22,13 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static string[] __clusterCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             Message,
         };
 
         private static string[] __serverSelectionCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             Selector,
             OperationId,
             Operation,
@@ -42,6 +42,11 @@ namespace MongoDB.Driver.Core.Logging
 
         private static void AddClusterTemplates()
         {
+            AddTemplateProvider<ClusterDescriptionChangedEvent>(
+                LogLevel.Debug,
+                ClusterCommonParams(PreviousDescription, NewDescription),
+                (e, _) => GetParams(e.ClusterId, "Topology description changed", e.OldDescription, e.NewDescription));
+
             AddTemplateProvider<ClusterSelectingServerEvent>(
               LogLevel.Debug,
               ServerSelectionCommonParams(),
@@ -89,30 +94,25 @@ namespace MongoDB.Driver.Core.Logging
                     "Server selection failed",
                     FormatException(e.Exception, s)));
 
-            AddTemplateProvider<ClusterDescriptionChangedEvent>(
-                LogLevel.Debug,
-                ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Description changed"));
-
             AddTemplateProvider<ClusterClosingEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Cluster closing"));
+                (e, _) => GetParams(e.ClusterId, "Stopping topology monitoring"));
 
             AddTemplateProvider<ClusterClosedEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Cluster closed"));
+                (e, _) => GetParams(e.ClusterId, "Stopped topology monitoring"));
 
             AddTemplateProvider<ClusterOpeningEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Cluster opening"));
+                (e, _) => GetParams(e.ClusterId, "Starting topology monitoring"));
 
             AddTemplateProvider<ClusterOpenedEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
-                (e, _) => GetParams(e.ClusterId, "Cluster opened"));
+                (e, _) => GetParams(e.ClusterId, "Started topology monitoring"));
 
             AddTemplateProvider<ClusterAddingServerEvent>(
                 LogLevel.Debug,

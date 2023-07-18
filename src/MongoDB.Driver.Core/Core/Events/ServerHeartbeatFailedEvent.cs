@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
+        private readonly TimeSpan _duration;
         private readonly Exception _exception;
         private readonly DateTime _timestamp;
 
@@ -36,10 +37,28 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="awaited">The awaited flag.</param>
+        [Obsolete("Use the other contstructor instead")]
         public ServerHeartbeatFailedEvent(ConnectionId connectionId, Exception exception, bool awaited)
         {
             _awaited = awaited;
             _connectionId = connectionId;
+            _duration = TimeSpan.MinValue;
+            _exception = exception;
+            _timestamp = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerHeartbeatFailedEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="duration">The duration of time passed since corresponding <see cref="ServerHeartbeatStartedEvent"/>.</param>
+        /// <param name="exception">The exception.</param>
+        /// <param name="awaited">The awaited flag.</param>
+        public ServerHeartbeatFailedEvent(ConnectionId connectionId, TimeSpan duration, Exception exception, bool awaited)
+        {
+            _awaited = awaited;
+            _connectionId = connectionId;
+            _duration = duration;
             _exception = exception;
             _timestamp = DateTime.UtcNow;
         }
@@ -63,6 +82,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the duration of time passed since corresponding <see cref="ServerHeartbeatStartedEvent"/>.
+        /// </summary>
+        public TimeSpan Duration
+        {
+            get { return _duration; }
         }
 
         /// <summary>

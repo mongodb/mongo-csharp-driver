@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static string[] __cmapCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             ServerHost,
             ServerPort,
             Message,

@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
+        private readonly BsonDocument _reply;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -36,11 +38,24 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration of time it took to complete the heartbeat.</param>
         /// <param name="awaited">The awaited flag.</param>
-        public ServerHeartbeatSucceededEvent(ConnectionId connectionId, TimeSpan duration, bool awaited)
+        public ServerHeartbeatSucceededEvent(ConnectionId connectionId, TimeSpan duration, bool awaited) :
+            this(connectionId, duration, awaited, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerHeartbeatSucceededEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="duration">The duration of time it took to complete the heartbeat.</param>
+        /// <param name="awaited">The awaited flag.</param>
+        /// <param name="reply">The server response.</param>
+        public ServerHeartbeatSucceededEvent(ConnectionId connectionId, TimeSpan duration, bool awaited, BsonDocument reply)
         {
             _awaited = awaited;
             _connectionId = connectionId;
             _duration = duration;
+            _reply = reply;
             _timestamp = DateTime.UtcNow;
         }
 
@@ -71,6 +86,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the server response.
+        /// </summary>
+        public BsonDocument Reply
+        {
+            get { return _reply; }
         }
 
         /// <summary>

@@ -22,10 +22,11 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static string[] __sdamCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             DriverConnectionId,
             ServerHost,
             ServerPort,
+            ServerConnectionId,
             Message,
         };
 
@@ -35,18 +36,18 @@ namespace MongoDB.Driver.Core.Logging
         {
             AddTemplateProvider<ServerHeartbeatStartedEvent>(
                 LogLevel.Debug,
-                SdamCommonParams(),
-                (e, _) => GetParams(e.ConnectionId, "Heartbeat started"));
+                SdamCommonParams(Awaited),
+                (e, _) => GetParams(e.ConnectionId, "Server heartbeat started", e.Awaited));
 
             AddTemplateProvider<ServerHeartbeatSucceededEvent>(
                 LogLevel.Debug,
-                SdamCommonParams(),
-                (e, _) => GetParams(e.ConnectionId, "Heartbeat succeeded"));
+                SdamCommonParams(Awaited, DurationMS, Reply),
+                (e, o) => GetParams(e.ConnectionId, "Server heartbeat succeeded", e.Awaited, (long)e.Duration.TotalMilliseconds, DocumentToString(e.Reply, o)));
 
             AddTemplateProvider<ServerHeartbeatFailedEvent>(
                 LogLevel.Debug,
-                SdamCommonParams(),
-                (e, _) => GetParams(e.ConnectionId, "Heartbeat failed"));
+                SdamCommonParams(Awaited, DurationMS, Failure),
+                (e, o) => GetParams(e.ConnectionId, "Server heartbeat failed", e.Awaited, (long)e.Duration.TotalMilliseconds, FormatCommandException(e.Exception, o)));
 
             AddTemplateProvider<SdamInformationEvent>(
                 LogLevel.Debug,
@@ -56,27 +57,27 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ServerOpeningEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                (e, _) => GetParams(e.ServerId, "Server opening"));
+                (e, _) => GetParams(e.ServerId, "Starting server monitoring"));
 
             AddTemplateProvider<ServerOpenedEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                (e, _) => GetParams(e.ServerId, "Server opened"));
+                (e, _) => GetParams(e.ServerId, "Started server monitoring"));
 
             AddTemplateProvider<ServerClosingEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                (e, _) => GetParams(e.ServerId, "Server closing"));
+                (e, _) => GetParams(e.ServerId, "Stopping server monitoring"));
 
             AddTemplateProvider<ServerClosedEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                (e, _) => GetParams(e.ServerId, "Server closed"));
+                (e, _) => GetParams(e.ServerId, "Stopped server monitoring"));
 
             AddTemplateProvider<ServerDescriptionChangedEvent>(
-                LogLevel.Debug,
+                LogLevel.Trace,
                 CmapCommonParams(Description),
-                (e, _) => GetParams(e.ServerId, "Description changed", e.NewDescription));
-        }
+                (e, _) => GetParams(e.ServerId, "Server description changed", e.NewDescription));
+        } 
     }
 }

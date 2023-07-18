@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -913,6 +912,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             break;
                         case "serverdescriptionchangedevent":
                             eventCapturer = eventCapturer.Capture<ServerDescriptionChangedEvent>();
+                            break;
+                        case "serverheartbeatfailedevent":
+                            eventCapturer = eventCapturer.Capture<ServerHeartbeatFailedEvent>();
+                            break;
+                        case "serverheartbeatstartedevent":
+                            eventCapturer = eventCapturer.Capture<ServerHeartbeatStartedEvent>();
+                            break;
+                        case "serverheartbeatsucceededevent":
+                            eventCapturer = eventCapturer.Capture<ServerHeartbeatSucceededEvent>();
+                            break;
+                        case "topologyclosedevent":
+                            eventCapturer = eventCapturer.Capture<ClusterClosedEvent>();
                             break;
                         case "topologydescriptionchangedevent":
                             eventCapturer = eventCapturer.Capture<ClusterDescriptionChangedEvent>();

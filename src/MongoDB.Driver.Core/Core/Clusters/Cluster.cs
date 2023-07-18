@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_state.TryChange(State.Disposed))
             {
-                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Disposing");
+                _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposing");
 
 #pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _description.ConnectionModeSwitch;
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _rapidHeartbeatTimer.Dispose();
                 _cryptClient?.Dispose();
 
-                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Disposed");
+                _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposed");
             }
         }
 
@@ -231,14 +231,14 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Initialized");
+                _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
 
                 if (_settings.CryptClientSettings != null)
                 {
                     _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
 
-                    _clusterEventLogger.Logger?.LogDebug(
-                        StructuredLogTemplateProviders.ClusterId_Message_SharedLibraryVersion,
+                    _clusterEventLogger.Logger?.LogTrace(
+                        StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
                         _clusterId,
                         "CryptClient created. Configured shared library version: ",
                         _cryptClient.CryptSharedLibraryVersion ?? "None");

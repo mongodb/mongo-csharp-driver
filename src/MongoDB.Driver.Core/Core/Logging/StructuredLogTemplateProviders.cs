@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -27,7 +28,7 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static partial class StructuredLogTemplateProviders
     {
-        public const string ClusterId = nameof(ClusterId);
+        public const string Awaited = nameof(Awaited);
         public const string Command = nameof(Command);
         public const string CommandName = nameof(CommandName);
         public const string DatabaseName = nameof(DatabaseName);
@@ -41,8 +42,10 @@ namespace MongoDB.Driver.Core.Logging
         public const string MaxPoolSize = nameof(MaxPoolSize);
         public const string Message = nameof(Message);
         public const string MinPoolSize = nameof(MinPoolSize);
+        public const string NewDescription = nameof(NewDescription);
         public const string Operation = nameof(Operation);
         public const string OperationId = nameof(OperationId);
+        public const string PreviousDescription = nameof(PreviousDescription);
         public const string RequestId = nameof(RequestId);
         public const string Reply = nameof(Reply);
         public const string Reason = nameof(Reason);
@@ -53,14 +56,15 @@ namespace MongoDB.Driver.Core.Logging
         public const string ServiceId = nameof(ServiceId);
         public const string SharedLibraryVersion = nameof(SharedLibraryVersion);
         public const string TopologyDescription = nameof(TopologyDescription);
+        public const string TopologyId = nameof(TopologyId);
         public const string WaitQueueTimeoutMS = nameof(WaitQueueTimeoutMS);
         public const string WaitQueueSize = nameof(WaitQueueSize);
 
-        public const string ClusterId_Message = $"{{{ClusterId}}} {{{Message}}}";
         public const string DriverConnectionId_Message = $"{{{DriverConnectionId}}} {{{Message}}}";
-        public const string ServerId_Message = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}}";
-        public const string ServerId_Message_Description = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
-        public const string ClusterId_Message_SharedLibraryVersion = $"{{{ClusterId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
+        public const string ServerId_Message = $"{{{TopologyId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}}";
+        public const string ServerId_Message_Description = $"{{{TopologyId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
+        public const string TopologyId_Message = $"{{{TopologyId}}} {{{Message}}}";
+        public const string TopologyId_Message_SharedLibraryVersion = $"{{{TopologyId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
 
         private readonly static LogTemplateProvider[] __eventTemplateProviders;
 
@@ -80,19 +84,24 @@ namespace MongoDB.Driver.Core.Logging
 
         public static object[] GetParams(ClusterId clusterId, object arg1)
         {
-            return new object[] { clusterId.Value, arg1 };
+            return new[] { clusterId.Value, arg1 };
         }
 
         public static object[] GetParams(ClusterId clusterId, object arg1, object arg2)
         {
-            return new object[] { clusterId.Value, arg1, arg2 };
+            return new[] { clusterId.Value, arg1, arg2 };
+        }
+
+        public static object[] GetParams(ClusterId clusterId, object message, ClusterDescription oldDescription, ClusterDescription newDescription)
+        {
+            return new[] { clusterId.Value, message, oldDescription.ToString(), newDescription.ToString() };
         }
 
         public static object[] GetParams(ClusterId clusterId, EndPoint endPoint, object arg1)
         {
             var (host, port) = endPoint.GetHostAndPort();
 
-            return new object[] { clusterId.Value, host, port, arg1 };
+            return new[] { clusterId.Value, host, port, arg1 };
         }
 
         public static object[] GetParams(ClusterId clusterId, object arg1, object arg2, object arg3, object arg4, object arg5)
@@ -115,59 +124,66 @@ namespace MongoDB.Driver.Core.Logging
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
 
-            return new object[] { serverId.ClusterId.Value, host, port, arg1 };
+            return new[] { serverId.ClusterId.Value, host, port, arg1 };
         }
 
         public static object[] GetParams(ServerId serverId, object arg1, object arg2)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
 
-            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2 };
+            return new[] { serverId.ClusterId.Value, host, port, arg1, arg2 };
         }
 
         public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
 
-            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3 };
+            return new[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3 };
         }
 
         public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
 
-            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6 };
+            return new[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6 };
         }
 
         public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
 
-            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7 };
+            return new[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7 };
         }
 
         public static object[] GetParams(ConnectionId connectionId, object arg1)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1};
+            return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1 };
         }
 
         public static object[] GetParams(ConnectionId connectionId, object arg1, object arg2)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2 };
+            return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2 };
         }
 
-        public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object ommitableParam)
+        public static object[] GetParams(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4)
+        {
+            var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
+
+            return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2, arg3, arg4 };
+        }
+
+        public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object ommitableParam)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
             if (ommitableParam == null)
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, };
+                return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2, arg3, arg4, arg5, arg6 };
             else
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, ommitableParam };
+                return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2, arg3, arg4, arg5, arg6, ommitableParam };
         }
 
         public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object ommitableParam)
@@ -175,9 +191,9 @@ namespace MongoDB.Driver.Core.Logging
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
             if (ommitableParam == null)
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
+                return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
             else
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
+                return new[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, connectionId.LongServerValue, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
         private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventLogFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>
@@ -216,6 +232,16 @@ namespace MongoDB.Driver.Core.Logging
 
         private static string Concat(string[] parameters, params string[] additionalParameters) =>
             string.Join(" ", parameters.Concat(additionalParameters).Select(p => $"{{{p}}}"));
+
+        private static string DocumentToString(BsonDocument document, EventLogFormattingOptions eventLogFormattingOptions)
+        {
+            if (document == null)
+            {
+                return null;
+            }
+
+            return TruncateIfNeeded(document.ToString(), eventLogFormattingOptions.MaxDocumentSize);
+        }
 
         private static string FormatException(Exception exception, EventLogFormattingOptions eventLogFormattingOptions)
         {
