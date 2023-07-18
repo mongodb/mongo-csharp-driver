@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -41,6 +42,9 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract IMongoIndexManager<TDocument> Indexes { get; }
+
+        /// <inheritdoc />
+        public abstract IMongoSearchIndexManager SearchIndexes { get; }
 
         /// <inheritdoc />
         public abstract MongoCollectionSettings Settings { get; }

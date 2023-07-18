@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -60,6 +61,11 @@ namespace MongoDB.Driver
         public override IMongoIndexManager<TDocument> Indexes
         {
             get { return _wrappedCollection.Indexes; }
+        }
+
+        public override IMongoSearchIndexManager SearchIndexes
+        {
+            get { return _wrappedCollection.SearchIndexes; }
         }
 
         public override MongoCollectionSettings Settings
