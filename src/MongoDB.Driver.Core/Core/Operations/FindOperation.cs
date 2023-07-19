@@ -469,6 +469,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
+            if (!Feature.FindProjectionExpressions.IsSupported(connectionDescription.MaxWireVersion))
+            {
+                EnsureProjectionIsSupportedPriorTo44();
+            }
+
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
 
@@ -639,6 +644,57 @@ namespace MongoDB.Driver.Core.Operations
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
             return operation;
+        }
+
+        private void EnsureProjectionIsSupportedPriorTo44()
+        {
+            foreach (var specification in _projection)
+            {
+                EnsureSpecificationIsSupportedPriorTo44(specification);
+            }
+
+            static void EnsureSpecificationIsSupportedPriorTo44(BsonElement specification)
+            {
+                if (!IsValueSupportedPriorTo44(specification.Value))
+                {
+                    var specificationAsDocument = new BsonDocument(specification);
+                    throw new NotSupportedException($"The projection specification {specificationAsDocument} is not supported with find on servers prior to version 4.4.");
+                }
+            }
+
+            static bool IsValueSupportedPriorTo44(BsonValue value)
+            {
+                if (value is BsonBoolean bsonBooleanValue)
+                {
+                    return true;
+                }
+
+                if (value is BsonInt32 bsonInt32Value &&
+                   (bsonInt32Value.Value == 0 || bsonInt32Value.Value == 1))
+                {
+                    return true;
+                }
+
+                if (value is BsonInt64 bsonInt64Value &&
+                   (bsonInt64Value.Value == 0L || bsonInt64Value.Value == 1L))
+                {
+                    return true;
+                }
+
+                if (value is BsonDocument documentValue && documentValue.ElementCount == 1)
+                {
+                    var @operator = documentValue.GetElement(0).Name;
+                    return @operator switch
+                    {
+                        "$elemMatch" => true,
+                        "$meta" => true,
+                        "$slice" => true,
+                        _ => false,
+                    };
+                }
+
+                return false;
+            }
         }
     }
 }
