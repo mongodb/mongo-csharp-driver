@@ -274,4 +274,26 @@ namespace MongoDB.Bson.Serialization.Serializers
             return (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase: true);
         }
     }
+
+    /// <summary>
+    /// Static factory class for EnumSerializer.
+    /// </summary>
+    public static class EnumSerializer
+    {
+        /// <summary>
+        /// Creates a EnumSerializer.
+        /// </summary>
+        /// <param name="valueType">The value type.</param>
+        /// <returns>A EnumSerializer</returns>
+        public static IBsonSerializer Create(Type valueType)
+        {
+            if (!valueType.IsEnum)
+            {
+                throw new ArgumentException("Argument should be of enum type.", nameof(valueType));
+            }
+
+            var enumSerializerType = typeof(EnumSerializer<>).MakeGenericType(valueType);
+            return (IBsonSerializer)Activator.CreateInstance(enumSerializerType);
+        }
+    }
 }
