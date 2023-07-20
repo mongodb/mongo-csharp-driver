@@ -222,6 +222,7 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
+            SortDefinition<TResult> sort = null,
             bool returnStoredSource = false,
             bool scoreDetails = false)
         {

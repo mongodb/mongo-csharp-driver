@@ -113,6 +113,19 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Sort()
+        {
+            var results = GetTestCollection().Aggregate()
+                .Search(
+                    Builders.Search.Text(x => x.Body, "liberty"),
+                    sort: Builders.Sort.Descending(x => x.Title))
+                .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
+                .Limit(1)
+                .ToList();
+            results.Should().ContainSingle().Which.Title.Should().Be("Gettysburg Address");
+        }
+
+        [Fact]
         public void Exists()
         {
             var result = SearchSingle(
