@@ -828,4 +828,18 @@ namespace MongoDB.Bson.Tests.Serialization
 #pragma warning restore 618
         }
     }
+
+    public class DefaultAllowedTypesTests
+    {
+        [Fact]
+        public void DefaultAllowedTypes_with_anonymous_type_should_return_true()
+        {
+            var anonymousInstance = new { X = 1 };
+            var anonymousType = anonymousInstance.GetType();
+
+            var result = ObjectSerializer.DefaultAllowedTypes(anonymousType);
+
+            result.Should().BeTrue();
+        }
+    }
 }
