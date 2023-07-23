@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Serialization.IdGenerators
 {
@@ -87,13 +88,10 @@ namespace MongoDB.Bson.Serialization.IdGenerators
 
             var bytes = guid.ToByteArray();
 
-            Array.Copy(BitConverter.GetBytes(days), 0, bytes, 10, 2);
-            Array.Copy(BitConverter.GetBytes(timeTicks), 0, bytes, 12, 4);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes, 10, 2);
-                Array.Reverse(bytes, 12, 4);
-            }
+            BinaryPrimitives.WriteUInt16LittleEndian(new Span<byte>(bytes, 10, 2), days);
+            BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(bytes, 12, 4), timeTicks);
+            Array.Reverse(bytes, 10, 2);
+            Array.Reverse(bytes, 12, 4);
 
             return new Guid(bytes);
         }

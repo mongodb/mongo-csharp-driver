@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Xunit;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
@@ -67,9 +68,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
         private long GetTicks(byte[] bytes)
         {
-            var a = (ulong)BitConverter.ToUInt32(bytes, 0);
-            var b = (ulong)BitConverter.ToUInt16(bytes, 4);
-            var c = (ulong)BitConverter.ToUInt16(bytes, 6);
+            var a = (ulong)BinaryPrimitives.ReadUInt32LittleEndian(new ReadOnlySpan<byte>(bytes, 0, 4));
+            var b = (ulong)BinaryPrimitives.ReadUInt16LittleEndian(new ReadOnlySpan<byte>(bytes, 4, 2));
+            var c = (ulong)BinaryPrimitives.ReadUInt16LittleEndian(new ReadOnlySpan<byte>(bytes, 6, 2));
             return (long)((a << 32) | (b << 16) | c);
         }
 

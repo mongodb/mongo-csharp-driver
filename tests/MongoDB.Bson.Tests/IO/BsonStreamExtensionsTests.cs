@@ -22,6 +22,7 @@ using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.IO
 {
@@ -36,7 +37,9 @@ namespace MongoDB.Bson.Tests.IO
             var bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             var length = bytes.Length - startPosition;
             var expectedBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            Array.Copy(BitConverter.GetBytes(length), 0, expectedBytes, startPosition, 4);
+            var len_bytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(len_bytes, length);
+            Array.Copy(len_bytes, 0, expectedBytes, startPosition, 4);
 
             using (var memoryStream = new MemoryStream())
             using (var stream = new BsonStreamAdapter(memoryStream))

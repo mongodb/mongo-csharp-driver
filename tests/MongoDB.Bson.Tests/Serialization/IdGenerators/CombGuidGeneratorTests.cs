@@ -18,6 +18,7 @@ using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Xunit;
+using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
@@ -36,13 +37,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var expectedTimeTicks = 150; // half a second in SQL Server resolution
 
             var bytes = combGuid.ToByteArray();
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes, 10, 2);
-                Array.Reverse(bytes, 12, 4);
-            }
-            var days = BitConverter.ToInt16(bytes, 10);
-            var timeTicks = BitConverter.ToInt32(bytes, 12);
+            Array.Reverse(bytes, 10, 2);
+            Array.Reverse(bytes, 12, 4);
+            var days = BinaryPrimitives.ReadInt16LittleEndian(new ReadOnlySpan<byte>(bytes, 10, 2));
+            var timeTicks = BinaryPrimitives.ReadInt32LittleEndian(new ReadOnlySpan<byte>(bytes, 12, 4));
 
             Assert.True(guid.ToByteArray().Take(10).SequenceEqual(bytes.Take(10))); // first 10 bytes are from the base Guid
             Assert.Equal(expectedDays, days);
