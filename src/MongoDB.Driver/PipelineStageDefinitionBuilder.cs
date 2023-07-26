@@ -1316,6 +1316,7 @@ namespace MongoDB.Driver
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
+        /// <param name="sort">The sort specification.</param>
         /// <param name="returnStoredSource">
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
@@ -1330,6 +1331,7 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TInput> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
+            SortDefinition<TInput> sort = null,
             bool returnStoredSource = false,
             bool scoreDetails = false)
         {
@@ -1343,6 +1345,7 @@ namespace MongoDB.Driver
                     var renderedSearchDefinition = searchDefinition.Render(s, sr);
                     renderedSearchDefinition.Add("highlight", () => highlight.Render(s, sr), highlight != null);
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
+                    renderedSearchDefinition.Add("sort", () => sort.Render(s, sr), sort != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
                     renderedSearchDefinition.Add("returnStoredSource", returnStoredSource, returnStoredSource);
                     renderedSearchDefinition.Add("scoreDetails", scoreDetails, scoreDetails);

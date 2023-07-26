@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Tests.Search
             var result = SearchSingle(
                 Builders.Search.Compound().MustNot(
                     Builders.Search.Phrase(x => x.Body, "life, liberty")));
-            result.Title.Should().Be("US Constitution");
+            result.Title.Should().Be("Gettysburg Address");
         }
 
         [Fact]
@@ -411,6 +411,19 @@ namespace MongoDB.Driver.Tests.Search
                     Builders.Search.Wildcard(x => x.Body, "happ*", true))
                 .MinimumShouldMatch(2));
             result.Title.Should().Be("Declaration of Independence");
+        }
+
+        [Fact]
+        public void Sort()
+        {
+            var results = GetTestCollection().Aggregate()
+                .Search(
+                    Builders.Search.Text(x => x.Body, "liberty"),
+                    sort: Builders.Sort.Descending(x => x.Title))
+                .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
+                .Limit(1)
+                .ToList();
+            results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
         }
 
         [Theory]

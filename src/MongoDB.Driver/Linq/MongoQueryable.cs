@@ -1145,6 +1145,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
+        /// <param name="sort">The sort specification.</param>
         /// <param name="returnStoredSource">
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
@@ -1160,12 +1161,13 @@ namespace MongoDB.Driver.Linq
             SearchHighlightOptions<TSource> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
+            SortDefinition<TSource> sort = null,
             bool returnStoredSource = false,
             bool scoreDetails = false)
         {
             return AppendStage(
                 source,
-                PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource, scoreDetails));
+                PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, sort, returnStoredSource, scoreDetails));
         }
 
         /// <summary>
