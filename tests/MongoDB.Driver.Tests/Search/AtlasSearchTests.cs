@@ -403,6 +403,17 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Should()
+        {
+            var result = SearchSingle(
+                Builders.Search.Compound().Should(
+                    Builders.Search.Phrase(x => x.Body, "life, liberty"),
+                    Builders.Search.Wildcard(x => x.Body, "happ*", true))
+                .MinimumShouldMatch(2));
+            result.Title.Should().Be("Declaration of Independence");
+        }
+
+        [Fact]
         public void Sort()
         {
             var results = GetTestCollection().Aggregate()
@@ -413,17 +424,6 @@ namespace MongoDB.Driver.Tests.Search
                 .Limit(1)
                 .ToList();
             results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
-        }
-
-        [Fact]
-        public void Should()
-        {
-            var result = SearchSingle(
-                Builders.Search.Compound().Should(
-                    Builders.Search.Phrase(x => x.Body, "life, liberty"),
-                    Builders.Search.Wildcard(x => x.Body, "happ*", true))
-                .MinimumShouldMatch(2));
-            result.Title.Should().Be("Declaration of Independence");
         }
 
         [Theory]
