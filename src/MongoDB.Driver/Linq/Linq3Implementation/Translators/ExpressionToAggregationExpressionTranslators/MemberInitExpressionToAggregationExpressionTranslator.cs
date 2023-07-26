@@ -21,6 +21,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -57,7 +58,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? BsonSerializer.LookupSerializer(constructorArgumentType);
                     var memberMap = EnsureMemberMap(expression, classMap, creatorMapParameter);
                     EnsureDefaultValue(memberMap);
-                    memberMap.SetSerializer(constructorArgumentSerializer);
+                    var memberSerializer = CoerceSourceSerializerToMemberSerializer(memberMap, constructorArgumentSerializer);
+                    memberMap.SetSerializer(memberSerializer);
                     computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, constructorArgumentTranslation.Ast));
                 }
             }
@@ -69,7 +71,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var memberMap = FindMemberMap(expression, classMap, member.Name);
                 var valueExpression = memberAssignment.Expression;
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                memberMap.SetSerializer(valueTranslation.Serializer);
+                var memberSerializer = CoerceSourceSerializerToMemberSerializer(memberMap, valueTranslation.Serializer);
+                memberMap.SetSerializer(memberSerializer);
                 computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, valueTranslation.Ast));
             }
 
@@ -105,6 +108,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             classMap.IdMemberMap?.SetElementName("_id"); // normally happens when Freeze is called but we need it sooner here
 
             return classMap;
+        }
+
+        private static IBsonSerializer CoerceSourceSerializerToMemberSerializer(BsonMemberMap memberMap, IBsonSerializer sourceSerializer)
+        {
+            var memberType = memberMap.MemberType;
+            var memberSerializer = memberMap.GetSerializer();
+            var sourceType = sourceSerializer.ValueType;
+
+            if (memberType != sourceType &&
+                memberType.ImplementsIEnumerable(out var memberItemType) &&
+                sourceType.ImplementsIEnumerable(out var sourceItemType) &&
+                sourceItemType == memberItemType &&
+                sourceSerializer is IBsonArraySerializer sourceArraySerializer &&
+                sourceArraySerializer.TryGetItemSerializationInfo(out var sourceItemSerializationInfo) &&
+                memberSerializer is IChildSerializerConfigurable memberChildSerializerConfigurable)
+            {
+                var sourceItemSerializer = sourceItemSerializationInfo.Serializer;
+                return memberChildSerializerConfigurable.WithChildSerializer(sourceItemSerializer);
+            }
+
+            return sourceSerializer;
         }
 
         private static BsonMemberMap EnsureMemberMap(Expression expression, BsonClassMap classMap, MemberInfo creatorMapParameter)
