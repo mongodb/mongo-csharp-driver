@@ -567,20 +567,16 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             private static bool AllowedTypesImplementation(Type type)
             {
-                if (typeof(BsonValue).IsAssignableFrom(type))
-                {
-                    return true;
-                }
-
                 return type.IsConstructedGenericType ? IsAllowedGenericType(type) : IsAllowedType(type);
 
                 static bool IsAllowedType(Type type) =>
+                    typeof(BsonValue).IsAssignableFrom(type) ||
                     __allowedNonGenericTypesSet.Contains(type) ||
                     type.IsArray && AllowedTypesImplementation(type.GetElementType()) ||
                     type.IsEnum;
 
                 static bool IsAllowedGenericType(Type type) =>
-                    __allowedGenericTypesSet.Contains(type.GetGenericTypeDefinition()) &&
+                    (__allowedGenericTypesSet.Contains(type.GetGenericTypeDefinition()) || type.IsAnonymousType()) &&
                     type.GetGenericArguments().All(__allowedTypes);
             }
         }

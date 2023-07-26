@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Serialization
             _classType = classType;
             _creatorMaps = new List<BsonCreatorMap>();
             _conventionPack = ConventionRegistry.Lookup(classType);
-            _isAnonymous = IsAnonymousType(classType);
+            _isAnonymous = classType.IsAnonymousType();
             _allMemberMaps = new List<BsonMemberMap>();
             _allMemberMapsReadonly = _allMemberMaps.AsReadOnly();
             _declaredMemberMaps = new List<BsonMemberMap>();
@@ -1368,16 +1368,6 @@ namespace MongoDB.Bson.Serialization
             {
                 return null;
             }
-        }
-
-        private bool IsAnonymousType(Type type)
-        {
-            // don't test for too many things in case implementation details change in the future
-            var typeInfo = type.GetTypeInfo();
-            return
-                typeInfo.GetCustomAttributes<CompilerGeneratedAttribute>(false).Any() &&
-                typeInfo.IsGenericType &&
-                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
         private void ThrowFrozenException()
