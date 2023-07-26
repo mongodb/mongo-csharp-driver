@@ -113,19 +113,6 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
-        public void Sort()
-        {
-            var results = GetTestCollection().Aggregate()
-                .Search(
-                    Builders.Search.Text(x => x.Body, "liberty"),
-                    sort: Builders.Sort.Descending(x => x.Title))
-                .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
-                .Limit(1)
-                .ToList();
-            results.Should().ContainSingle().Which.Title.Should().Be("Gettysburg Address");
-        }
-
-        [Fact]
         public void Exists()
         {
             var result = SearchSingle(
@@ -413,6 +400,19 @@ namespace MongoDB.Driver.Tests.Search
             bucket = result.Facet["date"].Buckets.Should().NotBeNull().And.ContainSingle().Subject;
             bucket.Id.Should().Be((BsonDateTime)DateTime.MinValue);
             bucket.Count.Should().Be(108);
+        }
+
+        [Fact]
+        public void Sort()
+        {
+            var results = GetTestCollection().Aggregate()
+                .Search(
+                    Builders.Search.Text(x => x.Body, "liberty"),
+                    sort: Builders.Sort.Descending(x => x.Title))
+                .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
+                .Limit(1)
+                .ToList();
+            results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
         }
 
         [Fact]
