@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Tests.Search
             var result = SearchSingle(
                 Builders.Search.Compound().MustNot(
                     Builders.Search.Phrase(x => x.Body, "life, liberty")));
-            result.Title.Should().Be("US Constitution");
+            result.Title.Should().Be("Gettysburg Address");
         }
 
         [Fact]
