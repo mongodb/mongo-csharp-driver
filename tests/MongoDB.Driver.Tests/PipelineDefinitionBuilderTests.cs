@@ -195,6 +195,25 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Search_should_add_expected_stage_with_tracking()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var searchOptions = new SearchOptions<BsonDocument>()
+            {
+                Tracking = new SearchTrackingOptions()
+                {
+                    SearchTerms = "foo"
+                }
+            };
+
+            var result = pipeline.Search(builder.Text("bar", "foo"), searchOptions);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, tracking: { searchTerms: 'foo' } } }");
+        }
+
+        [Fact]
         public void Search_should_add_expected_stage_with_sort()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();

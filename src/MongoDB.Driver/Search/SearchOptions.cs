@@ -51,5 +51,10 @@ namespace MongoDB.Driver.Search
         /// Gets or sets the sort specification.
         /// </summary>
         public SortDefinition<TResult> Sort { get; set; }
+
+        /// <summary>
+        /// Gets or sets the options for tracking search terms.
+        /// </summary>
+        public SearchTrackingOptions Tracking { get; set; }
     }
 }
