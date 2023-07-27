@@ -1530,9 +1530,9 @@ namespace MongoDB.Bson.Tests.IO
             var encoding = Utf8Encodings.Strict;
             var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             var subject = CreateSubject(0, CalculateChunkSizes(maxLength, numberOfChunks));
-            var bytes = new byte[4];
-            BinaryPrimitives.WriteInt32LittleEndian(bytes, value.Length + 1);
-            var expectedBytes = bytes.Concat(encoding.GetBytes(value)).Concat(new byte[] { 0 }).ToArray();
+            var lengthPlusOneBytes = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(lengthPlusOneBytes, value.Length + 1);
+            var expectedBytes = lengthPlusOneBytes.Concat(encoding.GetBytes(value)).Concat(new byte[] { 0 }).ToArray();
             var expectedLength = expectedBytes.Length;
             var expectedPosition = expectedLength;
 
