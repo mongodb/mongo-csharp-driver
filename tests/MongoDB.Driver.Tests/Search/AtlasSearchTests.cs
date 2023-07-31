@@ -231,8 +231,9 @@ namespace MongoDB.Driver.Tests.Search
         {
             var result = SearchSingle(
                 Builders.Search.Compound().MustNot(
-                    Builders.Search.Phrase(x => x.Body, "life, liberty")));
-            result.Title.Should().Be("Gettysburg Address");
+                    Builders.Search.Phrase(x => x.Body, "life, liberty")),
+                 sort: Builders.Sort.Descending(x => x.Title));
+            result.Title.Should().Be("US Constitution");
         }
 
         [Fact]
@@ -467,9 +468,12 @@ namespace MongoDB.Driver.Tests.Search
         private List<AirbnbListing> GeoSearch(SearchDefinition<AirbnbListing> searchDefintion) =>
             GetGeoTestCollection().Aggregate().Search(searchDefintion).ToList();
 
-        private HistoricalDocument SearchSingle(SearchDefinition<HistoricalDocument> searchDefintion, ProjectionDefinition<HistoricalDocument, HistoricalDocument> projectionDefinition = null)
+        private HistoricalDocument SearchSingle(
+            SearchDefinition<HistoricalDocument> searchDefintion,
+            ProjectionDefinition<HistoricalDocument, HistoricalDocument> projectionDefinition = null,
+            SortDefinition<HistoricalDocument> sort = null)
         {
-            var fluent = GetTestCollection().Aggregate().Search(searchDefintion);
+            var fluent = GetTestCollection().Aggregate().Search(searchDefintion, sort: sort);
 
             if (projectionDefinition != null)
             {
