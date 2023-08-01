@@ -147,6 +147,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Katie Sadoff              https://github.com/ksadoff
+* Manas Sahu                https://github.com/Zangetsu112
 * Sam558                    https://github.com/Sam558
 * Vladimir Setyaev          setyaev_v@pgstudio.io
 * Sergey Shushlyapin        https://github.com/sergeyshushlyapin
