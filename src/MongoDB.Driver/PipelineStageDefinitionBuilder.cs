@@ -1316,7 +1316,6 @@ namespace MongoDB.Driver
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
-        /// <param name="sort">The sort specification.</param>
         /// <param name="returnStoredSource">
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
@@ -1331,9 +1330,31 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TInput> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            SortDefinition<TInput> sort = null,
             bool returnStoredSource = false,
             bool scoreDetails = false)
+        {
+            var searchOptions = new SearchOptions<TInput>()
+            {
+                CountOptions = count,
+                Highlight = highlight,
+                IndexName = indexName,
+                ReturnStoredSource = returnStoredSource,
+                ScoreDetails = scoreDetails
+            };
+
+            return Search(searchDefinition, searchOptions);
+        }
+
+        /// <summary>
+        /// Creates a $search stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            SearchOptions<TInput> searchOptions)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
@@ -1343,12 +1364,12 @@ namespace MongoDB.Driver
                 (s, sr, linqProvider) =>
                 {
                     var renderedSearchDefinition = searchDefinition.Render(s, sr);
-                    renderedSearchDefinition.Add("highlight", () => highlight.Render(s, sr), highlight != null);
-                    renderedSearchDefinition.Add("count", () => count.Render(), count != null);
-                    renderedSearchDefinition.Add("sort", () => sort.Render(s, sr), sort != null);
-                    renderedSearchDefinition.Add("index", indexName, indexName != null);
-                    renderedSearchDefinition.Add("returnStoredSource", returnStoredSource, returnStoredSource);
-                    renderedSearchDefinition.Add("scoreDetails", scoreDetails, scoreDetails);
+                    renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(s, sr), searchOptions.Highlight != null);
+                    renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
+                    renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(s, sr), searchOptions.Sort != null);
+                    renderedSearchDefinition.Add("index", searchOptions.IndexName, searchOptions.IndexName != null);
+                    renderedSearchDefinition.Add("returnStoredSource", searchOptions.ReturnStoredSource, searchOptions.ReturnStoredSource);
+                    renderedSearchDefinition.Add("scoreDetails", searchOptions.ScoreDetails, searchOptions.ScoreDetails);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
