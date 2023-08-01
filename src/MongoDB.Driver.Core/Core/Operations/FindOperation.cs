@@ -469,6 +469,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
+            var wireVersion = connectionDescription.MaxWireVersion;
+            FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
+
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
 
