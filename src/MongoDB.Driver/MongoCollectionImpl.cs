@@ -987,7 +987,7 @@ namespace MongoDB.Driver
         private FindOneAndDeleteOperation<TProjection> CreateFindOneAndDeleteOperation<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
 
             return new FindOneAndDeleteOperation<TProjection>(
                 _collectionNamespace,
@@ -1010,7 +1010,7 @@ namespace MongoDB.Driver
         private FindOneAndReplaceOperation<TProjection> CreateFindOneAndReplaceOperation<TProjection>(FilterDefinition<TDocument> filter, object replacementObject, FindOneAndReplaceOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
 
             return new FindOneAndReplaceOperation<TProjection>(
                 _collectionNamespace,
@@ -1037,7 +1037,7 @@ namespace MongoDB.Driver
         private FindOneAndUpdateOperation<TProjection> CreateFindOneAndUpdateOperation<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
 
             return new FindOneAndUpdateOperation<TProjection>(
                 _collectionNamespace,
