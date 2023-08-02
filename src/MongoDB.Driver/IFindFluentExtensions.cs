@@ -57,7 +57,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, nameof(find));
             Ensure.IsNotNull(projection, nameof(projection));
 
-            return find.Project<TNewProjection>(new ExpressionProjectionDefinition<TDocument, TNewProjection>(projection, null));
+            return find.Project<TNewProjection>(new FindExpressionProjectionDefinition<TDocument, TNewProjection>(projection));
         }
 
         /// <summary>
