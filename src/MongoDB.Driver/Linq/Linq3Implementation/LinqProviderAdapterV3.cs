@@ -166,6 +166,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             Func<AggregationExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
             AstSimplifier simplifier)
         {
+            if (expression.Parameters.Count == 1 && expression.Body == expression.Parameters[0])
+            {
+                // handle x => x as a special case
+                return new RenderedProjectionDefinition<TOutput>(null, (IBsonSerializer<TOutput>)inputSerializer);
+            }
+
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, inputSerializer);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);

@@ -1265,16 +1265,17 @@ namespace MongoDB.Driver
                 (s, sr, linqProvider) =>
                 {
                     var renderedProjection = projection.Render(s, sr, linqProvider);
-                    BsonDocument document;
+                    IEnumerable<BsonDocument> documents;
                     if (renderedProjection.Document == null)
                     {
-                        document = new BsonDocument();
+                        // renderedProjection.Document will be null for x => x (and perhaps other cases also in the future)
+                        documents = Array.Empty<BsonDocument>();
                     }
                     else
                     {
-                        document = new BsonDocument(operatorName, renderedProjection.Document);
+                        documents = new[] { new BsonDocument(operatorName, renderedProjection.Document) };
                     }
-                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, renderedProjection.ProjectionSerializer);
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, documents, renderedProjection.ProjectionSerializer);
                 });
 
             return stage;

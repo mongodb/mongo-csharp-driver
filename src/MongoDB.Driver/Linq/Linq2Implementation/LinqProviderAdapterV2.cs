@@ -152,6 +152,12 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
+            if (expression.Parameters.Count == 1 && expression.Body == expression.Parameters[0])
+            {
+                // handle x => x as a special case
+                return new RenderedProjectionDefinition<TOutput>(null, (IBsonSerializer<TOutput>)inputSerializer);
+            }
+
             return AggregateProjectTranslator.Translate<TInput, TOutput>(expression, inputSerializer, serializerRegistry, translationOptions);
         }
     }
