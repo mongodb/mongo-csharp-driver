@@ -1371,6 +1371,7 @@ namespace MongoDB.Driver
                     renderedSearchDefinition.Add("index", searchOptions.IndexName, searchOptions.IndexName != null);
                     renderedSearchDefinition.Add("returnStoredSource", searchOptions.ReturnStoredSource, searchOptions.ReturnStoredSource);
                     renderedSearchDefinition.Add("scoreDetails", searchOptions.ScoreDetails, searchOptions.ScoreDetails);
+                    renderedSearchDefinition.Add("tracking", () => searchOptions.Tracking.Render(), searchOptions.Tracking != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
