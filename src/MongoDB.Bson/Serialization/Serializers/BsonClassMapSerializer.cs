@@ -199,6 +199,13 @@ namespace MongoDB.Bson.Serialization
                         continue;
                     }
 
+                    // In QE server returns __safeContent__ fields, which should be skipped over.
+                    if (elementName == "__safeContent__")
+                    {
+                        bsonReader.SkipValue(); // skip over unwanted element
+                        continue;
+                    }
+
                     if (extraElementsMemberMapIndex >= 0)
                     {
                         var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;

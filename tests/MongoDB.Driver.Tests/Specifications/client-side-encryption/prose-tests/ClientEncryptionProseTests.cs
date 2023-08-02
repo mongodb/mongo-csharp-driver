@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                        case 4: // Case 4: Insert encrypted value
                             {
                                 var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
-                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async, out var effectiveEncryptedFields);
+                                var collection = CreateEncryptedCollection<BsonDocument>(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async, out var effectiveEncryptedFields);
                                 var dataKey = effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"].AsGuid; // get generated datakey
                                 var encryptedValue = ExplicitEncrypt(clientEncryption, new EncryptOptions(algorithm: EncryptionAlgorithm.Unindexed, keyId: dataKey), "123-45-6789", async); // use explicit encryption to encrypt data before inserting
                                 Insert(collection, async, new BsonDocument("ssn", encryptedValue));
@@ -484,6 +484,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     default: throw new Exception($"Invalid bypass mongocryptd {bypassSpawning} option.");
                 }
             }
+        }
+
+        [Fact]
+        public void ConcreteTypeDeserializationTest()
+        {
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            using var client = ConfigureClient(keyVaultNamespace: __keyVaultCollectionNamespace, kmsProviders: EncryptionTestHelper.GetKmsProviders("local"));
+            using var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: "local");
+
+            var datakeysCollection = GetCollection(client, __keyVaultCollectionNamespace);
+            var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
+            datakeysCollection.InsertOne(externalKey);
+
+            var encryptedFields = new BsonDocument
+                {
+                    {
+                        "fields", new BsonArray
+                        {
+                            new BsonDocument
+                            {
+                                { "keyId", externalKey["_id"].AsBsonBinaryData },
+                                { "path", "Ssn" },
+                                { "bsonType", "string" },
+                                { "queries", new BsonDocument("queryType", "equality") }
+                            },
+                        }
+                    }
+                };
+
+            var collection = CreateEncryptedCollection<Patient>(client, clientEncryption, __collCollectionNamespace, encryptedFields, "local", false, out _);
+
+            var patient = new Patient() { Name = "Name", Ssn = "14159265359" };
+            collection.InsertOne(patient);
+
+            var deserializedPatient = collection.Find(FilterDefinition<Patient>.Empty).ToList().Single();
+            deserializedPatient.Ssn.Should().Be(patient.Ssn);
         }
 
         [Theory]
@@ -2485,9 +2522,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null,
             CollectionNamespace mainCollectionNamespace = null,
-            BsonDocument encryptedFields = null)
+            BsonDocument encryptedFields = null,
+            CollectionNamespace keyVaultNamespace = null,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null)
         {
-            var client = CreateMongoClient(maxPoolSize: maxPoolSize, writeConcern: writeConcern, readConcern: readConcern);
+            var client = CreateMongoClient(maxPoolSize: maxPoolSize, writeConcern: writeConcern, readConcern: readConcern, keyVaultNamespace: keyVaultNamespace, kmsProviders: kmsProviders);
             if (clearCollections)
             {
                 var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
@@ -2636,10 +2675,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
         {
             var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
-            return CreateEncryptedCollection(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async, out effectiveEncryptedFields);
+            return CreateEncryptedCollection<BsonDocument>(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async, out effectiveEncryptedFields);
         }
 
-        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
+        private IMongoCollection<T> CreateEncryptedCollection<T>(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
+        {
+            var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
+            return CreateEncryptedCollection<T>(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async, out effectiveEncryptedFields);
+        }
+
+        private IMongoCollection<T> CreateEncryptedCollection<T>(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
         {
             var datakeyOptions = CreateDataKeyOptions(kmsProvider, alternateKeyNames: null);
             var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
@@ -2651,7 +2696,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             effectiveEncryptedFields = result.EncryptedFields;
 
-            return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(collectionNamespace.CollectionName);
+            return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<T>(collectionNamespace.CollectionName);
         }
 
         private Guid CreateDataKey(
@@ -3089,6 +3134,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 _modifyAction(request);
                 return _httpClientWrapper.GetHttpContentAsync(request, exceptionMessage, cancellationToken);
             }
+        }
+
+        private class Patient
+        {
+            public ObjectId Id { get; set; }
+            public string Name { get; set; }
+            public string Ssn { get; set; }
         }
     }
 
