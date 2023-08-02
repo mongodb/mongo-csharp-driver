@@ -420,7 +420,7 @@ namespace MongoDB.Driver.Tests.Search
             var results = GetTestCollection().Aggregate()
                 .Search(
                     Builders.Search.Text(x => x.Body, "liberty"),
-                    sort: Builders.Sort.Descending(x => x.Title))
+                    new() { Sort = Builders.Sort.Descending(x => x.Title) })
                 .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
                 .Limit(1)
                 .ToList();
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Tests.Search
             ProjectionDefinition<HistoricalDocument, HistoricalDocument> projectionDefinition = null,
             SortDefinition<HistoricalDocument> sort = null)
         {
-            var fluent = GetTestCollection().Aggregate().Search(searchDefintion, sort: sort);
+            var fluent = GetTestCollection().Aggregate().Search(searchDefintion, new() { Sort = sort });
 
             if (projectionDefinition != null)
             {

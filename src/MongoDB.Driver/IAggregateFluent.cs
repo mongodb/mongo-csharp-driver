@@ -361,14 +361,13 @@ namespace MongoDB.Driver
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
-        /// <param name="sort">The sort specification.</param>
         /// <param name="returnStoredSource">
         /// Flag that specifies whether to perform a full document lookup on the backend database
         /// or return only stored source fields directly from Atlas Search.
         /// </param>
         /// <param name="scoreDetails">
         /// Flag that specifies whether to return a detailed breakdown
-        /// of the score for each document in the result. 
+        /// of the score for each document in the result.
         /// </param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TResult> Search(
@@ -376,9 +375,20 @@ namespace MongoDB.Driver
             SearchHighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
-            SortDefinition<TResult> sort = null,
             bool returnStoredSource = false,
             bool scoreDetails = false);
+
+        /// <summary>
+        /// Appends a $search stage to the pipeline.
+        /// </summary>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> searchDefinition,
+            SearchOptions<TResult> searchOptions);
 
         /// <summary>
         /// Appends a $searchMeta stage to the pipeline.

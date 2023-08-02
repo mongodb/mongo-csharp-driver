@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Tests
             var builder = new SearchDefinitionBuilder<BsonDocument>();
             var sortBuilder = new SortDefinitionBuilder<BsonDocument>();
 
-            var result = pipeline.Search(builder.Text("bar", "foo"), sort: sortBuilder.Ascending("foo"));
+            var result = pipeline.Search(builder.Text("bar", "foo"), new() { Sort = sortBuilder.Ascending("foo") });
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, sort: { 'foo': 1 } } }");
