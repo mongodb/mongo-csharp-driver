@@ -1403,6 +1403,7 @@ namespace MongoDB.Driver
         public CombinedUpdateDefinition(IEnumerable<UpdateDefinition<TDocument>> updates)
         {
             _updates = Ensure.IsNotNull(updates, nameof(updates)).ToList();
+            ThrowIfPipelineUpdateDefinitionIsCombinedWithOtherUpdates(_updates);
         }
 
         public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
@@ -1429,6 +1430,14 @@ namespace MongoDB.Driver
                 }
             }
             return document;
+        }
+
+        private void ThrowIfPipelineUpdateDefinitionIsCombinedWithOtherUpdates(List<UpdateDefinition<TDocument>> updates)
+        {
+            if (updates.Count > 1 && updates.Any(x => x is PipelineUpdateDefinition<TDocument>))
+            {
+                throw new InvalidOperationException("Pipeline update definitions cannot be combined with any other update definitions.");
+            }
         }
     }
 
