@@ -65,13 +65,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
 
                     var predicateLambda = (LambdaExpression)arguments[1];
-                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, sourceItemSerializer, asRoot: false);
-                    var filteredSourceAst = AstExpression.Filter(
-                        input: sourceTranslation.Ast,
-                        cond: predicateTranslation.Ast,
-                        @as: predicateLambda.Parameters[0].Name);
-                    ast = AstExpression.Size(filteredSourceAst);
+                    var predicateParameter = predicateLambda.Parameters[0];
+                    var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var predicateSymbol = context.CreateSymbol(predicateParameter, predicateParameterSerializer);
+                    var predicateContext = context.WithSymbol(predicateSymbol);
+                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+
+                    ast = AstExpression.Sum(
+                        AstExpression.Map(
+                            input: sourceTranslation.Ast,
+                            @as: predicateSymbol.Var,
+                            @in: AstExpression.Cond(predicateTranslation.Ast, 1, 0)));
                 }
                 else
                 {

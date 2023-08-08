@@ -160,8 +160,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { Result : { $size : { $filter : { input : '$_elements', as : 'x', cond : { $ne : ['$$x.A', 'Awesome' ] } } } }, _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $sum : { $cond : { if : { $ne : ['$A', 'Awesome'] }, then : 1, else : 0 } } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -182,12 +182,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
         [Fact]
         public void Should_translate_where_select_and_count_with_predicates()
         {
-            var result = Group(x => x.A, g => new { Result = g.Select(x => new { A = x.A }).Count(x => x.A != "Awesome") });
+            var result = Group(x => x.A, g => new { Result = g.Select(x => new { B = x.A }).Count(x => x.B != "Awesome") });
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $push : { A : '$A' } } } }",
-                "{ $project : { Result : { $size : { $filter : { input : '$__agg0', as : 'x', cond : { $ne : ['$$x.A', 'Awesome'] } } } }, _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $push : { B : '$A' } } } }",
+                "{ $project : { Result : { $sum : { $map : { input : '$__agg0', as : 'x', in : { $cond : { if : { $ne : ['$$x.B', 'Awesome'] }, then : 1, else : 0 } } } } }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }

@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { Value : { $size : { $filter : { input : '$_elements', as : 'x', cond : '$$x.Bool' } } }, _id : 0 } }"
+                "{ $group : { _id : '$_id', __agg0 : { $sum : { $cond : { if : '$Bool', then : 1, else : 0 } } } } }",
+                "{ $project : { Value : '$__agg0', _id : 0 } }"
             };
             AssertStages(stages, expectedStages);
         }
@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { Value : { $size : { $filter : { input : '$_elements', as : 'x', cond : { $and : [{ $ne : ['$$x.NullableBool', null] }, '$$x.NullableBool'] } } } }, _id : 0 } }"
+                "{ $group : { _id : '$_id', __agg0 : { $sum : { $cond : { if : { $and : [{ $ne : ['$NullableBool', null] }, '$NullableBool'] }, then : 1, else : 0 } } } } }",
+                "{ $project : { Value : '$__agg0', _id : 0 } }"
             };
             AssertStages(stages, expectedStages);
         }
