@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Search
             _default = @default;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
            new()
            {
                 { "type", "date" },

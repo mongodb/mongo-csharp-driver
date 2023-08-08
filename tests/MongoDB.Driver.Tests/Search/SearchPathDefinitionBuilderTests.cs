@@ -145,6 +145,14 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void NestedPath()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            AssertRendered(subject.Single("x"), new BsonString("a.b.x"), "a.b");
+            AssertRendered(subject.Single("x"), new BsonString("a.b.c.x"), "a.b.c");
+        }
+
+        [Fact]
         public void Single()
         {
             var subject = CreateSubject<BsonDocument>();

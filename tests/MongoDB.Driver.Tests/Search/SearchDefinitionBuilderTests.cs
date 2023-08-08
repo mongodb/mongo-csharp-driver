@@ -200,22 +200,27 @@ namespace MongoDB.Driver.Tests.Search
 
             AssertRendered(
                 subject.EmbeddedDocument<BsonDocument>("x", compound),
-                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } }}}");
+                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } } } }");
 
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
                 subject.EmbeddedDocument<BsonDocument>("x", compound, scoreBuilder.Constant(123)),
-                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } }, score: { constant: { value: 123 } } }}");
+                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } }, score: { constant: { value: 123 } } } }");
 
             // Multipath
             AssertRendered(
                 subject.EmbeddedDocument("x", subject.Text(new[] { "y", "z", "w" }, "berg")),
                 "{ embeddedDocument: { path : 'x', operator : { text : { query : 'berg', path : ['x.y', 'x.z', 'x.w'] } } } }");
 
+            // Nested
+            AssertRendered(
+                subject.EmbeddedDocument("x", subject.EmbeddedDocument("y", subject.QueryString("z", "berg"))),
+                "{ embeddedDocument: { path : 'x', operator : { embeddedDocument: { path : 'x.y', operator : {  'queryString' : { defaultPath : 'x.y.z', query : 'berg' } } } } } }");
+
             // Query
             AssertRendered(
                 subject.EmbeddedDocument("x", subject.QueryString("y", "berg")),
-                "{ embeddedDocument: { path : 'x', operator : { 'queryString' : { defaultPath : 'x.y', query : 'berg' } } }}");
+                "{ embeddedDocument: { path : 'x', operator : { 'queryString' : { defaultPath : 'x.y', query : 'berg' } } } }");
         }
 
         [Fact]
@@ -232,12 +237,17 @@ namespace MongoDB.Driver.Tests.Search
 
             AssertRendered(
                 subjectFamily.EmbeddedDocument(p => p.Children, compound),
-                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } } }}");
+                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } } } }");
 
             var scoreBuilder = new SearchScoreDefinitionBuilder<Family>();
             AssertRendered(
                 subjectFamily.EmbeddedDocument(p => p.Children, compound, scoreBuilder.Constant(123)),
-                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } }, score: { constant: { value: 123 } } }}");
+                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } }, score: { constant: { value: 123 } } } }");
+
+            // Nested
+            AssertRendered(
+                subjectFamily.EmbeddedDocument(p => p.Relatives, subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.Text(p => p.FirstName, "Alice"))),
+                "{ embeddedDocument: { path : 'Relatives', operator : { embeddedDocument: { path : 'Relatives.Children', operator : {  'text' : { path: 'Relatives.Children.fn', query : 'Alice' } } } } } }");
 
             // Multipath
             var pathBuilder = new SearchPathDefinitionBuilder<SimplePerson>();
@@ -249,7 +259,7 @@ namespace MongoDB.Driver.Tests.Search
             // Query
             AssertRendered(
                 subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.QueryString(p => p.LastName, "berg")),
-                "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } }}");
+                "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } } }");
         }
 
         [Theory]
@@ -1123,6 +1133,8 @@ namespace MongoDB.Driver.Tests.Search
             public SimplePerson Parent2 { get; set; }
 
             public SimplePerson[] Children { get; set; }
+
+            public Family[] Relatives { get; set; }
         }
 
         public class SimplePerson

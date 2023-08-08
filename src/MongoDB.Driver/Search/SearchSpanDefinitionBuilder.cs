@@ -111,7 +111,8 @@ namespace MongoDB.Driver.Search
             _operator = Ensure.IsNotNull(@operator, nameof(@operator));
             _endPositionLte = endPositionLte;
         }
-        private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+
+        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
           new()
           {
               { "operator", _operator.Render(renderContext) },
