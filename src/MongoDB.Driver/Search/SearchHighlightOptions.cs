@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -98,13 +97,12 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the options to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        /// <param name="renderContext">The render context.</param>
+        /// <returns>A <see cref="BsonDocument" />.</returns>
+        public BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext)
             => new()
             {
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
                 { "maxCharsToExamine", _maxCharsToExamine, _maxCharsToExamine != null},
                 { "maxNumPassages", _maxNumPassages, _maxNumPassages != null }
             };

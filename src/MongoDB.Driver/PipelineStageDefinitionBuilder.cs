@@ -1364,8 +1364,9 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr, linqProvider) =>
                 {
-                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
-                    renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(s, sr), searchOptions.Highlight != null);
+                    var renderContext = new SearchDefinitionRenderContext<TInput>(s, sr);
+                    var renderedSearchDefinition = searchDefinition.Render(renderContext);
+                    renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(renderContext), searchOptions.Highlight != null);
                     renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
                     renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(s, sr), searchOptions.Sort != null);
                     renderedSearchDefinition.Add("index", searchOptions.IndexName, searchOptions.IndexName != null);
@@ -1400,7 +1401,7 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr, linqProvider) =>
                 {
-                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
+                    var renderedSearchDefinition = searchDefinition.Render(new(s, sr));
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
 

@@ -113,6 +113,26 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void EmbeddedDocument()
+        {
+            var builderHistoricalDocument = Builders<HistoricalDocumentWithCommentsOnly>.Search;
+            var builderComments = Builders<Comment>.Search;
+
+            var result = GetTestCollection< HistoricalDocumentWithCommentsOnly>()
+                .Aggregate()
+                .Search(builderHistoricalDocument.EmbeddedDocument(
+                    p => p.Comments,
+                    builderComments.Text(p => p.Author, "Corliss Zuk")))
+                .Limit(10)
+                .ToList();
+
+            foreach (var document in result)
+            {
+                document.Comments.Should().Contain(c => c.Author == "Corliss Zuk");
+            }
+        }
+
+        [Fact]
         public void Exists()
         {
             var result = SearchSingle(
@@ -487,9 +507,30 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_training")
             .GetCollection<HistoricalDocument>("posts");
 
+        private IMongoCollection<T> GetTestCollection<T>() => _disposableMongoClient
+            .GetDatabase("sample_training")
+            .GetCollection<T>("posts");
+
         private IMongoCollection<AirbnbListing> GetGeoTestCollection() => _disposableMongoClient
             .GetDatabase("sample_airbnb")
             .GetCollection<AirbnbListing>("listingsAndReviews");
+
+        [BsonIgnoreExtraElements]
+        public class Comment
+        {
+            [BsonElement("author")]
+            public string Author { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        public class HistoricalDocumentWithCommentsOnly
+        {
+            [BsonId]
+            public ObjectId Id { get; set; }
+
+            [BsonElement("comments")]
+            public Comment[] Comments { get; set; }
+        }
 
         [BsonIgnoreExtraElements]
         public class HistoricalDocument

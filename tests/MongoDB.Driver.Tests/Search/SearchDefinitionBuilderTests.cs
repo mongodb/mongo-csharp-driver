@@ -187,6 +187,71 @@ namespace MongoDB.Driver.Tests.Search
                     "{ compound: { must: [{ exists: { path: 'age' } } ], score: { constant: { value: 123 } }  } }");
         }
 
+        [Fact]
+        public void EmbeddedDocument()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            // Compound
+            var compound = subject
+                .Compound()
+                .Must(subject.Text("y", "1"))
+                .Should(subject.Exists("z"));
+
+            AssertRendered(
+                subject.EmbeddedDocument<BsonDocument>("x", compound),
+                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } }}}");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.EmbeddedDocument<BsonDocument>("x", compound, scoreBuilder.Constant(123)),
+                "{ embeddedDocument: { path : 'x', operator : { compound : { must : [{ text : { query : '1', path : 'x.y' } }], should : [{ exists : { path : 'x.z' } }] } }, score: { constant: { value: 123 } } }}");
+
+            // Multipath
+            AssertRendered(
+                subject.EmbeddedDocument("x", subject.Text(new[] { "y", "z", "w" }, "berg")),
+                "{ embeddedDocument: { path : 'x', operator : { text : { query : 'berg', path : ['x.y', 'x.z', 'x.w'] } } } }");
+
+            // Query
+            AssertRendered(
+                subject.EmbeddedDocument("x", subject.QueryString("y", "berg")),
+                "{ embeddedDocument: { path : 'x', operator : { 'queryString' : { defaultPath : 'x.y', query : 'berg' } } }}");
+        }
+
+        [Fact]
+        public void EmbeddedDocument_typed()
+        {
+            var subjectFamily = CreateSubject<Family>();
+            var subjectPerson = CreateSubject<SimplePerson>();
+
+            // Compound
+            var compound = subjectPerson
+                .Compound()
+                .Must(subjectPerson.Text(p => p.FirstName, "John"))
+                .Should(subjectPerson.Text(p => p.LastName, "Smith"));
+
+            AssertRendered(
+                subjectFamily.EmbeddedDocument(p => p.Children, compound),
+                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } } }}");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<Family>();
+            AssertRendered(
+                subjectFamily.EmbeddedDocument(p => p.Children, compound, scoreBuilder.Constant(123)),
+                "{ embeddedDocument: { path : 'Children', operator : { compound : { must : [{ text : { query : 'John', path : 'Children.fn' } }], should : [{ text : { query : 'Smith', path : 'Children.ln' } }] } }, score: { constant: { value: 123 } } }}");
+
+            // Multipath
+            var pathBuilder = new SearchPathDefinitionBuilder<SimplePerson>();
+            var multiPath = pathBuilder.Multi(p => p.FirstName, p => p.LastName);
+            AssertRendered(
+                subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.Text(multiPath, "berg")),
+                "{ embeddedDocument: { path : 'Children', operator : { text : { query : 'berg', path : ['Children.fn', 'Children.ln'] } } } }");
+
+            // Query
+            AssertRendered(
+                subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.QueryString(p => p.LastName, "berg")),
+                "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } }}");
+        }
+
         [Theory]
         [MemberData(nameof(EqualsSupportedTypesTestData))]
         public void Equals_should_render_supported_type<T>(
@@ -1011,7 +1076,7 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(SearchDefinition<TDocument> query, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedQuery = query.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedQuery = query.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedQuery.Should().BeEquivalentTo(expected);
         }
@@ -1050,6 +1115,14 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("ret")]
             public bool Retired { get; set; }
+        }
+
+        public class Family
+        {
+            public SimplePerson Parent1 { get; set; }
+            public SimplePerson Parent2 { get; set; }
+
+            public SimplePerson[] Children { get; set; }
         }
 
         public class SimplePerson

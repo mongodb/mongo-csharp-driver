@@ -73,6 +73,41 @@ namespace MongoDB.Driver.Search
             new CompoundSearchDefinitionBuilder<TDocument>(score);
 
         /// <summary>
+        /// Creates a search definition that performs a search for documents where
+        /// the specified query <paramref name="operator"/> is satisfied from a single element
+        /// of an array of embedded documents specified by <paramref name="path"/>.
+        /// </summary>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="operator">The operator.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>
+        /// An embeddedDocument search definition.
+        /// </returns>
+        public SearchDefinition<TDocument> EmbeddedDocument<TField>(
+            FieldDefinition<TDocument, IEnumerable<TField>> path,
+            SearchDefinition<TField> @operator,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new EmbeddedDocumentSearchDefinition<TDocument, TField>(path, @operator, score);
+
+        /// <summary>
+        /// Creates a search definition that performs a search for documents where
+        /// the specified query <paramref name="operator"/> is satisfied from a single element
+        /// of an array of embedded documents specified by <paramref name="path"/>.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="operator">The operator.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>
+        /// An embeddedDocument search definition.
+        /// </returns>
+        public SearchDefinition<TDocument> EmbeddedDocument<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            SearchDefinition<TField> @operator,
+            SearchScoreDefinition<TDocument> score = null) =>
+                EmbeddedDocument(new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), @operator, score);
+
+        /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
         /// Supported value types are boolean, numeric, ObjectId and date.

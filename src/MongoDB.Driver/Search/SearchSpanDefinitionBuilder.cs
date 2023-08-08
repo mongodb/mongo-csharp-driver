@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 
@@ -115,7 +114,7 @@ namespace MongoDB.Driver.Search
         private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
           new()
           {
-              { "operator", _operator.Render(documentSerializer, serializerRegistry) },
+              { "operator", _operator.Render(renderContext) },
               { "endPositionLte", _endPositionLte }
           };
     }
@@ -134,10 +133,10 @@ namespace MongoDB.Driver.Search
             _inOrder = inOrder;
         }
 
-        private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new()
             {
-                { "clauses", new BsonArray(_clauses.Select(clause => clause.Render(documentSerializer, serializerRegistry))) },
+                { "clauses", new BsonArray(_clauses.Select(clause => clause.Render(renderContext))) },
                 { "slop", _slop },
                 { "inOrder", _inOrder },
             };
@@ -153,8 +152,8 @@ namespace MongoDB.Driver.Search
             _clauses = Ensure.IsNotNull(clauses, nameof(clauses)).ToList();
         }
 
-        private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            new("clauses", new BsonArray(_clauses.Select(clause => clause.Render(documentSerializer, serializerRegistry))));
+        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new("clauses", new BsonArray(_clauses.Select(clause => clause.Render(renderContext))));
     }
 
     internal sealed class SubtractSearchSpanDefinition<TDocument> : SearchSpanDefinition<TDocument>
@@ -169,11 +168,11 @@ namespace MongoDB.Driver.Search
             _exclude = Ensure.IsNotNull(exclude, nameof(exclude));
         }
 
-        private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new()
             {
-                { "include", _include.Render(documentSerializer, serializerRegistry) },
-                { "exclude", _exclude.Render(documentSerializer, serializerRegistry) },
+                { "include", _include.Render(renderContext) },
+                { "exclude", _exclude.Render(renderContext) },
             };
     }
 
@@ -189,11 +188,11 @@ namespace MongoDB.Driver.Search
             _path = Ensure.IsNotNull(path, nameof(path));
         }
 
-        private protected override BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new()
             {
                 { "query", _query.Render() },
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
             };
     }
 }

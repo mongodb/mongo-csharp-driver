@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -223,7 +222,7 @@ namespace MongoDB.Driver.Search
            new()
            {
                 { "type", "date" },
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
                 { "boundaries", new BsonArray(_boundaries) },
                 { "default", _default, _default != null }
            };
@@ -243,11 +242,11 @@ namespace MongoDB.Driver.Search
             _default = @default;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new()
             {
                 { "type", "number" },
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
                 { "boundaries", new BsonArray(_boundaries) },
                 { "default", _default, _default != null }
             };
@@ -265,11 +264,11 @@ namespace MongoDB.Driver.Search
             _numBuckets = Ensure.IsNullOrBetween(numBuckets, 1, 1000, nameof(numBuckets));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new()
             {
                 { "type", "string" },
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
                 { "numBuckets", _numBuckets, _numBuckets != null }
             };
     }

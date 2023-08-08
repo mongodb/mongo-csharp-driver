@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -26,12 +25,13 @@ namespace MongoDB.Driver.Search
     public abstract class SearchDefinition<TDocument>
     {
         /// <summary>
-        /// Renders the search definition to a <see cref="BsonDocument"/>.
+        /// Renders the search definition to a <see cref="BsonDocument" />.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        /// <param name="renderContext">The render context.</param>
+        /// <returns>
+        /// A <see cref="BsonDocument" />.
+        /// </returns>
+        public abstract BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext);
 
         /// <summary>
         /// Performs an implicit conversion from a BSON document to a <see cref="SearchDefinition{TDocument}"/>.
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Search
         public BsonDocument Document { get; private set; }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             Document;
     }
 
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Search
         public string Json { get; private set; }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             BsonDocument.Parse(Json);
     }
 
@@ -131,8 +131,8 @@ namespace MongoDB.Driver.Search
 
         private readonly OperatorType _operatorType;
         // _path and _score used by many but not all subclasses
-        private readonly SearchPathDefinition<TDocument> _path;
-        private readonly SearchScoreDefinition<TDocument> _score;
+        protected readonly SearchPathDefinition<TDocument> _path;
+        protected readonly SearchScoreDefinition<TDocument> _score;
 
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
@@ -152,15 +152,16 @@ namespace MongoDB.Driver.Search
             _score = score;
         }
 
-        public sealed override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        /// <inheritdoc />
+        public sealed override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext)
         {
-            var renderedArgs = RenderArguments(documentSerializer, serializerRegistry);
-            renderedArgs.Add("path", () => _path.Render(documentSerializer, serializerRegistry), _path != null);
-            renderedArgs.Add("score", () => _score.Render(documentSerializer, serializerRegistry), _score != null);
+            var renderedArgs = RenderArguments(renderContext);
+            renderedArgs.Add("path", () => _path.Render(renderContext), _path != null);
+            renderedArgs.Add("score", () => _score.Render(renderContext), _score != null);
 
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new();
+        private protected virtual BsonDocument RenderArguments(SearchDefinitionRenderContext<TDocument> renderContext) => new();
     }
 }
