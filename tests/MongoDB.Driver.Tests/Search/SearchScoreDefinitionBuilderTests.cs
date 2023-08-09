@@ -86,13 +86,12 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(SearchScoreDefinition<TDocument> score, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedQuery = score.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedQuery = score.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedQuery.Should().BeEquivalentTo(expected);
         }
 
-        private SearchScoreDefinitionBuilder<TDocument> CreateSubject<TDocument>() =>
-            new SearchScoreDefinitionBuilder<TDocument>();
+        private SearchScoreDefinitionBuilder<TDocument> CreateSubject<TDocument>() => new();
 
         private class Person
         {

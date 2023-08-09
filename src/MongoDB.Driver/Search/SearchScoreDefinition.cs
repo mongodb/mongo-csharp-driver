@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Search
 {
@@ -27,9 +26,8 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the score modifier to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext);
     }
 }

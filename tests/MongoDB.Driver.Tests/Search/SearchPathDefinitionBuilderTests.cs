@@ -33,6 +33,10 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Analyzer("x", "english"),
                 "{ value: 'x', multi: 'english' }");
+            AssertRendered(
+                subject.Analyzer("x", "english"),
+                "{ value: 'basepath.x', multi: 'english' }",
+                "basepath");
         }
 
         [Fact]
@@ -44,8 +48,16 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Analyzer(x => x.FirstName, "english"),
                 "{ value: 'fn', multi: 'english' }");
             AssertRendered(
+                subject.Analyzer(x => x.FirstName, "english"),
+                "{ value: 'basepath.fn', multi: 'english' }",
+                "basepath");
+            AssertRendered(
                 subject.Analyzer("FirstName", "english"),
                 "{ value: 'fn', multi: 'english' }");
+            AssertRendered(
+                subject.Analyzer("FirstName", "english"),
+                "{ value: 'basepath.fn', multi: 'english' }",
+                "basepath");
         }
 
         [Fact]
@@ -61,6 +73,14 @@ namespace MongoDB.Driver.Tests.Search
                     new BsonString("y")
                 });
             AssertRendered(
+                subject.Multi("x", "y"),
+                new BsonArray()
+                {
+                    new BsonString("basepath.x"),
+                    new BsonString("basepath.y")
+                },
+                "basepath");
+            AssertRendered(
                 subject.Multi(
                     new List<FieldDefinition<BsonDocument>>()
                     {
@@ -72,6 +92,19 @@ namespace MongoDB.Driver.Tests.Search
                     new BsonString("x"),
                     new BsonString("y")
                 });
+            AssertRendered(
+                subject.Multi(
+                    new List<FieldDefinition<BsonDocument>>()
+                    {
+                        "x",
+                        "y"
+                    }),
+                new BsonArray()
+                {
+                    new BsonString("basepath.x"),
+                    new BsonString("basepath.y")
+                },
+                "basepath");
         }
 
         [Fact]
@@ -87,12 +120,36 @@ namespace MongoDB.Driver.Tests.Search
                     new BsonString("ln")
                 });
             AssertRendered(
+                subject.Multi(x => x.FirstName, x => x.LastName),
+                new BsonArray()
+                {
+                    new BsonString("basepath.fn"),
+                    new BsonString("basepath.ln")
+                },
+                "basepath");
+            AssertRendered(
                 subject.Multi("FirstName", "LastName"),
                 new BsonArray()
                 {
                     new BsonString("fn"),
                     new BsonString("ln")
                 });
+            AssertRendered(
+                subject.Multi("FirstName", "LastName"),
+                new BsonArray()
+                {
+                    new BsonString("basepath.fn"),
+                    new BsonString("basepath.ln")
+                },
+                "basepath");
+        }
+
+        [Fact]
+        public void NestedPath()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            AssertRendered(subject.Single("x"), new BsonString("a.b.x"), "a.b");
+            AssertRendered(subject.Single("x"), new BsonString("a.b.c.x"), "a.b.c");
         }
 
         [Fact]
@@ -101,6 +158,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
 
             AssertRendered(subject.Single("x"), new BsonString("x"));
+            AssertRendered(subject.Single("x"), new BsonString("basepath.x"), "basepath");
         }
 
         [Fact]
@@ -109,7 +167,9 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<Person>();
 
             AssertRendered(subject.Single(x => x.FirstName), new BsonString("fn"));
+            AssertRendered(subject.Single(x => x.FirstName), new BsonString("basepath.fn"), "basepath");
             AssertRendered(subject.Single("FirstName"), new BsonString("fn"));
+            AssertRendered(subject.Single("FirstName"), new BsonString("basepath.fn"), "basepath");
         }
 
         [Fact]
@@ -120,15 +180,19 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Wildcard("*"),
                 "{ wildcard: '*' }");
+            AssertRendered(
+                subject.Wildcard("*"),
+                "{ wildcard: '*' }",
+                "basepath");
         }
 
-        private void AssertRendered<TDocument>(SearchPathDefinition<TDocument> path, string expected) =>
-            AssertRendered(path, BsonDocument.Parse(expected));
+        private void AssertRendered<TDocument>(SearchPathDefinition<TDocument> path, string expected, string pathPrefix = null) =>
+            AssertRendered(path, BsonDocument.Parse(expected), pathPrefix);
 
-        private void AssertRendered<TDocument>(SearchPathDefinition<TDocument> path, BsonValue expected)
+        private void AssertRendered<TDocument>(SearchPathDefinition<TDocument> path, BsonValue expected, string pathPrefix = null)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedPath = path.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedPath = path.Render(new(documentSerializer, BsonSerializer.SerializerRegistry, pathPrefix));
 
             renderedPath.Should().Be(expected);
         }

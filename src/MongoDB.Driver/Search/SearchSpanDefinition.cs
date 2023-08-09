@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Search
 {
@@ -47,12 +46,11 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the span clause to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            new(_clauseType.ToCamelCase(), RenderClause(documentSerializer, serializerRegistry));
+        public BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new(_clauseType.ToCamelCase(), RenderClause(renderContext));
 
-        private protected virtual BsonDocument RenderClause(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new();
+        private protected virtual BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) => new();
     }
 }

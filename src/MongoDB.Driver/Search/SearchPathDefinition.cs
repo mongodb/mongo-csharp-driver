@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Search
 {
@@ -29,10 +28,9 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the path to a <see cref="BsonValue"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
-        public abstract BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="FieldDefinition{TDocument}"/> to
@@ -98,5 +96,20 @@ namespace MongoDB.Driver.Search
         /// </returns>
         public static implicit operator SearchPathDefinition<TDocument>(List<string> fieldNames) =>
             new MultiSearchPathDefinition<TDocument>(fieldNames.Select(fieldName => new StringFieldDefinition<TDocument>(fieldName)));
+
+        /// <summary>
+        /// Renders the field.
+        /// </summary>
+        /// <param name="fieldDefinition">The field definition.</param>
+        /// <param name="renderContext">The render context.</param>
+        /// <returns>The rendered field.</returns>
+        protected string RenderField(FieldDefinition<TDocument> fieldDefinition, SearchDefinitionRenderContext<TDocument> renderContext)
+        {
+            var renderedField = fieldDefinition.Render(renderContext.DocumentSerializer, renderContext.SerializerRegistry);
+
+            return renderContext.PathPrefix == null ?
+                renderedField.FieldName :
+                $"{renderContext.PathPrefix}.{renderedField.FieldName}";
+        }
     }
 }

@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -113,10 +112,10 @@ namespace MongoDB.Driver.Search
             _analyzerName = Ensure.IsNotNull(analyzerName, nameof(analyzerName));
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new BsonDocument()
             {
-                {  "value", _field.Render(documentSerializer, serializerRegistry).FieldName },
+                {  "value", RenderField(_field, renderContext) },
                 {  "multi", _analyzerName }
             };
     }
@@ -130,8 +129,8 @@ namespace MongoDB.Driver.Search
             _fields = Ensure.IsNotNull(fields, nameof(fields)).ToArray();
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            new BsonArray(_fields.Select(field => field.Render(documentSerializer, serializerRegistry).FieldName));
+        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new BsonArray(_fields.Select(field => RenderField(field, renderContext)));
     }
 
     internal sealed class SingleSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
@@ -143,11 +142,8 @@ namespace MongoDB.Driver.Search
             _field = Ensure.IsNotNull(field, nameof(field));
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            return new BsonString(renderedField.FieldName);
-        }
+        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            RenderField(_field, renderContext);
     }
 
     internal sealed class WildcardSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
@@ -159,10 +155,7 @@ namespace MongoDB.Driver.Search
             _query = Ensure.IsNotNull(query, nameof(query));
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            new BsonDocument()
-            {
-                { "wildcard", _query }
-            };
+        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new BsonDocument("wildcard", _query);
     }
 }

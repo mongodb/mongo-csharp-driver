@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -101,10 +100,10 @@ namespace MongoDB.Driver.Search
             _undefined = undefined;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new("boost", new BsonDocument
             {
-                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "path", _path.Render(renderContext) },
                 { "undefined", _undefined, _undefined != 0 }
             });
     }
@@ -118,7 +117,7 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new("boost",  new BsonDocument("value", _value));
     }
 
@@ -131,7 +130,7 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
             new("constant", new BsonDocument("value", _value));
     }
 
@@ -144,7 +143,7 @@ namespace MongoDB.Driver.Search
             _function = Ensure.IsNotNull(function, nameof(function));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            new("function", _function.Render(documentSerializer, serializerRegistry));
+        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new("function", _function.Render(renderContext));
     }
 }
