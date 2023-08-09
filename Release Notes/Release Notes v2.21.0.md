@@ -10,6 +10,15 @@ The main new features in 2.21.0 include:
 * Altas search index mangement API added
 * Anonymous types added to default AllowedTypes in ObjectSerializer
 
+### Altas search minor breaking change
+All ```Render``` methods in Atlas Search builders have a new signature:
+
+```Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)```
+
+Changed to
+
+```Render(SearchDefinitionRenderContext<TDocument> renderContext)```
+
 An online version of these release notes is available [here](https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.21.0.md).
 
 The full list of issues resolved in this release is available at [CSHARP JIRA project](https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.21.0%20ORDER%20BY%20key%20ASC).
