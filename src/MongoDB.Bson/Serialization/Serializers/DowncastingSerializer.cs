@@ -83,9 +83,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public Type BaseType => typeof(TBase);
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// The serializer for the derived type.
+        /// </summary>
         public IBsonSerializer<TDerived> DerivedSerializer => _derivedSerializer;
 
+         /// <inheritdoc/>
         IBsonSerializer IDowncastingSerializer.DerivedSerializer => _derivedSerializer;
 
         /// <inheritdoc/>

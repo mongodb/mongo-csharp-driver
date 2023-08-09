@@ -77,6 +77,7 @@ namespace MongoDB.Driver.Search
         /// the specified query <paramref name="operator"/> is satisfied from a single element
         /// of an array of embedded documents specified by <paramref name="path"/>.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
         /// <param name="operator">The operator.</param>
         /// <param name="score">The score modifier.</param>

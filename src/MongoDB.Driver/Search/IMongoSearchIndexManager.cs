@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Search
         /// <param name="aggregateOptions">The aggregate options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// A Task whose result is a cursor.
+        /// A task whose result is a cursor.
         /// </returns>
         Task<IAsyncCursor<BsonDocument>> ListAsync(string name = null, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default);
 
@@ -130,6 +130,7 @@ namespace MongoDB.Driver.Search
         /// <param name="name">Name of the index.</param>
         /// <param name="definition">The definition.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
         void Update(string name, BsonDocument definition, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -138,6 +139,7 @@ namespace MongoDB.Driver.Search
         /// <param name="name">Name of the index.</param>
         /// <param name="definition">The definition.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
         Task UpdateAsync(string name, BsonDocument definition, CancellationToken cancellationToken = default);
     }
 }
