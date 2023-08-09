@@ -5,12 +5,12 @@ This is the general availability release for the 2.21.0 version of the driver.
 The main new features in 2.21.0 include:
 
 * LINQ3 bug fixes and improvements
-* Altas search sort, tracking, score details options added
-* Altas search embeddedDocuments operator support
-* Altas search index mangement API added
+* Atlas search sort, tracking, score details options added
+* Atlas search embeddedDocuments operator support
+* Atlas search index mangement API added
 * Anonymous types added to default AllowedTypes in ObjectSerializer
 
-### Altas search minor breaking change
+### Atlas search minor breaking change
 All ```Render``` methods in Atlas Search builders have a new signature:
 
 ```Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)```
