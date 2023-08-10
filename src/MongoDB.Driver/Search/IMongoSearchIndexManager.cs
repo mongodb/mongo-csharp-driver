@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Search
         /// <param name="models">The models defining each of the indexes.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// A task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
+        /// A Task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
         /// </returns>
         Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default);
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Search
         /// <param name="model">The model defining the index.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// A task whose result is the name of the index that was created.
+        /// A Task whose result is the name of the index that was created.
         /// </returns>
         Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default);
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="name">The index name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task.</returns>
+        /// <returns>A Task.</returns>
         Task DropOneAsync(string name, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -138,6 +138,7 @@ namespace MongoDB.Driver.Search
         /// <param name="name">Name of the index.</param>
         /// <param name="definition">The definition.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
         Task UpdateAsync(string name, BsonDocument definition, CancellationToken cancellationToken = default);
     }
 }

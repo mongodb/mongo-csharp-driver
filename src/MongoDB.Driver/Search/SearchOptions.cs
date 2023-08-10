@@ -18,7 +18,8 @@ namespace MongoDB.Driver.Search
     /// <summary>
     /// Options for search.
     /// </summary>
-    public sealed class SearchOptions<TResult>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class SearchOptions<TDocument>
     {
         /// <summary>
         /// Gets or sets the options for counting the search results.
@@ -28,7 +29,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Gets or sets the options for highlighting.
         /// </summary>
-        public SearchHighlightOptions<TResult> Highlight { get; set; }
+        public SearchHighlightOptions<TDocument> Highlight { get; set; }
 
         /// <summary>
         /// Gets or sets the index name.
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Gets or sets the sort specification.
         /// </summary>
-        public SortDefinition<TResult> Sort { get; set; }
+        public SortDefinition<TDocument> Sort { get; set; }
 
         /// <summary>
         /// Gets or sets the options for tracking search terms.
