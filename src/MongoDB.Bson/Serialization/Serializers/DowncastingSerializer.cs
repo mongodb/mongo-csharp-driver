@@ -88,7 +88,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public IBsonSerializer<TDerived> DerivedSerializer => _derivedSerializer;
 
-         /// <inheritdoc/>
         IBsonSerializer IDowncastingSerializer.DerivedSerializer => _derivedSerializer;
 
         /// <inheritdoc/>
