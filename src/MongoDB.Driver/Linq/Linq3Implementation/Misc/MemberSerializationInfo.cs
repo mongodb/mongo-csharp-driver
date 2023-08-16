@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -21,18 +22,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal class MemberSerializationInfo
     {
         // private fields
-        private readonly string _elementName;
+        private readonly IReadOnlyList<string> _elementPath;
         private readonly IBsonSerializer _serializer;
 
         // constructors
-        public MemberSerializationInfo(string elementName, IBsonSerializer serializer)
+        public MemberSerializationInfo(IReadOnlyList<string> elementPath, IBsonSerializer serializer)
         {
-            _elementName = Ensure.IsNotNullOrEmpty(elementName, nameof(elementName));
+            _elementPath = Ensure.IsNotNull(elementPath, nameof(elementPath));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         // public properties
-        public string ElementName => _elementName;
+        public IReadOnlyList<string> ElementPath => _elementPath;
         public IBsonSerializer Serializer => _serializer;
     }
 }

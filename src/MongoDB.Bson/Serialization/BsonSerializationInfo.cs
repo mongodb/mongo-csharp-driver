@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
@@ -24,10 +26,24 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public class BsonSerializationInfo
     {
+        #region static
+        /// <summary>
+        /// Creates anew instance of the BsonSerializationinfo class with an element path instead of an element name.
+        /// </summary>
+        /// <param name="elementPath">The element path.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <returns>A BsonSerializationInfo.</returns>
+        public static BsonSerializationInfo CreateWithPath(IEnumerable<string> elementPath, IBsonSerializer serializer, Type nominalType)
+        {
+            return new BsonSerializationInfo(elementPath.ToList(), serializer, nominalType);
+        }
+        #endregion
+
         // private fields
-        private string _elementName;
-        private IBsonSerializer _serializer;
-        private Type _nominalType;
+        private readonly IReadOnlyList<string> _elementPath;
+        private readonly IBsonSerializer _serializer;
+        private readonly Type _nominalType;
 
         // constructors
         /// <summary>
@@ -37,19 +53,32 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <param name="nominalType">The nominal type.</param>
         public BsonSerializationInfo(string elementName, IBsonSerializer serializer, Type nominalType)
+            : this(elementName == null ? null : new[] { elementName }, serializer, nominalType)
         {
-            _elementName = elementName;
+        }
+
+        private BsonSerializationInfo(IReadOnlyList<string> elementPath, IBsonSerializer serializer, Type nominalType)
+        {
+            _elementPath = elementPath;
             _serializer = serializer;
             _nominalType = nominalType;
         }
 
         // public properties
         /// <summary>
-        /// Gets or sets the dotted element name.
+        /// Gets the element name.
         /// </summary>
         public string ElementName
         {
-            get { return _elementName; }
+            get { return _elementPath?.Single(); }
+        }
+
+        /// <summary>
+        /// Gets element path.
+        /// </summary>
+        public IReadOnlyList<string> ElementPath
+        {
+            get { return _elementPath; }
         }
 
         /// <summary>
@@ -92,20 +121,21 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="newSerializationInfo">The new info.</param>
         /// <returns>A new BsonSerializationInfo.</returns>
+        [Obsolete("This method is no longer relevant because field names are now allowed to contain dots.")]
         public BsonSerializationInfo Merge(BsonSerializationInfo newSerializationInfo)
         {
             string elementName = null;
-            if (_elementName != null && newSerializationInfo._elementName != null)
+            if (ElementName != null && newSerializationInfo.ElementName != null)
             {
-                elementName = _elementName + "." + newSerializationInfo._elementName;
+                elementName = ElementName + "." + newSerializationInfo.ElementName;
             }
-            else if (_elementName != null)
+            else if (ElementName != null)
             {
-                elementName = _elementName;
+                elementName = ElementName;
             }
-            else if (newSerializationInfo._elementName != null)
+            else if (newSerializationInfo.ElementName != null)
             {
-                elementName = newSerializationInfo._elementName;
+                elementName = newSerializationInfo.ElementName;
             }
 
             return new BsonSerializationInfo(

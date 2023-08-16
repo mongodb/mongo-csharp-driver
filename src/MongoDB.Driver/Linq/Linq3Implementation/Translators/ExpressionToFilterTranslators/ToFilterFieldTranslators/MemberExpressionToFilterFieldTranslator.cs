@@ -89,9 +89,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (fieldSerializer is IBsonDocumentSerializer documentSerializer &&
                 documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo memberSerializationInfo))
             {
-                var subFieldName = memberSerializationInfo.ElementName;
                 var subFieldSerializer = memberSerializationInfo.Serializer;
-                return field.SubField(subFieldName, subFieldSerializer);
+                var subField = field;
+                foreach (var subFieldName in memberSerializationInfo.ElementPath)
+                {
+                    subField = subField.SubField(subFieldName, subFieldSerializer);
+                }
+                return subField;
             }
 
             if (memberExpression.Expression.Type.IsConstructedGenericType &&

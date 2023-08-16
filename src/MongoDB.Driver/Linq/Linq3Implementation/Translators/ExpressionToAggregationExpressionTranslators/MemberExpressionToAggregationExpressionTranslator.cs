@@ -77,8 +77,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var serializationInfo = DocumentSerializerHelper.GetMemberSerializationInfo(containerTranslation.Serializer, member.Name);
-            var ast = AstExpression.GetField(containerTranslation.Ast, serializationInfo.ElementName);
-            return new AggregationExpression(expression, ast, serializationInfo.Serializer);
+            var subField = containerTranslation.Ast;
+            foreach (var subFieldName in serializationInfo.ElementPath)
+            {
+                subField = AstExpression.GetField(subField, subFieldName);
+            }
+            return new AggregationExpression(expression, subField, serializationInfo.Serializer);
         }
 
         private static AggregationExpression TranslateTupleItemProperty(MemberExpression expression, AggregationExpression containerTranslation)
