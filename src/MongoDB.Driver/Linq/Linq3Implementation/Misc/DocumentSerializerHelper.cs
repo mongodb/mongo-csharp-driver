@@ -32,7 +32,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 throw new InvalidOperationException($"Serializer for {serializer.ValueType} does not have a member named {memberName}.");
             }
 
-            return new MemberSerializationInfo(serializationInfo.ElementPath, serializationInfo.Serializer);
+            if (serializationInfo.ElementPath == null)
+            {
+                return new MemberSerializationInfo(serializationInfo.ElementName, serializationInfo.Serializer);
+            }
+            else
+            {
+                return new MemberSerializationInfo(serializationInfo.ElementPath, serializationInfo.Serializer);
+            }
         }
 
         public static bool HasMemberSerializationInfo(IBsonSerializer serializer, string memberName)

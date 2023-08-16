@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Serialization
         #endregion
 
         // private fields
+        private readonly string _elementName;
         private readonly IReadOnlyList<string> _elementPath;
         private readonly IBsonSerializer _serializer;
         private readonly Type _nominalType;
@@ -53,8 +54,10 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <param name="nominalType">The nominal type.</param>
         public BsonSerializationInfo(string elementName, IBsonSerializer serializer, Type nominalType)
-            : this(elementName == null ? null : new[] { elementName }, serializer, nominalType)
         {
+            _elementName = elementName;
+            _serializer = serializer;
+            _nominalType = nominalType;
         }
 
         private BsonSerializationInfo(IReadOnlyList<string> elementPath, IBsonSerializer serializer, Type nominalType)
@@ -70,7 +73,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public string ElementName
         {
-            get { return _elementPath?.Single(); }
+            get
+            {
+                if (_elementPath != null)
+                {
+                    throw new InvalidOperationException("When ElementPath is not null you must use it instead.");
+                }
+                return _elementName;
+            }
         }
 
         /// <summary>

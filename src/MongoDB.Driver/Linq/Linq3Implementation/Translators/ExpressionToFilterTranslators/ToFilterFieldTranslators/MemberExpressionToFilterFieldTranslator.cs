@@ -90,12 +90,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo memberSerializationInfo))
             {
                 var subFieldSerializer = memberSerializationInfo.Serializer;
-                var subField = field;
-                foreach (var subFieldName in memberSerializationInfo.ElementPath)
+                if (memberSerializationInfo.ElementPath == null)
                 {
-                    subField = subField.SubField(subFieldName, subFieldSerializer);
+                    var subFieldName = memberSerializationInfo.ElementName;
+                    return field.SubField(subFieldName, subFieldSerializer);
                 }
-                return subField;
+                else
+                {
+                    var subField = field;
+                    foreach (var subFieldName in memberSerializationInfo.ElementPath)
+                    {
+                        subField = subField.SubField(subFieldName, subFieldSerializer);
+                    }
+                    return subField;
+                }
             }
 
             if (memberExpression.Expression.Type.IsConstructedGenericType &&
