@@ -15,10 +15,12 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -39,17 +41,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var dictionarySerializer = GetDictionarySerializer(expression, dictionaryTranslation);
                 var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
 
-                var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
-
                 AstExpression ast;
                 switch (dictionaryRepresentation)
                 {
                     case DictionaryRepresentation.Document:
-                        if (keyExpression.Type != typeof(string))
-                        {
-                            throw new ExpressionNotSupportedException(expression, because: "ContainsKey requires key to be of type string when DictionaryRepresentation is: Document");
-                        }
-                        ast = AstExpression.Ne(AstExpression.Type(AstExpression.GetField(dictionaryTranslation.Ast, keyTranslation.Ast)), "missing");
+                        var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
+                        ast = AstExpression.Ne(AstExpression.Type(AstExpression.GetField(dictionaryTranslation.Ast, keyFieldName)), "missing");
                         break;
 
                     default:
@@ -60,6 +57,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AstExpression GetKeyFieldName(TranslationContext context, Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
+        {
+            if (keyExpression is ConstantExpression keyConstantExpression)
+            {
+                var keyValue = keyConstantExpression.Value;
+                var serializedKeyValue = SerializationHelper.SerializeValue(keySerializer, keyValue);
+                ThrowIfKeyIsNotRepresentedAsAString(expression, serializedKeyValue.BsonType);
+                return AstExpression.Constant(serializedKeyValue);
+            }
+
+            ThrowIfKeyIsNotRepresentedAsAString(expression, keySerializer);
+            var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+            return keyTranslation.Ast;
         }
 
         private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, AggregationExpression dictionaryTranslation)
@@ -81,6 +93,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 method.Name == "ContainsKey" &&
                 method.GetParameters() is var parameters &&
                 parameters.Length == 1;
+        }
+
+        private static void ThrowIfKeyIsNotRepresentedAsAString(Expression expression, IBsonSerializer keySerializer)
+        {
+            if (keySerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "unable to determine if key is represented as a string");
+            }
+            var keyRepresentation = hasRepresentationSerializer.Representation;
+
+            ThrowIfKeyIsNotRepresentedAsAString(expression, keyRepresentation);
+        }
+
+        private static void ThrowIfKeyIsNotRepresentedAsAString(Expression expression, BsonType keyRepresentation)
+        {
+            if (keyRepresentation != BsonType.String)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "key is not represented as a string");
+            }
         }
     }
 }
