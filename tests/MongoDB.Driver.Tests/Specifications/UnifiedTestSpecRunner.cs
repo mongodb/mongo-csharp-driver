@@ -30,7 +30,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications
 {
-    public partial class UnifiedTestSpecRunner : LoggableTestClass
+    public class UnifiedTestSpecRunner : LoggableTestClass
     {
         public UnifiedTestSpecRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper, true)
@@ -78,6 +78,17 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("crud.tests.unified")]
         public void Crud(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [UnifiedTestsTheory("index_management.tests")]
+        public void IndexManagement(JsonDrivenTestCase testCase)
+        {
+            // Skip sharded due to CSHARP-4736/SERVER-78848
+            RequireServer
+                .Check()
+                .ClusterTypes(Core.Clusters.ClusterType.LoadBalanced, Core.Clusters.ClusterType.ReplicaSet);
+
+            Run(testCase);
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("load_balancers.tests")]
