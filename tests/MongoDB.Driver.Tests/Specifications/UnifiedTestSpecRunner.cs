@@ -122,11 +122,11 @@ namespace MongoDB.Driver.Tests.Specifications
            Run(testCase);
         }
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_writes.tests.unified")]
         public void RetryableWrites(JsonDrivenTestCase testCase) => Run(testCase);
 
@@ -145,7 +145,16 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("transactions.tests.unified")]
-        public void Transactions(JsonDrivenTestCase testCase) => Run(testCase);
+        public void Transactions(JsonDrivenTestCase testCase)
+        {
+            if (testCase.Name.Contains("find does not retry in a transaction"))
+            {
+                // CSHARP-4761
+                RequireServer.Check().Serverless(false);
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("unified_test_format.tests.valid_fail")]
         public void UnifiedTestFormatValidFail(JsonDrivenTestCase testCase)
