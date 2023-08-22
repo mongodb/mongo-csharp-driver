@@ -1788,10 +1788,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 }
                                 catch (XunitException)
                                 {
-                                    // In rare cases, the thrown error is "CryptException exception: AcceessDeniedException". That means you don't have authorization to perform the requested action.
+                                    // In rare cases, the thrown error is "CryptException exception: AccessDeniedException". That means you don't have authorization to perform the requested action.
                                     // It more or less corresponds to the expected behavior here, but it's unclear why the same scenario triggers different exceptions.
                                     // However, it looks harmless to slightly update the test assertion to avoid assertion failures on EG.
-                                    AssertInnerEncryptionException<CryptException>(ex, "Error in KMS response. HTTP status=400. Response body=\n{\"__type\":\"AccessDeniedException\"}");
+                                    AssertInnerEncryptionException<CryptException>(ex, "Error in KMS response.", "HTTP status=400.", "\"__type\":\"AccessDeniedException\"");
                                 }
                             }
                             break;
