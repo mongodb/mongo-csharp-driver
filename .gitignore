@@ -48,6 +48,7 @@ src/packages
 
 # Nupkg artifacts
 *.nupkg
+*.snupkg
 
 # NCrunch artifacts
 *.ncrunch*

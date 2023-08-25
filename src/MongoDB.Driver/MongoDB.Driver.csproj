@@ -7,8 +7,10 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver</AssemblyTitle>
     <Product>MongoDB.Driver</Product>
+    <PackageId>MongoDB.Driver</PackageId>
     <Description>Official MongoDB supported driver for MongoDB. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>Official .NET driver for MongoDB.</PackageDescription>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

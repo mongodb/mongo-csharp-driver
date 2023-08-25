@@ -7,9 +7,11 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.GridFS</AssemblyTitle>
     <Product>MongoDB.Driver.GridFS</Product>
+    <PackageId>MongoDB.Driver.GridFS</PackageId>
     <Description>Official MongoDB supported driver for MongoDB GridFS implementation. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>GridFS Component of the Official MongoDB .NET Driver.</PackageDescription>
     <PackageTags>$(PackageTags);gridfs</PackageTags>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
