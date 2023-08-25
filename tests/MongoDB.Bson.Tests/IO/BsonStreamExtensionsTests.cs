@@ -108,6 +108,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(5, BsonBinarySubType.MD5)]
         [InlineData(6, BsonBinarySubType.Encrypted)]
         [InlineData(7, BsonBinarySubType.Column)]
+        [InlineData(8, BsonBinarySubType.Sensitive)]
         [InlineData(0x80, BsonBinarySubType.UserDefined)]
         public void ReadBinarySubType_should_return_expected_result(int n, BsonBinarySubType expectedResult)
         {
@@ -497,6 +498,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(BsonBinarySubType.MD5, 5)]
         [InlineData(BsonBinarySubType.Encrypted, 6)]
         [InlineData(BsonBinarySubType.Column, 7)]
+        [InlineData(BsonBinarySubType.Sensitive, 8)]
         [InlineData(BsonBinarySubType.UserDefined, 0x80)]
         public void WriteBinarySubType_should_have_expected_effect(
             BsonBinarySubType value,

@@ -57,6 +57,10 @@ namespace MongoDB.Bson
         /// </summary>
         Column = 0x07,
         /// <summary>
+        /// Sensitive data.
+        /// </summary>
+        Sensitive = 0x08,
+        /// <summary>
         /// User defined binary data.
         /// </summary>
         UserDefined = 0x80
