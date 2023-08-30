@@ -166,6 +166,46 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(10)]
+        public void BsonWriter_array_should_use_own_element_validator(int arraySize)
+        {
+            var arrayItemValidator = CreatePrefixValidatorMock("$");
+            var rootValidator = CreatePrefixValidatorMock("#", arrayItemValidator.Object);
+
+            using (var stream = new MemoryStream())
+            using (var writer = new BsonBinaryWriter(stream))
+            {
+                writer.WriteStartDocument();
+                writer.PushElementNameValidator(rootValidator.Object);
+
+                writer.WriteName("#array");
+                writer.WriteStartArray();
+
+                for (var i = 0; i < arraySize; i++)
+                {
+                    writer.WriteStartDocument();
+
+                    writer.WriteName("$a");
+                    writer.WriteInt32(i);
+
+                    writer.WriteEndDocument();
+                }
+
+                writer.WriteEndArray();
+
+                writer.WriteName("#value");
+                writer.WriteInt32(arraySize);
+                writer.WriteEndDocument();
+            }
+
+            rootValidator.Verify(v => v.IsValidElementName(It.IsAny<string>()), Times.Exactly(2));
+            arrayItemValidator.Verify(v => v.IsValidElementName(It.IsAny<string>()), Times.Exactly(arraySize));
+        }
+
         // private methods
         private Mock<IElementNameValidator>[] CreatePrefixValidatorsNestedMock(string[] prefixes)
         {
