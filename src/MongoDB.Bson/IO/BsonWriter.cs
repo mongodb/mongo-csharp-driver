@@ -203,19 +203,13 @@ namespace MongoDB.Bson.IO
         /// Writes the end of a BSON array to the writer.
         /// </summary>
         public virtual void WriteEndArray()
-        {
-            _serializationDepth--;
-        }
+            => ExitSerializationScope();
 
         /// <summary>
         /// Writes the end of a BSON document to the writer.
         /// </summary>
         public virtual void WriteEndDocument()
-        {
-            _serializationDepth--;
-
-            PopElementNameValidator();
-        }
+            => ExitSerializationScope();
 
         /// <summary>
         /// Writes a BSON Int32 to the writer.
@@ -362,28 +356,13 @@ namespace MongoDB.Bson.IO
         /// Writes the start of a BSON array to the writer.
         /// </summary>
         public virtual void WriteStartArray()
-        {
-            _serializationDepth++;
-            if (_serializationDepth > _settings.MaxSerializationDepth)
-            {
-                throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
-            }
-        }
+            => EnterSerializationScope();
 
         /// <summary>
         /// Writes the start of a BSON document to the writer.
         /// </summary>
         public virtual void WriteStartDocument()
-        {
-            _serializationDepth++;
-            if (_serializationDepth > _settings.MaxSerializationDepth)
-            {
-                throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
-            }
-
-            var childValidator = _useChildValidator ? _elementNameValidator.GetValidatorForChildContent(_name) : _elementNameValidator;
-            PushElementNameValidator(childValidator);
-        }
+            => EnterSerializationScope();
 
         /// <summary>
         /// Writes a BSON String to the writer.
@@ -469,6 +448,24 @@ namespace MongoDB.Bson.IO
                 "{0} can only be called when State is {1}, not when State is {2}",
                 methodName, validStatesString, _state);
             throw new InvalidOperationException(message);
+        }
+
+        private void EnterSerializationScope()
+        {
+            _serializationDepth++;
+            if (_serializationDepth > _settings.MaxSerializationDepth)
+            {
+                throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
+            }
+
+            var childValidator = _useChildValidator ? _elementNameValidator.GetValidatorForChildContent(_name) : _elementNameValidator;
+            PushElementNameValidator(childValidator);
+        }
+
+        private void ExitSerializationScope()
+        {
+            _serializationDepth--;
+            PopElementNameValidator();
         }
     }
 }
