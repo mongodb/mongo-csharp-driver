@@ -342,6 +342,7 @@ namespace MongoDB.Driver.Core.Events
             const string logFileName = traceSourceName + "-log";
             var @event = new ServerHeartbeatFailedEvent(
                 new ConnectionId(new ServerId(new ClusterId(), new IPEndPoint(IPAddress.Parse("1.2.3.4"), 42))),
+                TimeSpan.FromSeconds(1),
                 new Exception("The cake is a lie."),
                 awaited: true);
             var expectedLogMessage =

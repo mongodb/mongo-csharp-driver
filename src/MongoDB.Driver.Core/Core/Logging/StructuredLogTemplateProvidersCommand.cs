@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
@@ -25,7 +24,7 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static string[] __commandCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             DriverConnectionId,
             ServerHost,
             ServerPort,
@@ -49,13 +48,12 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DatabaseName, Command),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command started",
                     e.CommandName,
                     e.DatabaseNamespace.DatabaseName,
-                    CommandDocumentToString(e.Command, o),
+                    DocumentToString(e.Command, o),
                     ommitableParam: e.ServiceId),
                 (e, s) => e.ServiceId == null ? s.Templates[0] : s.Templates[1]);
 
@@ -64,14 +62,13 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DatabaseName, DurationMS, Reply),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command succeeded",
                     e.CommandName,
                     e.DatabaseNamespace.DatabaseName,
                     e.Duration.TotalMilliseconds,
-                    CommandDocumentToString(e.Reply, o),
+                    DocumentToString(e.Reply, o),
                     ommitableParam: e.ServiceId),
                 (e, s) => e.ServiceId == null ? s.Templates[0] : s.Templates[1]);
 
@@ -80,7 +77,6 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DatabaseName, DurationMS, Failure),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command failed",
@@ -90,16 +86,6 @@ namespace MongoDB.Driver.Core.Logging
                     FormatCommandException(e.Failure, o),
                     ommitableParam: e.ServiceId),
                 (e, s) => e.ServiceId == null ? s.Templates[0] : s.Templates[1]);
-        }
-
-        private static string CommandDocumentToString(BsonDocument document, EventLogFormattingOptions eventLogFormattingOptions)
-        {
-            if (document == null)
-            {
-                return null;
-            }
-
-            return TruncateIfNeeded(document.ToString(), eventLogFormattingOptions.MaxDocumentSize);
         }
 
         private static string FormatCommandException(Exception exception, EventLogFormattingOptions eventLogFormattingOptions)

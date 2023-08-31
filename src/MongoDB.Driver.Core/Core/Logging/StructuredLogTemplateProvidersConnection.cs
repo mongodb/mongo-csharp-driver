@@ -22,10 +22,11 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static string[] __connectionCommonParams = new[]
         {
-            ClusterId,
+            TopologyId,
             DriverConnectionId,
             ServerHost,
             ServerPort,
+            ServerConnectionId,
             Message,
         };
 

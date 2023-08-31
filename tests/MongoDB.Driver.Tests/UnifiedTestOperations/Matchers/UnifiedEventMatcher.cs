@@ -47,7 +47,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { "poolReadyEvent", (EventType.ConnectionPoolReady, EventSetType.Cmap) },
 
             { "serverDescriptionChangedEvent", (EventType.ServerDescriptionChanged, EventSetType.Sdam) },
-            { "topologyDescriptionChangedEvent", (EventType.ClusterDescriptionChanged, EventSetType.Sdam) }
+            { "serverHeartbeatFailedEvent", (EventType.ServerHeartbeatFailed, EventSetType.Sdam) },
+            { "serverHeartbeatStartedEvent", (EventType.ServerHeartbeatStarted, EventSetType.Sdam) },
+            { "serverHeartbeatSucceededEvent", (EventType.ServerHeartbeatSucceeded, EventSetType.Sdam) },
+
+            { "topologyClosedEvent", (EventType.ClusterClosed, EventSetType.Sdam) },
+            { "topologyDescriptionChangedEvent", (EventType.ClusterDescriptionChanged, EventSetType.Sdam) },
         };
 
         private static readonly Dictionary<EventSetType, Dictionary<EventType, string>> __eventsMapBySetType;
@@ -94,29 +99,34 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
             static bool IsExpectedServerDescriptionChangedEvent(ServerDescriptionChangedEvent serverDescriptionChangedEvent, BsonElement elements)
             {
-                var newDescriptionType = GetServerDescriptionChangedFilter(elements);
-                return
-                    newDescriptionType == null || // no additional filter
-                    serverDescriptionChangedEvent.NewDescription.Type == MapServerType(newDescriptionType);
+                var (newDescriptionType, previousDescriptionType) = GetServerDescriptionChangedFilter(elements);
 
-                static string GetServerDescriptionChangedFilter(BsonElement elements)
+                return
+                    (newDescriptionType == null || serverDescriptionChangedEvent.NewDescription.Type == MapServerType(newDescriptionType)) &&
+                    (previousDescriptionType == null || serverDescriptionChangedEvent.OldDescription.Type == MapServerType(previousDescriptionType));
+
+                static (string, string) GetServerDescriptionChangedFilter(BsonElement elements)
                 {
                     string newDescriptionType = null;
+                    string previousDescriptionType = null;
                     var bodyDocument = elements.Value.AsBsonDocument;
                     foreach (var element in bodyDocument.Elements)
                     {
                         switch (element.Name)
                         {
                             case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
+                            case "previousDescription": previousDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
                             default: throw new Exception($"Unexpected event filter key: {element.Name}.");
                         }
                     }
-                    return newDescriptionType;
+                    return (newDescriptionType, previousDescriptionType);
                 }
 
                 static ServerType MapServerType(string value) => value switch
                 {
                     "LoadBalancer" => ServerType.LoadBalanced,
+                    "Mongos" => ServerType.ShardRouter,
+                    "Standalone" => ServerType.Standalone,
                     "Unknown" => ServerType.Unknown,
                     _ => throw new Exception($"Unsupported event filter server type: {value}."),
                 };

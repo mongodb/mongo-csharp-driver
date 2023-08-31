@@ -236,10 +236,9 @@ namespace MongoDB.Driver.Core.Clusters
             catch (Exception unexpectedException)
             {
                 // if we catch an exception here it's because of a bug in the driver
-                _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
-                        "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
-                        unexpectedException),
-                    unexpectedException);
+                _clusterEventLogger.LogAndPublish(
+                    unexpectedException,
+                    new SdamInformationEvent("Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}", unexpectedException));
             }
             // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
         }

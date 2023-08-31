@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,9 +30,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             _valueMatcher = valueMatcher;
         }
 
-        public void AssertLogsMatch(LogEntry[] actualLogs, BsonArray expectedLogs)
+        public void AssertLogsMatch(LogEntry[] actualLogs, BsonArray expectedLogs, bool ignoreExtraLogs)
         {
-            actualLogs.Length.Should().Be(expectedLogs.Count);
+            if (ignoreExtraLogs)
+            {
+                actualLogs.Length.Should().BeGreaterOrEqualTo(expectedLogs.Count);
+            }
+            else
+            {
+                actualLogs.Length.Should().Be(expectedLogs.Count);
+            }
 
             for (int i = 0; i < expectedLogs.Count; i++)
             {

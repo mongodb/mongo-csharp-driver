@@ -17,12 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Logging;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     public sealed class LogEntry
     {
-        private readonly Lazy<string> _message;
+        private readonly Lazy<string> _formatedMessage;
 
         public DateTime Timestamp { get;  }
         public LogLevel LogLevel { get; }
@@ -32,7 +33,8 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public Exception Exception { get; }
         public Func<object, Exception, string> Formatter { get; }
 
-        public string FormattedMessage => _message.Value;
+        public string Message { get; }
+        public string FormattedMessage => _formatedMessage.Value;
 
         public LogEntry(LogLevel logLevel,
             string category,
@@ -46,9 +48,10 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             State = state;
             Exception = exception;
             Formatter = formatter;
-            _message = new Lazy<string>(() => Formatter(State, Exception));
+            _formatedMessage = new Lazy<string>(() => Formatter(State, Exception));
 
-            ClusterId = GetParameter("ClusterId") is int clusterId ? clusterId : -1;
+            ClusterId = GetParameter(StructuredLogTemplateProviders.TopologyId) is int clusterId ? clusterId : -1;
+            Message = GetParameter(StructuredLogTemplateProviders.Message) as string;
         }
 
         public object GetParameter(string key) =>

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 
@@ -29,16 +30,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string clientId,
             int clusterId,
             Dictionary<string, Dictionary<string, LogLevel>> componentsVerbosity,
+            BsonArray logsToIgnore,
             Predicate<LogEntry> filter = null)
         {
             var clientConfiguration = componentsVerbosity[clientId];
+            var logMessagesToIgnore = ExtractMessagesToIgnore(logsToIgnore);
 
             var result = logs.Where(l =>
-                filter?.Invoke(l) != false &&
                 l.ClusterId == clusterId &&
+                filter?.Invoke(l) != false &&
                 clientConfiguration.TryGetValue(l.Category, out var logLevel) &&
-                l.LogLevel >= logLevel)
+                l.LogLevel >= logLevel &&
+                ShouldNotIgnoreLogMessage(l))
                 .ToArray();
+
+            bool ShouldNotIgnoreLogMessage(LogEntry logEntry) =>
+                logMessagesToIgnore?.FirstOrDefault(l =>
+                    l.LogLevel == logEntry.LogLevel &&
+                    l.Category == logEntry.Category &&
+                    l.Message == logEntry.Message) == null;
 
             return result;
         }
@@ -48,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
            {
                "command" => LogCategoryHelper.GetCategoryName<LogCategories.Command>(),
                "connection" => LogCategoryHelper.GetCategoryName<LogCategories.Connection>(),
-               "sdam" => LogCategoryHelper.GetCategoryName<LogCategories.SDAM>(),
+               "topology" => LogCategoryHelper.GetCategoryName<LogCategories.SDAM>(),
                "serverSelection" => LogCategoryHelper.GetCategoryName<LogCategories.ServerSelection>(),
                _ => throw new ArgumentOutOfRangeException(nameof(category), category)
            };
@@ -63,5 +73,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 "trace" => LogLevel.Trace,
                 _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel)
             };
+
+
+        private static LogEntry[] ExtractMessagesToIgnore(BsonArray logsToIgnore)
+        {
+            var logMessagesToIgnore = new List<LogEntry>();
+
+            if (logsToIgnore != null)
+            {
+                foreach (var logToIgnore in logsToIgnore.Cast<BsonDocument>())
+                {
+                    var category = ParseCategory(logToIgnore["component"].AsString);
+                    var logLevel = ParseLogLevel(logToIgnore["level"].AsString);
+                    var message =
+                        logToIgnore.TryGetValue("data", out var logData) &&
+                        logData.AsBsonDocument.TryGetValue("message", out var messageValue) &&
+                        messageValue.IsString ? messageValue.AsString : null;
+
+                    logMessagesToIgnore.Add(new LogEntry(logLevel, category, new[] { new KeyValuePair<string, object>("Message", message) }, null, null));
+                }
+            }
+
+            return logMessagesToIgnore.ToArray();
+        }
     }
 }

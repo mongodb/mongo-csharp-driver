@@ -21,7 +21,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -29,6 +28,7 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 15, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 16, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -251,15 +251,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var clientId = logItem["client"].AsString;
                 var clusterId = entityMap.Clients[clientId].Cluster.ClusterId.Value;
                 var logs = logItem.GetValue("messages", false).AsBsonArray;
+                var loggingMessagesToIgnore = logItem.GetValue("ignoreMessages", null)?.AsBsonArray;
+                var ignoreExtraLogs = logItem.GetValue("ignoreExtraMessages", false).AsBoolean;
 
                 var actualLogsFiltered = UnifiedLogHelper.FilterLogs(
                     actualLogs,
                     clientId,
                     clusterId,
                     entityMap.LoggingComponents,
+                    loggingMessagesToIgnore,
                     _loggingFilter);
 
-                unifiedLogMatcher.AssertLogsMatch(actualLogsFiltered, logs);
+                unifiedLogMatcher.AssertLogsMatch(actualLogsFiltered, logs, ignoreExtraLogs);
             }
         }
 
