@@ -34,16 +34,24 @@ namespace MongoDB.Bson
         /// <param name="writerSettings">The writer settings.</param>
         /// <param name="configurator">The serialization context configurator.</param>
         /// <param name="args">The serialization args.</param>
+        /// <param name="bufferCapacity">The buffer capacity.</param>
         /// <returns>A BSON byte array.</returns>
         public static byte[] ToBson<TNominalType>(
             this TNominalType obj,
             IBsonSerializer<TNominalType> serializer = null,
             BsonBinaryWriterSettings writerSettings = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs)
+            BsonSerializationArgs args = default(BsonSerializationArgs),
+            int bufferCapacity = 0
             )
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
+            if (bufferCapacity > 0)
+            {
+                return ToBson(obj, typeof(TNominalType), bufferCapacity, writerSettings, serializer, configurator,
+                    args);
+            }
+
             return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args);
         }
 
@@ -86,6 +94,57 @@ namespace MongoDB.Bson
             using (var memoryStream = new MemoryStream())
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
+                {
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    serializer.Serialize(context, args, obj);
+                }
+                return memoryStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to a BSON byte array.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object..</param>
+        /// <param name="bufferCapacity">The buffer capacity.</param>
+        /// <param name="writerSettings">The writer settings.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
+        /// <param name="args">The serialization args.</param>
+        /// <returns>A BSON byte array.</returns>
+        /// <exception cref="System.ArgumentNullException">nominalType</exception>
+        /// <exception cref="System.ArgumentException">serializer</exception>
+        private static byte[] ToBson(
+            this object obj,
+            Type nominalType,
+            int bufferCapacity,
+            BsonBinaryWriterSettings writerSettings = null,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs)
+            )
+        {
+            if (nominalType == null)
+            {
+                throw new ArgumentNullException("nominalType");
+            }
+            args.SetOrValidateNominalType(nominalType, "nominalType");
+
+            if (serializer == null)
+            {
+                serializer = BsonSerializer.LookupSerializer(nominalType);
+            }
+            if (serializer.ValueType != nominalType)
+            {
+                var message = string.Format("Serializer type {0} value type does not match document types {1}.", serializer.GetType().FullName, nominalType.FullName);
+                throw new ArgumentException(message, "serializer");
+            }
+
+            using (var memoryStream = new MemoryStream(bufferCapacity))
+            {
+                using (var bsonWriter =
+                       new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {
                     var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
                     serializer.Serialize(context, args, obj);

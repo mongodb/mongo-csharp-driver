@@ -541,7 +541,18 @@ namespace MongoDB.Driver.Encryption
 
         private byte[] GetWrappedAlternateKeyNameBytes(string value) => !string.IsNullOrWhiteSpace(value) ? ToBsonIfNotNull(new BsonDocument("keyAltName", value)) : null;
 
-        private byte[] GetWrappedValueBytes(BsonValue value) => ToBsonIfNotNull(new BsonDocument("v", value));
+        private byte[] GetWrappedValueBytes(BsonValue value)
+        {
+            int bufferCapacity = 0;
+            if (value is BsonBinaryData)
+            {
+                bufferCapacity = value.AsBsonBinaryData.Bytes.Length;
+                bufferCapacity += (int)(0.01 * bufferCapacity); // add about 1% more capacity to overestimate size
+            }
+
+            return ToBsonIfNotNull(new BsonDocument("v", value), bufferCapacity);
+        }
+
 
         private BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
