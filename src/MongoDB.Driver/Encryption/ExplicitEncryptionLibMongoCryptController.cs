@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Encryption
 {
     internal sealed class ExplicitEncryptionLibMongoCryptController : LibMongoCryptControllerBase
     {
+        private const int BufferOverhead = 13; // fixed overhead added when serializing BsonDocument with BsonBinaryData Object
+
         // constructors
         public ExplicitEncryptionLibMongoCryptController(
             CryptClient cryptClient,
@@ -543,14 +545,14 @@ namespace MongoDB.Driver.Encryption
 
         private byte[] GetWrappedValueBytes(BsonValue value)
         {
-            int bufferCapacity = 0;
-            if (value is BsonBinaryData)
+            if (value is BsonBinaryData binaryData)
             {
-                bufferCapacity = value.AsBsonBinaryData.Bytes.Length;
-                bufferCapacity += (int)(0.01 * bufferCapacity); // add about 1% more capacity to overestimate size
+                int estimatedSize = binaryData.Bytes.Length;
+                estimatedSize += BufferOverhead;
+                return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
             }
 
-            return ToBsonIfNotNull(new BsonDocument("v", value), bufferCapacity);
+            return ToBsonIfNotNull(new BsonDocument("v", value));
         }
 
 

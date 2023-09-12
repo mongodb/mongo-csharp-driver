@@ -1,21 +1,24 @@
 ﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -53,6 +56,29 @@ namespace MongoDB.Bson.Tests
             var bson = c.ToBson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = new byte[] { 29, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 0 };
             Assert.True(expected.SequenceEqual(bson));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestToBsonWithBadEstimatedBsonSizeShouldThrowException(
+            [Values(0, -1)]
+            int estimatedBsonSize)
+        {
+            var document = new BsonDocument();
+            var exception = Record.Exception(() => document.ToBson(estimatedBsonSize));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be("estimatedBsonSize");
+            e.Message.Should().StartWith("Value cannot be negative or zero");
+        }
+
+        [Theory]
+        [InlineData(13, new byte[] {}, new byte[] { 13, 0, 0, 0, 5, 118, 0, 0, 0, 0, 0, 0, 0 })]
+        [InlineData(18, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        public void TestToBsonWithEstimatedBsonSizeProvidedNonZero(int estimatedBsonSize, byte[] data, byte[] expectedBson)
+        {
+            var document = new BsonDocument("v", new BsonBinaryData(data));
+            var bson = document.ToBson(estimatedBsonSize);
+            Assert.True(bson.SequenceEqual(expectedBson));
         }
 
         [Fact]
