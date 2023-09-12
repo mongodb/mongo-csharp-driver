@@ -1,5 +1,4 @@
 // Javascript helper functions for parsing and displaying UUIDs in the MongoDB shell.
-// This is a temporary solution until SERVER-3153 is implemented.
 // To create BinData values corresponding to the various driver encodings use:
 //      var s = "{00112233-4455-6677-8899-aabbccddeeff}";
 //      var uuid = UUID(s); // new Standard encoding
@@ -134,6 +133,12 @@ BinData.prototype.toHexUUID = function () {
     var hex = Base64ToHex(this.base64()); // don't use BinData's hex function because it has bugs
     var uuid = hex.substr(0, 8) + '-' + hex.substr(8, 4) + '-' + hex.substr(12, 4) + '-' + hex.substr(16, 4) + '-' + hex.substr(20, 12);
     return 'HexData(' + this.subtype() + ', "' + uuid + '")';
+}
+
+// for compatibility with the new mongosh shell
+if (BinData.prototype.base64 === undefined && BinData.prototype.subtype === undefined) {
+    BinData.prototype.base64 = function() { return this.buffer.base64Slice(); };
+    BinData.prototype.subtype = function() { return this.sub_type; };
 }
 
 function TestUUIDHelperFunctions() {
