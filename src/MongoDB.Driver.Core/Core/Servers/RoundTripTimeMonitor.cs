@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Servers
                     }
                     else
                     {
-                        var helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk);
+                        var helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, loadBalanced: _roundTripTimeConnection.Settings.LoadBalanced);
                         var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();

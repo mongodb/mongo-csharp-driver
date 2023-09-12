@@ -19,6 +19,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -150,6 +151,41 @@ namespace MongoDB.Driver.Core.Authentication
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+            [Values(false, true)] bool async)
+        {
+            var subject = new PlainAuthenticator(__credential, null);
+
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 0, payload : BinData(0,\"\"), done : true, ok : 1 }"));
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.Description = null;
+
+            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+
+            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
+            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+
+            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedEndString} }} }} ] }}");
         }
     }
 }

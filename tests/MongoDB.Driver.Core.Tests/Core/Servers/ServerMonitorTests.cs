@@ -369,6 +369,26 @@ namespace MongoDB.Driver.Core.Servers
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\" }} }} ] }}");
         }
 
+        [Fact]
+        public void ServerMonitor_without_serverApi_but_with_loadBalancedConnection_should_use_hello_command_to_set_up_streamable_monitoring()
+        {
+            MockConnection connection;
+
+            using (var subject = CreateSubject(out connection, out _, out _, loadBalanced: true))
+            {
+                SetupHeartbeatConnection(connection, isStreamable: true, autoFillStreamingResponses: false);
+                connection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(true), null);
+
+                subject.Initialize();
+
+                SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            }
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var requestId = sentMessages[0]["requestId"].AsInt32;
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, helloOk: true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), loadBalanced: true, $db : \"admin\" }} }} ] }}");
+        }
+
         // private methods
         private ServerMonitor CreateSubject(
             out MockConnection connection,
@@ -376,7 +396,8 @@ namespace MongoDB.Driver.Core.Servers
             out Mock<IRoundTripTimeMonitor> mockRoundTripTimeMonitor,
             EventCapturer eventCapturer = null,
             bool captureConnectionEvents = false,
-            ServerApi serverApi = null)
+            ServerApi serverApi = null,
+            bool loadBalanced = false)
         {
             mockRoundTripTimeMonitor = new Mock<IRoundTripTimeMonitor>();
             mockRoundTripTimeMonitor.Setup(m => m.Start());
@@ -387,7 +408,7 @@ namespace MongoDB.Driver.Core.Servers
             }
             else
             {
-                connection = new MockConnection();
+                connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: loadBalanced), null);
             }
             mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());

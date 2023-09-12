@@ -116,6 +116,29 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void CreateInitialHelloCommand_without_server_api_but_with_load_balancing_should_return_hello_with_speculativeAuthenticate(
+            [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
+            [Values(false, true)] bool async)
+        {
+            var credentials = new UsernamePasswordCredential(
+                source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
+            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+
+            var subject = CreateSubject();
+            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, true);
+
+            helloDocument.Should().Contain("hello");
+            helloDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = helloDocument["speculativeAuthenticate"].AsBsonDocument;
+            speculativeAuthenticateDocument.Should().Contain("mechanism");
+            var expectedMechanism = new BsonString(
+                authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
+            speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Handshake_should_throw_an_ArgumentNullException_if_the_connection_is_null(
             [Values(false, true)] bool async)
         {
@@ -258,6 +281,33 @@ namespace MongoDB.Driver.Core.Connections
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InitializeConnection_without_serverApi_but_with_loadBalancing_should_send_hello([Values(false, true)] bool async)
+        {
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42}, serviceId : '{ObjectId.GenerateNewId()}' }}");
+            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
+
+            var subject = CreateSubject();
+
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
+
+            result.ConnectionId.LongServerValue.Should().Be(1);
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+
+            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
+            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            helloRequestDocument["hello"].AsInt32.Should().Be(1);
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
         }
 
         [Theory]

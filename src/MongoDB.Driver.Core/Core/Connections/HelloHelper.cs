@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Connections
                 (topologyVersion != null && maxAwaitTime.HasValue),
                 $"Both {nameof(topologyVersion)} and {nameof(maxAwaitTime)} must be filled or null.");
 
-            var helloCommandName = helloOk || serverApi != null ? "hello" : OppressiveLanguageConstants.LegacyHelloCommandName;
+            var helloCommandName = loadBalanced || helloOk || serverApi != null ? "hello" : OppressiveLanguageConstants.LegacyHelloCommandName;
             return new BsonDocument
             {
                 { helloCommandName, 1 },

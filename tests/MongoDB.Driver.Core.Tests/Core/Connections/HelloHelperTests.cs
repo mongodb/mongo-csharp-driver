@@ -28,14 +28,15 @@ namespace MongoDB.Driver.Core.Connections
     public class HelloHelperTests
     {
         [Theory]
-        [InlineData(true, false, "{ hello : 1, helloOk : true }")]
-        [InlineData(false, false, "{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true }")]
-        [InlineData(false, true, "{ hello : 1, helloOk : true }")]
-        [InlineData(true, true, "{ hello : 1, helloOk : true }")]
-        public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, string expectedResult)
+        [InlineData(true, false, false, "{ hello : 1, helloOk : true }")]
+        [InlineData(false, false, false,"{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true }")]
+        [InlineData(false, true, false,"{ hello : 1, helloOk : true }")]
+        [InlineData(true, true, false,"{ hello : 1, helloOk : true }")]
+        [InlineData(false, false, true,"{ hello : 1, helloOk : true, loadBalanced : true }")]
+        public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, bool loadBalanced, string expectedResult)
         {
             var serverApi = useServerApiVersion ? new ServerApi(ServerApiVersion.V1) : null;
-            var command = HelloHelper.CreateCommand(serverApi, helloOk);
+            var command = HelloHelper.CreateCommand(serverApi, helloOk, loadBalanced: loadBalanced);
             command.Should().Be(expectedResult);
         }
 
