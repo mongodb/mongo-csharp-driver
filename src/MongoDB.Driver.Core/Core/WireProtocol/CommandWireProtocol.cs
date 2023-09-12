@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 // the server supports OP_MSG.
                 // As well since server API versioning is supported on MongoDB 5.0+, we also know that
                 // OP_MSG will be supported regardless and can skip the server checks for other messages.
-                if (_serverApi != null || connection.Description != null || connection.Settings.LoadBalanced)
+                if (_serverApi != null || connection.Description != null || (connection.Settings?.LoadBalanced ?? false))
                 {
                     return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
                 }
