@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var sourceExpression = arguments[0];
+            var sourceExpression = method.IsStatic ? arguments[0] : expression.Object;
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
 
             if (method.Is(EnumerableMethod.Any))
@@ -37,9 +37,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
 
-            if (method.Is(EnumerableMethod.AnyWithPredicate))
+            if (method.IsOneOf(EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
             {
-                var predicateLambda = (LambdaExpression)arguments[1];
+                var predicateLambda = (LambdaExpression)(method.IsStatic ? arguments[1] : arguments[0]);
                 var predicateParameter = predicateLambda.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var predicateSymbol = context.CreateSymbol(predicateParameter, predicateParameterSerializer);

@@ -43,14 +43,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.Any, EnumerableMethod.AnyWithPredicate))
+            if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.Any, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
             {
-                var sourceExpression = arguments[0];
+                var sourceExpression = method.IsStatic ? arguments[0] : expression.Object;
                 var (field, filter) = FilteredEnumerableFilterFieldTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.AnyWithPredicate))
+                if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
                 {
-                    var predicateLambda = (LambdaExpression)arguments[1];
+                    var predicateLambda = (LambdaExpression)(method.IsStatic ? arguments[1] : arguments[0]);
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var elementSerializer = ArraySerializerHelper.GetItemSerializer(field.Serializer);
                     var parameterSymbol = context.CreateSymbol(parameterExpression, "@<elem>", elementSerializer); // @<elem> represents the implied element
