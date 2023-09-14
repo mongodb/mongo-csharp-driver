@@ -77,7 +77,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var serializationInfo = DocumentSerializerHelper.GetMemberSerializationInfo(containerTranslation.Serializer, member.Name);
-            var ast = AstExpression.GetField(containerTranslation.Ast, serializationInfo.ElementName);
+            AstExpression ast;
+            if (serializationInfo.ElementPath == null)
+            {
+                ast = AstExpression.GetField(containerTranslation.Ast, serializationInfo.ElementName);
+            }
+            else
+            {
+                ast = containerTranslation.Ast;
+                foreach (var subFieldName in serializationInfo.ElementPath)
+                {
+                    ast = AstExpression.GetField(ast, subFieldName);
+                }
+            }
             return new AggregationExpression(expression, ast, serializationInfo.Serializer);
         }
 
