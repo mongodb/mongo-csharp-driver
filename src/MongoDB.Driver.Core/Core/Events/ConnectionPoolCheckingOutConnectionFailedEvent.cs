@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly Exception _exception;
         private readonly long? _operationId;
         private readonly DateTime _timestamp;
+        private readonly TimeSpan _duration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolCheckingOutConnectionFailedEvent" /> struct.
@@ -36,17 +37,20 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverId">The server identifier.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
+        /// <param name="duration">The duration of time it took trying to check out the connection.</param>
         /// <param name="reason">The reason the checkout failed.</param>
         public ConnectionPoolCheckingOutConnectionFailedEvent(
             ServerId serverId,
             Exception exception,
             long? operationId,
+            TimeSpan duration,
             ConnectionCheckOutFailedReason reason)
         {
             _serverId = serverId;
             _exception = exception;
             _operationId = operationId;
             _reason = reason;
+            _duration = duration;
             _timestamp = DateTime.UtcNow;
         }
 
@@ -88,6 +92,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the duration of time it took trying to check out the connection.
+        /// </summary>
+        public TimeSpan Duration
+        {
+            get { return _duration; }
         }
 
         /// <summary>

@@ -1,10 +1,10 @@
-description: "connection-logging"
+description: "connection-pool-options"
 
 schemaVersion: "1.13"
 
 runOnRequirements:
   - topologies:
-    - single # The number of log messages is different for each topology since there is a connection pool per host.
+      - single # The number of log messages is different for each topology since there is a connection pool per host.
 
 tests:
   - description: "Options should be included in connection pool created message when specified"
@@ -71,6 +71,7 @@ tests:
               driverConnectionId: { $$type: [int, long] }
               serverHost: { $$type: string }
               serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
 
   # Drivers who have not done DRIVERS-1943 will need to skip this test.
   - description: "maxConnecting should be included in connection pool created message when specified"

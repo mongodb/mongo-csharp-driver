@@ -141,6 +141,13 @@ namespace MongoDB.Driver.Core.Logging
             return new[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3 };
         }
 
+        public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4)
+        {
+            var (host, port) = serverId.EndPoint.GetHostAndPort();
+
+            return new[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4 };
+        }
+
         public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
