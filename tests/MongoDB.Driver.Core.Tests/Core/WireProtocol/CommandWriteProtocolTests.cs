@@ -27,6 +27,7 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -249,6 +250,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
+            mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
@@ -278,6 +280,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
+            mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var result = subject.Execute(mockConnection.Object, CancellationToken.None);
             result.Should().BeNull();
@@ -306,6 +309,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
+            mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
@@ -335,6 +339,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
+            mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
             result.Should().BeNull();

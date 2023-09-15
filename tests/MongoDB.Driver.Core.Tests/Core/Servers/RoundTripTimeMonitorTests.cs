@@ -251,6 +251,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             mockConnection
                 .SetupGet(c => c.Description)
                 .Returns(connectionDescription);
+            mockConnection.Setup(f => f.Settings).Returns(() => new ConnectionSettings());
 
             mockConnection
                .SetupGet(c => c.ConnectionId)

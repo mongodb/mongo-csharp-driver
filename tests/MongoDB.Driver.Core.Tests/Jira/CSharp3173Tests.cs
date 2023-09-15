@@ -319,6 +319,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             mockConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
             mockConnection.SetupGet(c => c.EndPoint).Returns(serverId.EndPoint);
+            mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             mockConnection
                 .SetupGet(c => c.Description)
