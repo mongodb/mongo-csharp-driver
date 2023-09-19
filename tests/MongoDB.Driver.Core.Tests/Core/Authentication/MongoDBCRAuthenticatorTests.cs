@@ -19,6 +19,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -170,6 +171,48 @@ namespace MongoDB.Driver.Core.Authentication
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ getnonce : 1, $db : \"source\"{expectedServerApiString} }} }} ] }}");
             sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, user : \"user\", nonce : \"2375531c32080ae8\", key : \"21742f26431831d5cfca035a08c5bdf6\", $db : \"source\"{expectedServerApiString} }} }} ] }}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+            [Values(false, true)] bool async)
+        {
+#pragma warning disable 618
+            var subject = new MongoDBCRAuthenticator(__credential, null);
+#pragma warning restore 618
+
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var getNonceResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}"));
+            var authenticateResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
+            connection.EnqueueCommandResponseMessage(getNonceResponse);
+            connection.EnqueueCommandResponseMessage(authenticateResponse);
+            connection.Description = null;
+
+            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            actualRequestId0.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId1.Should().BeInRange(actualRequestId0 + 1, actualRequestId0 + 11);
+
+            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ getnonce : 1, $db : \"source\"{expectedEndString} }} }} ] }}");
+            sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, user : \"user\", nonce : \"2375531c32080ae8\", key : \"21742f26431831d5cfca035a08c5bdf6\", $db : \"source\"{expectedEndString} }} }} ] }}");
         }
     }
 }

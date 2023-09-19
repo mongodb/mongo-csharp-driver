@@ -200,6 +200,47 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             }
         }
 
+        [Fact]
+        public void RoundTripTimeMonitor_without_serverApi_but_with_loadBalancedConnection_should_use_hello_command_to_set_up_monitoring()
+        {
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+
+            var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
+            mockConnectionFactory
+                .Setup(x => x.CreateConnection(__serverId, __endPoint))
+                .Returns(connection);
+
+            Thread thread;
+            using (var subject = new RoundTripTimeMonitor(
+                mockConnectionFactory.Object,
+                __serverId,
+                __endPoint,
+                TimeSpan.FromMilliseconds(10),
+                null,
+                logger: null))
+            {
+                subject.Start();
+
+                thread = subject._roundTripTimeMonitorThread();
+
+                SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            }
+
+            SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().BeInRange(1, 2);
+
+            var requestId = sentMessages[0]["requestId"].AsInt32;
+            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+            if (sentMessages.Count > 1)
+            {
+                requestId = sentMessages[1]["requestId"].AsInt32;
+                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+            }
+        }
+
         // private methods
         private RoundTripTimeMonitor CreateSubject(
             TimeSpan frequency,
@@ -210,6 +251,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             mockConnection
                 .SetupGet(c => c.Description)
                 .Returns(connectionDescription);
+            mockConnection.Setup(f => f.Settings).Returns(() => new ConnectionSettings());
 
             mockConnection
                .SetupGet(c => c.ConnectionId)

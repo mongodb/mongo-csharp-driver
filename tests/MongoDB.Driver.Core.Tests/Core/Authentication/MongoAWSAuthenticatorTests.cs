@@ -23,6 +23,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -212,6 +213,83 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
             sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
             sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+            [Values(false, true)] bool async)
+        {
+            var dateTime = DateTime.UtcNow;
+            var clientNonce = __randomByteGenerator.Generate(ClientNonceLength);
+            var serverNonce = Combine(clientNonce, __randomByteGenerator.Generate(ClientNonceLength));
+            var host = "sts.amazonaws.com";
+            var credential = new UsernamePasswordCredential("$external", "permanentuser", "FAKEFAKEFAKEFAKEFAKEfakefakefakefakefake");
+
+            AwsSignatureVersion4.CreateAuthorizationRequest(
+                dateTime,
+                credential.Username,
+                credential.Password,
+                null,
+                serverNonce,
+                host,
+                out var authHeader,
+                out var timestamp);
+
+            var mockClock = new Mock<IClock>();
+            mockClock.Setup(x => x.UtcNow).Returns(dateTime);
+
+            var mockRandomByteGenerator = new Mock<IRandomByteGenerator>();
+            mockRandomByteGenerator.Setup(x => x.Generate(It.IsAny<int>())).Returns(clientNonce);
+
+            var expectedClientFirstMessage = new BsonDocument
+            {
+                { "r", clientNonce },
+                { "p", (int)'n' }
+            };
+            var expectedClientSecondMessage = new BsonDocument
+            {
+                { "a", authHeader },
+                { "d", timestamp }
+            };
+            var serverFirstMessage = new BsonDocument
+            {
+                { "s", serverNonce },
+                { "h", host }
+            };
+
+            var saslStartCommandResponseString = $"{{ conversationId : 1, done : false, payload : BinData(0,\"{ToBase64(serverFirstMessage.ToBson())}\"), ok : 1 }}";
+            var saslContinueCommandResponseString = "{ conversationId : 1, done : true, payload : BinData(0,\"\"), ok : 1}";
+
+            var subject = new MongoAWSAuthenticator(credential, null, mockRandomByteGenerator.Object, Mock.Of<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(), mockClock.Object, null);
+
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslStartCommandResponseString));
+            var saslContinueResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslContinueCommandResponseString));
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.EnqueueCommandResponseMessage(saslContinueResponse);
+            connection.Description = null;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+
+            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
+            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedEndString));
+            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedEndString));
         }
 
         [Theory]

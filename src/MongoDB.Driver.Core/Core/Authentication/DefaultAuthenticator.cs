@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));

@@ -29,6 +29,7 @@ using Xunit;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.TestHelpers.XunitExtensions;
 using System.Linq;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Core.Authentication
@@ -157,6 +158,43 @@ namespace MongoDB.Driver.Core.Authentication
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-256\", payload : new BinData(0, \"{ToUtf8Base64(__clientRequest1)}\"), options : {{ \"skipEmptyExchange\" : true }}, $db : \"source\"{expectedServerApiString} }} }} ] }}");
             sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+            [Values(false, true)] bool async)
+        {
+            var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
+
+            var subject = new ScramSha256Authenticator(__credential, randomStringGenerator, null);
+
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
+            var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse1)}'), done : false, ok : 1 }}"));
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            var saslContinueResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse2)}'), done : true, ok : 1}}"));
+            connection.EnqueueCommandResponseMessage(saslContinueResponse);
+            connection.Description = null;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            var expectedEndString =  ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-256\", payload : new BinData(0, \"{ToUtf8Base64(__clientRequest1)}\"), options : {{ \"skipEmptyExchange\" : true }}, $db : \"source\"{expectedEndString} }} }} ] }}");
+            sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\"), $db : \"source\"{expectedEndString} }} }} ] }}");
         }
 
         [Theory]
