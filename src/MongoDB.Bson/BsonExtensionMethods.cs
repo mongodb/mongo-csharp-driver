@@ -114,7 +114,7 @@ namespace MongoDB.Bson
                 throw new ArgumentException(message, "serializer");
             }
 
-            using (var memoryStream = estimatedBsonSize == 0 ? new MemoryStream(): new MemoryStream(estimatedBsonSize))
+            using (var memoryStream = new MemoryStream(estimatedBsonSize))
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {
