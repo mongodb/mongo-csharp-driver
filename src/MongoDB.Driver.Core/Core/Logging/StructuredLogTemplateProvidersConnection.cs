@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ConnectionClosedEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(Reason),
-                (e, _) => GetParams(e.ConnectionId, "Connection closed", "Unknown"));
+                (e, _) => GetParams(e.ConnectionId, "Connection closed", GetConnectionClosedReason(e.Reason)));
 
             AddTemplateProvider<ConnectionReceivedMessageEvent>(
                 LogLevel.Trace,
@@ -104,5 +104,13 @@ namespace MongoDB.Driver.Core.Logging
                  ConnectionCommonParams(),
                  (e, _) => GetParams(e.ConnectionId, "Sent"));
         }
+
+        private static string GetConnectionClosedReason(ConnectionClosedReason connectionClosedReason) =>
+            connectionClosedReason switch
+            {
+                ConnectionClosedReason.Error => "An error occurred while using the connection",
+                ConnectionClosedReason.PoolClosed => "Connection pool was closed",
+                _ => null
+            };
     }
 }

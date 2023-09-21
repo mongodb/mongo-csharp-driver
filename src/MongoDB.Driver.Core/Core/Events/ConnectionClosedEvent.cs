@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionClosedEvent : IEvent
     {
+        private readonly ConnectionClosedReason _reason;
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
         private readonly long? _operationId;
@@ -36,12 +37,14 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration of time it took to close the connection.</param>
         /// <param name="operationId">The operation identifier.</param>
-        public ConnectionClosedEvent(ConnectionId connectionId, TimeSpan duration, long? operationId)
+        /// <param name="reason">The reason why the connection was closed.</param>
+        public ConnectionClosedEvent(ConnectionId connectionId, TimeSpan duration, long? operationId, ConnectionClosedReason reason)
         {
             _connectionId = connectionId;
             _duration = duration;
             _operationId = operationId;
             _timestamp = DateTime.UtcNow;
+            _reason = reason;
         }
 
         /// <summary>
@@ -90,6 +93,14 @@ namespace MongoDB.Driver.Core.Events
         public DateTime Timestamp
         {
             get { return _timestamp; }
+        }
+
+        /// <summary>
+        /// Gets the reason why the connection was closed.
+        /// </summary>
+        public ConnectionClosedReason Reason
+        {
+            get { return _reason; }
         }
 
         // explicit interface implementations

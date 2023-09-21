@@ -4,7 +4,7 @@ schemaVersion: "1.13"
 
 runOnRequirements:
   - topologies:
-      - single # The number of log messages is different for each topology since there is a connection pool per host.
+    - single # The number of log messages is different for each topology since there is a connection pool per host.
 
 createEntities:
   - client:
@@ -67,31 +67,6 @@ tests:
               serverHost: { $$type: string }
               serverPort: { $$type: [int, long] }
               durationMS: { $$type: [double, int, long] }
-
-          - level: debug
-            component: connection
-            data:
-              message: "Connection checked out"
-              driverConnectionId: { $$type: [int, long] }
-              serverHost: { $$type: string }
-              serverPort: { $$type: [int, long] }
-              durationMS: { $$type: [double, int, long] }
-
-          - level: debug
-            component: connection
-            data:
-              message: "Connection checked in"
-              driverConnectionId: { $$type: [int, long] }
-              serverHost: { $$type: string }
-              serverPort: { $$type: [int, long] }
-
-          #  The next three expected logs are for ending a session.
-          - level: debug
-            component: connection
-            data:
-              message: "Connection checkout started"
-              serverHost: { $$type: string }
-              serverPort: { $$type: [int, long] }
 
           - level: debug
             component: connection

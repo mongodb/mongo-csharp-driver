@@ -4,7 +4,7 @@ schemaVersion: "1.13"
 
 runOnRequirements:
   - topologies:
-      - single # The number of log messages is different for each topology since there is a connection pool per host.
+    - single # The number of log messages is different for each topology since there is a connection pool per host.
 
 tests:
   - description: "Options should be included in connection pool created message when specified"
