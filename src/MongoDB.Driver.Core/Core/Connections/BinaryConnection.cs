@@ -172,11 +172,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (disposing)
                 {
-
-                    var reason = _failedEventHasBeenRaised
-                        ? ConnectionClosedReason.Error
-                        : ConnectionClosedReason.PoolClosed;
-
                     _eventLogger.LogAndPublish(new ConnectionClosingEvent(_connectionId, EventContext.OperationId));
 
                     var stopwatch = Stopwatch.StartNew();
@@ -196,7 +191,7 @@ namespace MongoDB.Driver.Core.Connections
                     }
 
                     stopwatch.Stop();
-                    _eventLogger.LogAndPublish(new ConnectionClosedEvent(_connectionId, stopwatch.Elapsed, EventContext.OperationId, reason));
+                    _eventLogger.LogAndPublish(new ConnectionClosedEvent(_connectionId, stopwatch.Elapsed, EventContext.OperationId));
                 }
             }
         }

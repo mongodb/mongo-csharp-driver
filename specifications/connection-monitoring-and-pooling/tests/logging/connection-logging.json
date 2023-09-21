@@ -221,7 +221,7 @@
                     "long"
                   ]
                 },
-                "reason": "Connection pool was closed"
+                "reason": "Unknown"
               }
             },
             {
@@ -415,10 +415,7 @@
                     "long"
                   ]
                 },
-                "reason": "An error occurred while using the connection",
-                "error": {
-                  "$$exists": true
-                }
+                "reason": "Unknown"
               }
             },
             {
