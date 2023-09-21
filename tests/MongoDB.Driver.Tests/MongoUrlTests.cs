@@ -310,17 +310,18 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
-                var expectedConnectionString = connectionString;
+
 #pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {
                     var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
                     if (url.GuidRepresentation == defaultGuidRepresentation)
                     {
-                        expectedConnectionString = expectedConnectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy;", "");
                     }
                 }
 #pragma warning restore 618
+                var expectedConnectionString = connectionString.Replace(';', '&');
                 Assert.Equal(expectedConnectionString, url.ToString());
             }
         }
@@ -418,7 +419,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
         }
 
         [Fact]
@@ -433,7 +434,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = await subject.ResolveAsync();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
         }
 
         [Fact]

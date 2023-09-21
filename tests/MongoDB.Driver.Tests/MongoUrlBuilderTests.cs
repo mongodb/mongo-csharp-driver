@@ -222,17 +222,17 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
-                var expectedConnectionString = connectionString;
 #pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {
                     var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
                     if (builder.GuidRepresentation == defaultGuidRepresentation)
                     {
-                        expectedConnectionString = expectedConnectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy;", "");
                     }
                 }
 #pragma warning restore 618
+                var expectedConnectionString = connectionString.Replace(';', '&');
                 Assert.Equal(expectedConnectionString, builder.ToString());
             }
         }
@@ -316,7 +316,8 @@ namespace MongoDB.Driver.Tests
         {
 #pragma warning disable 618
             var built = new MongoUrlBuilder { Server = _localhost, MaxConnectionPoolSize = 123, WaitQueueMultiple = 2.0 };
-            var connectionString = "mongodb://localhost/?maxPoolSize=123;waitQueueMultiple=2";
+            var connectionString = "mongodb://localhost/?maxPoolSize=123&waitQueueMultiple=2";
+            var expectedConnectionString = connectionString.Replace(';', '&');
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -324,7 +325,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2.0, builder.WaitQueueMultiple);
                 Assert.Equal(0, builder.WaitQueueSize);
                 Assert.Equal(246, builder.ComputedWaitQueueSize);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(expectedConnectionString, builder.ToString());
             }
 #pragma warning restore 618
         }
@@ -376,7 +377,7 @@ namespace MongoDB.Driver.Tests
             if (!string.IsNullOrWhiteSpace(compressionProperty))
             {
                 var @params = compressionProperty.Split(';');
-                expectedValues += $";{@params[1]}={@params[2]}";
+                expectedValues += $"&{@params[1]}={@params[2]}";
             }
             var canonicalConnectionString = string.Format(formatString, expectedValues);
             Assert.Equal(canonicalConnectionString, subject.ToString());
@@ -969,10 +970,11 @@ namespace MongoDB.Driver.Tests
             if (readPreference != null) { built.ReadPreference = readPreference; }
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
+            var expectedConnectionString = canonicalConnectionString.Replace(';', '&');
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(readPreference, builder.ReadPreference);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(expectedConnectionString, builder.ToString());
             }
         }
 
@@ -1070,6 +1072,7 @@ namespace MongoDB.Driver.Tests
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
             var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1";
+            var expectedConnectionString = connectionString.Replace(';', '&');
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -1080,7 +1083,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2, builderTagSet1Tags.Length);
                 Assert.Equal(new Tag("dc", "ny"), builderTagSet1Tags[0]);
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(expectedConnectionString, builder.ToString());
             }
         }
 
@@ -1095,6 +1098,7 @@ namespace MongoDB.Driver.Tests
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
             var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1;readPreferenceTags=dc:sf";
+            var expectedConnectionString = connectionString.Replace(';', '&');
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -1108,7 +1112,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
                 Assert.Equal(1, builderTagSet2Tags.Length);
                 Assert.Equal(new Tag("dc", "sf"), builderTagSet2Tags[0]);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(expectedConnectionString, builder.ToString());
             }
         }
 

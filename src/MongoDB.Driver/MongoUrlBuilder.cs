@@ -876,54 +876,54 @@ namespace MongoDB.Driver
             var query = new StringBuilder();
             if (_authenticationMechanism != null)
             {
-                query.AppendFormat("authMechanism={0};", _authenticationMechanism);
+                query.AppendFormat("authMechanism={0}&", _authenticationMechanism);
             }
             if (_authenticationMechanismProperties.Any())
             {
                 query.AppendFormat(
-                    "authMechanismProperties={0};",
+                    "authMechanismProperties={0}&",
                     string.Join(",", _authenticationMechanismProperties
                         .Select(x => string.Format("{0}:{1}", x.Key, x.Value)).ToArray()));
             }
             if (_authenticationSource != null)
             {
-                query.AppendFormat("authSource={0};", _authenticationSource);
+                query.AppendFormat("authSource={0}&", _authenticationSource);
             }
             if (_applicationName != null)
             {
-                query.AppendFormat("appname={0};", _applicationName);
+                query.AppendFormat("appname={0}&", _applicationName);
             }
             if (_ipv6)
             {
-                query.AppendFormat("ipv6=true;");
+                query.AppendFormat("ipv6=true&");
             }
             if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
             {
                 if (!_useTls)
                 {
-                    query.AppendFormat("tls=false;");
+                    query.AppendFormat("tls=false&");
                 }
             }
             else
             {
                 if (_useTls)
                 {
-                    query.AppendFormat("tls=true;");
+                    query.AppendFormat("tls=true&");
                 }
             }
             if (_allowInsecureTls)
             {
-                query.AppendFormat("tlsInsecure=true;");
+                query.AppendFormat("tlsInsecure=true&");
             }
 
             if (_tlsDisableCertificateRevocationCheck != null)
             {
-                query.AppendFormat("tlsDisableCertificateRevocationCheck={0};", JsonConvert.ToString(_tlsDisableCertificateRevocationCheck.Value));
+                query.AppendFormat("tlsDisableCertificateRevocationCheck={0}&", JsonConvert.ToString(_tlsDisableCertificateRevocationCheck.Value));
             }
 
             if (_compressors?.Any() ?? false)
             {
-                query.AppendFormat("compressors={0};", string.Join(",", _compressors.Select(x => x.Type.ToString().ToLowerInvariant())));
+                query.AppendFormat("compressors={0}&", string.Join(",", _compressors.Select(x => x.Type.ToString().ToLowerInvariant())));
                 foreach (var compressor in _compressors)
                 {
                     ParseAndAppendCompressorOptions(query, compressor);
@@ -934,7 +934,7 @@ namespace MongoDB.Driver
             {
                 if (_connectionMode != ConnectionMode.Automatic)
                 {
-                    query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(_connectionMode.ToString()));
+                    query.AppendFormat("connect={0}&", MongoUtils.ToCamelCase(_connectionMode.ToString()));
                 }
             }
             else if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
@@ -942,130 +942,130 @@ namespace MongoDB.Driver
             {
                 if (_directConnection.HasValue)
                 {
-                    query.AppendFormat("directConnection={0};", JsonConvert.ToString(_directConnection.Value));
+                    query.AppendFormat("directConnection={0}&", JsonConvert.ToString(_directConnection.Value));
                 }
             }
             if (!string.IsNullOrEmpty(_replicaSetName))
             {
-                query.AppendFormat("replicaSet={0};", _replicaSetName);
+                query.AppendFormat("replicaSet={0}&", _replicaSetName);
             }
             if (_readConcernLevel != null)
             {
-                query.AppendFormat("readConcernLevel={0};", MongoUtils.ToCamelCase(_readConcernLevel.Value.ToString()));
+                query.AppendFormat("readConcernLevel={0}&", MongoUtils.ToCamelCase(_readConcernLevel.Value.ToString()));
             }
             if (_readPreference != null)
             {
-                query.AppendFormat("readPreference={0};", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
+                query.AppendFormat("readPreference={0}&", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
                 if (_readPreference.TagSets != null)
                 {
                     foreach (var tagSet in _readPreference.TagSets)
                     {
-                        query.AppendFormat("readPreferenceTags={0};", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
+                        query.AppendFormat("readPreferenceTags={0}&", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
                     }
                 }
                 if (_readPreference.MaxStaleness.HasValue)
                 {
-                    query.AppendFormat("maxStaleness={0};", FormatTimeSpan(_readPreference.MaxStaleness.Value));
+                    query.AppendFormat("maxStaleness={0}&", FormatTimeSpan(_readPreference.MaxStaleness.Value));
                 }
             }
             if (_fsync != null)
             {
-                query.AppendFormat("fsync={0};", JsonConvert.ToString(_fsync.Value));
+                query.AppendFormat("fsync={0}&", JsonConvert.ToString(_fsync.Value));
             }
             if (_journal != null)
             {
-                query.AppendFormat("journal={0};", JsonConvert.ToString(_journal.Value));
+                query.AppendFormat("journal={0}&", JsonConvert.ToString(_journal.Value));
             }
             if (_w != null)
             {
-                query.AppendFormat("w={0};", _w);
+                query.AppendFormat("w={0}&", _w);
             }
             if (_wTimeout != null)
             {
-                query.AppendFormat("wtimeout={0};", FormatTimeSpan(_wTimeout.Value));
+                query.AppendFormat("wtimeout={0}&", FormatTimeSpan(_wTimeout.Value));
             }
             if (_connectTimeout != MongoDefaults.ConnectTimeout)
             {
-                query.AppendFormat("connectTimeout={0};", FormatTimeSpan(_connectTimeout));
+                query.AppendFormat("connectTimeout={0}&", FormatTimeSpan(_connectTimeout));
             }
             if (_heartbeatInterval != ServerSettings.DefaultHeartbeatInterval)
             {
-                query.AppendFormat("heartbeatInterval={0};", FormatTimeSpan(_heartbeatInterval));
+                query.AppendFormat("heartbeatInterval={0}&", FormatTimeSpan(_heartbeatInterval));
             }
             if (_heartbeatTimeout != ServerSettings.DefaultHeartbeatTimeout)
             {
-                query.AppendFormat("heartbeatTimeout={0};", FormatTimeSpan(_heartbeatTimeout));
+                query.AppendFormat("heartbeatTimeout={0}&", FormatTimeSpan(_heartbeatTimeout));
             }
             if (_loadBalanced)
             {
-                query.AppendFormat("loadBalanced={0};", JsonConvert.ToString(_loadBalanced));
+                query.AppendFormat("loadBalanced={0}&", JsonConvert.ToString(_loadBalanced));
             }
             if (_localThreshold != MongoDefaults.LocalThreshold)
             {
-                query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
+                query.AppendFormat("localThreshold={0}&", FormatTimeSpan(_localThreshold));
             }
             if (_maxConnecting != MongoInternalDefaults.ConnectionPool.MaxConnecting)
             {
-                query.AppendFormat("maxConnecting={0};", _maxConnecting);
+                query.AppendFormat("maxConnecting={0}&", _maxConnecting);
             }
             if (_maxConnectionIdleTime != MongoDefaults.MaxConnectionIdleTime)
             {
-                query.AppendFormat("maxIdleTime={0};", FormatTimeSpan(_maxConnectionIdleTime));
+                query.AppendFormat("maxIdleTime={0}&", FormatTimeSpan(_maxConnectionIdleTime));
             }
             if (_maxConnectionLifeTime != MongoDefaults.MaxConnectionLifeTime)
             {
-                query.AppendFormat("maxLifeTime={0};", FormatTimeSpan(_maxConnectionLifeTime));
+                query.AppendFormat("maxLifeTime={0}&", FormatTimeSpan(_maxConnectionLifeTime));
             }
             if (_maxConnectionPoolSize != MongoDefaults.MaxConnectionPoolSize)
             {
-                query.AppendFormat("maxPoolSize={0};", _maxConnectionPoolSize);
+                query.AppendFormat("maxPoolSize={0}&", _maxConnectionPoolSize);
             }
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {
-                query.AppendFormat("minPoolSize={0};", _minConnectionPoolSize);
+                query.AppendFormat("minPoolSize={0}&", _minConnectionPoolSize);
             }
             if (_serverSelectionTimeout != MongoDefaults.ServerSelectionTimeout)
             {
-                query.AppendFormat("serverSelectionTimeout={0};", FormatTimeSpan(_serverSelectionTimeout));
+                query.AppendFormat("serverSelectionTimeout={0}&", FormatTimeSpan(_serverSelectionTimeout));
             }
             if (_socketTimeout != MongoDefaults.SocketTimeout)
             {
-                query.AppendFormat("socketTimeout={0};", FormatTimeSpan(_socketTimeout));
+                query.AppendFormat("socketTimeout={0}&", FormatTimeSpan(_socketTimeout));
             }
 #pragma warning disable 618
             if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
 #pragma warning restore 618
             {
-                query.AppendFormat("waitQueueMultiple={0};", _waitQueueMultiple);
+                query.AppendFormat("waitQueueMultiple={0}&", _waitQueueMultiple);
             }
 #pragma warning disable 618
             if (_waitQueueSize != 0 && _waitQueueSize != MongoDefaults.WaitQueueSize)
 #pragma warning restore 618
             {
-                query.AppendFormat("waitQueueSize={0};", _waitQueueSize);
+                query.AppendFormat("waitQueueSize={0}&", _waitQueueSize);
             }
             if (_waitQueueTimeout != MongoDefaults.WaitQueueTimeout)
             {
-                query.AppendFormat("waitQueueTimeout={0};", FormatTimeSpan(WaitQueueTimeout));
+                query.AppendFormat("waitQueueTimeout={0}&", FormatTimeSpan(WaitQueueTimeout));
             }
 #pragma warning disable 618
             var defaultGuidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
             if (_guidRepresentation != defaultGuidRepresentation)
             {
-                query.AppendFormat("uuidRepresentation={0};", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
+                query.AppendFormat("uuidRepresentation={0}&", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
             }
 #pragma warning restore 618
             if (!_retryReads.GetValueOrDefault(true))
             {
-                query.AppendFormat("retryReads=false;");
+                query.AppendFormat("retryReads=false&");
             }
             if (_retryWrites.HasValue)
             {
-                query.AppendFormat("retryWrites={0};", JsonConvert.ToString(_retryWrites.Value));
+                query.AppendFormat("retryWrites={0}&", JsonConvert.ToString(_retryWrites.Value));
             }
             if (_srvMaxHosts.HasValue)
             {
-                query.AppendFormat("srvMaxHosts={0};", _srvMaxHosts);
+                query.AppendFormat("srvMaxHosts={0}&", _srvMaxHosts);
             }
             if (query.Length != 0)
             {
@@ -1228,7 +1228,7 @@ namespace MongoDB.Driver
                     {
                         if (compressorConfiguration.Properties.TryGetValue("Level", out var zlibCompressionLevel))
                         {
-                            builder.AppendFormat("zlibCompressionLevel={0};", zlibCompressionLevel);
+                            builder.AppendFormat("zlibCompressionLevel={0}&", zlibCompressionLevel);
                         }
                     }
                     break;
