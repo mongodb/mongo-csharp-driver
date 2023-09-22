@@ -1069,7 +1069,7 @@ namespace MongoDB.Driver
             }
             if (query.Length != 0)
             {
-                query.Length = query.Length - 1; // remove trailing ";"
+                query.Length = query.Length - 1; // remove trailing "&"
                 if (_databaseName == null)
                 {
                     url.Append("/");

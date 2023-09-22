@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver)
         {
-            _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString)).Replace(';', '&');
+            _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
             _isInternalRepresentation = isInternalRepresentation;
 
             _allOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
