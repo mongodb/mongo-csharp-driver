@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -77,16 +78,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindGetFieldProjection(AggregationExpression expression)
         {
             var getFieldExpressionAst = (AstGetFieldExpression)expression.Ast;
-            if (getFieldExpressionAst.HasSafeFieldName(out var fieldName))
+            if (IsGetFieldChainWithSafeFieldNames(getFieldExpressionAst))
             {
-                var specifications = fieldName == "_id" ?
-                    new List<AstProjectStageSpecification> { AstProject.Include(fieldName) } :
-                    new List<AstProjectStageSpecification> { AstProject.Include(fieldName), AstProject.Exclude("_id") };
-                var wrappedValueSerializer = WrappedValueSerializer.Create(fieldName, expression.Serializer);
-                return (specifications, wrappedValueSerializer);
+                var (dottedFieldName, serializer) = CreateGetFieldChainWithSafeFieldNamesProjection(getFieldExpressionAst, expression.Serializer);
+                var specifications = new List<AstProjectStageSpecification> { AstProject.Include(dottedFieldName) };
+                if (dottedFieldName != "_id" && !dottedFieldName.StartsWith("_id."))
+                {
+                    specifications.Add(AstProject.Exclude("_id"));
+                }
+                return (specifications, serializer);
             }
 
             return CreateWrappedValueProjection(expression);
+        }
+
+        private static (string, IBsonSerializer) CreateGetFieldChainWithSafeFieldNamesProjection(AstGetFieldExpression getFieldExpression, IBsonSerializer serializer)
+        {
+            if (getFieldExpression.HasSafeFieldName(out var fieldName))
+            {
+                var wrappedValueSerializer = WrappedValueSerializer.Create(fieldName, serializer);
+                var input = getFieldExpression.Input;
+
+                if (input is AstVarExpression varExpression && varExpression.Name == "ROOT")
+                {
+                    return (fieldName, wrappedValueSerializer);
+                }
+
+                if (input is AstGetFieldExpression outerGetFieldExpression)
+                {
+                    var (outerDottedFieldName, outerWrappedValueSerializer) = CreateGetFieldChainWithSafeFieldNamesProjection(outerGetFieldExpression, wrappedValueSerializer);
+                    return (outerDottedFieldName + "." + fieldName, outerWrappedValueSerializer);
+                }
+            }
+
+            throw new ArgumentException($"{nameof(CreateGetFieldChainWithSafeFieldNamesProjection)} called with an invalid getFieldExpression.", nameof(getFieldExpression));
         }
 
         private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateWrappedValueProjection(AggregationExpression expression)
@@ -99,6 +124,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             };
 
             return (specifications, wrappedValueSerializer);
+        }
+
+        private static bool IsGetFieldChainWithSafeFieldNames(AstGetFieldExpression getFieldExpression)
+        {
+            return
+                getFieldExpression.HasSafeFieldName(out _) &&
+                (
+                    (getFieldExpression.Input is AstVarExpression varExpression && varExpression.Name == "ROOT") ||
+                    (getFieldExpression.Input is AstGetFieldExpression nestedGetFieldExpression && IsGetFieldChainWithSafeFieldNames(nestedGetFieldExpression))
+                );
         }
 
         private static AstExpression QuoteIfNecessary(AstExpression expression)
