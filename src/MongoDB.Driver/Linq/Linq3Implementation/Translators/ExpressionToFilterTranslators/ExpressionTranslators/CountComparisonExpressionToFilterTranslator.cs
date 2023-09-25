@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -73,15 +74,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
-                var compareCountFilter = AstFilter.Size(field, size);
                 switch (expression.NodeType)
                 {
-                    case ExpressionType.Equal: return compareCountFilter;
-                    case ExpressionType.NotEqual: return AstFilter.Not(compareCountFilter);
+                    case ExpressionType.Equal:
+                        return AstFilter.Size(field, size);
+
+                    case ExpressionType.GreaterThan:
+                        return AstFilter.Exists(ItemField(field, size.ToInt64()));
+
+                    case ExpressionType.GreaterThanOrEqual:
+                        return AstFilter.Exists(ItemField(field, size.ToInt64() - 1));
+
+                    case ExpressionType.LessThan:
+                        return AstFilter.NotExists(ItemField(field, size.ToInt64() - 1));
+
+                    case ExpressionType.LessThanOrEqual:
+                        return AstFilter.NotExists(ItemField(field, size.ToInt64()));
+
+                    case ExpressionType.NotEqual:
+                        return AstFilter.Not(AstFilter.Size(field, size));
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
+
+            static AstFilterField ItemField(AstFilterField field, long index) => field.SubField(index.ToString(), BsonValueSerializer.Instance);
         }
 
         private static bool TryConvertSizeExpressionToBsonValue(Expression sizeExpression, out BsonValue size)

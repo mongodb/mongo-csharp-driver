@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
@@ -50,6 +51,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case ExpressionType.Equal:
                         return AstFilter.Size(arrayField, size);
 
+                    case ExpressionType.GreaterThan:
+                        return AstFilter.Exists(ItemField(arrayField, size));
+
+                    case ExpressionType.GreaterThanOrEqual:
+                        return AstFilter.Exists(ItemField(arrayField, size - 1));
+
+                    case ExpressionType.LessThan:
+                        return AstFilter.NotExists(ItemField(arrayField, size - 1));
+
+                    case ExpressionType.LessThanOrEqual:
+                        return AstFilter.NotExists(ItemField(arrayField, size));
+
                     case ExpressionType.NotEqual:
                         return AstFilter.Not(AstFilter.Size(arrayField, size));
                 }
@@ -57,6 +70,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             throw new ExpressionNotSupportedException(expression);
+
+            static AstFilterField ItemField(AstFilterField field, int index) => field.SubField(index.ToString(), BsonValueSerializer.Instance);
         }
     }
 }
