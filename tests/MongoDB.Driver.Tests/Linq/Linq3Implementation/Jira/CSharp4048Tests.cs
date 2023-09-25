@@ -737,7 +737,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [{ _id : 0, X : 0 }], else : '$$source' } } } } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [null], else : '$$source' } } } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);

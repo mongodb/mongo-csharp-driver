@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Linq3TestHelpers.Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $project : { _v : { $map : { input : { $let : { vars : { source : '$InnerArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [{ S : null }], else : '$$source' } } } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : { $let : { vars : { source : '$InnerArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [null], else : '$$source' } } } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }"
             };
             Linq3TestHelpers.AssertStages(stages, expectedStages);
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = queryable.ToList();
             result.Count.Should().Be(2);
             result[0].o.Id.Should().Be(1);
-            result[0].a.S.Should().Be(null);
+            result[0].a.Should().Be(null);
             result[1].o.Id.Should().Be(2);
             result[1].a.S.Should().Be("abc");
         }

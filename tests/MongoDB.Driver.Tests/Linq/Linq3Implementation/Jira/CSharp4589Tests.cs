@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$teamAllianceMappingsListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, TeamId : 0, AllianceTeamId : 0 }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'allianceMapping',
                             in : { TransparentIdentifier0 : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$organizationAdminsListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, OrganizationId : 0, UserId : 0 }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'organizationAdmin',
                             in : { TransparentIdentifier2 : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$usersListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, UserId : 0, ProfileImage : null }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'organizationUser',
                             in : {
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$teamAllianceMappingsListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, TeamId : 0, AllianceTeamId : 0 }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'allianceMapping',
                             in : { '<>h__TransparentIdentifier0' : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$organizationAdminsListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, OrganizationId : 0, UserId : 0 }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'organizationAdmin',
                             in : { '<>h__TransparentIdentifier2' : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                 vars : { source : '$usersListTemp' },
                                 in : { $cond : {
                                     if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [{ _id : 0, UserId : 0, ProfileImage : null }],
+                                    then : [null],
                                     else : '$$source' } } } },
                             as : 'organizationUser',
                             in : {

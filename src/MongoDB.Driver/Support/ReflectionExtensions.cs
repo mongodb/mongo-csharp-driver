@@ -25,12 +25,10 @@ namespace MongoDB.Driver.Support
     {
         public static object GetDefaultValue(this Type type)
         {
-            if (type.GetTypeInfo().IsValueType)
-            {
-                return Activator.CreateInstance(type);
-            }
-
-            return null;
+            var genericMethod = typeof(ReflectionExtensions)
+                .GetMethod(nameof(GetDefaultValueGeneric), BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(type);
+            return genericMethod.Invoke(null, null);
         }
 
         public static bool ImplementsInterface(this Type type, Type iface)
@@ -152,6 +150,11 @@ namespace MongoDB.Driver.Support
             }
 
             return null;
+        }
+
+        private static TValue GetDefaultValueGeneric<TValue>()
+        {
+            return default(TValue);
         }
     }
 }

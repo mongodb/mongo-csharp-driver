@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.Is(EnumerableMethod.DefaultIfEmpty))
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    var defaultValue = Activator.CreateInstance(sourceItemSerializer.ValueType);
+                    var defaultValue = sourceItemSerializer.ValueType.GetDefaultValue();
                     var serializedDefaultValue = SerializationHelper.SerializeValue(sourceItemSerializer, defaultValue);
                     defaultValueAst = AstExpression.Constant(new BsonArray { serializedDefaultValue });
                 }
