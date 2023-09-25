@@ -1,25 +1,42 @@
 {
-    "tests": [
+  "tests": [
+    {
+      "description": "Option names are normalized to lowercase",
+      "uri": "mongodb://alice:secret@example.com/admin?AUTHMechanism=MONGODB-CR",
+      "valid": true,
+      "warning": false,
+      "hosts": [
         {
-            "auth": {
-                "db": "admin", 
-                "password": "secret", 
-                "username": "alice"
-            }, 
-            "description": "Option names are normalized to lowercase", 
-            "hosts": [
-                {
-                    "host": "example.com", 
-                    "port": null, 
-                    "type": "hostname"
-                }
-            ], 
-            "options": {
-                "authmechanism": "MONGODB-CR"
-            }, 
-            "uri": "mongodb://alice:secret@example.com/admin?AUTHMechanism=MONGODB-CR", 
-            "valid": true, 
-            "warning": false
+          "type": "hostname",
+          "host": "example.com",
+          "port": null
         }
-    ]
+      ],
+      "auth": {
+        "username": "alice",
+        "password": "secret",
+        "db": "admin"
+      },
+      "options": {
+        "authmechanism": "MONGODB-CR"
+      }
+    },
+    {
+      "description": "Missing delimiting slash between hosts and options",
+      "uri": "mongodb://example.com?tls=true",
+      "valid": true,
+      "warning": false,
+      "hosts": [
+        {
+          "type": "hostname",
+          "host": "example.com",
+          "port": null
+        }
+      ],
+      "auth": null,
+      "options": {
+        "tls": true
+      }
+    }
+  ]
 }

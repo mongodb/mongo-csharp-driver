@@ -346,7 +346,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
         {
             private static readonly string[] __ignoredTestNames =
             {
-                "invalid-uris.json:Missing delimiting slash between hosts and options",
                 // Not supported readConcernLevel options are not allowed for parsing
                 "concern-options.json:Arbitrary string readConcernLevel does not cause a warning",
                 // srvServiceName not yet implemented (CSHARP-3745)
