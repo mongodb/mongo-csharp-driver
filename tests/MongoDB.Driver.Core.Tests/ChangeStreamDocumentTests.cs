@@ -326,13 +326,38 @@ namespace MongoDB.Driver
         [Fact]
         public void FullDocument_should_return_null_when_not_present()
         {
-            var value = new BsonDocument("x", 1234);
             var backingDocument = new BsonDocument { { "other", 1 } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.FullDocument;
 
             result.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData("{ other : 1 }")]
+        [InlineData("{ other : 1, fullDocumentBeforeChange : null }")]
+        public void FullDocumentBeforeChange_should_return_null_when_not_present(string changeDocument)
+        {
+            var backingDocument = BsonDocument.Parse(changeDocument);
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.FullDocumentBeforeChange;
+
+            result.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData("{ other : 1, fullDocumentBeforeChange : { } }")]
+        [InlineData("{ other : 1, fullDocumentBeforeChange : { a : 1 } }")]
+        public void FullDocumentBeforeChange_should_return_document_when_present(string changeDocument)
+        {
+            var backingDocument = BsonDocument.Parse(changeDocument);
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.FullDocumentBeforeChange;
+
+            result.Should().BeOfType<BsonDocument>();
         }
 
         [Fact]
