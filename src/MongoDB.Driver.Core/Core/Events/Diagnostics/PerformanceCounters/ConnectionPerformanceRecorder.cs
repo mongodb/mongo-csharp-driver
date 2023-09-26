@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if NET472
+#if NET472 || WINDOWS
 using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters

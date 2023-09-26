@@ -8,6 +8,7 @@
     <Product>MongoDB.Driver.Core</Product>
     <Description>Official MongoDB supported Driver Core library. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>Core Component of the Official MongoDB .NET Driver.</PackageDescription>
+    <TargetFrameworks Condition="'$(IsWindows)'=='true'">$(TargetFrameworks);net6.0-windows</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -32,6 +33,10 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,6 +20,8 @@ namespace MongoDB.Driver.Core
         public static string Moniker =>
 #if NET472
             "net472";
+#elif NET6_0 && WINDOWS
+            "net6.0-windows";
 #elif NETSTANDARD2_0
             "netstandard20";
 #elif NETSTANDARD2_1
