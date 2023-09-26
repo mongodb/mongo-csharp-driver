@@ -166,6 +166,11 @@ namespace MongoDB.Driver
                 // if TDocument is BsonDocument avoid deserializing it again to prevent possible duplicate element name errors
                 if (typeof(TDocument) == typeof(BsonDocument) && BackingDocument.TryGetValue("fullDocumentBeforeChange", out var fullDocumentBeforeChange))
                 {
+                    if (fullDocumentBeforeChange.IsBsonNull)
+                    {
+                        return default;
+                    }
+
                     return (TDocument)(object)fullDocumentBeforeChange.AsBsonDocument;
                 }
                 else
