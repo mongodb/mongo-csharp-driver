@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Tests.Search
             // Compound
             var compound = subject
                 .Compound()
-                .Must(subject.Text("y", "1", synonyms: "testSynonyms"))
+                .Must(subject.Text("y", "1", "testSynonyms"))
                 .Should(subject.Exists("z"));
 
             AssertRendered(
@@ -940,11 +940,11 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: ['foo', 'bar'], path: ['x', 'y'] } }");
 
             AssertRendered(
-                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, synonyms: "testSynonyms"),
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, "testSynonyms"),
                 "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
 
             AssertRendered(
-                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, synonyms: new SearchSynonymMappingDefinition("testSynonyms")),
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchSynonymMappingDefinition("testSynonyms")),
                 "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
 
             AssertRendered(
