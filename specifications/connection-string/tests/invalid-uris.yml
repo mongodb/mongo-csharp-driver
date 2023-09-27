@@ -144,14 +144,6 @@ tests:
         auth: ~
         options: ~
     -
-        description: "Missing delimiting slash between hosts and options"
-        uri: "mongodb://example.com?w=1"
-        valid: false
-        warning: ~
-        hosts: ~
-        auth: ~
-        options: ~
-    -
         description: "Incomplete key value pair for option"
         uri: "mongodb://example.com/?w"
         valid: false
@@ -239,3 +231,23 @@ tests:
         hosts: ~
         auth: ~
         options: ~
+
+    -
+        description: "Username with password containing an unescaped percent sign and an escaped one"
+        uri: "mongodb://user%20%:password@localhost"
+        valid: false
+        warning: ~
+        hosts: ~
+        auth: ~
+        options: ~
+
+    -
+        description: "Username with password containing an unescaped percent sign (non hex digit)"
+        uri: "mongodb://user%w:password@localhost"
+        valid: false
+        warning: ~
+        hosts: ~
+        auth: ~
+        options: ~
+
+    
