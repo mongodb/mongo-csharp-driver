@@ -399,16 +399,19 @@ namespace MongoDB.Driver.Search
     {
         private readonly SearchFuzzyOptions _fuzzy;
         private readonly SearchQueryDefinition _query;
+        private readonly SearchSynonymMappingDefinition _synonyms;
 
         public TextSearchDefinition(
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
             SearchFuzzyOptions fuzzy,
-            SearchScoreDefinition<TDocument> score)
+            SearchScoreDefinition<TDocument> score,
+            SearchSynonymMappingDefinition synonyms)
                 : base(OperatorType.Text, path, score)
         {
             _query = Ensure.IsNotNull(query, nameof(query));
             _fuzzy = fuzzy;
+            _synonyms = synonyms;
         }
 
         private protected override BsonDocument RenderArguments(SearchDefinitionRenderContext<TDocument> renderContext) =>
@@ -416,6 +419,7 @@ namespace MongoDB.Driver.Search
             {
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
+                { "synonyms", () => _synonyms.Render(), _synonyms != null }
             };
     }
 
