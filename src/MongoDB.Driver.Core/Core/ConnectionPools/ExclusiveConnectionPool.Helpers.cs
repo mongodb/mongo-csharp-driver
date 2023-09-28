@@ -206,8 +206,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
                 catch (Exception ex)
                 {
-                    if (stopwatch.IsRunning) stopwatch.Stop();
-                    HandleException(ex, stopwatch);
+                    stopwatch.Stop();
+                    HandleException(ex, stopwatch.Elapsed);
                     throw;
                 }
             }
@@ -240,8 +240,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
                 catch (Exception ex)
                 {
-                    if (stopwatch.IsRunning) stopwatch.Stop();
-                    HandleException(ex, stopwatch);
+                    stopwatch.Stop();
+                    HandleException(ex, stopwatch.Elapsed);
                     throw;
                 }
             }
@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _ => new InvalidOperationException($"Invalid {_poolQueueWaitResult}.")
                 };
 
-            private void HandleException(Exception ex, Stopwatch stopwatch)
+            private void HandleException(Exception ex, TimeSpan elapsedTime)
             {
                 var reason = ex switch
                 {
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _ => ConnectionCheckOutFailedReason.ConnectionError
                 };
 
-                _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, stopwatch.Elapsed, reason));
+                _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, elapsedTime, reason));
             }
         }
 
