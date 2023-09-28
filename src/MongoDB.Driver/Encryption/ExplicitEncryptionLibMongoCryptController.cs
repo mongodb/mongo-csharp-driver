@@ -545,15 +545,9 @@ namespace MongoDB.Driver.Encryption
 
         private byte[] GetWrappedValueBytes(BsonValue value)
         {
-            if (value is BsonBinaryData binaryData)
-            {
-                int estimatedSize = binaryData.Bytes.Length + BufferOverhead;
-                return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
-            }
-
-            return ToBsonIfNotNull(new BsonDocument("v", value));
+            var estimatedSize = (value is BsonBinaryData binaryData) ? binaryData.Bytes.Length + BufferOverhead : 0;
+            return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
         }
-
 
         private BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {

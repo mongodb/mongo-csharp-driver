@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Encryption
             return result;
         }
 
-        protected byte[] ToBsonIfNotNull(BsonValue value)
+        protected byte[] ToBsonIfNotNull(BsonValue value, int estimatedBsonSize = 0)
         {
             if (value != null)
             {
@@ -177,26 +177,10 @@ namespace MongoDB.Driver.Encryption
                     writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
                 }
 #pragma warning restore 618
-                return value.ToBson(writerSettings: writerSettings);
+                return estimatedBsonSize == 0
+                    ? value.ToBson(writerSettings: writerSettings)
+                    : value.ToBson(estimatedBsonSize, writerSettings: writerSettings);
             }
-
-            return null;
-        }
-
-        protected byte[] ToBsonIfNotNull(BsonValue value, int estimatedBsonSize)
-        {
-            if (value != null)
-            {
-                var writerSettings = BsonBinaryWriterSettings.Defaults.Clone();
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-                }
-#pragma warning restore 618
-                return value.ToBson(estimatedBsonSize, writerSettings: writerSettings);
-            }
-
             return null;
         }
 
