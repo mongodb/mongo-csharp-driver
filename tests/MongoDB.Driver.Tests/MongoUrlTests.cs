@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
             }
 #pragma warning restore 618
 
-            var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
+            var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Tests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
-                "readPreference=secondary;readPreferenceTags=dc:1;maxStaleness=11s",
+                "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
                 "fsync=true",
                 "journal=true",
                 "w=2",
@@ -243,8 +243,8 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                var index = connectionString.IndexOf("retryReads=false;");
-                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy;");
+                var index = connectionString.IndexOf("retryReads=false&");
+                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy&");
             }
 #pragma warning restore 618
 
@@ -317,12 +317,11 @@ namespace MongoDB.Driver.Tests
                     var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
                     if (url.GuidRepresentation == defaultGuidRepresentation)
                     {
-                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy&", "");
                     }
                 }
 #pragma warning restore 618
-                var expectedConnectionString = connectionString.Replace(';', '&');
-                Assert.Equal(expectedConnectionString, url.ToString());
+                Assert.Equal(connectionString, url.ToString());
             }
         }
 
@@ -383,10 +382,10 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData("mongodb://localhost/?readPreference=secondary")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStalenessSeconds=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1s")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1000ms")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1s")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1000ms")]
         public void TestNoMaxStaleness(string value)
         {
             var url = new MongoUrl(value);

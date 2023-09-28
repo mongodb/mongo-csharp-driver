@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests
             }
 #pragma warning restore 618
 
-            var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
+            var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
-                "readPreference=secondary;readPreferenceTags=dc:1;maxStaleness=11s",
+                "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
                 "fsync=true",
                 "journal=true",
                 "w=2",
@@ -155,8 +155,8 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                var index = connectionString.IndexOf("retryReads=false;");
-                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy;");
+                var index = connectionString.IndexOf("retryReads=false&");
+                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy&");
             }
 #pragma warning restore 618
 
@@ -228,12 +228,11 @@ namespace MongoDB.Driver.Tests
                     var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
                     if (builder.GuidRepresentation == defaultGuidRepresentation)
                     {
-                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy&", "");
                     }
                 }
 #pragma warning restore 618
-                var expectedConnectionString = connectionString.Replace(';', '&');
-                Assert.Equal(expectedConnectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
@@ -317,7 +316,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             var built = new MongoUrlBuilder { Server = _localhost, MaxConnectionPoolSize = 123, WaitQueueMultiple = 2.0 };
             var connectionString = "mongodb://localhost/?maxPoolSize=123&waitQueueMultiple=2";
-            var expectedConnectionString = connectionString.Replace(';', '&');
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -325,7 +323,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2.0, builder.WaitQueueMultiple);
                 Assert.Equal(0, builder.WaitQueueSize);
                 Assert.Equal(246, builder.ComputedWaitQueueSize);
-                Assert.Equal(expectedConnectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToString());
             }
 #pragma warning restore 618
         }
@@ -350,7 +348,7 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [InlineData(null, null, "mongodb://localhost", null)]
         [InlineData(new[] { CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
-        [InlineData(new[] { CompressorType.Zlib }, "Level;zlibCompressionLevel;1", "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
+        [InlineData(new[] { CompressorType.Zlib }, "Level&zlibCompressionLevel&1", "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
         [InlineData(new[] { CompressorType.Snappy }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy })]
         [InlineData(new[] { CompressorType.Snappy, CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy, CompressorType.Zlib })]
         public void TestCompressors(CompressorType[] compressors, string compressionProperty, string formatString, CompressorType[] values)
@@ -364,7 +362,7 @@ namespace MongoDB.Driver.Tests
                         var compression = new CompressorConfiguration(x);
                         if (!string.IsNullOrWhiteSpace(compressionProperty))
                         {
-                            var @params = compressionProperty.Split(';');
+                            var @params = compressionProperty.Split('&');
                             compression.Properties.Add(@params[0], @params[2]);
                         }
                         return compression;
@@ -376,7 +374,7 @@ namespace MongoDB.Driver.Tests
             var expectedValues = values == null ? string.Empty : string.Join(",", values.Select(c => c.ToString().ToLower()));
             if (!string.IsNullOrWhiteSpace(compressionProperty))
             {
-                var @params = compressionProperty.Split(';');
+                var @params = compressionProperty.Split('&');
                 expectedValues += $"&{@params[1]}={@params[2]}";
             }
             var canonicalConnectionString = string.Format(formatString, expectedValues);
@@ -957,11 +955,11 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(500, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "Seconds=0.5" })]
-        [InlineData(20000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "Seconds=20.0" })]
-        [InlineData(1800000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "Seconds=1800.0" })]
-        [InlineData(3600000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "Seconds=3600.0" })]
-        [InlineData(3723000, "mongodb://localhost/?readPreference=secondary;maxStaleness{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "Seconds=3723.0" })]
+        [InlineData(500, "mongodb://localhost/?readPreference=secondary&maxStaleness{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "Seconds=0.5" })]
+        [InlineData(20000, "mongodb://localhost/?readPreference=secondary&maxStaleness{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "Seconds=20.0" })]
+        [InlineData(1800000, "mongodb://localhost/?readPreference=secondary&maxStaleness{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "Seconds=1800.0" })]
+        [InlineData(3600000, "mongodb://localhost/?readPreference=secondary&maxStaleness{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "Seconds=3600.0" })]
+        [InlineData(3723000, "mongodb://localhost/?readPreference=secondary&maxStaleness{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "Seconds=3723.0" })]
         public void TestMaxStaleness(int? ms, string formatString, string[] values)
         {
             var maxStaleness = ms.HasValue ? TimeSpan.FromMilliseconds(ms.Value) : (TimeSpan?)null;
@@ -970,20 +968,19 @@ namespace MongoDB.Driver.Tests
             if (readPreference != null) { built.ReadPreference = readPreference; }
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
-            var expectedConnectionString = canonicalConnectionString.Replace(';', '&');
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(readPreference, builder.ReadPreference);
-                Assert.Equal(expectedConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
         [Theory]
         [InlineData("mongodb://localhost/?readPreference=secondary")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStalenessSeconds=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1s")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1000ms")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1s")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1000ms")]
         public void TestNoMaxStaleness(string value)
         {
             var builder = new MongoUrlBuilder(value);
@@ -1071,8 +1068,7 @@ namespace MongoDB.Driver.Tests
             };
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
-            var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1";
-            var expectedConnectionString = connectionString.Replace(';', '&');
+            var connectionString = "mongodb://localhost/?readPreference=secondary&readPreferenceTags=dc:ny,rack:1";
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -1083,7 +1079,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2, builderTagSet1Tags.Length);
                 Assert.Equal(new Tag("dc", "ny"), builderTagSet1Tags[0]);
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
-                Assert.Equal(expectedConnectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
@@ -1097,8 +1093,7 @@ namespace MongoDB.Driver.Tests
             };
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
-            var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1;readPreferenceTags=dc:sf";
-            var expectedConnectionString = connectionString.Replace(';', '&');
+            var connectionString = "mongodb://localhost/?readPreference=secondary&readPreferenceTags=dc:ny,rack:1&readPreferenceTags=dc:sf";
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -1112,7 +1107,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
                 Assert.Equal(1, builderTagSet2Tags.Length);
                 Assert.Equal(new Tag("dc", "sf"), builderTagSet2Tags[0]);
-                Assert.Equal(expectedConnectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToString());
             }
         }
 
@@ -1152,14 +1147,14 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=0;safe=false", "w=0;safe=False", "safe=false", "safe=False" })]
-        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=1;safe=false", "w=1;safe=False" })]
-        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=2;safe=false", "w=2;safe=False" })]
-        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=mode;safe=false", "w=mode;safe=False" })]
-        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=0;safe=true", "w=0;safe=True", "safe=true", "safe=True" })]
-        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=1;safe=true", "w=1;safe=True" })]
-        [InlineData(2, "mongodb://localhost/?{0}", new[] { "w=2", "w=2;safe=true", "w=2;safe=True" })]
-        [InlineData("mode", "mongodb://localhost/?{0}", new[] { "w=mode", "w=mode;safe=true", "w=mode;safe=True" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=0&safe=false", "w=0&safe=False", "safe=false", "safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=1&safe=false", "w=1&safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=2&safe=false", "w=2&safe=False" })]
+        [InlineData(0, "mongodb://localhost/?{0}", new[] { "w=0", "w=mode&safe=false", "w=mode&safe=False" })]
+        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=0&safe=true", "w=0&safe=True", "safe=true", "safe=True" })]
+        [InlineData(1, "mongodb://localhost/?{0}", new[] { "w=1", "w=1&safe=true", "w=1&safe=True" })]
+        [InlineData(2, "mongodb://localhost/?{0}", new[] { "w=2", "w=2&safe=true", "w=2&safe=True" })]
+        [InlineData("mode", "mongodb://localhost/?{0}", new[] { "w=mode", "w=mode&safe=true", "w=mode&safe=True" })]
         public void TestSafe(object wobj, string formatString, string[] values)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)(int)wobj : (string)wobj;
