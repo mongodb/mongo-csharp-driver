@@ -59,9 +59,9 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            // RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
-            var atlasSearchUri = "mongodb+srv://driverSearchTest:NSg1V3REnmAGAGId@search.oztdp.mongodb-dev.net";
+            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             _disposableMongoClient = new(new MongoClient(atlasSearchUri), CreateLogger<DisposableMongoClient>());
