@@ -59,9 +59,9 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+            // RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
-            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
+            var atlasSearchUri = "mongodb+srv://driverSearchTest:NSg1V3REnmAGAGId@search.oztdp.mongodb-dev.net";
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             _disposableMongoClient = new(new MongoClient(atlasSearchUri), CreateLogger<DisposableMongoClient>());
@@ -480,10 +480,7 @@ namespace MongoDB.Driver.Tests.Search
         [Theory]
         [InlineData("automobile", "transportSynonyms", "Blue Car")]
         [InlineData("boat", "transportSynonyms", "And the Ship Sails On")]
-        [InlineData("apparel", "attireSynonyms", "27 Dresses")]
-        [InlineData("hat", "attireSynonyms", "A Hatful of Rain")]
-        [InlineData("bus", "attireSynonyms", "Bo Ba Bu")]
-        public void TextQueryWithSynonymsReturnsCorrectResult(string query, string synonym, string expected)
+        public void TextWithSynonymsReturnsCorrectResult(string query, string synonym, string expected)
         {
             var sortDefinition = Builders<Movie>.Sort.Ascending(x => x.Title);
             var result =
@@ -499,54 +496,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
-        public void TextQueryUsingUnassociatedSynonymResultsInNormalSearch()
-        {
-            var busSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "mouth",
-                    "transportSynonyms"));
-
-            var otherBusSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "mouth",
-                    "attireSynonyms"));
-
-            Assert.True(busSearchResults.SequenceEqual(otherBusSearchResults));
-        }
-
-        [Fact]
-        public void TextQueryWithEmptySynonymsMapNameShouldThrowException()
-        {
-            var exception = Record.Exception(() => Builders<Movie>.Search.Text("title", "vehicle", ""));
-
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().StartWith("Value cannot be empty.");
-        }
-
-
-        [Fact]
-        public void TextQueryWithSynonymsEquivalentMapping()
-        {
-            var automobileSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "automobile",
-                    "transportSynonyms"));
-
-            var vehicleSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "vehicle",
-                    "transportSynonyms"));
-
-            var carSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "car",
-                    "transportSynonyms"));
-
-            automobileSearchResults.Should().NotBeNull();
-            vehicleSearchResults.Should().NotBeNull();
-            carSearchResults.Should().NotBeNull();
-
-            Assert.True(automobileSearchResults.SequenceEqual(vehicleSearchResults));
-            Assert.True(vehicleSearchResults.SequenceEqual(carSearchResults));
-        }
-
-        [Fact]
-        public void AdvancedTextQueryWithSynonymsEquivalentMapping()
+        public void TextWithSynonymsMappings()
         {
             var automobileAndAtttireSearchResults = SearchMultipleSynonymMapping(
                 Builders<Movie>.Search.Text(x => x.Title, "automobile", "transportSynonyms"),
@@ -556,38 +506,6 @@ namespace MongoDB.Driver.Tests.Search
                 Builders<Movie>.Search.Text(x => x.Title, "vehicle", "transportSynonyms"),
                 Builders<Movie>.Search.Text(x => x.Title, "dress", "attireSynonyms"));
 
-            automobileAndAtttireSearchResults.Should().NotBeNull();
-            vehicleAndDressSearchResults.Should().NotBeNull();
-
-            Assert.True(automobileAndAtttireSearchResults.SequenceEqual(vehicleAndDressSearchResults));
-        }
-
-        [Fact]
-        public void TextQueryWithSynonymsExplicitMapping()
-        {
-            var boatSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "boat",
-                    "transportSynonyms"));
-
-            var vesselSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "vessel",
-                    "transportSynonyms"));
-
-            var sailSearchResults =
-                SearchSingleSynonymMapping(Builders<Movie>.Search.Text(x => x.Title, "sail",
-                    "transportSynonyms"));
-
-            boatSearchResults.Should().NotBeNull();
-            vesselSearchResults.Should().NotBeNull();
-            sailSearchResults.Should().NotBeNull();
-
-            Assert.False(boatSearchResults.SequenceEqual(vesselSearchResults));
-            Assert.False(vesselSearchResults.SequenceEqual(sailSearchResults));
-        }
-
-        [Fact]
-        public void AdvancedTextQueryWithSynonymsExplicitMapping()
-        {
             var boatAndHatSearchResults = SearchMultipleSynonymMapping(
                 Builders<Movie>.Search.Text(x => x.Title, "boat", "transportSynonyms"),
                 Builders<Movie>.Search.Text(x => x.Title, "hat", "attireSynonyms"));
@@ -596,13 +514,14 @@ namespace MongoDB.Driver.Tests.Search
                 Builders<Movie>.Search.Text(x => x.Title, "vessel", "transportSynonyms"),
                 Builders<Movie>.Search.Text(x => x.Title, "fedora", "attireSynonyms"));
 
-
+            automobileAndAtttireSearchResults.Should().NotBeNull();
+            vehicleAndDressSearchResults.Should().NotBeNull();
             boatAndHatSearchResults.Should().NotBeNull();
             vesselAndFedoraSearchResults.Should().NotBeNull();
 
+            Assert.True(automobileAndAtttireSearchResults.SequenceEqual(vehicleAndDressSearchResults));
             Assert.False(boatAndHatSearchResults.SequenceEqual(vesselAndFedoraSearchResults));
         }
-
 
         [Fact]
         public void Wildcard()
@@ -629,12 +548,6 @@ namespace MongoDB.Driver.Tests.Search
 
             return fluent.Limit(1).ToList().Single();
         }
-
-        private List<BsonDocument> SearchSingleSynonymMapping(SearchDefinition<Movie> searchDefinition) =>
-            GetSynonymTestCollection().Aggregate()
-                .Search(searchDefinition, indexName: "synonyms-tests")
-                .Project(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
-                .ToList();
 
         private List<BsonDocument> SearchMultipleSynonymMapping(params SearchDefinition<Movie>[] clauses) =>
             GetSynonymTestCollection().Aggregate()

@@ -636,16 +636,14 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="synonyms">The name of the synonym mapping definition in the index definition</param>
-        /// <param name="fuzzy">The options for fuzzy search.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A text search definition.</returns>
         public SearchDefinition<TDocument> Text(
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
-            SearchSynonymMappingDefinition synonyms,
-            SearchFuzzyOptions fuzzy = null,
+            string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
-            new TextSearchDefinition<TDocument>(path, query, fuzzy, score, synonyms);
+            new TextSearchDefinition<TDocument>(path, query, null, score, synonyms);
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified
@@ -672,16 +670,14 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="synonyms">The name of the synonym mapping definition in the index definition</param>
-        /// <param name="fuzzy">The options for fuzzy search.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A text search definition.</returns>
         public SearchDefinition<TDocument> Text<TField>(
             Expression<Func<TDocument, TField>> path,
             SearchQueryDefinition query,
-            SearchSynonymMappingDefinition synonyms,
-            SearchFuzzyOptions fuzzy = null,
+            string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
-            Text(new ExpressionFieldDefinition<TDocument>(path), query, synonyms, fuzzy, score);
+            Text(new ExpressionFieldDefinition<TDocument>(path), query, synonyms, score);
 
         /// <summary>
         /// Creates a search definition that uses special characters in the search string that can
