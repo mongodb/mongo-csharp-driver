@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
             }
 #pragma warning restore 618
 
-            var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
+            var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Tests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
-                "readPreference=secondary;readPreferenceTags=dc:1;maxStaleness=11s",
+                "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
                 "fsync=true",
                 "journal=true",
                 "w=2",
@@ -243,8 +243,8 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                var index = connectionString.IndexOf("retryReads=false;");
-                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy;");
+                var index = connectionString.IndexOf("retryReads=false&");
+                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy&");
             }
 #pragma warning restore 618
 
@@ -310,18 +310,18 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
-                var expectedConnectionString = connectionString;
+
 #pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {
                     var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
                     if (url.GuidRepresentation == defaultGuidRepresentation)
                     {
-                        expectedConnectionString = expectedConnectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy&", "");
                     }
                 }
 #pragma warning restore 618
-                Assert.Equal(expectedConnectionString, url.ToString());
+                Assert.Equal(connectionString, url.ToString());
             }
         }
 
@@ -382,10 +382,10 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData("mongodb://localhost/?readPreference=secondary")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStalenessSeconds=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1s")]
-        [InlineData("mongodb://localhost/?readPreference=secondary;maxStaleness=-1000ms")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStalenessSeconds=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1s")]
+        [InlineData("mongodb://localhost/?readPreference=secondary&maxStaleness=-1000ms")]
         public void TestNoMaxStaleness(string value)
         {
             var url = new MongoUrl(value);
@@ -418,7 +418,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
         }
 
         [Fact]
@@ -433,7 +433,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = await subject.ResolveAsync();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
         }
 
         [Fact]
