@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Search
 
         /// <inheritdoc />
         public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-`            (BsonDocument)Document.DeepClone();
+            (BsonDocument)Document.DeepClone();
     }
 
     /// <summary>
