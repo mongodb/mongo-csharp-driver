@@ -6,8 +6,10 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Core</AssemblyTitle>
     <Product>MongoDB.Driver.Core</Product>
+    <PackageId>MongoDB.Driver.Core</PackageId>
     <Description>Official MongoDB supported Driver Core library. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>Core Component of the Official MongoDB .NET Driver.</PackageDescription>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
