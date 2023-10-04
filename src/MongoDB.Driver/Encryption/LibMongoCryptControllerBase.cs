@@ -177,9 +177,7 @@ namespace MongoDB.Driver.Encryption
                     writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
                 }
 #pragma warning restore 618
-                return estimatedBsonSize == 0
-                    ? value.ToBson(writerSettings: writerSettings)
-                    : value.ToBson(estimatedBsonSize, writerSettings: writerSettings);
+                return value.ToBson(writerSettings: writerSettings, estimatedBsonSize: estimatedBsonSize);
             }
             return null;
         }

@@ -58,15 +58,14 @@ namespace MongoDB.Bson.Tests
             Assert.True(expected.SequenceEqual(bson));
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void TestToBsonWithBadEstimatedBsonSizeShouldThrowException([Values(0, -1)] int estimatedBsonSize)
+        [Fact]
+        public void TestToBsonWithBadEstimatedBsonSizeShouldThrowException()
         {
             var document = new BsonDocument();
-            var exception = Record.Exception(() => document.ToBson(estimatedBsonSize));
+            var exception = Record.Exception(() => document.ToBson(estimatedBsonSize: -1));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.ParamName.Should().Be("estimatedBsonSize");
-            e.Message.Should().StartWith("Value cannot be negative or zero");
+            e.Message.Should().StartWith("Value cannot be negative");
         }
 
         [Theory]
@@ -74,10 +73,10 @@ namespace MongoDB.Bson.Tests
         [InlineData(18, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
         [InlineData(32, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
         [InlineData(12, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
-        public void TestToBsonWithEstimatedBsonSizeProvidedNonZero(int estimatedBsonSize, byte[] data, byte[] expectedBson)
+        public void TestToBsonWithNonZeroEstimatedBsonSize(int estimatedBsonSize, byte[] data, byte[] expectedBson)
         {
             var document = new BsonDocument("v", new BsonBinaryData(data));
-            var bson = document.ToBson(estimatedBsonSize);
+            var bson = document.ToBson(estimatedBsonSize: estimatedBsonSize);
             Assert.True(bson.SequenceEqual(expectedBson));
         }
 
