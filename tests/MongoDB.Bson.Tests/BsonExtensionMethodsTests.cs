@@ -73,6 +73,7 @@ namespace MongoDB.Bson.Tests
         [InlineData(18, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
         [InlineData(32, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
         [InlineData(12, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        [InlineData(0, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
         public void TestToBsonWithNonZeroEstimatedBsonSize(int estimatedBsonSize, byte[] data, byte[] expectedBson)
         {
             var document = new BsonDocument("v", new BsonBinaryData(data));
