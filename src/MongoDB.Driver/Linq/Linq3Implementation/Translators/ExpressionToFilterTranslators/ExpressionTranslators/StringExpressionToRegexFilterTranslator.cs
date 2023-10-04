@@ -230,33 +230,52 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return false;
         }
 
+        public static bool CanTranslateComparisonExpression(Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            return
+                IsGetCharsComparison(leftExpression) ||
+                IsStringEqualityComparison(leftExpression, comparisonOperator) ||
+                IsStringIndexOfComparison(leftExpression) ||
+                IsStringLengthComparison(leftExpression) || IsStringCountComparison(leftExpression);
+        }
+
         public static bool TryTranslate(TranslationContext context, Expression expression, out AstFilter filter)
         {
-            try
+            if (CanTranslate(expression))
             {
-                filter = Translate(context, expression);
-                return true;
+                try
+                {
+                    filter = Translate(context, expression);
+                    return true;
+                }
+                catch (ExpressionNotSupportedException)
+                {
+                    // ignore exception and return false
+                }
             }
-            catch (ExpressionNotSupportedException)
-            {
-                filter = null;
-                return false;
-            }
+
+            filter = null;
+            return false;
         }
 
         // caller is responsible for ensuring constant is on the right
         public static bool TryTranslateComparisonExpression(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression, out AstFilter filter)
         {
-            try
+            if (CanTranslateComparisonExpression(leftExpression, comparisonOperator, rightExpression))
             {
-                filter = TranslateComparisonExpression(context, expression, leftExpression, comparisonOperator, rightExpression);
-                return true;
+                try
+                {
+                    filter = TranslateComparisonExpression(context, expression, leftExpression, comparisonOperator, rightExpression);
+                    return true;
+                }
+                catch (ExpressionNotSupportedException)
+                {
+                    // ignore exception and return false
+                }
             }
-            catch (ExpressionNotSupportedException)
-            {
-                filter = null;
-                return false;
-            }
+
+            filter = null;
+            return false;
         }
 
         public static AstFilter Translate(TranslationContext context, Expression expression)
@@ -287,9 +306,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return TranslateGetCharsComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
-            if (IsStringComparison(leftExpression))
+            if (IsStringEqualityComparison(leftExpression, comparisonOperator))
             {
-                return TranslateStringComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
+                return TranslateStringEqualityComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
             if (IsStringIndexOfComparison(leftExpression))
@@ -370,24 +389,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         private static bool IsGetCharsComparison(Expression leftExpression)
         {
-            if (leftExpression is UnaryExpression leftUnaryExpression &&
-                leftUnaryExpression.NodeType == ExpressionType.Convert &&
-                leftUnaryExpression.Type == typeof(int) &&
-                leftUnaryExpression.Operand is MethodCallExpression leftMethodCallExpression)
-            {
-                var method = leftMethodCallExpression.Method;
-                if (method.Is(StringMethod.GetChars))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return
+                leftExpression is UnaryExpression leftConvertExpression &&
+                leftConvertExpression.NodeType == ExpressionType.Convert &&
+                leftConvertExpression.Type == typeof(int) &&
+                leftConvertExpression.Operand is MethodCallExpression leftGetCharsExpression &&
+                leftGetCharsExpression.Method.Is(StringMethod.GetChars);
         }
 
-        private static bool IsStringComparison(Expression leftExpression)
+        private static bool IsStringEqualityComparison(Expression leftExpression, AstComparisonFilterOperator comparisonOperator)
         {
-            return leftExpression.Type == typeof(string);
+            return
+                leftExpression.Type == typeof(string) &&
+                (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne);
         }
 
         private static bool IsStringCountComparison(Expression leftExpression)
@@ -608,7 +622,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
         }
 
-        private static AstFilter TranslateStringComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        private static AstFilter TranslateStringEqualityComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
             var (field, modifiers) = TranslateField(context, expression, leftExpression);
             var comparand = rightExpression.GetConstantValue<string>(containingExpression: expression);
