@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Tests.Search
         };
 
         [Theory]
-        [MemberData(nameof(EqualsUnsupporteddTypesTestData))]
+        [MemberData(nameof(EqualsUnsupportedTypesTestData))]
         public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression) where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Tests.Search
             Record.Exception(() => subjectTyped.Equals(fieldExpression, value)).Should().BeOfType<InvalidCastException>();
         }
 
-        public static object[][] EqualsUnsupporteddTypesTestData => new[]
+        public static object[][] EqualsUnsupportedTypesTestData => new[]
         {
             new object[] { (ulong)1, Exp(p => p.UInt64) },
             new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },

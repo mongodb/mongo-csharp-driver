@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Search
 
         /// <inheritdoc />
         public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            Document;
+            (BsonDocument)Document.Clone();
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Search
     public sealed class JsonSearchDefinition<TDocument> : SearchDefinition<TDocument>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentSearchDefinition{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonSearchDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The JSON string specifying the search definition.</param>
         public JsonSearchDefinition(string json)
