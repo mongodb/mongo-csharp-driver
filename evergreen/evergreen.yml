@@ -1844,6 +1844,12 @@ axes:
           OS: "ubuntu-1804"
           python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu1804-test
+      - id: "ubuntu-2004"
+        display_name: "Ubuntu 20.04"
+        variables:
+          OS: "ubuntu-2004"
+          python3_binary: "/opt/python/3.8/bin/python3"
+        run_on: ubuntu2004-small
       - id: "macos-1100"
         display_name: "macOS 11.00"
         variables:
@@ -2021,120 +2027,121 @@ task_groups:
       - packages-push
 
 buildvariants:
+- matrix_name: stable-api-tests
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
+  display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
+  run_on:
+    - windows-64-vs2017-test
+  tasks:
+    - name: stable-api-tests-net472
+    - name: stable-api-tests-netstandard20
+    - name: stable-api-tests-netstandard21
 
-- matrix_name: "secure-tests"
+# Secure tests
+- matrix_name: "secure-tests-windows"
   matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "windows-64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test-net472
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "unsecure-tests"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "windows-64" }
-  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-net472
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "windows-64" }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-net472
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "windows-64" }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-net472
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-snappy-compression-linux"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-snappy-compression-macOS"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard21
-
-- matrix_name: "tests-zstandard-compression"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "windows-64" }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-net472
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-zstandard-compression-linux"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "tests-zstandard-compression-macOS"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
-  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard21
-
-  # ubuntu 18 does not support SSL until 4.0
-- matrix_name: "secure-tests-linux"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
-  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard20
-     - name: test-netstandard21
-
-- matrix_name: "unsecure-tests-linux"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
-  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
-  tags: ["tests-variant"]
-  tasks:
-     - name: test-netstandard20
-     - name: test-netstandard21
+    - name: test-net472
+    - name: test-netstandard20
+    - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard21
+    - name: test-netstandard21
+
+- matrix_name: "secure-tests-linux-1804"
+  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+- matrix_name: "secure-tests-linux-2004"
+  matrix_spec: { version: ["7.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+# Unsecure tests
+- matrix_name: "unsecure-tests-windows"
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "windows-64" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-net472
+    - name: test-netstandard20
+    - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard21
+    - name: test-netstandard21
 
-- matrix_name: "tests-zlib-compression-posix"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
+- matrix_name: "unsecure-tests-linux-1804"
+  matrix_spec: { version: ["3.6", "4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+- matrix_name: "unsecure-tests-linux-2004"
+  matrix_spec: { version: ["7.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+# Compression tests
+- matrix_name: "tests-compression-windows"
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard20
-     - name: test-netstandard21
+    - name: test-net472
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+- matrix_name: "tests-compression-macOS"
+  matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard21
+
+- matrix_name: "tests-compression-linux-1804"
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+- matrix_name: "tests-compression-linux-2004"
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["7.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netstandard20
+    - name: test-netstandard21
+
+# Auth tests
+- matrix_name: plain-auth-tests
+  matrix_spec: { os: "*" }
+  display_name: "PLAIN (LDAP) Auth Tests ${os}"
+  tasks:
+    - name: plain-auth-tests
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
@@ -2152,7 +2159,7 @@ buildvariants:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-linux
-  matrix_spec: { version: ["6.0", "7.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { version: ["6.0", "7.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - ubuntu1804-test
@@ -2167,36 +2174,39 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: stable-api-tests
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
-  display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
+- name: gssapi-auth-tests-windows
   run_on:
     - windows-64-vs2017-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
-    - name: stable-api-tests-net472
-    - name: stable-api-tests-netstandard20
-    - name: stable-api-tests-netstandard21
+    - name: test-gssapi-net472
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
 
-- matrix_name: plain-auth-tests
-  matrix_spec: { os: "*" }
-  display_name: "PLAIN (LDAP) Auth Tests ${os}"
+- name: gssapi-auth-tests-linux
+  run_on:
+    - ubuntu1804-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
-    - name: plain-auth-tests
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
 
+# Load balancer tests
 - matrix_name: load-balancer-tests
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: load-balancer-tests-secure
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
+# Serverless tests
 - matrix_name: serverless-tests-windows
   matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64" }
   display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
@@ -2212,6 +2222,7 @@ buildvariants:
     - name: test-serverless-netstandard20
     - name: test-serverless-netstandard21
 
+# Atlas tests
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
@@ -2233,25 +2244,9 @@ buildvariants:
   tasks:
     - name: atlas-search-test
 
-- name: gssapi-auth-tests-windows
-  run_on:
-    - windows-64-vs2017-test
-  display_name: "GSSAPI (Kerberos) Auth tests - Windows"
-  tasks:
-    - name: test-gssapi-net472
-    - name: test-gssapi-netstandard20
-    - name: test-gssapi-netstandard21
-
-- name: gssapi-auth-tests-linux
-  run_on:
-    - ubuntu1804-test
-  display_name: "GSSAPI (Kerberos) Auth tests - Linux"
-  tasks:
-    - name: test-gssapi-netstandard20
-    - name: test-gssapi-netstandard21
-
+# CSFLE tests
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
@@ -2261,8 +2256,17 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
-- matrix_name: "csfle-with-mocked-kms-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest" ], topology: ["replicaset"] }
+- matrix_name: "csfle-with-mocked-kms-tests-linux-1804"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: ["replicaset"] }
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
+  tasks:
+    - name: test-csfle-with-mocked-kms-tls-netstandard20
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mongocryptd-netstandard20
+    - name: test-csfle-with-mongocryptd-netstandard21
+
+- matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard20
@@ -2271,7 +2275,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: ["macos-1100", "macos-1100-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2293,8 +2297,9 @@ buildvariants:
     - name: testgcpkms-task-group
     - name: test-csfle-with-mongocryptd-netstandard21
 
+# Smoke tests
 - matrix_name: "smoke-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "7.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
@@ -2305,7 +2310,7 @@ buildvariants:
     - name: test-smoke-tests-net60
 
 - matrix_name: "smoke-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "7.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
@@ -2315,7 +2320,7 @@ buildvariants:
     - name: test-smoke-tests-net60
 
 - matrix_name: "smoke-tests-macOS"
-  matrix_spec: { os: "macos-1100", ssl: "nossl", version: [ "5.0", "6.0", "7.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "macos-1100", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
@@ -2324,6 +2329,7 @@ buildvariants:
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
 
+# Package creation
 - name: dev-package-pack
   git_tag_only: true
   display_name: "Dev Package Pack"
