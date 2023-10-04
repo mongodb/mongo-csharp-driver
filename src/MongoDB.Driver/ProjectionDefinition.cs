@@ -85,6 +85,9 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public abstract BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
+        internal virtual BsonDocument RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+            => Render(sourceSerializer, serializerRegistry, linqProvider);
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource}"/>.
         /// </summary>
@@ -489,7 +492,20 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var document = _projection.Render(sourceSerializer, serializerRegistry, linqProvider);
+            return Render(sourceSerializer, serializerRegistry, projection => projection.Render(sourceSerializer, serializerRegistry, linqProvider));
+        }
+
+        internal override RenderedProjectionDefinition<TProjection> RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(sourceSerializer, serializerRegistry, projection => projection.RenderForFind(sourceSerializer, serializerRegistry, linqProvider));
+        }
+
+        private RenderedProjectionDefinition<TProjection> Render(
+            IBsonSerializer<TSource> sourceSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            Func<ProjectionDefinition<TSource>, BsonDocument> renderer)
+        {
+            var document = renderer(_projection);
             return new RenderedProjectionDefinition<TProjection>(
                 document,
                 _projectionSerializer ?? (sourceSerializer as IBsonSerializer<TProjection>) ?? serializerRegistry.GetSerializer<TProjection>());

@@ -262,15 +262,14 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <param name="field">The field.</param>
-        /// <param name="skip">The skip.</param>
         /// <param name="limit">The limit.</param>
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field, int skip, int? limit = null)
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field, int limit)
         {
             var builder = Builders<TDocument>.Projection;
-            return builder.Combine(projection, builder.Slice(field, skip, limit));
+            return builder.Combine(projection, builder.Slice(field, limit));
         }
 
         /// <summary>
@@ -284,7 +283,40 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field, int skip, int? limit = null)
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field, int skip, int limit)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.Slice(field, skip, limit));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with an array slice projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field, int limit)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.Slice(field, limit));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with an array slice projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="skip">The skip.</param>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field, int skip, int limit)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Slice(field, skip, limit));
@@ -524,15 +556,13 @@ namespace MongoDB.Driver
         /// Creates an array slice projection.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <param name="skip">The skip.</param>
         /// <param name="limit">The limit.</param>
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public ProjectionDefinition<TSource> Slice(FieldDefinition<TSource> field, int skip, int? limit = null)
+        public ProjectionDefinition<TSource> Slice(FieldDefinition<TSource> field, int limit)
         {
-            var value = limit.HasValue ? (BsonValue)new BsonArray { skip, limit.Value } : skip;
-            return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$slice", value));
+            return new SliceProjectionDefinition<TSource>(field, limit);
         }
 
         /// <summary>
@@ -544,7 +574,34 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public ProjectionDefinition<TSource> Slice(Expression<Func<TSource, object>> field, int skip, int? limit = null)
+        public ProjectionDefinition<TSource> Slice(FieldDefinition<TSource> field, int skip, int limit)
+        {
+            return new SliceProjectionDefinition<TSource>(field, skip, limit);
+        }
+
+        /// <summary>
+        /// Creates an array slice projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// An array slice projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> Slice(Expression<Func<TSource, object>> field, int limit)
+        {
+            return Slice(new ExpressionFieldDefinition<TSource>(field), limit);
+        }
+
+        /// <summary>
+        /// Creates an array slice projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="skip">The skip.</param>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// An array slice projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> Slice(Expression<Func<TSource, object>> field, int skip, int limit)
         {
             return Slice(new ExpressionFieldDefinition<TSource>(field), skip, limit);
         }
@@ -561,11 +618,21 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+            return Render(projection => projection.Render(sourceSerializer, serializerRegistry, linqProvider));
+        }
+
+        internal override BsonDocument RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(projection => projection.RenderForFind(sourceSerializer, serializerRegistry, linqProvider));
+        }
+
+        private BsonDocument Render(Func<ProjectionDefinition<TSource>, BsonDocument> renderer)
+        {
             var document = new BsonDocument();
 
             foreach (var projection in _projections)
             {
-                var renderedProjection = projection.Render(sourceSerializer, serializerRegistry, linqProvider);
+                var renderedProjection = renderer(projection);
 
                 foreach (var element in renderedProjection.Elements)
                 {
@@ -648,6 +715,55 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
             return new BsonDocument(renderedField.FieldName, _value);
+        }
+    }
+
+    internal sealed class SliceProjectionDefinition<TSource> : ProjectionDefinition<TSource>
+    {
+        private readonly FieldDefinition<TSource> _field;
+        private readonly BsonValue _limit;
+        private readonly BsonValue _skip;
+
+        public SliceProjectionDefinition(FieldDefinition<TSource> field, BsonValue limit)
+        {
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _limit = Ensure.IsNotNull(limit, nameof(limit));
+        }
+
+        public SliceProjectionDefinition(FieldDefinition<TSource> field, BsonValue skip, BsonValue limit)
+        {
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _skip = skip; // can be null
+            _limit = Ensure.IsNotNull(limit, nameof(limit));
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(sourceSerializer, serializerRegistry, linqProvider, RenderArgs);
+        }
+
+        internal override BsonDocument RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(sourceSerializer, serializerRegistry, linqProvider, RenderArgsForFind);
+        }
+
+        private BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider, Func<string, BsonValue> argsRenderer)
+        {
+            var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
+            var sliceArgs = argsRenderer(renderedField.FieldName);
+            return new BsonDocument(renderedField.FieldName, new BsonDocument("$slice", sliceArgs));
+        }
+
+        private BsonValue RenderArgs(string fieldName)
+        {
+            return _skip == null ?
+                new BsonArray { "$" + fieldName, _limit } :
+                new BsonArray { "$" + fieldName, _skip, _limit };
+        }
+
+        private BsonValue RenderArgsForFind(string fieldName)
+        {
+            return _skip == null ? _limit : new BsonArray { _skip, _limit };
         }
     }
 }
