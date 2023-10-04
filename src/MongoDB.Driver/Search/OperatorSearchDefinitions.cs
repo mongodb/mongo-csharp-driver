@@ -419,7 +419,7 @@ namespace MongoDB.Driver.Search
             {
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
-                { "synonyms", () => new BsonString(_synonyms), _synonyms != null }
+                { "synonyms", () => _synonyms, _synonyms != null }
             };
     }
 

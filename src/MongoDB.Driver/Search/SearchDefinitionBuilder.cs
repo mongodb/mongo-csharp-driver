@@ -643,7 +643,7 @@ namespace MongoDB.Driver.Search
             SearchQueryDefinition query,
             string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
-            new TextSearchDefinition<TDocument>(path, query, null, score, synonyms);
+                new TextSearchDefinition<TDocument>(path, query, null, score, synonyms);
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified
@@ -677,7 +677,7 @@ namespace MongoDB.Driver.Search
             SearchQueryDefinition query,
             string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
-            Text(new ExpressionFieldDefinition<TDocument>(path), query, synonyms, score);
+                Text(new ExpressionFieldDefinition<TDocument>(path), query, synonyms, score);
 
         /// <summary>
         /// Creates a search definition that uses special characters in the search string that can

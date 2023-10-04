@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Count_total()
         {
-            var results = GetTestCollection().Aggregate()
+            var result = GetTestCollection().Aggregate()
                 .Search(
                     Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     count: new SearchCountOptions()
@@ -108,8 +108,8 @@ namespace MongoDB.Driver.Tests.Search
                     })
                 .Project<HistoricalDocument>(Builders.Projection.SearchMeta(x => x.MetaResult))
                 .Limit(1)
-                .ToList();
-            results.Should().ContainSingle().Which.MetaResult.Count.Total.Should().Be(108);
+                .Single();
+            result.MetaResult.Count.Total.Should().Be(108);
         }
 
         [Fact]
@@ -259,12 +259,12 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Near()
         {
-            var results = GetGeoTestCollection().Aggregate()
+            var result = GetGeoTestCollection().Aggregate()
                 .Search(GeoBuilders.Search.Near(x => x.Address.Location, __testCircle.Center, 1000))
                 .Limit(1)
-                .ToList();
+                .Single();
 
-            results.Should().ContainSingle().Which.Name.Should().Be("Ribeira Charming Duplex");
+            result.Name.Should().Be("Ribeira Charming Duplex");
         }
 
         [Fact]
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests.Search
             // This test case exercises the indexName and returnStoredSource arguments. The
             // remaining test cases omit them.
             var coll = GetTestCollection();
-            var results = GetTestCollection().Aggregate()
+            var result = GetTestCollection().Aggregate()
                 .Search(Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     new SearchHighlightOptions<HistoricalDocument>(x => x.Body),
                     indexName: "default",
@@ -286,9 +286,8 @@ namespace MongoDB.Driver.Tests.Search
                     .MetaSearchScore("score")
                     .MetaSearchHighlights("highlights")
                     .MetaSearchScoreDetails("scoreDetails"))
-                .ToList();
+                .Single();
 
-            var result = results.Should().ContainSingle().Subject;
             result.Title.Should().Be("Declaration of Independence");
             result.Score.Should().NotBe(0);
 
@@ -378,8 +377,8 @@ namespace MongoDB.Driver.Tests.Search
                     })
                 .Project<HistoricalDocument>(Builders.Projection.SearchMeta(x => x.MetaResult))
                 .Limit(1)
-                .ToList();
-            results.Should().ContainSingle().Which.MetaResult.Count.LowerBound.Should().Be(108);
+                .Single();
+            results.MetaResult.Count.LowerBound.Should().Be(108);
         }
 
         [Fact]
@@ -443,8 +442,8 @@ namespace MongoDB.Driver.Tests.Search
                     new() { Sort = Builders.Sort.Descending(x => x.Title) })
                 .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
                 .Limit(1)
-                .ToList();
-            results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
+                .Single();
+            results.Title.Should().Be("US Constitution");
         }
 
         [Theory]
@@ -489,7 +488,6 @@ namespace MongoDB.Driver.Tests.Search
                     .Sort(sortDefinition)
                     .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                     .Limit(1)
-                    .ToList()
                     .Single();
 
             result.Title.Should().Be(expected);
@@ -498,7 +496,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void TextWithSynonymsMappings()
         {
-            var automobileAndAtttireSearchResults = SearchMultipleSynonymMapping(
+            var automobileAndAttireSearchResults = SearchMultipleSynonymMapping(
                 Builders<Movie>.Search.Text(x => x.Title, "automobile", "transportSynonyms"),
                 Builders<Movie>.Search.Text(x => x.Title, "attire", "attireSynonyms"));
 
@@ -514,13 +512,13 @@ namespace MongoDB.Driver.Tests.Search
                 Builders<Movie>.Search.Text(x => x.Title, "vessel", "transportSynonyms"),
                 Builders<Movie>.Search.Text(x => x.Title, "fedora", "attireSynonyms"));
 
-            automobileAndAtttireSearchResults.Should().NotBeNull();
+            automobileAndAttireSearchResults.Should().NotBeNull();
             vehicleAndDressSearchResults.Should().NotBeNull();
             boatAndHatSearchResults.Should().NotBeNull();
             vesselAndFedoraSearchResults.Should().NotBeNull();
 
-            Assert.True(automobileAndAtttireSearchResults.SequenceEqual(vehicleAndDressSearchResults));
-            Assert.False(boatAndHatSearchResults.SequenceEqual(vesselAndFedoraSearchResults));
+            automobileAndAttireSearchResults.Should().BeEquivalentTo(vehicleAndDressSearchResults);
+            boatAndHatSearchResults.Should().NotBeEquivalentTo(vesselAndFedoraSearchResults);
         }
 
         [Fact]
@@ -546,7 +544,7 @@ namespace MongoDB.Driver.Tests.Search
                 fluent = fluent.Project(projectionDefinition);
             }
 
-            return fluent.Limit(1).ToList().Single();
+            return fluent.Limit(1).Single();
         }
 
         private List<BsonDocument> SearchMultipleSynonymMapping(params SearchDefinition<Movie>[] clauses) =>
