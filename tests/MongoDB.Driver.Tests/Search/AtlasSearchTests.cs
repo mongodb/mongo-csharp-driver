@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Count_total()
         {
-            var result = GetTestCollection().Aggregate()
+            var results = GetTestCollection().Aggregate()
                 .Search(
                     Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     count: new SearchCountOptions()
@@ -108,8 +108,8 @@ namespace MongoDB.Driver.Tests.Search
                     })
                 .Project<HistoricalDocument>(Builders.Projection.SearchMeta(x => x.MetaResult))
                 .Limit(1)
-                .Single();
-            result.MetaResult.Count.Total.Should().Be(108);
+                .ToList();
+            results.Should().ContainSingle().Which.MetaResult.Count.Total.Should().Be(108);
         }
 
         [Fact]
@@ -259,12 +259,12 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Near()
         {
-            var result = GetGeoTestCollection().Aggregate()
+            var results = GetGeoTestCollection().Aggregate()
                 .Search(GeoBuilders.Search.Near(x => x.Address.Location, __testCircle.Center, 1000))
                 .Limit(1)
-                .Single();
+                .ToList();
 
-            result.Name.Should().Be("Ribeira Charming Duplex");
+            results.Should().ContainSingle().Which.Name.Should().Be("Ribeira Charming Duplex");
         }
 
         [Fact]
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests.Search
             // This test case exercises the indexName and returnStoredSource arguments. The
             // remaining test cases omit them.
             var coll = GetTestCollection();
-            var result = GetTestCollection().Aggregate()
+            var results = GetTestCollection().Aggregate()
                 .Search(Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     new SearchHighlightOptions<HistoricalDocument>(x => x.Body),
                     indexName: "default",
@@ -286,8 +286,9 @@ namespace MongoDB.Driver.Tests.Search
                     .MetaSearchScore("score")
                     .MetaSearchHighlights("highlights")
                     .MetaSearchScoreDetails("scoreDetails"))
-                .Single();
+                .ToList();
 
+            var result = results.Should().ContainSingle().Subject;
             result.Title.Should().Be("Declaration of Independence");
             result.Score.Should().NotBe(0);
 
@@ -377,8 +378,8 @@ namespace MongoDB.Driver.Tests.Search
                     })
                 .Project<HistoricalDocument>(Builders.Projection.SearchMeta(x => x.MetaResult))
                 .Limit(1)
-                .Single();
-            results.MetaResult.Count.LowerBound.Should().Be(108);
+                .ToList();
+            results.Should().ContainSingle().Which.MetaResult.Count.LowerBound.Should().Be(108);
         }
 
         [Fact]
@@ -442,8 +443,8 @@ namespace MongoDB.Driver.Tests.Search
                     new() { Sort = Builders.Sort.Descending(x => x.Title) })
                 .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
                 .Limit(1)
-                .Single();
-            results.Title.Should().Be("US Constitution");
+                .ToList();
+            results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
         }
 
         [Theory]
