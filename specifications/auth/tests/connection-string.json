@@ -12,6 +12,18 @@
         "mechanism_properties": null
       }
     },
+      {
+          "description": "should use the default source and mechanism, when DEFAULT is specified",
+          "uri": "mongodb://user:password@localhost?authMechanism=DEFAULT",
+          "valid": true,
+          "credential": {
+              "username": "user",
+              "password": "password",
+              "source": "admin",
+              "mechanism": "DEFAULT",
+              "mechanism_properties": null
+          }
+      },
     {
       "description": "should use the database when no authSource is specified",
       "uri": "mongodb://user:password@localhost/foo",

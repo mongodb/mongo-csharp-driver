@@ -407,7 +407,7 @@ namespace MongoDB.Driver
                     _identity.Username,
                     insecurePassword);
 
-                if (_mechanism == null)
+                if (_mechanism == null || _mechanism == DefaultAuthenticator.MechanismName)
                 {
                     return new DefaultAuthenticator(credential, serverApi);
                 }

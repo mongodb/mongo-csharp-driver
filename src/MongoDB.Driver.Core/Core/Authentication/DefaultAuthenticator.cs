@@ -37,6 +37,17 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly ServerApi _serverApi;
         private IAuthenticator _speculativeAuthenticator;
 
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
+        public static string MechanismName
+        {
+            get { return "DEFAULT"; }
+        }
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultAuthenticator"/> class.
