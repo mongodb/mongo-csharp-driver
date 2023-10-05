@@ -477,6 +477,51 @@ namespace MongoDB.Driver.Tests.Search
             result.Title.Should().Be("Declaration of Independence");
         }
 
+        [Theory]
+        [InlineData("automobile", "transportSynonyms", "Blue Car")]
+        [InlineData("boat", "transportSynonyms", "And the Ship Sails On")]
+        public void TextWithSynonymsReturnsCorrectResult(string query, string synonym, string expected)
+        {
+            var sortDefinition = Builders<Movie>.Sort.Ascending(x => x.Title);
+            var result =
+                GetSynonymTestCollection().Aggregate()
+                    .Search(Builders<Movie>.Search.Text(x => x.Title, query, synonym), indexName: "synonyms-tests")
+                    .Sort(sortDefinition)
+                    .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
+                    .Limit(1)
+                    .Single();
+
+            result.Title.Should().Be(expected);
+        }
+
+        [Fact]
+        public void TextWithSynonymsMappings()
+        {
+            var automobileAndAttireSearchResults = SearchMultipleSynonymMapping(
+                Builders<Movie>.Search.Text(x => x.Title, "automobile", "transportSynonyms"),
+                Builders<Movie>.Search.Text(x => x.Title, "attire", "attireSynonyms"));
+
+            var vehicleAndDressSearchResults = SearchMultipleSynonymMapping(
+                Builders<Movie>.Search.Text(x => x.Title, "vehicle", "transportSynonyms"),
+                Builders<Movie>.Search.Text(x => x.Title, "dress", "attireSynonyms"));
+
+            var boatAndHatSearchResults = SearchMultipleSynonymMapping(
+                Builders<Movie>.Search.Text(x => x.Title, "boat", "transportSynonyms"),
+                Builders<Movie>.Search.Text(x => x.Title, "hat", "attireSynonyms"));
+
+            var vesselAndFedoraSearchResults = SearchMultipleSynonymMapping(
+                Builders<Movie>.Search.Text(x => x.Title, "vessel", "transportSynonyms"),
+                Builders<Movie>.Search.Text(x => x.Title, "fedora", "attireSynonyms"));
+
+            automobileAndAttireSearchResults.Should().NotBeNull();
+            vehicleAndDressSearchResults.Should().NotBeNull();
+            boatAndHatSearchResults.Should().NotBeNull();
+            vesselAndFedoraSearchResults.Should().NotBeNull();
+
+            automobileAndAttireSearchResults.Should().BeEquivalentTo(vehicleAndDressSearchResults);
+            boatAndHatSearchResults.Should().NotBeEquivalentTo(vesselAndFedoraSearchResults);
+        }
+
         [Fact]
         public void Wildcard()
         {
@@ -500,8 +545,14 @@ namespace MongoDB.Driver.Tests.Search
                 fluent = fluent.Project(projectionDefinition);
             }
 
-            return fluent.Limit(1).ToList().Single();
+            return fluent.Limit(1).Single();
         }
+
+        private List<BsonDocument> SearchMultipleSynonymMapping(params SearchDefinition<Movie>[] clauses) =>
+            GetSynonymTestCollection().Aggregate()
+                .Search(Builders<Movie>.Search.Compound().Should(clauses), indexName: "synonyms-tests")
+                .Project(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
+                .ToList();
 
         private IMongoCollection<HistoricalDocument> GetTestCollection() => _disposableMongoClient
             .GetDatabase("sample_training")
@@ -510,6 +561,10 @@ namespace MongoDB.Driver.Tests.Search
         private IMongoCollection<T> GetTestCollection<T>() => _disposableMongoClient
             .GetDatabase("sample_training")
             .GetCollection<T>("posts");
+
+        private IMongoCollection<Movie> GetSynonymTestCollection() => _disposableMongoClient
+            .GetDatabase("sample_mflix")
+            .GetCollection<Movie>("movies");
 
         private IMongoCollection<AirbnbListing> GetGeoTestCollection() => _disposableMongoClient
             .GetDatabase("sample_airbnb")
@@ -520,6 +575,13 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("author")]
             public string Author { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        public class Movie
+        {
+            [BsonElement("title")]
+            public string Title { get; set; }
         }
 
         [BsonIgnoreExtraElements]

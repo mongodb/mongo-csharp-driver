@@ -940,6 +940,10 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: ['foo', 'bar'], path: ['x', 'y'] } }");
 
             AssertRendered(
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, "testSynonyms"),
+                "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
+
+            AssertRendered(
                 subject.Text("x", "foo", new SearchFuzzyOptions()),
                 "{ text: { query: 'foo', path: 'x', fuzzy: {} } }");
             AssertRendered(
@@ -955,6 +959,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text("x", "foo", score: scoreBuilder.Constant(1)),
                 "{ text: { query: 'foo', path: 'x', score: { constant: { value: 1 } } } }");
+            AssertRendered(
+                subject.Text("x", "foo", "testSynonyms", scoreBuilder.Constant(1)),
+                "{ text: { query: 'foo', synonyms: 'testSynonyms', path: 'x', score: { constant: { value: 1 } } } }");
         }
 
         [Fact]
@@ -985,6 +992,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text(x => x.FirstName, new[] { "foo", "bar" }),
                 "{ text: { query: ['foo', 'bar'], path: 'fn' } }");
+            AssertRendered(
+                subject.Text(x => x.FirstName, new[] { "foo", "bar" }, "testSynonyms"),
+                "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: 'fn' } }");
             AssertRendered(
                 subject.Text("FirstName", new[] { "foo", "bar" }),
                 "{ text: { query: ['foo', 'bar'], path: 'fn' } }");
