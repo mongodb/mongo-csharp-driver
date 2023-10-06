@@ -3485,6 +3485,56 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Appends a $vectorSearch stage to the LINQ pipeline.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The queryable with a new stage appended.
+        /// </returns>
+        public static IMongoQueryable<TSource> VectorSearch<TSource, TField>(
+            this IMongoQueryable<TSource> source,
+            FieldDefinition<TSource> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TSource> options = null)
+        {
+            return AppendStage(
+                source,
+                PipelineStageDefinitionBuilder.VectorSearch(field, queryVector, limit, options));
+        }
+
+        /// <summary>
+        /// Appends a $vectorSearch stage to the LINQ pipeline.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The queryable with a new stage appended.
+        /// </returns>
+        public static IMongoQueryable<TSource> VectorSearch<TSource, TField>(
+            this IMongoQueryable<TSource> source,
+            Expression<Func<TSource, TField>> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TSource> options = null)
+        {
+            return AppendStage(
+                source,
+                PipelineStageDefinitionBuilder.VectorSearch(field, queryVector, limit, options));
+        }
+
+        /// <summary>
         /// Filters a sequence of values based on a predicate.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>

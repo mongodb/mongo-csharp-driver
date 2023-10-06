@@ -346,6 +346,15 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Unwind(field, options));
         }
 
+        public override IAggregateFluent<TResult> VectorSearch(
+            FieldDefinition<TResult> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TResult> options = null)
+        {
+            return WithPipeline(_pipeline.VectorSearch(field, queryVector, limit, options));
+        }
+
         public override string ToString()
         {
             var linqProvider = Database.Client.Settings.LinqProvider;

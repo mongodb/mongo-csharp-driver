@@ -367,6 +367,64 @@ namespace MongoDB.Driver.Tests
             argumentNullException.ParamName.Should().Be("withCollection");
         }
 
+        [Fact]
+        public void VectorSearch_should_add_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_floats_vector()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var result = pipeline.VectorSearch("x", new[] { 1f, 2f, 3f }, 1);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_options()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                Filter = Builders<BsonDocument>.Filter.Eq("y", "val"),
+                IndexName = "index_name",
+                NumberOfCandidates = 123
+            };
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter: { y: 'val' } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            var exception = Record.Exception(() => pipeline.VectorSearch("x", new[] { 1.0 }, 1));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(new double[0])]
+        public void VectorSearch_should_throw_when_queryVector_is_null_or_empty(double[] queryVector)
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var exception = Record.Exception(() => pipeline.VectorSearch("x", queryVector, 1));
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("array");
+        }
+
         // private methods
         private IList<BsonDocument> RenderStages<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer)
         {

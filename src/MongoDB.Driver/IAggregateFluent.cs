@@ -501,6 +501,20 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
+
+        /// <summary>
+        /// Appends a vector search stage.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> VectorSearch(
+            FieldDefinition<TResult> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TResult> options = null);
     }
 
     /// <summary>

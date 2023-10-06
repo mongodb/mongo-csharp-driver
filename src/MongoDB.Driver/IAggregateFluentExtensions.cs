@@ -967,5 +967,27 @@ namespace MongoDB.Driver
 
             return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(aggregate.Limit(2), cancellationToken);
         }
+
+        /// <summary>
+        /// Appends a $vectorSearch stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> VectorSearch<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, object>> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return aggregate.VectorSearch(new ExpressionFieldDefinition<TResult>(field), queryVector, limit, options);
+        }
     }
 }
