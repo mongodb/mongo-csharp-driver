@@ -44,6 +44,17 @@ namespace MongoDB.Driver.Tests.Search
             query.ToString().Should().EndWith("Aggregate([{ \"$searchMeta\" : { \"text\" : { \"query\" : \"Alex\", \"path\" : \"fn\" } } }])");
         }
 
+        [Fact]
+        public void VectorSearch()
+        {
+            var subject = CreateSubject();
+
+            var query = subject
+                .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", NumberOfCandidates = 33 });
+
+            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"numCandidates\" : 33, \"index\" : \"my_index\" } }])");
+        }
+
         private IMongoQueryable<Person> CreateSubject()
         {
             var client = DriverTestConfiguration.Linq3Client;

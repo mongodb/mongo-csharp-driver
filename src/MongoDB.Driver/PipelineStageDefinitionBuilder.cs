@@ -1921,6 +1921,68 @@ namespace MongoDB.Driver
             return Unwind(new ExpressionFieldDefinition<TInput>(field), options);
         }
 
+        /// <summary>
+        /// Creates a $vectorSearch stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> VectorSearch<TInput, TField>(
+            Expression<Func<TInput, TField>> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TInput> options)
+            => VectorSearch(
+                new ExpressionFieldDefinition<TInput>(field),
+                queryVector,
+                limit,
+                options);
+
+        /// <summary>
+        /// Creates a $vectorSearch stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> VectorSearch<TInput>(
+            FieldDefinition<TInput> field,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOptions<TInput> options = null)
+        {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(queryVector, nameof(queryVector));
+            Ensure.IsGreaterThanZero(limit, nameof(limit));
+
+            const string operatorName = "$vectorSearch";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var vectorSearchOperator = new BsonDocument
+                    {
+                        { "queryVector", queryVector.Array },
+                        { "path", field.Render(s, sr, linqProvider).FieldName },
+                        { "limit", limit },
+                        { "numCandidates", options?.NumberOfCandidates ?? limit * 10 },
+                        { "index", options?.IndexName ?? "default" },
+                        { "filter", () => options?.Filter?.Render(s, sr, linqProvider), options?.Filter != null },
+                    };
+
+                    var document = new BsonDocument(operatorName, vectorSearchOperator);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                });
+
+            return stage;
+        }
+
         // private methods
         private static bool AreGraphLookupFromAndToTypesCompatible<TConnectFrom, TConnectTo>()
         {

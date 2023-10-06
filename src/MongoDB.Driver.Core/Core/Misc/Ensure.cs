@@ -268,6 +268,34 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
+        /// Ensures that the value of a parameter is not null or empty.
+        /// </summary>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static IEnumerable<T> IsNotNullOrEmpty<T>(IEnumerable<T> value, string paramName)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(paramName);
+            }
+
+            if (value is ICollection<T> collection)
+            {
+                if (collection.Count == 0)
+                {
+                    throw new ArgumentException("Value cannot be empty.", paramName);
+                }
+            }
+            else if (!value.Any())
+            {
+                throw new ArgumentException("Value cannot be empty.", paramName);
+            }
+
+            return value;
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter is null.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>
