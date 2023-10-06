@@ -44,7 +44,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return operandTranslation;
                 }
 
-                // must check for enum conversions before numeric conversions
                 if (IsConvertEnumToUnderlyingType(expression))
                 {
                     return TranslateConvertEnumToUnderlyingType(expression, operandTranslation);
@@ -53,16 +52,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (IsConvertUnderlyingTypeToEnum(expression))
                 {
                     return TranslateConvertUnderlyingTypeToEnum(expression, operandTranslation);
-                }
-
-                if (IsWideningNumericConversion(expression, out var sourceType, out var targetType))
-                {
-                    return TranslateWideningNumericConversion(expression, operandTranslation, sourceType, targetType);
-                }
-
-                if (IsWideningNullableNumericConversion(expression, out var underlyingSourceType, out var underlyingTargetType))
-                {
-                    return TranslateWideningNullableNumericConversion(expression, operandTranslation, underlyingSourceType, underlyingTargetType);
                 }
 
                 if (IsConvertToBaseType(sourceType: operandExpression.Type, targetType: expressionType))
@@ -150,22 +139,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return
                 targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
                 sourceType.IsSameAsOrNullableOf(underlyingType);
-        }
-
-        private static bool IsWideningNumericConversion(UnaryExpression expression, out Type sourceType, out Type targetType)
-        {
-            sourceType = expression.Operand.Type;
-            targetType = expression.Type;
-            return ConvertHelper.IsWideningConvert(sourceType, targetType);
-        }
-
-        private static bool IsWideningNullableNumericConversion(UnaryExpression expression, out Type underlyingSourceType, out Type underlyingTargetType)
-        {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
-            return
-                NumericConversionHelper.IsNullableNumericConversion(sourceType, targetType, out underlyingSourceType, out underlyingTargetType) &&
-                ConvertHelper.IsWideningConvert(underlyingSourceType, underlyingTargetType);
         }
 
         private static AggregationExpression TranslateConvertToBaseType(UnaryExpression expression, AggregationExpression operandTranslation)
@@ -262,34 +235,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
-        }
-
-        private static AggregationExpression TranslateWideningNumericConversion(
-            UnaryExpression expression,
-            AggregationExpression operandTranslation,
-            Type sourceType,
-            Type targetType)
-        {
-            var ast = operandTranslation.Ast;
-            var sourceSerializer = operandTranslation.Serializer;
-            var targetSerializer = NumericConversionHelper.CreateNumericConversionSerializer(sourceType, targetType, sourceSerializer);
-
-            return new AggregationExpression(expression, ast, targetSerializer);
-        }
-
-        private static AggregationExpression TranslateWideningNullableNumericConversion(
-            UnaryExpression expression,
-            AggregationExpression operandTranslation,
-            Type underlyingSourceType,
-            Type underlyingTargetType)
-        {
-            var ast = operandTranslation.Ast;
-            var sourceSerializer = (INullableSerializer)operandTranslation.Serializer;
-            var underlyingSourceSerializer = sourceSerializer.ValueSerializer;
-            var underlyingTargetSerializer = NumericConversionHelper.CreateNumericConversionSerializer(underlyingSourceType, underlyingTargetType, underlyingSourceSerializer); ;
-            var targetSerializer = NullableSerializer.Create(underlyingTargetSerializer);
-
-            return new AggregationExpression(expression, ast, targetSerializer);
         }
     }
 }

@@ -53,27 +53,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
         {
             var value = constantExpression.Value;
-
-            try
+            if (value == null || serializer.ValueType.IsAssignableFrom(value.GetType()))
             {
-                if (value == null || serializer.ValueType.IsAssignableFrom(value.GetType()))
-                {
-                    return SerializeValue(serializer, value);
-                }
-
-                if (value.GetType().ImplementsIEnumerable(out var itemType) &&
-                    serializer is IBsonArraySerializer arraySerializer &&
-                    arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo) &&
-                    itemSerializationInfo.Serializer is var itemSerializer &&
-                    itemSerializer.ValueType.IsAssignableFrom(itemType))
-                {
-                    var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
-                    return SerializeValue(ienumerableSerializer, value);
-                }
+                return SerializeValue(serializer, value);
             }
-            catch (Exception ex)
+
+            if (value.GetType().ImplementsIEnumerable(out var itemType) &&
+                serializer is IBsonArraySerializer arraySerializer &&
+                arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo) &&
+                itemSerializationInfo.Serializer is var itemSerializer &&
+                itemSerializer.ValueType.IsAssignableFrom(itemType))
             {
-                throw new ExpressionNotSupportedException(constantExpression, containingExpression, because: ex.Message.TrimEnd('.'));
+                var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
+                return SerializeValue(ienumerableSerializer, value);
             }
 
             throw new ExpressionNotSupportedException(constantExpression, containingExpression, because: "it was not possible to determine how to serialize the constant");

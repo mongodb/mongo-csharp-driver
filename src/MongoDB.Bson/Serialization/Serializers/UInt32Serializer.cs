@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.IO;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -23,10 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for UInt32s.
     /// </summary>
     [CLSCompliant(false)]
-    public class UInt32Serializer : StructSerializerBase<uint>,
-        IRepresentationConfigurable<UInt32Serializer>,
-        IRepresentationConverterConfigurable<UInt32Serializer>,
-        IBsonNumericSerializer
+    public class UInt32Serializer : StructSerializerBase<uint>, IRepresentationConfigurable<UInt32Serializer>, IRepresentationConverterConfigurable<UInt32Serializer>
     {
         // private fields
         private readonly BsonType _representation;

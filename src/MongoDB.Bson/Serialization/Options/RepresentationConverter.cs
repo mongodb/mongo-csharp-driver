@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Options
 {
@@ -56,70 +57,6 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         // public methods
-        /// <summary>
-        /// Converts an Int32 to a byte.
-        /// </summary>
-        /// <param name="value">An Int32.</param>
-        /// <returns>A byte.</returns>
-        public byte ToByte(int value)
-        {
-            if (value < byte.MinValue || value > byte.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((byte)value);
-            }
-
-            return checked((byte)value);
-        }
-
-        /// <summary>
-        /// Converts an Int64 to a byte.
-        /// </summary>
-        /// <param name="value">An Int64.</param>
-        /// <returns>A byte.</returns>
-        public byte ToByte(long value)
-        {
-            if (value < byte.MinValue || value > byte.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((byte)value);
-            }
-
-            return checked((byte)value);
-        }
-
-        /// <summary>
-        /// Converts an Int32 to a char.
-        /// </summary>
-        /// <param name="value">An Int32.</param>
-        /// <returns>A char.</returns>
-        public char ToChar(int value)
-        {
-            if (value < char.MinValue || value > char.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((char)value);
-            }
-
-            return checked((char)value);
-        }
-
-        /// <summary>
-        /// Converts an Int64 to a char.
-        /// </summary>
-        /// <param name="value">An Int64.</param>
-        /// <returns>A char.</returns>
-        public char ToChar(long value)
-        {
-            if (value < char.MinValue || value > char.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((char)value);
-            }
-
-            return checked((char)value);
-        }
-
         /// <summary>
         /// Converts a Decimal128 to a Decimal.
         /// </summary>
@@ -549,26 +486,6 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
-        /// Converts a byte to an Int32.
-        /// </summary>
-        /// <param name="value">A byte.</param>
-        /// <returns>An Int32.</returns>
-        public int ToInt32(byte value)
-        {
-            return (int)value;
-        }
-
-        /// <summary>
-        /// Converts a char to an Int32.
-        /// </summary>
-        /// <param name="value">A char.</param>
-        /// <returns>An Int32.</returns>
-        public int ToInt32(char value)
-        {
-            return (int)value;
-        }
-
-        /// <summary>
         /// Converts a Decimal to an Int32.
         /// </summary>
         /// <param name="value">A Decimal.</param>
@@ -682,17 +599,6 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
-        /// Converts an sbyte to an Int32.
-        /// </summary>
-        /// <param name="value">An sbyte.</param>
-        /// <returns>An Int32.</returns>
-        [CLSCompliant(false)]
-        public int ToInt32(sbyte value)
-        {
-            return (int)value;
-        }
-
-        /// <summary>
         /// Converts an Int16 to an Int32.
         /// </summary>
         /// <param name="value">An Int16.</param>
@@ -741,26 +647,6 @@ namespace MongoDB.Bson.Serialization.Options
         public int ToInt32(ushort value)
         {
             return value;
-        }
-
-        /// <summary>
-        /// Converts a byte to an Int64.
-        /// </summary>
-        /// <param name="value">A byte.</param>
-        /// <returns>An Int64.</returns>
-        public long ToInt64(byte value)
-        {
-            return (long)value;
-        }
-
-        /// <summary>
-        /// Converts a char to an Int64.
-        /// </summary>
-        /// <param name="value">A char.</param>
-        /// <returns>An Int64.</returns>
-        public long ToInt64(char value)
-        {
-            return (long)value;
         }
 
         /// <summary>
@@ -873,17 +759,6 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
-        /// Converts an sbyte to an Int64.
-        /// </summary>
-        /// <param name="value">An sbyte.</param>
-        /// <returns>An Int64.</returns>
-        [CLSCompliant(false)]
-        public long ToInt64(sbyte value)
-        {
-            return (long)value;
-        }
-
-        /// <summary>
         /// Converts an Int16 to an Int64.
         /// </summary>
         /// <param name="value">An Int16.</param>
@@ -928,40 +803,6 @@ namespace MongoDB.Bson.Serialization.Options
         public long ToInt64(ushort value)
         {
             return value;
-        }
-
-        /// <summary>
-        /// Converts an Int32 to an sbyte.
-        /// </summary>
-        /// <param name="value">An Int32.</param>
-        /// <returns>An sbyte.</returns>
-        [CLSCompliant(false)]
-        public sbyte ToSByte(int value)
-        {
-            if (value < sbyte.MinValue || value > sbyte.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((sbyte)value);
-            }
-
-            return checked((sbyte)value);
-        }
-
-        /// <summary>
-        /// Converts an Int64 to an sbyte.
-        /// </summary>
-        /// <param name="value">An Int64.</param>
-        /// <returns>An sbyte.</returns>
-        [CLSCompliant(false)]
-        public sbyte ToSByte(long value)
-        {
-            if (value < sbyte.MinValue || value > sbyte.MaxValue)
-            {
-                if (!_allowOverflow) { throw new OverflowException(); }
-                return unchecked((sbyte)value);
-            }
-
-            return checked((sbyte)value);
         }
 
         /// <summary>

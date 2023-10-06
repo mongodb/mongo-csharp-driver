@@ -22,10 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Doubles.
     /// </summary>
-    public class DoubleSerializer : StructSerializerBase<double>,
-        IRepresentationConfigurable<DoubleSerializer>,
-        IRepresentationConverterConfigurable<DoubleSerializer>,
-        IBsonNumericSerializer
+    public class DoubleSerializer : StructSerializerBase<double>, IRepresentationConfigurable<DoubleSerializer>, IRepresentationConverterConfigurable<DoubleSerializer>
     {
         #region static
         private static readonly DoubleSerializer __instance = new DoubleSerializer();

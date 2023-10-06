@@ -22,10 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Decimal128s.
     /// </summary>
-    public class Decimal128Serializer : StructSerializerBase<Decimal128>,
-        IRepresentationConfigurable<Decimal128Serializer>,
-        IRepresentationConverterConfigurable<Decimal128Serializer>,
-        IBsonNumericSerializer
+    public class Decimal128Serializer : StructSerializerBase<Decimal128>, IRepresentationConfigurable<Decimal128Serializer>, IRepresentationConverterConfigurable<Decimal128Serializer>
     {
         #region static
         private static readonly Decimal128Serializer __decimal128Instance = new Decimal128Serializer(BsonType.Decimal128);

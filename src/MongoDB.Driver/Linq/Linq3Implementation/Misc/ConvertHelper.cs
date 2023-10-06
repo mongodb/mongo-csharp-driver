@@ -41,12 +41,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             (typeof(sbyte), typeof(float)),
             (typeof(sbyte), typeof(double)),
             (typeof(sbyte), typeof(decimal)),
-            (typeof(char), typeof(short)),
-            (typeof(char), typeof(ushort)),
-            (typeof(char), typeof(int)),
-            (typeof(char), typeof(uint)),
-            (typeof(char), typeof(long)),
-            (typeof(char), typeof(ulong)),
             (typeof(short), typeof(int)),
             (typeof(short), typeof(uint)),
             (typeof(short), typeof(long)),
@@ -77,13 +71,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             (typeof(ulong), typeof(float)),
             (typeof(ulong), typeof(double)),
             (typeof(ulong), typeof(decimal)),
-            (typeof(float), typeof(double))
+            (typeof(float), typeof(double)),
+            (typeof(float), typeof(decimal)),
+            (typeof(double), typeof(decimal))
         };
-
-        public static bool IsWideningConvert(Type sourceType, Type targetType)
-        {
-            return __wideningConverts.Contains((sourceType, targetType));
-        }
 
         public static Expression RemoveConvertToMongoQueryable(Expression expression)
         {
@@ -163,6 +154,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return expression;
+
+            static bool IsWideningConvert(Type sourceType, Type targetType)
+            {
+                return __wideningConverts.Contains((sourceType, targetType));
+            }
         }
     }
 }

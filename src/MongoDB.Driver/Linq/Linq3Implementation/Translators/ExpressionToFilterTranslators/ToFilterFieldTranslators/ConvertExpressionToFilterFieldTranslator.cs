@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -38,7 +39,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return field;
                 }
 
-                // must check for enum conversions before numeric conversions
                 if (IsConvertEnumToUnderlyingType(fieldType, targetType))
                 {
                     return TranslateConvertEnumToUnderlyingType(field, targetType);
@@ -52,11 +52,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (IsNumericConversion(fieldType, targetType))
                 {
                     return TranslateNumericConversion(field, targetType);
-                }
-
-                if (IsNullableNumericConversion(fieldType, targetType, out var underlyingFieldType, out var underlyingTargetType))
-                {
-                    return TranslateNullableNumericConversion(field, underlyingFieldType, underlyingTargetType);
                 }
 
                 if (IsConvertToNullable(fieldType, targetType))
@@ -112,12 +107,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         private static bool IsNumericConversion(Type fieldType, Type targetType)
         {
-            return NumericConversionHelper.IsNumericConversion(fieldType, targetType);
+            return IsNumericType(fieldType) && IsNumericType(targetType);
         }
 
-        private static bool IsNullableNumericConversion(Type fieldType, Type targetType, out Type underlyingFieldType, out Type underlyingTargetType)
+        private static bool IsNumericType(Type type)
         {
-            return NumericConversionHelper.IsNullableNumericConversion(fieldType, targetType, out underlyingFieldType, out underlyingTargetType);   
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.Single:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         private static AstFilterField TranslateConvertEnumToUnderlyingType(AstFilterField field, Type targetType)
@@ -199,19 +211,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         private static AstFilterField TranslateNumericConversion(AstFilterField field, Type targetType)
         {
-            var fieldSerializer = field.Serializer;
-            var fieldType = fieldSerializer.ValueType;
-            var targetSerializer = NumericConversionHelper.CreateNumericConversionSerializer(fieldType, targetType, fieldSerializer);
-            return AstFilter.Field(field.Path, targetSerializer);
-        }
-
-        private static AstFilterField TranslateNullableNumericConversion(AstFilterField field, Type underlyingFieldType, Type underlyingTargetType)
-        {
-            var fieldSerializer = (INullableSerializer)field.Serializer;
-            var underlyingFieldSerializer = fieldSerializer.ValueSerializer;
-            var underlyingTargetSerializer = NumericConversionHelper.CreateNumericConversionSerializer(underlyingFieldType, underlyingTargetType, underlyingFieldSerializer);
-            var targetSerializer = NullableSerializer.Create(underlyingTargetSerializer);
-            return AstFilter.Field(field.Path, targetSerializer);
+            IBsonSerializer targetTypeSerializer = targetType switch
+            {
+                Type t when t == typeof(byte) => new ByteSerializer(),
+                Type t when t == typeof(sbyte) => new SByteSerializer(),
+                Type t when t == typeof(short) => new Int16Serializer(),
+                Type t when t == typeof(ushort) => new UInt16Serializer(),
+                Type t when t == typeof(int) => new Int32Serializer(),
+                Type t when t == typeof(uint) => new UInt32Serializer(),
+                Type t when t == typeof(long) => new Int64Serializer(),
+                Type t when t == typeof(ulong) => new UInt64Serializer(),
+                Type t when t == typeof(float) => new SingleSerializer(),
+                Type t when t == typeof(double) => new DoubleSerializer(),
+                Type t when t == typeof(decimal) => new DecimalSerializer(),
+                _ => throw new Exception($"Unexpected target type: {targetType}.")
+            };
+            if (field.Serializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
+            {
+                var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
+                if (fieldRepresentation == BsonType.String)
+                {
+                    targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
+                }
+            }
+            if (field.Serializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
+            {
+                targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
+            }
+            return AstFilter.Field(field.Path, targetTypeSerializer);
         }
     }
 }
