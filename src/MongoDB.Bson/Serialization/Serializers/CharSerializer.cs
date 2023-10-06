@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -24,10 +21,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Chars.
     /// </summary>
-    public class CharSerializer : StructSerializerBase<char>, IRepresentationConfigurable<CharSerializer>
+    public class CharSerializer : StructSerializerBase<char>,
+        IRepresentationConfigurable<CharSerializer>,
+        IRepresentationConverterConfigurable<CharSerializer>,
+        IBsonNumericSerializer
     {
         // private fields
         private readonly BsonType _representation;
+        private readonly RepresentationConverter _converter;
 
         // constructors
         /// <summary>
@@ -40,9 +41,19 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CharSerializer"/> class.
+        /// <param name="representation">The representation.</param>
+        /// </summary>
+        public CharSerializer(BsonType representation)
+            : this(representation, new RepresentationConverter(false, false))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CharSerializer"/> class.
         /// </summary>
         /// <param name="representation">The representation.</param>
-        public CharSerializer(BsonType representation)
+        /// <param name="converter">The converter.</param>
+        public CharSerializer(BsonType representation, RepresentationConverter converter)
         {
             switch (representation)
             {
@@ -57,9 +68,21 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _converter = converter;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the converter.
+        /// </summary>
+        /// <value>
+        /// The converter.
+        /// </value>
+        public RepresentationConverter Converter
+        {
+            get { return _converter; }
+        }
+
         /// <summary>
         /// Gets the representation.
         /// </summary>
@@ -86,10 +109,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Int32:
-                    return (char)bsonReader.ReadInt32();
+                    return _converter.ToChar(bsonReader.ReadInt32());
 
                 case BsonType.Int64:
-                    return (char)bsonReader.ReadInt64();
+                    return _converter.ToChar(bsonReader.ReadInt64());
 
                 case BsonType.String:
                     return (char)bsonReader.ReadString()[0];
@@ -112,11 +135,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32((int)value);
+                    bsonWriter.WriteInt32(_converter.ToInt32(value));
                     break;
 
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64((int)value);
+                    bsonWriter.WriteInt64(_converter.ToInt64(value));
                     break;
 
                 case BsonType.String:
@@ -126,6 +149,23 @@ namespace MongoDB.Bson.Serialization.Serializers
                 default:
                     var message = string.Format("'{0}' is not a valid Char representation.", _representation);
                     throw new BsonSerializationException(message);
+            }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified converter.
+        /// </summary>
+        /// <param name="converter">The converter.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public CharSerializer WithConverter(RepresentationConverter converter)
+        {
+            if (converter == _converter)
+            {
+                return this;
+            }
+            else
+            {
+                return new CharSerializer(_representation, converter);
             }
         }
 
@@ -142,11 +182,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return new CharSerializer(representation);
+                return new CharSerializer(representation, _converter);
             }
         }
 
         // explicit interface implementations
+        IBsonSerializer IRepresentationConverterConfigurable.WithConverter(RepresentationConverter converter)
+        {
+            return WithConverter(converter);
+        }
+
         IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
         {
             return WithRepresentation(representation);

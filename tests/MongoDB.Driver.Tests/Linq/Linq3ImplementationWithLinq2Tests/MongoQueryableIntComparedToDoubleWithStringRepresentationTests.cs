@@ -17,6 +17,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
@@ -43,18 +44,28 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : \"1.5\" }")]
+        [InlineData(1.0, "{ \"I\" : \"1\" }")]
+        [InlineData(1.5, "throws")]
         public void Where_operator_equal_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.I == value);
 
-            AssertFilter(queryable, expectedFilter);
+            if (expectedFilter == "throws")
+            {
+                var exception = Record.Exception(() => AssertFilter(queryable, expectedFilter));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("The constant 1.5 could not be converted to Int32 in order to be serialized using the proper serializer");
+            }
+            else
+            {
+                AssertFilter(queryable, expectedFilter);
+            }
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$gt\" : \"1.5\" } }")]
+        [InlineData(1.0, "{ \"I\" : { \"$gt\" : \"1\" } }")]
         public void Where_operator_greater_than_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
@@ -65,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$gte\" : \"1.5\" } }")]
+        [InlineData(1.0, "{ \"I\" : { \"$gte\" : \"1\" } }")]
         public void Where_operator_greater_than_or_equal_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
@@ -76,7 +87,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$lt\" : \"1.5\" } }")]
+        [InlineData(1.0, "{ \"I\" : { \"$lt\" : \"1\" } }")]
         public void Where_operator_less_than_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
@@ -87,7 +98,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$lte\" : \"1.5\" } }")]
+        [InlineData(1.0, "{ \"I\" : { \"$lte\" : \"1\" } }")]
         public void Where_operator_less_than_or_equal_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
@@ -98,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$ne\" : \"1.5\" } }")]
+        [InlineData(1.0, "{ \"I\" : { \"$ne\" : \"1\" } }")]
         public void Where_operator_not_equal_should_render_correctly(double value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();

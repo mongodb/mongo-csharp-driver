@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -24,7 +22,10 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int16s.
     /// </summary>
-    public class Int16Serializer : StructSerializerBase<short>, IRepresentationConfigurable<Int16Serializer>, IRepresentationConverterConfigurable<Int16Serializer>
+    public class Int16Serializer : StructSerializerBase<short>,
+        IRepresentationConfigurable<Int16Serializer>,
+        IRepresentationConverterConfigurable<Int16Serializer>,
+        IBsonNumericSerializer
     {
         // private fields
         private readonly BsonType _representation;

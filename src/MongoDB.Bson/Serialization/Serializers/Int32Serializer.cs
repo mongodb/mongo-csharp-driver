@@ -22,7 +22,10 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int32.
     /// </summary>
-    public class Int32Serializer : StructSerializerBase<int>, IRepresentationConfigurable<Int32Serializer>, IRepresentationConverterConfigurable<Int32Serializer>
+    public class Int32Serializer : StructSerializerBase<int>,
+        IRepresentationConfigurable<Int32Serializer>,
+        IRepresentationConverterConfigurable<Int32Serializer>,
+        IBsonNumericSerializer
     {
         #region static
         private static readonly Int32Serializer __instance = new Int32Serializer();
