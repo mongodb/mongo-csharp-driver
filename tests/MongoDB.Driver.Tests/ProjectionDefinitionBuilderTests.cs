@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Slice("a", 10), "{a: {$slice: 10}}");
+            Assert(subject.Slice("a", 10), "{a: {$slice: ['$a', 10]}}");
         }
 
         [Fact]
@@ -175,8 +175,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.Slice(x => x.Pets, 10), "{pets: {$slice: 10}}");
-            Assert(subject.Slice("Pets", 10), "{pets: {$slice: 10}}");
+            Assert(subject.Slice(x => x.Pets, 10), "{pets: {$slice: ['$pets', 10]}}");
+            Assert(subject.Slice("Pets", 10), "{pets: {$slice: ['$pets', 10]}}");
         }
 
         [Fact]
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Slice("a", 10, 20), "{a: {$slice: [10, 20]}}");
+            Assert(subject.Slice("a", 10, 20), "{a: {$slice: ['$a', 10, 20]}}");
         }
 
         [Fact]
@@ -192,8 +192,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.Slice(x => x.Pets, 10, 20), "{pets: {$slice: [10, 20]}}");
-            Assert(subject.Slice("Pets", 10, 20), "{pets: {$slice: [10, 20]}}");
+            Assert(subject.Slice(x => x.Pets, 10, 20), "{pets: {$slice: ['$pets', 10, 20]}}");
+            Assert(subject.Slice("Pets", 10, 20), "{pets: {$slice: ['$pets', 10, 20]}}");
         }
 
         private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson, LinqProvider linqProvider = LinqProvider.V3)
