@@ -87,5 +87,10 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TInput> inputSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions);
+
+        internal abstract BsonDocument TranslateExpressionToSetStage<TDocument, TOutput>(
+            Expression<Func<TDocument, TOutput>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry);
     }
 }

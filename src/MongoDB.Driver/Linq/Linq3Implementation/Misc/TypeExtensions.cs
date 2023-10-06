@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -145,6 +146,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return false;
+        }
+
+        public static bool IsAnonymous(this Type type)
+        {
+            // don't test for too many things in case implementation details change in the future
+            return
+                type.GetCustomAttributes(false).Any(x => x is CompilerGeneratedAttribute) &&
+                (type.IsGenericType || type.GetProperties().Length == 0) && // type is not generic for "new { }"
+                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
         public static bool IsEnum(this Type type, out Type underlyingType)

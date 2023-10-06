@@ -160,5 +160,13 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
 
             return AggregateProjectTranslator.Translate<TInput, TOutput>(expression, inputSerializer, serializerRegistry, translationOptions);
         }
+
+        internal override BsonDocument TranslateExpressionToSetStage<TDocument, TFields>(
+            Expression<Func<TDocument, TFields>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            throw new NotSupportedException("Set with an Expression is only supported when using LINQ3.");
+        }
     }
 }

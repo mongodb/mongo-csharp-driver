@@ -26,6 +26,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetStageTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
 {
@@ -179,6 +180,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             specifications = simplifier.VisitAndConvert(specifications);
             var renderedProjection = new BsonDocument(specifications.Select(specification => specification.RenderAsElement()));
             return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
+        }
+
+        internal override BsonDocument TranslateExpressionToSetStage<TDocument, TFields>(
+            Expression<Func<TDocument, TFields>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            var context = TranslationContext.Create(expression, documentSerializer); // do not partially evaluate expression
+            var parameter = expression.Parameters.Single();
+            var symbol = context.CreateSymbolWithVarName(parameter, varName: "ROOT", documentSerializer, isCurrent: true);
+            context = context.WithSymbol(symbol);
+            var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);
+            var simplifiedSetStage = AstSimplifier.SimplifyAndConvert(setStage);
+            return simplifiedSetStage.Render().AsBsonDocument;
         }
     }
 }

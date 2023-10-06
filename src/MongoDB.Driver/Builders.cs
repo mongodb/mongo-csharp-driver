@@ -32,6 +32,9 @@ namespace MongoDB.Driver
         /// <summary>Gets a <see cref="ProjectionDefinitionBuilder{TDocument}"/>.</summary>
         public static ProjectionDefinitionBuilder<TDocument> Projection { get; } = new ProjectionDefinitionBuilder<TDocument>();
 
+        /// <summary>Gets a <see cref="SetFieldDefinitionsBuilder{TDocument}"/>.</summary>
+        public static SetFieldDefinitionsBuilder<TDocument> SetFields { get; } = new SetFieldDefinitionsBuilder<TDocument>();
+
         /// <summary>Gets a <see cref="SortDefinitionBuilder{TDocument}"/>.</summary>
         public static SortDefinitionBuilder<TDocument> Sort { get; } = new SortDefinitionBuilder<TDocument>();
 

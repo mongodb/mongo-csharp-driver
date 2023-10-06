@@ -274,6 +274,11 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.SearchMeta(searchDefinition, indexName, count));
         }
 
+        public override IAggregateFluent<TResult> Set(SetFieldDefinitions<TResult> fields)
+        {
+            return WithPipeline(_pipeline.Set(fields));
+        }
+
         public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {

@@ -1242,6 +1242,39 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $set stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="fields">The fields to set.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Set<TInput, TOutput>(
+           this PipelineDefinition<TInput, TOutput> pipeline,
+           SetFieldDefinitions<TOutput> fields)
+        {
+            Ensure.IsNotNull(fields, nameof(fields));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Set(fields));
+        }
+
+        /// <summary>
+        /// Appends a $set stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <typeparam name="TFields">The type of object specifying the fields to set.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="fields">The fields to set.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Set<TInput, TOutput, TFields>(
+           this PipelineDefinition<TInput, TOutput> pipeline,
+           Expression<Func<TOutput, TFields>> fields)
+        {
+            Ensure.IsNotNull(fields, nameof(fields));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Set(fields));
+        }
+
+        /// <summary>
         /// Create a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

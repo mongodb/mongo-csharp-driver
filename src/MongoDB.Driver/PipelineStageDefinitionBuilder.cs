@@ -1498,6 +1498,44 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $set stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="fields">The fields to set.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Set<TInput>(
+            SetFieldDefinitions<TInput> fields)
+        {
+            Ensure.IsNotNull(fields, nameof(fields));
+
+            const string operatorName = "$set";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                (inputSerializer, sr, linqProvider) =>
+                {
+                    var renderedFields = fields.Render(inputSerializer, sr, linqProvider);
+                    var stage = new BsonDocument(operatorName, renderedFields);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, stage, inputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $set stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TFields">The type of object specifying the fields to set.</typeparam>
+        /// <param name="fields">The fields to set.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Set<TInput, TFields>(
+            Expression<Func<TInput, TFields>> fields)
+        {
+            var fieldsDefinition = new ExpressionSetFieldDefinitions<TInput, TFields>(fields);
+            return Set(fieldsDefinition);
+        }
+
+        /// <summary>
         /// Create a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

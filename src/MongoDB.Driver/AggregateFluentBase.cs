@@ -246,6 +246,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Set(SetFieldDefinitions<TResult> fields) => throw new NotImplementedException();
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {

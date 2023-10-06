@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", WireVersion.Server34);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
+        private static readonly Feature __setStage = new Feature("SetStage", WireVersion.Server42);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
@@ -651,6 +652,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server returns retryable writeError label feature.
         /// </summary>
         public static Feature ServerReturnsRetryableWriteErrorLabel => __serverReturnsRetryableWriteErrorLabel;
+
+        /// <summary>
+        /// Gets the $set stage feature.
+        /// </summary>
+        public static Feature SetStage => __setStage;
 
         /// <summary>
         /// Gets the set window fields feature.

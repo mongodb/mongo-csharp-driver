@@ -622,6 +622,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $set stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TFields">The type of object specifying the fields to set.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="fields">The fields to set.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Set<TResult, TFields>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TFields>> fields)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Set(fields));
+        }
+
+        /// <summary>
         /// Appends a $setWindowFields to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
