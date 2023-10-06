@@ -34,17 +34,19 @@ namespace MongoDB.Bson
         /// <param name="writerSettings">The writer settings.</param>
         /// <param name="configurator">The serialization context configurator.</param>
         /// <param name="args">The serialization args.</param>
+        /// <param name="estimatedBsonSize">The estimated size of the serialized object</param>
         /// <returns>A BSON byte array.</returns>
         public static byte[] ToBson<TNominalType>(
             this TNominalType obj,
             IBsonSerializer<TNominalType> serializer = null,
             BsonBinaryWriterSettings writerSettings = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs)
-            )
+            BsonSerializationArgs args = default(BsonSerializationArgs),
+            int estimatedBsonSize = 0)
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
-            return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args);
+
+            return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args, estimatedBsonSize);
         }
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace MongoDB.Bson
         /// <param name="serializer">The serializer.</param>
         /// <param name="configurator">The serialization context configurator.</param>
         /// <param name="args">The serialization args.</param>
+        /// <param name="estimatedBsonSize">The estimated size of the serialized object.</param>
         /// <returns>A BSON byte array.</returns>
         /// <exception cref="System.ArgumentNullException">nominalType</exception>
         /// <exception cref="System.ArgumentException">serializer</exception>
@@ -65,8 +68,14 @@ namespace MongoDB.Bson
             BsonBinaryWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default(BsonSerializationArgs),
+            int estimatedBsonSize = 0)
         {
+            if (estimatedBsonSize < 0)
+            {
+                throw new ArgumentException("Value cannot be negative.", nameof(estimatedBsonSize));
+            }
+
             if (nominalType == null)
             {
                 throw new ArgumentNullException("nominalType");
@@ -83,7 +92,7 @@ namespace MongoDB.Bson
                 throw new ArgumentException(message, "serializer");
             }
 
-            using (var memoryStream = new MemoryStream())
+            using (var memoryStream = new MemoryStream(estimatedBsonSize))
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {

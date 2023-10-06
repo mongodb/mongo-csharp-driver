@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Encryption
             return result;
         }
 
-        protected byte[] ToBsonIfNotNull(BsonValue value)
+        protected byte[] ToBsonIfNotNull(BsonValue value, int estimatedBsonSize = 0)
         {
             if (value != null)
             {
@@ -177,9 +177,8 @@ namespace MongoDB.Driver.Encryption
                     writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
                 }
 #pragma warning restore 618
-                return value.ToBson(writerSettings: writerSettings);
+                return value.ToBson(writerSettings: writerSettings, estimatedBsonSize: estimatedBsonSize);
             }
-
             return null;
         }
 

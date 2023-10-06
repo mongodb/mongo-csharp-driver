@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -53,6 +56,29 @@ namespace MongoDB.Bson.Tests
             var bson = c.ToBson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = new byte[] { 29, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 0 };
             Assert.True(expected.SequenceEqual(bson));
+        }
+
+        [Fact]
+        public void TestToBsonWithBadEstimatedBsonSizeShouldThrowException()
+        {
+            var document = new BsonDocument();
+            var exception = Record.Exception(() => document.ToBson(estimatedBsonSize: -1));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be("estimatedBsonSize");
+            e.Message.Should().StartWith("Value cannot be negative");
+        }
+
+        [Theory]
+        [InlineData(13, new byte[] {}, new byte[] { 13, 0, 0, 0, 5, 118, 0, 0, 0, 0, 0, 0, 0 })]
+        [InlineData(18, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        [InlineData(32, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        [InlineData(12, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        [InlineData(0, new byte[] { 1, 2, 3, 4, 5}, new byte[] { 18, 0, 0, 0, 5, 118, 0, 5, 0, 0, 0, 0, 1, 2, 3, 4, 5, 0 })]
+        public void TestToBsonWithNonZeroEstimatedBsonSize(int estimatedBsonSize, byte[] data, byte[] expectedBson)
+        {
+            var document = new BsonDocument("v", new BsonBinaryData(data));
+            var bson = document.ToBson(estimatedBsonSize: estimatedBsonSize);
+            Assert.True(bson.SequenceEqual(expectedBson));
         }
 
         [Fact]
