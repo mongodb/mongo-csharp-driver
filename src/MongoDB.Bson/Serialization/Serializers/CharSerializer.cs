@@ -41,8 +41,8 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CharSerializer"/> class.
-        /// <param name="representation">The representation.</param>
         /// </summary>
+        /// <param name="representation">The representation.</param>
         public CharSerializer(BsonType representation)
             : this(representation, new RepresentationConverter(false, false))
         {
