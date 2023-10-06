@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : \"1.5\" }")]
+        [InlineData(1.0, "{ I : \"1\" }")]
         public void Eq_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Eq(x => x.I, value);
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $gt : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $gt : \"1\" } }")]
         public void Gt_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Gt(x => x.I, value);
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $gte : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $gte : \"1\" } }")]
         public void Gte_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Gte(x => x.I, value);
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $lt : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $lt : \"1\" } }")]
         public void Lt_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Lt(x => x.I, value);
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $lte : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $lte : \"1\" } }")]
         public void Lte_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Lte(x => x.I, value);
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $ne : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $ne : \"1\" } }")]
         public void Ne_with_lambda_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Ne(x => x.I, value);
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : \"1.5\" }")]
+        [InlineData(1.0, "{ I : \"1\" }")]
         public void Where_operator_equals_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I == value);
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $gt : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $gt : \"1\" } }")]
         public void Where_operator_greater_than_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I > value);
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $gte : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $gte : \"1\" } }")]
         public void Where_operator_greater_than_or_equal_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I >= value);
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $lt : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $lt : \"1\" } }")]
         public void Where_operator_less_than_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I < value);
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $lte : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $lte : \"1\" } }")]
         public void Where_operator_less_than_or_equal_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I <= value);
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(1.5, "{ I : { $ne : \"1.5\" } }")]
+        [InlineData(1.0, "{ I : { $ne : \"1\" } }")]
         public void Where_operator_not_equal_should_render_correctly(double value, string expectedFilter)
         {
             var filter = __subject.Where(x => x.I != value);
