@@ -708,6 +708,15 @@ functions:
           ${PREPARE_SHELL}
           ATLAS_SEARCH="${ATLAS_SEARCH}" evergreen/run-atlas-search-test.sh
 
+  run-atlas-search-index-helpers-test:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}" evergreen/run-atlas-search-index-helpers-test.sh
+
   run-ocsp-test:
     - command: shell.exec
       type: test
@@ -1293,6 +1302,10 @@ tasks:
     - name: atlas-search-test
       commands:
         - func: run-atlas-search-test
+
+    - name: atlas-search-index-helpers-test
+      commands:
+        - func: run-atlas-search-index-helpers-test  
 
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2026,6 +2039,50 @@ task_groups:
       - packages-create
       - packages-push
 
+  - name: atlas-search-index-helpers-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: init-test-results
+      - func: make-files-executable
+      - command: shell.exec
+        params:
+          env:
+            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
+            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
+            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
+            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
+            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
+            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
+          add_expansions_to_env: true
+          shell: "bash"
+          script: |
+            ${PREPARE_SHELL}
+            $DRIVERS_TOOLS/.evergreen/atlas/setup-atlas-cluster.sh
+      - command: expansions.update
+        params:
+          file: atlas-expansion.yml
+    teardown_group:
+      - command: shell.exec
+        params:
+          env:
+            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
+            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
+            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
+            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
+            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
+            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
+          add_expansions_to_env: true
+          shell: "bash"
+          script: |
+            ${PREPARE_SHELL}
+            $DRIVERS_TOOLS/.evergreen/atlas/teardown-atlas-cluster.sh
+    tasks:
+      - atlas-search-index-helpers-test
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2244,7 +2301,31 @@ buildvariants:
   tasks:
     - name: atlas-search-test
 
+- name: atlas-search-index-helpers-test
+  display_name: "Atlas Search Index Helpers Tests"
+  run_on:
+    - ubuntu1804-test
+  tasks:
+    - name: atlas-search-index-helpers-task-group
 # CSFLE tests
+
+- name: gssapi-auth-tests-windows
+  run_on:
+    - windows-64-vs2017-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Windows"
+  tasks:
+    - name: test-gssapi-net472
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
+
+- name: gssapi-auth-tests-linux
+  run_on:
+    - ubuntu1804-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Linux"
+  tasks:
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
+
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"

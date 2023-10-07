@@ -246,6 +246,13 @@ Task("TestAtlasSearch")
         action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"AtlasSearch\""));
 
+Task("TestAtlasSearchIndexHelpers")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+           RunTests(buildConfig, testProject, filter: "Category=\"AtlasSearchIndexHelpers\""));
+
 Task("TestOcsp")
     .IsDependentOn("Build")
     .DoesForEach(

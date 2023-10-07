@@ -73,7 +73,15 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, cancellationToken);
+
+                try
+                {
+                    return operation.Execute(channelBinding, cancellationToken);
+                }
+                catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
+                {
+                    return ex.Result;
+                }
             }
         }
 
@@ -88,8 +96,20 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+
+                try
+                {
+                    return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                }
+                catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
+                {
+                    return ex.Result;
+                }
             }
         }
+
+        private bool ShouldIgnoreException(MongoCommandException ex) =>
+            ex?.Code == (int)ServerErrorCode.NamespaceNotFound ||
+            ex?.ErrorMessage == "ns not found";
     }
 }
