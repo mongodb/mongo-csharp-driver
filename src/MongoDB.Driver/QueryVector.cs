@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:double[]"/> to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from <see cref="double"/>[] to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="array">The array.</param>
         /// <returns>
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
         public static implicit operator QueryVector(ReadOnlyMemory<double> readOnlyMemory) => new(readOnlyMemory);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:float[]"/> to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from <see cref="float"/>[] to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="array">The array.</param>
         /// <returns>
@@ -103,7 +103,7 @@ namespace MongoDB.Driver
         public static implicit operator QueryVector(ReadOnlyMemory<float> readOnlyMemory) => new(readOnlyMemory);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:int[]"/> to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from <see cref="int"/>[] to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="array">The array.</param>
         /// <returns>

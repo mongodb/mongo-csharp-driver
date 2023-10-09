@@ -270,6 +270,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Ensures that the value of a parameter is not null or empty.
         /// </summary>
+        /// <typeparam name="T">The type of the elements.</typeparam>
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
