@@ -776,18 +776,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefused$", null)]
         [InlineData("aws", "kms.us-east-2.amazonaws.com", "_GenericCryptException_", null)]
-        [InlineData("aws", "doesnotexist.invalid", "$HostNotFound$", null)]
+        [InlineData("aws", "doesnotexist.invalid", "$HostNotFound,TryAgain$", null)]
         // additional not spec tests
         [InlineData("aws", "$test$", "Invalid endpoint, expected dot separator in host, but got: $test$", null)]
         // azure
-        [InlineData("azure", "key-vault-csfle.vault.azure.net", null, "$HostNotFound$")]
+        [InlineData("azure", "key-vault-csfle.vault.azure.net", null, "$HostNotFound,TryAgain$")]
         // gcp
-        [InlineData("gcp", "cloudkms.googleapis.com:443", null, "$HostNotFound$")]
+        [InlineData("gcp", "cloudkms.googleapis.com:443", null, "$HostNotFound,TryAgain$")]
         [InlineData("gcp", "doesnotexist.invalid:443", "Invalid KMS response", null)]
         // kmip
         [InlineData("kmip", null, null, "$HostNotFound$")]
         [InlineData("kmip", "localhost:5698", null, null)]
-        [InlineData("kmip", "doesnotexist.local:5698", "$HostNotFound$", null)]
+        [InlineData("kmip", "doesnotexist.local:5698", "$HostNotFound,TryAgain$", null)]
         public void CustomEndpointTest(
             string kmsType,
             string customEndpoint,
@@ -856,11 +856,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     var innerException = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
 
                     if (expectedExceptionInfo.StartsWith("$") &&
-                        expectedExceptionInfo.EndsWith("$") &&
-                        Enum.TryParse<SocketError>(expectedExceptionInfo.Trim(new char[] { '$' }), out var socketError))
+                        expectedExceptionInfo.EndsWith("$"))
                     {
+                        var expectedValues = expectedExceptionInfo
+                            .Trim('$')
+                            .Split(',')
+                            .Select(v => Enum.Parse(typeof(SocketError), v))
+                            .ToArray();
+
                         var e = innerException.Should().BeAssignableTo<SocketException>().Subject;// kmip triggers driver side exception
-                        e.SocketErrorCode.Should().Be(socketError); // the error message is platform dependent
+                        expectedValues.Should().Contain(e.SocketErrorCode);// the error message is platform dependent
                     }
                     else
                     {
@@ -2501,7 +2506,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             if (typeof(OperationCanceledException).IsAssignableFrom(exType))
             {
                 // handles OperationCanceledException and TaskCanceledException.
-                // At least in macOS these exceptions can be triggered from the same code path in some cases 
+                // At least in macOS these exceptions can be triggered from the same code path in some cases
                 e.Should().BeAssignableTo<OperationCanceledException>();
             }
             else
