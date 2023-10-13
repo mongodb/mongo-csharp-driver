@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
-$DotNetInstallerUri = 'https://dot.net/v1/dotnet-install.ps1';
-$DotNetUnixInstallerUri = 'https://dot.net/v1/dotnet-install.sh'
+$DotNetInstallerUri = 'https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1';
+$DotNetUnixInstallerUri = 'https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh'
 $DotNetChannel = 'LTS'
 $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 
