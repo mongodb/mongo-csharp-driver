@@ -2506,7 +2506,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             if (typeof(OperationCanceledException).IsAssignableFrom(exType))
             {
                 // handles OperationCanceledException and TaskCanceledException.
-                // At least in macOS these exceptions can be triggered from the same code path in some cases 
+                // At least in macOS these exceptions can be triggered from the same code path in some cases
                 e.Should().BeAssignableTo<OperationCanceledException>();
             }
             else
