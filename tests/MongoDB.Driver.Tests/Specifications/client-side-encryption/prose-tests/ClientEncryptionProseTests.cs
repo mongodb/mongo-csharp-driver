@@ -1869,8 +1869,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                             customMasterKey = new BsonDocument
                             {
-                                { "keyVaultEndpoint", "https://keyvault-drivers-2411.vault.azure.net/keys/" },
-                                { "keyName", "KEY-NAME" }
+                                { "keyVaultEndpoint", "https://drivers-2411-keyvault.vault.azure.net/" },
+                                { "keyName", "drivers-2411-keyname" }
                             };
                         }
                         break;
@@ -2506,7 +2506,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             if (typeof(OperationCanceledException).IsAssignableFrom(exType))
             {
                 // handles OperationCanceledException and TaskCanceledException.
-                // At least in macOS these exceptions can be triggered from the same code path in some cases
+                // At least in macOS these exceptions can be triggered from the same code path in some cases 
                 e.Should().BeAssignableTo<OperationCanceledException>();
             }
             else
