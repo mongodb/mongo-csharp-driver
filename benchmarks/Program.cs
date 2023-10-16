@@ -5,7 +5,6 @@ using BenchmarkDotNet.Mathematics;
 using BenchmarkDotNet.Running;
 using benchmarks.BSON;
 using benchmarks.Multi_Doc;
-using benchmarks.Parallel;
 using benchmarks.Single_Doc;
 
 namespace benchmarks

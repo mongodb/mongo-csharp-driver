@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace benchmarks.Parallel;
+namespace benchmarks.ParallelBench;
 
 [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
 public class GridFsMultiFileUpload

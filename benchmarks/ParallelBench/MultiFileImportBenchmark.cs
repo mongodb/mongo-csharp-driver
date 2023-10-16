@@ -7,7 +7,7 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace benchmarks.Parallel;
+namespace benchmarks.ParallelBench;
 
 [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
 public class MultiFileImportBenchmark
