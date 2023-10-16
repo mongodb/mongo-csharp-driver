@@ -1,19 +1,29 @@
 ﻿using System;
 using BenchmarkDotNet;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
+using Perfolizer.Horology;
 
 namespace benchmarks
 {
+    [Config(typeof(Config))]
     public class TestBench
     {
-        [Benchmark]
-        public void Scenario1()
+        private class Config : ManualConfig
         {
-            // Implement your benchmark here
+            public Config()
+            {
+                AddJob(
+                    Job.Dry
+                        .WithMinIterationTime(TimeInterval.FromMinutes(1))
+                        .WithIterationTime(TimeInterval.FromMinutes(5))
+                        .WithId("FlatBsonEncoding"));
+            }
         }
 
         [Benchmark]
-        public void Scenario2()
+        public void Scenario1()
         {
             // Implement your benchmark here
         }
