@@ -658,12 +658,12 @@ namespace MongoDB.Driver.Core.Clusters
             public int? SetVersion => _setVersion;
             public ElectionId ElectionId => _electionId;
 
-            public ElectionInfo Compare(int? setVersion, ElectionId electionId, int maxWireVerion)
+            public ElectionInfo Compare(int? setVersion, ElectionId electionId, int maxWireVersion)
             {
                 var newElectionId = _electionId;
                 var newSetVersion = _setVersion;
 
-                if (Feature.ElectionIdPriorityInSDAM.IsSupported(maxWireVerion))
+                if (Feature.ElectionIdPriorityInSDAM.IsSupported(maxWireVersion))
                 {
                     var electionIdOrder = Compare(electionId);
                     var isGreaterOrEqual = electionIdOrder < 0 || electionIdOrder == 0 && IsGreaterOrEqual(setVersion, _setVersion);
@@ -707,7 +707,9 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var other = obj as ElectionInfo;
 
-                return other != null && _setVersion == other.SetVersion && other.ElectionId == _electionId;
+                return other != null &&
+                    _setVersion == other.SetVersion &&
+                    (_electionId == null && other.ElectionId == null || other.ElectionId?.Equals(_electionId) == true);
             }
 
             private int Compare(ElectionId electionId)

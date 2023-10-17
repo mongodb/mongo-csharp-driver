@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
-        public void Equals_should_return_true_if_all_fiels_are_equal()
+        public void Equals_should_return_true_if_all_fields_are_equal()
         {
             var subject1 = new ElectionId(ObjectId.Empty);
             var subject2 = new ElectionId(ObjectId.Empty);
