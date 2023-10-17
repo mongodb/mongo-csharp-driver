@@ -2307,25 +2307,8 @@ buildvariants:
     - ubuntu1804-test
   tasks:
     - name: atlas-search-index-helpers-task-group
+
 # CSFLE tests
-
-- name: gssapi-auth-tests-windows
-  run_on:
-    - windows-64-vs2017-test
-  display_name: "GSSAPI (Kerberos) Auth tests - Windows"
-  tasks:
-    - name: test-gssapi-net472
-    - name: test-gssapi-netstandard20
-    - name: test-gssapi-netstandard21
-
-- name: gssapi-auth-tests-linux
-  run_on:
-    - ubuntu1804-test
-  display_name: "GSSAPI (Kerberos) Auth tests - Linux"
-  tasks:
-    - name: test-gssapi-netstandard20
-    - name: test-gssapi-netstandard21
-
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
