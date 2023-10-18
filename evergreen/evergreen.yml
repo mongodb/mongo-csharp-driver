@@ -1419,6 +1419,7 @@ tasks:
             VERSION: "v6.0-perf"
             TOPOLOGY: "server"
             AUTH: "noauth"
+            SKIP_LEGACY_SHELL: "true"
         - func: run-performance-tests
 
     # ECDSA tests
