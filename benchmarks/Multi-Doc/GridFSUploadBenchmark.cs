@@ -18,7 +18,7 @@ public class GridFsUploadBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _fileBytes = File.ReadAllBytes("../../../../../../../data/single_and_multi_document/gridfs_large.bin");

@@ -17,7 +17,7 @@ public class FindOneBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _tweetDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/tweet.json");

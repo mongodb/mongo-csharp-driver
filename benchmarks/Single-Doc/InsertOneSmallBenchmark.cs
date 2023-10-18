@@ -17,7 +17,7 @@ public class InsertOneSmallBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _smallDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/small_doc.json");

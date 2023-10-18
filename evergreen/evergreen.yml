@@ -422,6 +422,19 @@ functions:
           ${PREPARE_SHELL}
           MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
 
+  run-performance-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: benchmarks
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${benchmarks_mongo_uri}" ../evergreen/run-perf-tests.sh
+    - command: perf.send
+      params:
+        file: benchmarks/results.json
+
+
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
       params:
@@ -2179,6 +2192,14 @@ buildvariants:
   display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   tasks:
     - name: test-serverless
+
+# Performance tests
+- name: driver-performance-tests
+  display_name: "Driver Performance Tests"
+  run_on:
+    - rhel90-dbx-perf-large
+  tasks:
+    - name: run-performance-tests
 
 # Atlas tests
 - name: atlas-connectivity-tests

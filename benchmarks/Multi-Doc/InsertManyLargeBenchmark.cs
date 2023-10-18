@@ -19,7 +19,7 @@ public class InsertManyLargeBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         var largeDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/large_doc.json");
