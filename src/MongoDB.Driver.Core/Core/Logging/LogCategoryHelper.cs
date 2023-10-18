@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Logging
             return result;
         }
 
-        public static string GetCategoryName<T>() where T : LogCategories.EventCategory
+        public static string GetCategoryName<T>() where T : LogCategories.BaseCategory
         {
             var type = typeof(T);
             if (!__catergories.TryGetValue(type, out var result))

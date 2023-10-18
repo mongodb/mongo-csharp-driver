@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -42,6 +45,8 @@ namespace MongoDB.Driver.Core.Clusters
         public ICluster CreateCluster()
         {
             var settings = _settings;
+
+            ProcessClusterEnvironment(settings);
 
             bool createLoadBalancedCluster = settings.LoadBalanced;
             if (createLoadBalancedCluster)
@@ -101,6 +106,34 @@ namespace MongoDB.Driver.Core.Clusters
         private LoadBalancedCluster CreateLoadBalancedCluster(ClusterSettings setting)
         {
             return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory);
+        }
+
+        private void ProcessClusterEnvironment(ClusterSettings settings)
+        {
+            foreach (var (host, _) in  settings.EndPoints.Select(EndPointHelper.GetHostAndPort))
+            {
+                if (IsCosmosDB(host) || IsDocumentDB(host))
+                {
+                    return;
+                }
+            }
+
+            bool IsCosmosDB(string host) =>
+                IsExternalEnvironment(host, "CosmosDB", "https://www.mongodb.com/supportability/cosmosdb", ".cosmos.azure.com");
+
+            bool IsDocumentDB(string host) =>
+                IsExternalEnvironment(host, "DocumentDB", "https://www.mongodb.com/supportability/documentdb", ".docdb.amazonaws.com", ".docdb-elastic.amazonaws.com");
+
+            bool IsExternalEnvironment(string host, string environment, string documentationUrl, params string[] suffixes)
+            {
+                if (suffixes.Any(s => host.EndsWith(s, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    var logger = _loggerFactory.CreateLogger<LogCategories.General>();
+                    logger.LogInformation("You appear to be connected to a {environment} cluster. For more information regarding feature compatibility and support please visit {url}", environment, documentationUrl);
+                }
+
+                return false;
+            }
         }
     }
 }
