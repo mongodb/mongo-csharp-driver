@@ -61,7 +61,6 @@ namespace MongoDB.Driver.Core.Clusters
             _ = subject.CreateCluster();
 
             var logs = GetLogs();
-
             logs.Length.Should().Be(1);
             logs[0].FormattedMessage.Should().Be(expectedMessage);
         }
