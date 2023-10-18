@@ -429,7 +429,7 @@ functions:
         working_dir: benchmarks
         script: |
           ${PREPARE_SHELL}
-          MONGODB_URI="${benchmarks_mongo_uri}" ../evergreen/run-perf-tests.sh
+          MONGODB_URI="${MONGO_URI}" ../evergreen/run-perf-tests.sh
     - command: perf.send
       params:
         file: benchmarks/results.json
@@ -1412,6 +1412,15 @@ tasks:
           vars:
             FRAMEWORK: net60
 
+    - name: performance-tests
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            VERSION: "v6.0-perf"
+            TOPOLOGY: "server"
+            AUTH: "noauth"
+        - func: run-performance-tests
+
     # ECDSA tests
     # Disabled until https://jira.mongodb.org/browse/SPEC-1589 is resolved
     # - name: test-ocsp-ecdsa-valid-cert-server-staples-ca-responder
@@ -2199,7 +2208,7 @@ buildvariants:
   run_on:
     - rhel90-dbx-perf-large
   tasks:
-    - name: run-performance-tests
+    - name: performance-tests
 
 # Atlas tests
 - name: atlas-connectivity-tests
