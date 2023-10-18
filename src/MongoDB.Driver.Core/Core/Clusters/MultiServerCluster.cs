@@ -709,7 +709,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 return other != null &&
                     _setVersion == other.SetVersion &&
-                    (_electionId == null && other.ElectionId == null || other.ElectionId?.Equals(_electionId) == true);
+                    object.Equals(_electionId, other.ElectionId);
             }
 
             private int Compare(ElectionId electionId)
