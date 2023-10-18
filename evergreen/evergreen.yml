@@ -2218,8 +2218,6 @@ buildvariants:
 - matrix_name: aws-auth-tests-linux
   matrix_spec: { version: ["6.0", "7.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
-  run_on:
-    - ubuntu1804-test
   tasks:
     - name: aws-auth-tests
 
