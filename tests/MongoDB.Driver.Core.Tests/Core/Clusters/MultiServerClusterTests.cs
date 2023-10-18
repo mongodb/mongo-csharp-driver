@@ -686,6 +686,31 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
+        public void Should_not_invalidate_when_set_version_and_electionid_not_changed()
+        {
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            var setVersion = 1;
+            var objectId = ObjectId.GenerateNewId().ToString();
+
+            var subject = CreateSubject();
+            subject.Initialize();
+            _capturedEvents.Clear();
+
+            PublishDescription(subject, _firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: setVersion, electionId: new ElectionId(ObjectId.Parse(objectId)));
+
+            var description = subject.Description;
+            description.State.Should().Be(ClusterState.Connected);
+            description.Type.Should().Be(ClusterType.ReplicaSet);
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
+
+            PublishDescription(subject, _firstEndPoint, ServerType.ReplicaSetPrimary, setVersion: setVersion, electionId: new ElectionId(ObjectId.Parse(objectId)));
+
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Fact]
         public void Should_not_remove_a_server_that_is_no_longer_in_a_secondaries_host_list()
         {
             _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
