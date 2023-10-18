@@ -17,8 +17,21 @@ public static class BenchmarkExtensions
         return document.ToBson();
     }
 
-    public static byte[] ReadBytes(string resourcePath)
+    public static int GetDatasetSize(string benchmarkName)
     {
-        return File.ReadAllBytes(resourcePath);
+        return benchmarkName switch
+        {
+            "GridFsMultiUpload" or "GridFsMultiDownload" => 262144000,
+            "MultiFileImport" or "MultiFileExport" => 565000000,
+            "FlatBsonEncoding" or "FlatBsonDecoding" => 75310000,
+            "DeepBsonEncoding" or "DeepBsonDecoding" => 19640000,
+            "FullBsonEncoding" or "FullBsonDecoding" => 57340000,
+            "FindOne" or "FindManyAndEmptyCursor" => 16220000,
+            "InsertOneLarge" or "InsertManyLarge" => 27310890,
+            "InsertOneSmall" or "InsertManySmall" => 2750000,
+            "GridFsUpload" or "GridFsDownload" => 52428800,
+            "RunCommand" => 130000,
+            _ => 0
+        };
     }
 }

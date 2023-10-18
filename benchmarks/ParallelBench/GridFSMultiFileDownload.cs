@@ -17,7 +17,8 @@ public class GridFsMultiFileDownload
     [GlobalSetup]
     public void Setup()
     {
-        _client = new MongoClient();
+        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
         _gridFsBucket.Drop();

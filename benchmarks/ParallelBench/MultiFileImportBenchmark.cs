@@ -9,6 +9,8 @@ using MongoDB.Driver;
 
 namespace benchmarks.ParallelBench;
 
+[IterationCount(2)]
+[WarmupCount(1)]
 [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
 public class MultiFileImportBenchmark
 {
@@ -21,7 +23,8 @@ public class MultiFileImportBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _client = new MongoClient();
+        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _database = _client.GetDatabase("perftest");
         // _threadHelper = new BenchmarkThreadHelper();

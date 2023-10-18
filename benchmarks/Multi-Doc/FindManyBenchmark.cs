@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
@@ -17,7 +18,8 @@ public class FindManyBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _client = new MongoClient();
+        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _tweetDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/tweet.json");
         _collection = _client.GetDatabase("perftest").GetCollection<BsonDocument>("corpus");

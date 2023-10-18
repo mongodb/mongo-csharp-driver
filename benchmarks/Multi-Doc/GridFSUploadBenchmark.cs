@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,9 +18,10 @@ public class GridFsUploadBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _client = new MongoClient();
+        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
-        _fileBytes = ReadBytes("../../../../../../../data/single_and_multi_document/gridfs_large.bin");
+        _fileBytes = File.ReadAllBytes("../../../../../../../data/single_and_multi_document/gridfs_large.bin");
         _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
     }
 

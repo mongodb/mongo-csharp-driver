@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
@@ -18,7 +19,8 @@ public class InsertManyLargeBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _client = new MongoClient();
+        string mongoUri = Environment.GetEnvironmentVariable("BENCHMARKS_MONGO_URI");
+        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         var largeDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/large_doc.json");
         _database = _client.GetDatabase("perftest");
