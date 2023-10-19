@@ -244,6 +244,7 @@ functions:
           SSL=${SSL} \
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+          SKIP_LEGACY_SHELL=${SKIP_LEGACY_SHELL} \
             sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
@@ -433,7 +434,6 @@ functions:
     - command: perf.send
       params:
         file: benchmarks/results.json
-
 
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
@@ -1412,12 +1412,13 @@ tasks:
           vars:
             FRAMEWORK: net60
 
-    - name: performance-tests
+    - name: performance-tests-net60-server-v6.0
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
             VERSION: "v6.0-perf"
             TOPOLOGY: "server"
+            SSL: "nossl"
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
         - func: run-performance-tests
@@ -2209,7 +2210,7 @@ buildvariants:
   run_on:
     - rhel90-dbx-perf-large
   tasks:
-    - name: performance-tests
+    - name: performance-tests-net60-server-v6.0
 
 # Atlas tests
 - name: atlas-connectivity-tests
