@@ -15,4 +15,4 @@ export MONGO_URI="${MONGO_URI}"
 # Download the data to be used in the performance tests
 ./download-data.sh .
 
-dotnet run -c Release -- --filter *
+dotnet run -c Release -- --filter '*'
