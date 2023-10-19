@@ -427,13 +427,13 @@ functions:
     - command: shell.exec
       type: test
       params:
-        working_dir: benchmarks
+        working_dir: mongo-csharp-driver/benchmarks
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${MONGO_URI}" ../evergreen/run-perf-tests.sh
     - command: perf.send
       params:
-        file: benchmarks/results.json
+        file: mongo-csharp-driver/benchmarks/results.json
 
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
