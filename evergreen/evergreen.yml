@@ -1421,6 +1421,7 @@ tasks:
             SSL: "nossl"
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
+        - func: install-dotnet
         - func: run-performance-tests
 
     # ECDSA tests
