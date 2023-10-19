@@ -346,39 +346,32 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, null, "mongodb://localhost", null)]
-        [InlineData(new[] { CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
-        [InlineData(new[] { CompressorType.Zlib }, "Level&zlibCompressionLevel&1", "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
-        [InlineData(new[] { CompressorType.Snappy }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy })]
-        [InlineData(new[] { CompressorType.Snappy, CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy, CompressorType.Zlib })]
-        public void TestCompressors(CompressorType[] compressors, string compressionProperty, string formatString, CompressorType[] values)
+        [InlineData(null, "mongodb://localhost")]
+        [InlineData(new[] { CompressorType.Zlib }, "mongodb://localhost/?compressors=zlib")]
+        [InlineData(new[] { CompressorType.ZStandard }, "mongodb://localhost/?compressors=zstd")]
+        [InlineData(new[] { CompressorType.Snappy }, "mongodb://localhost/?compressors=snappy")]
+        [InlineData(new[] { CompressorType.Snappy, CompressorType.Zlib }, "mongodb://localhost/?compressors=snappy,zlib")]
+        [InlineData(new[] { CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib }, "mongodb://localhost/?compressors=zstd,snappy,zlib")]
+        public void TestCompressors(CompressorType[] compressors, string expectedConnectionString)
         {
             var subject = new MongoUrlBuilder { Server = _localhost };
-            if (compressors != null)
-            {
-                subject.Compressors = compressors
-                    .Select(x =>
-                    {
-                        var compression = new CompressorConfiguration(x);
-                        if (!string.IsNullOrWhiteSpace(compressionProperty))
-                        {
-                            var @params = compressionProperty.Split('&');
-                            compression.Properties.Add(@params[0], @params[2]);
-                        }
-                        return compression;
-                    })
-                    .ToList();
-            }
 
-            Assert.Equal(compressors ?? new CompressorType[0], subject.Compressors.Select(x => x.Type));
-            var expectedValues = values == null ? string.Empty : string.Join(",", values.Select(c => c.ToString().ToLower()));
-            if (!string.IsNullOrWhiteSpace(compressionProperty))
-            {
-                var @params = compressionProperty.Split('&');
-                expectedValues += $"&{@params[1]}={@params[2]}";
-            }
-            var canonicalConnectionString = string.Format(formatString, expectedValues);
-            Assert.Equal(canonicalConnectionString, subject.ToString());
+            subject.Compressors = compressors?.Select(x=> new CompressorConfiguration(x)).ToList();
+            var connectionString = subject.ToString();
+
+            Assert.Equal(expectedConnectionString, connectionString);
+        }
+
+        [Fact]
+        public void TestCompressorProperties()
+        {
+            var subject = new MongoUrlBuilder { Server = _localhost };
+
+            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = {{ "Level", 1 }} };
+            subject.Compressors = new[] { zlibCompressor };
+            var connectionString = subject.ToString();
+
+            Assert.Equal("mongodb://localhost/?compressors=zlib&zlibCompressionLevel=1", connectionString);
         }
 
         [Theory]
