@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoUrlBuilder { Server = _localhost };
 
-            subject.Compressors = compressors?.Select(x=> new CompressorConfiguration(x)).ToList();
+            subject.Compressors = compressors?.Select(x => new CompressorConfiguration(x)).ToList();
             var connectionString = subject.ToString();
 
             Assert.Equal(expectedConnectionString, connectionString);

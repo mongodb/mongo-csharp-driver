@@ -188,6 +188,20 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.Compressors = compressors; });
         }
 
+        [Theory]
+        [InlineData(new[]{CompressorType.Snappy}, "Compressors=[snappy]")]
+        [InlineData(new[]{CompressorType.Zlib}, "Compressors=[zlib]")]
+        [InlineData(new[]{CompressorType.ZStandard}, "Compressors=[zstd]")]
+        [InlineData(new[]{CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
+        public void Compressors_ToString_outputs_correct_compressors(CompressorType[] compressors, string expectedConnectionString)
+        {
+            var settings = new MongoClientSettings {Compressors = compressors.Select(x => new CompressorConfiguration(x)).ToList()};
+
+            var result = settings.ToString();
+
+            Assert.Contains(expectedConnectionString, result);
+        }
+
 #pragma warning disable CS0618 // Type or member is obsolete
         [Fact]
         public void TestConnectionMode()
