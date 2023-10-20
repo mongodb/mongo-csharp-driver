@@ -430,7 +430,7 @@ functions:
         working_dir: mongo-csharp-driver/benchmarks
         script: |
           ${PREPARE_SHELL}
-          MONGODB_URI="${MONGODB_URI}" OUTPUT_FILE="results.json" ../evergreen/run-perf-tests.sh
+          MONGODB_URI="${MONGODB_URI}" ../evergreen/run-perf-tests.sh
     - command: perf.send
       params:
         file: mongo-csharp-driver/benchmarks/results.json
