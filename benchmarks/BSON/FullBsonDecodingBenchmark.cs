@@ -1,13 +1,14 @@
 using System.IO;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using static benchmarks.BenchmarkExtensions;
 
 namespace benchmarks.BSON;
 
+[IterationTime(3000)]
 [BenchmarkCategory("BSONBench")]
 public class FullBsonDecodingBenchmark
 {

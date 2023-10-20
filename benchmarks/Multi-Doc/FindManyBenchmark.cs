@@ -1,24 +1,24 @@
 using System;
-using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 using static benchmarks.BenchmarkExtensions;
 
 namespace benchmarks.Multi_Doc;
 
-
+[IterationTime(2000)]
 [BenchmarkCategory("MultiBench", "ReadBench", "DriverBench")]
 public class FindManyBenchmark
 {
     private MongoClient _client;
-    private IMongoCollection<BsonDocument> _collection;
     private BsonDocument _tweetDocument;
+    private IMongoCollection<BsonDocument> _collection;
 
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _tweetDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/tweet.json");

@@ -1,12 +1,13 @@
 using System;
-using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 using static benchmarks.BenchmarkExtensions;
 
 namespace benchmarks.Single_Doc;
 
+[IterationTime(3000)]
 [BenchmarkCategory("SingleBench", "ReadBench", "DriverBench")]
 public class FindOneBenchmark
 {
@@ -17,7 +18,7 @@ public class FindOneBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _tweetDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/tweet.json");
@@ -26,14 +27,12 @@ public class FindOneBenchmark
     }
 
     [Benchmark]
-    public BsonDocument FindOne()
+    public void FindOne()
     {
-        BsonDocument retrievedDocument = null;
         for (int i = 0; i < 10000; i++)
         {
-            retrievedDocument = _collection.Find(new BsonDocument("_id", i)).First();
+            _collection.Find(new BsonDocument("_id", i)).First();
         }
-        return retrievedDocument;
     }
 
     [GlobalCleanup]

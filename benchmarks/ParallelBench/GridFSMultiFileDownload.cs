@@ -1,12 +1,13 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 
 namespace benchmarks.ParallelBench;
 
+[IterationCount(100)]
 [BenchmarkCategory("ParallelBench", "ReadBench", "DriverBench")]
 public class GridFsMultiFileDownload
 {
@@ -17,7 +18,7 @@ public class GridFsMultiFileDownload
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));

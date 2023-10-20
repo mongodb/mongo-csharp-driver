@@ -1,13 +1,11 @@
-using System.Collections.Generic;
 using BenchmarkDotNet.Reports;
+using System.Collections.Generic;
 
 namespace benchmarks;
 
 public class BenchmarkResult
 {
-    private int _datasetSize;
     private readonly Dictionary<int, double> _percentiles;
-
     public string Name { get; }
     public double Score { get; }
 
@@ -15,7 +13,6 @@ public class BenchmarkResult
     {
         Name = benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethodDisplayInfo;
 
-        _datasetSize = datasetSize;
         _percentiles = new Dictionary<int, double>();
 
         foreach (int percentile in new[]{10, 25, 50, 75, 80, 90, 95, 98, 99})

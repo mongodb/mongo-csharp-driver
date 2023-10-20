@@ -1,16 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 
 namespace benchmarks.ParallelBench;
 
-[IterationCount(2)]
-[WarmupCount(1)]
+[WarmupCount(3)]
+[IterationCount(5)]
 [BenchmarkCategory("ParallelBench", "ReadBench", "DriverBench")]
 public class MultiFileExportBenchmark
 {
@@ -22,7 +22,7 @@ public class MultiFileExportBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _database = _client.GetDatabase("perftest");
@@ -91,5 +91,4 @@ public class MultiFileExportBenchmark
             _collection.InsertMany(documents);
         }
     }
-
 }

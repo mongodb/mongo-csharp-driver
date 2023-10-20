@@ -1,11 +1,12 @@
 using System;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using BenchmarkDotNet.Attributes;
 using static benchmarks.BenchmarkExtensions;
 
 namespace benchmarks.Single_Doc;
 
+[IterationCount(100)]
 [BenchmarkCategory("SingleBench", "WriteBench", "DriverBench")]
 public class InsertOneSmallBenchmark
 {
@@ -17,7 +18,7 @@ public class InsertOneSmallBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _smallDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/small_doc.json");

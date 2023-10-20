@@ -1,13 +1,13 @@
 using System;
-using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 using static benchmarks.BenchmarkExtensions;
 
 namespace benchmarks.Multi_Doc;
 
-
+[IterationCount(100)]
 [BenchmarkCategory("MultiBench", "WriteBench", "DriverBench")]
 public class InsertManyLargeBenchmark
 {
@@ -19,7 +19,7 @@ public class InsertManyLargeBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         var largeDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/large_doc.json");

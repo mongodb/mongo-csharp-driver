@@ -1,10 +1,11 @@
 using System;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using BenchmarkDotNet.Attributes;
 
 namespace benchmarks.Single_Doc;
 
+[IterationTime(3000)]
 public class RunCommandBenchmark
 {
     private MongoClient _client;
@@ -13,19 +14,17 @@ public class RunCommandBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _database = _client.GetDatabase("admin");
     }
 
     [Benchmark]
-    public BsonDocument RunCommand()
+    public void RunCommand()
     {
-        BsonDocument result = null;
         for (int i = 0; i < 10000; i++)
         {
-            result = _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
+            _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
         }
-        return result;
     }
 }

@@ -1,12 +1,13 @@
 using System;
 using System.IO;
-using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using BenchmarkDotNet.Attributes;
 
 namespace benchmarks.Multi_Doc;
 
+[IterationTime(3000)]
 [BenchmarkCategory("MultiBench", "ReadBench", "DriverBench")]
 public class GridFsDownloadBenchmark
 {
@@ -17,22 +18,17 @@ public class GridFsDownloadBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
+        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
         _client.DropDatabase("perftest");
         _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
         _fileId = _gridFsBucket.UploadFromStream("gridfstest", File.OpenRead("../../../../../../../data/single_and_multi_document/gridfs_large.bin"));
     }
 
-    [IterationSetup]
-    public void BeforeTask()
-    {
-    }
-
     [Benchmark]
-    public byte[] GridFsDownload()
+    public void GridFsDownload()
     {
-       return  _gridFsBucket.DownloadAsBytes(_fileId);
+       _gridFsBucket.DownloadAsBytes(_fileId);
     }
 
     [GlobalCleanup]

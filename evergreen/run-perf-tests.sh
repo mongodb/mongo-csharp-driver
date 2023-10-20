@@ -10,7 +10,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #            Main Program                  #
 ############################################
 
-export MONGO_URI="${MONGO_URI}"
+#export MONGODB_URI="${MONGODB_URI}"
 
 # Download the data to be used in the performance tests
 ./download-data.sh .

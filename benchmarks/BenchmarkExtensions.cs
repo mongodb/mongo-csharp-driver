@@ -22,10 +22,10 @@ public static class BenchmarkExtensions
         return benchmarkName switch
         {
             "GridFsMultiUpload" or "GridFsMultiDownload" => 262144000,
-            "MultiFileImport" or "MultiFileExport" => 565000000,
             "FlatBsonEncoding" or "FlatBsonDecoding" => 75310000,
             "DeepBsonEncoding" or "DeepBsonDecoding" => 19640000,
             "FullBsonEncoding" or "FullBsonDecoding" => 57340000,
+            "MultiFileImport" or "MultiFileExport" => 565000000,
             "FindOne" or "FindManyAndEmptyCursor" => 16220000,
             "InsertOneLarge" or "InsertManyLarge" => 27310890,
             "InsertOneSmall" or "InsertManySmall" => 2750000,
