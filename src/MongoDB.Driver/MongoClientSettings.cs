@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
@@ -1221,7 +1222,7 @@ namespace MongoDB.Driver
             }
             if (_compressors?.Any() ?? false)
             {
-                sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors));
+                sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors.Select(x => CompressorTypeMapper.ToServerName(x.Type))));
             }
             if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
             {

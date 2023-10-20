@@ -923,7 +923,7 @@ namespace MongoDB.Driver
 
             if (_compressors?.Any() ?? false)
             {
-                query.AppendFormat("compressors={0}&", string.Join(",", _compressors.Select(x => x.Type.ToString().ToLowerInvariant())));
+                query.AppendFormat("compressors={0}&", string.Join(",", _compressors.Select(x => CompressorTypeMapper.ToServerName(x.Type))));
                 foreach (var compressor in _compressors)
                 {
                     ParseAndAppendCompressorOptions(query, compressor);
