@@ -512,8 +512,8 @@ Task("SmokeTests")
             toolSettings);
 
         RunTests(
-            buildConfig, 
-            testProject, 
+            buildConfig,
+            testProject,
             settings =>
             {
                 settings.NoBuild = false;
@@ -753,8 +753,8 @@ Setup<BuildConfig>(
         var packageVersion = lowerTarget.StartsWith("smoketests") ? gitVersion.FullSemVer.Replace('+', '-') : gitVersion.LegacySemVer;
 
         Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}, PackageVersion: {packageVersion}");
-        var loggers = CreateLoggers();
-        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion, loggers);
+
+        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion);
     });
 
 RunTarget(target);
@@ -765,25 +765,24 @@ public class BuildConfig
     public string Framework { get; }
     public string PackageVersion { get; }
     public string TargetPlatform { get; }
-    public string[] Loggers { get; }
 
-    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion, string[] loggers)
+    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
         TargetPlatform = targetPlatform;
         PackageVersion = packageVersion;
-        Loggers = loggers;
     }
 }
 
-string[] CreateLoggers()
+string[] CreateLoggers(string projectName)
 {
-    var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{target.ToLowerInvariant()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.xml");
+    var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{projectName}-{target.ToLowerInvariant()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.xml");
+    
     // Evergreen CI server requires JUnit output format to display test results
     var junitLogger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
     var consoleLogger = "console;verbosity=detailed";
-    return new []{ junitLogger, consoleLogger };
+    return new[] { junitLogger, consoleLogger };
 }
 
 void RunTests(BuildConfig buildConfig, Path path, string filter = null)
@@ -793,16 +792,18 @@ void RunTests(BuildConfig buildConfig, Path path, string filter = null)
 
 void RunTests(BuildConfig buildConfig, Path path, Action<DotNetTestSettings> settingsAction)
 {
+    var projectName = System.IO.Path.GetFileNameWithoutExtension(path.FullPath);
+
     var settings = new DotNetTestSettings
     {
         NoBuild = true,
         NoRestore = true,
         Configuration = configuration,
-        Loggers = buildConfig.Loggers,
+        Loggers = CreateLoggers(projectName),
         ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
         Framework = buildConfig.Framework
     };
-    
+
     settingsAction?.Invoke(settings);
 
     DotNetTest(path.FullPath, settings);
