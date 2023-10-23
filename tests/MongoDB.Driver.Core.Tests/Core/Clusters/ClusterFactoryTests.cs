@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Theory]
         [InlineData("mongodb://a.mongo.cosmos.azure.com.tld:19555")]
         [InlineData("mongodb://a.docdb-elastic.amazonaws.com.t")]
+        [InlineData("mongodb://a.docdb-elastic.amazonaws.com.t,b.docdb-elastic.amazonaws.com.t")]
         [InlineData("mongodb+srv://a.example.com")]
         [InlineData("mongodb+srv://a.mongodb.net/")]
         [InlineData("mongodb+srv://a.mongo.cosmos.azure.com.tld/")]
