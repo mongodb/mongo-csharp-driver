@@ -44,17 +44,20 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData("mongodb://a.docdb-elastic.amazonaws.com:27017/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb://a.DOCDB.AMAZONAWS.COM", ExpectedDocumentDBMessage)]
         [InlineData("mongodb://a.docdb.amazonaws.com", ExpectedDocumentDBMessage)]
-        /* SRV matching */
+        // SRV matching
         [InlineData("mongodb+srv://A.MONGO.COSMOS.AZURE.COM", ExpectedCosmosDBMessage)]
         [InlineData("mongodb+srv://a.mongo.cosmos.azure.com", ExpectedCosmosDBMessage)]
         [InlineData("mongodb+srv://a.DOCDB.AMAZONAWS.COM/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb+srv://a.docdb.amazonaws.com/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb+srv://a.DOCDB-ELASTIC.AMAZONAWS.COM/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb+srv://a.docdb-elastic.amazonaws.com/", ExpectedDocumentDBMessage)]
-        /* Mixing internal and external hosts (unlikely in practice) */
+        // Mixing internal and external hosts (unlikely in practice)
         [InlineData("mongodb://a.example.com:27017,b.mongo.cosmos.azure.com:19555/", ExpectedCosmosDBMessage)]
         [InlineData("mongodb://a.example.com:27017,b.docdb.amazonaws.com:27017/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb://a.example.com:27017,b.docdb-elastic.amazonaws.com:27017/", ExpectedDocumentDBMessage)]
+        // Multiple external hosts
+        [InlineData("mongodb://a.docdb-elastic.amazonaws.com:27017,b.mongo.cosmos.azure.com:19555/", ExpectedDocumentDBMessage)]
+        [InlineData("mongodb://a.mongo.cosmos.azure.com:19554,b.docdb-elastic.amazonaws.com:27017,c.mongo.cosmos.azure.com:19555/", ExpectedCosmosDBMessage)]
         public void ClusterFactory_should_log_if_external_environment_is_detected(string connectionString, string expectedMessage)
         {
             var subject = CreateSubject(connectionString);
