@@ -63,6 +63,10 @@ src/packages
 # Cake Artifacts
 .dotnet
 
+# Benchmark Artifacts
+/benchmarks/BenchmarkDotNet.Artifacts
+/benchmarks/data
+
 # Other
 artifacts
 packages
