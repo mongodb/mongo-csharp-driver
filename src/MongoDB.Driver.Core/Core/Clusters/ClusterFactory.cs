@@ -112,19 +112,19 @@ namespace MongoDB.Driver.Core.Clusters
         {
             foreach (var (host, _) in  settings.EndPoints.Select(EndPointHelper.GetHostAndPort))
             {
-                if (IsCosmosDB(host) || IsDocumentDB(host))
+                if (LogIfCosmosDB(host) || LogIfDocumentDB(host))
                 {
                     return;
                 }
             }
 
-            bool IsCosmosDB(string host) =>
-                IsExternalEnvironment(host, "CosmosDB", "https://www.mongodb.com/supportability/cosmosdb", ".cosmos.azure.com");
+            bool LogIfCosmosDB(string host) =>
+                LogIfExternalEnvironment(host, "CosmosDB", "https://www.mongodb.com/supportability/cosmosdb", ".cosmos.azure.com");
 
-            bool IsDocumentDB(string host) =>
-                IsExternalEnvironment(host, "DocumentDB", "https://www.mongodb.com/supportability/documentdb", ".docdb.amazonaws.com", ".docdb-elastic.amazonaws.com");
+            bool LogIfDocumentDB(string host) =>
+                LogIfExternalEnvironment(host, "DocumentDB", "https://www.mongodb.com/supportability/documentdb", ".docdb.amazonaws.com", ".docdb-elastic.amazonaws.com");
 
-            bool IsExternalEnvironment(string host, string environment, string documentationUrl, params string[] suffixes)
+            bool LogIfExternalEnvironment(string host, string environment, string documentationUrl, params string[] suffixes)
             {
                 if (suffixes.Any(s => host.EndsWith(s, StringComparison.InvariantCultureIgnoreCase)))
                 {
