@@ -433,7 +433,7 @@ functions:
           MONGODB_URI="${MONGODB_URI}" ../evergreen/run-perf-tests.sh
     - command: perf.send
       params:
-        file: mongo-csharp-driver/benchmarks/results.json
+        file: mongo-csharp-driver/benchmarks/BenchmarkDotNet.Artifacts/results/evergreen-results.json
 
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
