@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (suffixes.Any(s => host.EndsWith(s, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    var logger = _loggerFactory.CreateLogger<LogCategories.General>();
+                    var logger = _loggerFactory.CreateLogger<LogCategories.Client>();
                     logger.LogInformation("You appear to be connected to a {environment} cluster. For more information regarding feature compatibility and support please visit {url}", environment, documentationUrl);
 
                     return true;

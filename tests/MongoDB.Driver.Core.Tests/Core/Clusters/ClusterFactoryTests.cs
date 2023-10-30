@@ -18,7 +18,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
@@ -99,7 +98,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         private LogEntry[] GetLogs() => Logs
-            .Where(l => l.LogLevel == LogLevel.Information && l.Category == LogCategoryHelper.GetCategoryName<LogCategories.General>())
+            .Where(l => l.LogLevel == LogLevel.Information && l.Category == "MongoDB.Client")
             .ToArray();
     }
 }
