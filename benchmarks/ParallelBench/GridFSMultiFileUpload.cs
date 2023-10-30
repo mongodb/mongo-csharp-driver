@@ -5,55 +5,56 @@ using MongoDB.Driver.GridFS;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
-namespace benchmarks.ParallelBench;
-
-[IterationCount(100)]
-[BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
-public class GridFsMultiFileUpload
+namespace benchmarks.ParallelBench
 {
-    private MongoClient _client;
-    private GridFSBucket _gridFsBucket;
-
-    [GlobalSetup]
-    public void Setup()
+    [IterationCount(100)]
+    [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
+    public class GridFsMultiFileUpload
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-        _client.DropDatabase("perftest");
-        _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
-    }
+        private MongoClient _client;
+        private GridFSBucket _gridFsBucket;
 
-    [IterationSetup]
-    public void BeforeTask()
-    {
-        _gridFsBucket.Drop();
-        _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
-    }
-
-    [Benchmark]
-    public void GridFsMultiUpload()
-    {
-        Task[] tasks = new Task[50];
-        for (int i = 0; i < 50; i++)
+        [GlobalSetup]
+        public void Setup()
         {
-            tasks[i] = Task.Factory.StartNew(UploadFile(i));
+            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+            _client.DropDatabase("perftest");
+            _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
         }
-        Task.WaitAll(tasks);
-    }
 
-    [GlobalCleanup]
-    public void Teardown()
-    {
-        _client.DropDatabase("perftest");
-    }
-
-    private Action UploadFile(int fileNumber)
-    {
-        return () =>
+        [IterationSetup]
+        public void BeforeTask()
         {
-            string filename = $"file{fileNumber:D2}.txt";
-            string resourcePath = $"../../../../../../../data/parallel/gridfs_multi/{filename}";
-            _gridFsBucket.UploadFromStream(filename, File.Open(resourcePath, FileMode.Open));
-        };
+            _gridFsBucket.Drop();
+            _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
+        }
+
+        [Benchmark]
+        public void GridFsMultiUpload()
+        {
+            Task[] tasks = new Task[50];
+            for (int i = 0; i < 50; i++)
+            {
+                tasks[i] = Task.Factory.StartNew(UploadFile(i));
+            }
+            Task.WaitAll(tasks);
+        }
+
+        [GlobalCleanup]
+        public void Teardown()
+        {
+            _client.DropDatabase("perftest");
+        }
+
+        private Action UploadFile(int fileNumber)
+        {
+            return () =>
+            {
+                string filename = $"file{fileNumber:D2}.txt";
+                string resourcePath = $"../../../../../../../data/parallel/gridfs_multi/{filename}";
+                _gridFsBucket.UploadFromStream(filename, File.Open(resourcePath, FileMode.Open));
+            };
+        }
     }
 }

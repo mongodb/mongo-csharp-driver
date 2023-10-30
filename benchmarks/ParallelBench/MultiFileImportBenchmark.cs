@@ -7,58 +7,59 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
 
-namespace benchmarks.ParallelBench;
-
-[WarmupCount(2)]
-[IterationCount(4)]
-[BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
-public class MultiFileImportBenchmark
+namespace benchmarks.ParallelBench
 {
-    private MongoClient _client;
-    private IMongoDatabase _database;
-    private IMongoCollection<BsonDocument> _collection;
-
-    [GlobalSetup]
-    public void Setup()
+    [WarmupCount(2)]
+    [IterationCount(4)]
+    [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
+    public class MultiFileImportBenchmark
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-        _client.DropDatabase("perftest");
-        _database = _client.GetDatabase("perftest");
-    }
+        private MongoClient _client;
+        private IMongoDatabase _database;
+        private IMongoCollection<BsonDocument> _collection;
 
-    [IterationSetup]
-    public void BeforeTask()
-    {
-        _database.DropCollection("corpus");
-        _collection = _database.GetCollection<BsonDocument>("corpus");
-    }
-
-    [Benchmark]
-    public void MultiFileImport()
-    {
-        Task[] tasks = new Task[100];
-        for (int i = 0; i < 100; i++)
+        [GlobalSetup]
+        public void Setup()
         {
-            tasks[i] = Task.Factory.StartNew(ImportFile(i));
+            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+            _client.DropDatabase("perftest");
+            _database = _client.GetDatabase("perftest");
         }
-        Task.WaitAll(tasks);
-    }
 
-    [GlobalCleanup]
-    public void Teardown()
-    {
-        _client.DropDatabase("perftest");
-    }
-
-    private Action ImportFile(int fileNumber)
-    {
-        return () =>
+        [IterationSetup]
+        public void BeforeTask()
         {
-            string resourcePath = $"../../../../../../../data/parallel/ldjson_multi/ldjson{fileNumber:D3}.txt";
-            var documents = new List<BsonDocument>(5000);
-            documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
-            _collection.InsertMany(documents);
-        };
+            _database.DropCollection("corpus");
+            _collection = _database.GetCollection<BsonDocument>("corpus");
+        }
+
+        [Benchmark]
+        public void MultiFileImport()
+        {
+            Task[] tasks = new Task[100];
+            for (int i = 0; i < 100; i++)
+            {
+                tasks[i] = Task.Factory.StartNew(ImportFile(i));
+            }
+            Task.WaitAll(tasks);
+        }
+
+        [GlobalCleanup]
+        public void Teardown()
+        {
+            _client.DropDatabase("perftest");
+        }
+
+        private Action ImportFile(int fileNumber)
+        {
+            return () =>
+            {
+                string resourcePath = $"../../../../../../../data/parallel/ldjson_multi/ldjson{fileNumber:D3}.txt";
+                var documents = new List<BsonDocument>(5000);
+                documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
+                _collection.InsertMany(documents);
+            };
+        }
     }
 }

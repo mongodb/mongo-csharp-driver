@@ -3,28 +3,29 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using BenchmarkDotNet.Attributes;
 
-namespace benchmarks.Single_Doc;
-
-[IterationTime(3000)]
-public class RunCommandBenchmark
+namespace benchmarks.Single_Doc
 {
-    private MongoClient _client;
-    private IMongoDatabase _database;
-
-    [GlobalSetup]
-    public void Setup()
+    [IterationTime(3000)]
+    public class RunCommandBenchmark
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-        _database = _client.GetDatabase("admin");
-    }
+        private MongoClient _client;
+        private IMongoDatabase _database;
 
-    [Benchmark]
-    public void RunCommand()
-    {
-        for (int i = 0; i < 10000; i++)
+        [GlobalSetup]
+        public void Setup()
         {
-            _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
+            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+            _database = _client.GetDatabase("admin");
+        }
+
+        [Benchmark]
+        public void RunCommand()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
+            }
         }
     }
 }

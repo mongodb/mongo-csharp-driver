@@ -5,50 +5,51 @@ using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using static benchmarks.BenchmarkExtensions;
 
-namespace benchmarks.Multi_Doc;
-
-[IterationCount(100)]
-[BenchmarkCategory("MultiBench", "WriteBench", "DriverBench")]
-public class InsertManySmallBenchmark
+namespace benchmarks.Multi_Doc
 {
-    private MongoClient _client;
-    private IMongoDatabase _database;
-    private List<BsonDocument> _smallDocuments;
-    private IMongoCollection<BsonDocument> _collection;
-
-    [GlobalSetup]
-    public void Setup()
+    [IterationCount(100)]
+    [BenchmarkCategory("MultiBench", "WriteBench", "DriverBench")]
+    public class InsertManySmallBenchmark
     {
-        string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-        _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-        _client.DropDatabase("perftest");
-        var smallDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/small_doc.json");
-        _database = _client.GetDatabase("perftest");
+        private MongoClient _client;
+        private IMongoDatabase _database;
+        private List<BsonDocument> _smallDocuments;
+        private IMongoCollection<BsonDocument> _collection;
 
-        _smallDocuments = new List<BsonDocument>();
-        for (int i = 0; i < 10000; i++)
+        [GlobalSetup]
+        public void Setup()
         {
-            var documentCopy = smallDocument.DeepClone().AsBsonDocument;
-            _smallDocuments.Add(documentCopy);
+            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+            _client.DropDatabase("perftest");
+            var smallDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/small_doc.json");
+            _database = _client.GetDatabase("perftest");
+
+            _smallDocuments = new List<BsonDocument>();
+            for (int i = 0; i < 10000; i++)
+            {
+                var documentCopy = smallDocument.DeepClone().AsBsonDocument;
+                _smallDocuments.Add(documentCopy);
+            }
         }
-    }
 
-    [IterationSetup]
-    public void BeforeTask()
-    {
-        _database.DropCollection("corpus");
-        _collection = _database.GetCollection<BsonDocument>("corpus");
-    }
+        [IterationSetup]
+        public void BeforeTask()
+        {
+            _database.DropCollection("corpus");
+            _collection = _database.GetCollection<BsonDocument>("corpus");
+        }
 
-    [Benchmark]
-    public void InsertManySmall()
-    {
-        _collection.InsertMany(_smallDocuments, new InsertManyOptions());
-    }
+        [Benchmark]
+        public void InsertManySmall()
+        {
+            _collection.InsertMany(_smallDocuments, new InsertManyOptions());
+        }
 
-    [GlobalCleanup]
-    public void Teardown()
-    {
-        _client.DropDatabase("perftest");
+        [GlobalCleanup]
+        public void Teardown()
+        {
+            _client.DropDatabase("perftest");
+        }
     }
 }

@@ -6,33 +6,34 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using static benchmarks.BenchmarkExtensions;
 
-namespace benchmarks.BSON;
-
-[IterationTime(3000)]
-[BenchmarkCategory("BSONBench")]
-public class FullBsonEncodingBenchmark
+namespace benchmarks.BSON
 {
-    private MemoryStream _stream;
-    private BsonDocument _document;
-    private BsonBinaryWriter _writer;
-    private BsonSerializationContext _context;
-
-    [GlobalSetup]
-    public void Setup()
+    [IterationTime(3000)]
+    [BenchmarkCategory("BSONBench")]
+    public class FullBsonEncodingBenchmark
     {
-        _stream = new MemoryStream();
-        _writer = new BsonBinaryWriter(_stream);
-        _context = BsonSerializationContext.CreateRoot(_writer);
-        _document = ReadExtendedJson("../../../../../../../data/extended_bson/full_bson.json");
-    }
+        private MemoryStream _stream;
+        private BsonDocument _document;
+        private BsonBinaryWriter _writer;
+        private BsonSerializationContext _context;
 
-    [Benchmark]
-    public void FullBsonEncoding()
-    {
-        for (int i = 0; i < 10000; i++)
+        [GlobalSetup]
+        public void Setup()
         {
-            BsonDocumentSerializer.Instance.Serialize(_context, _document);
-            _stream.Position = 0;
+            _stream = new MemoryStream();
+            _writer = new BsonBinaryWriter(_stream);
+            _context = BsonSerializationContext.CreateRoot(_writer);
+            _document = ReadExtendedJson("../../../../../../../data/extended_bson/full_bson.json");
+        }
+
+        [Benchmark]
+        public void FullBsonEncoding()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                BsonDocumentSerializer.Instance.Serialize(_context, _document);
+                _stream.Position = 0;
+            }
         }
     }
 }
