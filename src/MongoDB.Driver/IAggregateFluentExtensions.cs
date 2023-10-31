@@ -151,6 +151,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $changeStreamSplitLargeEvent stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<ChangeStreamDocument<TResult>> ChangeStreamSplitLargeEvent<TResult>(this IAggregateFluent<ChangeStreamDocument<TResult>> aggregate)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent<TResult>());
+        }
+
+        /// <summary>
         /// Appends a $densify stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

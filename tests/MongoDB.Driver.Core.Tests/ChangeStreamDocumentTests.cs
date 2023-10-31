@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -457,6 +457,18 @@ namespace MongoDB.Driver
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.ResumeToken;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void SplitEvent_should_return_null_when_not_present()
+        {
+            var value = new BsonDocument("x", 1234);
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.SplitEvent;
 
             result.Should().BeNull();
         }

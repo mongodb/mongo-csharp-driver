@@ -224,6 +224,11 @@ namespace MongoDB.Driver
         public BsonDocument ResumeToken => GetValue<BsonDocument>(nameof(ResumeToken), null);
 
         /// <summary>
+        /// Gets the split event.
+        /// </summary>
+        public ChangeStreamSplitEvent SplitEvent => GetValue<ChangeStreamSplitEvent>(nameof(SplitEvent), null);
+
+        /// <summary>
         /// Gets the update description.
         /// </summary>
         /// <value>

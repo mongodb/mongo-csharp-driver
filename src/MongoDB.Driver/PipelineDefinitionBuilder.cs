@@ -301,6 +301,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $changeStreamSplitLargeEvent stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<ChangeStreamDocument<TInput>, ChangeStreamDocument<TInput>> ChangeStreamSplitLargeEvent<TInput>(
+           this PipelineDefinition<ChangeStreamDocument<TInput>, ChangeStreamDocument<TInput>> pipeline)
+        {
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent<TInput>());
+        }
+
+        /// <summary>
         /// Appends a $count stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

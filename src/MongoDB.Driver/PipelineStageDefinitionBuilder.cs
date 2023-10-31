@@ -383,6 +383,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $changeStreamSplitLargeEvent stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<ChangeStreamDocument<TInput>, ChangeStreamDocument<TInput>> ChangeStreamSplitLargeEvent<TInput>() =>
+            (PipelineStageDefinition<ChangeStreamDocument<TInput>, ChangeStreamDocument<TInput>>)new BsonDocument("$changeStreamSplitLargeEvent", new BsonDocument());
+
+        /// <summary>
         /// Creates a $count stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
