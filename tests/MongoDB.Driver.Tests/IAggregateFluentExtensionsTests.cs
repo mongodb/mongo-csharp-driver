@@ -13,20 +13,20 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq.Linq3Implementation;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
+using MongoDB.Driver.Tests.Linq.Linq3Implementation;
+using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -34,6 +34,18 @@ namespace MongoDB.Driver.Tests
     public class IAggregateFluentExtensionsTests : Linq3IntegrationTest
     {
         // public methods
+        [Fact]
+        public void ChangeStreamSplitLargeEvent_should_generate_the_correct_stage()
+        {
+            var subject = CreateSubject()
+                .ChangeStream()
+                .ChangeStreamSplitLargeEvent();
+
+            var expectedStage = BsonDocument.Parse("{ $changeStreamSplitLargeEvent : { } }");
+
+            AssertLast(subject, expectedStage);
+        }
+
 #if WINDOWS
         [Theory]
         [ParameterAttributeData]

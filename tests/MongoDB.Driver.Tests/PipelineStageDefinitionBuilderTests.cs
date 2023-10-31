@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -122,6 +121,15 @@ namespace MongoDB.Driver.Tests
 
             var stage = RenderStage(result);
             stage.Document.Should().Be("{ $changeStream : { } }");
+        }
+
+        [Fact]
+        public void ChangeStreamSplitLargeEvent_should_return_the_expected_result()
+        {
+            var result = PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent<BsonDocument>();
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be("{ $changeStreamSplitLargeEvent : { } }");
         }
 
         [Fact]
@@ -514,6 +522,11 @@ namespace MongoDB.Driver.Tests
         private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<BsonDocument, ChangeStreamDocument<BsonDocument>> stage)
         {
             return stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+        }
+
+        private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> stage)
+        {
+            return stage.Render(new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance), BsonSerializer.SerializerRegistry);
         }
 
         private RenderedPipelineStageDefinition<TOutput> RenderStage<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage)

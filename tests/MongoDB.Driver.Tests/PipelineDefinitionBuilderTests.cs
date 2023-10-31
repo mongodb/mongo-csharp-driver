@@ -84,6 +84,29 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void ChangeStreamSplitLargeEvent_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>();
+
+            var result = pipeline.ChangeStreamSplitLargeEvent();
+
+            var serializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var stages = RenderStages(result, serializer);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("{ $changeStreamSplitLargeEvent : { } }");
+        }
+
+        [Fact]
+        public void ChangeStreamSplitLargeEvent_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> pipeline = null;
+            var exception = Record.Exception(() => pipeline.ChangeStreamSplitLargeEvent());
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
         public void Lookup_should_throw_when_pipeline_is_null()
         {
             RequireServer.Check();
