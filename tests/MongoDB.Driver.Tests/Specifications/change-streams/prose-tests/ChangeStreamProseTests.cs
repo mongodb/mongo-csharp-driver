@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_tests
+namespace MongoDB.Driver.Tests.Specifications.change_streams.prose_tests
 {
     public class ChangeStreamProseTests : LoggableTestClass
     {
