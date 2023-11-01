@@ -88,21 +88,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    var to = expressionType.FullName switch
+                    AstExpression to;
+                    switch (expressionType.FullName)
                     {
-                        "MongoDB.Bson.ObjectId" => "objectId",
-                        "System.Boolean" => "bool",
-                        "System.DateTime" => "date",
-                        "System.Decimal" => "decimal",
-                        "System.Double" => "double",
-                        "System.Int32" => "int",
-                        "System.Int64" => "long",
-                        "System.String" => "string",
-                        _ => throw new ExpressionNotSupportedException(expression, because: $"conversion to {expressionType} is not supported")
-                    };
+                        case "MongoDB.Bson.ObjectId": to = "objectId"; serializer = ObjectIdSerializer.Instance; break;
+                        case "System.Boolean": to = "bool"; serializer = BooleanSerializer.Instance; break;
+                        case "System.DateTime": to = "date"; serializer = DateTimeSerializer.Instance; break;
+                        case "System.Decimal": to = "decimal"; serializer = DecimalSerializer.Decimal128Instance; break; // not the default representation
+                        case "System.Double": to = "double"; serializer = DoubleSerializer.Instance; break;
+                        case "System.Int32": to = "int"; serializer = Int32Serializer.Instance; break;
+                        case "System.Int64": to = "long"; serializer = Int64Serializer.Instance; break;
+                        case "System.String": to = "string"; serializer = StringSerializer.Instance; break;
+                        default: throw new ExpressionNotSupportedException(expression, because: $"conversion to {expressionType} is not supported");
+                    }
 
                     ast = AstExpression.Convert(ast, to);
-                    serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 }
 
                 return new AggregationExpression(expression, ast, serializer);

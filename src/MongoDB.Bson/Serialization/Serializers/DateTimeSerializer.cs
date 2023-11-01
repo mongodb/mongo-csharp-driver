@@ -27,6 +27,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DateTimeSerializer : StructSerializerBase<DateTime>, IRepresentationConfigurable<DateTimeSerializer>
     {
+        #region static
+        // private static fields
+        private static readonly DateTimeSerializer __instance = new DateTimeSerializer();
+
+        // public static properties
+        /// <summary>
+        /// Gets the default DateTimeSerializer.
+        /// </summary>
+        public static DateTimeSerializer Instance => __instance;
+        #endregion
+
         // private constants
         private static class Flags
         {
