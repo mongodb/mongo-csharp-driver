@@ -81,11 +81,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ExpressionType.Add => IsStringConcatenationExpression(expression) ?
                     AstExpression.Concat(leftTranslation.Ast, rightTranslation.Ast) :
                     AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.And => AstExpression.And(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.And => expression.Type == typeof(bool) ?
+                    AstExpression.And(leftTranslation.Ast, rightTranslation.Ast) :
+                    AstExpression.BitAnd(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.AndAlso => AstExpression.And(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Coalesce => AstExpression.IfNull(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Divide => AstExpression.Divide(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Equal => AstExpression.Eq(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.ExclusiveOr => expression.Type == typeof(bool) ?
+                    throw new ExpressionNotSupportedException(expression, because: "MongoDB does not have an $xor operator") :
+                    AstExpression.BitXor(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.GreaterThan => AstExpression.Gt(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.LessThan => AstExpression.Lt(leftTranslation.Ast, rightTranslation.Ast),
@@ -93,7 +98,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ExpressionType.Modulo => AstExpression.Mod(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Multiply => AstExpression.Multiply(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.NotEqual => AstExpression.Ne(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Or => AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Or => expression.Type == typeof(bool) ?
+                    AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast) :
+                    AstExpression.BitOr(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.OrElse => AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Power => AstExpression.Pow(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.Subtract => AstExpression.Subtract(leftTranslation.Ast, rightTranslation.Ast),

@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.Coalesce:
                 case ExpressionType.Divide:
                 case ExpressionType.Equal:
+                case ExpressionType.ExclusiveOr:
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThan:

@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
         private static readonly Feature __arrayFilters = new Feature("ArrayFilters", WireVersion.Server36);
+        private static readonly Feature __bitwiseOperators = new Feature("BitwiseOperators", WireVersion.Server63);
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
         private static readonly Feature __changeStreamAllChangesForCluster = new Feature("ChangeStreamAllChangesForCluster", WireVersion.Server40);
@@ -260,6 +261,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature ArrayFilters => __arrayFilters;
+
+        /// <summary>
+        /// Gets the bitwise operators feature.
+        /// </summary>
+        public static Feature BitwiseOperators => __bitwiseOperators;
 
         /// <summary>
         /// Gets the bypass document validation feature.

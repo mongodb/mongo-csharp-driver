@@ -80,24 +80,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 return new AstConstantExpression(value);
             }
 
-            if (args.Any(arg => arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Add))
-            {
-                var flattenedArgs = new List<AstExpression>();
-                foreach (var arg in args)
-                {
-                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Add)
-                    {
-                        flattenedArgs.AddRange(naryExpression.Args);
-                    }
-                    else
-                    {
-                        flattenedArgs.Add(arg);
-                    }
-                }
-                return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
-            }
-
-            return new AstNaryExpression(AstNaryOperator.Add, args);
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Add);
+            return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
         }
 
         public static AstExpression AllElementsTrue(AstExpression array)
@@ -122,24 +106,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 return new AstConstantExpression(value);
             }
 
-            if (args.Any(arg => arg.NodeType == AstNodeType.AndExpression))
-            {
-                var flattenedArgs = new List<AstExpression>();
-                foreach (var arg in args)
-                {
-                    if (arg is AstAndExpression andExpression)
-                    {
-                        flattenedArgs.AddRange(andExpression.Args);
-                    }
-                    else
-                    {
-                        flattenedArgs.Add(arg);
-                    }
-                }
-                return new AstAndExpression(flattenedArgs);
-            }
-
-            return new AstAndExpression(args);
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.And);
+            return new AstNaryExpression(AstNaryOperator.And, flattenedArgs);
         }
 
         public static AstExpression ArrayElemAt(AstExpression array, AstExpression index)
@@ -160,6 +128,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression BinaryWindowExpression(AstBinaryWindowOperator @operator, AstExpression arg1, AstExpression arg2, AstWindow window)
         {
             return new AstBinaryWindowExpression(@operator, arg1, arg2, window);
+        }
+
+        public static AstExpression BitAnd(params AstExpression[] args)
+        {
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
+
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.BitAnd);
+            return new AstNaryExpression(AstNaryOperator.BitAnd, flattenedArgs);
+        }
+
+        public static AstExpression BitNot(AstExpression arg)
+        {
+            Ensure.IsNotNull(arg, nameof(arg));
+            return new AstUnaryExpression(AstUnaryOperator.BitNot, arg);
+        }
+
+        public static AstExpression BitOr(params AstExpression[] args)
+        {
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
+
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.BitOr);
+            return new AstNaryExpression(AstNaryOperator.BitOr, flattenedArgs);
+        }
+
+        public static AstExpression BitXor(params AstExpression[] args)
+        {
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
+
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.BitXor);
+            return new AstNaryExpression(AstNaryOperator.BitXor, flattenedArgs);
         }
 
         public static AstExpression Ceil(AstExpression arg)
@@ -213,24 +217,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Concat(params AstExpression[] args)
         {
-            if (args.Any(a => a is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat))
-            {
-                var flattenedArgs = new List<AstExpression>();
-                foreach (var arg in args)
-                {
-                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)
-                    {
-                        flattenedArgs.AddRange(naryExpression.Args);
-                    }
-                    else
-                    {
-                        flattenedArgs.Add(arg);
-                    }
-                }
-                return new AstNaryExpression(AstNaryOperator.Concat, flattenedArgs);
-            }
-
-            return new AstNaryExpression(AstNaryOperator.Concat, args);
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Concat);
+            return new AstNaryExpression(AstNaryOperator.Concat, flattenedArgs);
         }
 
         public static AstExpression ConcatArrays(params AstExpression[] arrays)
@@ -568,25 +556,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Multiply(params AstExpression[] args)
         {
-            if (args.Any(arg => arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Multiply))
-            {
-                var flattenedArgs = new List<AstExpression>();
-                foreach (var arg in args)
-                {
-                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Multiply)
-                    {
-                        flattenedArgs.AddRange(naryExpression.Args);
-                    }
-                    else
-                    {
-                        flattenedArgs.Add(arg);
-                    }
-                }
-                return new AstNaryExpression(AstNaryOperator.Multiply, flattenedArgs);
-            }
-
-
-            return new AstNaryExpression(AstNaryOperator.Multiply, args);
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Multiply);
+            return new AstNaryExpression(AstNaryOperator.Multiply, flattenedArgs);
         }
 
         public static AstExpression Ne(AstExpression arg1, AstExpression arg2)
@@ -610,24 +581,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
             Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
 
-            if (args.Any(a => a.NodeType == AstNodeType.OrExpression))
-            {
-                var flattenedArgs = new List<AstExpression>();
-                foreach (var arg in args)
-                {
-                    if (arg is AstOrExpression orExpression)
-                    {
-                        flattenedArgs.AddRange(orExpression.Args);
-                    }
-                    else
-                    {
-                        flattenedArgs.Add(arg);
-                    }
-                }
-                return new AstOrExpression(flattenedArgs);
-            }
-
-            return new AstOrExpression(args);
+            var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Or);
+            return new AstNaryExpression(AstNaryOperator.Or, flattenedArgs);
         }
 
         public static AstExpression PickExpression(AstPickOperator @operator, AstExpression source, AstSortFields sortBy, AstVarExpression @as, AstExpression selector, AstExpression n)
@@ -950,6 +905,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
             values = null;
             return false;
+        }
+
+        private static IEnumerable<AstExpression> FlattenNaryArgs(IEnumerable<AstExpression> args, AstNaryOperator naryOperator)
+        {
+            if (args.Any(arg => arg is AstNaryExpression naryExpression && naryExpression.Operator == naryOperator))
+            {
+                var flattenedArgs = new List<AstExpression>();
+                foreach (var arg in args)
+                {
+                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == naryOperator)
+                    {
+                        flattenedArgs.AddRange(naryExpression.Args);
+                    }
+                    else
+                    {
+                        flattenedArgs.Add(arg);
+                    }
+                }
+                return flattenedArgs;
+            }
+
+            return args;
         }
         #endregion static
 

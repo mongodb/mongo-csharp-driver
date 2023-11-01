@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             _operator = @operator;
             _args = Ensure.IsNotNull(args, nameof(args)).AsReadOnlyList();
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
         }
 
         public AstNaryExpression(AstNaryOperator @operator, params AstExpression[] args)

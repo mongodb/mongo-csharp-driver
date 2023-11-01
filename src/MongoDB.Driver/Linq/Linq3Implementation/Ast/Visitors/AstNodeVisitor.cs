@@ -134,11 +134,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             }
         }
 
-        public virtual AstNode VisitAndExpression(AstAndExpression node)
-        {
-            return node.Update(VisitAndConvert(node.Args));
-        }
-
         public virtual AstNode VisitAndFilter(AstAndFilter node)
         {
             return node.Update(VisitAndConvert(node.Filters));
@@ -547,11 +542,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitNullaryWindowExpression(AstNullaryWindowExpression node)
         {
             return node;
-        }
-
-        public virtual AstNode VisitOrExpression(AstOrExpression node)
-        {
-            return node.Update(VisitAndConvert(node.Args));
         }
 
         public virtual AstNode VisitOrFilter(AstOrFilter node)
