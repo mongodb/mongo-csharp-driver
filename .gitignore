@@ -64,8 +64,8 @@ src/packages
 .dotnet
 
 # Benchmark Artifacts
-/benchmarks/BenchmarkDotNet.Artifacts
-/benchmarks/data
+MongoDB.Benchmarks/BenchmarkDotNet.Artifacts
+MongoDB.Benchmarks/data
 
 # Other
 artifacts
