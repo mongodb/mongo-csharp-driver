@@ -32,13 +32,14 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
-    [Trait("Category", "SupportLoadBalancing")]
+    [Category("SupportLoadBalancing", "Serverless")]
     public sealed class RetryableReadsTestRunner : LoggableTestClass
     {
         #region static
