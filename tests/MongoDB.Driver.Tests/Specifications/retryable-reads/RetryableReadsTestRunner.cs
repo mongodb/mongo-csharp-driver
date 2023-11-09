@@ -39,7 +39,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
-    [Category("SupportLoadBalancing", "Serverless")]
+    [Category("Serverless", "SupportLoadBalancing")]
     public sealed class RetryableReadsTestRunner : LoggableTestClass
     {
         #region static

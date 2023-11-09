@@ -31,7 +31,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
-    [Category("SupportLoadBalancing", "Serverless")]
+    [Category("Serverless", "SupportLoadBalancing")]
     public class RetryableWriteTestRunner : LoggableTestClass
     {
         private readonly string _databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
