@@ -24,13 +24,14 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
-    [Trait("Category", "SupportLoadBalancing")]
+    [Category("Serverless", "SupportLoadBalancing")]
     public class RetryableWriteTestRunner : LoggableTestClass
     {
         private readonly string _databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
