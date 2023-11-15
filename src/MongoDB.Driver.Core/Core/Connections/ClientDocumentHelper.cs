@@ -72,12 +72,12 @@ namespace MongoDB.Driver.Core.Connections
         internal static BsonDocument CreateDriverDocument(string driverVersion)
         {
             var driverName = "mongo-csharp-driver";
-            if (IsLegacyLoaded())
+            if (TryGetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy"))
             {
                 driverName = $"{driverName}|legacy";
             }
 
-            if (IsEFLoaded())
+            if (TryGetType("MongoDB.EntityFrameworkCore.Query.MongoQueryContext, MongoDB.EntityFrameworkCore"))
             {
                 driverName = $"{driverName}|efcore";
             }
@@ -87,16 +87,6 @@ namespace MongoDB.Driver.Core.Connections
                 { "name", driverName },
                 { "version", driverVersion }
             };
-
-            bool IsLegacyLoaded()
-            {
-                return Type.GetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy") != null;
-            }
-
-            bool IsEFLoaded()
-            {
-                return Type.GetType("MongoDB.EntityFrameworkCore.Query.MongoQueryContext, MongoDB.EntityFrameworkCore") != null;
-            }
         }
 
         internal static BsonDocument CreateEnvDocument()
@@ -193,7 +183,7 @@ namespace MongoDB.Driver.Core.Connections
             string architecture;
             string osVersion;
 
-            if (Type.GetType("Mono.Runtime") != null)
+            if (TryGetType("Mono.Runtime"))
             {
                 switch (Environment.OSVersion.Platform)
                 {
@@ -380,6 +370,20 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             return clientDocument;
+        }
+
+        private static bool TryGetType(string typeName)
+        {
+            try
+            {
+                var type = Type.GetType(typeName);
+                return type != null;
+            }
+            catch
+            {
+                // ignore any exceptions here.
+                return false;
+            }
         }
         #endregion
     }
