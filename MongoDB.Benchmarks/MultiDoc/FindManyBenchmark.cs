@@ -18,12 +18,12 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationTime(2000)]
-    [BenchmarkCategory("MultiBench", "ReadBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class FindManyBenchmark
     {
         private MongoClient _client;

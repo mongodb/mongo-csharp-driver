@@ -19,9 +19,9 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Exporters;
 using System.Collections.Generic;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.CustomExporters
+namespace MongoDB.Benchmarks.Exporters
 {
     public class LocalExporter : IExporter
     {
@@ -47,12 +47,25 @@ namespace MongoDB.Benchmarks.CustomExporters
 
                 using (StreamWriter writer = new StreamWriter(path, false))
                 {
-                    var benchmarkResults =
-                        (from report in summary.Reports
-                            where report.GetRuntimeInfo() == runtime
-                            let benchmarkName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name
-                            select new BenchmarkResult(report.ResultStatistics, benchmarkName, GetDatasetSize(benchmarkName)))
-                        .ToList();
+                    var benchmarkResults = new List<BenchmarkResult>();
+                    foreach (var report in summary.Reports)
+                    {
+                        if (report.GetRuntimeInfo() != runtime)
+                        {
+                            continue;
+                        }
+
+                        string benchmarkName;
+                        if (report.BenchmarkCase.Descriptor.HasCategory(DriverBenchmarkCategory.BsonBench))
+                        {
+                            benchmarkName = report.BenchmarkCase.Parameters["benchmarkData"] + report.BenchmarkCase.Descriptor.Type.Name;
+                        }
+                        else
+                        {
+                            benchmarkName = report.BenchmarkCase.Descriptor.Type.Name;
+                        }
+                        benchmarkResults.Add(new BenchmarkResult(report, benchmarkName, GetDatasetSize(benchmarkName)));
+                    }
 
                     ExportToFile(benchmarkResults, writer);
                 }
@@ -64,29 +77,29 @@ namespace MongoDB.Benchmarks.CustomExporters
         private static void ExportToFile(List<BenchmarkResult> benchmarkResults, TextWriter writer)
         {
             var compositeScore = new CompositeScore(benchmarkResults);
-            double bsonBenchScore = compositeScore.GetScore(BsonBenchmarks);
-            double readBenchScore = compositeScore.GetScore(ReadBenchmarks);
-            double writeBenchScore = compositeScore.GetScore(WriteBenchmarks);
-            double multiBenchScore = compositeScore.GetScore(MultiBenchmarks);
-            double singleBenchScore = compositeScore.GetScore(SingleBenchmarks);
-            double parallelBenchScore = compositeScore.GetScore(ParallelBenchmarks);
+            double bsonBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.BsonBench);
+            double readBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ReadBench);
+            double writeBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.WriteBench);
+            double multiBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.MultiBench);
+            double singleBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.SingleBench);
+            double parallelBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ParallelBench);
             double driverBenchScore = (readBenchScore + writeBenchScore) / 2;
 
             writer.WriteLine("Scores Summary: ");
-            WriteScore("BSONBench", bsonBenchScore);
-            WriteScore("ReadBench", readBenchScore);
-            WriteScore("WriteBench", writeBenchScore);
-            WriteScore("MultiBench", multiBenchScore);
-            WriteScore("SingleBench", singleBenchScore);
-            WriteScore("ParallelBench", parallelBenchScore);
-            WriteScore("DriverBench", driverBenchScore);
+            WriteScore(DriverBenchmarkCategory.BsonBench, bsonBenchScore);
+            WriteScore(DriverBenchmarkCategory.ReadBench, readBenchScore);
+            WriteScore(DriverBenchmarkCategory.WriteBench, writeBenchScore);
+            WriteScore(DriverBenchmarkCategory.MultiBench, multiBenchScore);
+            WriteScore(DriverBenchmarkCategory.SingleBench, singleBenchScore);
+            WriteScore(DriverBenchmarkCategory.ParallelBench, parallelBenchScore);
+            WriteScore(DriverBenchmarkCategory.DriverBench, driverBenchScore);
 
             foreach (var benchmark in benchmarkResults)
             {
                 WriteScore(benchmark.Name, benchmark.Score);
             }
 
-            // return;
+            return;
 
             void WriteScore(string benchName, double score)
             {

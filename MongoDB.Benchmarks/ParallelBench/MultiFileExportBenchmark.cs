@@ -26,7 +26,7 @@ namespace MongoDB.Benchmarks.ParallelBench
 {
     [WarmupCount(3)]
     [IterationCount(5)]
-    [BenchmarkCategory("ParallelBench", "ReadBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class MultiFileExportBenchmark
     {
         private MongoClient _client;

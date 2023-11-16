@@ -14,15 +14,14 @@
 */
 
 using System.IO;
-using System.Linq;
 using MongoDB.Bson.IO;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Exporters;
 using System.Collections.Generic;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.CustomExporters
+namespace MongoDB.Benchmarks.Exporters
 {
     public sealed class EvergreenExporter : IExporter
     {
@@ -41,11 +40,20 @@ namespace MongoDB.Benchmarks.CustomExporters
 
         public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
         {
-            var benchmarkResults =
-                (from report in summary.Reports
-                    let benchmarkName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name
-                    select new BenchmarkResult(report.ResultStatistics, benchmarkName, GetDatasetSize(benchmarkName)))
-                .ToList();
+            var benchmarkResults = new List<BenchmarkResult>();
+            foreach (var report in summary.Reports)
+            {
+                string benchmarkName;
+                if (report.BenchmarkCase.Descriptor.HasCategory(DriverBenchmarkCategory.BsonBench))
+                {
+                    benchmarkName = report.BenchmarkCase.Parameters["benchmarkData"] + report.BenchmarkCase.Descriptor.Type.Name;
+                }
+                else
+                {
+                    benchmarkName = report.BenchmarkCase.Descriptor.Type.Name;
+                }
+                benchmarkResults.Add(new BenchmarkResult(report, benchmarkName, GetDatasetSize(benchmarkName)));
+            }
 
             var resultsPath = Path.Combine(summary.ResultsDirectoryPath, _outputFile);
             if (File.Exists(resultsPath))
@@ -56,23 +64,23 @@ namespace MongoDB.Benchmarks.CustomExporters
             using (var jsonWriter = new JsonWriter(File.CreateText(resultsPath), new JsonWriterSettings { Indent = true }))
             {
                 var compositeScore = new CompositeScore(benchmarkResults);
-                var bsonBenchScore = compositeScore.GetScore(BsonBenchmarks);
-                var readBenchScore = compositeScore.GetScore(ReadBenchmarks);
-                var multiBenchScore = compositeScore.GetScore(MultiBenchmarks);
-                var writeBenchScore = compositeScore.GetScore(WriteBenchmarks);
-                var singleBenchScore = compositeScore.GetScore(SingleBenchmarks);
-                var parallelBenchScore = compositeScore.GetScore(ParallelBenchmarks);
+                var bsonBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.BsonBench);
+                var readBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ReadBench);
+                var multiBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.MultiBench);
+                var writeBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.WriteBench);
+                var singleBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.SingleBench);
+                var parallelBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ParallelBench);
                 var driverBenchScore = (readBenchScore + writeBenchScore) / 2;
 
                 jsonWriter.WriteStartArray();
 
-                WriteCompositeScoreToResults(jsonWriter,"BSONBench", bsonBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"ReadBench", readBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"WriteBench", writeBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"MultiBench", multiBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"SingleBench", singleBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"ParallelBench", parallelBenchScore);
-                WriteCompositeScoreToResults(jsonWriter,"DriverBench", driverBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.BsonBench, bsonBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.ReadBench, readBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.WriteBench, writeBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.MultiBench, multiBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.SingleBench, singleBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.ParallelBench, parallelBenchScore);
+                WriteCompositeScoreToResults(jsonWriter, DriverBenchmarkCategory.DriverBench, driverBenchScore);
 
                 foreach (var benchmark in benchmarkResults)
                 {

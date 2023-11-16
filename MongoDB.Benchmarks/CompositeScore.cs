@@ -27,10 +27,10 @@ namespace MongoDB.Benchmarks
             _benchmarkResults = benchmarkResults;
         }
 
-        public double GetScore(IReadOnlyCollection<string> filterGroup)
+        public double GetScore(string benchmarkCategory)
         {
             var identifiedBenchmarksScores = _benchmarkResults
-                .Where(benchmark => filterGroup.Contains(benchmark.Name))
+                .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
                 .Select(benchmark => benchmark.Score).ToList();
 
             if (identifiedBenchmarksScores.Any())

@@ -13,22 +13,16 @@
 * limitations under the License.
 */
 
-using BenchmarkDotNet.Reports;
-using System.Collections.Generic;
-
 namespace MongoDB.Benchmarks
 {
-    public sealed class BenchmarkResult
+    public static class DriverBenchmarkCategory
     {
-        public string Name { get; }
-        public double Score { get; }
-        public IEnumerable<string> Categories { get; }
-
-        public BenchmarkResult(BenchmarkReport benchmarkReport, string name, int datasetSize)
-        {
-            Name = name;
-            Categories = benchmarkReport.BenchmarkCase.Descriptor.Categories;
-            Score = datasetSize / (benchmarkReport.ResultStatistics.Median / 1000);
-        }
+        public const string BsonBench = "BSONBench";
+        public const string ReadBench = "ReadBench";
+        public const string WriteBench = "WriteBench";
+        public const string MultiBench = "MultiBench";
+        public const string SingleBench = "SingleBench";
+        public const string ParallelBench = "ParallelBench";
+        public const string DriverBench = "DriverBench";
     }
 }

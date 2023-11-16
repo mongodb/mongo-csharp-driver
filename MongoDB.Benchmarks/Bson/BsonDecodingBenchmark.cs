@@ -17,31 +17,35 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using BenchmarkDotNet.Attributes;
+using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Serializers;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Bson
 {
     [IterationTime(3000)]
-    [BenchmarkCategory("BSONBench")]
-    public class FullBsonDecodingBenchmark
+    [BenchmarkCategory(DriverBenchmarkCategory.BsonBench)]
+    public class BsonDecodingBenchmark
     {
         private byte[] _bytes;
         private MemoryStream _stream;
         private BsonBinaryReader _reader;
         private BsonDeserializationContext _context;
 
+        [ParamsSource(nameof(BenchmarkDataSources))]
+        public BenchmarkData benchmarkData;
+
         [GlobalSetup]
         public void Setup()
         {
-            _bytes = ReadExtendedJsonToBytes("../../../../../../../data/extended_bson/full_bson.json");
+            _bytes = ReadExtendedJsonToBytes(benchmarkData.FilePath);
             _stream = new MemoryStream(_bytes);
             _reader = new BsonBinaryReader(_stream);
             _context = BsonDeserializationContext.CreateRoot(_reader);
         }
 
         [Benchmark]
-        public void FullBsonDecoding()
+        public void BsonDecoding()
         {
             for (int i = 0; i < 10000; i++)
             {
@@ -49,5 +53,12 @@ namespace MongoDB.Benchmarks.Bson
                 _stream.Position = 0;
             }
         }
+
+        public IEnumerable<BenchmarkData> BenchmarkDataSources() => new[]
+        {
+            new BenchmarkData("../../../../../../../data/extended_bson/flat_bson.json", "Flat"),
+            new BenchmarkData("../../../../../../../data/extended_bson/full_bson.json", "Full"),
+            new BenchmarkData("../../../../../../../data/extended_bson/deep_bson.json", "Deep")
+        };
     }
 }

@@ -18,12 +18,12 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc
 {
     [IterationTime(3000)]
-    [BenchmarkCategory("SingleBench", "ReadBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class FindOneBenchmark
     {
         private MongoClient _client;

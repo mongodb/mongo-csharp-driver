@@ -18,12 +18,12 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationCount(100)]
-    [BenchmarkCategory("MultiBench", "WriteBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class InsertManyLargeBenchmark
     {
         private MongoClient _client;

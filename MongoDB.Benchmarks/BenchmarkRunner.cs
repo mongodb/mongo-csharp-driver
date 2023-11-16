@@ -16,7 +16,7 @@
 using NDesk.Options;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using MongoDB.Benchmarks.CustomExporters;
+using MongoDB.Benchmarks.Exporters;
 
 namespace MongoDB.Benchmarks
 {

@@ -17,12 +17,12 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using BenchmarkDotNet.Attributes;
-using static MongoDB.Benchmarks.BenchmarkExtensions;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc
 {
     [IterationCount(100)]
-    [BenchmarkCategory("SingleBench", "WriteBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class InsertOneLargeBenchmark
     {
         private MongoClient _client;

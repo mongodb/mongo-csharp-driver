@@ -22,12 +22,11 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
 
-
 namespace MongoDB.Benchmarks.ParallelBench
 {
     [WarmupCount(2)]
     [IterationCount(4)]
-    [BenchmarkCategory("ParallelBench", "WriteBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class MultiFileImportBenchmark
     {
         private MongoClient _client;

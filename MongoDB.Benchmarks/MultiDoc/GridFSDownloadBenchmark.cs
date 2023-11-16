@@ -23,7 +23,7 @@ using BenchmarkDotNet.Attributes;
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationTime(3000)]
-    [BenchmarkCategory("MultiBench", "ReadBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class GridFsDownloadBenchmark
     {
         private ObjectId _fileId;

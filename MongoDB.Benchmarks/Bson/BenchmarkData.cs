@@ -13,22 +13,18 @@
 * limitations under the License.
 */
 
-using BenchmarkDotNet.Reports;
-using System.Collections.Generic;
-
-namespace MongoDB.Benchmarks
+namespace MongoDB.Benchmarks.Bson
 {
-    public sealed class BenchmarkResult
+    public readonly struct BenchmarkData
     {
-        public string Name { get; }
-        public double Score { get; }
-        public IEnumerable<string> Categories { get; }
-
-        public BenchmarkResult(BenchmarkReport benchmarkReport, string name, int datasetSize)
+        public BenchmarkData(string filepath, string dataSetName)
         {
-            Name = name;
-            Categories = benchmarkReport.BenchmarkCase.Descriptor.Categories;
-            Score = datasetSize / (benchmarkReport.ResultStatistics.Median / 1000);
+            FilePath = filepath;
+            DataSet = dataSetName;
         }
+        public string DataSet { get; }
+        public string FilePath { get; }
+
+        public override string ToString() => $"{DataSet}";
     }
 }

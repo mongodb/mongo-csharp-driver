@@ -19,11 +19,10 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using BenchmarkDotNet.Attributes;
 
-
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationCount(100)]
-    [BenchmarkCategory("MultiBench", "WriteBench", "DriverBench")]
+    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class GridFsUploadBenchmark
     {
         private byte[] _fileBytes;
