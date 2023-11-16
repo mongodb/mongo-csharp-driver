@@ -64,8 +64,8 @@ src/packages
 .dotnet
 
 # Benchmark Artifacts
-MongoDB.Benchmarks/BenchmarkDotNet.Artifacts
-MongoDB.Benchmarks/data
+benchmarks/MongoDB.Driver.Benchmarks/BenchmarkDotNet.Artifacts
+benchmarks/MongoDB.Driver.Benchmarks/data
 
 # Other
 artifacts

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
+    <RootNamespace>MongoDB.Benchmarks</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -27,7 +28,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\src\MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj" />
-    <ProjectReference Include="..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj" />
   </ItemGroup>
 </Project>
