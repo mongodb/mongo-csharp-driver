@@ -36,7 +36,7 @@ namespace MongoDB.Benchmarks
         public static int GetDatasetSize(string benchmarkName) =>
             benchmarkName switch
             {
-                "GridFsMultiFileUploadBenchmark" or "GridFsMultiFileDownloadBenchmark" => 262144000,
+                "GridFSMultiFileUploadBenchmark" or "GridFSMultiFileDownloadBenchmark" => 262144000,
                 "FlatBsonEncodingBenchmark" or "FlatBsonDecodingBenchmark" => 75310000,
                 "DeepBsonEncodingBenchmark" or "DeepBsonDecodingBenchmark" => 19640000,
                 "FullBsonEncodingBenchmark" or "FullBsonDecodingBenchmark" => 57340000,
