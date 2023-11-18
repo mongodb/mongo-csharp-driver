@@ -27,6 +27,8 @@ namespace BenchmarkLibMongoCrypt
         private IMongoCollection<BsonDocument> _encryptedClientCollection;
         private IMongoCollection<BsonDocument> _unencryptedClientCollection;
 
+        private const int RepeatCount = 10;
+
         [Params(1, 2, 8, 64)]
         public int ThreadCounts;
 
@@ -105,57 +107,56 @@ namespace BenchmarkLibMongoCrypt
         }
 
         [Benchmark]
-        public void BulkDecryptionWithFind()
+        public void BulkDecryptionUsingFind()
         {
             var tasks = new Task[ThreadCounts];
             for (int i = 0; i < ThreadCounts; i++)
             {
-                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskWithFind());
+                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskUsingFind());
             }
 
             Task.WaitAll(tasks);
         }
 
         [Benchmark]
-        public void BulkDecryptionWithBinding()
+        public void BulkDecryptionUsingBinding()
         {
             var tasks = new Task[ThreadCounts];
             for (int i = 0; i < ThreadCounts; i++)
             {
-                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskWithBinding());
+                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskUsingBinding());
             }
 
             Task.WaitAll(tasks);
         }
 
-        // [MethodImpl(MethodImplOptions.NoInlining)]
         private Action FindWithNoEncryptionTask()
         {
             return () =>
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < RepeatCount; i++)
                 {
                     _unencryptedClientCollection.Find(Builders<BsonDocument>.Filter.Empty).Single();
                 }
             };
         }
 
-        private Action BulkDecryptionTaskWithFind()
+        private Action BulkDecryptionTaskUsingFind()
         {
             return () =>
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < RepeatCount; i++)
                 {
                     _encryptedClientCollection.Find(Builders<BsonDocument>.Filter.Empty).Single();
                 }
             };
         }
 
-        private Action BulkDecryptionTaskWithBinding()
+        private Action BulkDecryptionTaskUsingBinding()
         {
             return () =>
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < RepeatCount; i++)
                 {
                     _decryptFieldsMethod.Invoke(_mongoCryptController, new object[] { _encryptedValuesDocumentBytes, CancellationToken.None });
                 }
