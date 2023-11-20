@@ -2,18 +2,16 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading;
+using System.Reflection;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using MongoDB.Driver.Encryption;
 using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using BenchmarkDotNet.Engines;
 
-namespace BenchmarkLibMongoCrypt
+namespace MongoDB.LibMongoCryptBindingsBenchmark
 {
     [Config(typeof(StyleConfig))]
     public class MongoCryptBenchmark

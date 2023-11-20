@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace BenchmarkLibMongoCrypt
+namespace MongoDB.LibMongoCryptBindingsBenchmark
 {
     public class Program
     {
