@@ -36,6 +36,17 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
+        public void GetBytesUsingThreadStaticBuffer_should_leave_the_thread_operational()
+        {
+            var invalidUtf8String = "🔥".Substring(0, 1);
+            var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, invalidUtf8String));
+            var e = exception.Should().BeOfType<EncoderFallbackException>().Subject;
+
+            using var segment = EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, "Thread static buffer should not be in use");
+            segment.Segment.Array.Length.Should().Be(256);
+        }
+
+        [Fact]
         public void GetBytesUsingThreadStaticBuffer_should_throw_when_value_is_null()
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, null));

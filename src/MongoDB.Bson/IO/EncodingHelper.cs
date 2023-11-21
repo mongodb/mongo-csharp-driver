@@ -63,10 +63,17 @@ namespace MongoDB.Bson.IO
             var maxSize = encoding.GetMaxByteCount(length);
             var rentedBuffer = ThreadStaticBuffer.RentBuffer(maxSize);
 
-            var size = encoding.GetBytes(value, 0, length, rentedBuffer.Bytes, 0);
-            var segment = new ArraySegment<byte>(rentedBuffer.Bytes, 0, size);
-
-            return new DisposableSegment(rentedBuffer, segment);
+            try
+            {
+                var size = encoding.GetBytes(value, 0, length, rentedBuffer.Bytes, 0);
+                var segment = new ArraySegment<byte>(rentedBuffer.Bytes, 0, size);
+                return new DisposableSegment(rentedBuffer, segment);
+            }
+            catch
+            {
+                rentedBuffer.Dispose();
+                throw;
+            }
         }
     }
 }
