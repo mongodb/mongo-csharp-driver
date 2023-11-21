@@ -20,7 +20,7 @@ if [[ "$CLIENT_PEM" == "nil" ]]; then
   exit 1
 fi
 
-openssl pkcs12 -export -in "${CLIENT_PEM}" \
+openssl pkcs12 -export -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1 -in "${CLIENT_PEM}" \
   -out "${MONGO_X509_CLIENT_P12}" \
   -name "Drivers Client Certificate" \
   -password "pass:${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
