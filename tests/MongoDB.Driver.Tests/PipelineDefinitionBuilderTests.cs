@@ -416,14 +416,14 @@ namespace MongoDB.Driver.Tests
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
             var options = new VectorSearchOptions<BsonDocument>()
             {
-                Filter = Builders<BsonDocument>.Filter.Eq("y", "val"),
+                Filter = Builders<BsonDocument>.Filter.Eq("x", 1) & Builders<BsonDocument>.Filter.Eq("y", 2),
                 IndexName = "index_name",
                 NumberOfCandidates = 123
             };
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter: { y: 'val' } } }");
+            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
         }
 
         [Fact]
