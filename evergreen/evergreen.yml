@@ -865,10 +865,16 @@ functions:
   create-serverless-instance:
     - command: shell.exec
       params:
+        shell: bash
         script: |
           ${PREPARE_SHELL}
           set +o xtrace # Disable tracing
-          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+          if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
+            SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
+          else
+            SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
+          fi
+          SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
           SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
           SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
           LOADBALANCED=ON \
@@ -880,11 +886,17 @@ functions:
   delete-serverless-instance-if-configured:
     - command: shell.exec
       params:
+        shell: bash
         script: |
           if [ "" != "${SERVERLESS}" ]; then
             ${PREPARE_SHELL}
             set +o xtrace # Disable tracing
-            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+            if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
+              SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
+            else
+              SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
+            fi
+            SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
             SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
             SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
             SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
@@ -1305,31 +1317,13 @@ tasks:
 
     - name: atlas-search-index-helpers-test
       commands:
-        - func: run-atlas-search-index-helpers-test  
+        - func: run-atlas-search-index-helpers-test
 
-    - name: test-serverless-net472
+    - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
         - func: create-serverless-instance
         - func: run-serverless-tests
-          vars:
-            FRAMEWORK: net472
-
-    - name: test-serverless-netstandard20
-      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
-      commands:
-        - func: create-serverless-instance
-        - func: run-serverless-tests
-          vars:
-            FRAMEWORK: netstandard20
-
-    - name: test-serverless-netstandard21
-      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
-      commands:
-        - func: create-serverless-instance
-        - func: run-serverless-tests
-          vars:
-            FRAMEWORK: netstandard21
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1938,6 +1932,34 @@ axes:
         variables:
            COMPRESSOR: "zstd"
 
+  - id: target_framework
+    display_name: Target .net framework
+    values:
+      - id: "net472"
+        display_name: net472
+        variables:
+          FRAMEWORK: net472
+      - id: "netstandard20"
+        display_name: netstandard20
+        variables:
+          FRAMEWORK: netstandard20
+      - id: "netstandard21"
+        display_name: netstandard21
+        variables:
+          FRAMEWORK: netstandard21
+
+  - id: serverless_proxy_type
+    display_name: Serverless Proxy Type
+    values:
+      - id: "Passthrough"
+        display_name: "Serverless Passthrough Proxy"
+        variables:
+          SERVERLESS_PROXY_TYPE: Passthrough
+      - id: "Terminating"
+        display_name: "Serverless Terminating Proxy"
+        variables:
+          SERVERLESS_PROXY_TYPE: Terminating
+
 task_groups:
   - name: testazurekms-task-group
     setup_group_can_fail_task: true
@@ -2263,19 +2285,16 @@ buildvariants:
 
 # Serverless tests
 - matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64" }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: "*", serverless_proxy_type: "*" }
+  display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   tasks:
-    - name: test-serverless-net472
-    - name: test-serverless-netstandard20
-    - name: test-serverless-netstandard21
+    - name: test-serverless
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804" }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804", target_framework: ["netstandard20", "netstandard21"], serverless_proxy_type: "*" }
+  display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   tasks:
-    - name: test-serverless-netstandard20
-    - name: test-serverless-netstandard21
+    - name: test-serverless
 
 # Atlas tests
 - name: atlas-connectivity-tests
