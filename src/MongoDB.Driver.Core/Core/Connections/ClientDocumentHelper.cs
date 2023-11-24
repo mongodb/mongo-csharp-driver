@@ -63,8 +63,7 @@ namespace MongoDB.Driver.Core.Connections
         internal static BsonDocument CreateDriverDocument()
         {
             var assembly = typeof(ConnectionInitializer).GetTypeInfo().Assembly;
-            var fileVersionAttribute = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-            var driverVersion = fileVersionAttribute.Version;
+            var driverVersion = GetAssemblyVersion(assembly);
 
             return CreateDriverDocument(driverVersion);
         }
@@ -72,13 +71,15 @@ namespace MongoDB.Driver.Core.Connections
         internal static BsonDocument CreateDriverDocument(string driverVersion)
         {
             var driverName = "mongo-csharp-driver";
-            if (TryGetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy"))
+            if (TryGetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy", out _))
             {
                 driverName = $"{driverName}|legacy";
             }
 
-            if (TryGetType("MongoDB.EntityFrameworkCore.Query.MongoQueryContext, MongoDB.EntityFrameworkCore"))
+            if (TryGetType("MongoDB.EntityFrameworkCore.Query.MongoQueryContext, MongoDB.EntityFrameworkCore", out var queryContextType))
             {
+                var efVersion = GetAssemblyVersion(queryContextType.Assembly);
+                driverVersion = $"{driverVersion}|{efVersion}";
                 driverName = $"{driverName}|efcore";
             }
 
@@ -183,7 +184,7 @@ namespace MongoDB.Driver.Core.Connections
             string architecture;
             string osVersion;
 
-            if (TryGetType("Mono.Runtime"))
+            if (TryGetType("Mono.Runtime", out _))
             {
                 switch (Environment.OSVersion.Platform)
                 {
@@ -372,19 +373,33 @@ namespace MongoDB.Driver.Core.Connections
             return clientDocument;
         }
 
-        private static bool TryGetType(string typeName)
+        private static bool TryGetType(string typeName, out Type type)
         {
             try
             {
-                var type = Type.GetType(typeName);
+                type = Type.GetType(typeName);
                 return type != null;
             }
             catch
             {
                 // ignore any exceptions here.
+                type = null;
                 return false;
             }
         }
+
+        private static string GetAssemblyVersion(Assembly assembly)
+        {
+            var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            var hashIndex = versionAttribute.InformationalVersion.IndexOf('+');
+            if (hashIndex == -1)
+            {
+                return versionAttribute.InformationalVersion;
+            }
+
+            return versionAttribute.InformationalVersion.Substring(0, hashIndex);
+        }
+
         #endregion
     }
 }
