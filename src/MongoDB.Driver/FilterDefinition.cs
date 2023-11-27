@@ -289,26 +289,26 @@ namespace MongoDB.Driver
 
     internal static class FilterDefinitionRenderContext
     {
-        private static readonly AsyncLocal<bool> __renderFullForm = new AsyncLocal<bool>();
+        private static readonly AsyncLocal<bool> __renderDollarForm = new AsyncLocal<bool>();
 
-        public static bool RenderFullForm
+        public static bool RenderDollarForm
         {
-            get => __renderFullForm.Value;
-            set => __renderFullForm.Value = value;
+            get => __renderDollarForm.Value;
+            set => __renderDollarForm.Value = value;
         }
 
-        public static IDisposable StartRender(bool renderFullForm) => new FilterDefinitionRenderContextDisposer(renderFullForm);
+        public static IDisposable StartRender(bool renderDollarForm) => new FilterDefinitionRenderContextDisposer(renderDollarForm);
 
         private sealed class FilterDefinitionRenderContextDisposer : IDisposable
         {
-            public FilterDefinitionRenderContextDisposer(bool renderFullForm)
+            public FilterDefinitionRenderContextDisposer(bool renderDollarForm)
             {
-                RenderFullForm = renderFullForm;
+                RenderDollarForm = renderDollarForm;
             }
 
             public void Dispose()
             {
-                RenderFullForm = false;
+                RenderDollarForm = false;
             }
         }
     }

@@ -26,31 +26,31 @@ namespace MongoDB.Driver.Tests
     public class FilterDefinitionRenderContextTests
     {
         [Fact]
-        public void FilterDefinitionRenderContext_fullForm_default_value_should_be_false()
+        public void FilterDefinitionRenderContext_dollarForm_default_value_should_be_false()
         {
-            FilterDefinitionRenderContext.RenderFullForm.Should().BeFalse();
+            FilterDefinitionRenderContext.RenderDollarForm.Should().BeFalse();
         }
 
         [Fact]
         public async Task FilterDefinitionRenderContext_should_be_scoped_to_task()
         {
-            bool? renderFullFormValueObservedByTask = null;
+            bool? renderDollarFormValueObservedByTask = null;
             var taskReadyToRenderEvent = new ManualResetEventSlim();
             var unblockTaskEvent = new ManualResetEventSlim();
             var rendererTask = Task.Run(RendererTask);
 
-            // Wait for task to set RenderFullForm = true;
+            // Wait for task to set RenderDollarForm = true;
             taskReadyToRenderEvent.Wait();
 
-            // Try to 'override' RenderFullForm value and unblock the task
-            FilterDefinitionRenderContext.RenderFullForm = false;
+            // Try to 'override' RenderDollarForm value and unblock the task
+            FilterDefinitionRenderContext.RenderDollarForm = false;
             unblockTaskEvent.Set();
 
-            // Wait fot task to finish and set renderFullFormValueObservedByTask
+            // Wait fot task to finish and set renderDollarFormValueObservedByTask
             await rendererTask;
 
-            renderFullFormValueObservedByTask.Should().Be(true);
-            FilterDefinitionRenderContext.RenderFullForm.Should().Be(false);
+            renderDollarFormValueObservedByTask.Should().Be(true);
+            FilterDefinitionRenderContext.RenderDollarForm.Should().Be(false);
 
             void RendererTask()
             {
@@ -59,19 +59,19 @@ namespace MongoDB.Driver.Tests
                 taskReadyToRenderEvent.Set();
                 unblockTaskEvent.Wait();
 
-                renderFullFormValueObservedByTask = FilterDefinitionRenderContext.RenderFullForm;
+                renderDollarFormValueObservedByTask = FilterDefinitionRenderContext.RenderDollarForm;
             }
         }
 
         [Theory]
         [MemberData(nameof(Correct_form_should_be_rendered_test_cases))]
-        public void Correct_form_should_be_rendered(FilterDefinition<BsonDocument> filterDefinition, bool renderFullForm, string expectedFilter)
+        public void Correct_form_should_be_rendered(FilterDefinition<BsonDocument> filterDefinition, bool renderDollarForm, string expectedFilter)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<BsonDocument>();
             var expectedFilterDocument = BsonDocument.Parse(expectedFilter);
 
-            using var renderContext = FilterDefinitionRenderContext.StartRender(renderFullForm);
+            using var renderContext = FilterDefinitionRenderContext.StartRender(renderDollarForm);
             var actualFilter = filterDefinition.Render(documentSerializer, serializerRegistry);
 
             actualFilter.Should().Be(expectedFilterDocument);
@@ -108,6 +108,12 @@ namespace MongoDB.Driver.Tests
                 // $eq and $and nested
                 new object[] { !(Eq("a", 1) & Eq("b", 2)), false, "{ $nor: [{ a : 1, b : 2 }] }" },
                 new object[] { !(Eq("a", 1) & Eq("b", 2)), true, "{ $nor: [{ $and: [{ a: { $eq: 1 }}, { b: { $eq: 2 }}] }] }" },
+
+                // always dollar form
+                new object[] { Eq("a", 1) & Eq("a", 2), false, "{ $and : [{ a : 1 }, { a : 2 }] }" },
+                new object[] { Eq("a", 1) & Eq("a", 2), true, "{ $and : [{ a : { $eq: 1 } }, { a : { $eq: 2 } }] }" },
+                new object[] { Gt("a", 1) & Gt("a", 2), false, "{ $and : [{ a : { $gt : 1 } }, { a : { $gt : 2 } }] }" },
+                new object[] { Gt("a", 1) & Gt("a", 2), true, "{ $and : [{ a : { $gt : 1 } }, { a : { $gt : 2 } }] }" },
             };
         }
 

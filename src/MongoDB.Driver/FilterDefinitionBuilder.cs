@@ -1706,7 +1706,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            if (FilterDefinitionRenderContext.RenderFullForm)
+            if (FilterDefinitionRenderContext.RenderDollarForm)
             {
                 if (document.ElementCount > 1 ||
                     document.ElementCount == 1 && document.GetElement(0).Name != "$and")
@@ -2354,7 +2354,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
 
-                if (FilterDefinitionRenderContext.RenderFullForm)
+                if (FilterDefinitionRenderContext.RenderDollarForm)
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName("$eq");
