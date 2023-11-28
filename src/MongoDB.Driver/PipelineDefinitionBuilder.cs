@@ -971,6 +971,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $out stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="outputCollection">The output collection.</param>
+        /// <param name="timeSeriesOptions">The time-series options</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        /// <exception cref="System.NotSupportedException"></exception>
+        public static PipelineDefinition<TInput, TOutput> Out<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            IMongoCollection<TOutput> outputCollection, TimeSeriesOptions timeSeriesOptions)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Out<TOutput>(outputCollection, timeSeriesOptions));
+        }
+
+        /// <summary>
         /// Appends a $project stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1111,7 +1129,7 @@ namespace MongoDB.Driver
         /// </param>
         /// <param name="scoreDetails">
         /// Flag that specifies whether to return a detailed breakdown
-        /// of the score for each document in the result. 
+        /// of the score for each document in the result.
         /// </param>
         /// <returns>A new pipeline with an additional stage.</returns>
         public static PipelineDefinition<TInput, TOutput> Search<TInput, TOutput>(
