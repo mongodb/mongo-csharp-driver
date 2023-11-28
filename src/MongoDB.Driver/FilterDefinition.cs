@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -283,6 +284,32 @@ namespace MongoDB.Driver
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new BsonDocumentWrapper(_obj, serializer);
+        }
+    }
+
+    internal static class FilterDefinitionRenderContext
+    {
+        private static readonly AsyncLocal<bool> __renderDollarForm = new AsyncLocal<bool>();
+
+        public static bool RenderDollarForm
+        {
+            get => __renderDollarForm.Value;
+            set => __renderDollarForm.Value = value;
+        }
+
+        public static IDisposable StartRender(bool renderDollarForm) => new FilterDefinitionRenderContextDisposer(renderDollarForm);
+
+        private sealed class FilterDefinitionRenderContextDisposer : IDisposable
+        {
+            public FilterDefinitionRenderContextDisposer(bool renderDollarForm)
+            {
+                RenderDollarForm = renderDollarForm;
+            }
+
+            public void Dispose()
+            {
+                RenderDollarForm = false;
+            }
         }
     }
 }

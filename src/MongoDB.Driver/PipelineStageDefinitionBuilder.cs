@@ -1981,7 +1981,7 @@ namespace MongoDB.Driver
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10 },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => options?.Filter?.Render(s, sr, linqProvider), options?.Filter != null },
+                        { "filter", () => RenderFilter(s, sr, linqProvider), options?.Filter != null },
                     };
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
@@ -1989,6 +1989,12 @@ namespace MongoDB.Driver
                 });
 
             return stage;
+
+            BsonDocument RenderFilter(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+            {
+                using var renderContext = FilterDefinitionRenderContext.StartRender(true);
+                return options.Filter.Render(documentSerializer, serializerRegistry, linqProvider);
+            }
         }
 
         // private methods
