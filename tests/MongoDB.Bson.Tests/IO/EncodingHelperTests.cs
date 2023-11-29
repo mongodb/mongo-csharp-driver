@@ -33,6 +33,19 @@ namespace MongoDB.Bson.Tests.IO
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("encoding");
+
+            AssertGetBytesUsingThreadStaticBufferWorks();
+        }
+
+        [Fact]
+        public void GetBytesUsingThreadStaticBuffer_should_throw_when_string_is_invalid()
+        {
+            const string invalidUtf8String = "\uD801";
+
+            var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, invalidUtf8String));
+            exception.Should().BeOfType<EncoderFallbackException>();
+
+            AssertGetBytesUsingThreadStaticBufferWorks();
         }
 
         [Fact]
@@ -42,6 +55,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("value");
+
+            AssertGetBytesUsingThreadStaticBufferWorks();
         }
 
         [Fact]
@@ -111,6 +126,12 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         // private methods
+        private void AssertGetBytesUsingThreadStaticBufferWorks()
+        {
+            using var segment = EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, "Apples");
+            segment.Segment.Array.Length.Should().BeGreaterThan(0);
+        }
+
         private string GetString(int length) =>
             new string(Enumerable.Range(0, length).Select(i => (char)('a' + i % 26)).ToArray());
     }
