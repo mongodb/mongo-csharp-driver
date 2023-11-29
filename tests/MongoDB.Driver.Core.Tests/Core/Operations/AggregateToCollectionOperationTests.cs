@@ -609,6 +609,36 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void Execute_to_time_series_collection_should_work(
+            [Values(false, true)] bool usingDifferentOutputDatabase,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { _id : 1 } }") };
+            var inputDatabaseName = _databaseNamespace.DatabaseName;
+            var inputCollectionName = _collectionNamespace.CollectionName;
+            var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-outputdatabase" : inputDatabaseName;
+            var outputCollectionName = $"{inputCollectionName}-outputcollection";
+
+            pipeline.Add(new BsonDocument { {"$set", new BsonDocument { {"time", DateTime.Now } } } } );
+            pipeline.Add(BsonDocument.Parse($"{{ $out : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}', timeseries: {{ timeField: 'time' }} }} }}"));
+
+            EnsureTestData();
+            if (usingDifferentOutputDatabase)
+            {
+                EnsureDatabaseExists(outputDatabaseName);
+            }
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, pipeline, _messageEncoderSettings);
+
+            ExecuteOperation(subject, async);
+            var result = ReadAllFromCollection(new CollectionNamespace(new DatabaseNamespace(outputDatabaseName), outputCollectionName), async);
+
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_AllowDiskUse_is_set(
             [Values(null, false, true)]
             bool? allowDiskUse,

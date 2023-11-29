@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var lastStage = pipeline.Last();
             var lastStageName = lastStage.GetElement(0).Name;
-            if (lastStageName == "$out" && lastStage["$out"] is BsonDocument outDocument)
+            if (lastStageName == "$out" && lastStage["$out"] is BsonDocument outDocument && !outDocument.Contains("timeseries"))
             {
                 if (outDocument.TryGetValue("db", out var db) && db.IsString &&
                     outDocument.TryGetValue("coll", out var coll) && coll.IsString)
