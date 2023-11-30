@@ -27,18 +27,24 @@ namespace MongoDB.Driver
         private readonly TimeSeriesGranularity? _granularity;
         private readonly string _metaField;
         private readonly string _timeField;
+        private readonly int _bucketMaxSpanSeconds;
+        private readonly int _bucketRoundingSeconds;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeSeriesOptions"/> class.
         /// </summary>
         /// <param name="timeField">The name of the top-level field to be used for time.</param>
         /// <param name="metaField">The name of the top-level field describing the series upon which related data will be grouped.</param>
-        /// <param name="granularity">The <see cref="TimeSeriesGranularity"/> for the time series.</param>
-        public TimeSeriesOptions(string timeField, Optional<string> metaField = default, Optional<TimeSeriesGranularity?> granularity = default)
+        /// <param name="granularity">The <see cref="TimeSeriesGranularity"/> for the time series. Do not set if using bucketMaxSpanSeconds</param>
+        /// <param name="bucketMaxSpanSeconds">The maximum time between timestamps in the same bucket.</param>
+        /// <param name="bucketRoundingSeconds">The interval used to round down the first timestamp when opening a new bucket.</param>
+        public TimeSeriesOptions(string timeField, Optional<string> metaField = default, Optional<TimeSeriesGranularity?> granularity = default, Optional<int> bucketMaxSpanSeconds = default, Optional<int> bucketRoundingSeconds = default)
         {
             _timeField = Ensure.IsNotNullOrEmpty(timeField, nameof(timeField));
             _metaField = metaField.WithDefault(null);
             _granularity = granularity.WithDefault(null);
+            _bucketMaxSpanSeconds = bucketMaxSpanSeconds.WithDefault(-1);
+            _bucketRoundingSeconds = bucketRoundingSeconds.WithDefault(-1);
         }
 
         /// <summary>
@@ -57,6 +63,16 @@ namespace MongoDB.Driver
         public string TimeField => _timeField;
 
         /// <summary>
+        /// The maximum time between timestamps in the same bucket.
+        /// </summary>
+        public int BucketMaxSpanSeconds => _bucketMaxSpanSeconds;
+
+        /// <summary>
+        /// The interval used to round down the first timestamp when opening a new bucket.
+        /// </summary>
+        public int BucketRoundingSeconds => _bucketRoundingSeconds;
+
+        /// <summary>
         /// The BSON representation of the time series options.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
@@ -66,7 +82,9 @@ namespace MongoDB.Driver
             {
                 { "timeField", _timeField },
                 { "metaField", _metaField, _metaField != null },
-                { "granularity", () => _granularity.Value.ToString().ToLowerInvariant(), _granularity.HasValue }
+                { "granularity", () => _granularity.Value.ToString().ToLowerInvariant(), _granularity.HasValue },
+                { "bucketMaxSpanSeconds", _bucketMaxSpanSeconds, _bucketMaxSpanSeconds > 0 },
+                { "bucketRoundingSeconds", _bucketRoundingSeconds, _bucketRoundingSeconds > 0 }
             };
         }
     }
