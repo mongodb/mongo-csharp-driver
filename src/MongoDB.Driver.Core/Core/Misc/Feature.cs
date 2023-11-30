@@ -40,9 +40,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", WireVersion.Server36);
         private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", WireVersion.Server42);
         private static readonly Feature __aggregateOut = new Feature("AggregateOut", WireVersion.Server26);
-        private static readonly Feature __aggregateOutTimeSeries = new Feature("AggregateOutTimeSeries", WireVersion.Server70);
         private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", WireVersion.Server50);
-        private static readonly Feature __aggregateOutTimeSeriesOnSecondary = new Feature("AggregateOutTimeSeriesOnSecondary", WireVersion.Server70);
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
@@ -239,19 +237,9 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature AggregateOut => __aggregateOut;
 
         /// <summary>
-        /// Gets the aggregate out to time series collection feature.
-        /// </summary>
-        public static Feature AggregateOutTimeSeries => __aggregateOutTimeSeries;
-
-        /// <summary>
         /// Gets the aggregate out on secondary feature.
         /// </summary>
         public static Feature AggregateOutOnSecondary => __aggregateOutOnSecondary;
-
-        /// <summary>
-        /// Gets the aggregate out to time series collection on secondary feature.
-        /// </summary>
-        public static Feature AggregateOutTimeSeriesOnSecondary => __aggregateOutTimeSeriesOnSecondary;
 
         /// <summary>
         /// Gets the aggregate out to a different database feature.

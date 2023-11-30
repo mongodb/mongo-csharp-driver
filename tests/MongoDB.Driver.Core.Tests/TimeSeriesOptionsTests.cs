@@ -54,16 +54,12 @@ namespace MongoDB.Driver
             const string timeField = "time";
             const string metaField = "meta";
             const TimeSeriesGranularity granularity = TimeSeriesGranularity.Hours;
-            const int bucketMaxSpanSeconds = 30;
-            const int bucketRoundingSeconds = 30;
 
-            var result = new TimeSeriesOptions(timeField, metaField, granularity, bucketMaxSpanSeconds, bucketRoundingSeconds);
+            var result = new TimeSeriesOptions(timeField, metaField, granularity);
 
             result.TimeField.Should().Be(timeField);
             result.MetaField.Should().Be(metaField);
             result.Granularity.Should().Be(granularity);
-            result.BucketMaxSpanSeconds.Should().Be(bucketMaxSpanSeconds);
-            result.BucketRoundingSeconds.Should().Be(bucketRoundingSeconds);
         }
     }
 }
