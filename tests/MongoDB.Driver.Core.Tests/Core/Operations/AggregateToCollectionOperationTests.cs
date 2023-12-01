@@ -613,6 +613,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.3");
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { _id : 1 } }") };
             var inputDatabaseName = _databaseNamespace.DatabaseName;
             var inputCollectionName = _collectionNamespace.CollectionName;
