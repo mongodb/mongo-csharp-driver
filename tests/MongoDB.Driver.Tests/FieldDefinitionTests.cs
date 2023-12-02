@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -235,6 +236,19 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
             renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
 
+        }
+
+        [Fact]
+        public void Should_resolve_an_array_fields_field_with_lambda()
+        {
+            var subject = new ExpressionFieldDefinition<Person, IEnumerable<Name>>(x => x.Pets.Select(p => p.Name));
+
+            var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("pets.name");
+            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableSerializer<Name>>();
+            renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
+            renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
 
         [Fact]
