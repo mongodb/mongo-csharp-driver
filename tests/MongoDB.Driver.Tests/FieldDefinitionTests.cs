@@ -17,14 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -246,7 +243,7 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("pets.name");
-            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableSerializer<Name>>();
+            renderedField.UnderlyingSerializer.Should().BeAssignableTo<SerializerBase<IEnumerable<Name>>>();
             renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
             renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
         }
