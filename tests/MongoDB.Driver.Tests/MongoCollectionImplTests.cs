@@ -1263,6 +1263,71 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void Distinct_should_execute_a_DistinctOperation_when_type_parameter_is_array_field(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool lambda,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<ClassForDistinctWithArrayField>();
+            var session = CreateSession(usingSession);
+            var fieldName = "A";
+
+            FieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]> fieldDefinition = lambda ? new ExpressionFieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]>(x => x.A) :
+                new StringFieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]>(fieldName);
+            var filterDocument = new BsonDocument("x", 1);
+            var filterDefinition = (FilterDefinition<ClassForDistinctWithArrayField>)filterDocument;
+            var options = new DistinctOptions
+            {
+                Collation = new Collation("en_US"),
+                MaxTime = TimeSpan.FromSeconds(20)
+            };
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    subject.DistinctAsync<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(session, fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Distinct<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(session, fieldDefinition, filterDefinition, options, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    subject.DistinctAsync<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Distinct<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(fieldDefinition, filterDefinition, options, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<EnumForDistinctWithArrayField>>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+            var operation = call.Operation.Should().BeOfType<DistinctOperation<EnumForDistinctWithArrayField>>().Subject;
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.FieldName.Should().Be(fieldName);
+            operation.Filter.Should().Be(filterDocument);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
+            operation.RetryRequested.Should().BeTrue();
+
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<ClassForDistinctWithArrayField>();
+            BsonSerializationInfo fieldSerializationInfo;
+            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out fieldSerializationInfo).Should().BeTrue();
+            var fieldSerializer = (ArraySerializer<EnumForDistinctWithArrayField>)fieldSerializationInfo.Serializer;
+            operation.ValueSerializer.Should().BeSameAs(fieldSerializer.ItemSerializer);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void EstimatedDocumentCount_should_execute_an_EstimatedDocumentCount_operation(
             [Values(false, true)] bool async)
         {
