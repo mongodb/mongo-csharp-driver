@@ -356,6 +356,9 @@ namespace MongoDB.Driver
         public abstract IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default) where TField : IEnumerable<TItem>;
 
         /// <inheritdoc />
+        public abstract IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default) where TField : IEnumerable<TItem>;
+
+        /// <inheritdoc />
         public abstract Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
@@ -366,6 +369,9 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default) where TField : IEnumerable<TItem>;
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default) where TField : IEnumerable<TItem>;
 
         /// <inheritdoc />
         public virtual long EstimatedDocumentCount(EstimatedDocumentCountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))

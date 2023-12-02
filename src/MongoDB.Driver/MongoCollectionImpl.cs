@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -358,7 +359,7 @@ namespace MongoDB.Driver
             return UsingImplicitSession(session => Distinct<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
         }
 
-        private IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
@@ -384,7 +385,7 @@ namespace MongoDB.Driver
             return UsingImplicitSession(session => DistinctAsync<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
         }
 
-        private Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
