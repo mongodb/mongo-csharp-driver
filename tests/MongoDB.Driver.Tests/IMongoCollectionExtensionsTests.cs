@@ -14,14 +14,16 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq2Implementation;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -441,6 +443,155 @@ namespace MongoDB.Driver.Tests
                             IMongoCollectionExtensions.Distinct(collection, fieldDefinition, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
                                 s => s.Distinct(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                    else
+                    {
+                        // no extension methods for these combinations
+                    }
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void DistinctMany_should_call_collection_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingFieldExpression,
+            [Values(false, true)] bool usingFilterExpression,
+            [Values(false, true)] bool async)
+        {
+            var mockCollection = CreateMockCollection();
+            var collection = mockCollection.Object;
+            var session = new Mock<IClientSessionHandle>().Object;
+            var fieldDefinition = (FieldDefinition<Person, IEnumerable<string>>)"Pets.Name";
+            var fieldExpression = (Expression<Func<Person, IEnumerable<string>>>)(x => x.Pets.Select(p => p.Name));
+            var filterDefinition = Builders<Person>.Filter.Eq(x => x.FirstName, "Jack");
+            var filterExpression = (Expression<Func<Person, bool>>)(x => x.FirstName == "Jack");
+            var options = new DistinctOptions();
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            if (usingSession)
+            {
+                if (usingFieldExpression)
+                {
+                    if (usingFilterExpression)
+                    {
+                        if (async)
+                        {
+                            collection.DistinctManyAsync(session, fieldExpression, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            collection.DistinctMany(session, fieldExpression, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                    else
+                    {
+                        if (async)
+                        {
+                            collection.DistinctManyAsync(session, fieldExpression, filterDefinition, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            collection.DistinctMany(session, fieldExpression, filterDefinition, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                }
+                else
+                {
+                    if (usingFilterExpression)
+                    {
+                        if (async)
+                        {
+                            IMongoCollectionExtensions.DistinctManyAsync(collection, session, fieldDefinition, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            IMongoCollectionExtensions.DistinctMany(collection, session, fieldDefinition, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                    else
+                    {
+                        // no extensions methods for these combinations
+                    }
+                }
+            }
+            else
+            {
+                if (usingFieldExpression)
+                {
+                    if (usingFilterExpression)
+                    {
+                        if (async)
+                        {
+                            collection.DistinctManyAsync(fieldExpression, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            collection.DistinctMany(fieldExpression, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                    else
+                    {
+                        if (async)
+                        {
+                            collection.DistinctManyAsync(fieldExpression, filterDefinition, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            collection.DistinctMany(fieldExpression, filterDefinition, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                Times.Once);
+                        }
+                    }
+                }
+                else
+                {
+                    if (usingFilterExpression)
+                    {
+                        if (async)
+                        {
+                            IMongoCollectionExtensions.DistinctManyAsync(collection, fieldDefinition, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.DistinctAsync<IEnumerable<string>, string>(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                Times.Once);
+                        }
+                        else
+                        {
+                            IMongoCollectionExtensions.DistinctMany(collection, fieldDefinition, filterExpression, options, cancellationToken);
+                            mockCollection.Verify(
+                                s => s.Distinct<IEnumerable<string>, string>(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -1256,6 +1407,15 @@ namespace MongoDB.Driver.Tests
             public string FirstName;
             public string LastName;
             public int Age;
+            public IEnumerable<Pet> Pets { get; set; }
+        }
+
+
+        public class Pet
+        {
+            public string Type { get; set; }
+
+            public string Name { get; set; }
         }
     }
 }
