@@ -353,6 +353,22 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
+        public override IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => Distinct<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
+        }
+
+        public override IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? new DistinctOptions();
+
+            var operation = CreateDistinctOperation<TField, TItem>(field, filter, options);
+            return ExecuteReadOperation(session, operation, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => DistinctAsync(session, field, filter, options, cancellationToken), cancellationToken);
@@ -366,6 +382,22 @@ namespace MongoDB.Driver
             options = options ?? new DistinctOptions();
 
             var operation = CreateDistinctOperation(field, filter, options);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => DistinctAsync<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? new DistinctOptions();
+
+            var operation = CreateDistinctOperation<TField, TItem>(field, filter, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -974,6 +1006,26 @@ namespace MongoDB.Driver
             };
         }
 
+        private DistinctOperation<TItem> CreateDistinctOperation<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options) where TField : IEnumerable<TItem>
+        {
+            var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var valueSerializer = GetValueSerializerForDistinct<TField, TItem>(renderedField, _settings.SerializerRegistry);
+
+            return new DistinctOperation<TItem>(
+                _collectionNamespace,
+                valueSerializer,
+                renderedField.FieldName,
+                _messageEncoderSettings)
+            {
+                Collation = options.Collation,
+                Comment = options.Comment,
+                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
+            };
+        }
+
         private EstimatedDocumentCountOperation CreateEstimatedDocumentCountOperation(EstimatedDocumentCountOptions options)
         {
             return new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
@@ -1246,6 +1298,26 @@ namespace MongoDB.Driver
             }
 
             return serializerRegistry.GetSerializer<TField>();
+        }
+
+        private IBsonSerializer<TItem> GetValueSerializerForDistinct<TField, TItem>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry) where TField : IEnumerable<TItem>
+        {
+            if (renderedField.UnderlyingSerializer != null)
+            {
+                if (renderedField.UnderlyingSerializer is IBsonArraySerializer arraySerializer)
+                {
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                    {
+                        if (itemSerializationInfo.Serializer.ValueType == typeof(TItem))
+                        {
+                            return (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
+                        }
+                    }
+                }
+            }
+
+            return serializerRegistry.GetSerializer<TItem>();
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
