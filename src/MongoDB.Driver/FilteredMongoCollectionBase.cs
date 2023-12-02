@@ -201,6 +201,15 @@ namespace MongoDB.Driver
         {
             return _wrappedCollection.Distinct(session, field, CombineFilters(filter), options, cancellationToken);
         }
+        public override IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
+        {
+            return _wrappedCollection.Distinct<TField, TItem>(field, CombineFilters(filter), options, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
+        {
+            return _wrappedCollection.DistinctAsync<TField, TItem>(field, CombineFilters(filter), options, cancellationToken);
+        }
 
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {

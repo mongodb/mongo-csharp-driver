@@ -509,6 +509,19 @@ namespace MongoDB.Driver
         IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the result.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+            where TField : IEnumerable<TItem>;
+
+        /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TField">The type of the result.</typeparam>
@@ -532,6 +545,19 @@ namespace MongoDB.Driver
         /// A Task whose result is a cursor.
         /// </returns>
         Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the result.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+            where TField : IEnumerable<TItem>;
 
         /// <summary>
         /// Returns an estimate of the number of documents in the collection.

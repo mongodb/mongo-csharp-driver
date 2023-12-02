@@ -353,6 +353,16 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
+        public override IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => Distinct<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
+        }
+
+        private IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => DistinctAsync(session, field, filter, options, cancellationToken), cancellationToken);
@@ -367,6 +377,16 @@ namespace MongoDB.Driver
 
             var operation = CreateDistinctOperation(field, filter, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => DistinctAsync<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
+        }
+
+        private Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
         }
 
         public override long EstimatedDocumentCount(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default(CancellationToken))
