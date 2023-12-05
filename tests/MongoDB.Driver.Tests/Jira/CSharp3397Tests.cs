@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Aggregate_out_to_time_series_collection_should_work()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.3");
+            RequireServer.Check().Supports(Feature.AggregateOutTimeSeriesOnSecondary);
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<BsonDocument>("testCol");

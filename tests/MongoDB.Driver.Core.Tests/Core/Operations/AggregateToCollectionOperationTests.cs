@@ -613,12 +613,12 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.3");
+            RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { _id : 1 } }") };
             var inputDatabaseName = _databaseNamespace.DatabaseName;
             var inputCollectionName = _collectionNamespace.CollectionName;
-            var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-outputdatabase" : inputDatabaseName;
-            var outputCollectionName = $"{inputCollectionName}-outputcollection";
+            var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-outputdatabase-timeseries" : inputDatabaseName;
+            var outputCollectionName = $"{inputCollectionName}-outputcollection-timeseries";
 
             pipeline.Add(new BsonDocument { {"$set", new BsonDocument { {"time", DateTime.Now } } } } );
             pipeline.Add(BsonDocument.Parse($"{{ $out : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}', timeseries: {{ timeField: 'time' }} }} }}"));
