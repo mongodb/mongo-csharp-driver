@@ -144,8 +144,11 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Out_with_time_series_options_should_add_expected_stage()
         {
-            var client = DriverTestConfiguration.Client;
-            var outputCollection = client.GetDatabase("database").GetCollection<BsonDocument>("collection");
+            var database = Mock.Of<IMongoDatabase>(db => db.DatabaseNamespace == new DatabaseNamespace("database"));
+            var outputCollection = Mock.Of<IMongoCollection<BsonDocument>>(col =>
+                col.Database == database &&
+                col.CollectionNamespace == new CollectionNamespace(database.DatabaseNamespace, "collection"));
+
             var timeSeriesOptions = new TimeSeriesOptions("time", "symbol");
 
             var result = new EmptyPipelineDefinition<BsonDocument>().Out(outputCollection, timeSeriesOptions);

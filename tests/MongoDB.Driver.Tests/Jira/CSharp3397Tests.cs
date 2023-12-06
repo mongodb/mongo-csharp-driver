@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Aggregate_out_to_time_series_collection_on_secondary_should_work()
         {
-            RequireServer.Check().Supports(Feature.AggregateOutTimeSeriesOnSecondary);
+            RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");

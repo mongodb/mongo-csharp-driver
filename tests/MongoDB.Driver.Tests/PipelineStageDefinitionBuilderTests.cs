@@ -20,7 +20,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -394,8 +396,11 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Out_with_time_series_options_should_return_expected_result()
         {
-            var client = DriverTestConfiguration.Client;
-            var outputCollection = client.GetDatabase("database").GetCollection<BsonDocument>("collection");
+            var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("database"));
+            var outputCollection = Mock.Of<IMongoCollection<BsonDocument>>(col =>
+                col.Database == database &&
+                col.CollectionNamespace == new CollectionNamespace(database.DatabaseNamespace, "collection"));
+
             var timeSeriesOptions = new TimeSeriesOptions("time", "symbol");
 
             var result = PipelineStageDefinitionBuilder.Out(outputCollection, timeSeriesOptions);
