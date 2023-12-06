@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests
                     }
                 }");
         }
-        
+
         [Fact]
         public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
         {
@@ -254,9 +254,9 @@ namespace MongoDB.Driver.Tests
                         'pipeline' : [
                         {
                             '$match' :
-                            { 
+                            {
                                 '$expr' :
-                                { 
+                                {
                                     '$and' : [
                                         { '$eq' : ['$stock_item', '$$order_item'] },
                                         { '$gte' : ['$instock', '$$order_qty'] }]
@@ -391,6 +391,18 @@ namespace MongoDB.Driver.Tests
             stage.Document.Should().Be(expectedStage);
         }
 
+        [Fact]
+        public void Out_with_time_series_options_should_return_expected_result()
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputCollection = client.GetDatabase("database").GetCollection<BsonDocument>("collection");
+            var timeSeriesOptions = new TimeSeriesOptions("time", "symbol");
+
+            var result = PipelineStageDefinitionBuilder.Out(outputCollection, timeSeriesOptions);
+
+            RenderStage(result).Document.Should().Be("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
+        }
+
         public class Order
         {
             [BsonElement("stockdata")]
@@ -456,7 +468,7 @@ namespace MongoDB.Driver.Tests
                             '$match' :
                             {
                                 '$expr' :
-                                { 
+                                {
                                     '$and' : [
                                         { '$eq' : ['$stock_item', '$$order_item'] },
                                         { '$gte' : ['$instock', '$$order_qty'] }]

@@ -1247,7 +1247,8 @@ namespace MongoDB.Driver
         /// <param name="timeSeriesOptions">The time series options</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Out<TInput>(
-            IMongoCollection<TInput> outputCollection, TimeSeriesOptions timeSeriesOptions)
+            IMongoCollection<TInput> outputCollection,
+            TimeSeriesOptions timeSeriesOptions)
         {
             Ensure.IsNotNull(outputCollection, nameof(outputCollection));
             var outputDatabaseName = outputCollection.Database.DatabaseNamespace.DatabaseName;

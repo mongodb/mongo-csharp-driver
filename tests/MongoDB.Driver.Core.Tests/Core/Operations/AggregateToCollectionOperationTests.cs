@@ -614,6 +614,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);
+
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { _id : 1 } }") };
             var inputDatabaseName = _databaseNamespace.DatabaseName;
             var inputCollectionName = _collectionNamespace.CollectionName;
@@ -631,10 +632,16 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateToCollectionOperation(_collectionNamespace, pipeline, _messageEncoderSettings);
 
             ExecuteOperation(subject, async);
-            var result = ReadAllFromCollection(new CollectionNamespace(new DatabaseNamespace(outputDatabaseName), outputCollectionName), async);
+
+            var databaseNamespace = new DatabaseNamespace(outputDatabaseName);
+            var result = ReadAllFromCollection(new CollectionNamespace(databaseNamespace, outputCollectionName), async);
 
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
+
+            var output = ListCollections(databaseNamespace);
+            output["cursor"]["firstBatch"][0][0].ToString().Should().Be($"{outputCollectionName}"); // checking name of collection
+            output["cursor"]["firstBatch"][0][1].ToString().Should().Be("timeseries"); // checking type of collection
         }
 
         [Theory]

@@ -982,7 +982,8 @@ namespace MongoDB.Driver
         /// <exception cref="System.NotSupportedException"></exception>
         public static PipelineDefinition<TInput, TOutput> Out<TInput, TOutput>(
             this PipelineDefinition<TInput, TOutput> pipeline,
-            IMongoCollection<TOutput> outputCollection, TimeSeriesOptions timeSeriesOptions)
+            IMongoCollection<TOutput> outputCollection,
+            TimeSeriesOptions timeSeriesOptions)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.Out<TOutput>(outputCollection, timeSeriesOptions));
