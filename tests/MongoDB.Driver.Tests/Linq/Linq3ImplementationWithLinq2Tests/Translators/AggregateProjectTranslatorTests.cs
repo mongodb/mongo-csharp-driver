@@ -1003,20 +1003,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         {
                             $let :
                                 {
-                                    vars : { source : '$M' },
+                                    vars : { seed : { $arrayElemAt : ['$M', 0] }, rest : { $slice : ['$M', 1, 2147483647] } },
                                     in :
                                         {
                                             $cond:
                                                 {
-                                                    if : { $lte : [ { $size : '$$source' }, 1 ] },
-                                                    then: { $arrayElemAt : [ '$$source', 0 ] },
+                                                    if : { $eq : [{ $size : '$$rest' }, 0] },
+                                                    then: '$$seed',
                                                     else :
                                                         {
                                                             $reduce :
                                                                 {
-                                                                    input : { $slice : [ '$$source', 1, 2147483647 ] },
-                                                                    initialValue : { $arrayElemAt : [ '$$source', 0 ] },
-                                                                    in : { $add : [ '$$value', '$$this' ] }
+                                                                    input : '$$rest',
+                                                                    initialValue : '$$seed',
+                                                                    in : { $add : ['$$value', '$$this'] }
                                                                 }
                                                         }
                                                 }

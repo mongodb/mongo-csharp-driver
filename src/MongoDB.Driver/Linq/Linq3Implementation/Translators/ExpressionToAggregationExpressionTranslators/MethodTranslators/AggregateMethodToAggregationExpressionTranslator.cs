@@ -53,16 +53,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var funcContext = context.WithSymbols(accumulatorSymbol, itemSymbol);
                     var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body);
 
-                    var sourceVar = AstExpression.Var("source");
+                    var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
+                    var seedVar = AstExpression.Var("seed");
+                    var restVar = AstExpression.Var("rest");
                     var ast = AstExpression.Let(
-                        var: AstExpression.VarBinding(sourceVar, sourceTranslation.Ast),
-                        @in: AstExpression.Cond(
-                            @if: AstExpression.Lte(AstExpression.Size(sourceVar), 1),
-                            @then: AstExpression.ArrayElemAt(sourceVar, 0),
-                            @else: AstExpression.Reduce(
-                                input: AstExpression.Slice(sourceVar, 1, int.MaxValue),
-                                initialValue: AstExpression.ArrayElemAt(sourceVar, 0),
-                                @in: funcTranslation.Ast)));
+                        var: sourceVarBinding,
+                        @in: AstExpression.Let(
+                            var1: AstExpression.VarBinding(seedVar, AstExpression.ArrayElemAt(sourceAst, 0)),
+                            var2: AstExpression.VarBinding(restVar, AstExpression.Slice(sourceAst, 1, int.MaxValue)),
+                            @in: AstExpression.Cond(
+                                @if: AstExpression.Eq(AstExpression.Size(restVar), 0),
+                                @then: seedVar,
+                                @else: AstExpression.Reduce(
+                                    input: restVar,
+                                    initialValue: seedVar,
+                                    @in: funcTranslation.Ast))));
 
                     return new AggregationExpression(expression, ast, itemSerializer);
                 }

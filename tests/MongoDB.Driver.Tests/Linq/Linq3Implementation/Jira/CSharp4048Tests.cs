@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $lte : [{ $size : '$$source' }, 1] }, then : { $arrayElemAt : ['$$source', 0] }, else : { $reduce : { input : { $slice : ['$$source', 1, 2147483647] }, initialValue : { $arrayElemAt : ['$$source', 0] }, in : '$$value' } } } } } } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { seed : { $arrayElemAt : ['$_elements', 0] }, rest : { $slice : ['$_elements', 1, 2147483647] } }, in : { $cond : { if : { $eq : [{ $size : '$$rest' }, 0] }, then : '$$seed', else : { $reduce : { input : '$$rest', initialValue : '$$seed', in : '$$value' } } } } }  } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $lte : [{ $size : '$$source' }, 1] }, then : { $arrayElemAt : ['$$source', 0] }, else : { $reduce : { input : { $slice : ['$$source', 1, 2147483647] }, initialValue : { $arrayElemAt : ['$$source', 0] }, in : '$$value' } } } } } } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { seed : { $arrayElemAt : ['$_elements', 0] }, rest : { $slice : ['$_elements', 1, 2147483647] } }, in : { $cond : { if : { $eq : [{ $size : '$$rest' }, 0] }, then : '$$seed', else : { $reduce : { input : '$$rest', initialValue : '$$seed', in : '$$value' } } } } } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
