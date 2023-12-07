@@ -1244,11 +1244,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <param name="outputCollection">The output collection.</param>
-        /// <param name="timeSeriesOptions">The time series options</param>
+        /// <param name="timeSeriesOptions">The time series options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Out<TInput>(
             IMongoCollection<TInput> outputCollection,
-            TimeSeriesOptions timeSeriesOptions)
+            TimeSeriesOptions timeSeriesOptions = null)
         {
             Ensure.IsNotNull(outputCollection, nameof(outputCollection));
             var outputDatabaseName = outputCollection.Database.DatabaseNamespace.DatabaseName;
@@ -1260,18 +1260,6 @@ namespace MongoDB.Driver
                     { "timeseries", () => timeSeriesOptions.ToBsonDocument(), timeSeriesOptions != null}
                 };
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$out", outDocument));
-        }
-
-        /// <summary>
-        /// Creates a $out stage.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <param name="outputCollection">The output collection.</param>
-        /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, TInput> Out<TInput>(
-            IMongoCollection<TInput> outputCollection)
-        {
-            return Out(outputCollection, null);
         }
 
         /// <summary>
