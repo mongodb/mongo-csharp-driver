@@ -10,6 +10,9 @@ using BenchmarkDotNet.Reports;
 using MongoDB.Driver.Encryption;
 using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.LibMongoCryptBindingsBenchmark
 {
@@ -19,11 +22,10 @@ namespace MongoDB.LibMongoCryptBindingsBenchmark
         private const string LocalMasterKey =
             "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
-        private object _mongoCryptController;
-        private MethodInfo _decryptFieldsMethod;
         private byte[] _encryptedValuesDocumentBytes;
         private IMongoCollection<BsonDocument> _encryptedClientCollection;
         private IMongoCollection<BsonDocument> _unencryptedClientCollection;
+        private AutoEncryptionLibMongoCryptController _libMongoCryptController;
 
         private const int RepeatCount = 10;
 
@@ -80,85 +82,52 @@ namespace MongoDB.LibMongoCryptBindingsBenchmark
 
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
+            // Create libmongocrypt binding that will be used for decryption
+            var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
+            _libMongoCryptController =
+                AutoEncryptionLibMongoCryptController.Create(keyVaultClient, cryptClient, autoEncryptionOptions);
+
             _unencryptedClientCollection = new MongoClient().GetDatabase("crypt-test")
                 .GetCollection<BsonDocument>("encryptedValues");
 
             _encryptedClientCollection = keyVaultClient.GetDatabase("crypt-test").GetCollection<BsonDocument>("encryptedValues");
             _encryptedClientCollection.InsertOne(encryptedValuesDocument);
-
-            // since the benchmark is not in the same assembly as MongoClient, we can't directly get the LibMongoCryptController in it
-            // so use reflection to get it and get the decrypt method that will be used for decryption tasks
-            _mongoCryptController = new Reflector(keyVaultClient).LibMongoCryptController;
-            _decryptFieldsMethod = _mongoCryptController.GetType().GetMethod("DecryptFields");
         }
 
         [Benchmark(Baseline = true)]
         public void FindWithNoEncryption()
         {
-            var tasks = new Task[ThreadCounts];
-            for (int i = 0; i < ThreadCounts; i++)
-            {
-                tasks[i] = Task.Factory.StartNew(FindWithNoEncryptionTask());
-            }
-
-            Task.WaitAll(tasks);
-        }
-
-        [Benchmark]
-        public void BulkDecryptionUsingFind()
-        {
-            var tasks = new Task[ThreadCounts];
-            for (int i = 0; i < ThreadCounts; i++)
-            {
-                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskUsingFind());
-            }
-
-            Task.WaitAll(tasks);
-        }
-
-        [Benchmark]
-        public void BulkDecryptionUsingBinding()
-        {
-            var tasks = new Task[ThreadCounts];
-            for (int i = 0; i < ThreadCounts; i++)
-            {
-                tasks[i] = Task.Factory.StartNew(BulkDecryptionTaskUsingBinding());
-            }
-
-            Task.WaitAll(tasks);
-        }
-
-        private Action FindWithNoEncryptionTask()
-        {
-            return () =>
+            ThreadingUtilities.ExecuteOnNewThreads(ThreadCounts, _ =>
             {
                 for (int i = 0; i < RepeatCount; i++)
                 {
                     _unencryptedClientCollection.Find(Builders<BsonDocument>.Filter.Empty).Single();
                 }
-            };
+            });
         }
 
-        private Action BulkDecryptionTaskUsingFind()
+        [Benchmark]
+        public void FindWithEncryption()
         {
-            return () =>
+            ThreadingUtilities.ExecuteOnNewThreads(ThreadCounts, _ =>
             {
                 for (int i = 0; i < RepeatCount; i++)
                 {
                     _encryptedClientCollection.Find(Builders<BsonDocument>.Filter.Empty).Single();
                 }
-            };
+            });
         }
 
-        private Action BulkDecryptionTaskUsingBinding()
+        [Benchmark]
+        public void BulkDecryptionUsingBinding()
         {
-            return () =>
+            ThreadingUtilities.ExecuteOnNewThreads(ThreadCounts, _ =>
             {
                 for (int i = 0; i < RepeatCount; i++)
                 {
-                    _decryptFieldsMethod.Invoke(_mongoCryptController, new object[] { _encryptedValuesDocumentBytes, CancellationToken.None });
+                    _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
                 }
-            };
+            });
         }
 
         private class StyleConfig : ManualConfig
@@ -166,25 +135,6 @@ namespace MongoDB.LibMongoCryptBindingsBenchmark
             public StyleConfig()
             {
                 SummaryStyle = SummaryStyle.Default.WithRatioStyle(RatioStyle.Percentage);
-            }
-        }
-
-        private class Reflector
-        {
-            private readonly MongoClient _instance;
-
-            public Reflector(MongoClient instance)
-            {
-                _instance = instance;
-            }
-
-            public object? LibMongoCryptController
-            {
-                get
-                {
-                    var field = typeof(MongoClient).GetField("_libMongoCryptController", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return field.GetValue(_instance);
-                }
             }
         }
     }
