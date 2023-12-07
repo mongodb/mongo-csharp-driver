@@ -13,31 +13,34 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
+        public static void EnsureRepresentationIsArray(Expression expression, IBsonSerializer serializer)
+        {
+            var representation = GetRepresentation(serializer);
+            if (representation != BsonType.Array)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "the expression is not represented as an array in the database");
+            }
+        }
+
         public static void EnsureRepresentationIsNumeric(Expression expression, IBsonSerializer serializer)
         {
-            if (serializer is IRepresentationConfigurable representationConfigurableSerializer)
+            var representation = GetRepresentation(serializer);
+            if (!IsNumericRepresentation(representation))
             {
-                EnsureRepresentationIsNumeric(expression, serializer.ValueType, representationConfigurableSerializer.Representation);
-            }
-
-            static void EnsureRepresentationIsNumeric(Expression expression, Type valueType, BsonType representation)
-            {
-                if (!IsNumericRepresentation(representation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer for type {valueType} uses a non-numeric representation: {representation}");
-                }
+                throw new ExpressionNotSupportedException(expression, because: $"serializer for type {serializer.ValueType} uses a non-numeric representation: {representation}");
             }
 
             static bool IsNumericRepresentation(BsonType representation)
@@ -48,6 +51,64 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                     _ => false
                 };
             }
+        }
+
+        public static BsonType GetRepresentation(IBsonSerializer serializer)
+        {
+            if (serializer is IDiscriminatedInterfaceSerializer discriminatedInterfaceSerializer)
+            {
+                return GetRepresentation(discriminatedInterfaceSerializer.InterfaceSerializer);
+            }
+
+            if (serializer is IDowncastingSerializer downcastingSerializer)
+            {
+                return GetRepresentation(downcastingSerializer.DerivedSerializer);
+            }
+
+            if (serializer is IImpliedImplementationInterfaceSerializer impliedImplementationSerializer)
+            {
+                return GetRepresentation(impliedImplementationSerializer.ImplementationSerializer);
+            }
+
+            if (serializer is IHasRepresentationSerializer hasRepresentationSerializer)
+            {
+                return hasRepresentationSerializer.Representation;
+            }
+
+            if (serializer is IBsonDictionarySerializer dictionarySerializer)
+            {
+                return dictionarySerializer.DictionaryRepresentation switch
+                {
+                    DictionaryRepresentation.ArrayOfArrays => BsonType.Array,
+                    DictionaryRepresentation.ArrayOfDocuments => BsonType.Array,
+                    DictionaryRepresentation.Document => BsonType.Document,
+                    _ => BsonType.Undefined
+                };
+            }
+
+            if (serializer is IKeyValuePairSerializer keyValuePairSerializer)
+            {
+                return keyValuePairSerializer.Representation;
+            }
+
+            // for backward compatibility assume that any remaining implementers of IBsonDocumentSerializer are represented as documents
+            if (serializer is IBsonDocumentSerializer)
+            {
+                return BsonType.Document;
+            }
+
+            // for backward compatibility assume that any remaining implementers of IBsonArraySerializer are represented as documents
+            if (serializer is IBsonArraySerializer)
+            {
+                return BsonType.Array;
+            }
+
+            return BsonType.Undefined;
+        }
+
+        public static bool IsRepresentedAsDocument(IBsonSerializer serializer)
+        {
+            return SerializationHelper.GetRepresentation(serializer) == BsonType.Document;
         }
 
         public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)

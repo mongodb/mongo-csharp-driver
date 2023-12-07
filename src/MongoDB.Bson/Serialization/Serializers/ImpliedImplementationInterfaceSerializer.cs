@@ -14,13 +14,22 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
+    /// <summary>
+    /// An interface implemented by ImpliedImplementationInterfaceSerializer.
+    /// </summary>
+    public interface IImpliedImplementationInterfaceSerializer
+    {
+        /// <summary>
+        /// Gets the serializer for the implied implementation.
+        /// </summary>
+        IBsonSerializer ImplementationSerializer { get; }
+    }
+
     /// <summary>
     /// Represents a serializer for Interfaces.
     /// </summary>
@@ -31,7 +40,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonArraySerializer,
         IBsonDictionarySerializer,
         IBsonDocumentSerializer,
-        IChildSerializerConfigurable
+        IChildSerializerConfigurable,
+        IImpliedImplementationInterfaceSerializer
             where TImplementation : class, TInterface
     {
         // private fields
@@ -143,6 +153,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get { return _lazyImplementationSerializer.Value; }
         }
+
+        IBsonSerializer IImpliedImplementationInterfaceSerializer.ImplementationSerializer => ImplementationSerializer;
 
         /// <summary>
         /// Gets the value serializer.

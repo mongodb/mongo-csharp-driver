@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -29,20 +28,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // caller is responsible for ensuring constant is on the right
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out Expression enumerableExpression, out Expression sizeExpression)
         {
-            if (leftExpression.NodeType == ExpressionType.MemberAccess)
+            if (leftExpression is MemberExpression leftMemberExpression &&
+                EnumerableProperty.IsCountProperty(leftMemberExpression))
             {
-                var leftMemberExpression = (MemberExpression)leftExpression;
-                if (leftMemberExpression.Expression != null)
-                {
-                    var member = leftMemberExpression.Member;
-                    if (member.MemberType == MemberTypes.Property &&
-                        member.Name == "Count")
-                    {
-                        enumerableExpression = leftMemberExpression.Expression;
-                        sizeExpression = rightExpression;
-                        return true;
-                    }
-                }
+                enumerableExpression = leftMemberExpression.Expression;
+                sizeExpression = rightExpression;
+                return true;
             }
 
             if (leftExpression.NodeType == ExpressionType.Call)
@@ -71,6 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, Expression enumerableExpression, Expression sizeExpression)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, enumerableExpression);
+            SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, field.Serializer);
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {

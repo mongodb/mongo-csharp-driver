@@ -112,13 +112,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             var result = base.VisitMember(node);
 
             var containerSerializer = _registry.GetSerializer(node.Expression);
-            if (containerSerializer is IBsonDocumentSerializer documentSerializer)
+            if (DocumentSerializerHelper.AreMembersRepresentedAsFields(containerSerializer, out var documentSerializer))
             {
                 if (documentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out var memberSerializationInfo))
                 {
                     _currentKnownSerializersNode.AddKnownSerializer(node.Type, memberSerializationInfo.Serializer);
 
-                    if (memberSerializationInfo.Serializer is IBsonDocumentSerializer bsonDocumentSerializer)
+                    if (DocumentSerializerHelper.AreMembersRepresentedAsFields(memberSerializationInfo.Serializer, out var bsonDocumentSerializer))
                     {
                         _currentSerializer = bsonDocumentSerializer;
                     }
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             if (_currentSerializer is IBsonArraySerializer arraySerializer &&
                 arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo) &&
                 node.Type == itemSerializationInfo.NominalType &&
-                itemSerializationInfo.Serializer is IBsonDocumentSerializer documentSerializer)
+                DocumentSerializerHelper.AreMembersRepresentedAsFields(itemSerializationInfo.Serializer, out var documentSerializer))
             {
                 _currentSerializer = documentSerializer;
                 _currentKnownSerializersNode.AddKnownSerializer(node.Type, documentSerializer);

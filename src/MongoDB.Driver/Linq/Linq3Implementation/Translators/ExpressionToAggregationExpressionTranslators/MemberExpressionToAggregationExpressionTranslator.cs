@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.PropertyTranslators;
 
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateTupleItemProperty(expression, containerTranslation);
             }
 
-            if (!DocumentSerializerHelper.HasMemberSerializationInfo(containerTranslation.Serializer, member.Name))
+            if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(containerTranslation.Serializer, out _))
             {
                 if (member is PropertyInfo propertyInfo  && propertyInfo.Name == "Length")
                 {
@@ -113,22 +114,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static bool TryTranslateCollectionCountProperty(MemberExpression expression, AggregationExpression container, MemberInfo memberInfo, out AggregationExpression result)
         {
-            result = null;
-
-            var memberName = memberInfo.Name;
-            if ((memberName == "Count" || memberName == "LongCount") && memberInfo is PropertyInfo propertyInfo)
+            if (EnumerableProperty.IsCountProperty(expression))
             {
-                var containerType = container.Expression.Type;
-                if (containerType.Implements(typeof(ICollection)) || containerType.Implements(typeof(ICollection<>)))
-                {
-                    var ast = AstExpression.Size(container.Ast);
-                    var serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
+                SerializationHelper.EnsureRepresentationIsArray(expression, container.Serializer);
 
-                    result = new AggregationExpression(expression, ast, serializer);
-                    return true;
-                }
+                var ast = AstExpression.Size(container.Ast);
+                var serializer = Int32Serializer.Instance;
+
+                result = new AggregationExpression(expression, ast, serializer);
+                return true;
             }
 
+            result = null;
             return false;
         }
 

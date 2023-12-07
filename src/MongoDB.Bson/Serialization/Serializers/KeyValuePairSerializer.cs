@@ -15,13 +15,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
+    /// <summary>
+    /// An interface implemented by KeyValuePairSerializer.
+    /// </summary>
+    public interface IKeyValuePairSerializer
+    {
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        BsonType Representation { get;  }
+    }
+
     /// <summary>
     /// Represents a serializer for KeyValuePairs.
     /// </summary>
@@ -29,7 +36,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public class KeyValuePairSerializer<TKey, TValue> :
         StructSerializerBase<KeyValuePair<TKey, TValue>>,
-        IBsonDocumentSerializer
+        IBsonDocumentSerializer,
+        IKeyValuePairSerializer
     {
         // private constants
         private static class Flags

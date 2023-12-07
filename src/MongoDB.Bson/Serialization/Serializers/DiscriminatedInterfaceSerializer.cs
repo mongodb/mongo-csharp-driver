@@ -20,10 +20,25 @@ using MongoDB.Bson.Serialization.Conventions;
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
+    /// An interface implemented by DiscriminatedInterfaceSerializer.
+    /// </summary>
+    public interface IDiscriminatedInterfaceSerializer
+    {
+        /// <summary>
+        /// Gets the interface serializer.
+        /// </summary>
+        IBsonSerializer InterfaceSerializer { get; }
+    }
+
+    /// <summary>
     /// Represents a serializer for Interfaces.
     /// </summary>
     /// <typeparam name="TInterface">The type of the interface.</typeparam>
-    public class DiscriminatedInterfaceSerializer<TInterface> : SerializerBase<TInterface>, IBsonDocumentSerializer // where TInterface is an interface
+    public class DiscriminatedInterfaceSerializer<TInterface> :
+        SerializerBase<TInterface>,
+        IBsonDocumentSerializer,
+        IDiscriminatedInterfaceSerializer
+            // where TInterface is an interface
     {
         #region static
         private static IBsonSerializer<TInterface> CreateInterfaceSerializer()
@@ -96,6 +111,14 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceSerializer = interfaceSerializer;
         }
+
+        // public properties
+        /// <summary>
+        /// Gets the interface serializer.
+        /// </summary>
+        public IBsonSerializer<TInterface> InterfaceSerializer => _interfaceSerializer;
+
+        IBsonSerializer IDiscriminatedInterfaceSerializer.InterfaceSerializer => _interfaceSerializer;
 
         // public methods
         /// <summary>

@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     memberExpression.Expression == lambdaExpression.Parameters.Single())
                 {
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
-                    if (itemSerializer is IBsonDocumentSerializer documentSerializer)
+                    if (DocumentSerializerHelper.AreMembersRepresentedAsFields(itemSerializer, out var documentSerializer))
                     {
                         var memberName = memberExpression.Member.Name;
                         if (documentSerializer.TryGetMemberSerializationInfo(memberName, out var memberSerializationInfo))

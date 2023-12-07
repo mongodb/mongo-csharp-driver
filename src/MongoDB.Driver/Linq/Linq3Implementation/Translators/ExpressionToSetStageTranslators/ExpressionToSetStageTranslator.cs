@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
     {
         public static AstStage Translate(TranslationContext context, IBsonSerializer inputSerializer, LambdaExpression expression)
         {
-            if (inputSerializer is not IBsonDocumentSerializer documentSerializer)
+            if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(inputSerializer, out var documentSerializer))
             {
-                throw new ExpressionNotSupportedException(expression, because: $"serializer {inputSerializer.GetType()} does not implement IBsonDocumentSerializer");
+                throw new ExpressionNotSupportedException(expression, because: $"serializer {inputSerializer.GetType()} does not represent members as fields");
             }
 
             if (IsNewAnonymousClass(expression, out var newExpression))
