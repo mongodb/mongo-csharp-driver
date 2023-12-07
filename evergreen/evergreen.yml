@@ -39,73 +39,73 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-           # Get the current unique version of this checkout
-           if [ "${is_patch}" = "true" ]; then
-              CURRENT_VERSION=$(git describe)-patch-${version_id}
-           else
-              CURRENT_VERSION=latest
-           fi
+          # Get the current unique version of this checkout
+          if [ "${is_patch}" = "true" ]; then
+            CURRENT_VERSION=$(git describe)-patch-${version_id}
+          else
+            CURRENT_VERSION=latest
+          fi
 
-           if [ "${PACKAGE_TARGET}" != "" ]; then
-              PACKAGE_VERSION=$(PACKAGE_TARGET="${PACKAGE_TARGET}" sh ./evergreen/packages-version.sh)
-           fi
+          if [ "${BUILD_TARGET}" = "release" ]; then
+            PACKAGE_VERSION=$(sh ./evergreen/get-version.sh)
+          fi
 
-           export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
-           export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
+          export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
+          export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
-           if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
-              # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
-              export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
-           else
-              # non windows OSs don't have dotnet in the PATH
-              export PATH=$PATH:/usr/share/dotnet
-           fi
+          if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
+            # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
+            export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
+          else
+            # non windows OSs don't have dotnet in the PATH
+            export PATH=$PATH:/usr/share/dotnet
+          fi
 
-           export MONGO_ORCHESTRATION_HOME="$DRIVERS_TOOLS/.evergreen/orchestration"
-           export MONGODB_BINARIES="$DRIVERS_TOOLS/mongodb/bin"
-           export UPLOAD_BUCKET="${project}"
-           export PROJECT_DIRECTORY="$(pwd)"
+          export MONGO_ORCHESTRATION_HOME="$DRIVERS_TOOLS/.evergreen/orchestration"
+          export MONGODB_BINARIES="$DRIVERS_TOOLS/mongodb/bin"
+          export UPLOAD_BUCKET="${project}"
+          export PROJECT_DIRECTORY="$(pwd)"
 
-           cat <<EOT > expansion.yml
-           CURRENT_VERSION: "$CURRENT_VERSION"
-           DRIVERS_TOOLS: "$DRIVERS_TOOLS"
-           MONGO_ORCHESTRATION_HOME: "$MONGO_ORCHESTRATION_HOME"
-           MONGODB_BINARIES: "$MONGODB_BINARIES"
-           UPLOAD_BUCKET: "$UPLOAD_BUCKET"
-           PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
-           PACKAGE_VERSION: "$PACKAGE_VERSION"
-           DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
-           PREPARE_SHELL: |
-              set -o errexit
-              set -o xtrace
-              export DRIVERS_TOOLS="$DRIVERS_TOOLS"
-              export MONGO_ORCHESTRATION_HOME="$MONGO_ORCHESTRATION_HOME"
-              export MONGODB_BINARIES="$MONGODB_BINARIES"
-              export UPLOAD_BUCKET="$UPLOAD_BUCKET"
-              export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
-              export PACKAGE_VERSION="$PACKAGE_VERSION"
-              export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
-              export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
-              export PROJECT="${project}"
-           EOT
-           # See what we've done
-           cat expansion.yml
+          cat <<EOT > expansion.yml
+          CURRENT_VERSION: "$CURRENT_VERSION"
+          DRIVERS_TOOLS: "$DRIVERS_TOOLS"
+          MONGO_ORCHESTRATION_HOME: "$MONGO_ORCHESTRATION_HOME"
+          MONGODB_BINARIES: "$MONGODB_BINARIES"
+          UPLOAD_BUCKET: "$UPLOAD_BUCKET"
+          PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
+          PACKAGE_VERSION: "$PACKAGE_VERSION"
+          DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
+          PREPARE_SHELL: |
+            set -o errexit
+            set -o xtrace
+            export DRIVERS_TOOLS="$DRIVERS_TOOLS"
+            export MONGO_ORCHESTRATION_HOME="$MONGO_ORCHESTRATION_HOME"
+            export MONGODB_BINARIES="$MONGODB_BINARIES"
+            export UPLOAD_BUCKET="$UPLOAD_BUCKET"
+            export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
+            export PACKAGE_VERSION="$PACKAGE_VERSION"
+            export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
+            export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
+            export PROJECT="${project}"
+          EOT
+          # See what we've done
+          cat expansion.yml
 
-           # Do not output expansion.yml contents after this point
+          # Do not output expansion.yml contents after this point
 
-           # Add CSFLE variables that shouldn't be output to the logs
-           cat <<EOT >> expansion.yml
-           PREPARE_CSFLE: |
-              set +o xtrace # Disable tracing.
-              export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-              export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-              export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-              export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-              export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-              export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-              export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
-              set -o xtrace # Enable tracing.
-           EOT
+          # Add CSFLE variables that shouldn't be output to the logs
+          cat <<EOT >> expansion.yml
+          PREPARE_CSFLE: |
+            set +o xtrace # Disable tracing.
+            export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+            export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+            export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+            export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+            export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+            export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+            export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+            set -o xtrace # Enable tracing.
+          EOT
 
     # Load the expansion file to make an evergreen variable with the current unique version
     - command: expansions.update
@@ -538,8 +538,9 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        script:
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
+        script: |
+          ${PREPARE_SHELL}
+          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-atlas-data-lake-test:
     - command: shell.exec
@@ -910,15 +911,15 @@ functions:
           ${PREPARE_SHELL}
           echo '{"results": [{ "status": "FAIL", "test_file": "Build", "log_raw": "No test-results.json found was created" } ]}' > ${PROJECT_DIRECTORY}/test-results.json
 
-  packages-pack:
+  build-packages:
     - command: shell.exec
       params:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          . ./evergreen/packages-pack.sh
+          . ./evergreen/build-packages.sh
 
-  packages-push:
+  push-packages:
     - command: shell.exec
       params:
         working_dir: mongo-csharp-driver
@@ -927,14 +928,14 @@ functions:
           PACKAGES_SOURCE_KEY: ${PACKAGES_SOURCE_KEY}
         script: |
           ${PREPARE_SHELL}
-          . ./evergreen/packages-push.sh
+          . ./evergreen/push-packages.sh
 
   upload-package:
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/build/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
+        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
         permissions: public-read
@@ -943,7 +944,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/build/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
         permissions: public-read
@@ -954,16 +955,45 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/build/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
+        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/build/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
+
+  build-apidocs:
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if ! [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+            echo "Skip api docs generating for the patch release"
+            exit 0
+          fi
+          ./evergreen/build-apidocs.sh
+
+  upload-apidocs:
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-driver
+        env:
+          GITHUB_USER: ${github_user}
+          GITHUB_APIKEY: ${github_apikey}
+        script: |
+          ${PREPARE_SHELL}
+          if ! [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+            echo "Skip api docs generating for the patch release"
+            exit 0
+          fi
+          ./evergreen/upload-apidocs.sh
 
 pre:
   - func: fetch-source
@@ -1603,27 +1633,29 @@ tasks:
               export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
               GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
-    - name: packages-create
+    - name: build-packages
       commands:
-      - func: packages-pack
-      - func: upload-package
-        vars:
-          PACKAGE_ID: "MongoDB.Bson"
-      - func: upload-package
-        vars:
-          PACKAGE_ID: "MongoDB.Driver"
-      - func: upload-package
-        vars:
-          PACKAGE_ID: "MongoDB.Driver.Core"
-      - func: upload-package
-        vars:
-          PACKAGE_ID: "MongoDB.Driver.GridFS"
-      - func: upload-package
-        vars:
-          PACKAGE_ID: "mongocsharpdriver"
+        - func: install-dotnet
+        - func: build-packages
+        - func: upload-package
+          vars:
+            PACKAGE_ID: "MongoDB.Bson"
+        - func: upload-package
+          vars:
+            PACKAGE_ID: "MongoDB.Driver"
+        - func: upload-package
+          vars:
+            PACKAGE_ID: "MongoDB.Driver.Core"
+        - func: upload-package
+          vars:
+            PACKAGE_ID: "MongoDB.Driver.GridFS"
+        - func: upload-package
+          vars:
+            PACKAGE_ID: "mongocsharpdriver"
 
-    - name: packages-push
+    - name: push-packages
       commands:
+        - func: install-dotnet
         - func: download-package
           vars:
             PACKAGE_ID: "MongoDB.Bson"
@@ -1639,10 +1671,16 @@ tasks:
         - func: download-package
           vars:
             PACKAGE_ID: "mongocsharpdriver"
-        - func: packages-push
+        - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
             PACKAGES_SOURCE_KEY: ${nuget_api_key}
+
+    - name: generate-apidocs
+      commands:
+        - func: install-dotnet
+        - func: build-apidocs
+        - func: upload-apidocs
 
 axes:
   - id: version
@@ -1811,6 +1849,18 @@ axes:
         variables:
           SERVERLESS_PROXY_TYPE: Terminating
 
+  - id: build-target
+    display_name: CI build target
+    values:
+      - id: "tests"
+        display_name: "tests"
+        variables:
+          BUILD_TARGET: "tests"
+      - id: "release"
+        display_name: "release"
+        variables:
+          BUILD_TARGET: "release"
+
 task_groups:
   - name: testazurekms-task-group
     setup_group_can_fail_task: true
@@ -1898,19 +1948,6 @@ task_groups:
             $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/delete-instance.sh
     tasks:
       - test-csfle-with-gcp-kms
-
-  - name: dev-package
-    setup_task:
-      - func: fetch-source
-        vars:
-          PACKAGE_TARGET: "dev"
-      - func: prepare-resources
-      - func: fix-absolute-paths
-      - func: make-files-executable
-      - func: install-dotnet
-    tasks:
-      - packages-create
-      - packages-push
 
   - name: atlas-search-index-helpers-task-group
     setup_group_can_fail_task: true
@@ -2261,12 +2298,42 @@ buildvariants:
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
 
-# Package creation
-- name: dev-package-pack
-  git_tag_only: true
-  display_name: "Dev Package Pack"
-  run_on: ubuntu1804-small
-  tags: ["dev-package"]
+# Package release variants
+- matrix_name: build-packages
+  matrix_spec:
+    build-target: "release"
+  display_name: "Package Pack"
+  run_on: ubuntu2004-small
+  tags: ["build-packages", "release-tag"]
   tasks:
-    - name: dev-package
+    - name: build-packages
+      git_tag_only: true
+
+- matrix_name: generate-apidocs
+  matrix_spec:
+    build-target: "release"
+  display_name: "Generate API Documentation"
+  run_on: ubuntu2004-small
+  tags: ["build-apidocs", "release-tag"]
+  tasks:
+    - name: generate-apidocs
+      git_tag_only: true
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
+      ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: push-packages
+  matrix_spec:
+    build-target: "release"
+  display_name: "Package Push"
+  run_on: ubuntu2004-small
+  tags: ["push-packages", "release-tag"]
+  tasks:
+    - name: push-packages
+      git_tag_only: true
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
+        ## add dependency onto packages smoke test once it implemented
 
