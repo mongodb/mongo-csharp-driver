@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return false;
         }
 
-        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, UnaryExpression arrayLengthExpression, Expression sizeExpression)
+        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, AstComparisonFilterOperator comparisonOperator, UnaryExpression arrayLengthExpression, Expression sizeExpression)
         {
             if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength)
             {
@@ -46,24 +46,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
                 var size = sizeExpression.GetConstantValue<int>(containingExpression: expression);
 
-                switch (expression.NodeType)
+                switch (comparisonOperator)
                 {
-                    case ExpressionType.Equal:
+                    case AstComparisonFilterOperator.Eq:
                         return AstFilter.Size(arrayField, size);
 
-                    case ExpressionType.GreaterThan:
+                    case AstComparisonFilterOperator.Gt:
                         return AstFilter.Exists(ItemField(arrayField, size));
 
-                    case ExpressionType.GreaterThanOrEqual:
+                    case AstComparisonFilterOperator.Gte:
                         return AstFilter.Exists(ItemField(arrayField, size - 1));
 
-                    case ExpressionType.LessThan:
+                    case AstComparisonFilterOperator.Lt:
                         return AstFilter.NotExists(ItemField(arrayField, size - 1));
 
-                    case ExpressionType.LessThanOrEqual:
+                    case AstComparisonFilterOperator.Lte:
                         return AstFilter.NotExists(ItemField(arrayField, size));
 
-                    case ExpressionType.NotEqual:
+                    case AstComparisonFilterOperator.Ne:
                         return AstFilter.Not(AstFilter.Size(arrayField, size));
                 }
 

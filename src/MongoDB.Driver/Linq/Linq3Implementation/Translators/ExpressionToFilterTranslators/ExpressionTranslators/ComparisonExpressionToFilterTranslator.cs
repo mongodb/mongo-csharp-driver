@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (ArrayLengthComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var arrayLengthExpression, out var sizeExpression))
             {
-                return ArrayLengthComparisonExpressionToFilterTranslator.Translate(context, expression, arrayLengthExpression, sizeExpression);
+                return ArrayLengthComparisonExpressionToFilterTranslator.Translate(context, expression, comparisonOperator, arrayLengthExpression, sizeExpression);
             }
 
             if (BitMaskComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression))
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (CountComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var countExpression, out sizeExpression))
             {
-                return CountComparisonExpressionToFilterTranslator.Translate(context, expression, countExpression, sizeExpression);
+                return CountComparisonExpressionToFilterTranslator.Translate(context, expression, comparisonOperator, countExpression, sizeExpression);
             }
 
             if (GetTypeComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression))

@@ -59,31 +59,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return false;
         }
 
-        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, Expression enumerableExpression, Expression sizeExpression)
+        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, AstComparisonFilterOperator comparisonOperator, Expression enumerableExpression, Expression sizeExpression)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, enumerableExpression);
             SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, field.Serializer);
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
-                switch (expression.NodeType)
+                switch (comparisonOperator)
                 {
-                    case ExpressionType.Equal:
+                    case AstComparisonFilterOperator.Eq:
                         return AstFilter.Size(field, size);
 
-                    case ExpressionType.GreaterThan:
+                    case AstComparisonFilterOperator.Gt:
                         return AstFilter.Exists(ItemField(field, size.ToInt64()));
 
-                    case ExpressionType.GreaterThanOrEqual:
+                    case AstComparisonFilterOperator.Gte:
                         return AstFilter.Exists(ItemField(field, size.ToInt64() - 1));
 
-                    case ExpressionType.LessThan:
+                    case AstComparisonFilterOperator.Lt:
                         return AstFilter.NotExists(ItemField(field, size.ToInt64() - 1));
 
-                    case ExpressionType.LessThanOrEqual:
+                    case AstComparisonFilterOperator.Lte:
                         return AstFilter.NotExists(ItemField(field, size.ToInt64()));
 
-                    case ExpressionType.NotEqual:
+                    case AstComparisonFilterOperator.Ne:
                         return AstFilter.Not(AstFilter.Size(field, size));
                 }
             }
