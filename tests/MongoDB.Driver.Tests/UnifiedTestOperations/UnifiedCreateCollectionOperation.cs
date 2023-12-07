@@ -219,11 +219,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var bucketMaxSpanSeconds =
                             timeseries.TryGetValue("bucketMaxSpanSeconds", out var bucketMaxSpanSecondsValue)
                                 ? bucketMaxSpanSecondsValue.AsInt32
-                                : -1;
+                                : (int?)null;
                         var bucketRoundingSeconds =
                             timeseries.TryGetValue("bucketRoundingSeconds", out var bucketRoundingSecondsValue)
                                 ? bucketRoundingSecondsValue.AsInt32
-                                : -1;
+                                : (int?)null;
                         timeSeriesOptions = new TimeSeriesOptions(timeField, metaField, granularity, bucketMaxSpanSeconds, bucketRoundingSeconds);
                         break;
                     case "viewOn":
