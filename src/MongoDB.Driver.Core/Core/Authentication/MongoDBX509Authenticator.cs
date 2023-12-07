@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
+        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
             helloCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
             return helloCommand;

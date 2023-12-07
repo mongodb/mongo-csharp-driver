@@ -16,8 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -263,6 +265,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a credential used with MONGODB-OIDC.
+        /// </summary>
+        /// <param name="callback">The OIDC callback.</param>
+        /// <param name="principalName">The principal name.</param>
+        /// <returns>The OIDC credential.</returns>
+        public static MongoCredential CreateOidcCredential(IOidcCallback callback, string principalName = null)
+            => CreateRawOidcCredential(principalName)
+                .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback);
+
+        /// <summary>
+        /// Creates a credential used with MONGODB-OIDC.
+        /// </summary>
+        /// <param name="environment">The built in environemnt.</param>
+        /// <param name="userName">User name.</param>
+        /// <returns>The OIDC credential.</returns>
+        public static MongoCredential CreateOidcCredential(string environment, string userName = null)
+            => CreateRawOidcCredential(userName)
+                .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment);
+
+        /// <summary>
         /// Creates a credential used with MONGODB-X509.
         /// </summary>
         /// <param name="username">The username.</param>
@@ -396,7 +418,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal IAuthenticator ToAuthenticator(ServerApi serverApi)
+        internal IAuthenticator ToAuthenticator(IReadOnlyList<EndPoint> endPoints, ServerApi serverApi, IEnvironmentVariableProvider environmentVariableProvider = null)
         {
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
@@ -443,6 +465,10 @@ namespace MongoDB.Driver
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
                         serverApi);
                 }
+                if (_mechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    throw new NotSupportedException("OIDC authenticator cannot be constructed with password.");
+                }
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
@@ -464,12 +490,41 @@ namespace MongoDB.Driver
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
                         serverApi);
                 }
+                if (_mechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    IOidcCallbackAdapterFactory callbackFactory;
+                    if (environmentVariableProvider == null ||
+                        environmentVariableProvider == EnvironmentVariableProvider.Instance)
+                    {
+                        callbackFactory = OidcCallbackAdapterCachingFactory.Instance;
+                    }
+                    else
+                    {
+                        callbackFactory = new OidcCallbackAdapterCachingFactory(SystemClock.Instance, environmentVariableProvider);
+                    }
+
+                    return MongoOidcAuthenticator.CreateAuthenticator(
+                        _identity.Source,
+                        _identity.Username,
+                        _mechanismProperties,
+                        endPoints,
+                        serverApi,
+                        callbackFactory);
+                }
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");
         }
 
         // internal static methods
+        internal static MongoCredential CreateRawOidcCredential(string userName)
+            => FromComponents(
+                mechanism: "MONGODB-OIDC",
+                source: "$external",
+                databaseName: null,
+                username: userName,
+                evidence: new ExternalEvidence());
+
         internal static MongoCredential FromComponents(string mechanism, string source, string username, string password)
         {
             return FromComponents(mechanism, source, databaseName: null, username, password);
@@ -479,19 +534,6 @@ namespace MongoDB.Driver
         {
             var evidence = password == null ? (MongoIdentityEvidence)new ExternalEvidence() : new PasswordEvidence(password);
             return FromComponents(mechanism, source, databaseName, username, evidence);
-        }
-
-        // private methods
-        private void ValidatePassword(string password)
-        {
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
-            }
-            if (password.Any(c => (int)c >= 128))
-            {
-                throw new ArgumentException("Password must contain only ASCII characters.");
-            }
         }
 
         // private static methods
@@ -548,6 +590,22 @@ namespace MongoDB.Driver
                         mechanism,
                         new MongoExternalIdentity(username),
                         evidence);
+                case "MONGODB-OIDC":
+                    {
+                        // MUST be "$external". Defaults to $external.
+                        EnsureNullOrExternalSource(mechanism, source);
+
+                        if (evidence is not ExternalEvidence)
+                        {
+                            throw new ArgumentException("MONGODB-OIDC does not support a password.");
+                        }
+
+                        // Callback will be set in the following step via WithMechanismProperty calls
+                        return new MongoCredential(
+                            mechanism,
+                            new MongoOidcIdentity(username),
+                            evidence);
+                    }
                 case "MONGODB-X509":
                     // MUST be "$external". Defaults to $external.
                     EnsureNullOrExternalSource(mechanism, source);

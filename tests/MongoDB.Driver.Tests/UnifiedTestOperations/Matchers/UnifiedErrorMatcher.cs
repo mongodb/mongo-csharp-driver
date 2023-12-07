@@ -67,12 +67,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertErrorCode(Exception actualException, int expectedErrorCode)
         {
+            actualException = UnwrapConnectionException(actualException);
             var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.Code.Should().Be(expectedErrorCode);
         }
 
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
         {
+            actualException = UnwrapConnectionException(actualException);
             var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.CodeName.Should().Be(expectedErrorCodeName);
         }
@@ -139,6 +141,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
 
             actualException.Should().NotBeNull();
+        }
+
+        private static Exception UnwrapConnectionException(Exception ex)
+        {
+            if (ex is MongoConnectionException connectionException)
+            {
+                ex = connectionException.InnerException;
+            }
+
+            return ex;
         }
     }
 }

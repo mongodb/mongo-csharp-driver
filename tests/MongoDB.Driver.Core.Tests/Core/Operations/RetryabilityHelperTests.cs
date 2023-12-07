@@ -193,6 +193,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslStart", false)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslContinue", false)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "saslDummy", true)]
+        [InlineData(ServerErrorCode.ReauthenticationRequired, "dummy", true)]
+        [InlineData(1, "saslStart", false)]
+        [InlineData(1, "saslContinue", false)]
+        [InlineData(1, "saslNotExisted", false)]
+        [InlineData(1, "dummy", false)]
+        public void IsRetryableCommandAuthenticationException_should_return_expected_result_using_exception_type(int errorCode, string commandName, bool expectedResult)
+        {
+            var exception = CoreExceptionHelper.CreateMongoCommandException(errorCode);
+
+            var result = RetryabilityHelper.IsReauthenticationRequested(exception, new BsonDocument(commandName, 1));
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
         [InlineData(typeof(IOException), false)]
         [InlineData(typeof(MongoCursorNotFoundException), false)]
         [InlineData(typeof(MongoConnectionException), true)]

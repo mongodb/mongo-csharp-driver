@@ -258,7 +258,11 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return MechanismName; }
             }
 
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public ISaslStep Initialize(
+                IConnection connection,
+                SaslConversation conversation,
+                ConnectionDescription description,
+                CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));
@@ -275,6 +279,13 @@ namespace MongoDB.Driver.Core.Authentication
 
                 return new ClientFirst(clientMessageBytes, nonce, _awsCredentials, _clock);
             }
+
+            public Task<ISaslStep> InitializeAsync(
+                IConnection connection,
+                SaslConversation conversation,
+                ConnectionDescription description,
+                CancellationToken cancellationToken)
+                => Task.FromResult(Initialize(connection, conversation, description, cancellationToken));
 
             private byte[] GenerateRandomBytes()
             {
@@ -352,33 +363,11 @@ namespace MongoDB.Driver.Core.Authentication
 
                 var clientSecondMessageBytes = document.ToBson();
 
-                return new ClientLast(clientSecondMessageBytes);
-            }
-        }
-
-        private class ClientLast : ISaslStep
-        {
-            private readonly byte[] _bytesToSendToServer;
-
-            public ClientLast(byte[] bytesToSendToServer)
-            {
-                _bytesToSendToServer = bytesToSendToServer;
+                return new NoTransitionClientLastSaslStep(clientSecondMessageBytes);
             }
 
-            public byte[] BytesToSendToServer
-            {
-                get { return _bytesToSendToServer; }
-            }
-
-            public bool IsComplete
-            {
-                get { return false; }
-            }
-
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
-            {
-                return new CompletedStep();
-            }
+            public Task<ISaslStep> TransitionAsync(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
+                => Task.FromResult(Transition(conversation, bytesReceivedFromServer));
         }
     }
 }

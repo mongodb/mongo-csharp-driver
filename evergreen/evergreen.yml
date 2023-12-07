@@ -452,6 +452,11 @@ functions:
       params:
         file: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json
 
+  assume-ec2-role:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${aws_test_secrets_role}
+
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
       params:
@@ -706,6 +711,19 @@ functions:
             -p 8100 \
             -v \
             --fault revoked
+
+  run-mongodb-oidc-tests:
+    - command: subprocess.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "DRIVERS_TOOLS"
+          - "OS"
+          - "FRAMEWORK"
+        args:
+          - evergreen/run-mongodb-oidc-tests.sh
 
   run-serverless-tests:
     - command: shell.exec
@@ -1236,6 +1254,11 @@ tasks:
     - name: atlas-search-index-helpers-test
       commands:
         - func: run-atlas-search-index-helpers-test
+
+    - name: test-oidc-auth-aws
+      commands:
+        - func: assume-ec2-role
+        - func: run-mongodb-oidc-tests
 
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2217,6 +2240,12 @@ buildvariants:
   display_name: "PLAIN (LDAP) Auth Tests ${os}"
   tasks:
     - name: plain-auth-tests
+
+- matrix_name: mongodb-oidc-tests
+  matrix_spec: { os: [ "windows-64", "ubuntu-2004", "macos-1100" ] }
+  display_name: "MongoDB-OIDC Auth tests - ${os}"
+  tasks:
+    - name: test-oidc-auth-aws
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
