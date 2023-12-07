@@ -43,8 +43,8 @@ namespace MongoDB.Driver
             _timeField = Ensure.IsNotNullOrEmpty(timeField, nameof(timeField));
             _metaField = metaField.WithDefault(null);
             _granularity = granularity.WithDefault(null);
-            _bucketMaxSpanSeconds = bucketMaxSpanSeconds.WithDefault(-1);
-            _bucketRoundingSeconds = bucketRoundingSeconds.WithDefault(-1);
+            _bucketMaxSpanSeconds = bucketMaxSpanSeconds.WithDefault(0);
+            _bucketRoundingSeconds = bucketRoundingSeconds.WithDefault(0);
         }
 
         /// <summary>
@@ -83,8 +83,8 @@ namespace MongoDB.Driver
                 { "timeField", _timeField },
                 { "metaField", _metaField, _metaField != null },
                 { "granularity", () => _granularity.Value.ToString().ToLowerInvariant(), _granularity.HasValue },
-                { "bucketMaxSpanSeconds", _bucketMaxSpanSeconds, _bucketMaxSpanSeconds > 0 },
-                { "bucketRoundingSeconds", _bucketRoundingSeconds, _bucketRoundingSeconds > 0 }
+                { "bucketMaxSpanSeconds", _bucketMaxSpanSeconds, _bucketMaxSpanSeconds != 0 },
+                { "bucketRoundingSeconds", _bucketRoundingSeconds, _bucketRoundingSeconds != 0 }
             };
         }
     }

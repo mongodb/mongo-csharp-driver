@@ -65,5 +65,23 @@ namespace MongoDB.Driver
             result.BucketMaxSpanSeconds.Should().Be(bucketMaxSpanSeconds);
             result.BucketRoundingSeconds.Should().Be(bucketRoundingSeconds);
         }
+
+        [Theory]
+        [InlineData(true, "{ timeField: 'time' }")]
+        [InlineData(false, "{ timeField: 'time', metaField: 'meta', granularity: 'hours', bucketMaxSpanSeconds: 30, bucketRoundingSeconds: 30 }")]
+        public void ToBsonDocument_should_return_expected_result(bool withDefaults, string expected)
+        {
+            const string timeField = "time";
+            const string metaField = "meta";
+            const TimeSeriesGranularity granularity = TimeSeriesGranularity.Hours;
+            const int bucketMaxSpanSeconds = 30;
+            const int bucketRoundingSeconds = 30;
+
+            var result = withDefaults
+                ? new TimeSeriesOptions(timeField)
+                : new TimeSeriesOptions(timeField, metaField, granularity, bucketMaxSpanSeconds, bucketRoundingSeconds);
+
+            result.ToBsonDocument().Should().Be(expected);
+        }
     }
 }
