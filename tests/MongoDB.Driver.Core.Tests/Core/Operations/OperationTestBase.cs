@@ -347,6 +347,19 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected BsonDocument ListCollections(DatabaseNamespace databaseNamespace)
+        {
+            var listCollectionsCommand = new BsonDocument
+            {
+                { "listCollections", 1 }, { "filter", new BsonDocument { { "type", "timeseries" } } }
+            };
+
+            var runCommandOperation = new ReadCommandOperation<BsonDocument>(databaseNamespace, listCollectionsCommand,
+                BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            return ExecuteOperation(runCommandOperation);
+        }
+
         protected Profiler Profile(DatabaseNamespace databaseNamespace)
         {
             var op = new WriteCommandOperation<BsonDocument>(

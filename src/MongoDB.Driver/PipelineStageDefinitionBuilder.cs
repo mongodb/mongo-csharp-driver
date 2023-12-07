@@ -1244,14 +1244,21 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <param name="outputCollection">The output collection.</param>
+        /// <param name="timeSeriesOptions">The time series options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Out<TInput>(
-            IMongoCollection<TInput> outputCollection)
+            IMongoCollection<TInput> outputCollection,
+            TimeSeriesOptions timeSeriesOptions = null)
         {
             Ensure.IsNotNull(outputCollection, nameof(outputCollection));
             var outputDatabaseName = outputCollection.Database.DatabaseNamespace.DatabaseName;
             var outputCollectionName = outputCollection.CollectionNamespace.CollectionName;
-            var outDocument = new BsonDocument { { "db", outputDatabaseName }, { "coll", outputCollectionName } };
+            var outDocument = new BsonDocument
+                {
+                    { "db", outputDatabaseName },
+                    { "coll", outputCollectionName },
+                    { "timeseries", () => timeSeriesOptions.ToBsonDocument(), timeSeriesOptions != null}
+                };
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$out", outDocument));
         }
 
@@ -1331,7 +1338,7 @@ namespace MongoDB.Driver
         /// </param>
         /// <param name="scoreDetails">
         /// Flag that specifies whether to return a detailed breakdown
-        /// of the score for each document in the result. 
+        /// of the score for each document in the result.
         /// </param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Search<TInput>(

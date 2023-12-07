@@ -13,10 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
@@ -51,6 +54,47 @@ namespace MongoDB.Driver.Tests.Jira
             var results = collection.WithReadPreference(ReadPreference.SecondaryPreferred).Aggregate(pipeline).ToList();
 
             results.Single().Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void Aggregate_out_to_time_series_collection_on_secondary_should_work()
+        {
+            RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);
+
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase("test");
+            var collection = database.GetCollection<BsonDocument>("testCol");
+            var outCollection = database.GetCollection<BsonDocument>("timeCol");
+
+            var writeConcern = WriteConcern.WMajority;
+            if (DriverTestConfiguration.IsReplicaSet(client))
+            {
+                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
+                writeConcern = new WriteConcern(n);
+            }
+
+            database.DropCollection("testCol");
+            database.DropCollection("timeCol");
+            collection
+                .WithWriteConcern(writeConcern)
+                .InsertOne(new BsonDocument("_id", 1));
+
+            var fields = Builders<BsonDocument>.SetFields.Set("time", DateTime.Now);
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .Match(FilterDefinition<BsonDocument>.Empty)
+                .Set(fields)
+                .Out(outCollection, new TimeSeriesOptions("time"));
+
+            var results = collection.WithReadPreference(ReadPreference.SecondaryPreferred).Aggregate(pipeline).ToList();
+            results.Count.Should().Be(1);
+
+            var listCollectionsCommand = new BsonDocument
+            {
+                { "listCollections", 1 }, { "filter", new BsonDocument { { "type", "timeseries" } } }
+            };
+            var output = database.RunCommand<BsonDocument>(listCollectionsCommand);
+            output["cursor"]["firstBatch"][0][0].ToString().Should().Be("timeCol"); // checking name of collection
+            output["cursor"]["firstBatch"][0][1].ToString().Should().Be("timeseries"); // checking type of collection
         }
     }
 

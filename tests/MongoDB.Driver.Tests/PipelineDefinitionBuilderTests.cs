@@ -142,6 +142,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Out_with_time_series_options_should_add_expected_stage()
+        {
+            var database = Mock.Of<IMongoDatabase>(db => db.DatabaseNamespace == new DatabaseNamespace("database"));
+            var outputCollection = Mock.Of<IMongoCollection<BsonDocument>>(col =>
+                col.Database == database &&
+                col.CollectionNamespace == new CollectionNamespace(database.DatabaseNamespace, "collection"));
+
+            var timeSeriesOptions = new TimeSeriesOptions("time", "symbol");
+
+            var result = new EmptyPipelineDefinition<BsonDocument>().Out(outputCollection, timeSeriesOptions);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
+        }
+
+        [Fact]
         public void Search_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();

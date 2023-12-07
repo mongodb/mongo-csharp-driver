@@ -210,6 +210,20 @@ namespace MongoDB.Driver
             return Out(outputCollection, cancellationToken);
         }
 
+        public override IAsyncCursor<TResult> Out(IMongoCollection<TResult> outputCollection, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(outputCollection, nameof(outputCollection));
+            var aggregate = WithPipeline(_pipeline.Out(outputCollection, timeSeriesOptions));
+            return aggregate.ToCursor(cancellationToken);
+        }
+
+        public override IAsyncCursor<TResult> Out(string collectionName, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
+            var outputCollection = Database.GetCollection<TResult>(collectionName);
+            return Out(outputCollection, timeSeriesOptions, cancellationToken);
+        }
+
         public override Task<IAsyncCursor<TResult>> OutAsync(IMongoCollection<TResult> outputCollection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(outputCollection, nameof(outputCollection));
@@ -222,6 +236,20 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             var outputCollection = Database.GetCollection<TResult>(collectionName);
             return OutAsync(outputCollection, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TResult>> OutAsync(IMongoCollection<TResult> outputCollection, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(outputCollection, nameof(outputCollection));
+            var aggregate = WithPipeline(_pipeline.Out(outputCollection, timeSeriesOptions));
+            return aggregate.ToCursorAsync(cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TResult>> OutAsync(string collectionName, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
+            var outputCollection = Database.GetCollection<TResult>(collectionName);
+            return OutAsync(outputCollection, timeSeriesOptions, cancellationToken);
         }
 
         public override IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection)

@@ -710,7 +710,8 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void Out_with_collection_should_add_the_expected_stage_and_call_Aggregate(
-            [Values(false, true)] bool async)
+            [Values(false, true)] bool async,
+            [Values(true, false)] bool usingTimeSeriesCollection)
         {
             var inputDatabase = CreateMockDatabase("inputDatabaseName").Object;
             var mockInputCollection = CreateMockCollection(inputDatabase, "inputCollectionName");
@@ -720,20 +721,27 @@ namespace MongoDB.Driver.Tests
             var outputDatabase = CreateMockDatabase("outputDatabaseName").Object;
             var outputCollection = outputDatabase.GetCollection<C>("outputCollectionName");
 
+            var timeSeriesOption = usingTimeSeriesCollection ? new TimeSeriesOptions("time") : null;
+            var expectedRenderedOutStage = usingTimeSeriesCollection
+                ? "{ $out : { db : 'outputDatabaseName', coll : 'outputCollectionName', timeseries: { timeField: 'time' } } }"
+                : "{ $out : { db : 'outputDatabaseName', coll : 'outputCollectionName' } }";
+
             Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
             {
                 var renderedPipeline = RenderPipeline(pipeline);
                 return
                     renderedPipeline.Documents.Count == 2 &&
                     renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
-                    renderedPipeline.Documents[1] == BsonDocument.Parse("{ $out : { db : 'outputDatabaseName', coll : 'outputCollectionName' } }") &&
+                    renderedPipeline.Documents[1] == BsonDocument.Parse(expectedRenderedOutStage) &&
                     renderedPipeline.OutputSerializer.ValueType == typeof(C);
             };
 
             IAsyncCursor<C> cursor;
             if (async)
             {
-                cursor = subject.OutAsync(outputCollection, CancellationToken.None).GetAwaiter().GetResult();
+                cursor = usingTimeSeriesCollection
+                    ? subject.OutAsync(outputCollection, timeSeriesOption, CancellationToken.None).GetAwaiter().GetResult()
+                    : subject.OutAsync(outputCollection, CancellationToken.None).GetAwaiter().GetResult();
 
                 mockInputCollection.Verify(
                     c => c.AggregateAsync<C>(
@@ -744,7 +752,9 @@ namespace MongoDB.Driver.Tests
             }
             else
             {
-                cursor = subject.Out(outputCollection, CancellationToken.None);
+                cursor = usingTimeSeriesCollection
+                    ? subject.Out(outputCollection, timeSeriesOption, CancellationToken.None)
+                    : subject.Out(outputCollection, CancellationToken.None);
 
                 mockInputCollection.Verify(
                     c => c.Aggregate<C>(
@@ -758,7 +768,8 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void Out_with_string_should_add_the_expected_stage_and_call_Aggregate(
-            [Values(false, true)] bool async)
+            [Values(false, true)] bool async,
+            [Values(true, false)] bool usingTimeSeriesCollection)
         {
             var inputDatabase = CreateMockDatabase("inputDatabaseName").Object;
             var mockInputCollection = CreateMockCollection(inputDatabase, "inputCollectionName");
@@ -767,20 +778,27 @@ namespace MongoDB.Driver.Tests
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
             var outputCollectionName = "outputCollectionName";
 
+            var timeSeriesOption = usingTimeSeriesCollection ? new TimeSeriesOptions("time") : null;
+            var expectedRenderedOutStage = usingTimeSeriesCollection
+                ? "{ $out : { db : 'inputDatabaseName', coll : 'outputCollectionName', timeseries: { timeField: 'time' } } }"
+                : "{ $out : { db : 'inputDatabaseName', coll : 'outputCollectionName' } }";
+
             Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
             {
                 var renderedPipeline = RenderPipeline(pipeline);
                 return
                     renderedPipeline.Documents.Count == 2 &&
                     renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
-                    renderedPipeline.Documents[1] == BsonDocument.Parse("{ $out : { db : 'inputDatabaseName', coll : 'outputCollectionName' } }") &&
+                    renderedPipeline.Documents[1] == BsonDocument.Parse(expectedRenderedOutStage) &&
                     renderedPipeline.OutputSerializer.ValueType == typeof(C);
             };
 
             IAsyncCursor<C> cursor;
             if (async)
             {
-                cursor = subject.OutAsync(outputCollectionName, CancellationToken.None).GetAwaiter().GetResult();
+                cursor = usingTimeSeriesCollection
+                    ? subject.OutAsync(outputCollectionName, timeSeriesOption, CancellationToken.None).GetAwaiter().GetResult()
+                    : subject.OutAsync(outputCollectionName, CancellationToken.None).GetAwaiter().GetResult();
 
                 mockInputCollection.Verify(
                     c => c.AggregateAsync<C>(
@@ -791,7 +809,9 @@ namespace MongoDB.Driver.Tests
             }
             else
             {
-                cursor = subject.Out(outputCollectionName, CancellationToken.None);
+                cursor = usingTimeSeriesCollection
+                    ? subject.Out(outputCollectionName, timeSeriesOption, CancellationToken.None)
+                    : subject.Out(outputCollectionName, CancellationToken.None);
 
                 mockInputCollection.Verify(
                     c => c.Aggregate<C>(
