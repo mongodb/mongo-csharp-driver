@@ -318,12 +318,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : {WireVersion.Server36} }}"));
-            var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
+            var gleReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(legacyHelloReply);
-            connection.EnqueueReplyMessage(gleReply);
+            connection.EnqueueCommandResponseMessage(gleReply);
 
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
