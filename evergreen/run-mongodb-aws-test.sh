@@ -26,20 +26,10 @@ done
 # ensure no secrets are printed in log files
 set +x
 
-# load the script
-shopt -s expand_aliases # needed for `urlencode` alias
-[ -s "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh" ] && source "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
+# Handle credentials and environment setup.
+. $DRIVERS_TOOLS/.evergreen/auth_aws/aws_setup.sh $1
 
-# Provision the correct connection string
-if [ -z ${MONGODB_URI+x} ]; then
-    echo "MONGODB_URI is not set";
-    exit 1
-fi
-MONGODB_URI="${MONGODB_URI}/aws?authMechanism=MONGODB-AWS"
-if [[ -n ${SESSION_TOKEN} ]]; then
-    MONGODB_URI="${MONGODB_URI}&authMechanismProperties=AWS_SESSION_TOKEN:${SESSION_TOKEN}"
-fi
-if [ "$ASSERT_NO_URI_CREDS" = "true" ]; then
+if [ "${ASSERT_NO_URI_CREDS:-false}" = "true" ]; then
     if echo "$MONGODB_URI" | grep -q "@"; then
         echo "MONGODB_URI unexpectedly contains user credentials!";
         exit 1
