@@ -14,16 +14,17 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -265,7 +266,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
 
-            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
+            if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
+                connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
             {
                 return connectionString.AuthSource ?? defaultSource;
             }
@@ -277,7 +279,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             if (connectionString.AuthMechanism != null && (
                 connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
-                connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName))
+                connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
+                connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName))
             {
                 return "$external";
             }
@@ -324,6 +327,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
                 }
+                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    throw new NotSupportedException("OIDC authenticator cannot be constructed with password.");
+                }
             }
             else
             {
@@ -338,6 +345,15 @@ namespace MongoDB.Driver.Core.Configuration
                 else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
                 {
                     return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
+                }
+                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    return MongoOidcAuthenticator.CreateAuthenticator(
+                        connectionString.AuthSource,
+                        connectionString.Username,
+                        connectionString.AuthMechanismProperties?.Select(pair => new KeyValuePair<string, object>(pair.Key, pair.Value)),
+                        connectionString.Hosts,
+                        serverApi);
                 }
             }
 

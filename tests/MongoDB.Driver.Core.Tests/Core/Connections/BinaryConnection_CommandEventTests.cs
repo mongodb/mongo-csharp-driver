@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Connections
             _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), emptyAuthenticators)));
             _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
-                .Returns(() => Task.FromResult(connectionDescriptionFunc()));
+                .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), emptyAuthenticators)));
 
             _subject = new BinaryConnection(
                 serverId: serverId,

@@ -409,13 +409,13 @@ namespace MongoDB.Driver.Core.Connections
             {
                 connectionInitializerContext = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
                 connection.Description = connectionInitializerContext.Description;
-                return connectionInitializer.AuthenticateAsync(connection, connectionInitializerContext, cancellationToken).GetAwaiter().GetResult();
+                return connectionInitializer.AuthenticateAsync(connection, connectionInitializerContext, cancellationToken).GetAwaiter().GetResult().Description;
             }
             else
             {
                 connectionInitializerContext = connectionInitializer.SendHello(connection, cancellationToken);
                 connection.Description = connectionInitializerContext.Description;
-                return connectionInitializer.Authenticate(connection, connectionInitializerContext, cancellationToken);
+                return connectionInitializer.Authenticate(connection, connectionInitializerContext, cancellationToken).Description;
             }
         }
     }
@@ -426,6 +426,6 @@ namespace MongoDB.Driver.Core.Connections
             this ConnectionInitializer initializer,
             IReadOnlyList<IAuthenticator> authenticators,
             bool loadBalanced) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators, loadBalanced);
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators, loadBalanced, CancellationToken.None);
     }
 }

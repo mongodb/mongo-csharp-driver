@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.TestHelpers
     public static class FailPointName
     {
         // public constants
+        public const string FailCommand = "failCommand";
         public const string MaxTimeAlwaysTimeout = "maxTimeAlwaysTimeOut";
         public const string OnPrimaryTransactionalWrite = "onPrimaryTransactionalWrite";
     }

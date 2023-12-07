@@ -19,6 +19,7 @@ namespace MongoDB.Driver
     {
         // this is not a complete list, more will be added as needed
         // see: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
+        AuthenticationFailed = 18,
         CappedPositionLost = 136,
         CommandNotFound = 59,
         CursorKilled = 237,
@@ -41,6 +42,7 @@ namespace MongoDB.Driver
         NotPrimaryOrSecondary = 13436,
         PrimarySteppedDown = 189,
         ReadConcernMajorityNotAvailableYet = 134,
+        ReauthenticationRequired = 391,
         RetryChangeStream = 234,
         ShutdownInProgress = 91,
         SocketException = 9001,

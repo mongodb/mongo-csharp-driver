@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced), cancellationToken);
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced), cancellationToken);
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
@@ -125,12 +125,12 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
+        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
             helloCommand = helloCommand.Merge(saslSupportedMechs);
             _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi);
-            return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand);
+            return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand, cancellationToken);
         }
 
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)

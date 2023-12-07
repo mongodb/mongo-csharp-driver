@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.TestHelpers
 {
-    public class MockConnection : IConnection
+    public class MockConnection : IConnectionHandle
     {
         // fields
         private ConnectionId _connectionId;
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             _replyActions.Enqueue(new ActionQueueItem(replyMessage));
         }
 
-        public IConnection Fork()
+        public IConnectionHandle Fork()
         {
             return this;
         }
@@ -208,25 +208,29 @@ namespace MongoDB.Driver.Core.TestHelpers
 
             _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
 
-            return Task.FromResult<object>(null);
+            return Task.CompletedTask;
+        }
+
+        public void Reauthenticate(CancellationToken cancellationToken)
+        {
+            _replyActions.Dequeue().GetEffectiveMessage();
+        }
+
+        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
+        {
+            await _replyActions.Dequeue().GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
         public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             var action = _replyActions.Dequeue();
-            action.ThrowIfException();
-            var message = (ResponseMessage)action.Message;
-            action.DelayIfRequired();
-            return message;
+            return (ResponseMessage)action.GetEffectiveMessage();
         }
 
         public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             var action = _replyActions.Dequeue();
-            action.ThrowIfException();
-            var message = (ResponseMessage)action.Message;
-            await action.DelayIfRequiredAsync().ConfigureAwait(false);
-            return message;
+            return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
         public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
@@ -264,7 +268,21 @@ namespace MongoDB.Driver.Core.TestHelpers
             public Exception Exception { get; }
             public TimeSpan? Delay { get; }
 
-            public void ThrowIfException()
+            public MongoDBMessage GetEffectiveMessage()
+            {
+                ThrowIfException();
+                DelayIfRequired();
+                return Message;
+            }
+
+            public async Task<MongoDBMessage> GetEffectiveMessageAsync()
+            {
+                ThrowIfException();
+                await DelayIfRequiredAsync().ConfigureAwait(false);
+                return Message;
+            }
+
+            private void ThrowIfException()
             {
                 if (Exception != null)
                 {
@@ -272,7 +290,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 }
             }
 
-            public void DelayIfRequired()
+            private void DelayIfRequired()
             {
                 if (Delay.HasValue)
                 {
@@ -280,7 +298,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 }
             }
 
-            public async Task DelayIfRequiredAsync()
+            private async Task DelayIfRequiredAsync()
             {
                 if (Delay.HasValue)
                 {
