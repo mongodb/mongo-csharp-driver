@@ -448,7 +448,7 @@ functions:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
-        script:
+        script: |
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh regular
 
   run-aws-auth-test-with-assume-role-credentials:
@@ -456,7 +456,7 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        script:
+        script: |
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh assume-role
 
   run-aws-auth-test-with-aws-EC2-credentials:
@@ -530,7 +530,7 @@ functions:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
-        script:
+        script: |
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh env-creds
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
@@ -539,8 +539,7 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-          ${PREPARE_SHELL}
-          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
 
   run-atlas-data-lake-test:
     - command: shell.exec
