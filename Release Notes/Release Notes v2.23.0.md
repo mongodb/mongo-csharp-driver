@@ -7,6 +7,7 @@ The main new features in 2.23.0 include:
 * General driver bug fixes and improvements
 * Add bitwise operators to aggregation pipeline - [CSHARP-4486](https://jira.mongodb.org/browse/CSHARP-4486)
 * Support for $out to Time-series collections - [CSHARP-4706](https://jira.mongodb.org/browse/CSHARP-4706)
+* + Avoiding Errors if Change Stream Events Exceed 16MB - [CSHARP-4633](https://jira.mongodb.org/browse/CSHARP-4633)
 * LINQ3 bug fixes and improvements
 * Additional logging messages
 
