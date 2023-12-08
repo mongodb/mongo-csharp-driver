@@ -21,12 +21,7 @@ var gitVersion = GitVersion();
 var solutionDirectory = MakeAbsolute(Directory("./"));
 var artifactsDirectory = solutionDirectory.Combine("artifacts");
 var artifactsBinDirectory = artifactsDirectory.Combine("bin");
-var artifactsDocsDirectory = artifactsDirectory.Combine("docs");
-var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.LegacySemVer);
-var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
-var docsDirectory = solutionDirectory.Combine("Docs");
-var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
 var outputDirectory = solutionDirectory.Combine("build");
@@ -110,16 +105,6 @@ Task("BuildArtifacts")
                     fileNames.Add(fileName);
                 }
 
-                // add additional files needed by Sandcastle
-                if (targetFramework == "net472" && project == "MongoDB.Driver.Core")
-                {
-                    fileNames.Add("AWSSDK.Core.dll");
-                    fileNames.Add("DnsClient.dll");
-                    fileNames.Add("Microsoft.Extensions.Logging.Abstractions.dll");
-                    fileNames.Add("MongoDB.Libmongocrypt.dll");
-                    fileNames.Add("SharpCompress.dll");
-                }
-
                 foreach (var fileName in fileNames)
                 {
                     var fromFile = fromDirectory.CombineWithFilePath(fileName);
@@ -183,7 +168,7 @@ Task("TestPlainAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) => 
+        action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"PlainMechanism\""));
 
 // currently we are not running this Task on Evergreen (only locally occassionally)
@@ -213,7 +198,7 @@ Task("TestAllGuidRepresentations")
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithGuidRepresentation}");
 
             RunTests(
-                buildConfig, 
+                buildConfig,
                 testProject,
                 settings =>
                 {
@@ -264,7 +249,7 @@ Task("TestGssapi")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>       
+        action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"GssapiMechanism\""));
 
 Task("TestGssapiNet472").IsDependentOn("TestGssapi");
@@ -332,79 +317,6 @@ Task("TestCsfleWithGcpKms")
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CsfleGCPKMS\""));
-
-Task("Docs")
-    .IsDependentOn("ApiDocs")
-    .IsDependentOn("RefDocs");
-
-Task("ApiDocs")
-    .IsDependentOn("BuildArtifacts")
-    .Does(() =>
-    {
-        EnsureDirectoryExists(artifactsDocsApiDocsDirectory);
-        CleanDirectory(artifactsDocsApiDocsDirectory);
-
-        var shfbprojFile = docsApiDirectory.CombineWithFilePath("CSharpDriverDocs.shfbproj");
-        var preliminary = false; // TODO: compute
-        MSBuild(shfbprojFile, new MSBuildSettings
-            {
-                Configuration = "Release"
-            }
-            .WithProperty("OutputPath", artifactsDocsApiDocsDirectory.ToString())
-            .WithProperty("CleanIntermediate", "True")
-            .WithProperty("Preliminary", preliminary ? "True" : "False")
-            .WithProperty("HelpFileVersion", gitVersion.LegacySemVer)
-        );
-
-        var lowerCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("index.html");
-        var upperCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("Index.html");
-        MoveFile(upperCaseIndexFile, lowerCaseIndexFile);
-
-        var chmFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
-        var artifactsDocsChmFile = artifactsDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
-        CopyFile(chmFile, artifactsDocsChmFile);
-    });
-
-Task("RefDocs")
-    .Does(() =>
-    {
-        EnsureDirectoryExists(toolsHugoDirectory);
-        CleanDirectory(toolsHugoDirectory);
-
-        var url = "https://github.com/spf13/hugo/releases/download/v0.13/hugo_0.13_windows_amd64.zip";
-        var hugoZipFile = toolsHugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.zip");
-        DownloadFile(url, hugoZipFile);
-        Unzip(hugoZipFile, toolsHugoDirectory);
-        var hugoExe = toolsHugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.exe");
-
-        var landingDirectory = docsDirectory.Combine("landing");
-        var landingPublicDirectory = landingDirectory.Combine("public");
-        CleanDirectory(landingPublicDirectory);
-
-        var processSettings = new ProcessSettings
-        {
-            WorkingDirectory = landingDirectory
-        };
-        StartProcess(hugoExe, processSettings);
-
-        var referenceDirectory = docsDirectory.Combine("reference");
-        var referencePublicDirectory = referenceDirectory.Combine("public");
-        CleanDirectory(referencePublicDirectory);
-
-        processSettings = new ProcessSettings
-        {
-            WorkingDirectory = referenceDirectory
-        };
-        StartProcess(hugoExe, processSettings);
-
-        EnsureDirectoryExists(artifactsDocsRefDocsDirectory);
-        CleanDirectory(artifactsDocsRefDocsDirectory);
-
-        CopyDirectory(landingPublicDirectory, artifactsDocsRefDocsDirectory);
-
-        var artifactsReferencePublicDirectory = artifactsDocsRefDocsDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
-        CopyDirectory(referencePublicDirectory, artifactsReferencePublicDirectory);
-    });
 
 Task("Package")
     .IsDependentOn("PackageNugetPackages");
@@ -487,7 +399,7 @@ Task("TestsPackagingProjectReference")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) => 
+        action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"Packaging\""));
 
 Task("SmokeTests")
@@ -610,7 +522,7 @@ Task("TestsPackaging")
                         {
                             Framework = moniker,
                             Configuration = configuration,
-                            ArgumentCustomization = args => 
+                            ArgumentCustomization = args =>
                                 args
                                 .Append("/p:LangVersion=9")
                                 .Append($"-- RunConfiguration.TargetPlatform={processorArchitecture}")

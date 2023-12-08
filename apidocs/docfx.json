@@ -1,0 +1,171 @@
+{
+    "metadata": [
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Bson/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Bson",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "samePage",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
+        },
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Driver/*.csproj",
+                        "MongoDB.Driver.Core/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Driver",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "samePage",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
+        },
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Driver.GridFS/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Driver.GridFS",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "samePage",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
+        },
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Driver.Legacy/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Driver.Legacy",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "samePage",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
+        }
+    ],
+    "build": {
+        "content": [
+            {
+                "files": [
+                    "api/MongoDB.Bson/**.yml",
+                    "api/MongoDB.Driver.GridFS/**.yml",
+                    "api/MongoDB.Driver/**.yml",
+                    "api/MongoDB.Driver.Legacy/**.yml",
+                    "api/toc.yml",
+                    "api/index.md"
+                ]
+            },
+            {
+                "files": ["MongoDB.md"],
+                "src": "api/",
+                "dest": "api/MongoDB.Bson"
+            },
+            {
+                "files": ["MongoDB.md"],
+                "src": "api/",
+                "dest": "api/MongoDB.Driver"
+            },
+            {
+                "files": ["MongoDB.md"],
+                "src": "api/",
+                "dest": "api/MongoDB.Driver.GridFS"
+            },
+            {
+                "files": ["MongoDB.md"],
+                "src": "api/",
+                "dest": "api/MongoDB.Driver.Legacy"
+            },
+            {
+                "files": [
+                    "index.md"
+                ]
+            }
+        ],
+        "resource": [
+            {
+                "files": [
+                    "images/**"
+                ]
+            }
+        ],
+        "overwrite": [
+            {
+                "files": ["namespaces/**.md"]
+            }
+        ],
+        "globalMetadataFiles": [],
+        "fileMetadataFiles": [],
+        "template": [
+            "default",
+            "modern",
+            "mongo-apidocs"
+        ],
+        "postProcessors": [],
+        "keepFileLink": false,
+        "disableGitFeatures": false,
+        "markdownEngineName": "markdig",
+        "markdownEngineProperties": {
+            "markdigExtensions": [
+                "definitionlists"
+            ]
+        },
+        "globalMetadata": {
+            "_appTitle": "MongoDB CSharp Driver API Reference",
+            "_appFooter": "&copy; 2023 MongoDB, Inc.",
+            "_appLogoPath": "images/mongodb-logo.svg",
+            "_appFaviconPath": "images/favicon.ico",
+            "_disableContribution": "true"
+        }
+    }
+}
