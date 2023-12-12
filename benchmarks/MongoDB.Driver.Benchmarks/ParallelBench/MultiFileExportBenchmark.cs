@@ -68,7 +68,7 @@ namespace MongoDB.Benchmarks.ParallelBench
                         streamWriter.WriteLine(document.ToJson());
                     }
                 }
-            }, 50000);
+            }, 100000);
         }
 
         [GlobalCleanup]

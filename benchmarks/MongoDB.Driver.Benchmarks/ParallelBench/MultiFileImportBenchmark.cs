@@ -58,7 +58,7 @@ namespace MongoDB.Benchmarks.ParallelBench
                 var documents = new List<BsonDocument>(5000);
                 documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
                 _collection.InsertMany(documents);
-            }, 50000);
+            }, 100000);
         }
 
         [GlobalCleanup]
