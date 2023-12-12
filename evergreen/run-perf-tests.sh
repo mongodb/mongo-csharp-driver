@@ -9,5 +9,4 @@ set -o errexit  # Exit the script with error if any of the commands fail
 # Download the data to be used in the performance tests
 ./scripts/download-data.sh .
 
-mkdir ./Benchmark.Artifacts/
-dotnet run -c Release -- --evergreen --filter '*' --a ./Benchamrk.Artifacts
+dotnet run -c Release -- --evergreen --filter '*' --a ./Benchmark.Artifacts
