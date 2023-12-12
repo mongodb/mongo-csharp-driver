@@ -1,29 +1,30 @@
-/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System.IO;
-using System.Linq;
+using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
-using BenchmarkDotNet.Exporters;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Exporters
 {
-    public class LocalExporter : IExporter
+    public sealed class LocalExporter : IExporter
     {
         public string Name => GetType().Name;
 
@@ -35,78 +36,38 @@ namespace MongoDB.Benchmarks.Exporters
         {
             var exportedFiles = new List<string>();
 
-            var runtimes = summary.Reports.Select(benchmark => benchmark.GetRuntimeInfo()).Distinct().ToList();
-            foreach (string runtime in runtimes)
+            var benchmarksGroupedByRuntime = summary.Reports.GroupBy(b => b.GetRuntimeInfo()).ToList();
+            foreach (var benchmarkGroup in benchmarksGroupedByRuntime)
             {
-                string filename = $"local-report({runtime}).txt";
-                string path = Path.Combine(summary.ResultsDirectoryPath, filename);
-                if (File.Exists(path))
+                var runtime = benchmarkGroup.Key;
+                var filename = $"local-report({runtime}).txt";
+                var path = Path.Combine(summary.ResultsDirectoryPath, filename);
+
+                using StreamWriter writer = new(path, false);
+                var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToList();
+
+                writer.WriteLine("Scores Summary: ");
+                foreach (var category in DriverBenchmarkCategory.AllCategories)
                 {
-                    File.Delete(path);
+                    WriteScore(writer, category, CalculateCompositeScore(benchmarkResults, category));
                 }
 
-                using (StreamWriter writer = new StreamWriter(path, false))
+                foreach (var benchmark in benchmarkResults)
                 {
-                    var benchmarkResults = new List<BenchmarkResult>();
-                    foreach (var report in summary.Reports)
-                    {
-                        if (report.GetRuntimeInfo() != runtime)
-                        {
-                            continue;
-                        }
-
-                        string benchmarkName;
-                        if (report.BenchmarkCase.Descriptor.HasCategory(DriverBenchmarkCategory.BsonBench))
-                        {
-                            benchmarkName = report.BenchmarkCase.Parameters["benchmarkData"] + report.BenchmarkCase.Descriptor.Type.Name;
-                        }
-                        else
-                        {
-                            benchmarkName = report.BenchmarkCase.Descriptor.Type.Name;
-                        }
-                        benchmarkResults.Add(new BenchmarkResult(report, benchmarkName, GetDatasetSize(benchmarkName)));
-                    }
-
-                    ExportToFile(benchmarkResults, writer);
+                    WriteScore(writer, benchmark.Name, benchmark.Score);
                 }
+
                 exportedFiles.Add(path);
             }
+
             return exportedFiles;
         }
 
-        private static void ExportToFile(List<BenchmarkResult> benchmarkResults, TextWriter writer)
+        private static void WriteScore(StreamWriter writer, string benchName, double score)
         {
-            var compositeScore = new CompositeScore(benchmarkResults);
-            double bsonBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.BsonBench);
-            double readBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ReadBench);
-            double writeBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.WriteBench);
-            double multiBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.MultiBench);
-            double singleBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.SingleBench);
-            double parallelBenchScore = compositeScore.GetScore(DriverBenchmarkCategory.ParallelBench);
-            double driverBenchScore = (readBenchScore + writeBenchScore) / 2;
-
-            writer.WriteLine("Scores Summary: ");
-            WriteScore(DriverBenchmarkCategory.BsonBench, bsonBenchScore);
-            WriteScore(DriverBenchmarkCategory.ReadBench, readBenchScore);
-            WriteScore(DriverBenchmarkCategory.WriteBench, writeBenchScore);
-            WriteScore(DriverBenchmarkCategory.MultiBench, multiBenchScore);
-            WriteScore(DriverBenchmarkCategory.SingleBench, singleBenchScore);
-            WriteScore(DriverBenchmarkCategory.ParallelBench, parallelBenchScore);
-            WriteScore(DriverBenchmarkCategory.DriverBench, driverBenchScore);
-
-            foreach (var benchmark in benchmarkResults)
-            {
-                WriteScore(benchmark.Name, benchmark.Score);
-            }
-
-            return;
-
-            void WriteScore(string benchName, double score)
-            {
-                writer.WriteLine(score != 0
-                    ? $"Executed {benchName}, score: {score:F3} MB/s"
-                    : $"Skipped {benchName}");
-            }
+            writer.WriteLine(score != 0
+                ? $"Executed {benchName}, score: {score:F3} MB/s"
+                : $"Skipped {benchName}");
         }
     }
 }

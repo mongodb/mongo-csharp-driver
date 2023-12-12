@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-using NDesk.Options;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 using MongoDB.Benchmarks.Exporters;
+using NDesk.Options;
 
 namespace MongoDB.Benchmarks
 {

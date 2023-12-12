@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
 * limitations under the License.
 */
 
-using System;
+using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using BenchmarkDotNet.Attributes;
+using MongoDB.Driver.TestHelpers;
+
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc
@@ -25,7 +26,7 @@ namespace MongoDB.Benchmarks.SingleDoc
     [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class InsertOneLargeBenchmark
     {
-        private MongoClient _client;
+        private DisposableMongoClient _client;
         private IMongoDatabase _database;
         private BsonDocument _largeDocument;
         private IMongoCollection<BsonDocument> _collection;
@@ -33,11 +34,9 @@ namespace MongoDB.Benchmarks.SingleDoc
         [GlobalSetup]
         public void Setup()
         {
-            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-            _client.DropDatabase("perftest");
-            _largeDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/large_doc.json");
+            _client = MongoConfiguration.CreateDisposableClient();
             _database = _client.GetDatabase("perftest");
+            _largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
         }
 
         [IterationSetup]
@@ -60,7 +59,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         [GlobalCleanup]
         public void Teardown()
         {
-            _client.DropDatabase("perftest");
+            _client.Dispose();
         }
     }
 }

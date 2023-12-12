@@ -1,23 +1,24 @@
-/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System;
+using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
+using MongoDB.Driver.TestHelpers;
+using System.Linq;
+
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -26,18 +27,17 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class FindManyBenchmark
     {
-        private MongoClient _client;
         private BsonDocument _tweetDocument;
+        private DisposableMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
 
         [GlobalSetup]
         public void Setup()
         {
-            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-            _client.DropDatabase("perftest");
-            _tweetDocument = ReadExtendedJson("../../../../../../../data/single_and_multi_document/tweet.json");
+            _client = MongoConfiguration.CreateDisposableClient();
+            _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
             _collection = _client.GetDatabase("perftest").GetCollection<BsonDocument>("corpus");
+
             PopulateCollection();
         }
 
@@ -50,17 +50,12 @@ namespace MongoDB.Benchmarks.MultiDoc
         [GlobalCleanup]
         public void Teardown()
         {
-            _client.DropDatabase("perftest");
+            _client.Dispose();
         }
 
         private void PopulateCollection()
         {
-            var documents = new List<BsonDocument>();
-            for (int i = 0; i < 10000; i++)
-            {
-                var documentCopy = _tweetDocument.DeepClone().AsBsonDocument;
-                documents.Add(documentCopy);
-            }
+            var documents = Enumerable.Range(0, 10000).Select(_ => _tweetDocument.DeepClone().AsBsonDocument);
             _collection.InsertMany(documents);
         }
     }

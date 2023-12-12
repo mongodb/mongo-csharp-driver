@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,8 @@
 
 namespace MongoDB.Benchmarks.Bson
 {
-    public readonly struct BenchmarkData
+    public readonly record struct BenchmarkData(string Filepath, string DataSetName)
     {
-        public BenchmarkData(string filepath, string dataSetName)
-        {
-            FilePath = filepath;
-            DataSet = dataSetName;
-        }
-        public string DataSet { get; }
-        public string FilePath { get; }
-
-        public override string ToString() => $"{DataSet}";
+        public override string ToString() => $"{DataSetName}";
     }
 }

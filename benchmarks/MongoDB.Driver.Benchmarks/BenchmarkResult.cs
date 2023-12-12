@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 
 using BenchmarkDotNet.Reports;
 using System.Collections.Generic;
+using MongoDB.Benchmarks.Bson;
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks
 {
@@ -24,11 +26,19 @@ namespace MongoDB.Benchmarks
         public double Score { get; }
         public IEnumerable<string> Categories { get; }
 
-        public BenchmarkResult(BenchmarkReport benchmarkReport, string name, int datasetSize)
+        public BenchmarkResult(BenchmarkReport benchmarkReport)
         {
-            Name = name;
+            if (benchmarkReport.BenchmarkCase.Descriptor.HasCategory(DriverBenchmarkCategory.BsonBench))
+            {
+                Name = benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"] + benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+            }
+            else
+            {
+                Name = benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+            }
+
             Categories = benchmarkReport.BenchmarkCase.Descriptor.Categories;
-            Score = datasetSize / (benchmarkReport.ResultStatistics.Median / 1000);
+            Score = GetDatasetSize(Name) / (benchmarkReport.ResultStatistics.Median / 1000);
         }
     }
 }

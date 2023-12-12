@@ -1,26 +1,28 @@
-/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System;
+using BenchmarkDotNet.Attributes;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver;
+using MongoDB.Driver.TestHelpers;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
+
+using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.ParallelBench
 {
@@ -29,7 +31,7 @@ namespace MongoDB.Benchmarks.ParallelBench
     [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class MultiFileExportBenchmark
     {
-        private MongoClient _client;
+        private DisposableMongoClient _client;
         private IMongoDatabase _database;
         private DirectoryInfo _tmpDirectory;
         private IMongoCollection<BsonDocument> _collection;
@@ -37,13 +39,10 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalSetup]
         public void Setup()
         {
-            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-            _client.DropDatabase("perftest");
+            _client = MongoConfiguration.CreateDisposableClient();
             _database = _client.GetDatabase("perftest");
-            _database.DropCollection("corpus");
             _collection = _database.GetCollection<BsonDocument>("corpus");
-            _tmpDirectory = Directory.CreateDirectory("../../../../../../../data/parallel/tmpLDJSON");
+            _tmpDirectory = Directory.CreateDirectory($"{DataFolderPath}parallel/tmpLDJSON");
 
             PopulateCollection();
         }
@@ -57,20 +56,27 @@ namespace MongoDB.Benchmarks.ParallelBench
         [Benchmark]
         public void MultiFileExport()
         {
-            Task[] tasks = new Task[100];
-            for (int i = 0; i < 100; i++)
+            ThreadingUtilities.ExecuteOnNewThreads(100, fileNumber =>
             {
-                tasks[i] = Task.Factory.StartNew(ExportFile(i));
-            }
-            Task.WaitAll(tasks);
+                var filepath = $"{DataFolderPath}parallel/tmpLDJSON/ldjson{fileNumber:D3}.txt";
+                var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip(fileNumber * 5000).Limit(5000).ToList();
+
+                using (StreamWriter streamWriter = File.CreateText(filepath))
+                {
+                    foreach (var document in documents)
+                    {
+                        streamWriter.WriteLine(document.ToJson());
+                    }
+                }
+            }, 50000);
         }
 
         [GlobalCleanup]
         public void Teardown()
         {
-            _client.DropDatabase("perftest");
             ClearDirectory();
             _tmpDirectory.Delete();
+            _client.Dispose();
         }
 
         private void ClearDirectory()
@@ -81,28 +87,11 @@ namespace MongoDB.Benchmarks.ParallelBench
             }
         }
 
-        private Action ExportFile(int fileNumber)
-        {
-            return () =>
-            {
-                string filepath = $"../../../../../../../data/parallel/tmpLDJSON/ldjson{fileNumber:D3}.txt";
-                var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip(fileNumber * 5000).Limit(5000).ToList();
-
-                using (StreamWriter streamWriter = File.CreateText(filepath))
-                {
-                    foreach (var document in documents)
-                    {
-                        streamWriter.WriteLine(document.ToJson());
-                    }
-                }
-            };
-        }
-
         private void PopulateCollection()
         {
             for (int i = 0; i < 100; i++)
             {
-                string resourcePath = $"../../../../../../../data/parallel/ldjson_multi/ldjson{i:D3}.txt";
+                var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{i:D3}.txt";
                 var documents = new List<BsonDocument>(5000);
                 documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
                 _collection.InsertMany(documents);

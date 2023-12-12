@@ -1,6 +1,6 @@
 # C# Driver Benchmark Suite
 
-This suite implements the benchmarks described in this spec: [https://github.com/mongodb/specifications/blob/master/source/benchmarking/benchmarking.rst].
+This suite implements the benchmarks described in this [spec](https://github.com/mongodb/specifications/blob/master/source/benchmarking/benchmarking.rst).
 
 ## Running the Benchmarks
 
@@ -31,7 +31,7 @@ Note: A `BenchmarkDotNet.Artifacts` folder containing all output files (logs, ex
 
 To see the list of available options that can be passed to the benchmark runner, run `dotnet run -c Release -- --help`.
 
-More information on BenchmarkDotNet can be found here: [https://benchmarkdotnet.org/articles/overview.html]
+More information on BenchmarkDotNet can be found [here](https://benchmarkdotnet.org/articles/overview.html).
 
 
 ### Comparing results

@@ -1,25 +1,26 @@
-/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System.IO;
+using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using BenchmarkDotNet.Attributes;
-using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Serializers;
+using System.Collections.Generic;
+using System.IO;
+
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Bson
@@ -34,7 +35,7 @@ namespace MongoDB.Benchmarks.Bson
         private BsonSerializationContext _context;
 
         [ParamsSource(nameof(BenchmarkDataSources))]
-        public BenchmarkData benchmarkData;
+        public BenchmarkData BenchmarkData { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -42,7 +43,7 @@ namespace MongoDB.Benchmarks.Bson
             _stream = new MemoryStream();
             _writer = new BsonBinaryWriter(_stream);
             _context = BsonSerializationContext.CreateRoot(_writer);
-            _document = ReadExtendedJson(benchmarkData.FilePath);
+            _document = ReadExtendedJson(BenchmarkData.Filepath);
         }
 
         [Benchmark]
@@ -55,11 +56,18 @@ namespace MongoDB.Benchmarks.Bson
             }
         }
 
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            _stream.Dispose();
+            _writer.Dispose();
+        }
+
         public IEnumerable<BenchmarkData> BenchmarkDataSources() => new[]
         {
-            new BenchmarkData("../../../../../../../data/extended_bson/flat_bson.json", "Flat"),
-            new BenchmarkData("../../../../../../../data/extended_bson/full_bson.json", "Full"),
-            new BenchmarkData("../../../../../../../data/extended_bson/deep_bson.json", "Deep")
+            new BenchmarkData("extended_bson/flat_bson.json", "Flat"),
+            new BenchmarkData("extended_bson/full_bson.json", "Full"),
+            new BenchmarkData("extended_bson/deep_bson.json", "Deep")
         };
     }
 }

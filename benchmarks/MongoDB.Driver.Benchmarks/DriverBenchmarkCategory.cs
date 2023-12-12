@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+
 namespace MongoDB.Benchmarks
 {
     public static class DriverBenchmarkCategory
@@ -24,5 +26,7 @@ namespace MongoDB.Benchmarks
         public const string SingleBench = "SingleBench";
         public const string ParallelBench = "ParallelBench";
         public const string DriverBench = "DriverBench";
+
+        public static readonly List<string> AllCategories = new(){BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench};
     }
 }

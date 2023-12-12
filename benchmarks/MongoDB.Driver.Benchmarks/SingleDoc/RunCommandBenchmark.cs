@@ -1,36 +1,35 @@
-/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System;
+using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using BenchmarkDotNet.Attributes;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Benchmarks.SingleDoc
 {
     [IterationTime(3000)]
     public class RunCommandBenchmark
     {
-        private MongoClient _client;
+        private DisposableMongoClient _client;
         private IMongoDatabase _database;
 
         [GlobalSetup]
         public void Setup()
         {
-            string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-            _client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+            _client = BenchmarkHelper.MongoConfiguration.CreateDisposableClient();
             _database = _client.GetDatabase("admin");
         }
 
@@ -41,6 +40,12 @@ namespace MongoDB.Benchmarks.SingleDoc
             {
                 _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
             }
+        }
+
+        [GlobalCleanup]
+        public void Teardown()
+        {
+            _client.Dispose();
         }
     }
 }
