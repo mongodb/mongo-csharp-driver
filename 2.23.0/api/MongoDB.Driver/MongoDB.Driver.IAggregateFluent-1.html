@@ -1,0 +1,2652 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Interface IAggregateFluent&lt;TResult&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Interface IAggregateFluent&lt;TResult&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_IAggregateFluent_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.IAggregateFluent%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.IAggregateFluent`1">
+
+
+
+  <h1 id="MongoDB_Driver_IAggregateFluent_1" data-uid="MongoDB.Driver.IAggregateFluent`1" class="text-break">
+    Interface IAggregateFluent&lt;TResult&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L34"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Fluent interface for aggregate.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IAggregateFluent&lt;TResult&gt; : IAsyncCursorSource&lt;TResult&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TResult</code></dt>
+    <dd><p>The type of the result of the pipeline.</p>
+</dd>
+  </dl>
+
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSource-1.html#MongoDB_Driver_IAsyncCursorSource_1_ToCursor_System_Threading_CancellationToken_">IAsyncCursorSource&lt;TResult&gt;.ToCursor(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSource-1.html#MongoDB_Driver_IAsyncCursorSource_1_ToCursorAsync_System_Threading_CancellationToken_">IAsyncCursorSource&lt;TResult&gt;.ToCursorAsync(CancellationToken)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_BucketAutoForLinq2__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_AggregateBucketAutoOptions_">IAggregateFluentExtensions.BucketAutoForLinq2&lt;TResult, TValue, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TValue&gt;&gt;, int, Expression&lt;Func&lt;IGrouping&lt;TValue, TResult&gt;, TNewResult&gt;&gt;, AggregateBucketAutoOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_BucketAuto__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_">IAggregateFluentExtensions.BucketAuto&lt;TResult, TValue&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TValue&gt;&gt;, int, AggregateBucketAutoOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_BucketAuto__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping_MongoDB_Driver_AggregateBucketAutoResultId___1____0____2___MongoDB_Driver_AggregateBucketAutoOptions_">IAggregateFluentExtensions.BucketAuto&lt;TResult, TValue, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TValue&gt;&gt;, int, Expression&lt;Func&lt;IGrouping&lt;AggregateBucketAutoResultId&lt;TValue&gt;, TResult&gt;, TNewResult&gt;&gt;, AggregateBucketAutoOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Bucket__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__MongoDB_Driver_AggregateBucketOptions___1__">IAggregateFluentExtensions.Bucket&lt;TResult, TValue&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Bucket__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_AggregateBucketOptions___1__">IAggregateFluentExtensions.Bucket&lt;TResult, TValue, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, Expression&lt;Func&lt;IGrouping&lt;TValue, TResult&gt;, TNewResult&gt;&gt;, AggregateBucketOptions&lt;TValue&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Densify__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_System_Linq_Expressions_Expression_System_Func___0_System_Object____">IAggregateFluentExtensions.Densify&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, DensifyRange, IEnumerable&lt;Expression&lt;Func&lt;TResult, object&gt;&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Densify__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Linq_Expressions_Expression_System_Func___0_System_Object_____">IAggregateFluentExtensions.Densify&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, DensifyRange, params Expression&lt;Func&lt;TResult, object&gt;&gt;[])</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Facet__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_AggregateFacet___0____">IAggregateFluentExtensions.Facet&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, params AggregateFacet&lt;TResult&gt;[])</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Facet__1_MongoDB_Driver_IAggregateFluent___0__System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet___0___">IAggregateFluentExtensions.Facet&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, IEnumerable&lt;AggregateFacet&lt;TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Facet__2_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_AggregateFacet___0____">IAggregateFluentExtensions.Facet&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, params AggregateFacet&lt;TResult&gt;[])</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_FirstAsync__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.FirstAsync&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_FirstOrDefaultAsync__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.FirstOrDefaultAsync&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_FirstOrDefault__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.FirstOrDefault&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_First__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.First&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_GraphLookup__2_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_AggregateExpressionDefinition___0_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Int32__">IAggregateFluentExtensions.GraphLookup&lt;TResult, TFrom&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, AggregateExpressionDefinition&lt;TResult, BsonValue&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;, FieldDefinition&lt;BsonDocument, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_GraphLookup__7_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1___2__MongoDB_Driver_FieldDefinition___1___3__MongoDB_Driver_AggregateExpressionDefinition___0___4__MongoDB_Driver_FieldDefinition___6___5__MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__">IAggregateFluentExtensions.GraphLookup&lt;TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TResult, TStartWith&gt;, FieldDefinition&lt;TNewResult, TAs&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_GraphLookup__7_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___6___5___MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__">IAggregateFluentExtensions.GraphLookup&lt;TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TResult, TStartWith&gt;&gt;, Expression&lt;Func&lt;TNewResult, TAs&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_GraphLookup__8_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___7___6___System_Linq_Expressions_Expression_System_Func___5_System_Int32___MongoDB_Driver_AggregateGraphLookupOptions___1___5___7__">IAggregateFluentExtensions.GraphLookup&lt;TResult, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TResult, TStartWith&gt;&gt;, Expression&lt;Func&lt;TNewResult, TAs&gt;&gt;, Expression&lt;Func&lt;TAsElement, int&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Group__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__">IAggregateFluentExtensions.Group&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, ProjectionDefinition&lt;TResult, BsonDocument&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Group__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___">IAggregateFluentExtensions.Group&lt;TResult, TKey, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TKey&gt;&gt;, Expression&lt;Func&lt;IGrouping&lt;TKey, TResult&gt;, TNewResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Lookup__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection_MongoDB_Bson_BsonDocument__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___">IAggregateFluentExtensions.Lookup&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;BsonDocument&gt;, BsonDocument, PipelineDefinition&lt;BsonDocument, BsonDocument&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Lookup__1_MongoDB_Driver_IAggregateFluent___0__System_String_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument__">IAggregateFluentExtensions.Lookup&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, string, FieldDefinition&lt;TResult&gt;, FieldDefinition&lt;BsonDocument&gt;, FieldDefinition&lt;BsonDocument&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Lookup__3_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Linq_Expressions_Expression_System_Func___1_System_Object___System_Linq_Expressions_Expression_System_Func___2_System_Object___MongoDB_Driver_AggregateLookupOptions___1___2__">IAggregateFluentExtensions.Lookup&lt;TResult, TForeignDocument, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TForeignDocument&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt;, Expression&lt;Func&lt;TNewResult, object&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Lookup__5_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__System_Linq_Expressions_Expression_System_Func___4___3___MongoDB_Driver_AggregateLookupOptions___1___4__">IAggregateFluentExtensions.Lookup&lt;TResult, TForeignDocument, TAsElement, TAs, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, Expression&lt;Func&lt;TNewResult, TAs&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Match__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">IAggregateFluentExtensions.Match&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, bool&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Project__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__">IAggregateFluentExtensions.Project&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, ProjectionDefinition&lt;TResult, BsonDocument&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Project__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___">IAggregateFluentExtensions.Project&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TNewResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_ReplaceRoot__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___">IAggregateFluentExtensions.ReplaceRoot&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TNewResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_ReplaceWith__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___">IAggregateFluentExtensions.ReplaceWith&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TNewResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SetWindowFields__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____1___">IAggregateFluentExtensions.SetWindowFields&lt;TResult, TWindowFields&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SetWindowFields__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_SortDefinition___0__System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___">IAggregateFluentExtensions.SetWindowFields&lt;TResult, TPartitionBy, TWindowFields&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TPartitionBy&gt;&gt;, SortDefinition&lt;TResult&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SetWindowFields__3_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___">IAggregateFluentExtensions.SetWindowFields&lt;TResult, TPartitionBy, TWindowFields&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TPartitionBy&gt;&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Set__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___">IAggregateFluentExtensions.Set&lt;TResult, TFields&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TFields&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SingleAsync__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.SingleAsync&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SingleOrDefaultAsync__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.SingleOrDefaultAsync&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SingleOrDefault__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.SingleOrDefault&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Single__1_MongoDB_Driver_IAggregateFluent___0__System_Threading_CancellationToken_">IAggregateFluentExtensions.Single&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SortByCount__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0___1___">IAggregateFluentExtensions.SortByCount&lt;TResult, TKey&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SortByDescending__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">IAggregateFluentExtensions.SortByDescending&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_SortBy__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">IAggregateFluentExtensions.SortBy&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Unwind__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_FieldDefinition___0__">IAggregateFluentExtensions.Unwind&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, FieldDefinition&lt;TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Unwind__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">IAggregateFluentExtensions.Unwind&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Unwind__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Bson_Serialization_IBsonSerializer___1__">IAggregateFluentExtensions.Unwind&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, IBsonSerializer&lt;TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_Unwind__2_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_AggregateUnwindOptions___1__">IAggregateFluentExtensions.Unwind&lt;TResult, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, AggregateUnwindOptions&lt;TNewResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAggregateFluentExtensions.html#MongoDB_Driver_IAggregateFluentExtensions_VectorSearch__1_MongoDB_Driver_IAggregateFluent___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__">IAggregateFluentExtensions.VectorSearch&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, QueryVector, int, VectorSearchOptions&lt;TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_AnyAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.AnyAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_Any__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.Any&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefaultAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstOrDefaultAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefault__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstOrDefault&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_First__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.First&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Action___0_System_Int32__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Action&lt;TDocument, int&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Action___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Action&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Func___0_System_Int32_System_Threading_Tasks_Task__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Func&lt;TDocument, int, Task&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Func___0_System_Threading_Tasks_Task__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Func&lt;TDocument, Task&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefaultAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleOrDefaultAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefault__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleOrDefault&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_Single__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.Single&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToEnumerable__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToEnumerable&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToListAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToList__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToList&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  </dd></dl>
+
+
+
+  <h2 id="MongoDB_Driver_IAggregateFluent_1_remarks">Remarks</h2>
+  <div class="markdown level0 remarks"><p>This interface is not guaranteed to remain stable. Implementors should use
+<a class="xref" href="MongoDB.Driver.AggregateFluentBase-1.html">AggregateFluentBase&lt;TResult&gt;</a>.</p>
+</div>
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Database_" data-uid="MongoDB.Driver.IAggregateFluent`1.Database*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Database" data-uid="MongoDB.Driver.IAggregateFluent`1.Database">
+  Database
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L39"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the database.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IMongoDatabase Database { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Options_" data-uid="MongoDB.Driver.IAggregateFluent`1.Options*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Options" data-uid="MongoDB.Driver.IAggregateFluent`1.Options">
+  Options
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L44"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the options.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">AggregateOptions Options { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.AggregateOptions.html">AggregateOptions</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Stages_" data-uid="MongoDB.Driver.IAggregateFluent`1.Stages*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Stages" data-uid="MongoDB.Driver.IAggregateFluent`1.Stages">
+  Stages
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L49"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the stages.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IList&lt;IPipelineStageDefinition&gt; Stages { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ilist-1">IList</a>&lt;<a class="xref" href="MongoDB.Driver.IPipelineStageDefinition.html">IPipelineStageDefinition</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_AppendStage_" data-uid="MongoDB.Driver.IAggregateFluent`1.AppendStage*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_AppendStage__1_MongoDB_Driver_PipelineStageDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.AppendStage``1(MongoDB.Driver.PipelineStageDefinition{`0,``0})">
+  AppendStage&lt;TNewResult&gt;(PipelineStageDefinition&lt;TResult, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L57"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends the stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; AppendStage&lt;TNewResult&gt;(PipelineStageDefinition&lt;TResult, TNewResult&gt; stage)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>stage</code> <a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the result of the stage.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_As_" data-uid="MongoDB.Driver.IAggregateFluent`1.As*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_As__1_MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.As``1(MongoDB.Bson.Serialization.IBsonSerializer{``0})">
+  As&lt;TNewResult&gt;(IBsonSerializer&lt;TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L65"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Changes the result type of the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; As&lt;TNewResult&gt;(IBsonSerializer&lt;TNewResult&gt; newResultSerializer = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newResultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The new result serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_BucketAuto_" data-uid="MongoDB.Driver.IAggregateFluent`1.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_BucketAuto__1_MongoDB_Driver_AggregateExpressionDefinition__0___0__System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_" data-uid="MongoDB.Driver.IAggregateFluent`1.BucketAuto``1(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},System.Int32,MongoDB.Driver.AggregateBucketAutoOptions)">
+  BucketAuto&lt;TValue&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt;, int, AggregateBucketAutoOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L104"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $bucketAuto stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;AggregateBucketAutoResult&lt;TValue&gt;&gt; BucketAuto&lt;TValue&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt; groupBy, int buckets, AggregateBucketAutoOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TValue&gt;</dt>
+    <dd><p>The expression providing the value to group by.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options (optional).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateBucketAutoResult-1.html">AggregateBucketAutoResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_BucketAuto_" data-uid="MongoDB.Driver.IAggregateFluent`1.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_BucketAuto__2_MongoDB_Driver_AggregateExpressionDefinition__0___0__System_Int32_MongoDB_Driver_ProjectionDefinition__0___1__MongoDB_Driver_AggregateBucketAutoOptions_" data-uid="MongoDB.Driver.IAggregateFluent`1.BucketAuto``2(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},System.Int32,MongoDB.Driver.ProjectionDefinition{`0,``1},MongoDB.Driver.AggregateBucketAutoOptions)">
+  BucketAuto&lt;TValue, TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt;, int, ProjectionDefinition&lt;TResult, TNewResult&gt;, AggregateBucketAutoOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L119"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $bucketAuto stage to the pipeline with a custom projection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; BucketAuto&lt;TValue, TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt; groupBy, int buckets, ProjectionDefinition&lt;TResult, TNewResult&gt; output, AggregateBucketAutoOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TValue&gt;</dt>
+    <dd><p>The expression providing the value to group by.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options (optional).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Bucket_" data-uid="MongoDB.Driver.IAggregateFluent`1.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Bucket__1_MongoDB_Driver_AggregateExpressionDefinition__0___0__System_Collections_Generic_IEnumerable___0__MongoDB_Driver_AggregateBucketOptions___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Bucket``1(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.AggregateBucketOptions{``0})">
+  Bucket&lt;TValue&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L75"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $bucket stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;AggregateBucketResult&lt;TValue&gt;&gt; Bucket&lt;TValue&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, AggregateBucketOptions&lt;TValue&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TValue&gt;</dt>
+    <dd><p>The expression providing the value to group by.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The bucket boundaries.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateBucketResult-1.html">AggregateBucketResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Bucket_" data-uid="MongoDB.Driver.IAggregateFluent`1.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Bucket__2_MongoDB_Driver_AggregateExpressionDefinition__0___0__System_Collections_Generic_IEnumerable___0__MongoDB_Driver_ProjectionDefinition__0___1__MongoDB_Driver_AggregateBucketOptions___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Bucket``2(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.ProjectionDefinition{`0,``1},MongoDB.Driver.AggregateBucketOptions{``0})">
+  Bucket&lt;TValue, TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt;, IEnumerable&lt;TValue&gt;, ProjectionDefinition&lt;TResult, TNewResult&gt;, AggregateBucketOptions&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L90"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $bucket stage to the pipeline with a custom projection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Bucket&lt;TValue, TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TValue&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, ProjectionDefinition&lt;TResult, TNewResult&gt; output, AggregateBucketOptions&lt;TValue&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TValue&gt;</dt>
+    <dd><p>The expression providing the value to group by.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The bucket boundaries.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_ChangeStream_" data-uid="MongoDB.Driver.IAggregateFluent`1.ChangeStream*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_ChangeStream_MongoDB_Driver_ChangeStreamStageOptions_" data-uid="MongoDB.Driver.IAggregateFluent`1.ChangeStream(MongoDB.Driver.ChangeStreamStageOptions)">
+  ChangeStream(ChangeStreamStageOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L133"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $changeStream stage to the pipeline.
+Normally you would prefer to use the Watch method of <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection&lt;TDocument&gt;</a>.
+Only use this method if subsequent stages project away the resume token (the _id)
+or you don't want the resulting cursor to automatically resume.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;ChangeStreamDocument&lt;TResult&gt;&gt; ChangeStream(ChangeStreamStageOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamStageOptions.html">ChangeStreamStageOptions</a></dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Count_" data-uid="MongoDB.Driver.IAggregateFluent`1.Count*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Count" data-uid="MongoDB.Driver.IAggregateFluent`1.Count">
+  Count()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L139"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a count stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;AggregateCountResult&gt; Count()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateCountResult.html">AggregateCountResult</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Densify_" data-uid="MongoDB.Driver.IAggregateFluent`1.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Densify_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_DensifyRange_MongoDB_Driver_FieldDefinition__0____" data-uid="MongoDB.Driver.IAggregateFluent`1.Densify(MongoDB.Driver.FieldDefinition{`0},MongoDB.Driver.DensifyRange,MongoDB.Driver.FieldDefinition{`0}[])">
+  Densify(FieldDefinition&lt;TResult&gt;, DensifyRange, params FieldDefinition&lt;TResult&gt;[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L160"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $densify stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Densify(FieldDefinition&lt;TResult&gt; field, DensifyRange range, params FieldDefinition&lt;TResult&gt;[] partitionByFields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;[]</dt>
+    <dd><p>The fields to partition by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Densify_" data-uid="MongoDB.Driver.IAggregateFluent`1.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Densify_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_MongoDB_Driver_FieldDefinition__0___" data-uid="MongoDB.Driver.IAggregateFluent`1.Densify(MongoDB.Driver.FieldDefinition{`0},MongoDB.Driver.DensifyRange,System.Collections.Generic.IEnumerable{MongoDB.Driver.FieldDefinition{`0}})">
+  Densify(FieldDefinition&lt;TResult&gt;, DensifyRange, IEnumerable&lt;FieldDefinition&lt;TResult&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L148"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $densify stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Densify(FieldDefinition&lt;TResult&gt; field, DensifyRange range, IEnumerable&lt;FieldDefinition&lt;TResult&gt;&gt; partitionByFields = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>The fields to partition by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Facet_" data-uid="MongoDB.Driver.IAggregateFluent`1.Facet*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Facet__1_System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet__0___MongoDB_Driver_AggregateFacetOptions___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Facet``1(System.Collections.Generic.IEnumerable{MongoDB.Driver.AggregateFacet{`0}},MongoDB.Driver.AggregateFacetOptions{``0})">
+  Facet&lt;TNewResult&gt;(IEnumerable&lt;AggregateFacet&lt;TResult&gt;&gt;, AggregateFacetOptions&lt;TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L174"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $facet stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Facet&lt;TNewResult&gt;(IEnumerable&lt;AggregateFacet&lt;TResult&gt;&gt; facets, AggregateFacetOptions&lt;TNewResult&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>facets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateFacet-1.html">AggregateFacet</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>The facets.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateFacetOptions-1.html">AggregateFacetOptions</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_GraphLookup_" data-uid="MongoDB.Driver.IAggregateFluent`1.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_GraphLookup__7_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0___1__MongoDB_Driver_FieldDefinition___0___2__MongoDB_Driver_AggregateExpressionDefinition__0___3__MongoDB_Driver_FieldDefinition___6___5__MongoDB_Driver_FieldDefinition___4_System_Int32__MongoDB_Driver_AggregateGraphLookupOptions___0___4___6__" data-uid="MongoDB.Driver.IAggregateFluent`1.GraphLookup``7(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.FieldDefinition{``0,``1},MongoDB.Driver.FieldDefinition{``0,``2},MongoDB.Driver.AggregateExpressionDefinition{`0,``3},MongoDB.Driver.FieldDefinition{``6,``5},MongoDB.Driver.FieldDefinition{``4,System.Int32},MongoDB.Driver.AggregateGraphLookupOptions{``0,``4,``6})">
+  GraphLookup&lt;TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TResult, TStartWith&gt;, FieldDefinition&lt;TNewResult, TAs&gt;, FieldDefinition&lt;TAsElement, int&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L196"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; GraphLookup&lt;TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult&gt;(IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, TConnectFrom&gt; connectFromField, FieldDefinition&lt;TFrom, TConnectTo&gt; connectToField, AggregateExpressionDefinition&lt;TResult, TStartWith&gt; startWith, FieldDefinition&lt;TNewResult, TAs&gt; @as, FieldDefinition&lt;TAsElement, int&gt; depthField, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TNewResult&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectFrom&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectTo&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TStartWith&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TNewResult, TAs&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>depthField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TAsElement, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The depth field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TAsElement, TNewResult&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+    <dt><code>TConnectFrom</code></dt>
+    <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TConnectTo</code></dt>
+    <dd><p>The type of the connect to field.</p>
+</dd>
+    <dt><code>TStartWith</code></dt>
+    <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result (must be same as TResult with an additional as field).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Group_" data-uid="MongoDB.Driver.IAggregateFluent`1.Group*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Group__1_MongoDB_Driver_ProjectionDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Group``1(MongoDB.Driver.ProjectionDefinition{`0,``0})">
+  Group&lt;TNewResult&gt;(ProjectionDefinition&lt;TResult, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L212"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a group stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Group&lt;TNewResult&gt;(ProjectionDefinition&lt;TResult, TNewResult&gt; group)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>group</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The group projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the result of the stage.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Limit_" data-uid="MongoDB.Driver.IAggregateFluent`1.Limit*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Limit_System_Int64_" data-uid="MongoDB.Driver.IAggregateFluent`1.Limit(System.Int64)">
+  Limit(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L219"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a limit stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Limit(long limit)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Lookup_" data-uid="MongoDB.Driver.IAggregateFluent`1.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Lookup__2_System_String_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FieldDefinition___1__MongoDB_Driver_AggregateLookupOptions___0___1__" data-uid="MongoDB.Driver.IAggregateFluent`1.Lookup``2(System.String,MongoDB.Driver.FieldDefinition{`0},MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.FieldDefinition{``1},MongoDB.Driver.AggregateLookupOptions{``0,``1})">
+  Lookup&lt;TForeignDocument, TNewResult&gt;(string, FieldDefinition&lt;TResult&gt;, FieldDefinition&lt;TForeignDocument&gt;, FieldDefinition&lt;TNewResult&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L232"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Lookup&lt;TForeignDocument, TNewResult&gt;(string foreignCollectionName, FieldDefinition&lt;TResult&gt; localField, FieldDefinition&lt;TForeignDocument&gt; foreignField, FieldDefinition&lt;TNewResult&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the other collection.</p>
+</dd>
+    <dt><code>localField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The local field.</p>
+</dd>
+    <dt><code>foreignField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign field.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The field in <code class="typeparamref">TNewResult</code> to place the foreign results.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TNewResult&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign document.</p>
+</dd>
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Lookup_" data-uid="MongoDB.Driver.IAggregateFluent`1.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Lookup__4_MongoDB_Driver_IMongoCollection___0__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_FieldDefinition___3___2__MongoDB_Driver_AggregateLookupOptions___0___3__" data-uid="MongoDB.Driver.IAggregateFluent`1.Lookup``4(MongoDB.Driver.IMongoCollection{``0},MongoDB.Bson.BsonDocument,MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.FieldDefinition{``3,``2},MongoDB.Driver.AggregateLookupOptions{``0,``3})">
+  Lookup&lt;TForeignDocument, TAsElement, TAs, TNewResult&gt;(IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, FieldDefinition&lt;TNewResult, TAs&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L247"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Lookup&lt;TForeignDocument, TAsElement, TAs, TNewResult&gt;(IMongoCollection&lt;TForeignDocument&gt; foreignCollection, BsonDocument let, PipelineDefinition&lt;TForeignDocument, TAsElement&gt; lookupPipeline, FieldDefinition&lt;TNewResult, TAs&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign collection.</p>
+</dd>
+    <dt><code>let</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The &quot;let&quot; definition.</p>
+</dd>
+    <dt><code>lookupPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TForeignDocument, TAsElement&gt;</dt>
+    <dd><p>The lookup pipeline.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TNewResult, TAs&gt;</dt>
+    <dd><p>The as field in <code class="typeparamref">TNewResult</code> in which to place the results of the lookup pipeline.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TNewResult&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign collection documents.</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Match_" data-uid="MongoDB.Driver.IAggregateFluent`1.Match*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Match_MongoDB_Driver_FilterDefinition__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Match(MongoDB.Driver.FilterDefinition{`0})">
+  Match(FilterDefinition&lt;TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L260"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a match stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Match(FilterDefinition&lt;TResult&gt; filter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The filter.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_MergeAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.MergeAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_MergeAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_MergeStageOptions___0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.MergeAsync``1(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.MergeStageOptions{``0},System.Threading.CancellationToken)">
+  MergeAsync&lt;TOutput&gt;(IMongoCollection&lt;TOutput&gt;, MergeStageOptions&lt;TOutput&gt;, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L280"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task&lt;IAsyncCursor&lt;TOutput&gt;&gt; MergeAsync&lt;TOutput&gt;(IMongoCollection&lt;TOutput&gt; outputCollection, MergeStageOptions&lt;TOutput&gt; mergeOptions = null, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TOutput&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>mergeOptions</code> <a class="xref" href="MongoDB.Driver.MergeStageOptions-1.html">MergeStageOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The merge options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TOutput&gt;&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Merge_" data-uid="MongoDB.Driver.IAggregateFluent`1.Merge*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Merge__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_MergeStageOptions___0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.Merge``1(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.MergeStageOptions{``0},System.Threading.CancellationToken)">
+  Merge&lt;TOutput&gt;(IMongoCollection&lt;TOutput&gt;, MergeStageOptions&lt;TOutput&gt;, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L270"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAsyncCursor&lt;TOutput&gt; Merge&lt;TOutput&gt;(IMongoCollection&lt;TOutput&gt; outputCollection, MergeStageOptions&lt;TOutput&gt; mergeOptions = null, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TOutput&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>mergeOptions</code> <a class="xref" href="MongoDB.Driver.MergeStageOptions-1.html">MergeStageOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The merge options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TOutput&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_OfType_" data-uid="MongoDB.Driver.IAggregateFluent`1.OfType*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_OfType__1_MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.OfType``1(MongoDB.Bson.Serialization.IBsonSerializer{``0})">
+  OfType&lt;TNewResult&gt;(IBsonSerializer&lt;TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L288"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a match stage to the pipeline that matches derived documents and changes the result type to the derived type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; OfType&lt;TNewResult&gt;(IBsonSerializer&lt;TNewResult&gt; newResultSerializer = null) where TNewResult : TResult</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newResultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The new result serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the derived documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Out_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Out_MongoDB_Driver_IMongoCollection__0__MongoDB_Driver_TimeSeriesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out(MongoDB.Driver.IMongoCollection{`0},MongoDB.Driver.TimeSeriesOptions,System.Threading.CancellationToken)">
+  Out(IMongoCollection&lt;TResult&gt;, TimeSeriesOptions, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L313"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAsyncCursor&lt;TResult&gt; Out(IMongoCollection&lt;TResult&gt; outputCollection, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TResult&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>timeSeriesOptions</code> <a class="xref" href="MongoDB.Driver.TimeSeriesOptions.html">TimeSeriesOptions</a></dt>
+    <dd><p>The time series options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Out_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Out_MongoDB_Driver_IMongoCollection__0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out(MongoDB.Driver.IMongoCollection{`0},System.Threading.CancellationToken)">
+  Out(IMongoCollection&lt;TResult&gt;, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L296"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAsyncCursor&lt;TResult&gt; Out(IMongoCollection&lt;TResult&gt; outputCollection, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TResult&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Out_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Out_System_String_MongoDB_Driver_TimeSeriesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out(System.String,MongoDB.Driver.TimeSeriesOptions,System.Threading.CancellationToken)">
+  Out(string, TimeSeriesOptions, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L322"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAsyncCursor&lt;TResult&gt; Out(string collectionName, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the collection.</p>
+</dd>
+    <dt><code>timeSeriesOptions</code> <a class="xref" href="MongoDB.Driver.TimeSeriesOptions.html">TimeSeriesOptions</a></dt>
+    <dd><p>The time series options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Out_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Out_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.Out(System.String,System.Threading.CancellationToken)">
+  Out(string, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L304"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAsyncCursor&lt;TResult&gt; Out(string collectionName, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the collection.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_OutAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_OutAsync_MongoDB_Driver_IMongoCollection__0__MongoDB_Driver_TimeSeriesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync(MongoDB.Driver.IMongoCollection{`0},MongoDB.Driver.TimeSeriesOptions,System.Threading.CancellationToken)">
+  OutAsync(IMongoCollection&lt;TResult&gt;, TimeSeriesOptions, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L347"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task&lt;IAsyncCursor&lt;TResult&gt;&gt; OutAsync(IMongoCollection&lt;TResult&gt; outputCollection, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TResult&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>timeSeriesOptions</code> <a class="xref" href="MongoDB.Driver.TimeSeriesOptions.html">TimeSeriesOptions</a></dt>
+    <dd><p>The time series options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>A Task whose result is a cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_OutAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_OutAsync_MongoDB_Driver_IMongoCollection__0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync(MongoDB.Driver.IMongoCollection{`0},System.Threading.CancellationToken)">
+  OutAsync(IMongoCollection&lt;TResult&gt;, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L330"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task&lt;IAsyncCursor&lt;TResult&gt;&gt; OutAsync(IMongoCollection&lt;TResult&gt; outputCollection, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TResult&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>A Task whose result is a cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_OutAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_OutAsync_System_String_MongoDB_Driver_TimeSeriesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync(System.String,MongoDB.Driver.TimeSeriesOptions,System.Threading.CancellationToken)">
+  OutAsync(string, TimeSeriesOptions, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L356"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task&lt;IAsyncCursor&lt;TResult&gt;&gt; OutAsync(string collectionName, TimeSeriesOptions timeSeriesOptions, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the collection.</p>
+</dd>
+    <dt><code>timeSeriesOptions</code> <a class="xref" href="MongoDB.Driver.TimeSeriesOptions.html">TimeSeriesOptions</a></dt>
+    <dd><p>The time series options.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>A Task whose result is a cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_OutAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_OutAsync_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.OutAsync(System.String,System.Threading.CancellationToken)">
+  OutAsync(string, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L338"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task&lt;IAsyncCursor&lt;TResult&gt;&gt; OutAsync(string collectionName, CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the collection.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
+    <dd><p>A Task whose result is a cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Project_" data-uid="MongoDB.Driver.IAggregateFluent`1.Project*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Project__1_MongoDB_Driver_ProjectionDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Project``1(MongoDB.Driver.ProjectionDefinition{`0,``0})">
+  Project&lt;TNewResult&gt;(ProjectionDefinition&lt;TResult, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L366"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a project stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Project&lt;TNewResult&gt;(ProjectionDefinition&lt;TResult, TNewResult&gt; projection)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the result of the stage.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_ReplaceRoot_" data-uid="MongoDB.Driver.IAggregateFluent`1.ReplaceRoot*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_ReplaceRoot__1_MongoDB_Driver_AggregateExpressionDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.ReplaceRoot``1(MongoDB.Driver.AggregateExpressionDefinition{`0,``0})">
+  ReplaceRoot&lt;TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L374"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $replaceRoot stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; ReplaceRoot&lt;TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TNewResult&gt; newRoot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_ReplaceWith_" data-uid="MongoDB.Driver.IAggregateFluent`1.ReplaceWith*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_ReplaceWith__1_MongoDB_Driver_AggregateExpressionDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.ReplaceWith``1(MongoDB.Driver.AggregateExpressionDefinition{`0,``0})">
+  ReplaceWith&lt;TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L382"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $replaceWith stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; ReplaceWith&lt;TNewResult&gt;(AggregateExpressionDefinition&lt;TResult, TNewResult&gt; newRoot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TNewResult&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Search_" data-uid="MongoDB.Driver.IAggregateFluent`1.Search*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Search_MongoDB_Driver_Search_SearchDefinition__0__MongoDB_Driver_Search_SearchHighlightOptions__0__System_String_MongoDB_Driver_Search_SearchCountOptions_System_Boolean_System_Boolean_" data-uid="MongoDB.Driver.IAggregateFluent`1.Search(MongoDB.Driver.Search.SearchDefinition{`0},MongoDB.Driver.Search.SearchHighlightOptions{`0},System.String,MongoDB.Driver.Search.SearchCountOptions,System.Boolean,System.Boolean)">
+  Search(SearchDefinition&lt;TResult&gt;, SearchHighlightOptions&lt;TResult&gt;, string, SearchCountOptions, bool, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L416"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $search stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Search(SearchDefinition&lt;TResult&gt; searchDefinition, SearchHighlightOptions&lt;TResult&gt; highlight = null, string indexName = null, SearchCountOptions count = null, bool returnStoredSource = false, bool scoreDetails = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>highlight</code> <a class="xref" href="MongoDB.Driver.Search.SearchHighlightOptions-1.html">SearchHighlightOptions</a>&lt;TResult&gt;</dt>
+    <dd><p>The highlight options.</p>
+</dd>
+    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The index name.</p>
+</dd>
+    <dt><code>count</code> <a class="xref" href="MongoDB.Driver.Search.SearchCountOptions.html">SearchCountOptions</a></dt>
+    <dd><p>The count options.</p>
+</dd>
+    <dt><code>returnStoredSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Flag that specifies whether to perform a full document lookup on the backend database
+or return only stored source fields directly from Atlas Search.</p>
+</dd>
+    <dt><code>scoreDetails</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Flag that specifies whether to return a detailed breakdown
+of the score for each document in the result.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Search_" data-uid="MongoDB.Driver.IAggregateFluent`1.Search*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Search_MongoDB_Driver_Search_SearchDefinition__0__MongoDB_Driver_Search_SearchOptions__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Search(MongoDB.Driver.Search.SearchDefinition{`0},MongoDB.Driver.Search.SearchOptions{`0})">
+  Search(SearchDefinition&lt;TResult&gt;, SearchOptions&lt;TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L432"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $search stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Search(SearchDefinition&lt;TResult&gt; searchDefinition, SearchOptions&lt;TResult&gt; searchOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>searchOptions</code> <a class="xref" href="MongoDB.Driver.Search.SearchOptions-1.html">SearchOptions</a>&lt;TResult&gt;</dt>
+    <dd><p>The search options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_SearchMeta_" data-uid="MongoDB.Driver.IAggregateFluent`1.SearchMeta*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_SearchMeta_MongoDB_Driver_Search_SearchDefinition__0__System_String_MongoDB_Driver_Search_SearchCountOptions_" data-uid="MongoDB.Driver.IAggregateFluent`1.SearchMeta(MongoDB.Driver.Search.SearchDefinition{`0},System.String,MongoDB.Driver.Search.SearchCountOptions)">
+  SearchMeta(SearchDefinition&lt;TResult&gt;, string, SearchCountOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L443"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $searchMeta stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;SearchMetaResult&gt; SearchMeta(SearchDefinition&lt;TResult&gt; searchDefinition, string indexName = null, SearchCountOptions count = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The index name.</p>
+</dd>
+    <dt><code>count</code> <a class="xref" href="MongoDB.Driver.Search.SearchCountOptions.html">SearchCountOptions</a></dt>
+    <dd><p>The count options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.Search.SearchMetaResult.html">SearchMetaResult</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Set_" data-uid="MongoDB.Driver.IAggregateFluent`1.Set*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Set_MongoDB_Driver_SetFieldDefinitions__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Set(MongoDB.Driver.SetFieldDefinitions{`0})">
+  Set(SetFieldDefinitions&lt;TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L389"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $set stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Set(SetFieldDefinitions&lt;TResult&gt; fields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.SetFieldDefinitions-1.html">SetFieldDefinitions</a>&lt;TResult&gt;</dt>
+    <dd><p>The fields to set.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields_" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields__1_MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition__0____0__" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields``1(MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{`0},``0})">
+  SetWindowFields&lt;TWindowFields&gt;(AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L397"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $setWindowFields to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;BsonDocument&gt; SetWindowFields&lt;TWindowFields&gt;(AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TResult&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields definition.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields_" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields__2_MongoDB_Driver_AggregateExpressionDefinition__0___0__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition__0____1__" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields``2(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{`0},``1})">
+  SetWindowFields&lt;TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TResult, TPartitionBy&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L456"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $setWindowFields to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;BsonDocument&gt; SetWindowFields&lt;TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TResult, TPartitionBy&gt; partitionBy, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TPartitionBy&gt;</dt>
+    <dd><p>The partitionBy definition.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TResult&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields definition.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields_" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_SetWindowFields__2_MongoDB_Driver_AggregateExpressionDefinition__0___0__MongoDB_Driver_SortDefinition__0__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition__0____1__" data-uid="MongoDB.Driver.IAggregateFluent`1.SetWindowFields``2(MongoDB.Driver.AggregateExpressionDefinition{`0,``0},MongoDB.Driver.SortDefinition{`0},MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{`0},``1})">
+  SetWindowFields&lt;TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TResult, TPartitionBy&gt;, SortDefinition&lt;TResult&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L469"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a $setWindowFields to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;BsonDocument&gt; SetWindowFields&lt;TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TResult, TPartitionBy&gt; partitionBy, SortDefinition&lt;TResult&gt; sortBy, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TResult&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TPartitionBy&gt;</dt>
+    <dd><p>The partitionBy definition.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The sortBy definition.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TResult&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields definition.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Skip_" data-uid="MongoDB.Driver.IAggregateFluent`1.Skip*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Skip_System_Int64_" data-uid="MongoDB.Driver.IAggregateFluent`1.Skip(System.Int64)">
+  Skip(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L479"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a skip stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Skip(long skip)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The number of documents to skip.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Sort_" data-uid="MongoDB.Driver.IAggregateFluent`1.Sort*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Sort_MongoDB_Driver_SortDefinition__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Sort(MongoDB.Driver.SortDefinition{`0})">
+  Sort(SortDefinition&lt;TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L486"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a sort stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; Sort(SortDefinition&lt;TResult&gt; sort)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>sort</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The sort specification.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_SortByCount_" data-uid="MongoDB.Driver.IAggregateFluent`1.SortByCount*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_SortByCount__1_MongoDB_Driver_AggregateExpressionDefinition__0___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.SortByCount``1(MongoDB.Driver.AggregateExpressionDefinition{`0,``0})">
+  SortByCount&lt;TId&gt;(AggregateExpressionDefinition&lt;TResult, TId&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L494"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a sortByCount stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;AggregateSortByCountResult&lt;TId&gt;&gt; SortByCount&lt;TId&gt;(AggregateExpressionDefinition&lt;TResult, TId&gt; id)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>id</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TResult, TId&gt;</dt>
+    <dd><p>The identifier.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateSortByCountResult-1.html">AggregateSortByCountResult</a>&lt;TId&gt;&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TId</code></dt>
+    <dd><p>The type of the identifier.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_ToCollection_" data-uid="MongoDB.Driver.IAggregateFluent`1.ToCollection*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_ToCollection_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.ToCollection(System.Threading.CancellationToken)">
+  ToCollection(CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L500"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Executes an aggregation pipeline that writes the results to a collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">void ToCollection(CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_ToCollectionAsync_" data-uid="MongoDB.Driver.IAggregateFluent`1.ToCollectionAsync*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_ToCollectionAsync_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.IAggregateFluent`1.ToCollectionAsync(System.Threading.CancellationToken)">
+  ToCollectionAsync(CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L507"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Executes an aggregation pipeline that writes the results to a collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">Task ToCollectionAsync(CancellationToken cancellationToken = default)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
+    <dd><p>A Task.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_UnionWith_" data-uid="MongoDB.Driver.IAggregateFluent`1.UnionWith*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_UnionWith__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_PipelineDefinition___0__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.UnionWith``1(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.PipelineDefinition{``0,`0})">
+  UnionWith&lt;TWith&gt;(IMongoCollection&lt;TWith&gt;, PipelineDefinition&lt;TWith, TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L516"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an $unionWith stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; UnionWith&lt;TWith&gt;(IMongoCollection&lt;TWith&gt; withCollection, PipelineDefinition&lt;TWith, TResult&gt; withPipeline = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>withCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TWith&gt;</dt>
+    <dd><p>The with collection.</p>
+</dd>
+    <dt><code>withPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TWith, TResult&gt;</dt>
+    <dd><p>The with pipeline.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TWith</code></dt>
+    <dd><p>The type of the with collection documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Unwind_" data-uid="MongoDB.Driver.IAggregateFluent`1.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Unwind__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Unwind``1(MongoDB.Driver.FieldDefinition{`0},MongoDB.Bson.Serialization.IBsonSerializer{``0})">
+  Unwind&lt;TNewResult&gt;(FieldDefinition&lt;TResult&gt;, IBsonSerializer&lt;TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L529"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an unwind stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the Unwind overload which takes an options parameter.&quot;)]
+IAggregateFluent&lt;TNewResult&gt; Unwind&lt;TNewResult&gt;(FieldDefinition&lt;TResult&gt; field, IBsonSerializer&lt;TNewResult&gt; newResultSerializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>newResultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The new result serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the result of the stage.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_Unwind_" data-uid="MongoDB.Driver.IAggregateFluent`1.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_Unwind__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_AggregateUnwindOptions___0__" data-uid="MongoDB.Driver.IAggregateFluent`1.Unwind``1(MongoDB.Driver.FieldDefinition{`0},MongoDB.Driver.AggregateUnwindOptions{``0})">
+  Unwind&lt;TNewResult&gt;(FieldDefinition&lt;TResult&gt;, AggregateUnwindOptions&lt;TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L539"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends an unwind stage to the pipeline.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TNewResult&gt; Unwind&lt;TNewResult&gt;(FieldDefinition&lt;TResult&gt; field, AggregateUnwindOptions&lt;TNewResult&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateUnwindOptions-1.html">AggregateUnwindOptions</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TNewResult</code></dt>
+    <dd><p>The type of the new result.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_IAggregateFluent_1_VectorSearch_" data-uid="MongoDB.Driver.IAggregateFluent`1.VectorSearch*"></a>
+
+  <h3 id="MongoDB_Driver_IAggregateFluent_1_VectorSearch_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions__0__" data-uid="MongoDB.Driver.IAggregateFluent`1.VectorSearch(MongoDB.Driver.FieldDefinition{`0},MongoDB.Driver.QueryVector,System.Int32,MongoDB.Driver.VectorSearchOptions{`0})">
+  VectorSearch(FieldDefinition&lt;TResult&gt;, QueryVector, int, VectorSearchOptions&lt;TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/IAggregateFluent.cs/#L549"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends a vector search stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IAggregateFluent&lt;TResult&gt; VectorSearch(FieldDefinition&lt;TResult&gt; field, QueryVector queryVector, int limit, VectorSearchOptions&lt;TResult&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>queryVector</code> <a class="xref" href="MongoDB.Driver.QueryVector.html">QueryVector</a></dt>
+    <dd><p>The query vector.</p>
+</dd>
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.VectorSearchOptions-1.html">VectorSearchOptions</a>&lt;TResult&gt;</dt>
+    <dd><p>The vector search options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

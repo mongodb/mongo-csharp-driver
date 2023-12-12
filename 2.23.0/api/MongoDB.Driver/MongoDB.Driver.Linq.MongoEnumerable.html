@@ -1,0 +1,2908 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoEnumerable
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoEnumerable
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_Linq_MongoEnumerable.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Linq.MongoEnumerable%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Linq.MongoEnumerable">
+
+
+
+  <h1 id="MongoDB_Driver_Linq_MongoEnumerable" data-uid="MongoDB.Driver.Linq.MongoEnumerable" class="text-break">
+    Class MongoEnumerable
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L28"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Linq.html">Linq</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Enumerable Extensions for MongoDB.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class MongoEnumerable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoEnumerable</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_AllElements_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.AllElements*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_AllElements__1_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.AllElements``1(System.Collections.Generic.IEnumerable{``0})">
+  AllElements&lt;TSource&gt;(IEnumerable&lt;TSource&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L43"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents all elements in an array (corresponds to the server's &quot;$[]&quot; update operator).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TSource AllElements&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A source of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">TSource</span></dt>
+    <dd><p>Only meant to be used in Update specifications.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_AllMatchingElements_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.AllMatchingElements*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_AllMatchingElements__1_System_Collections_Generic_IEnumerable___0__System_String_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.AllMatchingElements``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+  AllMatchingElements&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L55"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents all matching elements in an array when using an array filter (corresponds to the server's &quot;$[identifier]&quot; update operator).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TSource AllMatchingElements&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, string identifier)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A source of values.</p>
+</dd>
+    <dt><code>identifier</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the identifier in the corresponding array filter.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">TSource</span></dt>
+    <dd><p>Only meant to be used in Update specifications.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_BottomN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.BottomN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_BottomN__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.BottomN``2(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``1},System.Int32)">
+  BottomN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L87"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the bottom n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; BottomN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The bottom n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_BottomN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.BottomN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_BottomN__3_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.BottomN``3(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  BottomN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L108"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the bottom n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; BottomN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The bottom n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_Bottom_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Bottom*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_Bottom__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Bottom``2(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``1})">
+  Bottom&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L69"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the bottom result.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TResult Bottom&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">TResult</span></dt>
+    <dd><p>The bottom result.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_FirstMatchingElement_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstMatchingElement*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_FirstMatchingElement__1_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstMatchingElement``1(System.Collections.Generic.IEnumerable{``0})">
+  FirstMatchingElement&lt;TSource&gt;(IEnumerable&lt;TSource&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L124"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents the first matching element in an array used in a query (corresponds to the server's &quot;$&quot; update operator).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TSource FirstMatchingElement&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A source of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">TSource</span></dt>
+    <dd><p>Only meant to be used in Update specifications.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_FirstN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_FirstN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstN``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32)">
+  FirstN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L138"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the first n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; FirstN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The first n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_FirstN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_FirstN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.FirstN``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  FirstN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L157"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the first n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; FirstN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The first n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_LastN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.LastN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_LastN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.LastN``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32)">
+  LastN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L175"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the last n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; LastN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The last n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_LastN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.LastN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_LastN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.LastN``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  LastN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L194"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the last n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; LastN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The last n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_MaxN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MaxN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_MaxN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MaxN``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32)">
+  MaxN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L212"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the max n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; MaxN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The max n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_MaxN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MaxN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_MaxN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MaxN``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  MaxN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L231"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the max n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; MaxN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The max n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_MinN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MinN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_MinN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MinN``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32)">
+  MinN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L249"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the min n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; MinN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The min n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_MinN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MinN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_MinN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.MinN``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  MinN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L268"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the min n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; MinN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The min n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Decimal__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Decimal})">
+  StandardDeviationPopulation(IEnumerable&lt;decimal&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L380"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal StandardDeviationPopulation(this IEnumerable&lt;decimal&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Double__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Double})">
+  StandardDeviationPopulation(IEnumerable&lt;double&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L356"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation(this IEnumerable&lt;double&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Int32})">
+  StandardDeviationPopulation(IEnumerable&lt;int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L284"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation(this IEnumerable&lt;int&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Int64__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Int64})">
+  StandardDeviationPopulation(IEnumerable&lt;long&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L308"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation(this IEnumerable&lt;long&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Nullable_System_Decimal___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Nullable{System.Decimal}})">
+  StandardDeviationPopulation(IEnumerable&lt;decimal?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L392"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal? StandardDeviationPopulation(this IEnumerable&lt;decimal?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Nullable_System_Double___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Nullable{System.Double}})">
+  StandardDeviationPopulation(IEnumerable&lt;double?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L368"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation(this IEnumerable&lt;double?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Nullable_System_Int32___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Nullable{System.Int32}})">
+  StandardDeviationPopulation(IEnumerable&lt;int?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L296"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation(this IEnumerable&lt;int?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Nullable_System_Int64___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Nullable{System.Int64}})">
+  StandardDeviationPopulation(IEnumerable&lt;long?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L320"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation(this IEnumerable&lt;long?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Nullable_System_Single___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Nullable{System.Single}})">
+  StandardDeviationPopulation(IEnumerable&lt;float?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L344"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float? StandardDeviationPopulation(this IEnumerable&lt;float?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_System_Collections_Generic_IEnumerable_System_Single__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation(System.Collections.Generic.IEnumerable{System.Single})">
+  StandardDeviationPopulation(IEnumerable&lt;float&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L332"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float StandardDeviationPopulation(this IEnumerable&lt;float&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Decimal__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Decimal})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L518"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, decimal&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Double__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Double})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L490"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, double&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Int32})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L406"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, int&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int64__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Int64})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L434"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, long&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Decimal___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Decimal}})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L532"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal? StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, decimal?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Double___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Double}})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L504"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, double?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int32___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Int32}})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L420"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, int?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int64___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Int64}})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L448"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, long?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Single___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Single}})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L476"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float? StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, float?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Single__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Single})">
+  StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L462"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the population standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float StandardDeviationPopulation&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, float&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Decimal__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Decimal})">
+  StandardDeviationSample(IEnumerable&lt;decimal&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L640"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal StandardDeviationSample(this IEnumerable&lt;decimal&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Double__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Double})">
+  StandardDeviationSample(IEnumerable&lt;double&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L616"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample(this IEnumerable&lt;double&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Int32})">
+  StandardDeviationSample(IEnumerable&lt;int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L544"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample(this IEnumerable&lt;int&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Int64__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Int64})">
+  StandardDeviationSample(IEnumerable&lt;long&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L568"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample(this IEnumerable&lt;long&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Nullable_System_Decimal___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Nullable{System.Decimal}})">
+  StandardDeviationSample(IEnumerable&lt;decimal?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L652"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal? StandardDeviationSample(this IEnumerable&lt;decimal?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Nullable_System_Double___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Nullable{System.Double}})">
+  StandardDeviationSample(IEnumerable&lt;double?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L628"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample(this IEnumerable&lt;double?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Nullable_System_Int32___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Nullable{System.Int32}})">
+  StandardDeviationSample(IEnumerable&lt;int?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L556"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample(this IEnumerable&lt;int?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Nullable_System_Int64___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Nullable{System.Int64}})">
+  StandardDeviationSample(IEnumerable&lt;long?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L580"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample(this IEnumerable&lt;long?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Nullable_System_Single___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Nullable{System.Single}})">
+  StandardDeviationSample(IEnumerable&lt;float?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L604"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float? StandardDeviationSample(this IEnumerable&lt;float?&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_System_Collections_Generic_IEnumerable_System_Single__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample(System.Collections.Generic.IEnumerable{System.Single})">
+  StandardDeviationSample(IEnumerable&lt;float&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L592"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float StandardDeviationSample(this IEnumerable&lt;float&gt; source)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Decimal__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Decimal})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L778"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, decimal&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Double__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Double})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L750"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, double&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Int32})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L666"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, int&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int64__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Int64})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L694"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, long&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Decimal___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Decimal}})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L792"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal? StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, decimal?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Double___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Double}})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L764"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, double?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int32___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Int32}})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L680"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, int?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int64___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Int64}})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L708"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double? StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, long?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Single___" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Nullable{System.Single}})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float?&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L736"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float? StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, float?&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>?</dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Single__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Single})">
+  StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L722"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Computes the sample standard deviation of a sequence of values that are obtained by invoking a transform function on each element of the input sequence.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float StandardDeviationSample&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, float&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>A sequence of values to calculate the population standard deviation of.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>&gt;</dt>
+    <dd><p>A transform function to apply to each element.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The population standard deviation of the sequence of values.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_TopN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.TopN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_TopN__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.TopN``2(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``1},System.Int32)">
+  TopN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L824"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the top n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; TopN&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector, int n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The top n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_TopN_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.TopN*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_TopN__3_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___2____1_System_Func___1_System_Int32__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.TopN``3(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``2},``1,System.Func{``1,System.Int32})">
+  TopN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L845"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the top n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TResult&gt; TopN&lt;TSource, TKey, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector, TKey key, Func&lt;TKey, int&gt; n)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+    <dt><code>key</code> <span class="xref">TKey</span></dt>
+    <dd><p>The key (needed to infer the key type and to determine the key serializer).</p>
+</dd>
+    <dt><code>n</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TKey, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The number of results to return.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TResult&gt;</dt>
+    <dd><p>The top n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TKey</code></dt>
+    <dd><p>The key type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_Top_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Top*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_Top__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Top``2(System.Collections.Generic.IEnumerable{``0},MongoDB.Driver.SortDefinition{``0},System.Func{``0,``1})">
+  Top&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L806"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the top n results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TResult Top&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, SortDefinition&lt;TSource&gt; sortBy, Func&lt;TSource, TResult&gt; selector)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TSource&gt;</dt>
+    <dd><p>The sort order.</p>
+</dd>
+    <dt><code>selector</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TResult&gt;</dt>
+    <dd><p>The selector.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><span class="xref">TResult</span></dt>
+    <dd><p>The top n results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The source type.</p>
+</dd>
+    <dt><code>TResult</code></dt>
+    <dd><p>The result type.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Linq_MongoEnumerable_Where_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Where*"></a>
+
+  <h3 id="MongoDB_Driver_Linq_MongoEnumerable_Where__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Boolean__System_Int32_" data-uid="MongoDB.Driver.Linq.MongoEnumerable.Where``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},System.Int32)">
+  Where&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, bool&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/MongoEnumerable.cs/#L863"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Filters a sequence of values based on a predicate and limits the number of results.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TSource&gt; Where&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, bool&gt; predicate, int limit)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The source values.</p>
+</dd>
+    <dt><code>predicate</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
+    <dd><p>The predicate.</p>
+</dd>
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
+    <dd><p>The filtered results.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TSource</code></dt>
+    <dd><p>The type of the elements of <code class="paramref">source</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1613 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoGridFSFileInfo
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoGridFSFileInfo
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_GridFS_MongoGridFSFileInfo.md&amp;value=---%0Auid%3A%20MongoDB.Driver.GridFS.MongoGridFSFileInfo%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo">
+
+
+
+  <h1 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo" class="text-break">
+    Class MongoGridFSFileInfo
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L33"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.GridFS.html">GridFS</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents information about a GridFS file (patterned after .NET's FileInfo class).</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MongoGridFSFileInfo : IEquatable&lt;MongoGridFSFileInfo&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoGridFSFileInfo</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_GridFS_MongoGridFS_System_String_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.GridFS.MongoGridFS,System.String)">
+  MongoGridFSFileInfo(MongoGridFS, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L66"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the GridFSFileInfo class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use a different constructor instead.&quot;)]
+public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gridFS</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
+    <dd><p>The GridFS file system that contains the GridFS file.</p>
+</dd>
+    <dt><code>remoteFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The remote file name.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_GridFS_MongoGridFS_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.GridFS.MongoGridFS,System.String,MongoDB.Driver.GridFS.MongoGridFSCreateOptions)">
+  MongoGridFSFileInfo(MongoGridFS, string, MongoGridFSCreateOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L91"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the GridFSFileInfo class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use a different constructor instead.&quot;)]
+public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName, MongoGridFSCreateOptions createOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gridFS</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
+    <dd><p>The GridFS file system that contains the GridFS file.</p>
+</dd>
+    <dt><code>remoteFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The remote file name.</p>
+</dd>
+    <dt><code>createOptions</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSCreateOptions.html">MongoGridFSCreateOptions</a></dt>
+    <dd><p>The create options.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_GridFS_MongoGridFS_System_String_System_Int32_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.GridFS.MongoGridFS,System.String,System.Int32)">
+  MongoGridFSFileInfo(MongoGridFS, string, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L78"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the GridFSFileInfo class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use a different constructor instead.&quot;)]
+public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName, int chunkSize)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>gridFS</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
+    <dd><p>The GridFS file system that contains the GridFS file.</p>
+</dd>
+    <dt><code>remoteFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The remote file name.</p>
+</dd>
+    <dt><code>chunkSize</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The chunk size.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_MongoServer_MongoDB_Driver_MongoServerInstance_System_String_MongoDB_Driver_GridFS_MongoGridFSSettings_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.MongoServer,MongoDB.Driver.MongoServerInstance,System.String,MongoDB.Driver.GridFS.MongoGridFSSettings,MongoDB.Bson.BsonDocument)">
+  MongoGridFSFileInfo(MongoServer, MongoServerInstance, string, MongoGridFSSettings, BsonDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L162"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSFileInfo(MongoServer server, MongoServerInstance serverInstance, string databaseName, MongoGridFSSettings gridFSSettings, BsonDocument fileInfo)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>server</code> <a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+    <dd><p>The server.</p>
+</dd>
+    <dt><code>serverInstance</code> <a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
+    <dd><p>The server instance.</p>
+</dd>
+    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the database.</p>
+</dd>
+    <dt><code>gridFSSettings</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSSettings.html">MongoGridFSSettings</a></dt>
+    <dd><p>The GridFS settings.</p>
+</dd>
+    <dt><code>fileInfo</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The fileInfo.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_MongoServer_MongoDB_Driver_MongoServerInstance_System_String_MongoDB_Driver_GridFS_MongoGridFSSettings_System_String_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.MongoServer,MongoDB.Driver.MongoServerInstance,System.String,MongoDB.Driver.GridFS.MongoGridFSSettings,System.String)">
+  MongoGridFSFileInfo(MongoServer, MongoServerInstance, string, MongoGridFSSettings, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L137"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSFileInfo(MongoServer server, MongoServerInstance serverInstance, string databaseName, MongoGridFSSettings gridFSSettings, string remoteFileName)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>server</code> <a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+    <dd><p>The server.</p>
+</dd>
+    <dt><code>serverInstance</code> <a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
+    <dd><p>The server instance.</p>
+</dd>
+    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the database.</p>
+</dd>
+    <dt><code>gridFSSettings</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSSettings.html">MongoGridFSSettings</a></dt>
+    <dd><p>The GridFS settings.</p>
+</dd>
+    <dt><code>remoteFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The remote file name.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo__ctor_MongoDB_Driver_MongoServer_MongoDB_Driver_MongoServerInstance_System_String_MongoDB_Driver_GridFS_MongoGridFSSettings_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.#ctor(MongoDB.Driver.MongoServer,MongoDB.Driver.MongoServerInstance,System.String,MongoDB.Driver.GridFS.MongoGridFSSettings,System.String,MongoDB.Driver.GridFS.MongoGridFSCreateOptions)">
+  MongoGridFSFileInfo(MongoServer, MongoServerInstance, string, MongoGridFSSettings, string, MongoGridFSCreateOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L188"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSFileInfo(MongoServer server, MongoServerInstance serverInstance, string databaseName, MongoGridFSSettings gridFSSettings, string remoteFileName, MongoGridFSCreateOptions createOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>server</code> <a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+    <dd><p>The server.</p>
+</dd>
+    <dt><code>serverInstance</code> <a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
+    <dd><p>The server instance.</p>
+</dd>
+    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>Name of the database.</p>
+</dd>
+    <dt><code>gridFSSettings</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSSettings.html">MongoGridFSSettings</a></dt>
+    <dd><p>The GridFS settings.</p>
+</dd>
+    <dt><code>remoteFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The remote file name.</p>
+</dd>
+    <dt><code>createOptions</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSCreateOptions.html">MongoGridFSCreateOptions</a></dt>
+    <dd><p>The create options.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Aliases_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Aliases*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Aliases" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Aliases">
+  Aliases
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L220"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the aliases.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Aliases { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ChunkSize_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ChunkSize*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ChunkSize" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ChunkSize">
+  ChunkSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L232"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the chunk size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ChunkSize { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ContentType_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ContentType*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ContentType" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ContentType">
+  ContentType
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L244"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the content type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ContentType { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_DatabaseName_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.DatabaseName*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_DatabaseName" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.DatabaseName">
+  DatabaseName
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L256"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the database name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string DatabaseName { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Exists_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Exists*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Exists" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Exists">
+  Exists
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L264"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the GridFS file exists.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exists { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GridFS_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GridFS*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GridFS" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GridFS">
+  GridFS
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L276"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the GridFS file system that contains this GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFS GridFS { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GridFSSettings_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GridFSSettings*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GridFSSettings" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GridFSSettings">
+  GridFSSettings
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L284"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the GridFS settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSSettings GridFSSettings { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSSettings.html">MongoGridFSSettings</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Id_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Id*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Id" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Id">
+  Id
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L292"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the GridFS file Id.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BsonValue Id { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Length_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Length*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Length" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Length">
+  Length
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L304"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the file lenth.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long Length { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_MD5_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.MD5*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_MD5" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.MD5">
+  MD5
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L316"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the MD5 hash of the file contents.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string MD5 { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Metadata_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Metadata*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Metadata" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Metadata">
+  Metadata
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L328"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the metadata.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BsonDocument Metadata { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Name_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Name*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Name" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Name">
+  Name
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L340"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the remote file name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Name { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Server_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Server*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Server" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Server">
+  Server
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L352"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServer Server { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ServerInstance_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ServerInstance*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_ServerInstance" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.ServerInstance">
+  ServerInstance
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L360"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the server instance;</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerInstance ServerInstance { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_UploadDate_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.UploadDate*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_UploadDate" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.UploadDate">
+  UploadDate
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L368"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the upload date.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DateTime UploadDate { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_AppendText_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.AppendText*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_AppendText" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.AppendText">
+  AppendText()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L461"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Appends UTF-8 encoded text to an existing GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamWriter AppendText()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.streamwriter">StreamWriter</a></dt>
+    <dd><p>A StreamWriter.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CopyTo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CopyTo*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CopyTo_System_String_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CopyTo(System.String)">
+  CopyTo(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L472"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Copies a GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSFileInfo CopyTo(string destFileName)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>destFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The destination file name.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The file info of the new GridFS file.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CopyTo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CopyTo*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CopyTo_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CopyTo(System.String,MongoDB.Driver.GridFS.MongoGridFSCreateOptions)">
+  CopyTo(string, MongoGridFSCreateOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L491"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Copies a GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSFileInfo CopyTo(string destFileName, MongoGridFSCreateOptions createOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>destFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The destination file name.</p>
+</dd>
+    <dt><code>createOptions</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSCreateOptions.html">MongoGridFSCreateOptions</a></dt>
+    <dd><p>The create options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The file info of the new GridFS file.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Create_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Create*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Create" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Create">
+  Create()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L509"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates or overwrites a GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSStream Create()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSStream.html">MongoGridFSStream</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CreateText_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CreateText*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_CreateText" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.CreateText">
+  CreateText()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L518"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates or opens a GridFS file for writing UTF-8 encoded text.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamWriter CreateText()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.streamwriter">StreamWriter</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Delete_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Delete*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Delete" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Delete">
+  Delete()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L527"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Deletes a GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Delete()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_MongoDB_Driver_GridFS_MongoGridFSFileInfo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals(MongoDB.Driver.GridFS.MongoGridFSFileInfo)">
+  Equals(MongoGridFSFileInfo)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L552"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether this instance and another specified MongoGridFSFileInfo object have the same value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(MongoGridFSFileInfo rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The MongoGridFSFileInfo object to compare to this instance.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the value of the rhs parameter is the same as this instance; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_MongoDB_Driver_GridFS_MongoGridFSFileInfo_MongoDB_Driver_GridFS_MongoGridFSFileInfo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals(MongoDB.Driver.GridFS.MongoGridFSFileInfo,MongoDB.Driver.GridFS.MongoGridFSFileInfo)">
+  Equals(MongoGridFSFileInfo, MongoGridFSFileInfo)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L407"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether two specified MongoGridFSFileInfo objects have the same value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool Equals(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The first value to compare, or null.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The second value to compare, or null.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the value of lhs is the same as the value of rhs; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Equals_System_Object_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Equals(System.Object)">
+  Equals(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L573"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether this instance and a specified object, which must also be a MongoGridFSFileInfo object, have the same value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd><p>The MongoGridFSFileInfo object to compare to this instance.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if obj is a MongoGridFSFileInfo object and its value is the same as this instance; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GetHashCode_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GetHashCode*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_GetHashCode" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.GetHashCode">
+  GetHashCode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L582"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the hash code for this MongoGridFSFileInfo object.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>A 32-bit signed integer hash code.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_MoveTo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.MoveTo*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_MoveTo_System_String_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.MoveTo(System.String)">
+  MoveTo(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L602"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Moves the most recent version of a GridFS file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void MoveTo(string destFileName)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>destFileName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The destination file name.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Open_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Open*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Open_System_IO_FileMode_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Open(System.IO.FileMode)">
+  Open(FileMode)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L621"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Opens a GridFS file with the specified mode.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSStream Open(FileMode mode)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.filemode">FileMode</a></dt>
+    <dd><p>The mode.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSStream.html">MongoGridFSStream</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Open_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Open*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Open_System_IO_FileMode_System_IO_FileAccess_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Open(System.IO.FileMode,System.IO.FileAccess)">
+  Open(FileMode, FileAccess)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L632"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Opens a GridFS file with the specified mode and access.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSStream Open(FileMode mode, FileAccess access)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>mode</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.filemode">FileMode</a></dt>
+    <dd><p>The mode.</p>
+</dd>
+    <dt><code>access</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.fileaccess">FileAccess</a></dt>
+    <dd><p>The access.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSStream.html">MongoGridFSStream</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenRead_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenRead*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenRead" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenRead">
+  OpenRead()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L641"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Opens an existing GridFS file for reading.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSStream OpenRead()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSStream.html">MongoGridFSStream</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenText_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenText*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenText" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenText">
+  OpenText()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L650"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Opens an existing UTF-8 encoded text GridFS file for reading.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamReader OpenText()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.streamreader">StreamReader</a></dt>
+    <dd><p>A stream reader.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenWrite_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenWrite*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_OpenWrite" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.OpenWrite">
+  OpenWrite()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L660"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Opens an existing GridFS file for writing.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoGridFSStream OpenWrite()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSStream.html">MongoGridFSStream</a></dt>
+    <dd><p>A stream.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Refresh_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Refresh*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_Refresh" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.Refresh">
+  Refresh()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L668"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Refreshes the GridFS file info from the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Refresh()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_op_Equality_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.op_Equality*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_op_Equality_MongoDB_Driver_GridFS_MongoGridFSFileInfo_MongoDB_Driver_GridFS_MongoGridFSFileInfo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.op_Equality(MongoDB.Driver.GridFS.MongoGridFSFileInfo,MongoDB.Driver.GridFS.MongoGridFSFileInfo)">
+  operator ==(MongoGridFSFileInfo, MongoGridFSFileInfo)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L395"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether two specified MongoGridFSFileInfo objects have the same value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The first value to compare, or null.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The second value to compare, or null.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the value of lhs is the same as the value of rhs; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_op_Inequality_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.op_Inequality*"></a>
+
+  <h3 id="MongoDB_Driver_GridFS_MongoGridFSFileInfo_op_Inequality_MongoDB_Driver_GridFS_MongoGridFSFileInfo_MongoDB_Driver_GridFS_MongoGridFSFileInfo_" data-uid="MongoDB.Driver.GridFS.MongoGridFSFileInfo.op_Inequality(MongoDB.Driver.GridFS.MongoGridFSFileInfo,MongoDB.Driver.GridFS.MongoGridFSFileInfo)">
+  operator !=(MongoGridFSFileInfo, MongoGridFSFileInfo)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFSFileInfo.cs/#L384"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether two specified MongoGridFSFileInfo objects have different values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The first value to compare, or null.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSFileInfo.html">MongoGridFSFileInfo</a></dt>
+    <dd><p>The second value to compare, or null.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the value of lhs is different from the value of rhs; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

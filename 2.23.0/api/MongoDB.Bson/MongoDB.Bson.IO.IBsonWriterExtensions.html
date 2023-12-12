@@ -1,0 +1,1054 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class IBsonWriterExtensions
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class IBsonWriterExtensions
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Bson_IO_IBsonWriterExtensions.md&amp;value=---%0Auid%3A%20MongoDB.Bson.IO.IBsonWriterExtensions%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.IO.IBsonWriterExtensions">
+
+
+
+  <h1 id="MongoDB_Bson_IO_IBsonWriterExtensions" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions" class="text-break">
+    Class IBsonWriterExtensions
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L21"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.IO.html">IO</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Contains extension methods for IBsonWriter.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class IBsonWriterExtensions</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">IBsonWriterExtensions</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBinaryData_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBinaryData*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBinaryData_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_BsonBinaryData_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBinaryData(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.BsonBinaryData)">
+  WriteBinaryData(IBsonWriter, string, BsonBinaryData)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L29"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON binary data element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteBinaryData(this IBsonWriter writer, string name, BsonBinaryData binaryData)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>binaryData</code> <a class="xref" href="MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></dt>
+    <dd><p>The binary data.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBoolean_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBoolean*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBoolean_MongoDB_Bson_IO_IBsonWriter_System_String_System_Boolean_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBoolean(MongoDB.Bson.IO.IBsonWriter,System.String,System.Boolean)">
+  WriteBoolean(IBsonWriter, string, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L41"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Boolean element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteBoolean(this IBsonWriter writer, string name, bool value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>The Boolean value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBytes_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBytes*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteBytes_MongoDB_Bson_IO_IBsonWriter_System_String_System_Byte___" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBytes(MongoDB.Bson.IO.IBsonWriter,System.String,System.Byte[])">
+  WriteBytes(IBsonWriter, string, byte[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L53"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON binary data element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteBytes(this IBsonWriter writer, string name, byte[] bytes)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>bytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
+    <dd><p>The bytes.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDateTime_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDateTime*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDateTime_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDateTime(MongoDB.Bson.IO.IBsonWriter,System.String,System.Int64)">
+  WriteDateTime(IBsonWriter, string, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L65"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON DateTime element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteDateTime(this IBsonWriter writer, string name, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The number of milliseconds since the Unix epoch.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDecimal128_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDecimal128_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDecimal128(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.Decimal128)">
+  WriteDecimal128(IBsonWriter, string, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L77"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Decimal128 element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteDecimal128(this IBsonWriter writer, string name, Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDouble_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDouble*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteDouble_MongoDB_Bson_IO_IBsonWriter_System_String_System_Double_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDouble(MongoDB.Bson.IO.IBsonWriter,System.String,System.Double)">
+  WriteDouble(IBsonWriter, string, double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L89"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Double element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteDouble(this IBsonWriter writer, string name, double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The Double value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt32_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt32*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt32_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int32_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt32(MongoDB.Bson.IO.IBsonWriter,System.String,System.Int32)">
+  WriteInt32(IBsonWriter, string, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L101"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Int32 element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteInt32(this IBsonWriter writer, string name, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The Int32 value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt64_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt64*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt64_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt64(MongoDB.Bson.IO.IBsonWriter,System.String,System.Int64)">
+  WriteInt64(IBsonWriter, string, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L113"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Int64 element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteInt64(this IBsonWriter writer, string name, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The Int64 value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScript_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScript*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScript_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScript(MongoDB.Bson.IO.IBsonWriter,System.String,System.String)">
+  WriteJavaScript(IBsonWriter, string, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L125"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON JavaScript element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteJavaScript(this IBsonWriter writer, string name, string code)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>code</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The JavaScript code.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScriptWithScope_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScriptWithScope*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScriptWithScope_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScriptWithScope(MongoDB.Bson.IO.IBsonWriter,System.String,System.String)">
+  WriteJavaScriptWithScope(IBsonWriter, string, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L137"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON JavaScript element to the writer (call WriteStartDocument to start writing the scope).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteJavaScriptWithScope(this IBsonWriter writer, string name, string code)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>code</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The JavaScript code.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteMaxKey_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMaxKey*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteMaxKey_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMaxKey(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteMaxKey(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L148"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON MaxKey element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteMaxKey(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteMinKey_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMinKey*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteMinKey_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMinKey(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteMinKey(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L159"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON MinKey element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteMinKey(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteNull_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteNull*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteNull_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteNull(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteNull(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L170"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON null element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteNull(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteObjectId_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteObjectId*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteObjectId_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_ObjectId_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteObjectId(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.ObjectId)">
+  WriteObjectId(IBsonWriter, string, ObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L182"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON ObjectId element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteObjectId(this IBsonWriter writer, string name, ObjectId objectId)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>objectId</code> <a class="xref" href="MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
+    <dd><p>The ObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonArray_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonArray*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonArray_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_IO_IByteBuffer_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonArray(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.IO.IByteBuffer)">
+  WriteRawBsonArray(IBsonWriter, string, IByteBuffer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L194"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a raw BSON array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteRawBsonArray(this IBsonWriter writer, string name, IByteBuffer slice)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name.</p>
+</dd>
+    <dt><code>slice</code> <a class="xref" href="MongoDB.Bson.IO.IByteBuffer.html">IByteBuffer</a></dt>
+    <dd><p>The byte buffer containing the raw BSON array.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonDocument_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonDocument*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonDocument_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_IO_IByteBuffer_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonDocument(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.IO.IByteBuffer)">
+  WriteRawBsonDocument(IBsonWriter, string, IByteBuffer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L206"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a raw BSON document.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteRawBsonDocument(this IBsonWriter writer, string name, IByteBuffer slice)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name.</p>
+</dd>
+    <dt><code>slice</code> <a class="xref" href="MongoDB.Bson.IO.IByteBuffer.html">IByteBuffer</a></dt>
+    <dd><p>The byte buffer containing the raw BSON document.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRegularExpression_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRegularExpression*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteRegularExpression_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_BsonRegularExpression_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRegularExpression(MongoDB.Bson.IO.IBsonWriter,System.String,MongoDB.Bson.BsonRegularExpression)">
+  WriteRegularExpression(IBsonWriter, string, BsonRegularExpression)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L218"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON regular expression element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteRegularExpression(this IBsonWriter writer, string name, BsonRegularExpression regex)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>regex</code> <a class="xref" href="MongoDB.Bson.BsonRegularExpression.html">BsonRegularExpression</a></dt>
+    <dd><p>A BsonRegularExpression.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartArray_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartArray*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartArray_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartArray(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteStartArray(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L229"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes the start of a BSON array element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteStartArray(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartDocument_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartDocument*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartDocument_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartDocument(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteStartDocument(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L240"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes the start of a BSON document element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteStartDocument(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteString_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteString*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteString_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteString(MongoDB.Bson.IO.IBsonWriter,System.String,System.String)">
+  WriteString(IBsonWriter, string, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L252"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON String element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteString(this IBsonWriter writer, string name, string value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The String value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteSymbol_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteSymbol*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteSymbol_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteSymbol(MongoDB.Bson.IO.IBsonWriter,System.String,System.String)">
+  WriteSymbol(IBsonWriter, string, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L264"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON Symbol element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteSymbol(this IBsonWriter writer, string name, string value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The symbol.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteTimestamp_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteTimestamp*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteTimestamp_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteTimestamp(MongoDB.Bson.IO.IBsonWriter,System.String,System.Int64)">
+  WriteTimestamp(IBsonWriter, string, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L276"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON timestamp element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteTimestamp(this IBsonWriter writer, string name, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The combined timestamp/increment value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteUndefined_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteUndefined*"></a>
+
+  <h3 id="MongoDB_Bson_IO_IBsonWriterExtensions_WriteUndefined_MongoDB_Bson_IO_IBsonWriter_System_String_" data-uid="MongoDB.Bson.IO.IBsonWriterExtensions.WriteUndefined(MongoDB.Bson.IO.IBsonWriter,System.String)">
+  WriteUndefined(IBsonWriter, string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/IBsonWriterExtensions.cs/#L287"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Writes a BSON undefined element to the writer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void WriteUndefined(this IBsonWriter writer, string name)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>writer</code> <a class="xref" href="MongoDB.Bson.IO.IBsonWriter.html">IBsonWriter</a></dt>
+    <dd><p>The writer.</p>
+</dd>
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

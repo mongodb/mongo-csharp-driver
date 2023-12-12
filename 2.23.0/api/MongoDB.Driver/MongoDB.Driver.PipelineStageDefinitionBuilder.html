@@ -1,0 +1,3885 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class PipelineStageDefinitionBuilder
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class PipelineStageDefinitionBuilder
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_PipelineStageDefinitionBuilder.md&amp;value=---%0Auid%3A%20MongoDB.Driver.PipelineStageDefinitionBuilder%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder">
+
+
+
+  <h1 id="MongoDB_Driver_PipelineStageDefinitionBuilder" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder" class="text-break">
+    Class PipelineStageDefinitionBuilder
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L35"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Methods for building pipeline stages.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class PipelineStageDefinitionBuilder</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">PipelineStageDefinitionBuilder</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAutoForLinq2_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAutoForLinq2*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAutoForLinq2__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_AggregateBucketAutoOptions_MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAutoForLinq2``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Int32,System.Linq.Expressions.Expression{System.Func{System.Linq.IGrouping{``1,``0},``2}},MongoDB.Driver.AggregateBucketAutoOptions,MongoDB.Driver.ExpressionTranslationOptions)">
+  BucketAutoForLinq2&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, int, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt;, AggregateBucketAutoOptions, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L331"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucketAuto stage (this method can only be used with LINQ2).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; BucketAutoForLinq2&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; groupBy, int buckets, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt; output, AggregateBucketAutoOptions options = null, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.igrouping-2">IGrouping</a>&lt;TValue, TInput&gt;, TOutput&gt;&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options (optional).</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto``2(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},System.Int32,MongoDB.Driver.AggregateBucketAutoOptions)">
+  BucketAuto&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, int, AggregateBucketAutoOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L190"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucketAuto stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateBucketAutoResult&lt;TValue&gt;&gt; BucketAuto&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt; groupBy, int buckets, AggregateBucketAutoOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TValue&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateBucketAutoResult-1.html">AggregateBucketAutoResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__2_System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Int32,MongoDB.Driver.AggregateBucketAutoOptions,MongoDB.Driver.ExpressionTranslationOptions)">
+  BucketAuto&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, int, AggregateBucketAutoOptions, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L282"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucketAuto stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateBucketAutoResult&lt;TValue&gt;&gt; BucketAuto&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; groupBy, int buckets, AggregateBucketAutoOptions options = null, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options (optional).</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateBucketAutoResult-1.html">AggregateBucketAutoResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Int32_MongoDB_Driver_ProjectionDefinition___0___2__MongoDB_Driver_AggregateBucketAutoOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto``3(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},System.Int32,MongoDB.Driver.ProjectionDefinition{``0,``2},MongoDB.Driver.AggregateBucketAutoOptions)">
+  BucketAuto&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, int, ProjectionDefinition&lt;TInput, TOutput&gt;, AggregateBucketAutoOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L234"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucketAuto stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; BucketAuto&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt; groupBy, int buckets, ProjectionDefinition&lt;TInput, TOutput&gt; output, AggregateBucketAutoOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TValue&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping_MongoDB_Driver_AggregateBucketAutoResultId___1____0____2___MongoDB_Driver_AggregateBucketAutoOptions_MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Int32,System.Linq.Expressions.Expression{System.Func{System.Linq.IGrouping{MongoDB.Driver.AggregateBucketAutoResultId{``1},``0},``2}},MongoDB.Driver.AggregateBucketAutoOptions,MongoDB.Driver.ExpressionTranslationOptions)">
+  BucketAuto&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, int, Expression&lt;Func&lt;IGrouping&lt;AggregateBucketAutoResultId&lt;TValue&gt;, TInput&gt;, TOutput&gt;&gt;, AggregateBucketAutoOptions, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L307"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucketAuto stage (this overload can only be used with LINQ3).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; BucketAuto&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; groupBy, int buckets, Expression&lt;Func&lt;IGrouping&lt;AggregateBucketAutoResultId&lt;TValue&gt;, TInput&gt;, TOutput&gt;&gt; output, AggregateBucketAutoOptions options = null, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>buckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of buckets.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.igrouping-2">IGrouping</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateBucketAutoResultId-1.html">AggregateBucketAutoResultId</a>&lt;TValue&gt;, TInput&gt;, TOutput&gt;&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketAutoOptions.html">AggregateBucketAutoOptions</a></dt>
+    <dd><p>The options (optional).</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Collections_Generic_IEnumerable___1__MongoDB_Driver_AggregateBucketOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket``2(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},System.Collections.Generic.IEnumerable{``1},MongoDB.Driver.AggregateBucketOptions{``1})">
+  Bucket&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L46"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucket stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateBucketResult&lt;TValue&gt;&gt; Bucket&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, AggregateBucketOptions&lt;TValue&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TValue&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The boundaries.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateBucketResult-1.html">AggregateBucketResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__2_System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__MongoDB_Driver_AggregateBucketOptions___1__MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Collections.Generic.IEnumerable{``1},MongoDB.Driver.AggregateBucketOptions{``1},MongoDB.Driver.ExpressionTranslationOptions)">
+  Bucket&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L144"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucket stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateBucketResult&lt;TValue&gt;&gt; Bucket&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, AggregateBucketOptions&lt;TValue&gt; options = null, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The boundaries.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateBucketResult-1.html">AggregateBucketResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Collections_Generic_IEnumerable___1__MongoDB_Driver_ProjectionDefinition___0___2__MongoDB_Driver_AggregateBucketOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket``3(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},System.Collections.Generic.IEnumerable{``1},MongoDB.Driver.ProjectionDefinition{``0,``2},MongoDB.Driver.AggregateBucketOptions{``1})">
+  Bucket&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, IEnumerable&lt;TValue&gt;, ProjectionDefinition&lt;TInput, TOutput&gt;, AggregateBucketOptions&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L93"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucket stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Bucket&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, ProjectionDefinition&lt;TInput, TOutput&gt; output, AggregateBucketOptions&lt;TValue&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TValue&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The boundaries.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_AggregateBucketOptions___1__MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Collections.Generic.IEnumerable{``1},System.Linq.Expressions.Expression{System.Func{System.Linq.IGrouping{``1,``0},``2}},MongoDB.Driver.AggregateBucketOptions{``1},MongoDB.Driver.ExpressionTranslationOptions)">
+  Bucket&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt;, AggregateBucketOptions&lt;TValue&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L169"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $bucket stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Bucket&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; groupBy, IEnumerable&lt;TValue&gt; boundaries, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt; output, AggregateBucketOptions&lt;TValue&gt; options = null, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>groupBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The group by expression.</p>
+</dd>
+    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The boundaries.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.igrouping-2">IGrouping</a>&lt;TValue, TInput&gt;, TOutput&gt;&gt;</dt>
+    <dd><p>The output projection.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateBucketOptions-1.html">AggregateBucketOptions</a>&lt;TValue&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStreamSplitLargeEvent_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStreamSplitLargeEvent__1" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent``1">
+  ChangeStreamSplitLargeEvent&lt;TInput&gt;()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L390"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $changeStreamSplitLargeEvent stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;ChangeStreamDocument&lt;TInput&gt;, ChangeStreamDocument&lt;TInput&gt;&gt; ChangeStreamSplitLargeEvent&lt;TInput&gt;()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;TInput&gt;, <a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;TInput&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStream_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStream*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStream__1_MongoDB_Driver_ChangeStreamStageOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStream``1(MongoDB.Driver.ChangeStreamStageOptions)">
+  ChangeStream&lt;TInput&gt;(ChangeStreamStageOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L356"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $changeStream stage.
+Normally you would prefer to use the Watch method of <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection&lt;TDocument&gt;</a>.
+Only use this method if subsequent stages project away the resume token (the _id)
+or you don't want the resulting cursor to automatically resume.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, ChangeStreamDocument&lt;TInput&gt;&gt; ChangeStream&lt;TInput&gt;(ChangeStreamStageOptions options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamStageOptions.html">ChangeStreamStageOptions</a></dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;TInput&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Count_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Count*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Count__1" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Count``1">
+  Count&lt;TInput&gt;()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L398"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $count stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateCountResult&gt; Count&lt;TInput&gt;()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateCountResult.html">AggregateCountResult</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_DensifyRange_MongoDB_Driver_FieldDefinition___0____" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify``1(MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.DensifyRange,MongoDB.Driver.FieldDefinition{``0}[])">
+  Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, DensifyRange, params FieldDefinition&lt;TInput&gt;[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L461"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $densify stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt; field, DensifyRange range, params FieldDefinition&lt;TInput&gt;[] partitionByFields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;[]</dt>
+    <dd><p>The partition by fields.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_MongoDB_Driver_FieldDefinition___0___" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify``1(MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.DensifyRange,System.Collections.Generic.IEnumerable{MongoDB.Driver.FieldDefinition{``0}})">
+  Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, DensifyRange, IEnumerable&lt;FieldDefinition&lt;TInput&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L422"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $densify stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt; field, DensifyRange range, IEnumerable&lt;FieldDefinition&lt;TInput&gt;&gt; partitionByFields = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;&gt;</dt>
+    <dd><p>The partition by fields.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_System_Linq_Expressions_Expression_System_Func___0_System_Object____" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},MongoDB.Driver.DensifyRange,System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Object}}})">
+  Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, DensifyRange, IEnumerable&lt;Expression&lt;Func&lt;TInput, object&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L479"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $densify stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt; field, DensifyRange range, IEnumerable&lt;Expression&lt;Func&lt;TInput, object&gt;&gt;&gt; partitionByFields = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;&gt;</dt>
+    <dd><p>The partition by fields.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Linq_Expressions_Expression_System_Func___0_System_Object_____" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},MongoDB.Driver.DensifyRange,System.Linq.Expressions.Expression{System.Func{``0,System.Object}}[])">
+  Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, DensifyRange, params Expression&lt;Func&lt;TInput, object&gt;&gt;[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L500"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $densify stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt; field, DensifyRange range, params Expression&lt;Func&lt;TInput, object&gt;&gt;[] partitionByFields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>range</code> <a class="xref" href="MongoDB.Driver.DensifyRange.html">DensifyRange</a></dt>
+    <dd><p>The range.</p>
+</dd>
+    <dt><code>partitionByFields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;[]</dt>
+    <dd><p>The partition by fields.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Documents_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Documents__1_MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_NoPipelineInput_System_Collections_Generic_IEnumerable___0___MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents``1(MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.NoPipelineInput,System.Collections.Generic.IEnumerable{``0}},MongoDB.Bson.Serialization.IBsonSerializer{``0})">
+  Documents&lt;TDocument&gt;(AggregateExpressionDefinition&lt;NoPipelineInput, IEnumerable&lt;TDocument&gt;&gt;, IBsonSerializer&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L517"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $documents stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;NoPipelineInput, TDocument&gt; Documents&lt;TDocument&gt;(AggregateExpressionDefinition&lt;NoPipelineInput, IEnumerable&lt;TDocument&gt;&gt; documents, IBsonSerializer&lt;TDocument&gt; documentSerializer = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documents</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.NoPipelineInput.html">NoPipelineInput</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;&gt;</dt>
+    <dd><p>The documents.</p>
+</dd>
+    <dt><code>documentSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
+    <dd><p>The document serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.NoPipelineInput.html">NoPipelineInput</a>, TDocument&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Documents_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Documents__1_System_Collections_Generic_IEnumerable___0__MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents``1(System.Collections.Generic.IEnumerable{``0},MongoDB.Bson.Serialization.IBsonSerializer{``0})">
+  Documents&lt;TDocument&gt;(IEnumerable&lt;TDocument&gt;, IBsonSerializer&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L548"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $documents stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;NoPipelineInput, TDocument&gt; Documents&lt;TDocument&gt;(IEnumerable&lt;TDocument&gt; documents, IBsonSerializer&lt;TDocument&gt; documentSerializer = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;</dt>
+    <dd><p>The documents.</p>
+</dd>
+    <dt><code>documentSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
+    <dd><p>The document serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.NoPipelineInput.html">NoPipelineInput</a>, TDocument&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__1_MongoDB_Driver_AggregateFacet___0____" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet``1(MongoDB.Driver.AggregateFacet{``0}[])">
+  Facet&lt;TInput&gt;(params AggregateFacet&lt;TInput&gt;[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L613"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $facet stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateFacetResults&gt; Facet&lt;TInput&gt;(params AggregateFacet&lt;TInput&gt;[] facets)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>facets</code> <a class="xref" href="MongoDB.Driver.AggregateFacet-1.html">AggregateFacet</a>&lt;TInput&gt;[]</dt>
+    <dd><p>The facets.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateFacetResults.html">AggregateFacetResults</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__1_System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet___0___" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet``1(System.Collections.Generic.IEnumerable{MongoDB.Driver.AggregateFacet{``0}})">
+  Facet&lt;TInput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L596"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $facet stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateFacetResults&gt; Facet&lt;TInput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt; facets)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>facets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateFacet-1.html">AggregateFacet</a>&lt;TInput&gt;&gt;</dt>
+    <dd><p>The facets.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateFacetResults.html">AggregateFacetResults</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__2_MongoDB_Driver_AggregateFacet___0____" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet``2(MongoDB.Driver.AggregateFacet{``0}[])">
+  Facet&lt;TInput, TOutput&gt;(params AggregateFacet&lt;TInput&gt;[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L626"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $facet stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Facet&lt;TInput, TOutput&gt;(params AggregateFacet&lt;TInput&gt;[] facets)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>facets</code> <a class="xref" href="MongoDB.Driver.AggregateFacet-1.html">AggregateFacet</a>&lt;TInput&gt;[]</dt>
+    <dd><p>The facets.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__2_System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet___0___MongoDB_Driver_AggregateFacetOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet``2(System.Collections.Generic.IEnumerable{MongoDB.Driver.AggregateFacet{``0}},MongoDB.Driver.AggregateFacetOptions{``1})">
+  Facet&lt;TInput, TOutput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt;, AggregateFacetOptions&lt;TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L564"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $facet stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Facet&lt;TInput, TOutput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt; facets, AggregateFacetOptions&lt;TOutput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>facets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.AggregateFacet-1.html">AggregateFacet</a>&lt;TInput&gt;&gt;</dt>
+    <dd><p>The facets.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateFacetOptions-1.html">AggregateFacetOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_AggregateExpressionDefinition___0_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Int32__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup``2(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.FieldDefinition{``1,MongoDB.Bson.BsonValue},MongoDB.Driver.FieldDefinition{``1,MongoDB.Bson.BsonValue},MongoDB.Driver.AggregateExpressionDefinition{``0,MongoDB.Bson.BsonValue},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument}},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument,System.Int32})">
+  GraphLookup&lt;TInput, TFrom&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, AggregateExpressionDefinition&lt;TInput, BsonValue&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;, FieldDefinition&lt;BsonDocument, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L746"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $graphLookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; GraphLookup&lt;TInput, TFrom&gt;(IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, BsonValue&gt; connectFromField, FieldDefinition&lt;TFrom, BsonValue&gt; connectToField, AggregateExpressionDefinition&lt;TInput, BsonValue&gt; startWith, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt; @as, FieldDefinition&lt;BsonDocument, int&gt; depthField = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>depthField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The depth field.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The fluent aggregate interface.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__7_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1___2__MongoDB_Driver_FieldDefinition___1___3__MongoDB_Driver_AggregateExpressionDefinition___0___4__MongoDB_Driver_FieldDefinition___6___5__MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup``7(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.FieldDefinition{``1,``2},MongoDB.Driver.FieldDefinition{``1,``3},MongoDB.Driver.AggregateExpressionDefinition{``0,``4},MongoDB.Driver.FieldDefinition{``6,``5},MongoDB.Driver.AggregateGraphLookupOptions{``1,``1,``6})">
+  GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TInput, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L722"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $graphLookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, TConnectFrom&gt; connectFromField, FieldDefinition&lt;TFrom, TConnectTo&gt; connectToField, AggregateExpressionDefinition&lt;TInput, TStartWith&gt; startWith, FieldDefinition&lt;TOutput, TAs&gt; @as, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt; options = null) where TAs : IEnumerable&lt;TFrom&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectFrom&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectTo&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TStartWith&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TOutput, TAs&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TFrom, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+    <dt><code>TConnectFrom</code></dt>
+    <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TConnectTo</code></dt>
+    <dd><p>The type of the connect to field.</p>
+</dd>
+    <dt><code>TStartWith</code></dt>
+    <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__7_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___6___5___MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup``7(MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``1,``2}},System.Linq.Expressions.Expression{System.Func{``1,``3}},System.Linq.Expressions.Expression{System.Func{``0,``4}},System.Linq.Expressions.Expression{System.Func{``6,``5}},MongoDB.Driver.AggregateGraphLookupOptions{``1,``1,``6},MongoDB.Driver.ExpressionTranslationOptions)">
+  GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L775"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $graphLookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt; from, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt; connectFromField, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt; connectToField, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt; startWith, Expression&lt;Func&lt;TOutput, TAs&gt;&gt; @as, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt; options = null, ExpressionTranslationOptions translationOptions = null) where TAs : IEnumerable&lt;TFrom&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectFrom&gt;&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectTo&gt;&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TStartWith&gt;&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, TAs&gt;&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TFrom, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+    <dt><code>TConnectFrom</code></dt>
+    <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TConnectTo</code></dt>
+    <dd><p>The type of the connect to field.</p>
+</dd>
+    <dt><code>TStartWith</code></dt>
+    <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__8_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1___2__MongoDB_Driver_FieldDefinition___1___3__MongoDB_Driver_AggregateExpressionDefinition___0___4__MongoDB_Driver_FieldDefinition___7___6__MongoDB_Driver_FieldDefinition___5_System_Int32__MongoDB_Driver_AggregateGraphLookupOptions___1___5___7__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup``8(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.FieldDefinition{``1,``2},MongoDB.Driver.FieldDefinition{``1,``3},MongoDB.Driver.AggregateExpressionDefinition{``0,``4},MongoDB.Driver.FieldDefinition{``7,``6},MongoDB.Driver.FieldDefinition{``5,System.Int32},MongoDB.Driver.AggregateGraphLookupOptions{``1,``5,``7})">
+  GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TInput, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, FieldDefinition&lt;TAsElement, int&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L651"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $graphLookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, TConnectFrom&gt; connectFromField, FieldDefinition&lt;TFrom, TConnectTo&gt; connectToField, AggregateExpressionDefinition&lt;TInput, TStartWith&gt; startWith, FieldDefinition&lt;TOutput, TAs&gt; @as, FieldDefinition&lt;TAsElement, int&gt; depthField, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectFrom&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectTo&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TStartWith&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TOutput, TAs&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>depthField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TAsElement, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+    <dd><p>The depth field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TAsElement, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+    <dt><code>TConnectFrom</code></dt>
+    <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TConnectTo</code></dt>
+    <dd><p>The type of the connect to field.</p>
+</dd>
+    <dt><code>TStartWith</code></dt>
+    <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__8_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___7___6___System_Linq_Expressions_Expression_System_Func___5_System_Int32___MongoDB_Driver_AggregateGraphLookupOptions___1___5___7__MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup``8(MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``1,``2}},System.Linq.Expressions.Expression{System.Func{``1,``3}},System.Linq.Expressions.Expression{System.Func{``0,``4}},System.Linq.Expressions.Expression{System.Func{``7,``6}},System.Linq.Expressions.Expression{System.Func{``5,System.Int32}},MongoDB.Driver.AggregateGraphLookupOptions{``1,``5,``7},MongoDB.Driver.ExpressionTranslationOptions)">
+  GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, Expression&lt;Func&lt;TAsElement, int&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L818"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $graphLookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt; from, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt; connectFromField, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt; connectToField, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt; startWith, Expression&lt;Func&lt;TOutput, TAs&gt;&gt; @as, Expression&lt;Func&lt;TAsElement, int&gt;&gt; depthField, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt; options = null, ExpressionTranslationOptions translationOptions = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+    <dd><p>The from collection.</p>
+</dd>
+    <dt><code>connectFromField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectFrom&gt;&gt;</dt>
+    <dd><p>The connect from field.</p>
+</dd>
+    <dt><code>connectToField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectTo&gt;&gt;</dt>
+    <dd><p>The connect to field.</p>
+</dd>
+    <dt><code>startWith</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TStartWith&gt;&gt;</dt>
+    <dd><p>The start with value.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, TAs&gt;&gt;</dt>
+    <dd><p>The as field.</p>
+</dd>
+    <dt><code>depthField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TAsElement, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The depth field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TAsElement, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFrom</code></dt>
+    <dd><p>The type of the from documents.</p>
+</dd>
+    <dt><code>TConnectFrom</code></dt>
+    <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TConnectTo</code></dt>
+    <dd><p>The type of the connect to field.</p>
+</dd>
+    <dt><code>TStartWith</code></dt>
+    <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group__1_MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group``1(MongoDB.Driver.ProjectionDefinition{``0,MongoDB.Bson.BsonDocument})">
+  Group&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L874"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $group stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; Group&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt; group)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>group</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The group projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group__2_MongoDB_Driver_ProjectionDefinition___0___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group``2(MongoDB.Driver.ProjectionDefinition{``0,``1})">
+  Group&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L851"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $group stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Group&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt; group)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>group</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The group projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Group``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{System.Linq.IGrouping{``1,``0},``2}},MongoDB.Driver.ExpressionTranslationOptions)">
+  Group&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L891"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $group stage (this method can only be used with LINQ2).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Group&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; value, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt; group, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The value field.</p>
+</dd>
+    <dt><code>group</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.igrouping-2">IGrouping</a>&lt;TValue, TInput&gt;, TOutput&gt;&gt;</dt>
+    <dd><p>The group projection.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+  <h4 class="section" id="MongoDB_Driver_PipelineStageDefinitionBuilder_Group__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_ExpressionTranslationOptions__remarks">Remarks</h4>
+  <div class="markdown level1 remarks"><p>This method can only be used with LINQ2 but that can't be verified until Render is called.</p>
+</div>
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Limit_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Limit*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Limit__1_System_Int64_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Limit``1(System.Int64)">
+  Limit&lt;TInput&gt;(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L907"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $limit stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Limit&lt;TInput&gt;(long limit)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__3_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FieldDefinition___1__MongoDB_Driver_FieldDefinition___2__MongoDB_Driver_AggregateLookupOptions___1___2__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup``3(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.FieldDefinition{``1},MongoDB.Driver.FieldDefinition{``2},MongoDB.Driver.AggregateLookupOptions{``1,``2})">
+  Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, FieldDefinition&lt;TInput&gt;, FieldDefinition&lt;TForeignDocument&gt;, FieldDefinition&lt;TOutput&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L926"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $lookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt; foreignCollection, FieldDefinition&lt;TInput&gt; localField, FieldDefinition&lt;TForeignDocument&gt; foreignField, FieldDefinition&lt;TOutput&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign collection.</p>
+</dd>
+    <dt><code>localField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The local field.</p>
+</dd>
+    <dt><code>foreignField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign field.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TOutput&gt;</dt>
+    <dd><p>The &quot;as&quot; field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign collection documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__3_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Linq_Expressions_Expression_System_Func___1_System_Object___System_Linq_Expressions_Expression_System_Func___2_System_Object___MongoDB_Driver_AggregateLookupOptions___1___2__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup``3(MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Linq.Expressions.Expression{System.Func{``1,System.Object}},System.Linq.Expressions.Expression{System.Func{``2,System.Object}},MongoDB.Driver.AggregateLookupOptions{``1,``2})">
+  Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, Expression&lt;Func&lt;TInput, object&gt;&gt;, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt;, Expression&lt;Func&lt;TOutput, object&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L972"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $lookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt; foreignCollection, Expression&lt;Func&lt;TInput, object&gt;&gt; localField, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt; foreignField, Expression&lt;Func&lt;TOutput, object&gt;&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign collection.</p>
+</dd>
+    <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The local field.</p>
+</dd>
+    <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TForeignDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The foreign field.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The &quot;as&quot; field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign collection documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__5_MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__MongoDB_Driver_FieldDefinition___4___3__MongoDB_Driver_AggregateLookupOptions___1___4__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup``5(MongoDB.Driver.IMongoCollection{``1},MongoDB.Bson.BsonDocument,MongoDB.Driver.PipelineDefinition{``1,``2},MongoDB.Driver.FieldDefinition{``4,``3},MongoDB.Driver.AggregateLookupOptions{``1,``4})">
+  Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, FieldDefinition&lt;TOutput, TAs&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1004"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $lookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt; foreignCollection, BsonDocument let, PipelineDefinition&lt;TForeignDocument, TAsElement&gt; lookupPipeline, FieldDefinition&lt;TOutput, TAs&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign collection.</p>
+</dd>
+    <dt><code>let</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The &quot;let&quot; definition.</p>
+</dd>
+    <dt><code>lookupPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TForeignDocument, TAsElement&gt;</dt>
+    <dd><p>The lookup pipeline.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TOutput, TAs&gt;</dt>
+    <dd><p>The as field in <code class="typeparamref">TOutput</code> in which to place the results of the lookup pipeline.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign collection documents.</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__5_MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__System_Linq_Expressions_Expression_System_Func___4___3___MongoDB_Driver_AggregateLookupOptions___1___4__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup``5(MongoDB.Driver.IMongoCollection{``1},MongoDB.Bson.BsonDocument,MongoDB.Driver.PipelineDefinition{``1,``2},System.Linq.Expressions.Expression{System.Func{``4,``3}},MongoDB.Driver.AggregateLookupOptions{``1,``4})">
+  Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1054"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $lookup stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt; foreignCollection, BsonDocument let, PipelineDefinition&lt;TForeignDocument, TAsElement&gt; lookupPipeline, Expression&lt;Func&lt;TOutput, TAs&gt;&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+    <dd><p>The foreign collection.</p>
+</dd>
+    <dt><code>let</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The &quot;let&quot; definition.</p>
+</dd>
+    <dt><code>lookupPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TForeignDocument, TAsElement&gt;</dt>
+    <dd><p>The lookup pipeline.</p>
+</dd>
+    <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, TAs&gt;&gt;</dt>
+    <dd><p>The as field in <code class="typeparamref">TOutput</code> in which to place the results of the lookup pipeline.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TForeignDocument</code></dt>
+    <dd><p>The type of the foreign collection documents.</p>
+</dd>
+    <dt><code>TAsElement</code></dt>
+    <dd><p>The type of the as field elements.</p>
+</dd>
+    <dt><code>TAs</code></dt>
+    <dd><p>The type of the as field.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Match_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Match*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Match__1_MongoDB_Driver_FilterDefinition___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Match``1(MongoDB.Driver.FilterDefinition{``0})">
+  Match&lt;TInput&gt;(FilterDefinition&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1079"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $match stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Match&lt;TInput&gt;(FilterDefinition&lt;TInput&gt; filter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The filter.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Match_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Match*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Match__1_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Match``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+  Match&lt;TInput&gt;(Expression&lt;Func&lt;TInput, bool&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1098"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $match stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Match&lt;TInput&gt;(Expression&lt;Func&lt;TInput, bool&gt;&gt; filter)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>filter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;&gt;</dt>
+    <dd><p>The filter.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Merge_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Merge*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Merge__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_MergeStageOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Merge``2(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.MergeStageOptions{``1})">
+  Merge&lt;TInput, TOutput&gt;(IMongoCollection&lt;TOutput&gt;, MergeStageOptions&lt;TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1113"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $merge stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Merge&lt;TInput, TOutput&gt;(IMongoCollection&lt;TOutput&gt; outputCollection, MergeStageOptions&lt;TOutput&gt; mergeOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TOutput&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>mergeOptions</code> <a class="xref" href="MongoDB.Driver.MergeStageOptions-1.html">MergeStageOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The merge options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_OfType_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.OfType*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_OfType__2_MongoDB_Bson_Serialization_IBsonSerializer___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.OfType``2(MongoDB.Bson.Serialization.IBsonSerializer{``1})">
+  OfType&lt;TInput, TOutput&gt;(IBsonSerializer&lt;TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1214"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $match stage that select documents of a sub type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; OfType&lt;TInput, TOutput&gt;(IBsonSerializer&lt;TOutput&gt; outputSerializer = null) where TOutput : TInput</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TOutput&gt;</dt>
+    <dd><p>The output serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Out_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Out*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Out__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_TimeSeriesOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Out``1(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.TimeSeriesOptions)">
+  Out&lt;TInput&gt;(IMongoCollection&lt;TInput&gt;, TimeSeriesOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1249"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $out stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Out&lt;TInput&gt;(IMongoCollection&lt;TInput&gt; outputCollection, TimeSeriesOptions timeSeriesOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>outputCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TInput&gt;</dt>
+    <dd><p>The output collection.</p>
+</dd>
+    <dt><code>timeSeriesOptions</code> <a class="xref" href="MongoDB.Driver.TimeSeriesOptions.html">TimeSeriesOptions</a></dt>
+    <dd><p>The time series options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project__1_MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project``1(MongoDB.Driver.ProjectionDefinition{``0,MongoDB.Bson.BsonDocument})">
+  Project&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1305"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $project stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; Project&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt; projection)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project__2_MongoDB_Driver_ProjectionDefinition___0___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project``2(MongoDB.Driver.ProjectionDefinition{``0,``1})">
+  Project&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1272"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $project stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Project&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt; projection)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The projection.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Project__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Project``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.ExpressionTranslationOptions)">
+  Project&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1319"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $project stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Project&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt; projection, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>projection</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TOutput&gt;&gt;</dt>
+    <dd><p>The projection.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot``2(MongoDB.Driver.AggregateExpressionDefinition{``0,``1})">
+  ReplaceRoot&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1440"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $replaceRoot stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; ReplaceRoot&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt; newRoot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.ExpressionTranslationOptions)">
+  ReplaceRoot&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1466"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $replaceRoot stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; ReplaceRoot&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt; newRoot, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TOutput&gt;&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith``2(MongoDB.Driver.AggregateExpressionDefinition{``0,``1})">
+  ReplaceWith&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1481"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $replaceWith stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; ReplaceWith&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt; newRoot)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.ExpressionTranslationOptions)">
+  ReplaceWith&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1507"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $replaceWith stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; ReplaceWith&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt; newRoot, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>newRoot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TOutput&gt;&gt;</dt>
+    <dd><p>The new root.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SearchMeta_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SearchMeta*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SearchMeta__1_MongoDB_Driver_Search_SearchDefinition___0__System_String_MongoDB_Driver_Search_SearchCountOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SearchMeta``1(MongoDB.Driver.Search.SearchDefinition{``0},System.String,MongoDB.Driver.Search.SearchCountOptions)">
+  SearchMeta&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, string, SearchCountOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1407"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $searchMeta stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, SearchMetaResult&gt; SearchMeta&lt;TInput&gt;(SearchDefinition&lt;TInput&gt; searchDefinition, string indexName = null, SearchCountOptions count = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The index name.</p>
+</dd>
+    <dt><code>count</code> <a class="xref" href="MongoDB.Driver.Search.SearchCountOptions.html">SearchCountOptions</a></dt>
+    <dd><p>The count options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.Search.SearchMetaResult.html">SearchMetaResult</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Search_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Search*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Search__1_MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchHighlightOptions___0__System_String_MongoDB_Driver_Search_SearchCountOptions_System_Boolean_System_Boolean_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Search``1(MongoDB.Driver.Search.SearchDefinition{``0},MongoDB.Driver.Search.SearchHighlightOptions{``0},System.String,MongoDB.Driver.Search.SearchCountOptions,System.Boolean,System.Boolean)">
+  Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, SearchHighlightOptions&lt;TInput&gt;, string, SearchCountOptions, bool, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1344"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $search stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt; searchDefinition, SearchHighlightOptions&lt;TInput&gt; highlight = null, string indexName = null, SearchCountOptions count = null, bool returnStoredSource = false, bool scoreDetails = false)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>highlight</code> <a class="xref" href="MongoDB.Driver.Search.SearchHighlightOptions-1.html">SearchHighlightOptions</a>&lt;TInput&gt;</dt>
+    <dd><p>The highlight options.</p>
+</dd>
+    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The index name.</p>
+</dd>
+    <dt><code>count</code> <a class="xref" href="MongoDB.Driver.Search.SearchCountOptions.html">SearchCountOptions</a></dt>
+    <dd><p>The count options.</p>
+</dd>
+    <dt><code>returnStoredSource</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Flag that specifies whether to perform a full document lookup on the backend database
+or return only stored source fields directly from Atlas Search.</p>
+</dd>
+    <dt><code>scoreDetails</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Flag that specifies whether to return a detailed breakdown
+of the score for each document in the result.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Search_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Search*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Search__1_MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchOptions___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Search``1(MongoDB.Driver.Search.SearchDefinition{``0},MongoDB.Driver.Search.SearchOptions{``0})">
+  Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, SearchOptions&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1371"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $search stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt; searchDefinition, SearchOptions&lt;TInput&gt; searchOptions)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>searchDefinition</code> <a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The search definition.</p>
+</dd>
+    <dt><code>searchOptions</code> <a class="xref" href="MongoDB.Driver.Search.SearchOptions-1.html">SearchOptions</a>&lt;TInput&gt;</dt>
+    <dd><p>The search options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__2_MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``2(MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{``0},``1})">
+  SetWindowFields&lt;TInput, TWindowFields&gt;(AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1560"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TWindowFields&gt;(AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__2_System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____1___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``2(System.Linq.Expressions.Expression{System.Func{MongoDB.Driver.ISetWindowFieldsPartition{``0},``1}},MongoDB.Driver.ExpressionTranslationOptions)">
+  SetWindowFields&lt;TInput, TWindowFields&gt;(Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1674"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TWindowFields&gt;(Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt; output, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____2__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``3(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{``0},``2})">
+  SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1595"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt; partitionBy, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TPartitionBy&gt;</dt>
+    <dd><p>The partitionBy expression.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__MongoDB_Driver_SortDefinition___0__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____2__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``3(MongoDB.Driver.AggregateExpressionDefinition{``0,``1},MongoDB.Driver.SortDefinition{``0},MongoDB.Driver.AggregateExpressionDefinition{MongoDB.Driver.ISetWindowFieldsPartition{``0},``2})">
+  SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt;, SortDefinition&lt;TInput&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1634"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt; partitionBy, SortDefinition&lt;TInput&gt; sortBy, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt; output)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TPartitionBy&gt;</dt>
+    <dd><p>The partitionBy expression.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The sortBy expression.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_SortDefinition___0__System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.SortDefinition{``0},System.Linq.Expressions.Expression{System.Func{MongoDB.Driver.ISetWindowFieldsPartition{``0},``2}},MongoDB.Driver.ExpressionTranslationOptions)">
+  SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt;, SortDefinition&lt;TInput&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1716"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt; partitionBy, SortDefinition&lt;TInput&gt; sortBy, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt; output, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TPartitionBy&gt;&gt;</dt>
+    <dd><p>The partitionBy expression.</p>
+</dd>
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The sortBy expression.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields``3(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{MongoDB.Driver.ISetWindowFieldsPartition{``0},``2}},MongoDB.Driver.ExpressionTranslationOptions)">
+  SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1693"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Create a $setWindowFields stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt; partitionBy, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt; output, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>partitionBy</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TPartitionBy&gt;&gt;</dt>
+    <dd><p>The partitionBy expression.</p>
+</dd>
+    <dt><code>output</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.ISetWindowFieldsPartition-1.html">ISetWindowFieldsPartition</a>&lt;TInput&gt;, TWindowFields&gt;&gt;</dt>
+    <dd><p>The window fields expression.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TPartitionBy</code></dt>
+    <dd><p>The type of the value to partition by.</p>
+</dd>
+    <dt><code>TWindowFields</code></dt>
+    <dd><p>The type of the added window fields.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Set_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Set*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Set__1_MongoDB_Driver_SetFieldDefinitions___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Set``1(MongoDB.Driver.SetFieldDefinitions{``0})">
+  Set&lt;TInput&gt;(SetFieldDefinitions&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1521"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $set stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Set&lt;TInput&gt;(SetFieldDefinitions&lt;TInput&gt; fields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.SetFieldDefinitions-1.html">SetFieldDefinitions</a>&lt;TInput&gt;</dt>
+    <dd><p>The fields to set.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Set_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Set*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Set__2_System_Linq_Expressions_Expression_System_Func___0___1___" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Set``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+  Set&lt;TInput, TFields&gt;(Expression&lt;Func&lt;TInput, TFields&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1546"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $set stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Set&lt;TInput, TFields&gt;(Expression&lt;Func&lt;TInput, TFields&gt;&gt; fields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TFields&gt;&gt;</dt>
+    <dd><p>The fields to set.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TFields</code></dt>
+    <dd><p>The type of object specifying the fields to set.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Skip_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Skip*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Skip__1_System_Int64_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Skip``1(System.Int64)">
+  Skip&lt;TInput&gt;(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1740"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $skip stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Skip&lt;TInput&gt;(long skip)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The skip.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount``2(MongoDB.Driver.AggregateExpressionDefinition{``0,``1})">
+  SortByCount&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1767"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $sortByCount stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateSortByCountResult&lt;TValue&gt;&gt; SortByCount&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt; value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TInput, TValue&gt;</dt>
+    <dd><p>The value expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateSortByCountResult-1.html">AggregateSortByCountResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_ExpressionTranslationOptions_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.ExpressionTranslationOptions)">
+  SortByCount&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, ExpressionTranslationOptions)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1792"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $sortByCount stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, AggregateSortByCountResult&lt;TValue&gt;&gt; SortByCount&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt; value, ExpressionTranslationOptions translationOptions = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TValue&gt;&gt;</dt>
+    <dd><p>The value.</p>
+</dd>
+    <dt><code>translationOptions</code> <a class="xref" href="MongoDB.Driver.ExpressionTranslationOptions.html">ExpressionTranslationOptions</a></dt>
+    <dd><p>The translation options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="MongoDB.Driver.AggregateSortByCountResult-1.html">AggregateSortByCountResult</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Sort_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Sort*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Sort__1_MongoDB_Driver_SortDefinition___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Sort``1(MongoDB.Driver.SortDefinition{``0})">
+  Sort&lt;TInput&gt;(SortDefinition&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1753"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $sort stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; Sort&lt;TInput&gt;(SortDefinition&lt;TInput&gt; sort)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>sort</code> <a class="xref" href="MongoDB.Driver.SortDefinition-1.html">SortDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The sort.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_UnionWith_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.UnionWith*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_UnionWith__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_PipelineDefinition___1___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.UnionWith``2(MongoDB.Driver.IMongoCollection{``1},MongoDB.Driver.PipelineDefinition{``1,``0})">
+  UnionWith&lt;TInput, TWith&gt;(IMongoCollection&lt;TWith&gt;, PipelineDefinition&lt;TWith, TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1808"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $unionWith stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; UnionWith&lt;TInput, TWith&gt;(IMongoCollection&lt;TWith&gt; withCollection, PipelineDefinition&lt;TWith, TInput&gt; withPipeline = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>withCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TWith&gt;</dt>
+    <dd><p>The with collection.</p>
+</dd>
+    <dt><code>withPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TWith, TInput&gt;</dt>
+    <dd><p>The with pipeline.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TWith</code></dt>
+    <dd><p>The type of the with collection documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_AggregateUnwindOptions_MongoDB_Bson_BsonDocument__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind``1(MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.AggregateUnwindOptions{MongoDB.Bson.BsonDocument})">
+  Unwind&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, AggregateUnwindOptions&lt;BsonDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1901"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates an $unwind stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; Unwind&lt;TInput&gt;(FieldDefinition&lt;TInput&gt; field, AggregateUnwindOptions&lt;BsonDocument&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The field to unwind.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateUnwindOptions-1.html">AggregateUnwindOptions</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_AggregateUnwindOptions_MongoDB_Bson_BsonDocument__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},MongoDB.Driver.AggregateUnwindOptions{MongoDB.Bson.BsonDocument})">
+  Unwind&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, AggregateUnwindOptions&lt;BsonDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1915"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates an $unwind stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, BsonDocument&gt; Unwind&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt; field, AggregateUnwindOptions&lt;BsonDocument&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The field to unwind.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateUnwindOptions-1.html">AggregateUnwindOptions</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__2_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_AggregateUnwindOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind``2(MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.AggregateUnwindOptions{``1})">
+  Unwind&lt;TInput, TOutput&gt;(FieldDefinition&lt;TInput&gt;, AggregateUnwindOptions&lt;TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1854"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates an $unwind stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Unwind&lt;TInput, TOutput&gt;(FieldDefinition&lt;TInput&gt; field, AggregateUnwindOptions&lt;TOutput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateUnwindOptions-1.html">AggregateUnwindOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__2_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_AggregateUnwindOptions___1__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind``2(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},MongoDB.Driver.AggregateUnwindOptions{``1})">
+  Unwind&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, AggregateUnwindOptions&lt;TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1931"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates an $unwind stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TOutput&gt; Unwind&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt; field, AggregateUnwindOptions&lt;TOutput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+    <dd><p>The field to unwind.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateUnwindOptions-1.html">AggregateUnwindOptions</a>&lt;TOutput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TOutput</code></dt>
+    <dd><p>The type of the output documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch``1(MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.QueryVector,System.Int32,MongoDB.Driver.VectorSearchOptions{``0})">
+  VectorSearch&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, QueryVector, int, VectorSearchOptions&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1969"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $vectorSearch stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; VectorSearch&lt;TInput&gt;(FieldDefinition&lt;TInput&gt; field, QueryVector queryVector, int limit, VectorSearchOptions&lt;TInput&gt; options = null)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TInput&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>queryVector</code> <a class="xref" href="MongoDB.Driver.QueryVector.html">QueryVector</a></dt>
+    <dd><p>The query vector.</p>
+</dd>
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.VectorSearchOptions-1.html">VectorSearchOptions</a>&lt;TInput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch_" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch*"></a>
+
+  <h3 id="MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},MongoDB.Driver.QueryVector,System.Int32,MongoDB.Driver.VectorSearchOptions{``0})">
+  VectorSearch&lt;TInput, TField&gt;(Expression&lt;Func&lt;TInput, TField&gt;&gt;, QueryVector, int, VectorSearchOptions&lt;TInput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L1949"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a $vectorSearch stage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PipelineStageDefinition&lt;TInput, TInput&gt; VectorSearch&lt;TInput, TField&gt;(Expression&lt;Func&lt;TInput, TField&gt;&gt; field, QueryVector queryVector, int limit, VectorSearchOptions&lt;TInput&gt; options)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TInput, TField&gt;&gt;</dt>
+    <dd><p>The field.</p>
+</dd>
+    <dt><code>queryVector</code> <a class="xref" href="MongoDB.Driver.QueryVector.html">QueryVector</a></dt>
+    <dd><p>The query vector.</p>
+</dd>
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The limit.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.VectorSearchOptions-1.html">VectorSearchOptions</a>&lt;TInput&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TInput&gt;</dt>
+    <dd><p>The stage.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TInput</code></dt>
+    <dd><p>The type of the input documents.</p>
+</dd>
+    <dt><code>TField</code></dt>
+    <dd><p>The type of the field.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

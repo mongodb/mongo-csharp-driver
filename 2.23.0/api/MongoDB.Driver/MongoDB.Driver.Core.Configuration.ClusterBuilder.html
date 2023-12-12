@@ -1,0 +1,698 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class ClusterBuilder
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class ClusterBuilder
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_Core_Configuration_ClusterBuilder.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Core.Configuration.ClusterBuilder%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder">
+
+
+
+  <h1 id="MongoDB_Driver_Core_Configuration_ClusterBuilder" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder" class="text-break">
+    Class ClusterBuilder
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L35"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Core.html">Core</a>.<a class="xref" href="MongoDB.Driver.Core.Configuration.html">Configuration</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Core.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a cluster builder.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class ClusterBuilder</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">ClusterBuilder</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_ConfigureWithConnectionString_MongoDB_Driver_Core_Configuration_ClusterBuilder_MongoDB_Driver_Core_Configuration_ConnectionString_">ClusterBuilderExtensions.ConfigureWithConnectionString(ClusterBuilder, ConnectionString)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_ConfigureWithConnectionString_MongoDB_Driver_Core_Configuration_ClusterBuilder_MongoDB_Driver_Core_Configuration_ConnectionString_MongoDB_Driver_ServerApi_">ClusterBuilderExtensions.ConfigureWithConnectionString(ClusterBuilder, ConnectionString, ServerApi)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_ConfigureWithConnectionString_MongoDB_Driver_Core_Configuration_ClusterBuilder_System_String_">ClusterBuilderExtensions.ConfigureWithConnectionString(ClusterBuilder, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_ConfigureWithConnectionString_MongoDB_Driver_Core_Configuration_ClusterBuilder_System_String_MongoDB_Driver_ServerApi_">ClusterBuilderExtensions.ConfigureWithConnectionString(ClusterBuilder, string, ServerApi)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_TraceCommandsWith_MongoDB_Driver_Core_Configuration_ClusterBuilder_System_Diagnostics_TraceSource_">ClusterBuilderExtensions.TraceCommandsWith(ClusterBuilder, TraceSource)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilderExtensions.html#MongoDB_Driver_Core_Configuration_ClusterBuilderExtensions_TraceWith_MongoDB_Driver_Core_Configuration_ClusterBuilder_System_Diagnostics_TraceSource_">ClusterBuilderExtensions.TraceWith(ClusterBuilder, TraceSource)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder__ctor_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder__ctor" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.#ctor">
+  ClusterBuilder()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L58"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_BuildCluster_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.BuildCluster*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_BuildCluster" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.BuildCluster">
+  BuildCluster()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L77"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Builds the cluster.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ICluster BuildCluster()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Clusters.ICluster.html">ICluster</a></dt>
+    <dd><p>A cluster.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureCluster_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureCluster*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureCluster_System_Func_MongoDB_Driver_Core_Configuration_ClusterSettings_MongoDB_Driver_Core_Configuration_ClusterSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureCluster(System.Func{MongoDB.Driver.Core.Configuration.ClusterSettings,MongoDB.Driver.Core.Configuration.ClusterSettings})">
+  ConfigureCluster(Func&lt;ClusterSettings, ClusterSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L88"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the cluster settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureCluster(Func&lt;ClusterSettings, ClusterSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterSettings.html">ClusterSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterSettings.html">ClusterSettings</a>&gt;</dt>
+    <dd><p>The cluster settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureConnection_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureConnection*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureConnection_System_Func_MongoDB_Driver_Core_Configuration_ConnectionSettings_MongoDB_Driver_Core_Configuration_ConnectionSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureConnection(System.Func{MongoDB.Driver.Core.Configuration.ConnectionSettings,MongoDB.Driver.Core.Configuration.ConnectionSettings})">
+  ConfigureConnection(Func&lt;ConnectionSettings, ConnectionSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L101"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the connection settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureConnection(Func&lt;ConnectionSettings, ConnectionSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.ConnectionSettings.html">ConnectionSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.ConnectionSettings.html">ConnectionSettings</a>&gt;</dt>
+    <dd><p>The connection settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureConnectionPool_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureConnectionPool*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureConnectionPool_System_Func_MongoDB_Driver_Core_Configuration_ConnectionPoolSettings_MongoDB_Driver_Core_Configuration_ConnectionPoolSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureConnectionPool(System.Func{MongoDB.Driver.Core.Configuration.ConnectionPoolSettings,MongoDB.Driver.Core.Configuration.ConnectionPoolSettings})">
+  ConfigureConnectionPool(Func&lt;ConnectionPoolSettings, ConnectionPoolSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L114"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the connection pool settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureConnectionPool(Func&lt;ConnectionPoolSettings, ConnectionPoolSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.ConnectionPoolSettings.html">ConnectionPoolSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.ConnectionPoolSettings.html">ConnectionPoolSettings</a>&gt;</dt>
+    <dd><p>The connection pool settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureLoggingSettings_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureLoggingSettings*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureLoggingSettings_System_Func_MongoDB_Driver_Core_Configuration_LoggingSettings_MongoDB_Driver_Core_Configuration_LoggingSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureLoggingSettings(System.Func{MongoDB.Driver.Core.Configuration.LoggingSettings,MongoDB.Driver.Core.Configuration.LoggingSettings})">
+  ConfigureLoggingSettings(Func&lt;LoggingSettings, LoggingSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L127"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the logging settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ClusterBuilder ConfigureLoggingSettings(Func&lt;LoggingSettings, LoggingSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.LoggingSettings.html">LoggingSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.LoggingSettings.html">LoggingSettings</a>&gt;</dt>
+    <dd><p>The logging settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureSdamLogging_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureSdamLogging*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureSdamLogging_System_Func_MongoDB_Driver_Core_Configuration_SdamLoggingSettings_MongoDB_Driver_Core_Configuration_SdamLoggingSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureSdamLogging(System.Func{MongoDB.Driver.Core.Configuration.SdamLoggingSettings,MongoDB.Driver.Core.Configuration.SdamLoggingSettings})">
+  ConfigureSdamLogging(Func&lt;SdamLoggingSettings, SdamLoggingSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L141"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the SDAM logging settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use ConfigureLoggingSettings instead.&quot;)]
+public ClusterBuilder ConfigureSdamLogging(Func&lt;SdamLoggingSettings, SdamLoggingSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.SdamLoggingSettings.html">SdamLoggingSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.SdamLoggingSettings.html">SdamLoggingSettings</a>&gt;</dt>
+    <dd><p>The SDAM logging settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureServer_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureServer*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureServer_System_Func_MongoDB_Driver_Core_Configuration_ServerSettings_MongoDB_Driver_Core_Configuration_ServerSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureServer(System.Func{MongoDB.Driver.Core.Configuration.ServerSettings,MongoDB.Driver.Core.Configuration.ServerSettings})">
+  ConfigureServer(Func&lt;ServerSettings, ServerSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L164"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the server settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureServer(Func&lt;ServerSettings, ServerSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.ServerSettings.html">ServerSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.ServerSettings.html">ServerSettings</a>&gt;</dt>
+    <dd><p>The server settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureSsl_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureSsl*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureSsl_System_Func_MongoDB_Driver_Core_Configuration_SslStreamSettings_MongoDB_Driver_Core_Configuration_SslStreamSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureSsl(System.Func{MongoDB.Driver.Core.Configuration.SslStreamSettings,MongoDB.Driver.Core.Configuration.SslStreamSettings})">
+  ConfigureSsl(Func&lt;SslStreamSettings, SslStreamSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L175"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the SSL stream settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureSsl(Func&lt;SslStreamSettings, SslStreamSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.SslStreamSettings.html">SslStreamSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.SslStreamSettings.html">SslStreamSettings</a>&gt;</dt>
+    <dd><p>The SSL stream settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureTcp_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureTcp*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_ConfigureTcp_System_Func_MongoDB_Driver_Core_Configuration_TcpStreamSettings_MongoDB_Driver_Core_Configuration_TcpStreamSettings__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.ConfigureTcp(System.Func{MongoDB.Driver.Core.Configuration.TcpStreamSettings,MongoDB.Driver.Core.Configuration.TcpStreamSettings})">
+  ConfigureTcp(Func&lt;TcpStreamSettings, TcpStreamSettings&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L186"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Configures the TCP stream settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder ConfigureTcp(Func&lt;TcpStreamSettings, TcpStreamSettings&gt; configurator)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>configurator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Configuration.TcpStreamSettings.html">TcpStreamSettings</a>, <a class="xref" href="MongoDB.Driver.Core.Configuration.TcpStreamSettings.html">TcpStreamSettings</a>&gt;</dt>
+    <dd><p>The TCP stream settings configurator delegate.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_RegisterStreamFactory_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.RegisterStreamFactory*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_RegisterStreamFactory_System_Func_MongoDB_Driver_Core_Connections_IStreamFactory_MongoDB_Driver_Core_Connections_IStreamFactory__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.RegisterStreamFactory(System.Func{MongoDB.Driver.Core.Connections.IStreamFactory,MongoDB.Driver.Core.Connections.IStreamFactory})">
+  RegisterStreamFactory(Func&lt;IStreamFactory, IStreamFactory&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L199"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Registers a stream factory wrapper.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder RegisterStreamFactory(Func&lt;IStreamFactory, IStreamFactory&gt; wrapper)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>wrapper</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Connections.IStreamFactory.html">IStreamFactory</a>, <a class="xref" href="MongoDB.Driver.Core.Connections.IStreamFactory.html">IStreamFactory</a>&gt;</dt>
+    <dd><p>The stream factory wrapper.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.Subscribe*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe_MongoDB_Driver_Core_Events_IEventSubscriber_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.Subscribe(MongoDB.Driver.Core.Events.IEventSubscriber)">
+  Subscribe(IEventSubscriber)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L226"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Subscribes the specified subscriber.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder Subscribe(IEventSubscriber subscriber)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>subscriber</code> <a class="xref" href="MongoDB.Driver.Core.Events.IEventSubscriber.html">IEventSubscriber</a></dt>
+    <dd><p>The subscriber.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe_" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.Subscribe*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe__1_System_Action___0__" data-uid="MongoDB.Driver.Core.Configuration.ClusterBuilder.Subscribe``1(System.Action{``0})">
+  Subscribe&lt;TEvent&gt;(Action&lt;TEvent&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Configuration/ClusterBuilder.cs/#L214"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Subscribes to events of type <code class="typeparamref">TEvent</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterBuilder Subscribe&lt;TEvent&gt;(Action&lt;TEvent&gt; handler)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>handler</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;TEvent&gt;</dt>
+    <dd><p>The handler.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a></dt>
+    <dd><p>A reconfigured cluster builder.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TEvent</code></dt>
+    <dd><p>The type of the event.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,2628 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class RepresentationConverter
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class RepresentationConverter
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Bson_Serialization_Options_RepresentationConverter.md&amp;value=---%0Auid%3A%20MongoDB.Bson.Serialization.Options.RepresentationConverter%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter">
+
+
+
+  <h1 id="MongoDB_Bson_Serialization_Options_RepresentationConverter" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter" class="text-break">
+    Class RepresentationConverter
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L24"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.Serialization.html">Serialization</a>.<a class="xref" href="MongoDB.Bson.Serialization.Options.html">Options</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents the external representation of a field or property.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class RepresentationConverter</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">RepresentationConverter</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter__ctor_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter__ctor_System_Boolean_System_Boolean_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.#ctor(System.Boolean,System.Boolean)">
+  RepresentationConverter(bool, bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L36"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the RepresentationConverter class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RepresentationConverter(bool allowOverflow, bool allowTruncation)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>allowOverflow</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Whether to allow overflow.</p>
+</dd>
+    <dt><code>allowTruncation</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Whether to allow truncation.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_AllowOverflow_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.AllowOverflow*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_AllowOverflow" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.AllowOverflow">
+  AllowOverflow
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L46"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets whether to allow overflow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowOverflow { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_AllowTruncation_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.AllowTruncation*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_AllowTruncation" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.AllowTruncation">
+  AllowTruncation
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L54"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets whether to allow truncation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowTruncation { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal(MongoDB.Bson.Decimal128)">
+  ToDecimal(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L65"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a Decimal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public decimal ToDecimal(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal(System.Double)">
+  ToDecimal(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L103"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a Decimal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public decimal ToDecimal(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal(System.Int32)">
+  ToDecimal(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L131"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a Decimal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public decimal ToDecimal(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal(System.Int64)">
+  ToDecimal(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L141"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a Decimal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public decimal ToDecimal(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_System_Decimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128(System.Decimal)">
+  ToDecimal128(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L151"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a decimal to a Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128 ToDecimal128(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128(System.Double)">
+  ToDecimal128(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L171"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128 ToDecimal128(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128(System.Int32)">
+  ToDecimal128(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L207"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128 ToDecimal128(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128(System.Int64)">
+  ToDecimal128(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L217"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128 ToDecimal128(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDecimal128_System_UInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDecimal128(System.UInt64)">
+  ToDecimal128(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L227"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt64 to a Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public Decimal128 ToDecimal128(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(MongoDB.Bson.Decimal128)">
+  ToDouble(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L262"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Decimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Decimal)">
+  ToDouble(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L238"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Double)">
+  ToDouble(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L308"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Int16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Int16)">
+  ToDouble(short)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L373"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int16 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(short value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Int32)">
+  ToDouble(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L348"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Int64)">
+  ToDouble(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L358"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_Single_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.Single)">
+  ToDouble(float)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L318"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Single to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double ToDouble(float value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_UInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.UInt16)">
+  ToDouble(ushort)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L410"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt16 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public double ToDouble(ushort value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_UInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.UInt32)">
+  ToDouble(uint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L383"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt32 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public double ToDouble(uint value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToDouble_System_UInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToDouble(System.UInt64)">
+  ToDouble(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L394"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt64 to a Double.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public double ToDouble(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16(MongoDB.Bson.Decimal128)">
+  ToInt16(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L421"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to an Int16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public short ToInt16(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16(System.Double)">
+  ToInt16(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L446"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to an Int16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public short ToInt16(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16(System.Int32)">
+  ToInt16(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L465"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to an Int16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public short ToInt16(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt16_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt16(System.Int64)">
+  ToInt16(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L479"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to an Int16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public short ToInt16(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(MongoDB.Bson.Decimal128)">
+  ToInt32(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L521"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Decimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Decimal)">
+  ToInt32(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L493"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Double)">
+  ToInt32(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L544"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Int16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Int16)">
+  ToInt32(short)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L606"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int16 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(short value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Int32)">
+  ToInt32(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L582"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Int64)">
+  ToInt32(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L592"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_Single_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.Single)">
+  ToInt32(float)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L563"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Single to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ToInt32(float value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_UInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.UInt16)">
+  ToInt32(ushort)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L646"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt16 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public int ToInt32(ushort value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_UInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.UInt32)">
+  ToInt32(uint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L616"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt32 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public int ToInt32(uint value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt32_System_UInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt32(System.UInt64)">
+  ToInt32(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L631"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt64 to an Int32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public int ToInt32(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(MongoDB.Bson.Decimal128)">
+  ToInt64(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L685"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Decimal_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Decimal)">
+  ToInt64(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L657"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A Decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Double)">
+  ToInt64(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L708"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Int16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Int16)">
+  ToInt64(short)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L766"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int16 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(short value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>An Int16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Int32)">
+  ToInt64(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L746"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Int64)">
+  ToInt64(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L756"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_Single_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.Single)">
+  ToInt64(float)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L727"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Single to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long ToInt64(float value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_UInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.UInt16)">
+  ToInt64(ushort)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L802"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt16 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public long ToInt64(ushort value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_UInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.UInt32)">
+  ToInt64(uint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L776"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt32 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public long ToInt64(uint value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToInt64_System_UInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToInt64(System.UInt64)">
+  ToInt64(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L787"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a UInt64 to an Int64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public long ToInt64(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle(MongoDB.Bson.Decimal128)">
+  ToSingle(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L813"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a Single.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ToSingle(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle(System.Double)">
+  ToSingle(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L859"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a Single.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ToSingle(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle(System.Int32)">
+  ToSingle(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L899"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a Single.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ToSingle(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToSingle_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToSingle(System.Int64)">
+  ToSingle(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L914"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a Single.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float ToSingle(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A Single.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16(MongoDB.Bson.Decimal128)">
+  ToUInt16(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L929"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a UInt16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ushort ToUInt16(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16(System.Double)">
+  ToUInt16(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L955"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a UInt16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ushort ToUInt16(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16(System.Int32)">
+  ToUInt16(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L975"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a UInt16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ushort ToUInt16(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt16_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt16(System.Int64)">
+  ToUInt16(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L990"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a UInt16.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ushort ToUInt16(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A UInt16.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32(MongoDB.Bson.Decimal128)">
+  ToUInt32(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1005"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a UInt32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public uint ToUInt32(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32(System.Double)">
+  ToUInt32(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1031"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a UInt32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public uint ToUInt32(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32(System.Int32)">
+  ToUInt32(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1051"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a UInt32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public uint ToUInt32(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt32_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt32(System.Int64)">
+  ToUInt32(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1066"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a UInt32.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public uint ToUInt32(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A UInt32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64(MongoDB.Bson.Decimal128)">
+  ToUInt64(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1081"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Decimal128 to a UInt64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong ToUInt64(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_System_Double_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64(System.Double)">
+  ToUInt64(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1107"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts a Double to a UInt64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong ToUInt64(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_System_Int32_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64(System.Int32)">
+  ToUInt64(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1127"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int32 to a UInt64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong ToUInt64(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Serialization_Options_RepresentationConverter_ToUInt64_System_Int64_" data-uid="MongoDB.Bson.Serialization.Options.RepresentationConverter.ToUInt64(System.Int64)">
+  ToUInt64(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Options/RepresentationConverter.cs/#L1142"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an Int64 to a UInt64.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong ToUInt64(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A UInt64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

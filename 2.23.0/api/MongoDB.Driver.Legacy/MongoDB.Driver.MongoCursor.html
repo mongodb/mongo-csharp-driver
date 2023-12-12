@@ -1,0 +1,2138 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoCursor
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoCursor
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_MongoCursor.md&amp;value=---%0Auid%3A%20MongoDB.Driver.MongoCursor%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.MongoCursor">
+
+
+
+  <h1 id="MongoDB_Driver_MongoCursor" data-uid="MongoDB.Driver.MongoCursor" class="text-break">
+    Class MongoCursor
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L35"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>An object that can be enumerated to fetch the results of a query. The query is not sent
+to the server until you begin enumerating the results.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class MongoCursor : IEnumerable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoCursor</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.ienumerable">IEnumerable</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Derived</dt>
+    <dd>
+      <div><a class="xref" href="MongoDB.Driver.MongoCursor-1.html">MongoCursor</a>&lt;TDocument&gt;</div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoCursor__ctor_" data-uid="MongoDB.Driver.MongoCursor.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor__ctor_MongoDB_Driver_MongoCollection_MongoDB_Driver_IMongoQuery_MongoDB_Driver_ReadConcern_MongoDB_Driver_ReadPreference_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadConcern,MongoDB.Driver.ReadPreference,MongoDB.Bson.Serialization.IBsonSerializer)">
+  MongoCursor(MongoCollection, IMongoQuery, ReadConcern, ReadPreference, IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L81"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadConcern readConcern, ReadPreference readPreference, IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collection</code> <a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+    <dd><p>The collection.</p>
+</dd>
+    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+    <dd><p>The query.</p>
+</dd>
+    <dt><code>readConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
+    <dd><p>The read concern.</p>
+</dd>
+    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd><p>The read preference.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor__ctor_" data-uid="MongoDB.Driver.MongoCursor.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor__ctor_MongoDB_Driver_MongoCollection_MongoDB_Driver_IMongoQuery_MongoDB_Driver_ReadPreference_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadPreference,MongoDB.Bson.Serialization.IBsonSerializer)">
+  MongoCursor(MongoCollection, IMongoQuery, ReadPreference, IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L63"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new MongoCursor. It is very unlikely that you will call this constructor. Instead, see all the Find methods in MongoCollection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collection</code> <a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+    <dd><p>The collection.</p>
+</dd>
+    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+    <dd><p>The query.</p>
+</dd>
+    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd><p>The read preference.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoCursor_BatchSize_" data-uid="MongoDB.Driver.MongoCursor.BatchSize*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_BatchSize" data-uid="MongoDB.Driver.MongoCursor.BatchSize">
+  BatchSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L243"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the batch size (the number of documents returned per batch).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual int BatchSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Collation_" data-uid="MongoDB.Driver.MongoCursor.Collation*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Collation" data-uid="MongoDB.Driver.MongoCursor.Collation">
+  Collation
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L107"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the collation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual Collation Collation { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Collation.html">Collation</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Collection_" data-uid="MongoDB.Driver.MongoCursor.Collection*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Collection" data-uid="MongoDB.Driver.MongoCursor.Collection">
+  Collection
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L115"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the collection that is being queried.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCollection Collection { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Database_" data-uid="MongoDB.Driver.MongoCursor.Database*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Database" data-uid="MongoDB.Driver.MongoCursor.Database">
+  Database
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L99"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the database that constains the collection that is being queried.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoDatabase Database { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Fields_" data-uid="MongoDB.Driver.MongoCursor.Fields*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Fields" data-uid="MongoDB.Driver.MongoCursor.Fields">
+  Fields
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L131"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the fields that will be returned from the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual IMongoFields Fields { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoFields.html">IMongoFields</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Flags_" data-uid="MongoDB.Driver.MongoCursor.Flags*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Flags" data-uid="MongoDB.Driver.MongoCursor.Flags">
+  Flags
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L157"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the query flags.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual QueryFlags Flags { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.QueryFlags.html">QueryFlags</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_IsFrozen_" data-uid="MongoDB.Driver.MongoCursor.IsFrozen*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_IsFrozen" data-uid="MongoDB.Driver.MongoCursor.IsFrozen">
+  IsFrozen
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L264"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets whether the cursor has been frozen to prevent further changes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual bool IsFrozen { get; protected set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Limit_" data-uid="MongoDB.Driver.MongoCursor.Limit*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Limit" data-uid="MongoDB.Driver.MongoCursor.Limit">
+  Limit
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L230"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the limit on the number of documents to be returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual int Limit { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_MaxAwaitTime_" data-uid="MongoDB.Driver.MongoCursor.MaxAwaitTime*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_MaxAwaitTime" data-uid="MongoDB.Driver.MongoCursor.MaxAwaitTime">
+  MaxAwaitTime
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L183"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the maximum await time for TailableAwait cursors.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual TimeSpan? MaxAwaitTime { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>?</dt>
+    <dd><p>The maximum await time for TailableAwait cursors.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Options_" data-uid="MongoDB.Driver.MongoCursor.Options*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Options" data-uid="MongoDB.Driver.MongoCursor.Options">
+  Options
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L144"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the cursor options. See also the individual Set{Option} methods, which are easier to use.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual BsonDocument Options { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Query_" data-uid="MongoDB.Driver.MongoCursor.Query*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Query" data-uid="MongoDB.Driver.MongoCursor.Query">
+  Query
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L123"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the query that will be sent to the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual IMongoQuery Query { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_ReadConcern_" data-uid="MongoDB.Driver.MongoCursor.ReadConcern*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_ReadConcern" data-uid="MongoDB.Driver.MongoCursor.ReadConcern">
+  ReadConcern
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L196"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the read concern.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual ReadConcern ReadConcern { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_ReadPreference_" data-uid="MongoDB.Driver.MongoCursor.ReadPreference*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_ReadPreference" data-uid="MongoDB.Driver.MongoCursor.ReadPreference">
+  ReadPreference
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L204"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the read preference.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual ReadPreference ReadPreference { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Serializer_" data-uid="MongoDB.Driver.MongoCursor.Serializer*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Serializer" data-uid="MongoDB.Driver.MongoCursor.Serializer">
+  Serializer
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L256"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the serializer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual IBsonSerializer Serializer { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Server_" data-uid="MongoDB.Driver.MongoCursor.Server*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Server" data-uid="MongoDB.Driver.MongoCursor.Server">
+  Server
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L91"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the server that the query will be sent to.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoServer Server { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Skip_" data-uid="MongoDB.Driver.MongoCursor.Skip*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Skip" data-uid="MongoDB.Driver.MongoCursor.Skip">
+  Skip
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L217"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the number of documents the server should skip before returning the rest of the documents.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual int Skip { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoCursor_Clone_" data-uid="MongoDB.Driver.MongoCursor.Clone*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Clone_System_Type_" data-uid="MongoDB.Driver.MongoCursor.Clone(System.Type)">
+  Clone(Type)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L341"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a clone of the cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor Clone(Type documentType)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
+    <dd><p>The type of the documents returned.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>A clone of the cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Clone_" data-uid="MongoDB.Driver.MongoCursor.Clone*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Clone_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.Clone(System.Type,MongoDB.Bson.Serialization.IBsonSerializer)">
+  Clone(Type, IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L355"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a clone of the cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
+    <dd><p>The type of the documents returned.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer to use.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>A clone of the cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Clone_" data-uid="MongoDB.Driver.MongoCursor.Clone*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Clone__1" data-uid="MongoDB.Driver.MongoCursor.Clone``1">
+  Clone&lt;TDocument&gt;()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L318"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a clone of the cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor&lt;TDocument&gt; Clone&lt;TDocument&gt;()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor-1.html">MongoCursor</a>&lt;TDocument&gt;</dt>
+    <dd><p>A clone of the cursor.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the documents returned.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Clone_" data-uid="MongoDB.Driver.MongoCursor.Clone*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Clone__1_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.Clone``1(MongoDB.Bson.Serialization.IBsonSerializer)">
+  Clone&lt;TDocument&gt;(IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L331"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a clone of the cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor&lt;TDocument&gt; Clone&lt;TDocument&gt;(IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer to use.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor-1.html">MongoCursor</a>&lt;TDocument&gt;</dt>
+    <dd><p>A clone of the cursor.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the documents returned.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Count_" data-uid="MongoDB.Driver.MongoCursor.Count*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Count" data-uid="MongoDB.Driver.MongoCursor.Count">
+  Count()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L375"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the number of documents that match the query (ignores Skip and Limit, unlike Size which honors them).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual long Count()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The number of documents that match the query.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Create_" data-uid="MongoDB.Driver.MongoCursor.Create*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Create_System_Type_MongoDB_Driver_MongoCollection_MongoDB_Driver_IMongoQuery_MongoDB_Driver_ReadConcern_MongoDB_Driver_ReadPreference_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.Create(System.Type,MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadConcern,MongoDB.Driver.ReadPreference,MongoDB.Bson.Serialization.IBsonSerializer)">
+  Create(Type, MongoCollection, IMongoQuery, ReadConcern, ReadPreference, IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L303"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use a method that returns a cursor instead.&quot;)]
+public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadConcern readConcern, ReadPreference readPreference, IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
+    <dd><p>Type of the document.</p>
+</dd>
+    <dt><code>collection</code> <a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+    <dd><p>The collection.</p>
+</dd>
+    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+    <dd><p>The query.</p>
+</dd>
+    <dt><code>readConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
+    <dd><p>The read concern.</p>
+</dd>
+    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd><p>The read preference.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Create_" data-uid="MongoDB.Driver.MongoCursor.Create*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Create_System_Type_MongoDB_Driver_MongoCollection_MongoDB_Driver_IMongoQuery_MongoDB_Driver_ReadPreference_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.Create(System.Type,MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadPreference,MongoDB.Bson.Serialization.IBsonSerializer)">
+  Create(Type, MongoCollection, IMongoQuery, ReadPreference, IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L282"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use a method that returns a cursor instead.&quot;)]
+public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
+    <dd><p>The type of the returned documents.</p>
+</dd>
+    <dt><code>collection</code> <a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+    <dd><p>The collection to query.</p>
+</dd>
+    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+    <dd><p>A query.</p>
+</dd>
+    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd><p>The read preference.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>A cursor.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_CreateExplainOperation_" data-uid="MongoDB.Driver.MongoCursor.CreateExplainOperation*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_CreateExplainOperation_MongoDB_Driver_Core_Operations_ExplainVerbosity_" data-uid="MongoDB.Driver.MongoCursor.CreateExplainOperation(MongoDB.Driver.Core.Operations.ExplainVerbosity)">
+  CreateExplainOperation(ExplainVerbosity)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L432"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates an explain operation for this cursor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract ExplainOperation CreateExplainOperation(ExplainVerbosity verbosity)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>verbosity</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Operations.ExplainVerbosity.html">ExplainVerbosity</a></dt>
+    <dd><p>The requested <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Operations.ExplainVerbosity.html">ExplainVerbosity</a>.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Operations.ExplainOperation.html">ExplainOperation</a></dt>
+    <dd><p>An explain operation.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Explain_" data-uid="MongoDB.Driver.MongoCursor.Explain*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Explain" data-uid="MongoDB.Driver.MongoCursor.Explain">
+  Explain()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L405"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns an explanation of how the query was executed (instead of the results).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual BsonDocument Explain()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>An explanation of thow the query was executed.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Explain_" data-uid="MongoDB.Driver.MongoCursor.Explain*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Explain_System_Boolean_" data-uid="MongoDB.Driver.MongoCursor.Explain(System.Boolean)">
+  Explain(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L415"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns an explanation of how the query was executed (instead of the results).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual BsonDocument Explain(bool verbose)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>verbose</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Whether the explanation should contain more details.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>An explanation of throw the query was executed.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_IEnumerableGetEnumerator_" data-uid="MongoDB.Driver.MongoCursor.IEnumerableGetEnumerator*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_IEnumerableGetEnumerator" data-uid="MongoDB.Driver.MongoCursor.IEnumerableGetEnumerator">
+  IEnumerableGetEnumerator()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L748"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the non-generic enumerator.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract IEnumerator IEnumerableGetEnumerator()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.ienumerator">IEnumerator</a></dt>
+    <dd><p>The enumerator.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetBatchSize_" data-uid="MongoDB.Driver.MongoCursor.SetBatchSize*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetBatchSize_System_Int32_" data-uid="MongoDB.Driver.MongoCursor.SetBatchSize(System.Int32)">
+  SetBatchSize(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L451"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the batch size (the number of documents returned per batch).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetBatchSize(int batchSize)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>batchSize</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of documents in each batch.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetCollation_" data-uid="MongoDB.Driver.MongoCursor.SetCollation*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetCollation_MongoDB_Driver_Collation_" data-uid="MongoDB.Driver.MongoCursor.SetCollation(MongoDB.Driver.Collation)">
+  SetCollation(Collation)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L439"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the collation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetCollation(Collation collation)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collation</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Collation.html">Collation</a></dt>
+    <dd><p>The collation.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetFields_" data-uid="MongoDB.Driver.MongoCursor.SetFields*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetFields_MongoDB_Driver_IMongoFields_" data-uid="MongoDB.Driver.MongoCursor.SetFields(MongoDB.Driver.IMongoFields)">
+  SetFields(IMongoFields)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L464"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the fields that will be returned from the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetFields(IMongoFields fields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.IMongoFields.html">IMongoFields</a></dt>
+    <dd><p>The fields that will be returned from the server.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetFields_" data-uid="MongoDB.Driver.MongoCursor.SetFields*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetFields_System_String___" data-uid="MongoDB.Driver.MongoCursor.SetFields(System.String[])">
+  SetFields(params string[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L476"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the fields that will be returned from the server.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetFields(params string[] fields)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>fields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
+    <dd><p>The fields that will be returned from the server.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetFlags_" data-uid="MongoDB.Driver.MongoCursor.SetFlags*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetFlags_MongoDB_Driver_QueryFlags_" data-uid="MongoDB.Driver.MongoCursor.SetFlags(MongoDB.Driver.QueryFlags)">
+  SetFlags(QueryFlags)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L488"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the query flags.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetFlags(QueryFlags flags)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>flags</code> <a class="xref" href="MongoDB.Driver.QueryFlags.html">QueryFlags</a></dt>
+    <dd><p>The query flags.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetHint_" data-uid="MongoDB.Driver.MongoCursor.SetHint*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetHint_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCursor.SetHint(MongoDB.Bson.BsonDocument)">
+  SetHint(BsonDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L500"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the index hint for the query.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetHint(BsonDocument hint)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>hint</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The index hint.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetHint_" data-uid="MongoDB.Driver.MongoCursor.SetHint*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetHint_System_String_" data-uid="MongoDB.Driver.MongoCursor.SetHint(System.String)">
+  SetHint(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L512"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the index hint for the query.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetHint(string indexName)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the index.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetLimit_" data-uid="MongoDB.Driver.MongoCursor.SetLimit*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetLimit_System_Int32_" data-uid="MongoDB.Driver.MongoCursor.SetLimit(System.Int32)">
+  SetLimit(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L524"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the limit on the number of documents to be returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetLimit(int limit)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The limit on the number of documents to be returned.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetMax_" data-uid="MongoDB.Driver.MongoCursor.SetMax*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetMax_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCursor.SetMax(MongoDB.Bson.BsonDocument)">
+  SetMax(BsonDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L537"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the max value for the index key range of documents to return (note: the max value itself is excluded from the range).
+Often combined with SetHint (if SetHint is not used the server will attempt to determine the matching index automatically).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetMax(BsonDocument max)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>max</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The max value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetMaxAwaitTime_" data-uid="MongoDB.Driver.MongoCursor.SetMaxAwaitTime*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetMaxAwaitTime_System_Nullable_System_TimeSpan__" data-uid="MongoDB.Driver.MongoCursor.SetMaxAwaitTime(System.Nullable{System.TimeSpan})">
+  SetMaxAwaitTime(TimeSpan?)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L549"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the maximum await time for tailable await cursors.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetMaxAwaitTime(TimeSpan? value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>?</dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetMaxScan_" data-uid="MongoDB.Driver.MongoCursor.SetMaxScan*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetMaxScan_System_Int32_" data-uid="MongoDB.Driver.MongoCursor.SetMaxScan(System.Int32)">
+  SetMaxScan(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L561"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the maximum number of documents to scan.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;MaxScan was deprecated in server version 4.0.&quot;)]
+public virtual MongoCursor SetMaxScan(int maxScan)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>maxScan</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The maximum number of documents to scan.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetMaxTime_" data-uid="MongoDB.Driver.MongoCursor.SetMaxTime*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetMaxTime_System_TimeSpan_" data-uid="MongoDB.Driver.MongoCursor.SetMaxTime(System.TimeSpan)">
+  SetMaxTime(TimeSpan)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L574"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the maximum time the server should spend on this query.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetMaxTime(TimeSpan maxTime)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>maxTime</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd><p>The max time.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetMin_" data-uid="MongoDB.Driver.MongoCursor.SetMin*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetMin_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCursor.SetMin(MongoDB.Bson.BsonDocument)">
+  SetMin(BsonDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L587"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the min value for the index key range of documents to return (note: the min value itself is included in the range).
+Often combined with SetHint (if SetHint is not used the server will attempt to determine the matching index automatically).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetMin(BsonDocument min)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>min</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The min value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetOption_" data-uid="MongoDB.Driver.MongoCursor.SetOption*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetOption_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.MongoCursor.SetOption(System.String,MongoDB.Bson.BsonValue)">
+  SetOption(string, BsonValue)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L600"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets a cursor option.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetOption(string name, BsonValue value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the option.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
+    <dd><p>The value of the option.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetOptions_" data-uid="MongoDB.Driver.MongoCursor.SetOptions*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetOptions_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCursor.SetOptions(MongoDB.Bson.BsonDocument)">
+  SetOptions(BsonDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L613"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets multiple cursor options. See also the individual Set{Option} methods, which are easier to use.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetOptions(BsonDocument options)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>options</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+    <dd><p>The options.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetReadPreference_" data-uid="MongoDB.Driver.MongoCursor.SetReadPreference*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetReadPreference_MongoDB_Driver_ReadPreference_" data-uid="MongoDB.Driver.MongoCursor.SetReadPreference(MongoDB.Driver.ReadPreference)">
+  SetReadPreference(ReadPreference)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L629"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the read preference.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetReadPreference(ReadPreference readPreference)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd><p>The read preference.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetSerializer_" data-uid="MongoDB.Driver.MongoCursor.SetSerializer*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetSerializer_MongoDB_Bson_Serialization_IBsonSerializer_" data-uid="MongoDB.Driver.MongoCursor.SetSerializer(MongoDB.Bson.Serialization.IBsonSerializer)">
+  SetSerializer(IBsonSerializer)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L641"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the serializer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetSerializer(IBsonSerializer serializer)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetShowDiskLoc_" data-uid="MongoDB.Driver.MongoCursor.SetShowDiskLoc*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetShowDiskLoc" data-uid="MongoDB.Driver.MongoCursor.SetShowDiskLoc">
+  SetShowDiskLoc()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L652"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the $showDiskLoc option.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetShowDiskLoc()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetSkip_" data-uid="MongoDB.Driver.MongoCursor.SetSkip*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetSkip_System_Int32_" data-uid="MongoDB.Driver.MongoCursor.SetSkip(System.Int32)">
+  SetSkip(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L664"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the number of documents the server should skip before returning the rest of the documents.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetSkip(int skip)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The number of documents to skip.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetSnapshot_" data-uid="MongoDB.Driver.MongoCursor.SetSnapshot*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetSnapshot" data-uid="MongoDB.Driver.MongoCursor.SetSnapshot">
+  SetSnapshot()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L676"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the $snapshot option.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Snapshot was deprecated in server version 3.7.4.&quot;)]
+public virtual MongoCursor SetSnapshot()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetSortOrder_" data-uid="MongoDB.Driver.MongoCursor.SetSortOrder*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetSortOrder_MongoDB_Driver_IMongoSortBy_" data-uid="MongoDB.Driver.MongoCursor.SetSortOrder(MongoDB.Driver.IMongoSortBy)">
+  SetSortOrder(IMongoSortBy)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L689"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the sort order for the server to sort the documents by before returning them.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetSortOrder(IMongoSortBy sortBy)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>sortBy</code> <a class="xref" href="MongoDB.Driver.IMongoSortBy.html">IMongoSortBy</a></dt>
+    <dd><p>The sort order.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_SetSortOrder_" data-uid="MongoDB.Driver.MongoCursor.SetSortOrder*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_SetSortOrder_System_String___" data-uid="MongoDB.Driver.MongoCursor.SetSortOrder(System.String[])">
+  SetSortOrder(params string[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L705"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the sort order for the server to sort the documents by before returning them.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual MongoCursor SetSortOrder(params string[] keys)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>keys</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
+    <dd><p>The names of the fields to sort by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+    <dd><p>The cursor (so you can chain method calls to it).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoCursor_Size_" data-uid="MongoDB.Driver.MongoCursor.Size*"></a>
+
+  <h3 id="MongoDB_Driver_MongoCursor_Size" data-uid="MongoDB.Driver.MongoCursor.Size">
+  Size()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoCursor.cs/#L715"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the size of the result set (honors Skip and Limit, unlike Count which does not).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual long Size()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The size of the result set.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

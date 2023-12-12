@@ -1,0 +1,770 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class InsertOpcodeOperation&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class InsertOpcodeOperation&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Core.Operations.InsertOpcodeOperation%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1">
+
+
+
+  <h1 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1" class="text-break">
+    Class InsertOpcodeOperation&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L33"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Core.html">Core</a>.<a class="xref" href="MongoDB.Driver.Core.Operations.html">Operations</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Core.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents an insert operation using the insert opcode.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class InsertOpcodeOperation&lt;TDocument&gt; : IWriteOperation&lt;IEnumerable&lt;WriteConcernResult&gt;&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the document.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">InsertOpcodeOperation&lt;TDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="MongoDB.Driver.Core.Operations.IWriteOperation-1.html">IWriteOperation</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.WriteConcernResult.html">WriteConcernResult</a>&gt;&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.ExecuteAsync&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.Execute&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1__ctor_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1__ctor_MongoDB_Driver_CollectionNamespace_MongoDB_Driver_Core_Misc_BatchableSource__0__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.#ctor(MongoDB.Driver.CollectionNamespace,MongoDB.Driver.Core.Misc.BatchableSource{`0},MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings)">
+  InsertOpcodeOperation(CollectionNamespace, BatchableSource&lt;TDocument&gt;, IBsonSerializer&lt;TDocument&gt;, MessageEncoderSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L75"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.InsertOpcodeOperation-1.html">InsertOpcodeOperation&lt;TDocument&gt;</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the constructor that takes an IEnumerable&lt;TDocument&gt; instead of a BatchableSource&lt;TDocument&gt;.&quot;)]
+public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource&lt;TDocument&gt; documentSource, IBsonSerializer&lt;TDocument&gt; serializer, MessageEncoderSettings messageEncoderSettings)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionNamespace</code> <a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
+    <dd><p>The collection namespace.</p>
+</dd>
+    <dt><code>documentSource</code> <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource</a>&lt;TDocument&gt;</dt>
+    <dd><p>The document source.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
+    <dd><p>The serializer.</p>
+</dd>
+    <dt><code>messageEncoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
+    <dd><p>The message encoder settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1__ctor_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1__ctor_MongoDB_Driver_CollectionNamespace_System_Collections_Generic_IEnumerable__0__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.#ctor(MongoDB.Driver.CollectionNamespace,System.Collections.Generic.IEnumerable{`0},MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings)">
+  InsertOpcodeOperation(CollectionNamespace, IEnumerable&lt;TDocument&gt;, IBsonSerializer&lt;TDocument&gt;, MessageEncoderSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L57"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.InsertOpcodeOperation-1.html">InsertOpcodeOperation&lt;TDocument&gt;</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public InsertOpcodeOperation(CollectionNamespace collectionNamespace, IEnumerable&lt;TDocument&gt; documents, IBsonSerializer&lt;TDocument&gt; serializer, MessageEncoderSettings messageEncoderSettings)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>collectionNamespace</code> <a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
+    <dd><p>The collection namespace.</p>
+</dd>
+    <dt><code>documents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;</dt>
+    <dd><p>The documents.</p>
+</dd>
+    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
+    <dd><p>The serializer.</p>
+</dd>
+    <dt><code>messageEncoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
+    <dd><p>The message encoder settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_BypassDocumentValidation_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.BypassDocumentValidation*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_BypassDocumentValidation" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.BypassDocumentValidation">
+  BypassDocumentValidation
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L94"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to bypass document validation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool? BypassDocumentValidation { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
+    <dd><p>A value indicating whether to bypass document validation.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_CollectionNamespace_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.CollectionNamespace*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_CollectionNamespace" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.CollectionNamespace">
+  CollectionNamespace
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L106"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the collection namespace.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public CollectionNamespace CollectionNamespace { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
+    <dd><p>The collection namespace.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_ContinueOnError_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.ContinueOnError*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_ContinueOnError" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.ContinueOnError">
+  ContinueOnError
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L117"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the server should continue on error.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ContinueOnError { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the server should continue on error; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_DocumentSource_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.DocumentSource*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_DocumentSource" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.DocumentSource">
+  DocumentSource
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L140"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the document source.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BatchableSource&lt;TDocument&gt; DocumentSource { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource</a>&lt;TDocument&gt;</dt>
+    <dd><p>The document source.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Documents_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Documents*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Documents" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Documents">
+  Documents
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L129"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the documents.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;TDocument&gt; Documents { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;TDocument&gt;</dt>
+    <dd><p>The documents.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxBatchCount_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxBatchCount*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxBatchCount" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxBatchCount">
+  MaxBatchCount
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L151"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the maximum number of documents in a batch.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int? MaxBatchCount { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
+    <dd><p>The maximum number of documents in a batch.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxDocumentSize_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxDocumentSize*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxDocumentSize" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxDocumentSize">
+  MaxDocumentSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L163"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the maximum size of a document.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int? MaxDocumentSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
+    <dd><p>The maximum size of a document.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxMessageSize_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxMessageSize*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MaxMessageSize" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MaxMessageSize">
+  MaxMessageSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L175"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the maximum size of a message.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int? MaxMessageSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
+    <dd><p>The maximum size of a message.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MessageEncoderSettings*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_MessageEncoderSettings" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.MessageEncoderSettings">
+  MessageEncoderSettings
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L187"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the message encoder settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MessageEncoderSettings MessageEncoderSettings { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
+    <dd><p>The message encoder settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_RetryRequested_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.RetryRequested*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_RetryRequested" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.RetryRequested">
+  RetryRequested
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L196"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether retry is enabled for the operation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool RetryRequested { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>A value indicating whether retry is enabled.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Serializer_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Serializer*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Serializer" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Serializer">
+  Serializer
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L208"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the serializer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IBsonSerializer&lt;TDocument&gt; Serializer { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
+    <dd><p>The serializer.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_WriteConcern_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.WriteConcern*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_WriteConcern" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.WriteConcern">
+  WriteConcern
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L219"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the write concern.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public WriteConcern WriteConcern { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
+    <dd><p>The write concern.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Execute_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Execute*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_Execute_MongoDB_Driver_Core_Bindings_IWriteBinding_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.Execute(MongoDB.Driver.Core.Bindings.IWriteBinding,System.Threading.CancellationToken)">
+  Execute(IWriteBinding, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L227"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Executes the operation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;WriteConcernResult&gt; Execute(IWriteBinding binding, CancellationToken cancellationToken)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>binding</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IWriteBinding.html">IWriteBinding</a></dt>
+    <dd><p>The binding.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.WriteConcernResult.html">WriteConcernResult</a>&gt;</dt>
+    <dd><p>The result of the operation.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_ExecuteAsync_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.ExecuteAsync*"></a>
+
+  <h3 id="MongoDB_Driver_Core_Operations_InsertOpcodeOperation_1_ExecuteAsync_MongoDB_Driver_Core_Bindings_IWriteBinding_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.InsertOpcodeOperation`1.ExecuteAsync(MongoDB.Driver.Core.Bindings.IWriteBinding,System.Threading.CancellationToken)">
+  ExecuteAsync(IWriteBinding, CancellationToken)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/InsertOpcodeOperation.cs/#L241"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Executes the operation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task&lt;IEnumerable&lt;WriteConcernResult&gt;&gt; ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>binding</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IWriteBinding.html">IWriteBinding</a></dt>
+    <dd><p>The binding.</p>
+</dd>
+    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
+    <dd><p>The cancellation token.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.WriteConcernResult.html">WriteConcernResult</a>&gt;&gt;</dt>
+    <dd><p>A Task whose result is the result of the operation.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

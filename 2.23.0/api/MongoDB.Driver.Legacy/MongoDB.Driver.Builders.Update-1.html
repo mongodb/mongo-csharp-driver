@@ -1,0 +1,1733 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class Update&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class Update&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_Builders_Update_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Builders.Update%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Builders.Update`1">
+
+
+
+  <h1 id="MongoDB_Driver_Builders_Update_1" data-uid="MongoDB.Driver.Builders.Update`1" class="text-break">
+    Class Update&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1794"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Builders.html">Builders</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A builder for creating update modifiers.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class Update&lt;TDocument&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The document type.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">Update&lt;TDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_AddToSetEach_" data-uid="MongoDB.Driver.Builders.Update`1.AddToSetEach*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_AddToSetEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.AddToSetEach``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
+  AddToSetEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1820"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; AddToSetEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to add to the set.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_AddToSet_" data-uid="MongoDB.Driver.Builders.Update`1.AddToSet*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_AddToSet__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.Update`1.AddToSet``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
+  AddToSet&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1806"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a value to a named array element if the value is not already in the array (see $addToSet).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; AddToSet&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TValue</span></dt>
+    <dd><p>The value to add to the set.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseAnd_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseAnd*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseAnd_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseAnd(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int32)">
+  BitwiseAnd(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1833"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseAnd(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value to be and-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseAnd_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseAnd*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseAnd_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseAnd(System.Linq.Expressions.Expression{System.Func{`0,System.Int64}},System.Int64)">
+  BitwiseAnd(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1846"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseAnd(Expression&lt;Func&lt;TDocument, long&gt;&gt; memberExpression, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value to be and-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseOr_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseOr*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseOr_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseOr(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int32)">
+  BitwiseOr(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1859"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseOr(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value to be or-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseOr_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseOr*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseOr_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseOr(System.Linq.Expressions.Expression{System.Func{`0,System.Int64}},System.Int64)">
+  BitwiseOr(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1872"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseOr(Expression&lt;Func&lt;TDocument, long&gt;&gt; memberExpression, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value to be or-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseXor_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseXor*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseXor_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseXor(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int32)">
+  BitwiseXor(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1885"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseXor(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value to be xor-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_BitwiseXor_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseXor*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_BitwiseXor_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_" data-uid="MongoDB.Driver.Builders.Update`1.BitwiseXor(System.Linq.Expressions.Expression{System.Func{`0,System.Int64}},System.Int64)">
+  BitwiseXor(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1898"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; BitwiseXor(Expression&lt;Func&lt;TDocument, long&gt;&gt; memberExpression, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value to be xor-ed with the current value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Combine_" data-uid="MongoDB.Driver.Builders.Update`1.Combine*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Combine_MongoDB_Driver_IMongoUpdate___" data-uid="MongoDB.Driver.Builders.Update`1.Combine(MongoDB.Driver.IMongoUpdate[])">
+  Combine(params IMongoUpdate[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1928"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Combine(params IMongoUpdate[] updates)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>updates</code> <a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a>[]</dt>
+    <dd><p>The updates to combine.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>A combined UpdateBuilder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Combine_" data-uid="MongoDB.Driver.Builders.Update`1.Combine*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Combine_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoUpdate__" data-uid="MongoDB.Driver.Builders.Update`1.Combine(System.Collections.Generic.IEnumerable{MongoDB.Driver.IMongoUpdate})">
+  Combine(IEnumerable&lt;IMongoUpdate&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1910"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Combine(IEnumerable&lt;IMongoUpdate&gt; updates)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>updates</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a>&gt;</dt>
+    <dd><p>The UpdateBuilders to combine.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>A combined UpdateBuilder.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_CurrentDate_" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_MongoDB_Bson_BsonDateTime___" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate(System.Linq.Expressions.Expression{System.Func{`0,MongoDB.Bson.BsonDateTime}})">
+  CurrentDate(Expression&lt;Func&lt;TDocument, BsonDateTime&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1952"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; CurrentDate(Expression&lt;Func&lt;TDocument, BsonDateTime&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDateTime.html">BsonDateTime</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_CurrentDate_" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_MongoDB_Bson_BsonTimestamp___" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate(System.Linq.Expressions.Expression{System.Func{`0,MongoDB.Bson.BsonTimestamp}})">
+  CurrentDate(Expression&lt;Func&lt;TDocument, BsonTimestamp&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1964"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; CurrentDate(Expression&lt;Func&lt;TDocument, BsonTimestamp&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonTimestamp.html">BsonTimestamp</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_CurrentDate_" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_System_DateTime___" data-uid="MongoDB.Driver.Builders.Update`1.CurrentDate(System.Linq.Expressions.Expression{System.Func{`0,System.DateTime}})">
+  CurrentDate(Expression&lt;Func&lt;TDocument, DateTime&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1940"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; CurrentDate(Expression&lt;Func&lt;TDocument, DateTime&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Inc_" data-uid="MongoDB.Driver.Builders.Update`1.Inc*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_" data-uid="MongoDB.Driver.Builders.Update`1.Inc(System.Linq.Expressions.Expression{System.Func{`0,System.Double}},System.Double)">
+  Inc(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1977"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Inc(Expression&lt;Func&lt;TDocument, double&gt;&gt; memberExpression, double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The value to increment by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Inc_" data-uid="MongoDB.Driver.Builders.Update`1.Inc*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_" data-uid="MongoDB.Driver.Builders.Update`1.Inc(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int32)">
+  Inc(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L1990"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Inc(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value to increment by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Inc_" data-uid="MongoDB.Driver.Builders.Update`1.Inc*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_" data-uid="MongoDB.Driver.Builders.Update`1.Inc(System.Linq.Expressions.Expression{System.Func{`0,System.Int64}},System.Int64)">
+  Inc(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2003"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Inc(Expression&lt;Func&lt;TDocument, long&gt;&gt; memberExpression, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value to increment by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Max_" data-uid="MongoDB.Driver.Builders.Update`1.Max*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Max__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.Update`1.Max``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+  Max&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2017"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Updates the named element if and only if the provided value is greater than its current value (see $max).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Max&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TMember</span></dt>
+    <dd><p>The value to use.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TMember</code></dt>
+    <dd><p>The type of the member.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Min_" data-uid="MongoDB.Driver.Builders.Update`1.Min*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Min__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.Update`1.Min``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+  Min&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2031"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Updates the named element if and only if the provided value is less than its current value (see $max).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Min&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TMember</span></dt>
+    <dd><p>The value to use.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TMember</code></dt>
+    <dd><p>The type of the member.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Mul_" data-uid="MongoDB.Driver.Builders.Update`1.Mul*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_" data-uid="MongoDB.Driver.Builders.Update`1.Mul(System.Linq.Expressions.Expression{System.Func{`0,System.Double}},System.Double)">
+  Mul(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2044"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Mul(Expression&lt;Func&lt;TDocument, double&gt;&gt; memberExpression, double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The value to multiply by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Mul_" data-uid="MongoDB.Driver.Builders.Update`1.Mul*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_" data-uid="MongoDB.Driver.Builders.Update`1.Mul(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int32)">
+  Mul(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2057"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Mul(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value to multiply by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Mul_" data-uid="MongoDB.Driver.Builders.Update`1.Mul*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_" data-uid="MongoDB.Driver.Builders.Update`1.Mul(System.Linq.Expressions.Expression{System.Func{`0,System.Int64}},System.Int64)">
+  Mul(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2070"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Mul(Expression&lt;Func&lt;TDocument, long&gt;&gt; memberExpression, long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value to multiply by.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PopFirst_" data-uid="MongoDB.Driver.Builders.Update`1.PopFirst*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PopFirst__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____" data-uid="MongoDB.Driver.Builders.Update`1.PopFirst``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}})">
+  PopFirst&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2083"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes the first value from the named array element (see $pop).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PopFirst&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PopLast_" data-uid="MongoDB.Driver.Builders.Update`1.PopLast*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PopLast__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____" data-uid="MongoDB.Driver.Builders.Update`1.PopLast``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}})">
+  PopLast&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2096"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes the last value from the named array element (see $pop).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PopLast&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PullAll_" data-uid="MongoDB.Driver.Builders.Update`1.PullAll*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PullAll__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.PullAll``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
+  PullAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2138"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PullAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to remove.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Pull_" data-uid="MongoDB.Driver.Builders.Update`1.Pull*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Pull__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Func_MongoDB_Driver_Builders_QueryBuilder___0__MongoDB_Driver_IMongoQuery__" data-uid="MongoDB.Driver.Builders.Update`1.Pull``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Func{MongoDB.Driver.Builders.QueryBuilder{``0},MongoDB.Driver.IMongoQuery})">
+  Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2124"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes all values from the named array element that match some query (see $pull).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt; elementQueryBuilderFunction)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>elementQueryBuilderFunction</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.html">QueryBuilder</a>&lt;TValue&gt;, <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>&gt;</dt>
+    <dd><p>A function that builds a query using the supplied query builder.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Pull_" data-uid="MongoDB.Driver.Builders.Update`1.Pull*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Pull__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.Update`1.Pull``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
+  Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2110"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to some value (see $pull).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TValue</span></dt>
+    <dd><p>The value to remove.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PushAll_" data-uid="MongoDB.Driver.Builders.Update`1.PushAll*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PushAll__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.PushAll``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
+  PushAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2166"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PushAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to add to the end of the array.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PushEach_" data-uid="MongoDB.Driver.Builders.Update`1.PushEach*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.PushEach``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},MongoDB.Driver.Builders.PushEachOptions,System.Collections.Generic.IEnumerable{``0})">
+  PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, PushEachOptions, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2191"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, PushEachOptions options, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to add to the end of the array.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PushEach_" data-uid="MongoDB.Driver.Builders.Update`1.PushEach*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Action_MongoDB_Driver_Builders_PushEachOptionsBuilder___0___System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.PushEach``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Action{MongoDB.Driver.Builders.PushEachOptionsBuilder{``0}},System.Collections.Generic.IEnumerable{``0})">
+  PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Action&lt;PushEachOptionsBuilder&lt;TValue&gt;&gt;, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2204"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, Action&lt;PushEachOptionsBuilder&lt;TValue&gt;&gt; options, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>options</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;<a class="xref" href="MongoDB.Driver.Builders.PushEachOptionsBuilder-1.html">PushEachOptionsBuilder</a>&lt;TValue&gt;&gt;</dt>
+    <dd><p>The options.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to add to the end of the array.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_PushEach_" data-uid="MongoDB.Driver.Builders.Update`1.PushEach*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update`1.PushEach``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
+  PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2178"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
+    <dd><p>The values to add to the end of the array.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Push_" data-uid="MongoDB.Driver.Builders.Update`1.Push*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Push__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.Update`1.Push``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
+  Push&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2152"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Adds a value to the end of the named array element (see $push).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Push&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TValue</span></dt>
+    <dd><p>The value to add to the end of the array.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TValue</code></dt>
+    <dd><p>The type of the enumerable member values.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Replace_" data-uid="MongoDB.Driver.Builders.Update`1.Replace*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Replace__0_" data-uid="MongoDB.Driver.Builders.Update`1.Replace(`0)">
+  Replace(TDocument)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2214"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Replaces the entire document with a new document (the _id must remain the same).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IMongoUpdate Replace(TDocument document)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>document</code> <span class="xref">TDocument</span></dt>
+    <dd><p>The replacement document.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a></dt>
+    <dd><p>An UpdateWrapper.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_SetOnInsert_" data-uid="MongoDB.Driver.Builders.Update`1.SetOnInsert*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_SetOnInsert__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.Update`1.SetOnInsert``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+  SetOnInsert&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2245"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the value of the named element to the specified value only when an insert occurs
+as part of an upsert operation (see $setOnInsert).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; SetOnInsert&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TMember</span></dt>
+    <dd><p>The new value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TMember</code></dt>
+    <dd><p>The type of the member.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Set_" data-uid="MongoDB.Driver.Builders.Update`1.Set*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Set__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.Update`1.Set``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+  Set&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2230"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Sets the value of the named element to a new value (see $set).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Set&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+    <dt><code>value</code> <span class="xref">TMember</span></dt>
+    <dd><p>The new value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TMember</code></dt>
+    <dd><p>The type of the member.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_Builders_Update_1_Unset_" data-uid="MongoDB.Driver.Builders.Update`1.Unset*"></a>
+
+  <h3 id="MongoDB_Driver_Builders_Update_1_Unset__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.Update`1.Unset``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+  Unset&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2258"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Removes the named element from the document (see $unset).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static UpdateBuilder&lt;TDocument&gt; Unset&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
+    <dd><p>The member expression.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.html">UpdateBuilder</a>&lt;TDocument&gt;</dt>
+    <dd><p>The builder (so method calls can be chained).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TMember</code></dt>
+    <dd><p>The type of the member.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1626 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class BsonObjectId
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class BsonObjectId
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Bson_BsonObjectId.md&amp;value=---%0Auid%3A%20MongoDB.Bson.BsonObjectId%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.BsonObjectId">
+
+
+
+  <h1 id="MongoDB_Bson_BsonObjectId" data-uid="MongoDB.Bson.BsonObjectId" class="text-break">
+    Class BsonObjectId
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L24"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a BSON ObjectId value (see also ObjectId).</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Serializable]
+public class BsonObjectId : BsonValue, IComparable&lt;BsonValue&gt;, IConvertible, IEquatable&lt;BsonValue&gt;, IComparable&lt;BsonObjectId&gt;, IEquatable&lt;BsonObjectId&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></div>
+      <div><span class="xref">BsonObjectId</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iconvertible">IConvertible</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a>&gt;</div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBoolean">BsonValue.AsBoolean</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonArray">BsonValue.AsBsonArray</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonBinaryData">BsonValue.AsBsonBinaryData</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonDateTime">BsonValue.AsBsonDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonDocument">BsonValue.AsBsonDocument</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonJavaScript">BsonValue.AsBsonJavaScript</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonJavaScriptWithScope">BsonValue.AsBsonJavaScriptWithScope</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonMaxKey">BsonValue.AsBsonMaxKey</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonMinKey">BsonValue.AsBsonMinKey</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonNull">BsonValue.AsBsonNull</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonRegularExpression">BsonValue.AsBsonRegularExpression</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonSymbol">BsonValue.AsBsonSymbol</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonTimestamp">BsonValue.AsBsonTimestamp</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonUndefined">BsonValue.AsBsonUndefined</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsBsonValue">BsonValue.AsBsonValue</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsByteArray">BsonValue.AsByteArray</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsDateTime">BsonValue.AsDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsDecimal">BsonValue.AsDecimal</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsDecimal128">BsonValue.AsDecimal128</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsDouble">BsonValue.AsDouble</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsGuid">BsonValue.AsGuid</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsInt32">BsonValue.AsInt32</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsLocalTime">BsonValue.AsLocalTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsInt64">BsonValue.AsInt64</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableBoolean">BsonValue.AsNullableBoolean</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableDateTime">BsonValue.AsNullableDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableDecimal">BsonValue.AsNullableDecimal</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableDecimal128">BsonValue.AsNullableDecimal128</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableDouble">BsonValue.AsNullableDouble</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableGuid">BsonValue.AsNullableGuid</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableInt32">BsonValue.AsNullableInt32</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableInt64">BsonValue.AsNullableInt64</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsNullableObjectId">BsonValue.AsNullableObjectId</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsObjectId">BsonValue.AsObjectId</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsRegex">BsonValue.AsRegex</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsString">BsonValue.AsString</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_AsUniversalTime">BsonValue.AsUniversalTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBoolean">BsonValue.IsBoolean</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonArray">BsonValue.IsBsonArray</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonBinaryData">BsonValue.IsBsonBinaryData</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonDateTime">BsonValue.IsBsonDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonDocument">BsonValue.IsBsonDocument</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonJavaScript">BsonValue.IsBsonJavaScript</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonJavaScriptWithScope">BsonValue.IsBsonJavaScriptWithScope</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonMaxKey">BsonValue.IsBsonMaxKey</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonMinKey">BsonValue.IsBsonMinKey</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonNull">BsonValue.IsBsonNull</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonRegularExpression">BsonValue.IsBsonRegularExpression</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonSymbol">BsonValue.IsBsonSymbol</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonTimestamp">BsonValue.IsBsonTimestamp</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsBsonUndefined">BsonValue.IsBsonUndefined</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsDateTime">BsonValue.IsDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsDecimal128">BsonValue.IsDecimal128</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsDouble">BsonValue.IsDouble</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsGuid">BsonValue.IsGuid</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsInt32">BsonValue.IsInt32</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsInt64">BsonValue.IsInt64</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsNumeric">BsonValue.IsNumeric</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsObjectId">BsonValue.IsObjectId</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsString">BsonValue.IsString</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IsValidDateTime">BsonValue.IsValidDateTime</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_Item_System_Int32_">BsonValue.this[int]</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_Item_System_String_">BsonValue.this[string]</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_Clone">BsonValue.Clone()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_CompareTypeTo_MongoDB_Bson_BsonValue_">BsonValue.CompareTypeTo(BsonValue)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_DeepClone">BsonValue.DeepClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_Equals_MongoDB_Bson_BsonValue_">BsonValue.Equals(BsonValue)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToBoolean">BsonValue.ToBoolean()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToDecimal">BsonValue.ToDecimal()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToDecimal128">BsonValue.ToDecimal128()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToDouble">BsonValue.ToDouble()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToInt32">BsonValue.ToInt32()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToInt64">BsonValue.ToInt64()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToLocalTime">BsonValue.ToLocalTime()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToNullableLocalTime">BsonValue.ToNullableLocalTime()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToNullableUniversalTime">BsonValue.ToNullableUniversalTime()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_ToUniversalTime">BsonValue.ToUniversalTime()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleGetTypeCodeImplementation">BsonValue.IConvertibleGetTypeCodeImplementation()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToBooleanImplementation_System_IFormatProvider_">BsonValue.IConvertibleToBooleanImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToByteImplementation_System_IFormatProvider_">BsonValue.IConvertibleToByteImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToCharImplementation_System_IFormatProvider_">BsonValue.IConvertibleToCharImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToDateTimeImplementation_System_IFormatProvider_">BsonValue.IConvertibleToDateTimeImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToDecimalImplementation_System_IFormatProvider_">BsonValue.IConvertibleToDecimalImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToDoubleImplementation_System_IFormatProvider_">BsonValue.IConvertibleToDoubleImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToInt16Implementation_System_IFormatProvider_">BsonValue.IConvertibleToInt16Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToInt32Implementation_System_IFormatProvider_">BsonValue.IConvertibleToInt32Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToInt64Implementation_System_IFormatProvider_">BsonValue.IConvertibleToInt64Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToSByteImplementation_System_IFormatProvider_">BsonValue.IConvertibleToSByteImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToSingleImplementation_System_IFormatProvider_">BsonValue.IConvertibleToSingleImplementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToUInt16Implementation_System_IFormatProvider_">BsonValue.IConvertibleToUInt16Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToUInt32Implementation_System_IFormatProvider_">BsonValue.IConvertibleToUInt32Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_IConvertibleToUInt64Implementation_System_IFormatProvider_">BsonValue.IConvertibleToUInt64Implementation(IFormatProvider)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.BsonValue.html#MongoDB_Bson_BsonValue_OperatorEqualsImplementation_MongoDB_Bson_BsonValue_">BsonValue.OperatorEqualsImplementation(BsonValue)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Bson_BsonObjectId__ctor_" data-uid="MongoDB.Bson.BsonObjectId.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId__ctor_MongoDB_Bson_ObjectId_" data-uid="MongoDB.Bson.BsonObjectId.#ctor(MongoDB.Bson.ObjectId)">
+  BsonObjectId(ObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L38"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the BsonObjectId class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BsonObjectId(ObjectId value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId__ctor_" data-uid="MongoDB.Bson.BsonObjectId.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId__ctor_System_Byte___" data-uid="MongoDB.Bson.BsonObjectId.#ctor(System.Byte[])">
+  BsonObjectId(byte[])
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L47"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the BsonObjectId class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(ObjectId value) instead.&quot;)]
+public BsonObjectId(byte[] bytes)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>bytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
+    <dd><p>The bytes.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId__ctor_" data-uid="MongoDB.Bson.BsonObjectId.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId__ctor_System_DateTime_System_Int32_System_Int16_System_Int32_" data-uid="MongoDB.Bson.BsonObjectId.#ctor(System.DateTime,System.Int32,System.Int16,System.Int32)">
+  BsonObjectId(DateTime, int, short, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L60"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the BsonObjectId class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(new ObjectId(DateTime timestamp, int machine, short pid, int increment)) instead.&quot;)]
+public BsonObjectId(DateTime timestamp, int machine, short pid, int increment)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>timestamp</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+    <dd><p>The timestamp (expressed as a DateTime).</p>
+</dd>
+    <dt><code>machine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The machine hash.</p>
+</dd>
+    <dt><code>pid</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The PID.</p>
+</dd>
+    <dt><code>increment</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The increment.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId__ctor_" data-uid="MongoDB.Bson.BsonObjectId.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId__ctor_System_Int32_System_Int32_System_Int16_System_Int32_" data-uid="MongoDB.Bson.BsonObjectId.#ctor(System.Int32,System.Int32,System.Int16,System.Int32)">
+  BsonObjectId(int, int, short, int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L73"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the BsonObjectId class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(new ObjectId(int timestamp, int machine, short pid, int increment)) instead.&quot;)]
+public BsonObjectId(int timestamp, int machine, short pid, int increment)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>timestamp</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The timestamp.</p>
+</dd>
+    <dt><code>machine</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The machine hash.</p>
+</dd>
+    <dt><code>pid</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The PID.</p>
+</dd>
+    <dt><code>increment</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The increment.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId__ctor_" data-uid="MongoDB.Bson.BsonObjectId.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId__ctor_System_String_" data-uid="MongoDB.Bson.BsonObjectId.#ctor(System.String)">
+  BsonObjectId(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L83"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the BsonObjectId class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(new ObjectId(string value)) instead.&quot;)]
+public BsonObjectId(string value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Bson_BsonObjectId_BsonType_" data-uid="MongoDB.Bson.BsonObjectId.BsonType*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_BsonType" data-uid="MongoDB.Bson.BsonObjectId.BsonType">
+  BsonType
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L102"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the BsonType of this BsonValue.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BsonType BsonType { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonType.html">BsonType</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_CreationTime_" data-uid="MongoDB.Bson.BsonObjectId.CreationTime*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_CreationTime" data-uid="MongoDB.Bson.BsonObjectId.CreationTime">
+  CreationTime
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L146"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the creation time (derived from the timestamp).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Value.CreationTime instead.&quot;)]
+public DateTime CreationTime { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Empty_" data-uid="MongoDB.Bson.BsonObjectId.Empty*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Empty" data-uid="MongoDB.Bson.BsonObjectId.Empty">
+  Empty
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L93"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets an instance of BsonObjectId where the value is empty.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static BsonObjectId Empty { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Increment_" data-uid="MongoDB.Bson.BsonObjectId.Increment*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Increment" data-uid="MongoDB.Bson.BsonObjectId.Increment">
+  Increment
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L137"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the increment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Value.Increment instead.&quot;)]
+public int Increment { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Machine_" data-uid="MongoDB.Bson.BsonObjectId.Machine*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Machine" data-uid="MongoDB.Bson.BsonObjectId.Machine">
+  Machine
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L119"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the machine.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
+public int Machine { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Pid_" data-uid="MongoDB.Bson.BsonObjectId.Pid*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Pid" data-uid="MongoDB.Bson.BsonObjectId.Pid">
+  Pid
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L128"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the PID.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
+public short Pid { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_RawValue_" data-uid="MongoDB.Bson.BsonObjectId.RawValue*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_RawValue" data-uid="MongoDB.Bson.BsonObjectId.RawValue">
+  RawValue
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L155"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the BsonObjectId as an ObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Value instead.&quot;)]
+public override object RawValue { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Timestamp_" data-uid="MongoDB.Bson.BsonObjectId.Timestamp*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Timestamp" data-uid="MongoDB.Bson.BsonObjectId.Timestamp">
+  Timestamp
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L110"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the timestamp.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Value.Timestamp instead.&quot;)]
+public int Timestamp { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Value_" data-uid="MongoDB.Bson.BsonObjectId.Value*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Value" data-uid="MongoDB.Bson.BsonObjectId.Value">
+  Value
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L164"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the value of this BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ObjectId Value { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Bson_BsonObjectId_CompareTo_" data-uid="MongoDB.Bson.BsonObjectId.CompareTo*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_CompareTo_MongoDB_Bson_BsonObjectId_" data-uid="MongoDB.Bson.BsonObjectId.CompareTo(MongoDB.Bson.BsonObjectId)">
+  CompareTo(BsonObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L291"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares this BsonObjectId to another BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CompareTo(BsonObjectId other)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>other</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The other BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>A 32-bit signed integer that indicates whether this BsonObjectId is less than, equal to, or greather than the other.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_CompareTo_" data-uid="MongoDB.Bson.BsonObjectId.CompareTo*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_CompareTo_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Bson.BsonObjectId.CompareTo(MongoDB.Bson.BsonValue)">
+  CompareTo(BsonValue)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L302"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares the BsonObjectId to another BsonValue.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int CompareTo(BsonValue other)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>other</code> <a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
+    <dd><p>The other BsonValue.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>A 32-bit signed integer that indicates whether this BsonObjectId is less than, equal to, or greather than the other BsonValue.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Create_" data-uid="MongoDB.Bson.BsonObjectId.Create*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Create_System_Object_" data-uid="MongoDB.Bson.BsonObjectId.Create(System.Object)">
+  Create(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L209"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static BsonObjectId Create(object value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd><p>An object to be mapped to a BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId or null.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Equals_" data-uid="MongoDB.Bson.BsonObjectId.Equals*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Equals_MongoDB_Bson_BsonObjectId_" data-uid="MongoDB.Bson.BsonObjectId.Equals(MongoDB.Bson.BsonObjectId)">
+  Equals(BsonObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L318"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares this BsonObjectId to another BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(BsonObjectId rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The other BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the two BsonObjectId values are equal.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Equals_" data-uid="MongoDB.Bson.BsonObjectId.Equals*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Equals_System_Object_" data-uid="MongoDB.Bson.BsonObjectId.Equals(System.Object)">
+  Equals(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L329"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares this BsonObjectId to another object.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd><p>The other object.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the other object is a BsonObjectId and equal to this one.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_GenerateNewId_" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_GenerateNewId" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId">
+  GenerateNewId()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L223"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Generates a new BsonObjectId with a unique value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(ObjectId.GenerateNewId()) instead.&quot;)]
+public static BsonObjectId GenerateNewId()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_GenerateNewId_" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_GenerateNewId_System_DateTime_" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId(System.DateTime)">
+  GenerateNewId(DateTime)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L234"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Generates a new BsonObjectId with a unique value (with the timestamp component based on a given DateTime).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(ObjectId.GenerateNewId(DateTime timestamp)) instead.&quot;)]
+public static BsonObjectId GenerateNewId(DateTime timestamp)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>timestamp</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+    <dd><p>The timestamp component (expressed as a DateTime).</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_GenerateNewId_" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_GenerateNewId_System_Int32_" data-uid="MongoDB.Bson.BsonObjectId.GenerateNewId(System.Int32)">
+  GenerateNewId(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L245"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Generates a new BsonObjectId with a unique value (with the given timestamp).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(ObjectId.GenerateNewId(int timestamp)) instead.&quot;)]
+public static BsonObjectId GenerateNewId(int timestamp)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>timestamp</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The timestamp component.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_GetHashCode_" data-uid="MongoDB.Bson.BsonObjectId.GetHashCode*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_GetHashCode" data-uid="MongoDB.Bson.BsonObjectId.GetHashCode">
+  GetHashCode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L338"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the hash code.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The hash code.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_IConvertibleToStringImplementation_" data-uid="MongoDB.Bson.BsonObjectId.IConvertibleToStringImplementation*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_IConvertibleToStringImplementation_System_IFormatProvider_" data-uid="MongoDB.Bson.BsonObjectId.IConvertibleToStringImplementation(System.IFormatProvider)">
+  IConvertibleToStringImplementation(IFormatProvider)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L367"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Implementation of the IConvertible ToString method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override string IConvertibleToStringImplementation(IFormatProvider provider)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>provider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iformatprovider">IFormatProvider</a></dt>
+    <dd><p>The format provider.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_Parse_" data-uid="MongoDB.Bson.BsonObjectId.Parse*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_Parse_System_String_" data-uid="MongoDB.Bson.BsonObjectId.Parse(System.String)">
+  Parse(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L256"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Parses a string and creates a new BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use new BsonObjectId(ObjectId.Parse(string s)) instead.&quot;)]
+public static BsonObjectId Parse(string s)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The string value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_ToByteArray_" data-uid="MongoDB.Bson.BsonObjectId.ToByteArray*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_ToByteArray" data-uid="MongoDB.Bson.BsonObjectId.ToByteArray">
+  ToByteArray()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L350"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the BsonObjectId to a byte array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Value.ToByteArray() instead.&quot;)]
+public byte[] ToByteArray()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
+    <dd><p>A byte array.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_ToString_" data-uid="MongoDB.Bson.BsonObjectId.ToString*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_ToString" data-uid="MongoDB.Bson.BsonObjectId.ToString">
+  ToString()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L360"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a string representation of the value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string representation of the value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_TryParse_" data-uid="MongoDB.Bson.BsonObjectId.TryParse*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_TryParse_System_String_MongoDB_Bson_BsonObjectId__" data-uid="MongoDB.Bson.BsonObjectId.TryParse(System.String,MongoDB.Bson.BsonObjectId@)">
+  TryParse(string, out BsonObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L268"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Tries to parse a string and create a new BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use ObjectId.TryParse instead.&quot;)]
+public static bool TryParse(string s, out BsonObjectId value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The string value.</p>
+</dd>
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The new BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the string was parsed successfully.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+
+  <a id="MongoDB_Bson_BsonObjectId_op_Equality_" data-uid="MongoDB.Bson.BsonObjectId.op_Equality*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_op_Equality_MongoDB_Bson_BsonObjectId_MongoDB_Bson_BsonObjectId_" data-uid="MongoDB.Bson.BsonObjectId.op_Equality(MongoDB.Bson.BsonObjectId,MongoDB.Bson.BsonObjectId)">
+  operator ==(BsonObjectId, BsonObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L197"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares two BsonObjectId values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(BsonObjectId lhs, BsonObjectId rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The first BsonObjectId.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The other BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the two BsonObjectId values are equal according to ==.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_op_Implicit_" data-uid="MongoDB.Bson.BsonObjectId.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_op_Implicit_MongoDB_Bson_ObjectId__MongoDB_Bson_BsonObjectId" data-uid="MongoDB.Bson.BsonObjectId.op_Implicit(MongoDB.Bson.ObjectId)~MongoDB.Bson.BsonObjectId">
+  implicit operator BsonObjectId(ObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L175"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts an ObjectId to a BsonObjectId.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator BsonObjectId(ObjectId value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
+    <dd><p>An ObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>A BsonObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_BsonObjectId_op_Inequality_" data-uid="MongoDB.Bson.BsonObjectId.op_Inequality*"></a>
+
+  <h3 id="MongoDB_Bson_BsonObjectId_op_Inequality_MongoDB_Bson_BsonObjectId_MongoDB_Bson_BsonObjectId_" data-uid="MongoDB.Bson.BsonObjectId.op_Inequality(MongoDB.Bson.BsonObjectId,MongoDB.Bson.BsonObjectId)">
+  operator !=(BsonObjectId, BsonObjectId)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonObjectId.cs/#L186"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares two BsonObjectId values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(BsonObjectId lhs, BsonObjectId rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The first BsonObjectId.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></dt>
+    <dd><p>The other BsonObjectId.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the two BsonObjectId values are not equal according to ==.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

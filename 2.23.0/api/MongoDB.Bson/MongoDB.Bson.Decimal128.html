@@ -1,0 +1,3244 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Struct Decimal128
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Struct Decimal128
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Bson_Decimal128.md&amp;value=---%0Auid%3A%20MongoDB.Bson.Decimal128%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Decimal128">
+
+
+
+  <h1 id="MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128" class="text-break">
+    Struct Decimal128
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L27"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a Decimal128 value.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Serializable]
+public struct Decimal128 : IConvertible, IComparable&lt;Decimal128&gt;, IEquatable&lt;Decimal128&gt;</code></pre>
+  </div>
+
+
+
+
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iconvertible">IConvertible</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>&gt;</div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_Decimal_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.Decimal)">
+  Decimal128(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1405"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_Double_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.Double)">
+  Decimal128(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1422"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_Int32_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.Int32)">
+  Decimal128(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1449"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_Int64_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.Int64)">
+  Decimal128(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1467"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_Single_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.Single)">
+  Decimal128(float)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1436"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Decimal128(float value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_UInt32_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.UInt32)">
+  Decimal128(uint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1485"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public Decimal128(uint value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128__ctor_" data-uid="MongoDB.Bson.Decimal128.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128__ctor_System_UInt64_" data-uid="MongoDB.Bson.Decimal128.#ctor(System.UInt64)">
+  Decimal128(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1496"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> struct.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public Decimal128(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Bson_Decimal128_MaxValue_" data-uid="MongoDB.Bson.Decimal128.MaxValue*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_MaxValue" data-uid="MongoDB.Bson.Decimal128.MaxValue">
+  MaxValue
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L48"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the maximum value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 MaxValue { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_MinValue_" data-uid="MongoDB.Bson.Decimal128.MinValue*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_MinValue" data-uid="MongoDB.Bson.Decimal128.MinValue">
+  MinValue
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L54"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the minimum value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 MinValue { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_NegativeInfinity_" data-uid="MongoDB.Bson.Decimal128.NegativeInfinity*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_NegativeInfinity" data-uid="MongoDB.Bson.Decimal128.NegativeInfinity">
+  NegativeInfinity
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L60"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents negative infinity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 NegativeInfinity { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_One_" data-uid="MongoDB.Bson.Decimal128.One*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_One" data-uid="MongoDB.Bson.Decimal128.One">
+  One
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L66"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents one.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 One { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_PositiveInfinity_" data-uid="MongoDB.Bson.Decimal128.PositiveInfinity*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_PositiveInfinity" data-uid="MongoDB.Bson.Decimal128.PositiveInfinity">
+  PositiveInfinity
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L72"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents positive infinity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 PositiveInfinity { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_QNaN_" data-uid="MongoDB.Bson.Decimal128.QNaN*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_QNaN" data-uid="MongoDB.Bson.Decimal128.QNaN">
+  QNaN
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L78"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents a value that is not a number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 QNaN { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_SNaN_" data-uid="MongoDB.Bson.Decimal128.SNaN*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_SNaN" data-uid="MongoDB.Bson.Decimal128.SNaN">
+  SNaN
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L84"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents a value that is not a number and raises errors when used in calculations.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 SNaN { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Zero_" data-uid="MongoDB.Bson.Decimal128.Zero*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Zero" data-uid="MongoDB.Bson.Decimal128.Zero">
+  Zero
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L90"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Represents zero.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 Zero { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Bson_Decimal128_Compare_" data-uid="MongoDB.Bson.Decimal128.Compare*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Compare_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.Compare(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  Compare(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L471"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Compares two specified Decimal128 values and returns an integer that indicates whether the first value
+is greater than, less than, or equal to the second value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static int Compare(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first value.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>Less than zero if x &lt; y, zero if x == y, and greater than zero if x &gt; y.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_CompareTo_" data-uid="MongoDB.Bson.Decimal128.CompareTo*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_CompareTo_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.CompareTo(MongoDB.Bson.Decimal128)">
+  CompareTo(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1505"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CompareTo(Decimal128 other)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>other</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Equals_" data-uid="MongoDB.Bson.Decimal128.Equals*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Equals_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.Equals(MongoDB.Bson.Decimal128)">
+  Equals(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1511"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(Decimal128 other)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>other</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Equals_" data-uid="MongoDB.Bson.Decimal128.Equals*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Equals_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.Equals(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  Equals(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L482"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether the specified Decimal128 instances are considered equal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool Equals(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first Decimal128 object to compare.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second Decimal128 object to compare.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if the objects are considered equal; otherwise false. If both x and y are null, the method returns true.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Equals_" data-uid="MongoDB.Bson.Decimal128.Equals*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Equals_System_Object_" data-uid="MongoDB.Bson.Decimal128.Equals(System.Object)">
+  Equals(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1517"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd></dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_FromComponents_" data-uid="MongoDB.Bson.Decimal128.FromComponents*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_FromComponents_System_Boolean_System_Int16_System_UInt64_System_UInt64_" data-uid="MongoDB.Bson.Decimal128.FromComponents(System.Boolean,System.Int16,System.UInt64,System.UInt64)">
+  FromComponents(bool, short, ulong, ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L495"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new Decimal128 value from its components.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static Decimal128 FromComponents(bool isNegative, short exponent, ulong significandHighBits, ulong significandLowBits)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>isNegative</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>if set to <code>true</code> [is negative].</p>
+</dd>
+    <dt><code>exponent</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The exponent.</p>
+</dd>
+    <dt><code>significandHighBits</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The signficand high bits.</p>
+</dd>
+    <dt><code>significandLowBits</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The significand low bits.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128 value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_FromIEEEBits_" data-uid="MongoDB.Bson.Decimal128.FromIEEEBits*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_FromIEEEBits_System_UInt64_System_UInt64_" data-uid="MongoDB.Bson.Decimal128.FromIEEEBits(System.UInt64,System.UInt64)">
+  FromIEEEBits(ulong, ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L507"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new Decimal128 value from the IEEE encoding bits.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static Decimal128 FromIEEEBits(ulong highBits, ulong lowBits)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>highBits</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The high bits.</p>
+</dd>
+    <dt><code>lowBits</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The low bits.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A Decimal128 value.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetExponent_" data-uid="MongoDB.Bson.Decimal128.GetExponent*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetExponent_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.GetExponent(MongoDB.Bson.Decimal128)">
+  GetExponent(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L518"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the exponent of a Decimal128 value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static short GetExponent(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The Decimal128 value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The exponent.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetHashCode_" data-uid="MongoDB.Bson.Decimal128.GetHashCode*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetHashCode" data-uid="MongoDB.Bson.Decimal128.GetHashCode">
+  GetHashCode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1530"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetIEEEHighBits_" data-uid="MongoDB.Bson.Decimal128.GetIEEEHighBits*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetIEEEHighBits" data-uid="MongoDB.Bson.Decimal128.GetIEEEHighBits">
+  GetIEEEHighBits()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1542"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the high order 64 bits of the binary representation of this instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong GetIEEEHighBits()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The high order 64 bits of the binary representation of this instance.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetIEEELowBits_" data-uid="MongoDB.Bson.Decimal128.GetIEEELowBits*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetIEEELowBits" data-uid="MongoDB.Bson.Decimal128.GetIEEELowBits">
+  GetIEEELowBits()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1552"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the low order 64 bits of the binary representation of this instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public ulong GetIEEELowBits()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The low order 64 bits of the binary representation of this instance.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetSignificandHighBits_" data-uid="MongoDB.Bson.Decimal128.GetSignificandHighBits*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetSignificandHighBits_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.GetSignificandHighBits(MongoDB.Bson.Decimal128)">
+  GetSignificandHighBits(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L539"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the high bits of the significand of a Decimal128 value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static ulong GetSignificandHighBits(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The Decimal128 value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The high bits of the significand.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_GetSignificandLowBits_" data-uid="MongoDB.Bson.Decimal128.GetSignificandLowBits*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_GetSignificandLowBits_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.GetSignificandLowBits(MongoDB.Bson.Decimal128)">
+  GetSignificandLowBits(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L561"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the high bits of the significand of a Decimal128 value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static ulong GetSignificandLowBits(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The Decimal128 value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The high bits of the significand.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsInfinity_" data-uid="MongoDB.Bson.Decimal128.IsInfinity*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsInfinity_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsInfinity(MongoDB.Bson.Decimal128)">
+  IsInfinity(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L583"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number evaluates to negative or positive infinity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsInfinity(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> evaluates to negative or positive infinity; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsNaN_" data-uid="MongoDB.Bson.Decimal128.IsNaN*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsNaN_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsNaN(MongoDB.Bson.Decimal128)">
+  IsNaN(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L590"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number is not a number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsNaN(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> is not a number; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsNegative_" data-uid="MongoDB.Bson.Decimal128.IsNegative*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsNegative_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsNegative(MongoDB.Bson.Decimal128)">
+  IsNegative(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L597"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number is negative.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsNegative(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> is negative; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsNegativeInfinity_" data-uid="MongoDB.Bson.Decimal128.IsNegativeInfinity*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsNegativeInfinity_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsNegativeInfinity(MongoDB.Bson.Decimal128)">
+  IsNegativeInfinity(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L604"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number evaluates to negative infinity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsNegativeInfinity(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> evaluates to negative infinity; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsPositiveInfinity_" data-uid="MongoDB.Bson.Decimal128.IsPositiveInfinity*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsPositiveInfinity_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsPositiveInfinity(MongoDB.Bson.Decimal128)">
+  IsPositiveInfinity(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L611"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number evaluates to positive infinity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsPositiveInfinity(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> evaluates to positive infinity; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsQNaN_" data-uid="MongoDB.Bson.Decimal128.IsQNaN*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsQNaN_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsQNaN(MongoDB.Bson.Decimal128)">
+  IsQNaN(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L618"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number is a quiet not a number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsQNaN(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> is a quiet not a number; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsSNaN_" data-uid="MongoDB.Bson.Decimal128.IsSNaN*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsSNaN_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsSNaN(MongoDB.Bson.Decimal128)">
+  IsSNaN(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L625"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number is a signaled not a number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsSNaN(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">d</code> is a signaled not a number; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_IsZero_" data-uid="MongoDB.Bson.Decimal128.IsZero*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_IsZero_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.IsZero(MongoDB.Bson.Decimal128)">
+  IsZero(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L634"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether the specified number is zero.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsZero(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A 128-bit decimal.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the specified number is zero; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Negate_" data-uid="MongoDB.Bson.Decimal128.Negate*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Negate_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.Negate(MongoDB.Bson.Decimal128)">
+  Negate(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L656"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Negates the specified x.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 Negate(Decimal128 x)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The x.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of multiplying the value by negative one.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_Parse_" data-uid="MongoDB.Bson.Decimal128.Parse*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_Parse_System_String_" data-uid="MongoDB.Bson.Decimal128.Parse(System.String)">
+  Parse(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L668"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the string representation of a number to its <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> equivalent.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Decimal128 Parse(string s)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The string representation of the number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The equivalent to the number contained in <code class="paramref">s</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToByte_" data-uid="MongoDB.Bson.Decimal128.ToByte*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToByte_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToByte(MongoDB.Bson.Decimal128)">
+  ToByte(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L684"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 8-bit unsigned integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static byte ToByte(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a></dt>
+    <dd><p>A 8-bit unsigned integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToDecimal_" data-uid="MongoDB.Bson.Decimal128.ToDecimal*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToDecimal_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToDecimal(MongoDB.Bson.Decimal128)">
+  ToDecimal(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L713"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static decimal ToDecimal(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>A <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a> equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToDouble_" data-uid="MongoDB.Bson.Decimal128.ToDouble*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToDouble_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToDouble(MongoDB.Bson.Decimal128)">
+  ToDouble(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L788"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static double ToDouble(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a> equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToInt16_" data-uid="MongoDB.Bson.Decimal128.ToInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToInt16_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToInt16(MongoDB.Bson.Decimal128)">
+  ToInt16(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L819"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 16-bit signed integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static short ToInt16(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>A 16-bit signed integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToInt32_" data-uid="MongoDB.Bson.Decimal128.ToInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToInt32_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToInt32(MongoDB.Bson.Decimal128)">
+  ToInt32(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L849"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 32-bit signed integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static int ToInt32(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>A 32-bit signed integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToInt64_" data-uid="MongoDB.Bson.Decimal128.ToInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToInt64_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToInt64(MongoDB.Bson.Decimal128)">
+  ToInt64(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L879"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 64-bit signed integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static long ToInt64(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>A 64-bit signed integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToSByte_" data-uid="MongoDB.Bson.Decimal128.ToSByte*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToSByte_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToSByte(MongoDB.Bson.Decimal128)">
+  ToSByte(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L909"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 8-bit signed integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static sbyte ToSByte(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.sbyte">sbyte</a></dt>
+    <dd><p>A 8-bit signed integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToSingle_" data-uid="MongoDB.Bson.Decimal128.ToSingle*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToSingle_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToSingle(MongoDB.Bson.Decimal128)">
+  ToSingle(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L940"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static float ToSingle(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>A <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a> equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToString_" data-uid="MongoDB.Bson.Decimal128.ToString*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToString" data-uid="MongoDB.Bson.Decimal128.ToString">
+  ToString()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1559"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToUInt16_" data-uid="MongoDB.Bson.Decimal128.ToUInt16*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToUInt16_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToUInt16(MongoDB.Bson.Decimal128)">
+  ToUInt16(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L971"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 16-bit unsigned integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static ushort ToUInt16(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>A 16-bit unsigned integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToUInt32_" data-uid="MongoDB.Bson.Decimal128.ToUInt32*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToUInt32_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToUInt32(MongoDB.Bson.Decimal128)">
+  ToUInt32(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1001"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 32-bit unsigned integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static uint ToUInt32(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>A 32-bit unsigned integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_ToUInt64_" data-uid="MongoDB.Bson.Decimal128.ToUInt64*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_ToUInt64_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.ToUInt64(MongoDB.Bson.Decimal128)">
+  ToUInt64(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1031"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the value of the specified <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to the equivalent 64-bit unsigned integer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static ulong ToUInt64(Decimal128 d)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>d</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The number to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>A 64-bit unsigned integer equivalent to <code class="paramref">d</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_TryParse_" data-uid="MongoDB.Bson.Decimal128.TryParse*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_TryParse_System_String_MongoDB_Bson_Decimal128__" data-uid="MongoDB.Bson.Decimal128.TryParse(System.String,MongoDB.Bson.Decimal128@)">
+  TryParse(string, out Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L1064"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Converts the string representation of a number to its <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> equivalent. A return value indicates whether the conversion succeeded or failed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool TryParse(string s, out Decimal128 result)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The string representation of the number to convert.</p>
+</dd>
+    <dt><code>result</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>When this method returns, contains the <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> number that is equivalent to the numeric value contained in <code class="paramref">s</code>, if the conversion succeeded, or is zero if the conversion failed. The conversion fails if the <code class="paramref">s</code> parameter is null, is not a number in a valid format, or represents a number less than the min value or greater than the max value. This parameter is passed uninitialized.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if <code class="paramref">s</code> was converted successfully; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Equality_" data-uid="MongoDB.Bson.Decimal128.op_Equality*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Equality_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_Equality(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator ==(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L102"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Implements the operator ==.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(Decimal128 lhs, Decimal128 rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The LHS.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The RHS.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>The result of the operator.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Byte" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Byte">
+  explicit operator byte(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L186"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator byte(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Char" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Char">
+  explicit operator char(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L198"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.char">char</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator char(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.char">char</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Decimal" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Decimal">
+  explicit operator decimal(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L210"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator decimal(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Double" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Double">
+  explicit operator double(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L358"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator double(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Int16" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Int16">
+  explicit operator short(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L419"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator short(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Int32" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Int32">
+  explicit operator int(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L382"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator int(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Int64" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Int64">
+  explicit operator long(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L394"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator long(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_SByte" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.SByte">
+  explicit operator sbyte(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L406"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.sbyte">sbyte</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static explicit operator sbyte(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.sbyte">sbyte</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_Single" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.Single">
+  explicit operator float(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L370"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator float(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_UInt16" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.UInt16">
+  explicit operator ushort(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L457"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static explicit operator ushort(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_UInt32" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.UInt32">
+  explicit operator uint(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L431"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static explicit operator uint(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_MongoDB_Bson_Decimal128__System_UInt64" data-uid="MongoDB.Bson.Decimal128.op_Explicit(MongoDB.Bson.Decimal128)~System.UInt64">
+  explicit operator ulong(Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L444"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static explicit operator ulong(Decimal128 value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The value to convert.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_System_Double__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Explicit(System.Double)~MongoDB.Bson.Decimal128">
+  explicit operator Decimal128(double)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L246"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator Decimal128(double value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Explicit_" data-uid="MongoDB.Bson.Decimal128.op_Explicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Explicit_System_Single__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Explicit(System.Single)~MongoDB.Bson.Decimal128">
+  explicit operator Decimal128(float)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L258"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an explicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static explicit operator Decimal128(float value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.single">float</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_GreaterThan_" data-uid="MongoDB.Bson.Decimal128.op_GreaterThan*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_GreaterThan_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_GreaterThan(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator &gt;(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L135"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether a specified Decimal128 is greater than another specified Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator &gt;(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first value.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if x &gt; y; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_GreaterThanOrEqual_" data-uid="MongoDB.Bson.Decimal128.op_GreaterThanOrEqual*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_GreaterThanOrEqual_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_GreaterThanOrEqual(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator &gt;=(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L148"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether a specified Decimal128 is greater than or equal to another another specified Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator &gt;=(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first value.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if x &gt;= y; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_Byte__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.Byte)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(byte)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L222"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator Decimal128(byte value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_Decimal__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.Decimal)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(decimal)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L234"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator Decimal128(decimal value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_Int16__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.Int16)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(short)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L307"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator Decimal128(short value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int16">short</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_Int32__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.Int32)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(int)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L270"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator Decimal128(int value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_Int64__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.Int64)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(long)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L282"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator Decimal128(long value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_SByte__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.SByte)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(sbyte)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L294"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.sbyte">sbyte</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static implicit operator Decimal128(sbyte value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.sbyte">sbyte</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_UInt16__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.UInt16)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(ushort)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L332"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static implicit operator Decimal128(ushort value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint16">ushort</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_UInt32__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.UInt32)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(uint)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L319"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static implicit operator Decimal128(uint value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Implicit_" data-uid="MongoDB.Bson.Decimal128.op_Implicit*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Implicit_System_UInt64__MongoDB_Bson_Decimal128" data-uid="MongoDB.Bson.Decimal128.op_Implicit(System.UInt64)~MongoDB.Bson.Decimal128">
+  implicit operator Decimal128(ulong)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L345"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a> to <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[CLSCompliant(false)]
+public static implicit operator Decimal128(ulong value)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint64">ulong</a></dt>
+    <dd><p>The value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The result of the conversion.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_Inequality_" data-uid="MongoDB.Bson.Decimal128.op_Inequality*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_Inequality_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_Inequality(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator !=(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L122"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Implements the operator !=.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(Decimal128 lhs, Decimal128 rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The LHS.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The RHS.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>The result of the operator.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_LessThan_" data-uid="MongoDB.Bson.Decimal128.op_LessThan*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_LessThan_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_LessThan(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator &lt;(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L161"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether a specified Decimal128 is less than another specified Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator &lt;(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first value.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if x &lt; y; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_Decimal128_op_LessThanOrEqual_" data-uid="MongoDB.Bson.Decimal128.op_LessThanOrEqual*"></a>
+
+  <h3 id="MongoDB_Bson_Decimal128_op_LessThanOrEqual_MongoDB_Bson_Decimal128_MongoDB_Bson_Decimal128_" data-uid="MongoDB.Bson.Decimal128.op_LessThanOrEqual(MongoDB.Bson.Decimal128,MongoDB.Bson.Decimal128)">
+  operator &lt;=(Decimal128, Decimal128)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/Decimal128.cs/#L174"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a value indicating whether a specified Decimal128 is less than or equal to another another specified Decimal128.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator &lt;=(Decimal128 x, Decimal128 y)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>x</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The first value.</p>
+</dd>
+    <dt><code>y</code> <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>The second value.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>true if x &lt;= y; otherwise, false.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

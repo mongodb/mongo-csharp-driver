@@ -1,0 +1,1469 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class JsonReader
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class JsonReader
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Bson_IO_JsonReader.md&amp;value=---%0Auid%3A%20MongoDB.Bson.IO.JsonReader%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.IO.JsonReader">
+
+
+
+  <h1 id="MongoDB_Bson_IO_JsonReader" data-uid="MongoDB.Bson.IO.JsonReader" class="text-break">
+    Class JsonReader
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L28"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.IO.html">IO</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a BSON reader for a JSON string.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class JsonReader : BsonReader, IBsonReader, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="MongoDB.Bson.IO.BsonReader.html">BsonReader</a></div>
+      <div><span class="xref">JsonReader</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="MongoDB.Bson.IO.IBsonReader.html">IBsonReader</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_CurrentBsonType">BsonReader.CurrentBsonType</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_Settings">BsonReader.Settings</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_State">BsonReader.State</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_CurrentName">BsonReader.CurrentName</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_Disposed">BsonReader.Disposed</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_Dispose">BsonReader.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_GetCurrentBsonType">BsonReader.GetCurrentBsonType()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_PopSettings">BsonReader.PopSettings()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_PushSettings_System_Action_MongoDB_Bson_IO_BsonReaderSettings__">BsonReader.PushSettings(Action&lt;BsonReaderSettings&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ReadName">BsonReader.ReadName()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ReadRawBsonArray">BsonReader.ReadRawBsonArray()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ReadRawBsonDocument">BsonReader.ReadRawBsonDocument()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ThrowInvalidContextType_System_String_MongoDB_Bson_IO_ContextType_MongoDB_Bson_IO_ContextType___">BsonReader.ThrowInvalidContextType(string, ContextType, params ContextType[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ThrowInvalidState_System_String_MongoDB_Bson_IO_BsonReaderState___">BsonReader.ThrowInvalidState(string, params BsonReaderState[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_ThrowObjectDisposedException">BsonReader.ThrowObjectDisposedException()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonReader.html#MongoDB_Bson_IO_BsonReader_VerifyBsonType_System_String_MongoDB_Bson_BsonType_">BsonReader.VerifyBsonType(string, BsonType)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_FindElement_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.FindElement(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_FindStringElement_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.FindStringElement(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadBinaryData_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadBinaryData(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadBinaryDataWithGuidRepresentationUnspecified_MongoDB_Bson_IO_IBsonReader_">IBsonReaderExtensions.ReadBinaryDataWithGuidRepresentationUnspecified(IBsonReader)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadBoolean_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadBoolean(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadBytes_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadBytes(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadDateTime_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadDateTime(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadDecimal128_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadDecimal128(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadDouble_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadDouble(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadInt32_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadInt32(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadInt64_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadInt64(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadJavaScript_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadJavaScript(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadJavaScriptWithScope_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadJavaScriptWithScope(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadMaxKey_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadMaxKey(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadMinKey_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadMinKey(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadName_MongoDB_Bson_IO_IBsonReader_">IBsonReaderExtensions.ReadName(IBsonReader)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadName_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadName(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadNull_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadNull(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadObjectId_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadObjectId(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadRawBsonArray_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadRawBsonArray(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadRawBsonDocument_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadRawBsonDocument(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadRegularExpression_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadRegularExpression(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadString_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadString(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadSymbol_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadSymbol(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadTimestamp_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadTimestamp(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonReaderExtensions.html#MongoDB_Bson_IO_IBsonReaderExtensions_ReadUndefined_MongoDB_Bson_IO_IBsonReader_System_String_">IBsonReaderExtensions.ReadUndefined(IBsonReader, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Bson_IO_JsonReader__ctor_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader__ctor_System_IO_TextReader_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor(System.IO.TextReader)">
+  JsonReader(TextReader)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L99"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the JsonReader class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public JsonReader(TextReader textReader)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>textReader</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.textreader">TextReader</a></dt>
+    <dd><p>The TextReader.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader__ctor_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader__ctor_System_IO_TextReader_MongoDB_Bson_IO_JsonReaderSettings_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor(System.IO.TextReader,MongoDB.Bson.IO.JsonReaderSettings)">
+  JsonReader(TextReader, JsonReaderSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L109"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the JsonReader class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public JsonReader(TextReader textReader, JsonReaderSettings settings)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>textReader</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.textreader">TextReader</a></dt>
+    <dd><p>The TextReader.</p>
+</dd>
+    <dt><code>settings</code> <a class="xref" href="MongoDB.Bson.IO.JsonReaderSettings.html">JsonReaderSettings</a></dt>
+    <dd><p>The reader settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader__ctor_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader__ctor_System_String_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor(System.String)">
+  JsonReader(string)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L80"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the JsonReader class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public JsonReader(string json)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>json</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The JSON string.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader__ctor_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader__ctor_System_String_MongoDB_Bson_IO_JsonReaderSettings_" data-uid="MongoDB.Bson.IO.JsonReader.#ctor(System.String,MongoDB.Bson.IO.JsonReaderSettings)">
+  JsonReader(string, JsonReaderSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L90"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Initializes a new instance of the JsonReader class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public JsonReader(string json, JsonReaderSettings settings)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>json</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The JSON string.</p>
+</dd>
+    <dt><code>settings</code> <a class="xref" href="MongoDB.Bson.IO.JsonReaderSettings.html">JsonReaderSettings</a></dt>
+    <dd><p>The reader settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_Close_" data-uid="MongoDB.Bson.IO.JsonReader.Close*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_Close" data-uid="MongoDB.Bson.IO.JsonReader.Close">
+  Close()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L126"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Closes the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void Close()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_Dispose_" data-uid="MongoDB.Bson.IO.JsonReader.Dispose*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_Dispose_System_Boolean_" data-uid="MongoDB.Bson.IO.JsonReader.Dispose(System.Boolean)">
+  Dispose(bool)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L878"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Disposes of any resources used by the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override void Dispose(bool disposing)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>disposing</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>True if called from Dispose.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_GetBookmark_" data-uid="MongoDB.Bson.IO.JsonReader.GetBookmark*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_GetBookmark" data-uid="MongoDB.Bson.IO.JsonReader.GetBookmark">
+  GetBookmark()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L136"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets a bookmark to the reader's current position and state.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BsonReaderBookmark GetBookmark()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonReaderBookmark.html">BsonReaderBookmark</a></dt>
+    <dd><p>A bookmark.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_IsAtEndOfFile_" data-uid="MongoDB.Bson.IO.JsonReader.IsAtEndOfFile*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_IsAtEndOfFile" data-uid="MongoDB.Bson.IO.JsonReader.IsAtEndOfFile">
+  IsAtEndOfFile()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L147"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether this reader is at end of file.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool IsAtEndOfFile()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>Whether this reader is at end of file.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadBinaryData_" data-uid="MongoDB.Bson.IO.JsonReader.ReadBinaryData*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadBinaryData" data-uid="MongoDB.Bson.IO.JsonReader.ReadBinaryData">
+  ReadBinaryData()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L165"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads BSON binary data from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BsonBinaryData ReadBinaryData()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></dt>
+    <dd><p>A BsonBinaryData.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadBoolean_" data-uid="MongoDB.Bson.IO.JsonReader.ReadBoolean*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadBoolean" data-uid="MongoDB.Bson.IO.JsonReader.ReadBoolean">
+  ReadBoolean()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L177"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON boolean from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool ReadBoolean()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>A Boolean.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadBsonType_" data-uid="MongoDB.Bson.IO.JsonReader.ReadBsonType*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadBsonType" data-uid="MongoDB.Bson.IO.JsonReader.ReadBsonType">
+  ReadBsonType()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L189"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BsonType from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BsonType ReadBsonType()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonType.html">BsonType</a></dt>
+    <dd><p>A BsonType.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadBytes_" data-uid="MongoDB.Bson.IO.JsonReader.ReadBytes*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadBytes" data-uid="MongoDB.Bson.IO.JsonReader.ReadBytes">
+  ReadBytes()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L409"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads BSON binary data from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override byte[] ReadBytes()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
+    <dd><p>A byte array.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadDateTime_" data-uid="MongoDB.Bson.IO.JsonReader.ReadDateTime*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadDateTime" data-uid="MongoDB.Bson.IO.JsonReader.ReadDateTime">
+  ReadDateTime()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L432"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON DateTime from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override long ReadDateTime()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The number of milliseconds since the Unix epoch.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadDecimal128_" data-uid="MongoDB.Bson.IO.JsonReader.ReadDecimal128*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadDecimal128" data-uid="MongoDB.Bson.IO.JsonReader.ReadDecimal128">
+  ReadDecimal128()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L441"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON Decimal128 from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Decimal128 ReadDecimal128()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a></dt>
+    <dd><p>A <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadDouble_" data-uid="MongoDB.Bson.IO.JsonReader.ReadDouble*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadDouble" data-uid="MongoDB.Bson.IO.JsonReader.ReadDouble">
+  ReadDouble()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L453"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON Double from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override double ReadDouble()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+    <dd><p>A Double.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadEndArray_" data-uid="MongoDB.Bson.IO.JsonReader.ReadEndArray*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadEndArray" data-uid="MongoDB.Bson.IO.JsonReader.ReadEndArray">
+  ReadEndArray()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L464"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads the end of a BSON array from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadEndArray()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadEndDocument_" data-uid="MongoDB.Bson.IO.JsonReader.ReadEndDocument*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadEndDocument" data-uid="MongoDB.Bson.IO.JsonReader.ReadEndDocument">
+  ReadEndDocument()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L502"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads the end of a BSON document from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadEndDocument()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadInt32_" data-uid="MongoDB.Bson.IO.JsonReader.ReadInt32*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadInt32" data-uid="MongoDB.Bson.IO.JsonReader.ReadInt32">
+  ReadInt32()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L546"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON Int32 from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int ReadInt32()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>An Int32.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadInt64_" data-uid="MongoDB.Bson.IO.JsonReader.ReadInt64*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadInt64" data-uid="MongoDB.Bson.IO.JsonReader.ReadInt64">
+  ReadInt64()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L558"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON Int64 from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override long ReadInt64()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>An Int64.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadJavaScript_" data-uid="MongoDB.Bson.IO.JsonReader.ReadJavaScript*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadJavaScript" data-uid="MongoDB.Bson.IO.JsonReader.ReadJavaScript">
+  ReadJavaScript()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L570"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON JavaScript from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ReadJavaScript()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadJavaScriptWithScope_" data-uid="MongoDB.Bson.IO.JsonReader.ReadJavaScriptWithScope*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadJavaScriptWithScope" data-uid="MongoDB.Bson.IO.JsonReader.ReadJavaScriptWithScope">
+  ReadJavaScriptWithScope()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L582"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON JavaScript with scope from the reader (call ReadStartDocument next to read the scope).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ReadJavaScriptWithScope()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadMaxKey_" data-uid="MongoDB.Bson.IO.JsonReader.ReadMaxKey*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadMaxKey" data-uid="MongoDB.Bson.IO.JsonReader.ReadMaxKey">
+  ReadMaxKey()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L594"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON MaxKey from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadMaxKey()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadMinKey_" data-uid="MongoDB.Bson.IO.JsonReader.ReadMinKey*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadMinKey" data-uid="MongoDB.Bson.IO.JsonReader.ReadMinKey">
+  ReadMinKey()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L604"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON MinKey from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadMinKey()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadName_" data-uid="MongoDB.Bson.IO.JsonReader.ReadName*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadName_MongoDB_Bson_IO_INameDecoder_" data-uid="MongoDB.Bson.IO.JsonReader.ReadName(MongoDB.Bson.IO.INameDecoder)">
+  ReadName(INameDecoder)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L618"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads the name of an element from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ReadName(INameDecoder nameDecoder)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>nameDecoder</code> <a class="xref" href="MongoDB.Bson.IO.INameDecoder.html">INameDecoder</a></dt>
+    <dd><p>The name decoder.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>The name of the element.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadNull_" data-uid="MongoDB.Bson.IO.JsonReader.ReadNull*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadNull" data-uid="MongoDB.Bson.IO.JsonReader.ReadNull">
+  ReadNull()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L643"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON null from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadNull()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadObjectId_" data-uid="MongoDB.Bson.IO.JsonReader.ReadObjectId*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadObjectId" data-uid="MongoDB.Bson.IO.JsonReader.ReadObjectId">
+  ReadObjectId()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L654"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON ObjectId from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ObjectId ReadObjectId()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
+    <dd><p>An ObjectId.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadRegularExpression_" data-uid="MongoDB.Bson.IO.JsonReader.ReadRegularExpression*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadRegularExpression" data-uid="MongoDB.Bson.IO.JsonReader.ReadRegularExpression">
+  ReadRegularExpression()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L666"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON regular expression from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BsonRegularExpression ReadRegularExpression()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Bson.BsonRegularExpression.html">BsonRegularExpression</a></dt>
+    <dd><p>A BsonRegularExpression.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadStartArray_" data-uid="MongoDB.Bson.IO.JsonReader.ReadStartArray*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadStartArray" data-uid="MongoDB.Bson.IO.JsonReader.ReadStartArray">
+  ReadStartArray()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L677"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads the start of a BSON array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadStartArray()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadStartDocument_" data-uid="MongoDB.Bson.IO.JsonReader.ReadStartDocument*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadStartDocument" data-uid="MongoDB.Bson.IO.JsonReader.ReadStartDocument">
+  ReadStartDocument()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L689"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads the start of a BSON document.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadStartDocument()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadString_" data-uid="MongoDB.Bson.IO.JsonReader.ReadString*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadString" data-uid="MongoDB.Bson.IO.JsonReader.ReadString">
+  ReadString()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L702"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON string from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ReadString()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A String.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadSymbol_" data-uid="MongoDB.Bson.IO.JsonReader.ReadSymbol*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadSymbol" data-uid="MongoDB.Bson.IO.JsonReader.ReadSymbol">
+  ReadSymbol()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L714"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON symbol from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ReadSymbol()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadTimestamp_" data-uid="MongoDB.Bson.IO.JsonReader.ReadTimestamp*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadTimestamp" data-uid="MongoDB.Bson.IO.JsonReader.ReadTimestamp">
+  ReadTimestamp()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L726"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON timestamp from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override long ReadTimestamp()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+    <dd><p>The combined timestamp/increment.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReadUndefined_" data-uid="MongoDB.Bson.IO.JsonReader.ReadUndefined*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReadUndefined" data-uid="MongoDB.Bson.IO.JsonReader.ReadUndefined">
+  ReadUndefined()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L738"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Reads a BSON undefined from the reader.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadUndefined()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_ReturnToBookmark_" data-uid="MongoDB.Bson.IO.JsonReader.ReturnToBookmark*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_ReturnToBookmark_MongoDB_Bson_IO_BsonReaderBookmark_" data-uid="MongoDB.Bson.IO.JsonReader.ReturnToBookmark(MongoDB.Bson.IO.BsonReaderBookmark)">
+  ReturnToBookmark(BsonReaderBookmark)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L749"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns the reader to previously bookmarked position and state.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReturnToBookmark(BsonReaderBookmark bookmark)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>bookmark</code> <a class="xref" href="MongoDB.Bson.IO.BsonReaderBookmark.html">BsonReaderBookmark</a></dt>
+    <dd><p>The bookmark.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_SkipName_" data-uid="MongoDB.Bson.IO.JsonReader.SkipName*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_SkipName" data-uid="MongoDB.Bson.IO.JsonReader.SkipName">
+  SkipName()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L766"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Skips the name (reader must be positioned on a name).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void SkipName()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Bson_IO_JsonReader_SkipValue_" data-uid="MongoDB.Bson.IO.JsonReader.SkipValue*"></a>
+
+  <h3 id="MongoDB_Bson_IO_JsonReader_SkipValue" data-uid="MongoDB.Bson.IO.JsonReader.SkipValue">
+  SkipValue()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/IO/JsonReader.cs/#L780"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Skips the value (reader must be positioned on a value).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void SkipValue()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

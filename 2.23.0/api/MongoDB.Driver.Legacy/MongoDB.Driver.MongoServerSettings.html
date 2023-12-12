@@ -1,0 +1,1984 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoServerSettings
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoServerSettings
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/sanych-sun/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_MongoServerSettings.md&amp;value=---%0Auid%3A%20MongoDB.Driver.MongoServerSettings%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.MongoServerSettings">
+
+
+
+  <h1 id="MongoDB_Driver_MongoServerSettings" data-uid="MongoDB.Driver.MongoServerSettings" class="text-break">
+    Class MongoServerSettings
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L33"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>The settings used to access a MongoDB server.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MongoServerSettings : IEquatable&lt;MongoServerSettings&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoServerSettings</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoServerSettings__ctor_" data-uid="MongoDB.Driver.MongoServerSettings.#ctor*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings__ctor" data-uid="MongoDB.Driver.MongoServerSettings.#ctor">
+  MongoServerSettings()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L84"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new instance of MongoServerSettings. Usually you would use a connection string instead.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerSettings()</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_AddressFamily_" data-uid="MongoDB.Driver.MongoServerSettings.AddressFamily*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_AddressFamily" data-uid="MongoDB.Driver.MongoServerSettings.AddressFamily">
+  AddressFamily
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L136"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the AddressFamily for the IPEndPoint (derived from the IPv6 setting).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use IPv6 instead.&quot;)]
+public AddressFamily AddressFamily { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.sockets.addressfamily">AddressFamily</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_AllowInsecureTls_" data-uid="MongoDB.Driver.MongoServerSettings.AllowInsecureTls*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_AllowInsecureTls" data-uid="MongoDB.Driver.MongoServerSettings.AllowInsecureTls">
+  AllowInsecureTls
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L146"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets whether to relax TLS constraints as much as possible.
+Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AllowInsecureTls { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ApplicationName_" data-uid="MongoDB.Driver.MongoServerSettings.ApplicationName*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ApplicationName" data-uid="MongoDB.Driver.MongoServerSettings.ApplicationName">
+  ApplicationName
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L165"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the application name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ApplicationName { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ClusterConfigurator_" data-uid="MongoDB.Driver.MongoServerSettings.ClusterConfigurator*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ClusterConfigurator" data-uid="MongoDB.Driver.MongoServerSettings.ClusterConfigurator">
+  ClusterConfigurator
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L178"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the cluster configurator.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Action&lt;ClusterBuilder&gt; ClusterConfigurator { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;<a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Configuration.ClusterBuilder.html">ClusterBuilder</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Compressors_" data-uid="MongoDB.Driver.MongoServerSettings.Compressors*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Compressors" data-uid="MongoDB.Driver.MongoServerSettings.Compressors">
+  Compressors
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L191"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the compressors.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;CompressorConfiguration&gt; Compressors { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Configuration.CompressorConfiguration.html">CompressorConfiguration</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ConnectTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.ConnectTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ConnectTimeout" data-uid="MongoDB.Driver.MongoServerSettings.ConnectTimeout">
+  ConnectTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L239"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the connect timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan ConnectTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ConnectionMode_" data-uid="MongoDB.Driver.MongoServerSettings.ConnectionMode*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ConnectionMode" data-uid="MongoDB.Driver.MongoServerSettings.ConnectionMode">
+  ConnectionMode
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L204"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the connection mode.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use DirectConnection instead.&quot;)]
+public ConnectionMode ConnectionMode { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ConnectionMode.html">ConnectionMode</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ConnectionModeSwitch_" data-uid="MongoDB.Driver.MongoServerSettings.ConnectionModeSwitch*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ConnectionModeSwitch" data-uid="MongoDB.Driver.MongoServerSettings.ConnectionModeSwitch">
+  ConnectionModeSwitch
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L230"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the connection mode switch.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
+public ConnectionModeSwitch ConnectionModeSwitch { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Clusters.ConnectionModeSwitch.html">ConnectionModeSwitch</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Credential_" data-uid="MongoDB.Driver.MongoServerSettings.Credential*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Credential" data-uid="MongoDB.Driver.MongoServerSettings.Credential">
+  Credential
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L252"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the credential.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoCredential Credential { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoCredential.html">MongoCredential</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Credentials_" data-uid="MongoDB.Driver.MongoServerSettings.Credentials*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Credentials" data-uid="MongoDB.Driver.MongoServerSettings.Credentials">
+  Credentials
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L272"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the credentials.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Credential instead. Using multiple credentials is deprecated.&quot;)]
+public IEnumerable&lt;MongoCredential&gt; Credentials { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoCredential.html">MongoCredential</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_DirectConnection_" data-uid="MongoDB.Driver.MongoServerSettings.DirectConnection*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_DirectConnection" data-uid="MongoDB.Driver.MongoServerSettings.DirectConnection">
+  DirectConnection
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L290"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets ot sets DirectConnection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool? DirectConnection { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_GuidRepresentation_" data-uid="MongoDB.Driver.MongoServerSettings.GuidRepresentation*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_GuidRepresentation" data-uid="MongoDB.Driver.MongoServerSettings.GuidRepresentation">
+  GuidRepresentation
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L320"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the representation to use for Guids.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Configure serializers instead.&quot;)]
+public GuidRepresentation GuidRepresentation { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.GuidRepresentation.html">GuidRepresentation</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_HeartbeatInterval_" data-uid="MongoDB.Driver.MongoServerSettings.HeartbeatInterval*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_HeartbeatInterval" data-uid="MongoDB.Driver.MongoServerSettings.HeartbeatInterval">
+  HeartbeatInterval
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L345"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the heartbeat interval.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan HeartbeatInterval { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_HeartbeatTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.HeartbeatTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_HeartbeatTimeout" data-uid="MongoDB.Driver.MongoServerSettings.HeartbeatTimeout">
+  HeartbeatTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L358"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the heartbeat timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan HeartbeatTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_IPv6_" data-uid="MongoDB.Driver.MongoServerSettings.IPv6*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_IPv6" data-uid="MongoDB.Driver.MongoServerSettings.IPv6">
+  IPv6
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L379"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to use IPv6.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IPv6 { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_IsFrozen_" data-uid="MongoDB.Driver.MongoServerSettings.IsFrozen*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_IsFrozen" data-uid="MongoDB.Driver.MongoServerSettings.IsFrozen">
+  IsFrozen
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L371"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the settings have been frozen to prevent further changes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsFrozen { get; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_LocalThreshold_" data-uid="MongoDB.Driver.MongoServerSettings.LocalThreshold*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_LocalThreshold" data-uid="MongoDB.Driver.MongoServerSettings.LocalThreshold">
+  LocalThreshold
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L392"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the local threshold.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan LocalThreshold { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_MaxConnectionIdleTime_" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionIdleTime*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_MaxConnectionIdleTime" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionIdleTime">
+  MaxConnectionIdleTime
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L405"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the max connection idle time.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan MaxConnectionIdleTime { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_MaxConnectionLifeTime_" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionLifeTime*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_MaxConnectionLifeTime" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionLifeTime">
+  MaxConnectionLifeTime
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L418"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the max connection life time.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan MaxConnectionLifeTime { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_MaxConnectionPoolSize_" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionPoolSize*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_MaxConnectionPoolSize" data-uid="MongoDB.Driver.MongoServerSettings.MaxConnectionPoolSize">
+  MaxConnectionPoolSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L431"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the max connection pool size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int MaxConnectionPoolSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_MinConnectionPoolSize_" data-uid="MongoDB.Driver.MongoServerSettings.MinConnectionPoolSize*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_MinConnectionPoolSize" data-uid="MongoDB.Driver.MongoServerSettings.MinConnectionPoolSize">
+  MinConnectionPoolSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L444"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the min connection pool size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int MinConnectionPoolSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_OperationTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.OperationTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_OperationTimeout" data-uid="MongoDB.Driver.MongoServerSettings.OperationTimeout">
+  OperationTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L457"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the operation timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan OperationTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ReadConcern_" data-uid="MongoDB.Driver.MongoServerSettings.ReadConcern*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ReadConcern" data-uid="MongoDB.Driver.MongoServerSettings.ReadConcern">
+  ReadConcern
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L470"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the read concern.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ReadConcern ReadConcern { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ReadEncoding_" data-uid="MongoDB.Driver.MongoServerSettings.ReadEncoding*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ReadEncoding" data-uid="MongoDB.Driver.MongoServerSettings.ReadEncoding">
+  ReadEncoding
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L483"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the Read Encoding.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public UTF8Encoding ReadEncoding { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.text.utf8encoding">UTF8Encoding</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ReadPreference_" data-uid="MongoDB.Driver.MongoServerSettings.ReadPreference*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ReadPreference" data-uid="MongoDB.Driver.MongoServerSettings.ReadPreference">
+  ReadPreference
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L496"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the read preferences.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ReadPreference ReadPreference { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ReplicaSetName_" data-uid="MongoDB.Driver.MongoServerSettings.ReplicaSetName*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ReplicaSetName" data-uid="MongoDB.Driver.MongoServerSettings.ReplicaSetName">
+  ReplicaSetName
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L513"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the name of the replica set.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ReplicaSetName { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_RetryReads_" data-uid="MongoDB.Driver.MongoServerSettings.RetryReads*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_RetryReads" data-uid="MongoDB.Driver.MongoServerSettings.RetryReads">
+  RetryReads
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L526"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets whether to retry reads.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool RetryReads { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_RetryWrites_" data-uid="MongoDB.Driver.MongoServerSettings.RetryWrites*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_RetryWrites" data-uid="MongoDB.Driver.MongoServerSettings.RetryWrites">
+  RetryWrites
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L542"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets whether to retry writes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool RetryWrites { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p>The default value is <code>true</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Scheme_" data-uid="MongoDB.Driver.MongoServerSettings.Scheme*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Scheme" data-uid="MongoDB.Driver.MongoServerSettings.Scheme">
+  Scheme
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L555"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the connection string scheme.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConnectionStringScheme Scheme { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Core.Configuration.ConnectionStringScheme.html">ConnectionStringScheme</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_SdamLogFilename_" data-uid="MongoDB.Driver.MongoServerSettings.SdamLogFilename*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_SdamLogFilename" data-uid="MongoDB.Driver.MongoServerSettings.SdamLogFilename">
+  SdamLogFilename
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L568"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or set the name of the SDAM log file. Null turns logging off. stdout will log to console.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use MongoClientSettings.LoggerFactory instead.&quot;)]
+public string SdamLogFilename { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Server_" data-uid="MongoDB.Driver.MongoServerSettings.Server*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Server" data-uid="MongoDB.Driver.MongoServerSettings.Server">
+  Server
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L582"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the address of the server (see also Servers if using more than one address).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerAddress Server { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoServerAddress.html">MongoServerAddress</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ServerSelectionTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.ServerSelectionTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ServerSelectionTimeout" data-uid="MongoDB.Driver.MongoServerSettings.ServerSelectionTimeout">
+  ServerSelectionTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L617"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the server selection timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan ServerSelectionTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+  <h4 class="section">Exceptions</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.invalidoperationexception">InvalidOperationException</a></dt>
+    <dd><p>MongoServerSettings is frozen.</p>
+</dd>
+  </dl>
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Servers_" data-uid="MongoDB.Driver.MongoServerSettings.Servers*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Servers" data-uid="MongoDB.Driver.MongoServerSettings.Servers">
+  Servers
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L599"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the list of server addresses (see also Server if using only one address).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;MongoServerAddress&gt; Servers { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoServerAddress.html">MongoServerAddress</a>&gt;</dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_SocketTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.SocketTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_SocketTimeout" data-uid="MongoDB.Driver.MongoServerSettings.SocketTimeout">
+  SocketTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L630"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the socket timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan SocketTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_SslSettings_" data-uid="MongoDB.Driver.MongoServerSettings.SslSettings*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_SslSettings" data-uid="MongoDB.Driver.MongoServerSettings.SslSettings">
+  SslSettings
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L643"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the SSL settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SslSettings SslSettings { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.SslSettings.html">SslSettings</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_UseSsl_" data-uid="MongoDB.Driver.MongoServerSettings.UseSsl*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_UseSsl" data-uid="MongoDB.Driver.MongoServerSettings.UseSsl">
+  UseSsl
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L656"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to use SSL.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use UseTls instead.&quot;)]
+public bool UseSsl { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_UseTls_" data-uid="MongoDB.Driver.MongoServerSettings.UseTls*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_UseTls" data-uid="MongoDB.Driver.MongoServerSettings.UseTls">
+  UseTls
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L670"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to use TLS.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UseTls { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_VerifySslCertificate_" data-uid="MongoDB.Driver.MongoServerSettings.VerifySslCertificate*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_VerifySslCertificate" data-uid="MongoDB.Driver.MongoServerSettings.VerifySslCertificate">
+  VerifySslCertificate
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L683"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to verify an SSL certificate.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use AllowInsecureTls instead.&quot;)]
+public bool VerifySslCertificate { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_WaitQueueSize_" data-uid="MongoDB.Driver.MongoServerSettings.WaitQueueSize*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_WaitQueueSize" data-uid="MongoDB.Driver.MongoServerSettings.WaitQueueSize">
+  WaitQueueSize
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L698"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the wait queue size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
+public int WaitQueueSize { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_WaitQueueTimeout_" data-uid="MongoDB.Driver.MongoServerSettings.WaitQueueTimeout*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_WaitQueueTimeout" data-uid="MongoDB.Driver.MongoServerSettings.WaitQueueTimeout">
+  WaitQueueTimeout
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L712"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the wait queue timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan WaitQueueTimeout { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_WriteConcern_" data-uid="MongoDB.Driver.MongoServerSettings.WriteConcern*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_WriteConcern" data-uid="MongoDB.Driver.MongoServerSettings.WriteConcern">
+  WriteConcern
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L725"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the WriteConcern to use.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public WriteConcern WriteConcern { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_WriteEncoding_" data-uid="MongoDB.Driver.MongoServerSettings.WriteEncoding*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_WriteEncoding" data-uid="MongoDB.Driver.MongoServerSettings.WriteEncoding">
+  WriteEncoding
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L742"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets or sets the Write Encoding.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public UTF8Encoding WriteEncoding { get; set; }</code></pre>
+  </div>
+
+
+
+
+
+  <h4 class="section">Property Value</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.text.utf8encoding">UTF8Encoding</a></dt>
+    <dd></dd>
+  </dl>
+
+
+
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Clone_" data-uid="MongoDB.Driver.MongoServerSettings.Clone*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Clone" data-uid="MongoDB.Driver.MongoServerSettings.Clone">
+  Clone()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L929"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a clone of the settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerSettings Clone()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>A clone of the settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Equals_" data-uid="MongoDB.Driver.MongoServerSettings.Equals*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Equals_MongoDB_Driver_MongoServerSettings_" data-uid="MongoDB.Driver.MongoServerSettings.Equals(MongoDB.Driver.MongoServerSettings)">
+  Equals(MongoServerSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L978"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether the specified <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a> is equal to this instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(MongoServerSettings obj)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>obj</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a> to compare with this instance.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the specified <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a> is equal to this instance; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Equals_" data-uid="MongoDB.Driver.MongoServerSettings.Equals*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Equals_System_Object_" data-uid="MongoDB.Driver.MongoServerSettings.Equals(System.Object)">
+  Equals(object)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L990"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether the specified <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a> is equal to this instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+    <dd><p>The <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a> to compare with this instance.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the specified <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a> is equal to this instance; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_Freeze_" data-uid="MongoDB.Driver.MongoServerSettings.Freeze*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_Freeze" data-uid="MongoDB.Driver.MongoServerSettings.Freeze">
+  Freeze()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L1037"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Freezes the settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerSettings Freeze()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The frozen settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_FromClientSettings_" data-uid="MongoDB.Driver.MongoServerSettings.FromClientSettings*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_FromClientSettings_MongoDB_Driver_MongoClientSettings_" data-uid="MongoDB.Driver.MongoServerSettings.FromClientSettings(MongoDB.Driver.MongoClientSettings)">
+  FromClientSettings(MongoClientSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L785"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Creates a new MongoServerSettings object from a MongoClientSettings object.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static MongoServerSettings FromClientSettings(MongoClientSettings clientSettings)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>clientSettings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a></dt>
+    <dd><p>The MongoClientSettings.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>A MongoServerSettings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_FromUrl_" data-uid="MongoDB.Driver.MongoServerSettings.FromUrl*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_FromUrl_MongoDB_Driver_MongoUrl_" data-uid="MongoDB.Driver.MongoServerSettings.FromUrl(MongoDB.Driver.MongoUrl)">
+  FromUrl(MongoUrl)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L847"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets a MongoServerSettings object intialized with values from a MongoUrl.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static MongoServerSettings FromUrl(MongoUrl url)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>url</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoUrl.html">MongoUrl</a></dt>
+    <dd><p>The MongoUrl.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>A MongoServerSettings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_FrozenCopy_" data-uid="MongoDB.Driver.MongoServerSettings.FrozenCopy*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_FrozenCopy" data-uid="MongoDB.Driver.MongoServerSettings.FrozenCopy">
+  FrozenCopy()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L1053"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a frozen copy of the settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MongoServerSettings FrozenCopy()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>A frozen copy of the settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_GetHashCode_" data-uid="MongoDB.Driver.MongoServerSettings.GetHashCode*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_GetHashCode" data-uid="MongoDB.Driver.MongoServerSettings.GetHashCode">
+  GetHashCode()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L1069"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Gets the hash code.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+    <dd><p>The hash code.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_ToString_" data-uid="MongoDB.Driver.MongoServerSettings.ToString*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_ToString" data-uid="MongoDB.Driver.MongoServerSettings.ToString">
+  ToString()
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L1119"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Returns a string representation of the settings.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+    <dd><p>A string representation of the settings.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_op_Equality_" data-uid="MongoDB.Driver.MongoServerSettings.op_Equality*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_op_Equality_MongoDB_Driver_MongoServerSettings_MongoDB_Driver_MongoServerSettings_" data-uid="MongoDB.Driver.MongoServerSettings.op_Equality(MongoDB.Driver.MongoServerSettings,MongoDB.Driver.MongoServerSettings)">
+  operator ==(MongoServerSettings, MongoServerSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L761"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether two <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a> instances are equal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(MongoServerSettings lhs, MongoServerSettings rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The LHS.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The RHS.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the left hand side is equal to the right hand side; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+  <a id="MongoDB_Driver_MongoServerSettings_op_Inequality_" data-uid="MongoDB.Driver.MongoServerSettings.op_Inequality*"></a>
+
+  <h3 id="MongoDB_Driver_MongoServerSettings_op_Inequality_MongoDB_Driver_MongoServerSettings_MongoDB_Driver_MongoServerSettings_" data-uid="MongoDB.Driver.MongoServerSettings.op_Inequality(MongoDB.Driver.MongoServerSettings,MongoDB.Driver.MongoServerSettings)">
+  operator !=(MongoServerSettings, MongoServerSettings)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServerSettings.cs/#L774"><i class="bi bi-code-slash"></i></a>
+  </h3>
+
+  <div class="markdown level1 summary"><p>Determines whether two <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a> instances are not equal.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(MongoServerSettings lhs, MongoServerSettings rhs)</code></pre>
+  </div>
+
+  <h4 class="section">Parameters</h4>
+  <dl class="parameters">
+    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The LHS.</p>
+</dd>
+    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+    <dd><p>The RHS.</p>
+</dd>
+  </dl>
+
+  <h4 class="section">Returns</h4>
+  <dl class="parameters">
+    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+    <dd><p><code>true</code> if the left hand side is not equal to the right hand side; otherwise, <code>false</code>.</p>
+</dd>
+  </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
