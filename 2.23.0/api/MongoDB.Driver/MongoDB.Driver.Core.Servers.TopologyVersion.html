@@ -143,564 +143,110 @@
   <h2 id="MongoDB_Driver_Core_Servers_TopologyVersion_remarks">Remarks</h2>
   <div class="markdown level0 remarks"><p>Comparing topology descriptions freshness does not exhibit the reversal property of
 inequalities e.g. IsStalerThan(a, b) (a &quot;&lt;&quot; b) does not imply !IsStalerThan(b, a) (b &quot;&gt;&quot; a)
-See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.</p>
+See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.</p>
 </div>
-
 
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion__ctor_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion__ctor_MongoDB_Bson_ObjectId_System_Int64_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.#ctor(MongoDB.Bson.ObjectId,System.Int64)">
-  TopologyVersion(ObjectId, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L167"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TopologyVersion(ObjectId processId, long counter)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>processId</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
-    <dd><p>The process identifier.</p>
-</dd>
-    <dt><code>counter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The counter.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.-ctor.html#MongoDB_Driver_Core_Servers_TopologyVersion__ctor_MongoDB_Bson_ObjectId_System_Int64_">TopologyVersion(ObjectId, long)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_Counter_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Counter*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_Counter" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Counter">
-  Counter
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L182"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the process identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long Counter { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The process identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.Counter.html#MongoDB_Driver_Core_Servers_TopologyVersion_Counter">Counter</a></dt>
+    <dd><p>Gets the process identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_ProcessId_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ProcessId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_ProcessId" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ProcessId">
-  ProcessId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L191"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the process identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ObjectId ProcessId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.ObjectId.html">ObjectId</a></dt>
-    <dd><p>The process identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.ProcessId.html#MongoDB_Driver_Core_Servers_TopologyVersion_ProcessId">ProcessId</a></dt>
+    <dd><p>Gets the process identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion(MongoDB.Driver.Core.Servers.TopologyVersion,MongoDB.Driver.Core.Servers.TopologyVersion)">
-  CompareTopologyVersion(TopologyVersion, TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Compares a local TopologyVersion with a server's TopologyVersion and indicates whether the local
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a></dt>
+    <dd><p>Compares a local TopologyVersion with a server's TopologyVersion and indicates whether the local
 TopologyVersion is staler, fresher, or equal to the server's TopologyVersion.
 Per the SDAM specification, if the ProcessIds are not equal, this method assumes that
 <code class="paramref">y</code> is more recent. This means that this method does not exhibit
 the reversal properties of inequalities i.e. a &quot;&lt;&quot; b does not imply b &quot;&gt;&quot; a.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int CompareTopologyVersion(TopologyVersion x, TopologyVersion y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>x</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The first TopologyVersion.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The other TopologyVersion.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>Less than zero indicates that the <code class="paramref">x</code> is staler than the <code class="paramref">y</code>.
-Zero indicates that the <code class="paramref">x</code> description is equal to the <code class="paramref">y</code>.
-Greater than zero indicates that the <code class="paramref">x</code> is fresher than the <code class="paramref">y</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.Equals.html#MongoDB_Driver_Core_Servers_TopologyVersion_Equals_MongoDB_Driver_Core_Servers_TopologyVersion_">Equals(TopologyVersion)</a></dt>
+    <dd></dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.Equals.html#MongoDB_Driver_Core_Servers_TopologyVersion_Equals_System_Object_">Equals(object)</a></dt>
+    <dd></dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.FromBsonDocument.html#MongoDB_Driver_Core_Servers_TopologyVersion_FromBsonDocument_MongoDB_Bson_BsonDocument_">FromBsonDocument(BsonDocument)</a></dt>
+    <dd><p>Attempts to create a TopologyVersion from the supplied BsonDocument.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_Equals_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_Equals_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Equals(MongoDB.Driver.Core.Servers.TopologyVersion)">
-  Equals(TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L201"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Equals(TopologyVersion other)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>other</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.GetHashCode.html#MongoDB_Driver_Core_Servers_TopologyVersion_GetHashCode">GetHashCode()</a></dt>
     <dd></dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_Equals_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_Equals_System_Object_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.Equals(System.Object)">
-  Equals(object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L195"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd></dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_FromBsonDocument_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.FromBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_FromBsonDocument_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.FromBsonDocument(MongoDB.Bson.BsonDocument)">
-  FromBsonDocument(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L68"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Attempts to create a TopologyVersion from the supplied BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static TopologyVersion FromBsonDocument(BsonDocument document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The document. Should contain an ObjectId named &quot;processId&quot; and a BsonInt64 named &quot;counter&quot;.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>A TopologyVersion if one could be constructed from the supplied document and null otherwise.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_GetHashCode_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.GetHashCode*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_GetHashCode" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.GetHashCode">
-  GetHashCode()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L212"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThan_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThan*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThan_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThan(MongoDB.Driver.Core.Servers.TopologyVersion,MongoDB.Driver.Core.Servers.TopologyVersion)">
-  IsFresherThan(TopologyVersion, TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L108"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether or not <code class="paramref">x</code> is fresher than <code class="paramref">y</code>.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThan.html#MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThan_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">IsFresherThan(TopologyVersion, TopologyVersion)</a></dt>
+    <dd><p>Gets whether or not <code class="paramref">x</code> is fresher than <code class="paramref">y</code>.
 Comparing topology descriptions freshness does not exhibit the reversal property of
 inequalities e.g. a.IsFresherThan(b) (a &quot;&lt;&quot; b) does not imply
 !b.IsFresherThan(a) (b &quot;&gt;&quot; a)
-See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
+See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
 In the case that this.Equals(<code class="paramref">y</code>), <code class="paramref">y</code> will be considered to be fresher.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool IsFresherThan(TopologyVersion x, TopologyVersion y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>x</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The first TopologyVersion.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The other TopologyVersion.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether or not this TopologyVersion is fresher than <code class="paramref">y</code>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThanOrEqualTo_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThanOrEqualTo*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThanOrEqualTo_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThanOrEqualTo(MongoDB.Driver.Core.Servers.TopologyVersion,MongoDB.Driver.Core.Servers.TopologyVersion)">
-  IsFresherThanOrEqualTo(TopologyVersion, TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L123"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether or not <code class="paramref">x</code> is fresher than or Equal to <code class="paramref">y</code>.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.IsFresherThanOrEqualTo.html#MongoDB_Driver_Core_Servers_TopologyVersion_IsFresherThanOrEqualTo_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">IsFresherThanOrEqualTo(TopologyVersion, TopologyVersion)</a></dt>
+    <dd><p>Gets whether or not <code class="paramref">x</code> is fresher than or Equal to <code class="paramref">y</code>.
 Comparing topology descriptions freshness does not exhibit the reversal property of
 inequalities e.g. a.IsFresherThan(b) (a &quot;&lt;&quot; b) does not imply
 !b.IsFresherThan(a) (b &quot;&gt;&quot; a)
-See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
+See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
 In the case that this.Equals(<code class="paramref">y</code>), <code class="paramref">y</code> will be considered to be fresher.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool IsFresherThanOrEqualTo(TopologyVersion x, TopologyVersion y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>x</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The first TopologyVersion.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The other TopologyVersion.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether or not this TopologyVersion is fresher than <code class="paramref">y</code>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThan_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThan*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThan_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThan(MongoDB.Driver.Core.Servers.TopologyVersion,MongoDB.Driver.Core.Servers.TopologyVersion)">
-  IsStalerThan(TopologyVersion, TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L138"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether or not <code class="paramref">x</code> is staler than or Equal to <code class="paramref">y</code>.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThan.html#MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThan_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">IsStalerThan(TopologyVersion, TopologyVersion)</a></dt>
+    <dd><p>Gets whether or not <code class="paramref">x</code> is staler than or Equal to <code class="paramref">y</code>.
 Comparing topology descriptions freshness does not exhibit the reversal property of
 inequalities e.g. a.IsStalerThan(b) (a &quot;&lt;&quot; b) does not imply
 !b.IsStalerThan(a) (b &quot;&gt;&quot; a).
-See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
+See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
 In the case that this == <code class="paramref">y</code>, <code class="paramref">y</code> will be considered to be fresher.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool IsStalerThan(TopologyVersion x, TopologyVersion y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>x</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The first TopologyVersion.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The other TopologyVersion.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether or not this TopologyVersion is staler than <code class="paramref">y</code>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThanOrEqualTo_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThanOrEqualTo*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThanOrEqualTo_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThanOrEqualTo(MongoDB.Driver.Core.Servers.TopologyVersion,MongoDB.Driver.Core.Servers.TopologyVersion)">
-  IsStalerThanOrEqualTo(TopologyVersion, TopologyVersion)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L153"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether or not <code class="paramref">x</code> is staler than or Equal to <code class="paramref">y</code>.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.IsStalerThanOrEqualTo.html#MongoDB_Driver_Core_Servers_TopologyVersion_IsStalerThanOrEqualTo_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">IsStalerThanOrEqualTo(TopologyVersion, TopologyVersion)</a></dt>
+    <dd><p>Gets whether or not <code class="paramref">x</code> is staler than or Equal to <code class="paramref">y</code>.
 Comparing topology descriptions freshness does not exhibit the reversal property of
 inequalities e.g. a.IsStalerThan(b) (a &quot;&lt;&quot; b) does not imply
 !b.IsStalerThan(a) (b &quot;&gt;&quot; a).
-See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
+See <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.CompareTopologyVersion.html#MongoDB_Driver_Core_Servers_TopologyVersion_CompareTopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_MongoDB_Driver_Core_Servers_TopologyVersion_">CompareTopologyVersion(TopologyVersion, TopologyVersion)</a> for more information.
 In the case that this == <code class="paramref">y</code>, <code class="paramref">y</code> will be considered to be fresher.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool IsStalerThanOrEqualTo(TopologyVersion x, TopologyVersion y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>x</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The first TopologyVersion.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a></dt>
-    <dd><p>The other TopologyVersion.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether or not this TopologyVersion is staler than <code class="paramref">y</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.ToBsonDocument.html#MongoDB_Driver_Core_Servers_TopologyVersion_ToBsonDocument">ToBsonDocument()</a></dt>
+    <dd><p>Converts this object to a BsonDocument.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_ToBsonDocument_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ToBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_ToBsonDocument" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ToBsonDocument">
-  ToBsonDocument()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L215"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts this object to a BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument ToBsonDocument()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Servers_TopologyVersion_ToString_" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Servers_TopologyVersion_ToString" data-uid="MongoDB.Driver.Core.Servers.TopologyVersion.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Servers/TopologyVersion.cs/#L218"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.ToString.html#MongoDB_Driver_Core_Servers_TopologyVersion_ToString">ToString()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
 
 
 

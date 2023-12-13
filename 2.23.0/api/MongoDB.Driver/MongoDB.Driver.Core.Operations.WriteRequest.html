@@ -155,154 +155,37 @@ public abstract class WriteRequest</code></pre>
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_WriteRequest__ctor_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_WriteRequest__ctor_MongoDB_Driver_Core_Operations_WriteRequestType_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.#ctor(MongoDB.Driver.Core.Operations.WriteRequestType)">
-  WriteRequest(WriteRequestType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/WriteRequest.cs/#L36"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.html">WriteRequest</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected WriteRequest(WriteRequestType requestType)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>requestType</code> <a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequestType.html">WriteRequestType</a></dt>
-    <dd><p>The request type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.-ctor.html#MongoDB_Driver_Core_Operations_WriteRequest__ctor_MongoDB_Driver_Core_Operations_WriteRequestType_">WriteRequest(WriteRequestType)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.html">WriteRequest</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_WriteRequest_CorrelationId_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.CorrelationId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_WriteRequest_CorrelationId" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.CorrelationId">
-  CorrelationId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/WriteRequest.cs/#L45"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the correlation identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int? CorrelationId { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_WriteRequest_RequestType_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.RequestType*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_WriteRequest_RequestType" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.RequestType">
-  RequestType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/WriteRequest.cs/#L57"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the request type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public WriteRequestType RequestType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequestType.html">WriteRequestType</a></dt>
-    <dd><p>The request type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.CorrelationId.html#MongoDB_Driver_Core_Operations_WriteRequest_CorrelationId">CorrelationId</a></dt>
+    <dd><p>Gets or sets the correlation identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.RequestType.html#MongoDB_Driver_Core_Operations_WriteRequest_RequestType">RequestType</a></dt>
+    <dd><p>Gets the request type.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_WriteRequest_IsRetryable_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.IsRetryable*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_WriteRequest_IsRetryable_MongoDB_Driver_Core_Connections_ConnectionDescription_" data-uid="MongoDB.Driver.Core.Operations.WriteRequest.IsRetryable(MongoDB.Driver.Core.Connections.ConnectionDescription)">
-  IsRetryable(ConnectionDescription)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/WriteRequest.cs/#L70"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether the request is retryable on a given connection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract bool IsRetryable(ConnectionDescription connectionDescription)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionDescription</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionDescription.html">ConnectionDescription</a></dt>
-    <dd><p>The connection description.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.IsRetryable.html#MongoDB_Driver_Core_Operations_WriteRequest_IsRetryable_MongoDB_Driver_Core_Connections_ConnectionDescription_">IsRetryable(ConnectionDescription)</a></dt>
+    <dd><p>Determines whether the request is retryable on a given connection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if the request is retryable; otherwise, <code>false</code>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

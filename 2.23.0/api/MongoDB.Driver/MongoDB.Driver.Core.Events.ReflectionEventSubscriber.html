@@ -150,97 +150,23 @@ of that single argument's type.</p>
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Events_ReflectionEventSubscriber__ctor_" data-uid="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ReflectionEventSubscriber__ctor_System_Object_System_String_System_Reflection_BindingFlags_" data-uid="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.#ctor(System.Object,System.String,System.Reflection.BindingFlags)">
-  ReflectionEventSubscriber(object, string, BindingFlags)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ReflectionEventSubscriber.cs/#L38"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.html">ReflectionEventSubscriber</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ReflectionEventSubscriber(object instance, string methodName = &quot;Handle&quot;, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>instance</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The instance.</p>
-</dd>
-    <dt><code>methodName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>Name of the method to match against.</p>
-</dd>
-    <dt><code>bindingFlags</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.reflection.bindingflags">BindingFlags</a></dt>
-    <dd><p>The binding flags.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.-ctor.html#MongoDB_Driver_Core_Events_ReflectionEventSubscriber__ctor_System_Object_System_String_System_Reflection_BindingFlags_">ReflectionEventSubscriber(object, string, BindingFlags)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.html">ReflectionEventSubscriber</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Events_ReflectionEventSubscriber_TryGetEventHandler_" data-uid="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.TryGetEventHandler*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ReflectionEventSubscriber_TryGetEventHandler__1_System_Action___0___" data-uid="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.TryGetEventHandler``1(System.Action{``0}@)">
-  TryGetEventHandler&lt;TEvent&gt;(out Action&lt;TEvent&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ReflectionEventSubscriber.cs/#L60"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tries to get an event handler for an event of type TEvent.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool TryGetEventHandler&lt;TEvent&gt;(out Action&lt;TEvent&gt; handler)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>handler</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action-1">Action</a>&lt;TEvent&gt;</dt>
-    <dd><p>The handler.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ReflectionEventSubscriber.TryGetEventHandler.html#MongoDB_Driver_Core_Events_ReflectionEventSubscriber_TryGetEventHandler__1_System_Action___0___">TryGetEventHandler&lt;TEvent&gt;(out Action&lt;TEvent&gt;)</a></dt>
+    <dd><p>Tries to get an event handler for an event of type TEvent.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if this subscriber has provided an event handler; otherwise <code>false</code>.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TEvent</code></dt>
-    <dd><p>The type of the event.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

@@ -146,249 +146,39 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Bson_BsonTypeMapper_MapToBsonValue_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToBsonValue*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_MapToBsonValue_System_Object_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToBsonValue(System.Object)">
-  MapToBsonValue(object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L171"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Maps an object to an instance of the closest BsonValue class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BsonValue MapToBsonValue(object value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>An object.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.MapToBsonValue.html#MongoDB_Bson_BsonTypeMapper_MapToBsonValue_System_Object_">MapToBsonValue(object)</a></dt>
+    <dd><p>Maps an object to an instance of the closest BsonValue class.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>A BsonValue.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.MapToBsonValue.html#MongoDB_Bson_BsonTypeMapper_MapToBsonValue_System_Object_MongoDB_Bson_BsonType_">MapToBsonValue(object, BsonType)</a></dt>
+    <dd><p>Maps an object to a specific BsonValue type.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonTypeMapper_MapToBsonValue_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToBsonValue*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_MapToBsonValue_System_Object_MongoDB_Bson_BsonType_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToBsonValue(System.Object,MongoDB.Bson.BsonType)">
-  MapToBsonValue(object, BsonType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L189"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Maps an object to a specific BsonValue type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BsonValue MapToBsonValue(object value, BsonType bsonType)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>An object.</p>
-</dd>
-    <dt><code>bsonType</code> <a class="xref" href="MongoDB.Bson.BsonType.html">BsonType</a></dt>
-    <dd><p>The BsonType to map to.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue.html#MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_MongoDB_Bson_BsonValue_">MapToDotNetValue(BsonValue)</a></dt>
+    <dd><p>Maps a BsonValue to a .NET value using the default BsonTypeMapperOptions.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>A BsonValue of the desired type (or BsonNull.Value if value is null and bsonType is Null).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue.html#MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonTypeMapperOptions_">MapToDotNetValue(BsonValue, BsonTypeMapperOptions)</a></dt>
+    <dd><p>Maps a BsonValue to a .NET value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue(MongoDB.Bson.BsonValue)">
-  MapToDotNetValue(BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L270"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Maps a BsonValue to a .NET value using the default BsonTypeMapperOptions.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static object MapToDotNetValue(BsonValue bsonValue)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>bsonValue</code> <a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The BsonValue.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.RegisterCustomTypeMapper.html#MongoDB_Bson_BsonTypeMapper_RegisterCustomTypeMapper_System_Type_MongoDB_Bson_ICustomBsonTypeMapper_">RegisterCustomTypeMapper(Type, ICustomBsonTypeMapper)</a></dt>
+    <dd><p>Registers a custom type mapper.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The mapped .NET value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonTypeMapper.TryMapToBsonValue.html#MongoDB_Bson_BsonTypeMapper_TryMapToBsonValue_System_Object_MongoDB_Bson_BsonValue__">TryMapToBsonValue(object, out BsonValue)</a></dt>
+    <dd><p>Tries to map an object to an instance of the closest BsonValue class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_MapToDotNetValue_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonTypeMapperOptions_" data-uid="MongoDB.Bson.BsonTypeMapper.MapToDotNetValue(MongoDB.Bson.BsonValue,MongoDB.Bson.BsonTypeMapperOptions)">
-  MapToDotNetValue(BsonValue, BsonTypeMapperOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L281"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Maps a BsonValue to a .NET value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static object MapToDotNetValue(BsonValue bsonValue, BsonTypeMapperOptions options)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>bsonValue</code> <a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The BsonValue.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Bson.BsonTypeMapperOptions.html">BsonTypeMapperOptions</a></dt>
-    <dd><p>The BsonTypeMapperOptions.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The mapped .NET value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonTypeMapper_RegisterCustomTypeMapper_" data-uid="MongoDB.Bson.BsonTypeMapper.RegisterCustomTypeMapper*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_RegisterCustomTypeMapper_System_Type_MongoDB_Bson_ICustomBsonTypeMapper_" data-uid="MongoDB.Bson.BsonTypeMapper.RegisterCustomTypeMapper(System.Type,MongoDB.Bson.ICustomBsonTypeMapper)">
-  RegisterCustomTypeMapper(Type, ICustomBsonTypeMapper)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L444"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Registers a custom type mapper.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void RegisterCustomTypeMapper(Type type, ICustomBsonTypeMapper customTypeMapper)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The type.</p>
-</dd>
-    <dt><code>customTypeMapper</code> <a class="xref" href="MongoDB.Bson.ICustomBsonTypeMapper.html">ICustomBsonTypeMapper</a></dt>
-    <dd><p>A custom type mapper.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonTypeMapper_TryMapToBsonValue_" data-uid="MongoDB.Bson.BsonTypeMapper.TryMapToBsonValue*"></a>
-
-  <h3 id="MongoDB_Bson_BsonTypeMapper_TryMapToBsonValue_System_Object_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Bson.BsonTypeMapper.TryMapToBsonValue(System.Object,MongoDB.Bson.BsonValue@)">
-  TryMapToBsonValue(object, out BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/BsonTypeMapper.cs/#L455"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tries to map an object to an instance of the closest BsonValue class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool TryMapToBsonValue(object value, out BsonValue bsonValue)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>An object.</p>
-</dd>
-    <dt><code>bsonValue</code> <a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The BsonValue.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the mapping was successfull.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

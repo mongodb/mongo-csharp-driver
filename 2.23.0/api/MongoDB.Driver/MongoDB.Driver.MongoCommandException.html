@@ -138,22 +138,22 @@ public class MongoCommandException : MongoServerException, ISerializable</code><
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.AddErrorLabelsFromCommandResult.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.ConnectionId.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.ErrorLabels.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.AddErrorLabel.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.HasErrorLabel.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.RemoveErrorLabel.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception.getbaseexception">Exception.GetBaseException()</a>
@@ -212,377 +212,66 @@ public class MongoCommandException : MongoServerException, ISerializable</code><
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCommandException__ctor_" data-uid="MongoDB.Driver.MongoCommandException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCommandException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,MongoDB.Bson.BsonDocument)">
-  MongoCommandException(ConnectionId, string, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L40"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>command</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.-ctor.html#MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_">MongoCommandException(ConnectionId, string, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException__ctor_" data-uid="MongoDB.Driver.MongoCommandException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCommandException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,MongoDB.Bson.BsonDocument,MongoDB.Bson.BsonDocument)">
-  MongoCommandException(ConnectionId, string, BsonDocument, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L52"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>command</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command.</p>
-</dd>
-    <dt><code>result</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.-ctor.html#MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument_">MongoCommandException(ConnectionId, string, BsonDocument, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException__ctor_" data-uid="MongoDB.Driver.MongoCommandException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument_System_Exception_" data-uid="MongoDB.Driver.MongoCommandException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,MongoDB.Bson.BsonDocument,MongoDB.Bson.BsonDocument,System.Exception)">
-  MongoCommandException(ConnectionId, string, BsonDocument, BsonDocument, Exception)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L66"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>command</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command.</p>
-</dd>
-    <dt><code>result</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command result.</p>
-</dd>
-    <dt><code>innerException</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception">Exception</a></dt>
-    <dd><p>The inner exception.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.-ctor.html#MongoDB_Driver_MongoCommandException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument_System_Exception_">MongoCommandException(ConnectionId, string, BsonDocument, BsonDocument, Exception)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException__ctor_" data-uid="MongoDB.Driver.MongoCommandException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoCommandException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  MongoCommandException(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L80"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected MongoCommandException(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The SerializationInfo.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The StreamingContext.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.-ctor.html#MongoDB_Driver_MongoCommandException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">MongoCommandException(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCommandException.html">MongoCommandException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCommandException_Code_" data-uid="MongoDB.Driver.MongoCommandException.Code*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_Code" data-uid="MongoDB.Driver.MongoCommandException.Code">
-  Code
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L94"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Code { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.Code.html#MongoDB_Driver_MongoCommandException_Code">Code</a></dt>
+    <dd><p>Gets the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException_CodeName_" data-uid="MongoDB.Driver.MongoCommandException.CodeName*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_CodeName" data-uid="MongoDB.Driver.MongoCommandException.CodeName">
-  CodeName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L105"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string CodeName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.CodeName.html#MongoDB_Driver_MongoCommandException_CodeName">CodeName</a></dt>
+    <dd><p>Gets the name of the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException_Command_" data-uid="MongoDB.Driver.MongoCommandException.Command*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_Command" data-uid="MongoDB.Driver.MongoCommandException.Command">
-  Command
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L116"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the command.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument Command { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.Command.html#MongoDB_Driver_MongoCommandException_Command">Command</a></dt>
+    <dd><p>Gets the command.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException_ErrorMessage_" data-uid="MongoDB.Driver.MongoCommandException.ErrorMessage*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_ErrorMessage" data-uid="MongoDB.Driver.MongoCommandException.ErrorMessage">
-  ErrorMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L127"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string ErrorMessage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.ErrorMessage.html#MongoDB_Driver_MongoCommandException_ErrorMessage">ErrorMessage</a></dt>
+    <dd><p>Gets the error message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCommandException_Result_" data-uid="MongoDB.Driver.MongoCommandException.Result*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_Result" data-uid="MongoDB.Driver.MongoCommandException.Result">
-  Result
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L138"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the command result.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument Result { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.Result.html#MongoDB_Driver_MongoCommandException_Result">Result</a></dt>
+    <dd><p>Gets the command result.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCommandException_GetObjectData_" data-uid="MongoDB.Driver.MongoCommandException.GetObjectData*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCommandException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoCommandException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  GetObjectData(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCommandException.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd></dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCommandException.GetObjectData.html#MongoDB_Driver_MongoCommandException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">GetObjectData(SerializationInfo, StreamingContext)</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

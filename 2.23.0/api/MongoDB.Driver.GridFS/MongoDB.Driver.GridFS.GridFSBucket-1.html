@@ -164,1271 +164,162 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1__ctor_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1__ctor_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_GridFS_GridFSBucketOptions_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.#ctor(MongoDB.Driver.IMongoDatabase,MongoDB.Driver.GridFS.GridFSBucketOptions)">
-  GridFSBucket(IMongoDatabase, GridFSBucketOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L56"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket.html">GridFSBucket</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public GridFSBucket(IMongoDatabase database, GridFSBucketOptions options = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>database</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSBucketOptions.html">GridFSBucketOptions</a></dt>
-    <dd><p>The options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.-ctor.html#MongoDB_Driver_GridFS_GridFSBucket_1__ctor_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_GridFS_GridFSBucketOptions_">GridFSBucket(IMongoDatabase, GridFSBucketOptions)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket.html">GridFSBucket</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Database_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Database*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Database" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Database">
-  Database
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L70"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the database where the GridFS files are stored.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoDatabase Database { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Database.html#MongoDB_Driver_GridFS_GridFSBucket_1_Database">Database</a></dt>
+    <dd><p>Gets the database where the GridFS files are stored.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Options_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Options*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Options" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Options">
-  Options
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L76"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ImmutableGridFSBucketOptions Options { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.ImmutableGridFSBucketOptions.html">ImmutableGridFSBucketOptions</a></dt>
-    <dd><p>The options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Options.html#MongoDB_Driver_GridFS_GridFSBucket_1_Options">Options</a></dt>
+    <dd><p>Gets the options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Delete_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Delete*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Delete__0_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Delete(`0,System.Threading.CancellationToken)">
-  Delete(TFileId, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L83"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Deletes a file from GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Delete(TFileId id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Delete.html#MongoDB_Driver_GridFS_GridFSBucket_1_Delete__0_System_Threading_CancellationToken_">Delete(TFileId, CancellationToken)</a></dt>
+    <dd><p>Deletes a file from GridFS.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DeleteAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DeleteAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DeleteAsync__0_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DeleteAsync(`0,System.Threading.CancellationToken)">
-  DeleteAsync(TFileId, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L102"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Deletes a file from GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task DeleteAsync(TFileId id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DeleteAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DeleteAsync__0_System_Threading_CancellationToken_">DeleteAsync(TFileId, CancellationToken)</a></dt>
+    <dd><p>Deletes a file from GridFS.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadAsBytes.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytes__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">DownloadAsBytes(TFileId, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytes_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytes*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytes__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytes(`0,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  DownloadAsBytes(TFileId, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L121"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public byte[] DownloadAsBytes(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadAsBytesAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesAsync__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">DownloadAsBytesAsync(TFileId, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The contents of the file stored in GridFS.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadAsBytesByName.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByName_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">DownloadAsBytesByName(string, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesAsync__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesAsync(`0,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  DownloadAsBytesAsync(TFileId, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L133"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;byte[]&gt; DownloadAsBytesAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadAsBytesByNameAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByNameAsync_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">DownloadAsBytesByNameAsync(string, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]&gt;</dt>
-    <dd><p>A Task whose result is a byte array containing the contents of the file stored in GridFS.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadToStream.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStream__0_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">DownloadToStream(TFileId, Stream, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByName_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesByName*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByName_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesByName(System.String,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  DownloadAsBytesByName(string, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public byte[] DownloadAsBytesByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadToStreamAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamAsync__0_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">DownloadToStreamAsync(TFileId, Stream, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>A byte array containing the contents of the file stored in GridFS.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadToStreamByName.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByName_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">DownloadToStreamByName(string, Stream, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByNameAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesByNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadAsBytesByNameAsync_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadAsBytesByNameAsync(System.String,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  DownloadAsBytesByNameAsync(string, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L158"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and returns it as a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;byte[]&gt; DownloadAsBytesByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DownloadToStreamByNameAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByNameAsync_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">DownloadToStreamByNameAsync(string, Stream, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]&gt;</dt>
-    <dd><p>A Task whose result is a byte array containing the contents of the file stored in GridFS.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Drop.html#MongoDB_Driver_GridFS_GridFSBucket_1_Drop_System_Threading_CancellationToken_">Drop(CancellationToken)</a></dt>
+    <dd><p>Drops the files and chunks collections associated with this GridFS bucket.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStream_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStream*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStream__0_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStream(`0,System.IO.Stream,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  DownloadToStream(TFileId, Stream, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L171"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void DownloadToStream(TFileId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>destination</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The destination.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.DropAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_DropAsync_System_Threading_CancellationToken_">DropAsync(CancellationToken)</a></dt>
+    <dd><p>Drops the files and chunks collections associated with this GridFS bucket.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamAsync__0_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamAsync(`0,System.IO.Stream,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  DownloadToStreamAsync(TFileId, Stream, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L184"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task DownloadToStreamAsync(TFileId id, Stream destination, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>destination</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The destination.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Find.html#MongoDB_Driver_GridFS_GridFSBucket_1_Find_MongoDB_Driver_FilterDefinition_MongoDB_Driver_GridFS_GridFSFileInfo__0___MongoDB_Driver_GridFS_GridFSFindOptions__0__System_Threading_CancellationToken_">Find(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt;, GridFSFindOptions&lt;TFileId&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds matching entries from the files collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.FindAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_FindAsync_MongoDB_Driver_FilterDefinition_MongoDB_Driver_GridFS_GridFSFileInfo__0___MongoDB_Driver_GridFS_GridFSFindOptions__0__System_Threading_CancellationToken_">FindAsync(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt;, GridFSFindOptions&lt;TFileId&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds matching entries from the files collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByName_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamByName*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByName_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamByName(System.String,System.IO.Stream,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  DownloadToStreamByName(string, Stream, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L197"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void DownloadToStreamByName(string filename, Stream destination, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>destination</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The destination.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenDownloadStream.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStream__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">OpenDownloadStream(TFileId, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByNameAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamByNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DownloadToStreamByNameAsync_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DownloadToStreamByNameAsync(System.String,System.IO.Stream,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  DownloadToStreamByNameAsync(string, Stream, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L211"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Downloads a file stored in GridFS and writes the contents to a stream.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task DownloadToStreamByNameAsync(string filename, Stream destination, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>destination</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The destination.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenDownloadStreamAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamAsync__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_">OpenDownloadStreamAsync(TFileId, GridFSDownloadOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenDownloadStreamByName.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByName_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">OpenDownloadStreamByName(string, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Drop_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Drop*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Drop_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Drop(System.Threading.CancellationToken)">
-  Drop(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L225"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the files and chunks collections associated with this GridFS bucket.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Drop(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenDownloadStreamByNameAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByNameAsync_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_">OpenDownloadStreamByNameAsync(string, GridFSDownloadByNameOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_DropAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DropAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_DropAsync_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.DropAsync(System.Threading.CancellationToken)">
-  DropAsync(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L242"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the files and chunks collections associated with this GridFS bucket.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task DropAsync(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenUploadStream.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStream__0_System_String_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">OpenUploadStream(TFileId, string, GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to write data to a GridFS file.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.OpenUploadStreamAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStreamAsync__0_System_String_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">OpenUploadStreamAsync(TFileId, string, GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Opens a Stream that can be used by the application to write data to a GridFS file.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Find_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Find*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Find_MongoDB_Driver_FilterDefinition_MongoDB_Driver_GridFS_GridFSFileInfo__0___MongoDB_Driver_GridFS_GridFSFindOptions__0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Find(MongoDB.Driver.FilterDefinition{MongoDB.Driver.GridFS.GridFSFileInfo{`0}},MongoDB.Driver.GridFS.GridFSFindOptions{`0},System.Threading.CancellationToken)">
-  Find(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt;, GridFSFindOptions&lt;TFileId&gt;, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L259"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds matching entries from the files collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IAsyncCursor&lt;GridFSFileInfo&lt;TFileId&gt;&gt; Find(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt; filter, GridFSFindOptions&lt;TFileId&gt; options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filter</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSFileInfo-1.html">GridFSFileInfo</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>The filter.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSFindOptions-1.html">GridFSFindOptions</a>&lt;TFileId&gt;</dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.Rename.html#MongoDB_Driver_GridFS_GridFSBucket_1_Rename__0_System_String_System_Threading_CancellationToken_">Rename(TFileId, string, CancellationToken)</a></dt>
+    <dd><p>Renames a GridFS file.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSFileInfo-1.html">GridFSFileInfo</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>A cursor of files collection documents.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.RenameAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_RenameAsync__0_System_String_System_Threading_CancellationToken_">RenameAsync(TFileId, string, CancellationToken)</a></dt>
+    <dd><p>Renames a GridFS file.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_FindAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.FindAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_FindAsync_MongoDB_Driver_FilterDefinition_MongoDB_Driver_GridFS_GridFSFileInfo__0___MongoDB_Driver_GridFS_GridFSFindOptions__0__System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.FindAsync(MongoDB.Driver.FilterDefinition{MongoDB.Driver.GridFS.GridFSFileInfo{`0}},MongoDB.Driver.GridFS.GridFSFindOptions{`0},System.Threading.CancellationToken)">
-  FindAsync(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt;, GridFSFindOptions&lt;TFileId&gt;, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L272"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds matching entries from the files collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;IAsyncCursor&lt;GridFSFileInfo&lt;TFileId&gt;&gt;&gt; FindAsync(FilterDefinition&lt;GridFSFileInfo&lt;TFileId&gt;&gt; filter, GridFSFindOptions&lt;TFileId&gt; options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filter</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSFileInfo-1.html">GridFSFileInfo</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>The filter.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSFindOptions-1.html">GridFSFindOptions</a>&lt;TFileId&gt;</dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.UploadFromBytes.html#MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytes__0_System_String_System_Byte___MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">UploadFromBytes(TFileId, string, byte[], GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Uploads a file (or a new revision of a file) to GridFS.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Driver/MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSFileInfo-1.html">GridFSFileInfo</a>&lt;TFileId&gt;&gt;&gt;</dt>
-    <dd><p>A Task whose result is a cursor of files collection documents.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.UploadFromBytesAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytesAsync__0_System_String_System_Byte___MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">UploadFromBytesAsync(TFileId, string, byte[], GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Uploads a file (or a new revision of a file) to GridFS.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStream_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStream*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStream__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStream(`0,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  OpenDownloadStream(TFileId, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L285"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public GridFSDownloadStream&lt;TFileId&gt; OpenDownloadStream(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.UploadFromStream.html#MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStream__0_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">UploadFromStream(TFileId, string, Stream, GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Uploads a file (or a new revision of a file) to GridFS.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadStream-1.html">GridFSDownloadStream</a>&lt;TFileId&gt;</dt>
-    <dd><p>A Stream.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSBucket-1.UploadFromStreamAsync.html#MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStreamAsync__0_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_">UploadFromStreamAsync(TFileId, string, Stream, GridFSUploadOptions, CancellationToken)</a></dt>
+    <dd><p>Uploads a file (or a new revision of a file) to GridFS.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamAsync__0_MongoDB_Driver_GridFS_GridFSDownloadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamAsync(`0,MongoDB.Driver.GridFS.GridFSDownloadOptions,System.Threading.CancellationToken)">
-  OpenDownloadStreamAsync(TFileId, GridFSDownloadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L297"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;GridFSDownloadStream&lt;TFileId&gt;&gt; OpenDownloadStreamAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadOptions.html">GridFSDownloadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadStream-1.html">GridFSDownloadStream</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>A Task whose result is a Stream.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByName_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamByName*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByName_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamByName(System.String,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  OpenDownloadStreamByName(string, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L309"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public GridFSDownloadStream&lt;TFileId&gt; OpenDownloadStreamByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadStream-1.html">GridFSDownloadStream</a>&lt;TFileId&gt;</dt>
-    <dd><p>A Stream.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByNameAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamByNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenDownloadStreamByNameAsync_System_String_MongoDB_Driver_GridFS_GridFSDownloadByNameOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenDownloadStreamByNameAsync(System.String,MongoDB.Driver.GridFS.GridFSDownloadByNameOptions,System.Threading.CancellationToken)">
-  OpenDownloadStreamByNameAsync(string, GridFSDownloadByNameOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L322"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to read data from a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;GridFSDownloadStream&lt;TFileId&gt;&gt; OpenDownloadStreamByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadByNameOptions.html">GridFSDownloadByNameOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSDownloadStream-1.html">GridFSDownloadStream</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>A Task whose result is a Stream.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStream_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenUploadStream*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStream__0_System_String_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenUploadStream(`0,System.String,MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  OpenUploadStream(TFileId, string, GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L335"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to write data to a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public GridFSUploadStream&lt;TFileId&gt; OpenUploadStream(TFileId id, string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadStream-1.html">GridFSUploadStream</a>&lt;TFileId&gt;</dt>
-    <dd><p>A Stream.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStreamAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenUploadStreamAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_OpenUploadStreamAsync__0_System_String_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.OpenUploadStreamAsync(`0,System.String,MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  OpenUploadStreamAsync(TFileId, string, GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L349"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Opens a Stream that can be used by the application to write data to a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;GridFSUploadStream&lt;TFileId&gt;&gt; OpenUploadStreamAsync(TFileId id, string filename, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadStream-1.html">GridFSUploadStream</a>&lt;TFileId&gt;&gt;</dt>
-    <dd><p>A Task whose result is a Stream.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_Rename_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Rename*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_Rename__0_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.Rename(`0,System.String,System.Threading.CancellationToken)">
-  Rename(TFileId, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L363"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renames a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Rename(TFileId id, string newFilename, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>newFilename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The new filename.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_RenameAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.RenameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_RenameAsync__0_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.RenameAsync(`0,System.String,System.Threading.CancellationToken)">
-  RenameAsync(TFileId, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L380"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renames a GridFS file.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task RenameAsync(TFileId id, string newFilename, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>newFilename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The new filename.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytes_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromBytes*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytes__0_System_String_System_Byte___MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromBytes(`0,System.String,System.Byte[],MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  UploadFromBytes(TFileId, string, byte[], GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L397"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Uploads a file (or a new revision of a file) to GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void UploadFromBytes(TFileId id, string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The source.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytesAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromBytesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromBytesAsync__0_System_String_System_Byte___MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromBytesAsync(`0,System.String,System.Byte[],MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  UploadFromBytesAsync(TFileId, string, byte[], GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L411"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Uploads a file (or a new revision of a file) to GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task UploadFromBytesAsync(TFileId id, string filename, byte[] source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The source.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStream_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromStream*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStream__0_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromStream(`0,System.String,System.IO.Stream,MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  UploadFromStream(TFileId, string, Stream, GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L425"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Uploads a file (or a new revision of a file) to GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void UploadFromStream(TFileId id, string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The source.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStreamAsync_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromStreamAsync*"></a>
-
-  <h3 id="MongoDB_Driver_GridFS_GridFSBucket_1_UploadFromStreamAsync__0_System_String_System_IO_Stream_MongoDB_Driver_GridFS_GridFSUploadOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.GridFS.GridFSBucket`1.UploadFromStreamAsync(`0,System.String,System.IO.Stream,MongoDB.Driver.GridFS.GridFSUploadOptions,System.Threading.CancellationToken)">
-  UploadFromStreamAsync(TFileId, string, Stream, GridFSUploadOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.GridFS/GridFSBucket.cs/#L468"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Uploads a file (or a new revision of a file) to GridFS.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task UploadFromStreamAsync(TFileId id, string filename, Stream source, GridFSUploadOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <span class="xref">TFileId</span></dt>
-    <dd><p>The file id.</p>
-</dd>
-    <dt><code>filename</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The filename.</p>
-</dd>
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The source.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.GridFS.GridFSUploadOptions.html">GridFSUploadOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A Task.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

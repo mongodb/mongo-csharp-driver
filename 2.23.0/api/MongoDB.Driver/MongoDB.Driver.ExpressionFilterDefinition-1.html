@@ -95,7 +95,7 @@
   <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
   </div>
 
-  <div class="markdown summary"><p>An <a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.html#MongoDB_Driver_ExpressionFilterDefinition_1_Expression">Expression</a> based filter.</p>
+  <div class="markdown summary"><p>An <a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.Expression.html#MongoDB_Driver_ExpressionFilterDefinition_1_Expression">Expression</a> based filter.</p>
 </div>
   <div class="markdown conceptual"></div>
 
@@ -127,10 +127,10 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html#MongoDB_Driver_FilterDefinition_1_Empty">FilterDefinition&lt;TDocument&gt;.Empty</a>
+      <a class="xref" href="MongoDB.Driver.FilterDefinition-1.Empty.html#MongoDB_Driver_FilterDefinition_1_Empty">FilterDefinition&lt;TDocument&gt;.Empty</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html#MongoDB_Driver_FilterDefinition_1_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_">FilterDefinition&lt;TDocument&gt;.Render(IBsonSerializer&lt;TDocument&gt;, IBsonSerializerRegistry)</a>
+      <a class="xref" href="MongoDB.Driver.FilterDefinition-1.Render.html#MongoDB_Driver_FilterDefinition_1_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_">FilterDefinition&lt;TDocument&gt;.Render(IBsonSerializer&lt;TDocument&gt;, IBsonSerializerRegistry)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -156,10 +156,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqExtensions.html#MongoDB_Driver_Linq_LinqExtensions_Inject__1_MongoDB_Driver_FilterDefinition___0__">LinqExtensions.Inject&lt;TDocument&gt;(FilterDefinition&lt;TDocument&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqExtensions.Inject.html#MongoDB_Driver_Linq_LinqExtensions_Inject__1_MongoDB_Driver_FilterDefinition___0__">LinqExtensions.Inject&lt;TDocument&gt;(FilterDefinition&lt;TDocument&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -167,123 +166,29 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_ExpressionFilterDefinition_1__ctor_" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_ExpressionFilterDefinition_1__ctor_System_Linq_Expressions_Expression_System_Func__0_System_Boolean___" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
-  ExpressionFilterDefinition(Expression&lt;Func&lt;TDocument, bool&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/FilterDefinition.cs/#L205"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.html">ExpressionFilterDefinition&lt;TDocument&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ExpressionFilterDefinition(Expression&lt;Func&lt;TDocument, bool&gt;&gt; expression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>expression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;&gt;</dt>
-    <dd><p>The expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.-ctor.html#MongoDB_Driver_ExpressionFilterDefinition_1__ctor_System_Linq_Expressions_Expression_System_Func__0_System_Boolean___">ExpressionFilterDefinition(Expression&lt;Func&lt;TDocument, bool&gt;&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.html">ExpressionFilterDefinition&lt;TDocument&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_ExpressionFilterDefinition_1_Expression_" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.Expression*"></a>
-
-  <h3 id="MongoDB_Driver_ExpressionFilterDefinition_1_Expression" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.Expression">
-  Expression
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/FilterDefinition.cs/#L213"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the expression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Expression&lt;Func&lt;TDocument, bool&gt;&gt; Expression { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;&gt;</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.Expression.html#MongoDB_Driver_ExpressionFilterDefinition_1_Expression">Expression</a></dt>
+    <dd><p>Gets the expression.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_ExpressionFilterDefinition_1_Render_" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.Render*"></a>
-
-  <h3 id="MongoDB_Driver_ExpressionFilterDefinition_1_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_" data-uid="MongoDB.Driver.ExpressionFilterDefinition`1.Render(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry,MongoDB.Driver.Linq.LinqProvider)">
-  Render(IBsonSerializer&lt;TDocument&gt;, IBsonSerializerRegistry, LinqProvider)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/FilterDefinition.cs/#L219"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the filter to a <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override BsonDocument Render(IBsonSerializer&lt;TDocument&gt; documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>documentSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
-    <dd><p>The document serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
-</dd>
-    <dt><code>linqProvider</code> <a class="xref" href="MongoDB.Driver.Linq.LinqProvider.html">LinqProvider</a></dt>
-    <dd><p>The LINQ provider.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ExpressionFilterDefinition-1.Render.html#MongoDB_Driver_ExpressionFilterDefinition_1_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_">Render(IBsonSerializer&lt;TDocument&gt;, IBsonSerializerRegistry, LinqProvider)</a></dt>
+    <dd><p>Renders the filter to a <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

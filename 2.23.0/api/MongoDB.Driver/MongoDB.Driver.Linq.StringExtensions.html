@@ -146,564 +146,74 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_AnyStringIn_" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringIn*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_AnyStringIn_System_Collections_Generic_IEnumerable_System_String__MongoDB_Driver_StringOrRegularExpression___" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringIn(System.Collections.Generic.IEnumerable{System.String},MongoDB.Driver.StringOrRegularExpression[])">
-  AnyStringIn(IEnumerable&lt;string&gt;, params StringOrRegularExpression[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L43"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if any value in s is present in values (corresponds to the $in filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool AnyStringIn(this IEnumerable&lt;string&gt; s, params StringOrRegularExpression[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The values to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>[]</dt>
-    <dd><p>The values to test against.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.AnyStringIn.html#MongoDB_Driver_Linq_StringExtensions_AnyStringIn_System_Collections_Generic_IEnumerable_System_String__MongoDB_Driver_StringOrRegularExpression___">AnyStringIn(IEnumerable&lt;string&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Returns true if any value in s is present in values (corresponds to the $in filter operator).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if any value in s is present in values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.AnyStringIn.html#MongoDB_Driver_Linq_StringExtensions_AnyStringIn_System_Collections_Generic_IEnumerable_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringIn(IEnumerable&lt;string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Returns true if any value in s is present in values (corresponds to the $in filter operator).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_AnyStringIn_" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringIn*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_AnyStringIn_System_Collections_Generic_IEnumerable_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringIn(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{MongoDB.Driver.StringOrRegularExpression})">
-  AnyStringIn(IEnumerable&lt;string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L32"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if any value in s is present in values (corresponds to the $in filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool AnyStringIn(this IEnumerable&lt;string&gt; s, IEnumerable&lt;StringOrRegularExpression&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The values to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>&gt;</dt>
-    <dd><p>The values to test against.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.AnyStringNin.html#MongoDB_Driver_Linq_StringExtensions_AnyStringNin_System_Collections_Generic_IEnumerable_System_String__MongoDB_Driver_StringOrRegularExpression___">AnyStringNin(IEnumerable&lt;string&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Returns true if any value in s is not present in values (corresponds to the $nin filter operator).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if any value in s is present in values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.AnyStringNin.html#MongoDB_Driver_Linq_StringExtensions_AnyStringNin_System_Collections_Generic_IEnumerable_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringNin(IEnumerable&lt;string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Returns true if any value in s is not present in values (corresponds to the $nin filter operator).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_AnyStringNin_" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringNin*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_AnyStringNin_System_Collections_Generic_IEnumerable_System_String__MongoDB_Driver_StringOrRegularExpression___" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringNin(System.Collections.Generic.IEnumerable{System.String},MongoDB.Driver.StringOrRegularExpression[])">
-  AnyStringNin(IEnumerable&lt;string&gt;, params StringOrRegularExpression[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L65"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if any value in s is not present in values (corresponds to the $nin filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool AnyStringNin(this IEnumerable&lt;string&gt; s, params StringOrRegularExpression[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The values to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>[]</dt>
-    <dd><p>The values to test against.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes.html#MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_">IndexOfBytes(string, string)</a></dt>
+    <dd><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if any value in s is not present in values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes.html#MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_System_Int32_">IndexOfBytes(string, string, int)</a></dt>
+    <dd><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_AnyStringNin_" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringNin*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_AnyStringNin_System_Collections_Generic_IEnumerable_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__" data-uid="MongoDB.Driver.Linq.StringExtensions.AnyStringNin(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{MongoDB.Driver.StringOrRegularExpression})">
-  AnyStringNin(IEnumerable&lt;string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L54"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if any value in s is not present in values (corresponds to the $nin filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool AnyStringNin(this IEnumerable&lt;string&gt; s, IEnumerable&lt;StringOrRegularExpression&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The values to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>&gt;</dt>
-    <dd><p>The values to test against.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes.html#MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_System_Int32_System_Int32_">IndexOfBytes(string, string, int, int)</a></dt>
+    <dd><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if any value in s is not present in values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.StrLenBytes.html#MongoDB_Driver_Linq_StringExtensions_StrLenBytes_System_String_">StrLenBytes(string)</a></dt>
+    <dd><p>Returns the number of UTF-8 encoded bytes in the specified string.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes(System.String,System.String)">
-  IndexOfBytes(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L76"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int IndexOfBytes(this string s, string value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The string.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.StringIn.html#MongoDB_Driver_Linq_StringExtensions_StringIn_System_String_MongoDB_Driver_StringOrRegularExpression___">StringIn(string, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Returns true if s is present in values (corresponds to the $in filter operator).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The byte index of the first occurrence, or -1 if not found.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.StringIn.html#MongoDB_Driver_Linq_StringExtensions_StringIn_System_String_System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringIn(string, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Returns true if s is present in values (corresponds to the $in filter operator).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_System_Int32_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes(System.String,System.String,System.Int32)">
-  IndexOfBytes(string, string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L88"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int IndexOfBytes(this string s, string value, int startIndex)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The string.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>startIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The start index.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.StringNin.html#MongoDB_Driver_Linq_StringExtensions_StringNin_System_String_MongoDB_Driver_StringOrRegularExpression___">StringNin(string, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Returns true if s is not present in values (corresponds to the $nin filter operator).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The byte index of the first occurrence, or -1 if not found.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.StringNin.html#MongoDB_Driver_Linq_StringExtensions_StringNin_System_String_System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringNin(string, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Returns true if s is not present in values (corresponds to the $nin filter operator).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_IndexOfBytes_System_String_System_String_System_Int32_System_Int32_" data-uid="MongoDB.Driver.Linq.StringExtensions.IndexOfBytes(System.String,System.String,System.Int32,System.Int32)">
-  IndexOfBytes(string, string, int, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L101"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int IndexOfBytes(this string s, string value, int startIndex, int count)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The string.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>startIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The start index.</p>
-</dd>
-    <dt><code>count</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The count.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.StringExtensions.SubstrBytes.html#MongoDB_Driver_Linq_StringExtensions_SubstrBytes_System_String_System_Int32_System_Int32_">SubstrBytes(string, int, int)</a></dt>
+    <dd><p>Returns the number of UTF-8 encoded bytes in the specified string.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The byte index of the first occurrence, or -1 if not found.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_StrLenBytes_" data-uid="MongoDB.Driver.Linq.StringExtensions.StrLenBytes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_StrLenBytes_System_String_" data-uid="MongoDB.Driver.Linq.StringExtensions.StrLenBytes(System.String)">
-  StrLenBytes(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L155"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the number of UTF-8 encoded bytes in the specified string.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int StrLenBytes(this string s)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The string.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The number of UTF-8 bytes.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_StringIn_" data-uid="MongoDB.Driver.Linq.StringExtensions.StringIn*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_StringIn_System_String_MongoDB_Driver_StringOrRegularExpression___" data-uid="MongoDB.Driver.Linq.StringExtensions.StringIn(System.String,MongoDB.Driver.StringOrRegularExpression[])">
-  StringIn(string, params StringOrRegularExpression[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L123"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if s is present in values (corresponds to the $in filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool StringIn(this string s, params StringOrRegularExpression[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>[]</dt>
-    <dd><p>The values to test against.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if s is present in values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_StringIn_" data-uid="MongoDB.Driver.Linq.StringExtensions.StringIn*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_StringIn_System_String_System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__" data-uid="MongoDB.Driver.Linq.StringExtensions.StringIn(System.String,System.Collections.Generic.IEnumerable{MongoDB.Driver.StringOrRegularExpression})">
-  StringIn(string, IEnumerable&lt;StringOrRegularExpression&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if s is present in values (corresponds to the $in filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool StringIn(this string s, IEnumerable&lt;StringOrRegularExpression&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>&gt;</dt>
-    <dd><p>The values to test against.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if s is present in values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_StringNin_" data-uid="MongoDB.Driver.Linq.StringExtensions.StringNin*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_StringNin_System_String_MongoDB_Driver_StringOrRegularExpression___" data-uid="MongoDB.Driver.Linq.StringExtensions.StringNin(System.String,MongoDB.Driver.StringOrRegularExpression[])">
-  StringNin(string, params StringOrRegularExpression[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if s is not present in values (corresponds to the $nin filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool StringNin(this string s, params StringOrRegularExpression[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>[]</dt>
-    <dd><p>The values to test against.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if s is not present in values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_StringNin_" data-uid="MongoDB.Driver.Linq.StringExtensions.StringNin*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_StringNin_System_String_System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__" data-uid="MongoDB.Driver.Linq.StringExtensions.StringNin(System.String,System.Collections.Generic.IEnumerable{MongoDB.Driver.StringOrRegularExpression})">
-  StringNin(string, IEnumerable&lt;StringOrRegularExpression&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L134"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns true if s is not present in values (corresponds to the $nin filter operator).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool StringNin(this string s, IEnumerable&lt;StringOrRegularExpression&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The value to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.StringOrRegularExpression.html">StringOrRegularExpression</a>&gt;</dt>
-    <dd><p>The values to test against.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if s is not present in values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_StringExtensions_SubstrBytes_" data-uid="MongoDB.Driver.Linq.StringExtensions.SubstrBytes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_StringExtensions_SubstrBytes_System_String_System_Int32_System_Int32_" data-uid="MongoDB.Driver.Linq.StringExtensions.SubstrBytes(System.String,System.Int32,System.Int32)">
-  SubstrBytes(string, int, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/StringExtensions.cs/#L167"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the number of UTF-8 encoded bytes in the specified string.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string SubstrBytes(this string s, int startIndex, int length)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The string.</p>
-</dd>
-    <dt><code>startIndex</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The start index.</p>
-</dd>
-    <dt><code>length</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The length.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The number of UTF-8 bytes.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

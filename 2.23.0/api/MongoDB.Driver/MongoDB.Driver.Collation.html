@@ -141,666 +141,104 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Collation__ctor_" data-uid="MongoDB.Driver.Collation.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Collation__ctor_System_String_MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationCaseFirst___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationStrength___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationAlternate___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationMaxVariable___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_System_Boolean___" data-uid="MongoDB.Driver.Collation.#ctor(System.String,MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationCaseFirst}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationStrength}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationAlternate}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationMaxVariable}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}})">
-  Collation(string, Optional&lt;bool?&gt;, Optional&lt;CollationCaseFirst?&gt;, Optional&lt;CollationStrength?&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationAlternate?&gt;, Optional&lt;CollationMaxVariable?&gt;, Optional&lt;bool?&gt;, Optional&lt;bool?&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L285"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Collation.html">Collation</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Collation(string locale, Optional&lt;bool?&gt; caseLevel = default, Optional&lt;CollationCaseFirst?&gt; caseFirst = default, Optional&lt;CollationStrength?&gt; strength = default, Optional&lt;bool?&gt; numericOrdering = default, Optional&lt;CollationAlternate?&gt; alternate = default, Optional&lt;CollationMaxVariable?&gt; maxVariable = default, Optional&lt;bool?&gt; normalization = default, Optional&lt;bool?&gt; backwards = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>locale</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The locale.</p>
-</dd>
-    <dt><code>caseLevel</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The case level.</p>
-</dd>
-    <dt><code>caseFirst</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationCaseFirst.html">CollationCaseFirst</a>?&gt;</dt>
-    <dd><p>The case that is ordered first.</p>
-</dd>
-    <dt><code>strength</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationStrength.html">CollationStrength</a>?&gt;</dt>
-    <dd><p>The strength.</p>
-</dd>
-    <dt><code>numericOrdering</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>Whether numbers are ordered numerically.</p>
-</dd>
-    <dt><code>alternate</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationAlternate.html">CollationAlternate</a>?&gt;</dt>
-    <dd><p>The alternate.</p>
-</dd>
-    <dt><code>maxVariable</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationMaxVariable.html">CollationMaxVariable</a>?&gt;</dt>
-    <dd><p>The maximum variable.</p>
-</dd>
-    <dt><code>normalization</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The normalization.</p>
-</dd>
-    <dt><code>backwards</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>Whether secondary differences are to be considered in reverse order.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.-ctor.html#MongoDB_Driver_Collation__ctor_System_String_MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationCaseFirst___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationStrength___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationAlternate___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationMaxVariable___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_System_Boolean___">Collation(string, Optional&lt;bool?&gt;, Optional&lt;CollationCaseFirst?&gt;, Optional&lt;CollationStrength?&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationAlternate?&gt;, Optional&lt;CollationMaxVariable?&gt;, Optional&lt;bool?&gt;, Optional&lt;bool?&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Collation.html">Collation</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Collation_Alternate_" data-uid="MongoDB.Driver.Collation.Alternate*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Alternate" data-uid="MongoDB.Driver.Collation.Alternate">
-  Alternate
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L311"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether spaces and punctuation are considered base characters.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollationAlternate? Alternate { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollationAlternate.html">CollationAlternate</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Alternate.html#MongoDB_Driver_Collation_Alternate">Alternate</a></dt>
+    <dd><p>Gets whether spaces and punctuation are considered base characters.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Backwards_" data-uid="MongoDB.Driver.Collation.Backwards*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Backwards" data-uid="MongoDB.Driver.Collation.Backwards">
-  Backwards
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L319"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether secondary differencs are to be considered in reverse order.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool? Backwards { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Backwards.html#MongoDB_Driver_Collation_Backwards">Backwards</a></dt>
+    <dd><p>Gets whether secondary differencs are to be considered in reverse order.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_CaseFirst_" data-uid="MongoDB.Driver.Collation.CaseFirst*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_CaseFirst" data-uid="MongoDB.Driver.Collation.CaseFirst">
-  CaseFirst
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L327"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether upper case or lower case is ordered first.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollationCaseFirst? CaseFirst { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollationCaseFirst.html">CollationCaseFirst</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.CaseFirst.html#MongoDB_Driver_Collation_CaseFirst">CaseFirst</a></dt>
+    <dd><p>Gets whether upper case or lower case is ordered first.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_CaseLevel_" data-uid="MongoDB.Driver.Collation.CaseLevel*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_CaseLevel" data-uid="MongoDB.Driver.Collation.CaseLevel">
-  CaseLevel
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L335"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether the collation is case sensitive at strength 1 and 2.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool? CaseLevel { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.CaseLevel.html#MongoDB_Driver_Collation_CaseLevel">CaseLevel</a></dt>
+    <dd><p>Gets whether the collation is case sensitive at strength 1 and 2.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Locale_" data-uid="MongoDB.Driver.Collation.Locale*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Locale" data-uid="MongoDB.Driver.Collation.Locale">
-  Locale
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L343"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the locale.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Locale { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Locale.html#MongoDB_Driver_Collation_Locale">Locale</a></dt>
+    <dd><p>Gets the locale.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_MaxVariable_" data-uid="MongoDB.Driver.Collation.MaxVariable*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_MaxVariable" data-uid="MongoDB.Driver.Collation.MaxVariable">
-  MaxVariable
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L351"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets which characters are affected by the alternate: &quot;Shifted&quot;.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollationMaxVariable? MaxVariable { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollationMaxVariable.html">CollationMaxVariable</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.MaxVariable.html#MongoDB_Driver_Collation_MaxVariable">MaxVariable</a></dt>
+    <dd><p>Gets which characters are affected by the alternate: &quot;Shifted&quot;.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Normalization_" data-uid="MongoDB.Driver.Collation.Normalization*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Normalization" data-uid="MongoDB.Driver.Collation.Normalization">
-  Normalization
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L359"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the normalization.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool? Normalization { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Normalization.html#MongoDB_Driver_Collation_Normalization">Normalization</a></dt>
+    <dd><p>Gets the normalization.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_NumericOrdering_" data-uid="MongoDB.Driver.Collation.NumericOrdering*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_NumericOrdering" data-uid="MongoDB.Driver.Collation.NumericOrdering">
-  NumericOrdering
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L367"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets whether numbers are ordered numerically.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool? NumericOrdering { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.NumericOrdering.html#MongoDB_Driver_Collation_NumericOrdering">NumericOrdering</a></dt>
+    <dd><p>Gets whether numbers are ordered numerically.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Simple_" data-uid="MongoDB.Driver.Collation.Simple*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Simple" data-uid="MongoDB.Driver.Collation.Simple">
-  Simple
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the simple binary compare collation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Collation Simple { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Simple.html#MongoDB_Driver_Collation_Simple">Simple</a></dt>
+    <dd><p>Gets the simple binary compare collation.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Strength_" data-uid="MongoDB.Driver.Collation.Strength*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Strength" data-uid="MongoDB.Driver.Collation.Strength">
-  Strength
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L375"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the strength.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollationStrength? Strength { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollationStrength.html">CollationStrength</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Strength.html#MongoDB_Driver_Collation_Strength">Strength</a></dt>
+    <dd><p>Gets the strength.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Collation_Equals_" data-uid="MongoDB.Driver.Collation.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Equals_MongoDB_Driver_Collation_" data-uid="MongoDB.Driver.Collation.Equals(MongoDB.Driver.Collation)">
-  Equals(Collation)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L388"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Indicates whether the current object is equal to another object of the same type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Equals(Collation other)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>other</code> <a class="xref" href="MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd><p>An object to compare with this object.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Equals.html#MongoDB_Driver_Collation_Equals_MongoDB_Driver_Collation_">Equals(Collation)</a></dt>
+    <dd><p>Indicates whether the current object is equal to another object of the same type.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>true if the current object is equal to the <code class="paramref">other</code> parameter; otherwise, false.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_Equals_" data-uid="MongoDB.Driver.Collation.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_Equals_System_Object_" data-uid="MongoDB.Driver.Collation.Equals(System.Object)">
-  Equals(object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L408"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.Equals.html#MongoDB_Driver_Collation_Equals_System_Object_">Equals(object)</a></dt>
     <dd></dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.FromBsonDocument.html#MongoDB_Driver_Collation_FromBsonDocument_MongoDB_Bson_BsonDocument_">FromBsonDocument(BsonDocument)</a></dt>
+    <dd><p>Creates a Collation instance from a BsonDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.GetHashCode.html#MongoDB_Driver_Collation_GetHashCode">GetHashCode()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_FromBsonDocument_" data-uid="MongoDB.Driver.Collation.FromBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_FromBsonDocument_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Collation.FromBsonDocument(MongoDB.Bson.BsonDocument)">
-  FromBsonDocument(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L123"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a Collation instance from a BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Collation FromBsonDocument(BsonDocument document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.ToBsonDocument.html#MongoDB_Driver_Collation_ToBsonDocument">ToBsonDocument()</a></dt>
+    <dd><p>Converts this object to a BsonDocument.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd><p>A Collation instance.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_GetHashCode_" data-uid="MongoDB.Driver.Collation.GetHashCode*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_GetHashCode" data-uid="MongoDB.Driver.Collation.GetHashCode">
-  GetHashCode()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L414"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.ToString.html#MongoDB_Driver_Collation_ToString">ToString()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_ToBsonDocument_" data-uid="MongoDB.Driver.Collation.ToBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_ToBsonDocument" data-uid="MongoDB.Driver.Collation.ToBsonDocument">
-  ToBsonDocument()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L430"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts this object to a BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument ToBsonDocument()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Collation.With.html#MongoDB_Driver_Collation_With_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationCaseFirst___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationStrength___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationAlternate___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationMaxVariable___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_System_Boolean___">With(Optional&lt;string&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationCaseFirst?&gt;, Optional&lt;CollationStrength?&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationAlternate?&gt;, Optional&lt;CollationMaxVariable?&gt;, Optional&lt;bool?&gt;, Optional&lt;bool?&gt;)</a></dt>
+    <dd><p>Creates a new Collation instance with some properties changed.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_ToString_" data-uid="MongoDB.Driver.Collation.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_ToString" data-uid="MongoDB.Driver.Collation.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L447"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Collation_With_" data-uid="MongoDB.Driver.Collation.With*"></a>
-
-  <h3 id="MongoDB_Driver_Collation_With_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationCaseFirst___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationStrength___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationAlternate___MongoDB_Driver_Optional_System_Nullable_MongoDB_Driver_CollationMaxVariable___MongoDB_Driver_Optional_System_Nullable_System_Boolean___MongoDB_Driver_Optional_System_Nullable_System_Boolean___" data-uid="MongoDB.Driver.Collation.With(MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationCaseFirst}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationStrength}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationAlternate}},MongoDB.Driver.Optional{System.Nullable{MongoDB.Driver.CollationMaxVariable}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}},MongoDB.Driver.Optional{System.Nullable{System.Boolean}})">
-  With(Optional&lt;string&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationCaseFirst?&gt;, Optional&lt;CollationStrength?&gt;, Optional&lt;bool?&gt;, Optional&lt;CollationAlternate?&gt;, Optional&lt;CollationMaxVariable?&gt;, Optional&lt;bool?&gt;, Optional&lt;bool?&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Collation.cs/#L465"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a new Collation instance with some properties changed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Collation With(Optional&lt;string&gt; locale = default, Optional&lt;bool?&gt; caseLevel = default, Optional&lt;CollationCaseFirst?&gt; caseFirst = default, Optional&lt;CollationStrength?&gt; strength = default, Optional&lt;bool?&gt; numericOrdering = default, Optional&lt;CollationAlternate?&gt; alternate = default, Optional&lt;CollationMaxVariable?&gt; maxVariable = default, Optional&lt;bool?&gt; normalization = default, Optional&lt;bool?&gt; backwards = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>locale</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The new locale.</p>
-</dd>
-    <dt><code>caseLevel</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The new case level.</p>
-</dd>
-    <dt><code>caseFirst</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationCaseFirst.html">CollationCaseFirst</a>?&gt;</dt>
-    <dd><p>The new case first.</p>
-</dd>
-    <dt><code>strength</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationStrength.html">CollationStrength</a>?&gt;</dt>
-    <dd><p>The new strength.</p>
-</dd>
-    <dt><code>numericOrdering</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The new numeric ordering.</p>
-</dd>
-    <dt><code>alternate</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationAlternate.html">CollationAlternate</a>?&gt;</dt>
-    <dd><p>The new alternate.</p>
-</dd>
-    <dt><code>maxVariable</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.CollationMaxVariable.html">CollationMaxVariable</a>?&gt;</dt>
-    <dd><p>The new maximum variable.</p>
-</dd>
-    <dt><code>normalization</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The new normalization.</p>
-</dd>
-    <dt><code>backwards</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?&gt;</dt>
-    <dd><p>The new backwards.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd><p>A new Collation instance.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

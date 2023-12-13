@@ -149,212 +149,36 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Double)">
-  Boost(SearchPathDefinition&lt;TDocument&gt;, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreDefinitionBuilder.cs/#L52"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a score modifier that multiples a result's base score by the value of a numeric
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.Boost.html#MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_">Boost(SearchPathDefinition&lt;TDocument&gt;, double)</a></dt>
+    <dd><p>Creates a score modifier that multiples a result's base score by the value of a numeric
 field in the documents.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreDefinition&lt;TDocument&gt; Boost(SearchPathDefinition&lt;TDocument&gt; path, double undefined = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The path to the numeric field whose value to multiply the default base score by.</p>
-</dd>
-    <dt><code>undefined</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The numeric value to substitute if the numeric field is not found in the documents.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A boost score modifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.Boost.html#MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_System_Double_">Boost(double)</a></dt>
+    <dd><p>Creates a score modifier that multiplies a result's base score by a given number.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost(System.Double)">
-  Boost(double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreDefinitionBuilder.cs/#L36"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a score modifier that multiplies a result's base score by a given number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreDefinition&lt;TDocument&gt; Boost(double value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The number to multiply the default base score by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A boost score modifier.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Boost(System.Linq.Expressions.Expression{System.Func{`0,System.Double}},System.Double)">
-  Boost(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreDefinitionBuilder.cs/#L68"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a score modifier that multiplies a result's base score by the value of a numeric
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.Boost.html#MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Boost_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_">Boost(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)</a></dt>
+    <dd><p>Creates a score modifier that multiplies a result's base score by the value of a numeric
 field in the documents.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreDefinition&lt;TDocument&gt; Boost(Expression&lt;Func&lt;TDocument, double&gt;&gt; path, double undefined = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;&gt;</dt>
-    <dd><p>The path to the numeric field whose value to multiply the default base score by.</p>
-</dd>
-    <dt><code>undefined</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The numeric value to substitute if the numeric field is not found in the documents.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A boost score modifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.Constant.html#MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Constant_System_Double_">Constant(double)</a></dt>
+    <dd><p>Creates a score modifier that replaces the base score with a given number.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Constant_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Constant*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Constant_System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Constant(System.Double)">
-  Constant(double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreDefinitionBuilder.cs/#L78"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a score modifier that replaces the base score with a given number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreDefinition&lt;TDocument&gt; Constant(double value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The number to replace the base score with.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.Function.html#MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Function_MongoDB_Driver_Search_SearchScoreFunction__0__">Function(SearchScoreFunction&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a score modifier that computes the final score through an expression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A constant score modifier.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Function_" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Function*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreDefinitionBuilder_1_Function_MongoDB_Driver_Search_SearchScoreFunction__0__" data-uid="MongoDB.Driver.Search.SearchScoreDefinitionBuilder`1.Function(MongoDB.Driver.Search.SearchScoreFunction{`0})">
-  Function(SearchScoreFunction&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreDefinitionBuilder.cs/#L88"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a score modifier that computes the final score through an expression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreDefinition&lt;TDocument&gt; Function(SearchScoreFunction&lt;TDocument&gt; function)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>function</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>The expression used to compute the score.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A function score modifier.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -130,22 +130,22 @@ public class MongoWriteException : MongoServerException, ISerializable</code></p
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.AddErrorLabelsFromCommandResult.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.ConnectionId.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.ErrorLabels.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.AddErrorLabel.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.HasErrorLabel.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.RemoveErrorLabel.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception.getbaseexception">Exception.GetBaseException()</a>
@@ -204,195 +204,42 @@ public class MongoWriteException : MongoServerException, ISerializable</code></p
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoWriteException__ctor_" data-uid="MongoDB.Driver.MongoWriteException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoWriteException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_MongoDB_Driver_WriteError_MongoDB_Driver_WriteConcernError_System_Exception_" data-uid="MongoDB.Driver.MongoWriteException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,MongoDB.Driver.WriteError,MongoDB.Driver.WriteConcernError,System.Exception)">
-  MongoWriteException(ConnectionId, WriteError, WriteConcernError, Exception)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoWriteException.cs/#L51"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoWriteException.html">MongoWriteException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoWriteException(ConnectionId connectionId, WriteError writeError, WriteConcernError writeConcernError, Exception innerException)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>writeError</code> <a class="xref" href="MongoDB.Driver.WriteError.html">WriteError</a></dt>
-    <dd><p>The write error.</p>
-</dd>
-    <dt><code>writeConcernError</code> <a class="xref" href="MongoDB.Driver.WriteConcernError.html">WriteConcernError</a></dt>
-    <dd><p>The write concern error.</p>
-</dd>
-    <dt><code>innerException</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception">Exception</a></dt>
-    <dd><p>The inner exception.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoWriteException.-ctor.html#MongoDB_Driver_MongoWriteException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_MongoDB_Driver_WriteError_MongoDB_Driver_WriteConcernError_System_Exception_">MongoWriteException(ConnectionId, WriteError, WriteConcernError, Exception)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoWriteException.html">MongoWriteException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoWriteException__ctor_" data-uid="MongoDB.Driver.MongoWriteException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoWriteException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoWriteException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  MongoWriteException(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoWriteException.cs/#L74"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoQueryException class (this overload supports deserialization).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoWriteException(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The SerializationInfo.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The StreamingContext.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoWriteException.-ctor.html#MongoDB_Driver_MongoWriteException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">MongoWriteException(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Initializes a new instance of the MongoQueryException class (this overload supports deserialization).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoWriteException_WriteConcernError_" data-uid="MongoDB.Driver.MongoWriteException.WriteConcernError*"></a>
-
-  <h3 id="MongoDB_Driver_MongoWriteException_WriteConcernError" data-uid="MongoDB.Driver.MongoWriteException.WriteConcernError">
-  WriteConcernError
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoWriteException.cs/#L92"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the write concern error.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public WriteConcernError WriteConcernError { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.WriteConcernError.html">WriteConcernError</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoWriteException.WriteConcernError.html#MongoDB_Driver_MongoWriteException_WriteConcernError">WriteConcernError</a></dt>
+    <dd><p>Gets the write concern error.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoWriteException_WriteError_" data-uid="MongoDB.Driver.MongoWriteException.WriteError*"></a>
-
-  <h3 id="MongoDB_Driver_MongoWriteException_WriteError" data-uid="MongoDB.Driver.MongoWriteException.WriteError">
-  WriteError
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoWriteException.cs/#L100"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the write error.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public WriteError WriteError { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.WriteError.html">WriteError</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoWriteException.WriteError.html#MongoDB_Driver_MongoWriteException_WriteError">WriteError</a></dt>
+    <dd><p>Gets the write error.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoWriteException_GetObjectData_" data-uid="MongoDB.Driver.MongoWriteException.GetObjectData*"></a>
-
-  <h3 id="MongoDB_Driver_MongoWriteException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoWriteException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  GetObjectData(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoWriteException.cs/#L111"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the object data.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The information.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The context.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoWriteException.GetObjectData.html#MongoDB_Driver_MongoWriteException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">GetObjectData(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Gets the object data.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -165,396 +165,66 @@
 
 
 
-
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_InputType_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.InputType*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_InputType" data-uid="MongoDB.Driver.PipelineStageDefinition`2.InputType">
-  InputType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L191"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the type of the input.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Type InputType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.InputType.html#MongoDB_Driver_PipelineStageDefinition_2_InputType">InputType</a></dt>
+    <dd><p>Gets the type of the input.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_OperatorName_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.OperatorName*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_OperatorName" data-uid="MongoDB.Driver.PipelineStageDefinition`2.OperatorName">
-  OperatorName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L197"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the pipeline operator.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract string OperatorName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.OperatorName.html#MongoDB_Driver_PipelineStageDefinition_2_OperatorName">OperatorName</a></dt>
+    <dd><p>Gets the name of the pipeline operator.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_OutputType_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.OutputType*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_OutputType" data-uid="MongoDB.Driver.PipelineStageDefinition`2.OutputType">
-  OutputType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L202"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the type of the output.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Type OutputType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.OutputType.html#MongoDB_Driver_PipelineStageDefinition_2_OutputType">OutputType</a></dt>
+    <dd><p>Gets the type of the output.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_Render_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.Render*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.Render(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry)">
-  Render(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L213"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the specified document serializer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual RenderedPipelineStageDefinition&lt;TOutput&gt; Render(IBsonSerializer&lt;TInput&gt; inputSerializer, IBsonSerializerRegistry serializerRegistry)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>inputSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TInput&gt;</dt>
-    <dd><p>The input serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.Render.html#MongoDB_Driver_PipelineStageDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_">Render(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry)</a></dt>
+    <dd><p>Renders the specified document serializer.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.RenderedPipelineStageDefinition-1.html">RenderedPipelineStageDefinition</a>&lt;TOutput&gt;</dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.RenderedPipelineStageDefinition-1.html">RenderedPipelineStageDefinition&lt;TOutput&gt;</a></p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.Render.html#MongoDB_Driver_PipelineStageDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_">Render(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry, LinqProvider)</a></dt>
+    <dd><p>Renders the specified document serializer.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_Render_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.Render*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.Render(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry,MongoDB.Driver.Linq.LinqProvider)">
-  Render(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry, LinqProvider)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L225"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the specified document serializer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract RenderedPipelineStageDefinition&lt;TOutput&gt; Render(IBsonSerializer&lt;TInput&gt; inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>inputSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TInput&gt;</dt>
-    <dd><p>The input serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
-</dd>
-    <dt><code>linqProvider</code> <a class="xref" href="MongoDB.Driver.Linq.LinqProvider.html">LinqProvider</a></dt>
-    <dd><p>The LINQ provider.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.RenderedPipelineStageDefinition-1.html">RenderedPipelineStageDefinition</a>&lt;TOutput&gt;</dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.RenderedPipelineStageDefinition-1.html">RenderedPipelineStageDefinition&lt;TOutput&gt;</a></p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_ToString_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_ToString" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L228"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.ToString.html#MongoDB_Driver_PipelineStageDefinition_2_ToString">ToString()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_ToString_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_ToString_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry)">
-  ToString(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L243"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string ToString(IBsonSerializer&lt;TInput&gt; inputSerializer, IBsonSerializerRegistry serializerRegistry)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>inputSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TInput&gt;</dt>
-    <dd><p>The input serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.ToString.html#MongoDB_Driver_PipelineStageDefinition_2_ToString_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_">ToString(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry)</a></dt>
+    <dd><p>Returns a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.ToString.html#MongoDB_Driver_PipelineStageDefinition_2_ToString_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_">ToString(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry, LinqProvider)</a></dt>
+    <dd><p>Returns a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_ToString_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_ToString_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.ToString(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry,MongoDB.Driver.Linq.LinqProvider)">
-  ToString(IBsonSerializer&lt;TInput&gt;, IBsonSerializerRegistry, LinqProvider)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L257"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string ToString(IBsonSerializer&lt;TInput&gt; inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>inputSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TInput&gt;</dt>
-    <dd><p>The input serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
-</dd>
-    <dt><code>linqProvider</code> <a class="xref" href="MongoDB.Driver.Linq.LinqProvider.html">LinqProvider</a></dt>
-    <dd><p>The LINQ provider.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> that represents this instance.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="operators">Operators
 </h2>
 
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.op_Implicit*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_MongoDB_Bson_BsonDocument__MongoDB_Driver_PipelineStageDefinition__0__1_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.op_Implicit(MongoDB.Bson.BsonDocument)~MongoDB.Driver.PipelineStageDefinition{`0,`1}">
-  implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L288"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a> to <a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition&lt;TInput, TOutput&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(BsonDocument document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.op_Implicit.html#MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_MongoDB_Bson_BsonDocument__MongoDB_Driver_PipelineStageDefinition__0__1_">implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(BsonDocument)</a></dt>
+    <dd><p>Performs an implicit conversion from <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a> to <a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition&lt;TInput, TOutput&gt;</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
-    <dd><p>The result of the conversion.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.op_Implicit.html#MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_System_String__MongoDB_Driver_PipelineStageDefinition__0__1_">implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(string)</a></dt>
+    <dd><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> to <a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition&lt;TInput, TOutput&gt;</a>.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.op_Implicit*"></a>
-
-  <h3 id="MongoDB_Driver_PipelineStageDefinition_2_op_Implicit_System_String__MongoDB_Driver_PipelineStageDefinition__0__1_" data-uid="MongoDB.Driver.PipelineStageDefinition`2.op_Implicit(System.String)~MongoDB.Driver.PipelineStageDefinition{`0,`1}">
-  implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/PipelineStageDefinition.cs/#L305"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> to <a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition&lt;TInput, TOutput&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static implicit operator PipelineStageDefinition&lt;TInput, TOutput&gt;(string json)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>json</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The JSON string.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinition-2.html">PipelineStageDefinition</a>&lt;TInput, TOutput&gt;</dt>
-    <dd><p>The result of the conversion.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -128,13 +128,13 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.ResponseMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_ResponseMessage_RequestId">ResponseMessage.RequestId</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.ResponseMessage.RequestId.html#MongoDB_Driver_Core_WireProtocol_Messages_ResponseMessage_RequestId">ResponseMessage.RequestId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.ResponseMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_ResponseMessage_ResponseTo">ResponseMessage.ResponseTo</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.ResponseMessage.ResponseTo.html#MongoDB_Driver_Core_WireProtocol_Messages_ResponseMessage_ResponseTo">ResponseMessage.ResponseTo</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.MayBeCompressed.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -163,154 +163,37 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage__ctor_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage__ctor_MongoDB_Driver_Core_WireProtocol_Messages_CommandMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.#ctor(MongoDB.Driver.Core.WireProtocol.Messages.CommandMessage)">
-  CommandResponseMessage(CommandMessage)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CommandResponseMessage.cs/#L40"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandRequestMessage.html">CommandRequestMessage</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CommandResponseMessage(CommandMessage wrappedMessage)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>wrappedMessage</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandMessage.html">CommandMessage</a></dt>
-    <dd><p>The wrapped message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.-ctor.html#MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage__ctor_MongoDB_Driver_Core_WireProtocol_Messages_CommandMessage_">CommandResponseMessage(CommandMessage)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandRequestMessage.html">CommandRequestMessage</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_MessageType_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.MessageType*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_MessageType" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.MessageType">
-  MessageType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CommandResponseMessage.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the type of the message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override MongoDBMessageType MessageType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessageType.html">MongoDBMessageType</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_WrappedMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.WrappedMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_WrappedMessage" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.WrappedMessage">
-  WrappedMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CommandResponseMessage.cs/#L56"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the wrapped message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CommandMessage WrappedMessage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandMessage.html">CommandMessage</a></dt>
-    <dd><p>The wrapped message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.MessageType.html#MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_MessageType">MessageType</a></dt>
+    <dd><p>Gets the type of the message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.WrappedMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_WrappedMessage">WrappedMessage</a></dt>
+    <dd><p>Gets the wrapped message.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_GetEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.GetEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.GetEncoder(MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderFactory)">
-  GetEncoder(IMessageEncoderFactory)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CommandResponseMessage.cs/#L60"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for the message from an encoder factory.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>encoderFactory</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderFactory.html">IMessageEncoderFactory</a></dt>
-    <dd><p>The encoder factory.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CommandResponseMessage.GetEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_CommandResponseMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_">GetEncoder(IMessageEncoderFactory)</a></dt>
+    <dd><p>Gets an encoder for the message from an encoder factory.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>A message encoder.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
   <h2 id="seealso">See Also</h2>

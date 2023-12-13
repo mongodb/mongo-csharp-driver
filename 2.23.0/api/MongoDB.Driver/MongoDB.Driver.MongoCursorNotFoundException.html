@@ -131,28 +131,28 @@ public class MongoCursorNotFoundException : MongoQueryException, ISerializable</
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoQueryException.html#MongoDB_Driver_MongoQueryException_Query">MongoQueryException.Query</a>
+      <a class="xref" href="MongoDB.Driver.MongoQueryException.Query.html#MongoDB_Driver_MongoQueryException_Query">MongoQueryException.Query</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoQueryException.html#MongoDB_Driver_MongoQueryException_QueryResult">MongoQueryException.QueryResult</a>
+      <a class="xref" href="MongoDB.Driver.MongoQueryException.QueryResult.html#MongoDB_Driver_MongoQueryException_QueryResult">MongoQueryException.QueryResult</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.AddErrorLabelsFromCommandResult.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.ConnectionId.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.ErrorLabels.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.AddErrorLabel.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.HasErrorLabel.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.RemoveErrorLabel.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception.getbaseexception">Exception.GetBaseException()</a>
@@ -211,158 +211,36 @@ public class MongoCursorNotFoundException : MongoQueryException, ISerializable</
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCursorNotFoundException__ctor_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCursorNotFoundException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_Int64_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.Int64,MongoDB.Bson.BsonDocument)">
-  MongoCursorNotFoundException(ConnectionId, long, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCursorNotFoundException.cs/#L52"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.html">MongoCursorNotFoundException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoCursorNotFoundException(ConnectionId connectionId, long cursorId, BsonDocument query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>cursorId</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The cursor identifier.</p>
-</dd>
-    <dt><code>query</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.-ctor.html#MongoDB_Driver_MongoCursorNotFoundException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_Int64_MongoDB_Bson_BsonDocument_">MongoCursorNotFoundException(ConnectionId, long, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.html">MongoCursorNotFoundException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoCursorNotFoundException__ctor_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCursorNotFoundException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  MongoCursorNotFoundException(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCursorNotFoundException.cs/#L63"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.html">MongoCursorNotFoundException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected MongoCursorNotFoundException(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The information.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The context.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.-ctor.html#MongoDB_Driver_MongoCursorNotFoundException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">MongoCursorNotFoundException(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.html">MongoCursorNotFoundException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCursorNotFoundException_CursorId_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.CursorId*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCursorNotFoundException_CursorId" data-uid="MongoDB.Driver.MongoCursorNotFoundException.CursorId">
-  CursorId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCursorNotFoundException.cs/#L76"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the cursor identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long CursorId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The cursor identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.CursorId.html#MongoDB_Driver_MongoCursorNotFoundException_CursorId">CursorId</a></dt>
+    <dd><p>Gets the cursor identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoCursorNotFoundException_GetObjectData_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.GetObjectData*"></a>
-
-  <h3 id="MongoDB_Driver_MongoCursorNotFoundException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoCursorNotFoundException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  GetObjectData(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoCursorNotFoundException.cs/#L83"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd></dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCursorNotFoundException.GetObjectData.html#MongoDB_Driver_MongoCursorNotFoundException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">GetObjectData(SerializationInfo, StreamingContext)</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

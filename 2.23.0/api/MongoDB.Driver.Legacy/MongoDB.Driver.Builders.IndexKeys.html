@@ -146,398 +146,59 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_Ascending_" data-uid="MongoDB.Driver.Builders.IndexKeys.Ascending*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_Ascending_System_String___" data-uid="MongoDB.Driver.Builders.IndexKeys.Ascending(System.String[])">
-  Ascending(params string[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L39"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to index in ascending order.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder Ascending(params string[] names)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>names</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
-    <dd><p>One or more key names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.Ascending.html#MongoDB_Driver_Builders_IndexKeys_Ascending_System_String___">Ascending(params string[])</a></dt>
+    <dd><p>Sets one or more key names to index in ascending order.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.Descending.html#MongoDB_Driver_Builders_IndexKeys_Descending_System_String___">Descending(params string[])</a></dt>
+    <dd><p>Sets one or more key names to index in descending order.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_Descending_" data-uid="MongoDB.Driver.Builders.IndexKeys.Descending*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_Descending_System_String___" data-uid="MongoDB.Driver.Builders.IndexKeys.Descending(System.String[])">
-  Descending(params string[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L49"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to index in descending order.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder Descending(params string[] names)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>names</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
-    <dd><p>One or more key names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.GeoSpatial.html#MongoDB_Driver_Builders_IndexKeys_GeoSpatial_System_String_">GeoSpatial(string)</a></dt>
+    <dd><p>Sets the key name to create a geospatial index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack.html#MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_System_String_">GeoSpatialHaystack(string)</a></dt>
+    <dd><p>Sets the key name to create a geospatial haystack index on.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_GeoSpatial_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatial*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_GeoSpatial_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatial(System.String)">
-  GeoSpatial(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a geospatial index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder GeoSpatial(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key name.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack.html#MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_System_String_System_String_">GeoSpatialHaystack(string, string)</a></dt>
+    <dd><p>Sets the key name and additional field name to create a geospatial haystack index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.GeoSpatialSpherical.html#MongoDB_Driver_Builders_IndexKeys_GeoSpatialSpherical_System_String_">GeoSpatialSpherical(string)</a></dt>
+    <dd><p>Sets the key name to create a spherical geospatial index on.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack(System.String)">
-  GeoSpatialHaystack(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L69"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a geospatial haystack index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;GeoHaystack indexes were deprecated in server version 4.4.&quot;)]
-public static IndexKeysBuilder GeoSpatialHaystack(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key name.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.Hashed.html#MongoDB_Driver_Builders_IndexKeys_Hashed_System_String_">Hashed(string)</a></dt>
+    <dd><p>Sets the key name to create a hashed index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.Text.html#MongoDB_Driver_Builders_IndexKeys_Text_System_String___">Text(params string[])</a></dt>
+    <dd><p>Sets one or more key names to include in the text index.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialHaystack_System_String_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialHaystack(System.String,System.String)">
-  GeoSpatialHaystack(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L81"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name and additional field name to create a geospatial haystack index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;GeoHaystack indexes were deprecated in server version 4.4.&quot;)]
-public static IndexKeysBuilder GeoSpatialHaystack(string name, string additionalName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key name.</p>
-</dd>
-    <dt><code>additionalName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of an additional field to index.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.TextAll.html#MongoDB_Driver_Builders_IndexKeys_TextAll">TextAll()</a></dt>
+    <dd><p>Create a text index that indexes all text fields of a document.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeys.Wildcard.html#MongoDB_Driver_Builders_IndexKeys_Wildcard_System_String_">Wildcard(string)</a></dt>
+    <dd><p>Sets a wildcard key to the index. The method doesn't expect to specify a wildcard key explicitly.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialSpherical_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialSpherical*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_GeoSpatialSpherical_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.GeoSpatialSpherical(System.String)">
-  GeoSpatialSpherical(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L92"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a spherical geospatial index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder GeoSpatialSpherical(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key name.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_Hashed_" data-uid="MongoDB.Driver.Builders.IndexKeys.Hashed*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_Hashed_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.Hashed(System.String)">
-  Hashed(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L102"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a hashed index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder Hashed(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key name.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_Text_" data-uid="MongoDB.Driver.Builders.IndexKeys.Text*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_Text_System_String___" data-uid="MongoDB.Driver.Builders.IndexKeys.Text(System.String[])">
-  Text(params string[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to include in the text index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder Text(params string[] names)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>names</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
-    <dd><p>List of key names to include in the text index.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_TextAll_" data-uid="MongoDB.Driver.Builders.IndexKeys.TextAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_TextAll" data-uid="MongoDB.Driver.Builders.IndexKeys.TextAll">
-  TextAll()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L121"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create a text index that indexes all text fields of a document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder TextAll()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeys_Wildcard_" data-uid="MongoDB.Driver.Builders.IndexKeys.Wildcard*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeys_Wildcard_System_String_" data-uid="MongoDB.Driver.Builders.IndexKeys.Wildcard(System.String)">
-  Wildcard(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L131"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets a wildcard key to the index. The method doesn't expect to specify a wildcard key explicitly.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IndexKeysBuilder Wildcard(string name = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The wildcard key name. If the wildcard name is empty, the generated key will be <code>All field paths</code>, otherwise <code>A single field path</code>.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder.html">IndexKeysBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

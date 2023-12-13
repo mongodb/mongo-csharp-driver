@@ -155,524 +155,92 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IEnumerable__0__" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
-  BatchableSource(IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L57"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use one of the other constructors instead.&quot;)]
-public BatchableSource(IEnumerable&lt;T&gt; batch)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>batch</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The single batch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.-ctor.html#MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IEnumerable__0__">BatchableSource(IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IEnumerable__0___remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>Use this overload when you know the batch is small and won't have to be broken up into sub-batches.
-In that case using this overload is simpler than using an enumerator and using the other constructor.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IEnumerator__0__" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor(System.Collections.Generic.IEnumerator{`0})">
-  BatchableSource(IEnumerator&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L67"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use one of the other constructors instead.&quot;)]
-public BatchableSource(IEnumerator&lt;T&gt; enumerator)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>enumerator</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerator-1">IEnumerator</a>&lt;T&gt;</dt>
-    <dd><p>The enumerator that will provide the items for the batch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.-ctor.html#MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IEnumerator__0__">BatchableSource(IEnumerator&lt;T&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IReadOnlyList__0__System_Boolean_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor(System.Collections.Generic.IReadOnlyList{`0},System.Boolean)">
-  BatchableSource(IReadOnlyList&lt;T&gt;, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L78"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BatchableSource(IReadOnlyList&lt;T&gt; items, bool canBeSplit = false)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>items</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items.</p>
-</dd>
-    <dt><code>canBeSplit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>if set to <code>true</code> the batch can be split.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.-ctor.html#MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IReadOnlyList__0__System_Boolean_">BatchableSource(IReadOnlyList&lt;T&gt;, bool)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IReadOnlyList__0__System_Int32_System_Int32_System_Boolean_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.#ctor(System.Collections.Generic.IReadOnlyList{`0},System.Int32,System.Int32,System.Boolean)">
-  BatchableSource(IReadOnlyList&lt;T&gt;, int, int, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L90"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BatchableSource(IReadOnlyList&lt;T&gt; items, int offset, int count, bool canBeSplit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>items</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items.</p>
-</dd>
-    <dt><code>offset</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The offset.</p>
-</dd>
-    <dt><code>count</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The count.</p>
-</dd>
-    <dt><code>canBeSplit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>if set to <code>true</code> the batch can be split.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.-ctor.html#MongoDB_Driver_Core_Misc_BatchableSource_1__ctor_System_Collections_Generic_IReadOnlyList__0__System_Int32_System_Int32_System_Boolean_">BatchableSource(IReadOnlyList&lt;T&gt;, int, int, bool)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.html">BatchableSource&lt;T&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_AllItemsWereProcessed_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.AllItemsWereProcessed*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_AllItemsWereProcessed" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.AllItemsWereProcessed">
-  AllItemsWereProcessed
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L106"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether all items were processed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool AllItemsWereProcessed { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if all items were processed; otherwise, <code>false</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.AllItemsWereProcessed.html#MongoDB_Driver_Core_Misc_BatchableSource_1_AllItemsWereProcessed">AllItemsWereProcessed</a></dt>
+    <dd><p>Gets a value indicating whether all items were processed.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_CanBeSplit_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.CanBeSplit*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_CanBeSplit" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.CanBeSplit">
-  CanBeSplit
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L114"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the batch can be split.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool CanBeSplit { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if the batch can be split; otherwise, <code>false</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.CanBeSplit.html#MongoDB_Driver_Core_Misc_BatchableSource_1_CanBeSplit">CanBeSplit</a></dt>
+    <dd><p>Gets a value indicating whether the batch can be split.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_Count_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Count*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_Count" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Count">
-  Count
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L122"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the count.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Count { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The count.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.Count.html#MongoDB_Driver_Core_Misc_BatchableSource_1_Count">Count</a></dt>
+    <dd><p>Gets the count.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_Items_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Items*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_Items" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Items">
-  Items
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L133"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the items.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;T&gt; Items { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.Items.html#MongoDB_Driver_Core_Misc_BatchableSource_1_Items">Items</a></dt>
+    <dd><p>Gets the items.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_Offset_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Offset*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_Offset" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.Offset">
-  Offset
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L141"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the offset.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Offset { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The offset.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.Offset.html#MongoDB_Driver_Core_Misc_BatchableSource_1_Offset">Offset</a></dt>
+    <dd><p>Gets the offset.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_ProcessedCount_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.ProcessedCount*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_ProcessedCount" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.ProcessedCount">
-  ProcessedCount
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L149"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the count of processed items. Equal to zero until SetProcessedCount has been called.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int ProcessedCount { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The count of processed items.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.ProcessedCount.html#MongoDB_Driver_Core_Misc_BatchableSource_1_ProcessedCount">ProcessedCount</a></dt>
+    <dd><p>Gets the count of processed items. Equal to zero until SetProcessedCount has been called.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_AdvancePastProcessedItems_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.AdvancePastProcessedItems*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_AdvancePastProcessedItems" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.AdvancePastProcessedItems">
-  AdvancePastProcessedItems()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L155"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Advances past the processed items.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void AdvancePastProcessedItems()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetBatchItems_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetBatchItems*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetBatchItems" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetBatchItems">
-  GetBatchItems()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the items in the batch.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;T&gt; GetBatchItems()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items in the batch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.AdvancePastProcessedItems.html#MongoDB_Driver_Core_Misc_BatchableSource_1_AdvancePastProcessedItems">AdvancePastProcessedItems()</a></dt>
+    <dd><p>Advances past the processed items.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetProcessedItems_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetProcessedItems*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetProcessedItems" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetProcessedItems">
-  GetProcessedItems()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L179"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the items that were processed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;T&gt; GetProcessedItems()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items that were processed.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.GetBatchItems.html#MongoDB_Driver_Core_Misc_BatchableSource_1_GetBatchItems">GetBatchItems()</a></dt>
+    <dd><p>Gets the items in the batch.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetUnprocessedItems_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetUnprocessedItems*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_GetUnprocessedItems" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.GetUnprocessedItems">
-  GetUnprocessedItems()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L190"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the items that were not processed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;T&gt; GetUnprocessedItems()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;T&gt;</dt>
-    <dd><p>The items that were not processed.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.GetProcessedItems.html#MongoDB_Driver_Core_Misc_BatchableSource_1_GetProcessedItems">GetProcessedItems()</a></dt>
+    <dd><p>Gets the items that were processed.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_BatchableSource_1_SetProcessedCount_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.SetProcessedCount*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_BatchableSource_1_SetProcessedCount_System_Int32_" data-uid="MongoDB.Driver.Core.Misc.BatchableSource`1.SetProcessedCount(System.Int32)">
-  SetProcessedCount(int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/BatchableSource.cs/#L199"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the processed count.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void SetProcessedCount(int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.GetUnprocessedItems.html#MongoDB_Driver_Core_Misc_BatchableSource_1_GetUnprocessedItems">GetUnprocessedItems()</a></dt>
+    <dd><p>Gets the items that were not processed.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.BatchableSource-1.SetProcessedCount.html#MongoDB_Driver_Core_Misc_BatchableSource_1_SetProcessedCount_System_Int32_">SetProcessedCount(int)</a></dt>
+    <dd><p>Sets the processed count.</p>
+</dd>
+  </dl>
 
 
 

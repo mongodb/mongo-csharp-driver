@@ -146,10 +146,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -157,394 +156,70 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_IndexInfo__ctor_" data-uid="MongoDB.Driver.IndexInfo.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo__ctor_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.IndexInfo.#ctor(MongoDB.Bson.BsonDocument)">
-  IndexInfo(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L99"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a new instance of the IndexInfo class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexInfo(BsonDocument document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The BSON document that contains information about the index.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.-ctor.html#MongoDB_Driver_IndexInfo__ctor_MongoDB_Bson_BsonDocument_">IndexInfo(BsonDocument)</a></dt>
+    <dd><p>Creates a new instance of the IndexInfo class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_IndexInfo_DroppedDups_" data-uid="MongoDB.Driver.IndexInfo.DroppedDups*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_DroppedDups" data-uid="MongoDB.Driver.IndexInfo.DroppedDups">
-  DroppedDups
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L108"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether dups were dropped when the index was created.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool DroppedDups { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.DroppedDups.html#MongoDB_Driver_IndexInfo_DroppedDups">DroppedDups</a></dt>
+    <dd><p>Gets a value indicating whether dups were dropped when the index was created.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_IsBackground_" data-uid="MongoDB.Driver.IndexInfo.IsBackground*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_IsBackground" data-uid="MongoDB.Driver.IndexInfo.IsBackground">
-  IsBackground
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L127"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the index was created in the background.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsBackground { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.IsBackground.html#MongoDB_Driver_IndexInfo_IsBackground">IsBackground</a></dt>
+    <dd><p>Gets a value indicating whether the index was created in the background.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_IsHidden_" data-uid="MongoDB.Driver.IndexInfo.IsHidden*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_IsHidden" data-uid="MongoDB.Driver.IndexInfo.IsHidden">
-  IsHidden
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L146"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the index is hidden.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsHidden { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.IsHidden.html#MongoDB_Driver_IndexInfo_IsHidden">IsHidden</a></dt>
+    <dd><p>Gets a value indicating whether the index is hidden.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_IsSparse_" data-uid="MongoDB.Driver.IndexInfo.IsSparse*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_IsSparse" data-uid="MongoDB.Driver.IndexInfo.IsSparse">
-  IsSparse
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L164"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the index is sparse.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsSparse { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.IsSparse.html#MongoDB_Driver_IndexInfo_IsSparse">IsSparse</a></dt>
+    <dd><p>Gets a value indicating whether the index is sparse.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_IsUnique_" data-uid="MongoDB.Driver.IndexInfo.IsUnique*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_IsUnique" data-uid="MongoDB.Driver.IndexInfo.IsUnique">
-  IsUnique
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L183"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the index is unique.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsUnique { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.IsUnique.html#MongoDB_Driver_IndexInfo_IsUnique">IsUnique</a></dt>
+    <dd><p>Gets a value indicating whether the index is unique.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_Key_" data-uid="MongoDB.Driver.IndexInfo.Key*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_Key" data-uid="MongoDB.Driver.IndexInfo.Key">
-  Key
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L202"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the key of the index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysDocument Key { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IndexKeysDocument.html">IndexKeysDocument</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.Key.html#MongoDB_Driver_IndexInfo_Key">Key</a></dt>
+    <dd><p>Gets the key of the index.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_Name_" data-uid="MongoDB.Driver.IndexInfo.Name*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_Name" data-uid="MongoDB.Driver.IndexInfo.Name">
-  Name
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L213"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Name { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.Name.html#MongoDB_Driver_IndexInfo_Name">Name</a></dt>
+    <dd><p>Gets the name of the index.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_Namespace_" data-uid="MongoDB.Driver.IndexInfo.Namespace*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_Namespace" data-uid="MongoDB.Driver.IndexInfo.Namespace">
-  Namespace
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L224"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the namespace of the collection that the index is for.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Namespace { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.Namespace.html#MongoDB_Driver_IndexInfo_Namespace">Namespace</a></dt>
+    <dd><p>Gets the namespace of the collection that the index is for.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_RawDocument_" data-uid="MongoDB.Driver.IndexInfo.RawDocument*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_RawDocument" data-uid="MongoDB.Driver.IndexInfo.RawDocument">
-  RawDocument
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L235"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the raw BSON document containing the index information.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument RawDocument { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.RawDocument.html#MongoDB_Driver_IndexInfo_RawDocument">RawDocument</a></dt>
+    <dd><p>Gets the raw BSON document containing the index information.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_TimeToLive_" data-uid="MongoDB.Driver.IndexInfo.TimeToLive*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_TimeToLive" data-uid="MongoDB.Driver.IndexInfo.TimeToLive">
-  TimeToLive
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L243"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the time to live value (or TimeSpan.MaxValue if index doesn't have a time to live value).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan TimeToLive { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.TimeToLive.html#MongoDB_Driver_IndexInfo_TimeToLive">TimeToLive</a></dt>
+    <dd><p>Gets the time to live value (or TimeSpan.MaxValue if index doesn't have a time to live value).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_IndexInfo_Version_" data-uid="MongoDB.Driver.IndexInfo.Version*"></a>
-
-  <h3 id="MongoDB_Driver_IndexInfo_Version" data-uid="MongoDB.Driver.IndexInfo.Version">
-  Version
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GetIndexesResult.cs/#L262"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the version of the index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Version { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IndexInfo.Version.html#MongoDB_Driver_IndexInfo_Version">Version</a></dt>
+    <dd><p>Gets the version of the index.</p>
+</dd>
   </dl>
-
-
-
-
-
-
 
 
 

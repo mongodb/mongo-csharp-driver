@@ -121,10 +121,10 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Linq.TranslatedQuery.html#MongoDB_Driver_Linq_TranslatedQuery_Collection">TranslatedQuery.Collection</a>
+      <a class="xref" href="MongoDB.Driver.Linq.TranslatedQuery.Collection.html#MongoDB_Driver_Linq_TranslatedQuery_Collection">TranslatedQuery.Collection</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Linq.TranslatedQuery.html#MongoDB_Driver_Linq_TranslatedQuery_DocumentType">TranslatedQuery.DocumentType</a>
+      <a class="xref" href="MongoDB.Driver.Linq.TranslatedQuery.DocumentType.html#MongoDB_Driver_Linq_TranslatedQuery_DocumentType">TranslatedQuery.DocumentType</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -153,10 +153,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -164,372 +163,69 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_SelectQuery__ctor_" data-uid="MongoDB.Driver.Linq.SelectQuery.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery__ctor_MongoDB_Driver_MongoCollection_System_Type_" data-uid="MongoDB.Driver.Linq.SelectQuery.#ctor(MongoDB.Driver.MongoCollection,System.Type)">
-  SelectQuery(MongoCollection, Type)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L54"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoLinqFindQuery class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SelectQuery(MongoCollection collection, Type documentType)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collection</code> <a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
-    <dd><p>The collection being queried.</p>
-</dd>
-    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The document type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.-ctor.html#MongoDB_Driver_Linq_SelectQuery__ctor_MongoDB_Driver_MongoCollection_System_Type_">SelectQuery(MongoCollection, Type)</a></dt>
+    <dd><p>Initializes a new instance of the MongoLinqFindQuery class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_IndexHint_" data-uid="MongoDB.Driver.Linq.SelectQuery.IndexHint*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_IndexHint" data-uid="MongoDB.Driver.Linq.SelectQuery.IndexHint">
-  IndexHint
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L104"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the BsonValue (string or document) that defines which index to use (or null if not specified);</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonValue IndexHint { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.IndexHint.html#MongoDB_Driver_Linq_SelectQuery_IndexHint">IndexHint</a></dt>
+    <dd><p>Gets the BsonValue (string or document) that defines which index to use (or null if not specified);</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_OfType_" data-uid="MongoDB.Driver.Linq.SelectQuery.OfType*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_OfType" data-uid="MongoDB.Driver.Linq.SelectQuery.OfType">
-  OfType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L64"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the final result type if an OfType query operator was used (otherwise null).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Type OfType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.OfType.html#MongoDB_Driver_Linq_SelectQuery_OfType">OfType</a></dt>
+    <dd><p>Gets the final result type if an OfType query operator was used (otherwise null).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_OrderBy_" data-uid="MongoDB.Driver.Linq.SelectQuery.OrderBy*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_OrderBy" data-uid="MongoDB.Driver.Linq.SelectQuery.OrderBy">
-  OrderBy
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L72"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a list of Expressions that defines the sort order (or null if not specified).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ReadOnlyCollection&lt;OrderByClause&gt; OrderBy { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.objectmodel.readonlycollection-1">ReadOnlyCollection</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.OrderByClause.html">OrderByClause</a>&gt;</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.OrderBy.html#MongoDB_Driver_Linq_SelectQuery_OrderBy">OrderBy</a></dt>
+    <dd><p>Gets a list of Expressions that defines the sort order (or null if not specified).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Projection_" data-uid="MongoDB.Driver.Linq.SelectQuery.Projection*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Projection" data-uid="MongoDB.Driver.Linq.SelectQuery.Projection">
-  Projection
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L80"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the Expression that defines the projection (or null if not specified).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LambdaExpression Projection { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.lambdaexpression">LambdaExpression</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Projection.html#MongoDB_Driver_Linq_SelectQuery_Projection">Projection</a></dt>
+    <dd><p>Gets the Expression that defines the projection (or null if not specified).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Skip_" data-uid="MongoDB.Driver.Linq.SelectQuery.Skip*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Skip" data-uid="MongoDB.Driver.Linq.SelectQuery.Skip">
-  Skip
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L88"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the Expression that defines how many documents to skip (or null if not specified).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int? Skip { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Skip.html#MongoDB_Driver_Linq_SelectQuery_Skip">Skip</a></dt>
+    <dd><p>Gets the Expression that defines how many documents to skip (or null if not specified).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Take_" data-uid="MongoDB.Driver.Linq.SelectQuery.Take*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Take" data-uid="MongoDB.Driver.Linq.SelectQuery.Take">
-  Take
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L96"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the Expression that defines how many documents to take (or null if not specified);</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int? Take { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Take.html#MongoDB_Driver_Linq_SelectQuery_Take">Take</a></dt>
+    <dd><p>Gets the Expression that defines how many documents to take (or null if not specified);</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Where_" data-uid="MongoDB.Driver.Linq.SelectQuery.Where*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Where" data-uid="MongoDB.Driver.Linq.SelectQuery.Where">
-  Where
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the LambdaExpression that defines the where clause (or null if not specified).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LambdaExpression Where { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.lambdaexpression">LambdaExpression</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Where.html#MongoDB_Driver_Linq_SelectQuery_Where">Where</a></dt>
+    <dd><p>Gets the LambdaExpression that defines the where clause (or null if not specified).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_BuildQuery_" data-uid="MongoDB.Driver.Linq.SelectQuery.BuildQuery*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_BuildQuery" data-uid="MongoDB.Driver.Linq.SelectQuery.BuildQuery">
-  BuildQuery()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L122"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates an IMongoQuery from the where clause (returns null if no where clause was specified).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery BuildQuery()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.BuildQuery.html#MongoDB_Driver_Linq_SelectQuery_BuildQuery">BuildQuery()</a></dt>
+    <dd><p>Creates an IMongoQuery from the where clause (returns null if no where clause was specified).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Execute_" data-uid="MongoDB.Driver.Linq.SelectQuery.Execute*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Execute" data-uid="MongoDB.Driver.Linq.SelectQuery.Execute">
-  Execute()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L140"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes the translated Find query.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override object Execute()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The result of executing the translated Find query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Execute.html#MongoDB_Driver_Linq_SelectQuery_Execute">Execute()</a></dt>
+    <dd><p>Executes the translated Find query.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_SelectQuery_Translate_" data-uid="MongoDB.Driver.Linq.SelectQuery.Translate*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_SelectQuery_Translate_System_Linq_Expressions_Expression_" data-uid="MongoDB.Driver.Linq.SelectQuery.Translate(System.Linq.Expressions.Expression)">
-  Translate(Expression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Translators/SelectQuery.cs/#L247"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Translates a LINQ query expression tree.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Translate(Expression expression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>expression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression">Expression</a></dt>
-    <dd><p>The LINQ query expression tree.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.SelectQuery.Translate.html#MongoDB_Driver_Linq_SelectQuery_Translate_System_Linq_Expressions_Expression_">Translate(Expression)</a></dt>
+    <dd><p>Translates a LINQ query expression tree.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

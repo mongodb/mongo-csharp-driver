@@ -146,282 +146,55 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction__ctor_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction__ctor_System_Int64_MongoDB_Driver_TransactionOptions_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.#ctor(System.Int64,MongoDB.Driver.TransactionOptions)">
-  CoreTransaction(long, TransactionOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L42"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.html">CoreTransaction</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CoreTransaction(long transactionNumber, TransactionOptions transactionOptions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>transactionNumber</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The transaction number.</p>
-</dd>
-    <dt><code>transactionOptions</code> <a class="xref" href="MongoDB.Driver.TransactionOptions.html">TransactionOptions</a></dt>
-    <dd><p>The transaction options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.-ctor.html#MongoDB_Driver_Core_Bindings_CoreTransaction__ctor_System_Int64_MongoDB_Driver_TransactionOptions_">CoreTransaction(long, TransactionOptions)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.html">CoreTransaction</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_IsEmpty_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.IsEmpty*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_IsEmpty" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.IsEmpty">
-  IsEmpty
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L57"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a value indicating whether the transaction is empty.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsEmpty { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if the transaction is empty; otherwise, <code>false</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.IsEmpty.html#MongoDB_Driver_Core_Bindings_CoreTransaction_IsEmpty">IsEmpty</a></dt>
+    <dd><p>Gets a value indicating whether the transaction is empty.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedChannel_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedChannel*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedChannel" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedChannel">
-  PinnedChannel
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L74"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets pinned channel for the current transaction.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedChannel.html#MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedChannel">PinnedChannel</a></dt>
+    <dd><p>Gets pinned channel for the current transaction.
 Value has meaning if and only if a transaction is in progress.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IChannelHandle PinnedChannel { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.IChannelHandle.html">IChannelHandle</a></dt>
-    <dd><p>The pinned channel for the current transaction.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedServer_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedServer*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedServer" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedServer">
-  PinnedServer
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L86"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets pinned server for the current transaction.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.PinnedServer.html#MongoDB_Driver_Core_Bindings_CoreTransaction_PinnedServer">PinnedServer</a></dt>
+    <dd><p>Gets or sets pinned server for the current transaction.
 Value has meaning if and only if a transaction is in progress.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IServer PinnedServer { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.IServer.html">IServer</a></dt>
-    <dd><p>The pinned server for the current transaction.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_RecoveryToken_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.RecoveryToken*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_RecoveryToken" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.RecoveryToken">
-  RecoveryToken
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L114"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the recovery token used in sharded transactions.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument RecoveryToken { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The recovery token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.RecoveryToken.html#MongoDB_Driver_Core_Bindings_CoreTransaction_RecoveryToken">RecoveryToken</a></dt>
+    <dd><p>Gets the recovery token used in sharded transactions.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_State_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.State*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_State" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.State">
-  State
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L65"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the transaction state.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CoreTransactionState State { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransactionState.html">CoreTransactionState</a></dt>
-    <dd><p>The transaction state.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.State.html#MongoDB_Driver_Core_Bindings_CoreTransaction_State">State</a></dt>
+    <dd><p>Gets the transaction state.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionNumber_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionNumber*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionNumber" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionNumber">
-  TransactionNumber
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L98"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the transaction number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long TransactionNumber { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The transaction number.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionNumber.html#MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionNumber">TransactionNumber</a></dt>
+    <dd><p>Gets the transaction number.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionOptions_" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionOptions*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionOptions" data-uid="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionOptions">
-  TransactionOptions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Bindings/CoreTransaction.cs/#L106"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the transaction options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TransactionOptions TransactionOptions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.TransactionOptions.html">TransactionOptions</a></dt>
-    <dd><p>The transaction options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Bindings.CoreTransaction.TransactionOptions.html#MongoDB_Driver_Core_Bindings_CoreTransaction_TransactionOptions">TransactionOptions</a></dt>
+    <dd><p>Gets the transaction options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
 
 
 

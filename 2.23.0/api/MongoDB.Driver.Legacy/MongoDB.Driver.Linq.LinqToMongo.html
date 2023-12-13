@@ -146,288 +146,39 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_ContainsAll_" data-uid="MongoDB.Driver.Linq.LinqToMongo.ContainsAll*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_ContainsAll__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Linq.LinqToMongo.ContainsAll``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
-  ContainsAll&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, IEnumerable&lt;TSource&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L38"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether a sequence contains all of the specified values.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool ContainsAll&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, IEnumerable&lt;TSource&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
-    <dd><p>A sequence in which to locate the values.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
-    <dd><p>The values to locate in the sequence.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.ContainsAll.html#MongoDB_Driver_Linq_LinqToMongo_ContainsAll__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__">ContainsAll&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, IEnumerable&lt;TSource&gt;)</a></dt>
+    <dd><p>Determines whether a sequence contains all of the specified values.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the sequence contains all of the specified values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.ContainsAny.html#MongoDB_Driver_Linq_LinqToMongo_ContainsAny__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__">ContainsAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, IEnumerable&lt;TSource&gt;)</a></dt>
+    <dd><p>Determines whether a sequence contains any of the specified values.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TSource</code></dt>
-    <dd><p>The type of the elements of source.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a></dt>
+    <dd><p>Determines whether a specified value is contained in a sequence.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_ContainsAny_" data-uid="MongoDB.Driver.Linq.LinqToMongo.ContainsAny*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_ContainsAny__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Linq.LinqToMongo.ContainsAny``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
-  ContainsAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, IEnumerable&lt;TSource&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L50"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether a sequence contains any of the specified values.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool ContainsAny&lt;TSource&gt;(this IEnumerable&lt;TSource&gt; source, IEnumerable&lt;TSource&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
-    <dd><p>A sequence in which to locate the values.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
-    <dd><p>The values to locate in the sequence.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.Inject.html#MongoDB_Driver_Linq_LinqToMongo_Inject_MongoDB_Driver_IMongoQuery_">Inject(IMongoQuery)</a></dt>
+    <dd><p>Injects a low level IMongoQuery into a LINQ where clause. Can only be used in LINQ queries.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the sequence contains any of the specified values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.WithIndex.html#MongoDB_Driver_Linq_LinqToMongo_WithIndex__1_System_Linq_IQueryable___0__MongoDB_Bson_BsonDocument_">WithIndex&lt;TSource&gt;(IQueryable&lt;TSource&gt;, BsonDocument)</a></dt>
+    <dd><p>Sets an index hint on the query that's being built.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TSource</code></dt>
-    <dd><p>The type of the elements of source.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.WithIndex.html#MongoDB_Driver_Linq_LinqToMongo_WithIndex__1_System_Linq_IQueryable___0__System_String_">WithIndex&lt;TSource&gt;(IQueryable&lt;TSource&gt;, string)</a></dt>
+    <dd><p>Sets an index hint on the query that's being built.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_In_" data-uid="MongoDB.Driver.Linq.LinqToMongo.In*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Linq.LinqToMongo.In``1(``0,System.Collections.Generic.IEnumerable{``0})">
-  In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L62"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether a specified value is contained in a sequence.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool In&lt;TSource&gt;(this TSource value, IEnumerable&lt;TSource&gt; source)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <span class="xref">TSource</span></dt>
-    <dd><p>The value to locate in the sequence.</p>
-</dd>
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TSource&gt;</dt>
-    <dd><p>A sequence in which to locate the values.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the value is contained in the sequence.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TSource</code></dt>
-    <dd><p>The type of the elements of source.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_Inject_" data-uid="MongoDB.Driver.Linq.LinqToMongo.Inject*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_Inject_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.Linq.LinqToMongo.Inject(MongoDB.Driver.IMongoQuery)">
-  Inject(IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L72"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Injects a low level IMongoQuery into a LINQ where clause. Can only be used in LINQ queries.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool Inject(this IMongoQuery query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>The low level query.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Throws an InvalidOperationException if called.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_WithIndex_" data-uid="MongoDB.Driver.Linq.LinqToMongo.WithIndex*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_WithIndex__1_System_Linq_IQueryable___0__MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Linq.LinqToMongo.WithIndex``1(System.Linq.IQueryable{``0},MongoDB.Bson.BsonDocument)">
-  WithIndex&lt;TSource&gt;(IQueryable&lt;TSource&gt;, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L96"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets an index hint on the query that's being built.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IQueryable&lt;TSource&gt; WithIndex&lt;TSource&gt;(this IQueryable&lt;TSource&gt; source, BsonDocument indexHint)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
-    <dd><p>The query being built.</p>
-</dd>
-    <dt><code>indexHint</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>Hint for what index to use.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
-    <dd><p>New query where the expression includes a WithIndex method call.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TSource</code></dt>
-    <dd><p>The type of the elements of source.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_LinqToMongo_WithIndex_" data-uid="MongoDB.Driver.Linq.LinqToMongo.WithIndex*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_LinqToMongo_WithIndex__1_System_Linq_IQueryable___0__System_String_" data-uid="MongoDB.Driver.Linq.LinqToMongo.WithIndex``1(System.Linq.IQueryable{``0},System.String)">
-  WithIndex&lt;TSource&gt;(IQueryable&lt;TSource&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/LinqToMongo.cs/#L84"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets an index hint on the query that's being built.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IQueryable&lt;TSource&gt; WithIndex&lt;TSource&gt;(this IQueryable&lt;TSource&gt; source, string indexName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
-    <dd><p>The query being built.</p>
-</dd>
-    <dt><code>indexName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the index to use.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
-    <dd><p>New query where the expression includes a WithIndex method call.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TSource</code></dt>
-    <dd><p>The type of the elements of source.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

@@ -159,13 +159,12 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.ExecuteAsync&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.ExecuteAsync&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a>
   </div>
   <div>
-      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.Execute&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">OperationExtensionMethods.Execute&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -173,832 +172,129 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_MongoDB_Driver_CollectionNamespace_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.#ctor(MongoDB.Driver.CollectionNamespace,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument},MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings)">
-  AggregateOperation(CollectionNamespace, IEnumerable&lt;BsonDocument&gt;, IBsonSerializer&lt;TResult&gt;, MessageEncoderSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L78"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.html">AggregateOperation&lt;TResult&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable&lt;BsonDocument&gt; pipeline, IBsonSerializer&lt;TResult&gt; resultSerializer, MessageEncoderSettings messageEncoderSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionNamespace</code> <a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
-    <dd><p>The collection namespace.</p>
-</dd>
-    <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>resultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TResult&gt;</dt>
-    <dd><p>The result value serializer.</p>
-</dd>
-    <dt><code>messageEncoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
-    <dd><p>The message encoder settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.-ctor.html#MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_MongoDB_Driver_CollectionNamespace_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_">AggregateOperation(CollectionNamespace, IEnumerable&lt;BsonDocument&gt;, IBsonSerializer&lt;TResult&gt;, MessageEncoderSettings)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.html">AggregateOperation&lt;TResult&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_MongoDB_Driver_DatabaseNamespace_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.#ctor(MongoDB.Driver.DatabaseNamespace,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument},MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings)">
-  AggregateOperation(DatabaseNamespace, IEnumerable&lt;BsonDocument&gt;, IBsonSerializer&lt;TResult&gt;, MessageEncoderSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L65"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.html">AggregateOperation&lt;TResult&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public AggregateOperation(DatabaseNamespace databaseNamespace, IEnumerable&lt;BsonDocument&gt; pipeline, IBsonSerializer&lt;TResult&gt; resultSerializer, MessageEncoderSettings messageEncoderSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseNamespace</code> <a class="xref" href="MongoDB.Driver.DatabaseNamespace.html">DatabaseNamespace</a></dt>
-    <dd><p>The database namespace.</p>
-</dd>
-    <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>resultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TResult&gt;</dt>
-    <dd><p>The result value serializer.</p>
-</dd>
-    <dt><code>messageEncoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
-    <dd><p>The message encoder settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.-ctor.html#MongoDB_Driver_Core_Operations_AggregateOperation_1__ctor_MongoDB_Driver_DatabaseNamespace_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_">AggregateOperation(DatabaseNamespace, IEnumerable&lt;BsonDocument&gt;, IBsonSerializer&lt;TResult&gt;, MessageEncoderSettings)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.html">AggregateOperation&lt;TResult&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_AllowDiskUse_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.AllowDiskUse*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_AllowDiskUse" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.AllowDiskUse">
-  AllowDiskUse
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L98"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the server is allowed to use the disk.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool? AllowDiskUse { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>A value indicating whether the server is allowed to use the disk.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.AllowDiskUse.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_AllowDiskUse">AllowDiskUse</a></dt>
+    <dd><p>Gets or sets a value indicating whether the server is allowed to use the disk.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_BatchSize_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.BatchSize*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_BatchSize" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.BatchSize">
-  BatchSize
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L110"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the size of a batch.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int? BatchSize { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd><p>The size of a batch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.BatchSize.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_BatchSize">BatchSize</a></dt>
+    <dd><p>Gets or sets the size of a batch.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Collation_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Collation*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Collation" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Collation">
-  Collation
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L119"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the collation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Collation Collation { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_CollectionNamespace_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.CollectionNamespace*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_CollectionNamespace" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.CollectionNamespace">
-  CollectionNamespace
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L131"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the collection namespace.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionNamespace CollectionNamespace { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
-    <dd><p>The collection namespace.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Collation.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Collation">Collation</a></dt>
+    <dd><p>Gets or sets the collation.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Comment_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Comment*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Comment" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Comment">
-  Comment
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L142"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the comment.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonValue Comment { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The comment.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.CollectionNamespace.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_CollectionNamespace">CollectionNamespace</a></dt>
+    <dd><p>Gets the collection namespace.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_DatabaseNamespace_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.DatabaseNamespace*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_DatabaseNamespace" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.DatabaseNamespace">
-  DatabaseNamespace
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L154"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the database namespace.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DatabaseNamespace DatabaseNamespace { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.DatabaseNamespace.html">DatabaseNamespace</a></dt>
-    <dd><p>The database namespace.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Comment.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Comment">Comment</a></dt>
+    <dd><p>Gets or sets the comment.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Hint_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Hint*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Hint" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Hint">
-  Hint
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L165"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonValue Hint { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The hint.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.DatabaseNamespace.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_DatabaseNamespace">DatabaseNamespace</a></dt>
+    <dd><p>Gets the database namespace.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Let_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Let*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Let" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Let">
-  Let
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L177"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the &quot;let&quot; definition.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument Let { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The &quot;let&quot; definition.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Hint.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Hint">Hint</a></dt>
+    <dd><p>Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxAwaitTime_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MaxAwaitTime*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxAwaitTime" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MaxAwaitTime">
-  MaxAwaitTime
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L189"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the maximum await time.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan? MaxAwaitTime { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>?</dt>
-    <dd><p>The maximum await time.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Let.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Let">Let</a></dt>
+    <dd><p>Gets or sets the &quot;let&quot; definition.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxTime_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MaxTime*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxTime" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MaxTime">
-  MaxTime
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L201"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the maximum time the server should spend on this operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan? MaxTime { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>?</dt>
-    <dd><p>The maximum time the server should spend on this operation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.MaxAwaitTime.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxAwaitTime">MaxAwaitTime</a></dt>
+    <dd><p>Gets or sets the maximum await time.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MessageEncoderSettings*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_MessageEncoderSettings" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.MessageEncoderSettings">
-  MessageEncoderSettings
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L213"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the message encoder settings.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MessageEncoderSettings MessageEncoderSettings { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
-    <dd><p>The message encoder settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.MaxTime.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_MaxTime">MaxTime</a></dt>
+    <dd><p>Gets or sets the maximum time the server should spend on this operation.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Pipeline_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Pipeline*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Pipeline" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Pipeline">
-  Pipeline
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L224"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the pipeline.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;BsonDocument&gt; Pipeline { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The pipeline.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.MessageEncoderSettings.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_MessageEncoderSettings">MessageEncoderSettings</a></dt>
+    <dd><p>Gets the message encoder settings.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ReadConcern_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ReadConcern*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ReadConcern" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ReadConcern">
-  ReadConcern
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L235"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the read concern.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ReadConcern ReadConcern { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
-    <dd><p>The read concern.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Pipeline.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Pipeline">Pipeline</a></dt>
+    <dd><p>Gets the pipeline.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ResultSerializer_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ResultSerializer*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ResultSerializer" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ResultSerializer">
-  ResultSerializer
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L247"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the result value serializer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IBsonSerializer&lt;TResult&gt; ResultSerializer { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TResult&gt;</dt>
-    <dd><p>The result value serializer.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.ReadConcern.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_ReadConcern">ReadConcern</a></dt>
+    <dd><p>Gets or sets the read concern.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_RetryRequested_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.RetryRequested*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_RetryRequested" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.RetryRequested">
-  RetryRequested
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L256"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether to retry.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool RetryRequested { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether to retry.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.ResultSerializer.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_ResultSerializer">ResultSerializer</a></dt>
+    <dd><p>Gets the result value serializer.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_UseCursor_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.UseCursor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_UseCursor" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.UseCursor">
-  UseCursor
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L268"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the server should use a cursor to return the results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Server versions 3.6 and newer always use a cursor.&quot;)]
-public bool? UseCursor { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>A value indicating whether the server should use a cursor to return the results.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.RetryRequested.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_RetryRequested">RetryRequested</a></dt>
+    <dd><p>Gets or sets a value indicating whether to retry.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.UseCursor.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_UseCursor">UseCursor</a></dt>
+    <dd><p>Gets or sets a value indicating whether the server should use a cursor to return the results.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Execute*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_MongoDB_Driver_Core_Bindings_IReadBinding_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Execute(MongoDB.Driver.Core.Bindings.IReadBinding,System.Threading.CancellationToken)">
-  Execute(IReadBinding, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L277"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes the operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IAsyncCursor&lt;TResult&gt; Execute(IReadBinding binding, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>binding</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IReadBinding.html">IReadBinding</a></dt>
-    <dd><p>The binding.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Execute.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_MongoDB_Driver_Core_Bindings_IReadBinding_System_Threading_CancellationToken_">Execute(IReadBinding, CancellationToken)</a></dt>
+    <dd><p>Executes the operation.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
-    <dd><p>The result of the operation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.Execute.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_MongoDB_Driver_Core_Operations_RetryableReadContext_System_Threading_CancellationToken_">Execute(RetryableReadContext, CancellationToken)</a></dt>
+    <dd><p>Executes the first attempt.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Execute*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_Execute_MongoDB_Driver_Core_Operations_RetryableReadContext_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.Execute(MongoDB.Driver.Core.Operations.RetryableReadContext,System.Threading.CancellationToken)">
-  Execute(RetryableReadContext, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L289"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes the first attempt.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IAsyncCursor&lt;TResult&gt; Execute(RetryableReadContext context, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>context</code> <a class="xref" href="MongoDB.Driver.Core.Operations.RetryableReadContext.html">RetryableReadContext</a></dt>
-    <dd><p>The context.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.ExecuteAsync.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_MongoDB_Driver_Core_Bindings_IReadBinding_System_Threading_CancellationToken_">ExecuteAsync(IReadBinding, CancellationToken)</a></dt>
+    <dd><p>Executes the operation.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;</dt>
-    <dd><p>The result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.ExecuteAsync.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_MongoDB_Driver_Core_Operations_RetryableReadContext_System_Threading_CancellationToken_">ExecuteAsync(RetryableReadContext, CancellationToken)</a></dt>
+    <dd><p>Executes the first attempt.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ExecuteAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_MongoDB_Driver_Core_Bindings_IReadBinding_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ExecuteAsync(MongoDB.Driver.Core.Bindings.IReadBinding,System.Threading.CancellationToken)">
-  ExecuteAsync(IReadBinding, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L306"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes the operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;IAsyncCursor&lt;TResult&gt;&gt; ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>binding</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IReadBinding.html">IReadBinding</a></dt>
-    <dd><p>The binding.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.ToExplainOperation.html#MongoDB_Driver_Core_Operations_AggregateOperation_1_ToExplainOperation_MongoDB_Driver_Core_Operations_ExplainVerbosity_">ToExplainOperation(ExplainVerbosity)</a></dt>
+    <dd><p>Returns an AggregateExplainOperation for this AggregateOperation.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
-    <dd><p>A Task whose result is the result of the operation.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ExecuteAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ExecuteAsync_MongoDB_Driver_Core_Operations_RetryableReadContext_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ExecuteAsync(MongoDB.Driver.Core.Operations.RetryableReadContext,System.Threading.CancellationToken)">
-  ExecuteAsync(RetryableReadContext, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L318"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes the first attempt.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;IAsyncCursor&lt;TResult&gt;&gt; ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>context</code> <a class="xref" href="MongoDB.Driver.Core.Operations.RetryableReadContext.html">RetryableReadContext</a></dt>
-    <dd><p>The context.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;TResult&gt;&gt;</dt>
-    <dd><p>The result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ToExplainOperation_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ToExplainOperation*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_AggregateOperation_1_ToExplainOperation_MongoDB_Driver_Core_Operations_ExplainVerbosity_" data-uid="MongoDB.Driver.Core.Operations.AggregateOperation`1.ToExplainOperation(MongoDB.Driver.Core.Operations.ExplainVerbosity)">
-  ToExplainOperation(ExplainVerbosity)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/AggregateOperation.cs/#L339"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns an AggregateExplainOperation for this AggregateOperation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOperation&lt;BsonDocument&gt; ToExplainOperation(ExplainVerbosity verbosity)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>verbosity</code> <a class="xref" href="MongoDB.Driver.Core.Operations.ExplainVerbosity.html">ExplainVerbosity</a></dt>
-    <dd><p>The verbosity.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IReadOperation-1.html">IReadOperation</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An AggregateExplainOperation.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

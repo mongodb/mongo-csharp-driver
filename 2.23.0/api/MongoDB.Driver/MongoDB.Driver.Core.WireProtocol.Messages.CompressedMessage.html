@@ -127,7 +127,7 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.MayBeCompressed.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -156,223 +156,47 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage__ctor_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage__ctor_MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MongoDB_Bson_IO_BsonStream_MongoDB_Driver_Core_Compression_CompressorType_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.#ctor(MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage,MongoDB.Bson.IO.BsonStream,MongoDB.Driver.Core.Compression.CompressorType)">
-  CompressedMessage(MongoDBMessage, BsonStream, CompressorType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L38"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.html">CompressedMessage</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CompressedMessage(MongoDBMessage originalMessage, BsonStream originalMessageStream, CompressorType compressorType)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>originalMessage</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html">MongoDBMessage</a></dt>
-    <dd><p>The original message.</p>
-</dd>
-    <dt><code>originalMessageStream</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.IO.BsonStream.html">BsonStream</a></dt>
-    <dd><p>The original message stream.</p>
-</dd>
-    <dt><code>compressorType</code> <a class="xref" href="MongoDB.Driver.Core.Compression.CompressorType.html">CompressorType</a></dt>
-    <dd><p>The compressor type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.-ctor.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage__ctor_MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MongoDB_Bson_IO_BsonStream_MongoDB_Driver_Core_Compression_CompressorType_">CompressedMessage(MongoDBMessage, BsonStream, CompressorType)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.html">CompressedMessage</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_CompressorType_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.CompressorType*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_CompressorType" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.CompressorType">
-  CompressorType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L51"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>The compressor type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CompressorType CompressorType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Compression.CompressorType.html">CompressorType</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.CompressorType.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_CompressorType">CompressorType</a></dt>
+    <dd><p>The compressor type.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_MessageType_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.MessageType*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_MessageType" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.MessageType">
-  MessageType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L54"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the type of the message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override MongoDBMessageType MessageType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessageType.html">MongoDBMessageType</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.MessageType.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_MessageType">MessageType</a></dt>
+    <dd><p>Gets the type of the message.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessage" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessage">
-  OriginalMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>The original message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoDBMessage OriginalMessage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html">MongoDBMessage</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessage">OriginalMessage</a></dt>
+    <dd><p>The original message.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessageStream_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessageStream*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessageStream" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessageStream">
-  OriginalMessageStream
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L64"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>The uncompressed original message stream.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonStream OriginalMessageStream { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.IO.BsonStream.html">BsonStream</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.OriginalMessageStream.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_OriginalMessageStream">OriginalMessageStream</a></dt>
+    <dd><p>The uncompressed original message stream.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_GetEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.GetEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.GetEncoder(MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderFactory)">
-  GetEncoder(IMessageEncoderFactory)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/CompressedMessage.cs/#L67"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for the message from an encoder factory.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>encoderFactory</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderFactory.html">IMessageEncoderFactory</a></dt>
-    <dd><p>The encoder factory.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.GetEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_">GetEncoder(IMessageEncoderFactory)</a></dt>
+    <dd><p>Gets an encoder for the message from an encoder factory.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>A message encoder.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

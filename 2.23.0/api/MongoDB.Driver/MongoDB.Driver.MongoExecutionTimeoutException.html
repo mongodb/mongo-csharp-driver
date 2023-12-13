@@ -130,22 +130,22 @@ public class MongoExecutionTimeoutException : MongoServerException, ISerializabl
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.AddErrorLabelsFromCommandResult.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.ConnectionId.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.ErrorLabels.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.AddErrorLabel.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.HasErrorLabel.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.RemoveErrorLabel.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception.getbaseexception">Exception.GetBaseException()</a>
@@ -204,308 +204,56 @@ public class MongoExecutionTimeoutException : MongoServerException, ISerializabl
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String)">
-  MongoExecutionTimeoutException(ConnectionId, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L37"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoExecutionTimeoutException(ConnectionId connectionId, string message)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.-ctor.html#MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_">MongoExecutionTimeoutException(ConnectionId, string)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,MongoDB.Bson.BsonDocument)">
-  MongoExecutionTimeoutException(ConnectionId, string, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoExecutionTimeoutException(ConnectionId connectionId, string message, BsonDocument result)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
-</dd>
-    <dt><code>result</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.-ctor.html#MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_MongoDB_Bson_BsonDocument_">MongoExecutionTimeoutException(ConnectionId, string, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_System_Exception_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,System.Exception)">
-  MongoExecutionTimeoutException(ConnectionId, string, Exception)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoExecutionTimeoutException(ConnectionId connectionId, string message, Exception innerException)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
-</dd>
-    <dt><code>innerException</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception">Exception</a></dt>
-    <dd><p>The inner exception.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.-ctor.html#MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_System_Exception_">MongoExecutionTimeoutException(ConnectionId, string, Exception)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_System_Exception_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,System.String,System.Exception,MongoDB.Bson.BsonDocument)">
-  MongoExecutionTimeoutException(ConnectionId, string, Exception, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L71"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoExecutionTimeoutException(ConnectionId connectionId, string message, Exception innerException, BsonDocument result)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
-</dd>
-    <dt><code>innerException</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception">Exception</a></dt>
-    <dd><p>The inner exception.</p>
-</dd>
-    <dt><code>result</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The command result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.-ctor.html#MongoDB_Driver_MongoExecutionTimeoutException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_System_String_System_Exception_MongoDB_Bson_BsonDocument_">MongoExecutionTimeoutException(ConnectionId, string, Exception, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  MongoExecutionTimeoutException(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L83"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoExecutionTimeoutException(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The SerializationInfo.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The StreamingContext.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.-ctor.html#MongoDB_Driver_MongoExecutionTimeoutException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">MongoExecutionTimeoutException(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.html">MongoExecutionTimeoutException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException_Code_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.Code*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException_Code" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.Code">
-  Code
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L96"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Code { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.Code.html#MongoDB_Driver_MongoExecutionTimeoutException_Code">Code</a></dt>
+    <dd><p>Gets the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException_CodeName_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.CodeName*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException_CodeName" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.CodeName">
-  CodeName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L107"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string CodeName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.CodeName.html#MongoDB_Driver_MongoExecutionTimeoutException_CodeName">CodeName</a></dt>
+    <dd><p>Gets the name of the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoExecutionTimeoutException_GetObjectData_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.GetObjectData*"></a>
-
-  <h3 id="MongoDB_Driver_MongoExecutionTimeoutException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.MongoExecutionTimeoutException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  GetObjectData(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/MongoExecutionTimeoutException.cs/#L110"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd></dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoExecutionTimeoutException.GetObjectData.html#MongoDB_Driver_MongoExecutionTimeoutException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">GetObjectData(SerializationInfo, StreamingContext)</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -150,156 +150,37 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_JsonCommand_1__ctor_" data-uid="MongoDB.Driver.JsonCommand`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_JsonCommand_1__ctor_System_String_MongoDB_Bson_Serialization_IBsonSerializer__0__" data-uid="MongoDB.Driver.JsonCommand`1.#ctor(System.String,MongoDB.Bson.Serialization.IBsonSerializer{`0})">
-  JsonCommand(string, IBsonSerializer&lt;TResult&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Command.cs/#L157"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.JsonCommand-1.html">JsonCommand&lt;TResult&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public JsonCommand(string json, IBsonSerializer&lt;TResult&gt; resultSerializer = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>json</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The json.</p>
-</dd>
-    <dt><code>resultSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TResult&gt;</dt>
-    <dd><p>The result serializer.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.JsonCommand-1.-ctor.html#MongoDB_Driver_JsonCommand_1__ctor_System_String_MongoDB_Bson_Serialization_IBsonSerializer__0__">JsonCommand(string, IBsonSerializer&lt;TResult&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.JsonCommand-1.html">JsonCommand&lt;TResult&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_JsonCommand_1_Json_" data-uid="MongoDB.Driver.JsonCommand`1.Json*"></a>
-
-  <h3 id="MongoDB_Driver_JsonCommand_1_Json" data-uid="MongoDB.Driver.JsonCommand`1.Json">
-  Json
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Command.cs/#L166"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the json.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Json { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.JsonCommand-1.Json.html#MongoDB_Driver_JsonCommand_1_Json">Json</a></dt>
+    <dd><p>Gets the json.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_JsonCommand_1_ResultSerializer_" data-uid="MongoDB.Driver.JsonCommand`1.ResultSerializer*"></a>
-
-  <h3 id="MongoDB_Driver_JsonCommand_1_ResultSerializer" data-uid="MongoDB.Driver.JsonCommand`1.ResultSerializer">
-  ResultSerializer
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Command.cs/#L174"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the result serializer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IBsonSerializer&lt;TResult&gt; ResultSerializer { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TResult&gt;</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.JsonCommand-1.ResultSerializer.html#MongoDB_Driver_JsonCommand_1_ResultSerializer">ResultSerializer</a></dt>
+    <dd><p>Gets the result serializer.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_JsonCommand_1_Render_" data-uid="MongoDB.Driver.JsonCommand`1.Render*"></a>
-
-  <h3 id="MongoDB_Driver_JsonCommand_1_Render_MongoDB_Bson_Serialization_IBsonSerializerRegistry_" data-uid="MongoDB.Driver.JsonCommand`1.Render(MongoDB.Bson.Serialization.IBsonSerializerRegistry)">
-  Render(IBsonSerializerRegistry)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Command.cs/#L180"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the command to a <a class="xref" href="MongoDB.Driver.RenderedCommand-1.html">RenderedCommand&lt;TResult&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override RenderedCommand&lt;TResult&gt; Render(IBsonSerializerRegistry serializerRegistry)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.JsonCommand-1.Render.html#MongoDB_Driver_JsonCommand_1_Render_MongoDB_Bson_Serialization_IBsonSerializerRegistry_">Render(IBsonSerializerRegistry)</a></dt>
+    <dd><p>Renders the command to a <a class="xref" href="MongoDB.Driver.RenderedCommand-1.html">RenderedCommand&lt;TResult&gt;</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.RenderedCommand-1.html">RenderedCommand</a>&lt;TResult&gt;</dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.RenderedCommand-1.html">RenderedCommand&lt;TResult&gt;</a>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

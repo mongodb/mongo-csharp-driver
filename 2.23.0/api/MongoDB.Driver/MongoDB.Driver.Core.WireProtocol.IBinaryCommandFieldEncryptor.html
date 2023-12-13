@@ -114,99 +114,19 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFields_" data-uid="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFields*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFields_System_String_System_Byte___System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFields(System.String,System.Byte[],System.Threading.CancellationToken)">
-  EncryptFields(string, byte[], CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/IBinaryCommandFieldEncryptor.cs/#L33"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts the fields.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">byte[] EncryptFields(string databaseName, byte[] unencryptedCommandBytes, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The database name.</p>
-</dd>
-    <dt><code>unencryptedCommandBytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The unencrypted command bytes.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFields.html#MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFields_System_String_System_Byte___System_Threading_CancellationToken_">EncryptFields(string, byte[], CancellationToken)</a></dt>
+    <dd><p>Encrypts the fields.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>An encrypted document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFieldsAsync.html#MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFieldsAsync_System_String_System_Byte___System_Threading_CancellationToken_">EncryptFieldsAsync(string, byte[], CancellationToken)</a></dt>
+    <dd><p>Encrypts the fields asynchronously.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFieldsAsync_" data-uid="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFieldsAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFieldsAsync_System_String_System_Byte___System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.WireProtocol.IBinaryCommandFieldEncryptor.EncryptFieldsAsync(System.String,System.Byte[],System.Threading.CancellationToken)">
-  EncryptFieldsAsync(string, byte[], CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/IBinaryCommandFieldEncryptor.cs/#L42"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts the fields asynchronously.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task&lt;byte[]&gt; EncryptFieldsAsync(string databaseName, byte[] unencryptedCommandBytes, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The database name.</p>
-</dd>
-    <dt><code>unencryptedCommandBytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The unencrypted command bytes.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]&gt;</dt>
-    <dd><p>An encrypted document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

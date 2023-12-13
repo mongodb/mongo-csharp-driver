@@ -149,510 +149,72 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Add*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_MongoDB_Driver_Search_SearchScoreFunction__0____" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Add(MongoDB.Driver.Search.SearchScoreFunction{`0}[])">
-  Add(params SearchScoreFunction&lt;TDocument&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L44"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that adds a series of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Add(params SearchScoreFunction&lt;TDocument&gt;[] operands)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operands</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;[]</dt>
-    <dd><p>An array of expressions, which can have negative values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Add.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_MongoDB_Driver_Search_SearchScoreFunction__0____">Add(params SearchScoreFunction&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates a function that adds a series of numbers.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>An addition score function.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Add.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchScoreFunction__0___">Add(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates a function that adds a series of numbers.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Add*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Add_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchScoreFunction__0___" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Add(System.Collections.Generic.IEnumerable{MongoDB.Driver.Search.SearchScoreFunction{`0}})">
-  Add(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L36"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that adds a series of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Add(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt; operands)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operands</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;&gt;</dt>
-    <dd><p>An array of expressions, which can have negative values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Constant.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Constant_System_Double_">Constant(double)</a></dt>
+    <dd><p>Creates a function that represents a constant number.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>An addition score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Constant_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Constant*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Constant_System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Constant(System.Double)">
-  Constant(double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L52"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that represents a constant number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Constant(double value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>Number that indicates a fixed value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A constant score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Gauss*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_System_Double_System_Double_System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Gauss(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Double,System.Double,System.Double,System.Double)">
-  Gauss(SearchPathDefinition&lt;TDocument&gt;, double, double, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L73"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that decays, or reduces by multiplying, the final scores of the
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Gauss.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_System_Double_System_Double_System_Double_">Gauss(SearchPathDefinition&lt;TDocument&gt;, double, double, double, double)</a></dt>
+    <dd><p>Creates a function that decays, or reduces by multiplying, the final scores of the
 documents based on the distance of a numeric field from a specified origin point.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Gauss(SearchPathDefinition&lt;TDocument&gt; path, double origin, double scale, double decay = 0.5, double offset = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The path to the numeric field.</p>
-</dd>
-    <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The point of origin from which to calculate the distance.</p>
-</dd>
-    <dt><code>scale</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The distance from <code class="paramref">origin</code> plus or minus <code class="paramref">offset</code> at
-which scores must be multiplied.</p>
-</dd>
-    <dt><code>decay</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The rate at which to multiply score values, which must be a positive number between
-0 and 1 exclusive.</p>
-</dd>
-    <dt><code>offset</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The number of use to determine the distance from <code class="paramref">origin</code>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A Guassian score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Gauss*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_System_Double_System_Double_System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Gauss(System.Linq.Expressions.Expression{System.Func{`0,System.Double}},System.Double,System.Double,System.Double,System.Double)">
-  Gauss(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double, double, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L99"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that decays, or reduces by multiplying, the final scores of the
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Gauss.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Gauss_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_System_Double_System_Double_System_Double_">Gauss(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double, double, double, double)</a></dt>
+    <dd><p>Creates a function that decays, or reduces by multiplying, the final scores of the
 documents based on the distance of a numeric field from a specified origin point.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Gauss(Expression&lt;Func&lt;TDocument, double&gt;&gt; path, double origin, double scale, double decay = 0.5, double offset = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;&gt;</dt>
-    <dd><p>The path to the numeric field.</p>
-</dd>
-    <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The point of origin from which to calculate the distance.</p>
-</dd>
-    <dt><code>scale</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The distance from <code class="paramref">origin</code> plus or minus <code class="paramref">offset</code> at
-which scores must be multiplied.</p>
-</dd>
-    <dt><code>decay</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The rate at which to multiply score values, which must be a positive number between
-0 and 1 exclusive.</p>
-</dd>
-    <dt><code>offset</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The number of use to determine the distance from <code class="paramref">origin</code>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A Guassian score function.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Log.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log_MongoDB_Driver_Search_SearchScoreFunction__0__">Log(SearchScoreFunction&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a function that calculates the base-10 logarithm of a number.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Log*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log_MongoDB_Driver_Search_SearchScoreFunction__0__" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Log(MongoDB.Driver.Search.SearchScoreFunction{`0})">
-  Log(SearchScoreFunction&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that calculates the base-10 logarithm of a number.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Log(SearchScoreFunction&lt;TDocument&gt; operand)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operand</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>The number.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Log1p.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log1p_MongoDB_Driver_Search_SearchScoreFunction__0__">Log1p(SearchScoreFunction&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a function that adds 1 to a number and then calculates its base-10 logarithm.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A logarithmic score function.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Multiply.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_MongoDB_Driver_Search_SearchScoreFunction__0____">Multiply(params SearchScoreFunction&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates a function that multiplies a series of numbers.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log1p_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Log1p*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Log1p_MongoDB_Driver_Search_SearchScoreFunction__0__" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Log1p(MongoDB.Driver.Search.SearchScoreFunction{`0})">
-  Log1p(SearchScoreFunction&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L120"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that adds 1 to a number and then calculates its base-10 logarithm.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Log1p(SearchScoreFunction&lt;TDocument&gt; operand)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operand</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>The number.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Multiply.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchScoreFunction__0___">Multiply(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates a function that multiplies a series of numbers.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A logarithmic score function.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Path.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_">Path(SearchPathDefinition&lt;TDocument&gt;, double)</a></dt>
+    <dd><p>Creates a function that incorporates an indexed numeric field value into the score.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Multiply*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_MongoDB_Driver_Search_SearchScoreFunction__0____" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Multiply(MongoDB.Driver.Search.SearchScoreFunction{`0}[])">
-  Multiply(params SearchScoreFunction&lt;TDocument&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L136"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that multiplies a series of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Multiply(params SearchScoreFunction&lt;TDocument&gt;[] operands)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operands</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;[]</dt>
-    <dd><p>An array of expressions, which can have negative values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Path.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_">Path(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)</a></dt>
+    <dd><p>Creates a function that incorporates an indexed numeric field value into the score.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A mulitplication score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Multiply*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Multiply_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchScoreFunction__0___" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Multiply(System.Collections.Generic.IEnumerable{MongoDB.Driver.Search.SearchScoreFunction{`0}})">
-  Multiply(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L128"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that multiplies a series of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Multiply(IEnumerable&lt;SearchScoreFunction&lt;TDocument&gt;&gt; operands)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operands</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;&gt;</dt>
-    <dd><p>An array of expressions, which can have negative values.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A multiplication score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Path*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Path(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Double)">
-  Path(SearchPathDefinition&lt;TDocument&gt;, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L148"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that incorporates an indexed numeric field value into the score.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Path(SearchPathDefinition&lt;TDocument&gt; path, double undefined = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The path to the numeric field.</p>
-</dd>
-    <dt><code>undefined</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to use if the numeric field specified using <code class="paramref">path</code> is
-missing in the document.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A path score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Path*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Path_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Path(System.Linq.Expressions.Expression{System.Func{`0,System.Double}},System.Double)">
-  Path(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L160"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that incorporates an indexed numeric field value into the score.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Path(Expression&lt;Func&lt;TDocument, double&gt;&gt; path, double undefined = 0)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>&gt;&gt;</dt>
-    <dd><p>The path to the numeric field.</p>
-</dd>
-    <dt><code>undefined</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to use if the numeric field specified using <code class="paramref">path</code> is
-missing in the document.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A path score function.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Relevance_" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Relevance*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Relevance" data-uid="MongoDB.Driver.Search.SearchScoreFunctionBuilder`1.Relevance">
-  Relevance()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchScoreFunctionBuilder.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a function that represents the relevance score, which is the score Atlas Search
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.Relevance.html#MongoDB_Driver_Search_SearchScoreFunctionBuilder_1_Relevance">Relevance()</a></dt>
+    <dd><p>Creates a function that represents the relevance score, which is the score Atlas Search
 assigns documents based on relevance.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchScoreFunction&lt;TDocument&gt; Relevance()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction</a>&lt;TDocument&gt;</dt>
-    <dd><p>A relevance score function.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -146,125 +146,24 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Lookup_" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Lookup*"></a>
-
-  <h3 id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Lookup_System_Type_" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Lookup(System.Type)">
-  Lookup(Type)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Conventions/ConventionRegistry.cs/#L43"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Looks up the effective set of conventions that apply to a type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IConventionPack Lookup(Type type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Lookup.html#MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Lookup_System_Type_">Lookup(Type)</a></dt>
+    <dd><p>Looks up the effective set of conventions that apply to a type.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Bson.Serialization.Conventions.IConventionPack.html">IConventionPack</a></dt>
-    <dd><p>The conventions for that type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Register.html#MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Register_System_String_MongoDB_Bson_Serialization_Conventions_IConventionPack_System_Func_System_Type_System_Boolean__">Register(string, IConventionPack, Func&lt;Type, bool&gt;)</a></dt>
+    <dd><p>Registers the conventions.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Register_" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Register*"></a>
-
-  <h3 id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Register_System_String_MongoDB_Bson_Serialization_Conventions_IConventionPack_System_Func_System_Type_System_Boolean__" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Register(System.String,MongoDB.Bson.Serialization.Conventions.IConventionPack,System.Func{System.Type,System.Boolean})">
-  Register(string, IConventionPack, Func&lt;Type, bool&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Conventions/ConventionRegistry.cs/#L87"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Registers the conventions.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void Register(string name, IConventionPack conventions, Func&lt;Type, bool&gt; filter)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name.</p>
-</dd>
-    <dt><code>conventions</code> <a class="xref" href="MongoDB.Bson.Serialization.Conventions.IConventionPack.html">IConventionPack</a></dt>
-    <dd><p>The conventions.</p>
-</dd>
-    <dt><code>filter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
-    <dd><p>The filter.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Remove.html#MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Remove_System_String_">Remove(string)</a></dt>
+    <dd><p>Removes the conventions specified by the given name.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Remove_" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Remove*"></a>
-
-  <h3 id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Remove_System_String_" data-uid="MongoDB.Bson.Serialization.Conventions.ConventionRegistry.Remove(System.String)">
-  Remove(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/Serialization/Conventions/ConventionRegistry.cs/#L122"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the conventions specified by the given name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void Remove(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Bson_Serialization_Conventions_ConventionRegistry_Remove_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>Removing a convention allows the removal of the special <strong>defaults</strong> conventions
-and the <strong>attributes</strong> conventions for those who want to completely customize the
-experience.</p>
-</div>
-
-
 
 
 

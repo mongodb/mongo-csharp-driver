@@ -152,10 +152,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -163,2448 +162,270 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1__ctor_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1__ctor" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.#ctor">
-  QueryBuilder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1724"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.html">QueryBuilder&lt;TDocument&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public QueryBuilder()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.-ctor.html#MongoDB_Driver_Builders_QueryBuilder_1__ctor">QueryBuilder()</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.html">QueryBuilder&lt;TDocument&gt;</a> class.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_All_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.All*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_All__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.All``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
-  All&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1746"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the named array element contains all of the values (see $all).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery All&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.All.html#MongoDB_Driver_Builders_QueryBuilder_1_All__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">All&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Tests that the named array element contains all of the values (see $all).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
-    <dd><p>The values to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the enumerable member values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_And_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.And*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_And_MongoDB_Driver_IMongoQuery___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.And(MongoDB.Driver.IMongoQuery[])">
-  And(params IMongoQuery[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1778"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery And(params IMongoQuery[] queries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>queries</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>[]</dt>
-    <dd><p>A list of subqueries.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_And_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.And*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_And_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.And(System.Collections.Generic.IEnumerable{MongoDB.Driver.IMongoQuery})">
-  And(IEnumerable&lt;IMongoQuery&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1768"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery And(IEnumerable&lt;IMongoQuery&gt; queries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>queries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>&gt;</dt>
-    <dd><p>A list of subqueries.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAllClear_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAllClear*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAllClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAllClear(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Int64)">
-  BitsAllClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1789"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element has all of the specified bits clear.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery BitsAllClear(Expression&lt;Func&lt;TDocument, object&gt;&gt; memberExpression, long bitmask)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>bitmask</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bitmask.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAllSet_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAllSet*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAllSet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAllSet(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Int64)">
-  BitsAllSet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1806"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element has all of the specified bits set.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery BitsAllSet(Expression&lt;Func&lt;TDocument, object&gt;&gt; memberExpression, long bitmask)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>bitmask</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bitmask.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAnyClear_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAnyClear*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAnyClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAnyClear(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Int64)">
-  BitsAnyClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1823"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element has any of the specified bits clear.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery BitsAnyClear(Expression&lt;Func&lt;TDocument, object&gt;&gt; memberExpression, long bitmask)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>bitmask</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bitmask.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAnySet_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAnySet*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_BitsAnySet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.BitsAnySet(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Int64)">
-  BitsAnySet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1840"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element has any of the specified bits set.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery BitsAnySet(Expression&lt;Func&lt;TDocument, object&gt;&gt; memberExpression, long bitmask)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>bitmask</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bitmask.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_EQ_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.EQ*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_EQ__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.EQ``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  EQ&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1902"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is equal to some value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery EQ&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_EQ_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.EQ*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_EQ__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.EQ``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  EQ&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1883"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is equal to some value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery EQ&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_ElemMatch_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.ElemMatch*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_ElemMatch__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Func_MongoDB_Driver_Builders_QueryBuilder___0__MongoDB_Driver_IMongoQuery__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.ElemMatch``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Func{MongoDB.Driver.Builders.QueryBuilder{``0},MongoDB.Driver.IMongoQuery})">
-  ElemMatch&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1858"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that at least one item of the named array element matches a query (see $elemMatch).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery ElemMatch&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt; elementQueryBuilderFunction)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>elementQueryBuilderFunction</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.html">QueryBuilder</a>&lt;TValue&gt;, <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>&gt;</dt>
-    <dd><p>A function that builds a query using the supplied query builder.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the enumerable member values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Exists_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Exists*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Exists__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Exists``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  Exists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1921"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that an element of that name does or does not exist (see $exists).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Exists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_GTE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GTE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_GTE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GTE``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  GTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2021"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is greater than or equal to some value (see $gte).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery GTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_GTE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GTE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_GTE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GTE``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  GTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2002"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is greater than or equal to some value (see $gte).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery GTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_GT_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GT*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_GT__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GT``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  GT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1982"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is greater than some value (see $lt).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery GT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_GT_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GT*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_GT__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GT``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  GT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1963"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is greater than some value (see $gt).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery GT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_GeoIntersects_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GeoIntersects*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_GeoIntersects__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___1__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.GeoIntersects``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonGeometry{``1})">
-  GeoIntersects&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L1940"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that a location element specified by name intersects with the geometry (see $geoIntersects).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery GeoIntersects&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, GeoJsonGeometry&lt;TCoordinates&gt; geometry) where TCoordinates : GeoJsonCoordinates</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>geometry</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.GeoJsonGeometry-1.html">GeoJsonGeometry</a>&lt;TCoordinates&gt;</dt>
-    <dd><p>The geometry.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-    <dt><code>TCoordinates</code></dt>
-    <dd><p>The type of the coordinates.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_In_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.In*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.In``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
-  In&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2064"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element are equal to one of a list of values (see $in).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery In&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
-    <dd><p>The values to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the enumerable member values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_In_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.In*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.In``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Collections.Generic.IEnumerable{``0})">
-  In&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, IEnumerable&lt;TMember&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2041"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is equal to one of a list of values (see $in).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery In&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, IEnumerable&lt;TMember&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TMember&gt;</dt>
-    <dd><p>The values to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_LTE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LTE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_LTE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LTE``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  LTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2146"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is less than or equal to some value (see $lte).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery LTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_LTE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LTE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_LTE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LTE``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  LTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2127"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is less than or equal to some value (see $lte).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery LTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_LT_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LT*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_LT__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LT``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  LT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2107"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is less than some value (see $lt).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery LT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_LT_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LT*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_LT__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.LT``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  LT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2088"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is less than some value (see $lt).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery LT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Matches_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Matches*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Matches_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____MongoDB_Bson_BsonRegularExpression_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Matches(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{System.String}}},MongoDB.Bson.BsonRegularExpression)">
-  Matches(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, BsonRegularExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2190"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element matches a regular expression (see $regex).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Matches(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt; memberExpression, BsonRegularExpression regex)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>regex</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonRegularExpression.html">BsonRegularExpression</a></dt>
-    <dd><p>The regex.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Matches_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Matches*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Matches_System_Linq_Expressions_Expression_System_Func__0_System_String___MongoDB_Bson_BsonRegularExpression_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Matches(System.Linq.Expressions.Expression{System.Func{`0,System.String}},MongoDB.Bson.BsonRegularExpression)">
-  Matches(Expression&lt;Func&lt;TDocument, string&gt;&gt;, BsonRegularExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2167"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element matches a regular expression (see $regex).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Matches(Expression&lt;Func&lt;TDocument, string&gt;&gt; memberExpression, BsonRegularExpression regex)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>regex</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonRegularExpression.html">BsonRegularExpression</a></dt>
-    <dd><p>The regex.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Mod_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Mod*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Mod_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_Int32____System_Int64_System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Mod(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{System.Int32}}},System.Int64,System.Int64)">
-  Mod(Expression&lt;Func&lt;TDocument, IEnumerable&lt;int&gt;&gt;&gt;, long, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2230"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the any of the values in the named array element match some value (see $mod).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Mod(Expression&lt;Func&lt;TDocument, IEnumerable&lt;int&gt;&gt;&gt; memberExpression, long modulus, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>modulus</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The modulus.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Mod_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Mod*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Mod_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int64_System_Int64_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Mod(System.Linq.Expressions.Expression{System.Func{`0,System.Int32}},System.Int64,System.Int64)">
-  Mod(Expression&lt;Func&lt;TDocument, int&gt;&gt;, long, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2212"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the modulus of the value of the named element matches some value (see $mod).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Mod(Expression&lt;Func&lt;TDocument, int&gt;&gt; memberExpression, long modulus, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>modulus</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The modulus.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_NE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_NE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NE``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
-  NE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2400"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that none of the values in the named array element is equal to some value (see $ne).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery NE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, TValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TValue</span></dt>
-    <dd><p>The value to compare to.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_NE_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NE*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_NE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NE``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
-  NE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2381"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that an element does not equal the value (see $ne).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery NE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, TMember value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TMember</span></dt>
-    <dd><p>The value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double)">
-  Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2324"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near some location (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double x, double y)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>x</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x value of the origin.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y value of the origin.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,System.Double)">
-  Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2338"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near some location (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double x, double y, double maxDistance)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.And.html#MongoDB_Driver_Builders_QueryBuilder_1_And_MongoDB_Driver_IMongoQuery___">And(params IMongoQuery[])</a></dt>
+    <dd><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
 </dd>
-    <dt><code>x</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x value of the origin.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y value of the origin.</p>
-</dd>
-    <dt><code>maxDistance</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The max distance.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Boolean_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,System.Double,System.Boolean)">
-  Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2353"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near some location (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double x, double y, double maxDistance, bool spherical)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>x</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x value of the origin.</p>
-</dd>
-    <dt><code>y</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y value of the origin.</p>
-</dd>
-    <dt><code>maxDistance</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The max distance.</p>
-</dd>
-    <dt><code>spherical</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>if set to <code>true</code> [spherical].</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint{``1})">
-  Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2249"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near a point (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, GeoJsonPoint&lt;TCoordinates&gt; point) where TCoordinates : GeoJsonCoordinates</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>point</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint-1.html">GeoJsonPoint</a>&lt;TCoordinates&gt;</dt>
-    <dd><p>The point.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-    <dt><code>TCoordinates</code></dt>
-    <dd><p>The type of the coordinates.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__System_Double_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint{``1},System.Double)">
-  Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2274"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near some location (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, GeoJsonPoint&lt;TCoordinates&gt; point, double maxDistance) where TCoordinates : GeoJsonCoordinates</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>point</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint-1.html">GeoJsonPoint</a>&lt;TCoordinates&gt;</dt>
-    <dd><p>The point.</p>
-</dd>
-    <dt><code>maxDistance</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The max distance.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
-</dd>
-    <dt><code>TCoordinates</code></dt>
-    <dd><p>The type of the coordinates.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Near_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__System_Double_System_Boolean_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Near``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint{``1},System.Double,System.Boolean)">
-  Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2300"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is near some location (see $near).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, GeoJsonPoint&lt;TCoordinates&gt; point, double maxDistance, bool spherical) where TCoordinates : GeoJsonCoordinates</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>point</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint-1.html">GeoJsonPoint</a>&lt;TCoordinates&gt;</dt>
-    <dd><p>The point.</p>
-</dd>
-    <dt><code>maxDistance</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The max distance.</p>
-</dd>
-    <dt><code>spherical</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>if set to <code>true</code> then the query will be translated to $nearSphere.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.And.html#MongoDB_Driver_Builders_QueryBuilder_1_And_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__">And(IEnumerable&lt;IMongoQuery&gt;)</a></dt>
+    <dd><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.BitsAllClear.html#MongoDB_Driver_Builders_QueryBuilder_1_BitsAllClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAllClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Tests that the value of the named element has all of the specified bits clear.</p>
 </dd>
-    <dt><code>TCoordinates</code></dt>
-    <dd><p>The type of the coordinates.</p>
-</dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Not_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Not*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Not_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Not(MongoDB.Driver.IMongoQuery)">
-  Not(IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2369"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the inverse of the query is true (see $not).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Not(IMongoQuery query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>The query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.BitsAllSet.html#MongoDB_Driver_Builders_QueryBuilder_1_BitsAllSet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAllSet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Tests that the value of the named element has all of the specified bits set.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.BitsAnyClear.html#MongoDB_Driver_Builders_QueryBuilder_1_BitsAnyClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAnyClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Tests that the value of the named element has any of the specified bits clear.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_NotExists_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotExists*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_NotExists__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotExists``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  NotExists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2419"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that an element of that name does not exist (see $exists).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery NotExists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.BitsAnySet.html#MongoDB_Driver_Builders_QueryBuilder_1_BitsAnySet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAnySet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Tests that the value of the named element has any of the specified bits set.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.EQ.html#MongoDB_Driver_Builders_QueryBuilder_1_EQ__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">EQ&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is equal to some value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.EQ.html#MongoDB_Driver_Builders_QueryBuilder_1_EQ__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">EQ&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that the value of the named element is equal to some value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_NotIn_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotIn*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_NotIn__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotIn``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Collections.Generic.IEnumerable{``0})">
-  NotIn&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2460"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the none of the values of the named array element is equal to any item in a list of values (see $nin).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery NotIn&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, IEnumerable&lt;TValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;</dt>
-    <dd><p>The values to compare.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.ElemMatch.html#MongoDB_Driver_Builders_QueryBuilder_1_ElemMatch__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Func_MongoDB_Driver_Builders_QueryBuilder___0__MongoDB_Driver_IMongoQuery__">ElemMatch&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt;)</a></dt>
+    <dd><p>Tests that at least one item of the named array element matches a query (see $elemMatch).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Exists.html#MongoDB_Driver_Builders_QueryBuilder_1_Exists__1_System_Linq_Expressions_Expression_System_Func__0___0___">Exists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Tests that an element of that name does or does not exist (see $exists).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the enumerable member values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.GTE.html#MongoDB_Driver_Builders_QueryBuilder_1_GTE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">GTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is greater than or equal to some value (see $gte).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_NotIn_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotIn*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_NotIn__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.NotIn``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Collections.Generic.IEnumerable{``0})">
-  NotIn&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, IEnumerable&lt;TMember&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2437"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is not equal to any item in a list of values (see $nin).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery NotIn&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, IEnumerable&lt;TMember&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.GTE.html#MongoDB_Driver_Builders_QueryBuilder_1_GTE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">GTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that the value of the named element is greater than or equal to some value (see $gte).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TMember&gt;</dt>
-    <dd><p>The values to compare to.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.GT.html#MongoDB_Driver_Builders_QueryBuilder_1_GT__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">GT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is greater than some value (see $lt).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.GT.html#MongoDB_Driver_Builders_QueryBuilder_1_GT__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">GT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that the value of the named element is greater than some value (see $gt).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Or_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Or*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Or_MongoDB_Driver_IMongoQuery___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Or(MongoDB.Driver.IMongoQuery[])">
-  Or(params IMongoQuery[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2496"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that at least one of the subqueries is true (see $or).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Or(params IMongoQuery[] queries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>queries</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>[]</dt>
-    <dd><p>The subqueries.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.GeoIntersects.html#MongoDB_Driver_Builders_QueryBuilder_1_GeoIntersects__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___1__">GeoIntersects&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that a location element specified by name intersects with the geometry (see $geoIntersects).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.In.html#MongoDB_Driver_Builders_QueryBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">In&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Tests that any of the values in the named array element are equal to one of a list of values (see $in).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Or_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Or*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Or(System.Collections.Generic.IEnumerable{MongoDB.Driver.IMongoQuery})">
-  Or(IEnumerable&lt;IMongoQuery&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2484"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that at least one of the subqueries is true (see $or).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Or(IEnumerable&lt;IMongoQuery&gt; queries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>queries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a>&gt;</dt>
-    <dd><p>The subqueries.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.In.html#MongoDB_Driver_Builders_QueryBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__">In&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, IEnumerable&lt;TMember&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is equal to one of a list of values (see $in).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.LTE.html#MongoDB_Driver_Builders_QueryBuilder_1_LTE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">LTE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is less than or equal to some value (see $lte).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Size_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Size*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Size__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Int32_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Size``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.Int32)">
-  Size&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2508"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the size of the named array is equal to some value (see $size).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Size&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, int size)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>size</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The size to compare to.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.LTE.html#MongoDB_Driver_Builders_QueryBuilder_1_LTE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">LTE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that the value of the named element is less than or equal to some value (see $lte).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.LT.html#MongoDB_Driver_Builders_QueryBuilder_1_LT__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">LT&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is less than some value (see $lt).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the enumerable member values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.LT.html#MongoDB_Driver_Builders_QueryBuilder_1_LT__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">LT&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that the value of the named element is less than some value (see $lt).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Type_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Bson_BsonType_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},MongoDB.Bson.BsonType)">
-  Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, BsonType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2562"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is equal to some type (see $type).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, BsonType type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Matches.html#MongoDB_Driver_Builders_QueryBuilder_1_Matches_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____MongoDB_Bson_BsonRegularExpression_">Matches(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, BsonRegularExpression)</a></dt>
+    <dd><p>Tests that any of the values in the named array element matches a regular expression (see $regex).</p>
 </dd>
-    <dt><code>type</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonType.html">BsonType</a></dt>
-    <dd><p>The type to compare to.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Matches.html#MongoDB_Driver_Builders_QueryBuilder_1_Matches_System_Linq_Expressions_Expression_System_Func__0_System_String___MongoDB_Bson_BsonRegularExpression_">Matches(Expression&lt;Func&lt;TDocument, string&gt;&gt;, BsonRegularExpression)</a></dt>
+    <dd><p>Tests that the value of the named element matches a regular expression (see $regex).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Mod.html#MongoDB_Driver_Builders_QueryBuilder_1_Mod_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_Int32____System_Int64_System_Int64_">Mod(Expression&lt;Func&lt;TDocument, IEnumerable&lt;int&gt;&gt;&gt;, long, long)</a></dt>
+    <dd><p>Tests that the any of the values in the named array element match some value (see $mod).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Type_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_String_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},System.String)">
-  Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2580"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that any of the values in the named array element is equal to some type (see $type).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt; memberExpression, string type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TValue&gt;&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The type to compare to.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Mod.html#MongoDB_Driver_Builders_QueryBuilder_1_Mod_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int64_System_Int64_">Mod(Expression&lt;Func&lt;TDocument, int&gt;&gt;, long, long)</a></dt>
+    <dd><p>Tests that the modulus of the value of the named element matches some value (see $mod).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.NE.html#MongoDB_Driver_Builders_QueryBuilder_1_NE__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">NE&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Tests that none of the values in the named array element is equal to some value (see $ne).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TValue</code></dt>
-    <dd><p>The type of the value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.NE.html#MongoDB_Driver_Builders_QueryBuilder_1_NE__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">NE&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Tests that an element does not equal the value (see $ne).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Type_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Bson_BsonType_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Bson.BsonType)">
-  Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, BsonType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2526"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the type of the named element is equal to some type (see $type).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, BsonType type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_">Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
 </dd>
-    <dt><code>type</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonType.html">BsonType</a></dt>
-    <dd><p>The type to compare to.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_">Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Boolean_">Near&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Type_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0___0___System_String_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Type``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.String)">
-  Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2544"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the type of the named element is equal to some type (see $type).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, string type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The type to compare to.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__">Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is near a point (see $near).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__System_Double_">Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Near.html#MongoDB_Driver_Builders_QueryBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__System_Double_System_Boolean_">Near&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Where_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Where*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Where_System_Linq_Expressions_Expression_System_Func__0_System_Boolean___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Where(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
-  Where(Expression&lt;Func&lt;TDocument, bool&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2596"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Builds a query from an expression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Where(Expression&lt;Func&lt;TDocument, bool&gt;&gt; expression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>expression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;&gt;</dt>
-    <dd><p>The expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Not.html#MongoDB_Driver_Builders_QueryBuilder_1_Not_MongoDB_Driver_IMongoQuery_">Not(IMongoQuery)</a></dt>
+    <dd><p>Tests that the inverse of the query is true (see $not).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.NotExists.html#MongoDB_Driver_Builders_QueryBuilder_1_NotExists__1_System_Linq_Expressions_Expression_System_Func__0___0___">NotExists&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Tests that an element of that name does not exist (see $exists).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinCircle*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinCircle``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,System.Double)">
-  WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2640"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double centerX, double centerY, double radius)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>centerX</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x coordinate of the origin.</p>
-</dd>
-    <dt><code>centerY</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y coordinate of the origin.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.NotIn.html#MongoDB_Driver_Builders_QueryBuilder_1_NotIn__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">NotIn&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Tests that the none of the values of the named array element is equal to any item in a list of values (see $nin).</p>
 </dd>
-    <dt><code>radius</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The radius of the circle.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.NotIn.html#MongoDB_Driver_Builders_QueryBuilder_1_NotIn__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__">NotIn&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, IEnumerable&lt;TMember&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is not equal to any item in a list of values (see $nin).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Or.html#MongoDB_Driver_Builders_QueryBuilder_1_Or_MongoDB_Driver_IMongoQuery___">Or(params IMongoQuery[])</a></dt>
+    <dd><p>Tests that at least one of the subqueries is true (see $or).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinCircle*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Boolean_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinCircle``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,System.Double,System.Boolean)">
-  WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2655"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double centerX, double centerY, double radius, bool spherical)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>centerX</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x coordinate of the origin.</p>
-</dd>
-    <dt><code>centerY</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y coordinate of the origin.</p>
-</dd>
-    <dt><code>radius</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The radius of the circle.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Or.html#MongoDB_Driver_Builders_QueryBuilder_1_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__">Or(IEnumerable&lt;IMongoQuery&gt;)</a></dt>
+    <dd><p>Tests that at least one of the subqueries is true (see $or).</p>
 </dd>
-    <dt><code>spherical</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>if set to <code>true</code> [spherical].</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Size.html#MongoDB_Driver_Builders_QueryBuilder_1_Size__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Int32_">Size&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, int)</a></dt>
+    <dd><p>Tests that the size of the named array is equal to some value (see $size).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Type.html#MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Bson_BsonType_">Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, BsonType)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is equal to some type (see $type).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_WithinPolygon_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinPolygon*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_WithinPolygon__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_0__0___" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinPolygon``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double[0:,0:])">
-  WithinPolygon&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double[,])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2673"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is within a polygon (see $within and $polygon).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery WithinPolygon&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double[,] points)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>points</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a>[,]</dt>
-    <dd><p>An array of points that defines the polygon (the second dimension must be of length 2).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Type.html#MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_String_">Type&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, string)</a></dt>
+    <dd><p>Tests that any of the values in the named array element is equal to some type (see $type).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Type.html#MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Bson_BsonType_">Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, BsonType)</a></dt>
+    <dd><p>Tests that the type of the named element is equal to some type (see $type).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Type.html#MongoDB_Driver_Builders_QueryBuilder_1_Type__1_System_Linq_Expressions_Expression_System_Func__0___0___System_String_">Type&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, string)</a></dt>
+    <dd><p>Tests that the type of the named element is equal to some type (see $type).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_WithinRectangle_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinRectangle*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_WithinRectangle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Double_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.WithinRectangle``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,System.Double,System.Double)">
-  WithinRectangle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2694"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is within a rectangle (see $within and $box).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery WithinRectangle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression representing the element to test.</p>
-</dd>
-    <dt><code>lowerLeftX</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x coordinate of the lower left corner.</p>
-</dd>
-    <dt><code>lowerLeftY</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y coordinate of the lower left corner.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Where.html#MongoDB_Driver_Builders_QueryBuilder_1_Where_System_Linq_Expressions_Expression_System_Func__0_System_Boolean___">Where(Expression&lt;Func&lt;TDocument, bool&gt;&gt;)</a></dt>
+    <dd><p>Builds a query from an expression.</p>
 </dd>
-    <dt><code>upperRightX</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The x coordinate of the upper right corner.</p>
-</dd>
-    <dt><code>upperRightY</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The y coordinate of the upper right corner.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.WithinCircle.html#MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_">WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The member type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.WithinCircle.html#MongoDB_Driver_Builders_QueryBuilder_1_WithinCircle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Boolean_">WithinCircle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_QueryBuilder_1_Within_" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Within*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_QueryBuilder_1_Within__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPolygon___1__" data-uid="MongoDB.Driver.Builders.QueryBuilder`1.Within``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPolygon{``1})">
-  Within&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPolygon&lt;TCoordinates&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L2615"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests that the value of the named element is within the specified geometry (see $within).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMongoQuery Within&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, GeoJsonPolygon&lt;TCoordinates&gt; polygon) where TCoordinates : GeoJsonCoordinates</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.WithinPolygon.html#MongoDB_Driver_Builders_QueryBuilder_1_WithinPolygon__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_0__0___">WithinPolygon&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double[,])</a></dt>
+    <dd><p>Tests that the value of the named element is within a polygon (see $within and $polygon).</p>
 </dd>
-    <dt><code>polygon</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.GeoJsonPolygon-1.html">GeoJsonPolygon</a>&lt;TCoordinates&gt;</dt>
-    <dd><p>The polygon.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>An IMongoQuery.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.WithinRectangle.html#MongoDB_Driver_Builders_QueryBuilder_1_WithinRectangle__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_System_Double_System_Double_">WithinRectangle&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, double, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is within a rectangle (see $within and $box).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-    <dt><code>TCoordinates</code></dt>
-    <dd><p>The type of the coordinates.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.QueryBuilder-1.Within.html#MongoDB_Driver_Builders_QueryBuilder_1_Within__2_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPolygon___1__">Within&lt;TMember, TCoordinates&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, GeoJsonPolygon&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is within the specified geometry (see $within).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
 
 
 

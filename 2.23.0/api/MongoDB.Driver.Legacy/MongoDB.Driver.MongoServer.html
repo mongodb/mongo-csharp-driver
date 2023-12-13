@@ -146,10 +146,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -157,1345 +156,210 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoServer__ctor_" data-uid="MongoDB.Driver.MongoServer.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer__ctor_MongoDB_Driver_MongoServerSettings_" data-uid="MongoDB.Driver.MongoServer.#ctor(MongoDB.Driver.MongoServerSettings)">
-  MongoServer(MongoServerSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L94"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a new instance of MongoServer. Normally you will use one of the Create methods instead
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.-ctor.html#MongoDB_Driver_MongoServer__ctor_MongoDB_Driver_MongoServerSettings_">MongoServer(MongoServerSettings)</a></dt>
+    <dd><p>Creates a new instance of MongoServer. Normally you will use one of the Create methods instead
 of the constructor to create instances of this class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use client.GetServer instead.&quot;)]
-public MongoServer(MongoServerSettings settings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>settings</code> <a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
-    <dd><p>The settings for this instance of MongoServer.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoServer_Arbiters_" data-uid="MongoDB.Driver.MongoServer.Arbiters*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Arbiters" data-uid="MongoDB.Driver.MongoServer.Arbiters">
-  Arbiters
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L196"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the arbiter instances.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance[] Arbiters { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a>[]</dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Instance_" data-uid="MongoDB.Driver.MongoServer.Instance*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Instance" data-uid="MongoDB.Driver.MongoServer.Instance">
-  Instance
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L218"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the one and only instance for this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance Instance { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Instances_" data-uid="MongoDB.Driver.MongoServer.Instances*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Instances" data-uid="MongoDB.Driver.MongoServer.Instances">
-  Instances
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L236"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the instances for this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance[] Instances { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a>[]</dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Item_" data-uid="MongoDB.Driver.MongoServer.Item*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Item_System_String_" data-uid="MongoDB.Driver.MongoServer.Item(System.String)">
-  this[string]
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L425"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoDatabase instance representing a database on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use GetDatabase instead.&quot;)]
-public virtual MongoDatabase this[string databaseName] { get; }</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Arbiters.html#MongoDB_Driver_MongoServer_Arbiters">Arbiters</a></dt>
+    <dd><p>Gets the arbiter instances.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new or existing instance of MongoDatabase.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Instance.html#MongoDB_Driver_MongoServer_Instance">Instance</a></dt>
+    <dd><p>Gets the one and only instance for this server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Item_" data-uid="MongoDB.Driver.MongoServer.Item*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Item_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoServer.Item(System.String,MongoDB.Driver.WriteConcern)">
-  this[string, WriteConcern]
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L437"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoDatabase instance representing a database on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use GetDatabase instead.&quot;)]
-public virtual MongoDatabase this[string databaseName, WriteConcern writeConcern] { get; }</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use with this database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Instances.html#MongoDB_Driver_MongoServer_Instances">Instances</a></dt>
+    <dd><p>Gets the instances for this server.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new or existing instance of MongoDatabase.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Item.html#MongoDB_Driver_MongoServer_Item_System_String_">this[string]</a></dt>
+    <dd><p>Gets a MongoDatabase instance representing a database on this server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_MaxServerCount_" data-uid="MongoDB.Driver.MongoServer.MaxServerCount*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_MaxServerCount" data-uid="MongoDB.Driver.MongoServer.MaxServerCount">
-  MaxServerCount
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L161"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets the maximum number of instances of MongoServer that will be allowed to be created.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int MaxServerCount { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Item.html#MongoDB_Driver_MongoServer_Item_System_String_MongoDB_Driver_WriteConcern_">this[string, WriteConcern]</a></dt>
+    <dd><p>Gets a MongoDatabase instance representing a database on this server.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_MaxWireVersion_" data-uid="MongoDB.Driver.MongoServer.MaxWireVersion*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_MaxWireVersion" data-uid="MongoDB.Driver.MongoServer.MaxWireVersion">
-  MaxWireVersion
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L170"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the maximum wire version.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int MaxWireVersion { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.MaxServerCount.html#MongoDB_Driver_MongoServer_MaxServerCount">MaxServerCount</a></dt>
+    <dd><p>Gets or sets the maximum number of instances of MongoServer that will be allowed to be created.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Passives_" data-uid="MongoDB.Driver.MongoServer.Passives*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Passives" data-uid="MongoDB.Driver.MongoServer.Passives">
-  Passives
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L250"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the passive instances.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Passives are treated the same as secondaries.&quot;)]
-public virtual MongoServerInstance[] Passives { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a>[]</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.MaxWireVersion.html#MongoDB_Driver_MongoServer_MaxWireVersion">MaxWireVersion</a></dt>
+    <dd><p>Gets the maximum wire version.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Primary_" data-uid="MongoDB.Driver.MongoServer.Primary*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Primary" data-uid="MongoDB.Driver.MongoServer.Primary">
-  Primary
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L262"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the primary instance (null if there is no primary).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance Primary { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Passives.html#MongoDB_Driver_MongoServer_Passives">Passives</a></dt>
+    <dd><p>Gets the passive instances.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_ReplicaSetName_" data-uid="MongoDB.Driver.MongoServer.ReplicaSetName*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_ReplicaSetName" data-uid="MongoDB.Driver.MongoServer.ReplicaSetName">
-  ReplicaSetName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L286"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the replica set (null if not connected to a replica set).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual string ReplicaSetName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Primary.html#MongoDB_Driver_MongoServer_Primary">Primary</a></dt>
+    <dd><p>Gets the primary instance (null if there is no primary).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Secondaries_" data-uid="MongoDB.Driver.MongoServer.Secondaries*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Secondaries" data-uid="MongoDB.Driver.MongoServer.Secondaries">
-  Secondaries
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L370"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the secondary instances.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance[] Secondaries { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a>[]</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.ReplicaSetName.html#MongoDB_Driver_MongoServer_ReplicaSetName">ReplicaSetName</a></dt>
+    <dd><p>Gets the name of the replica set (null if not connected to a replica set).</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_SequentialId_" data-uid="MongoDB.Driver.MongoServer.SequentialId*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_SequentialId" data-uid="MongoDB.Driver.MongoServer.SequentialId">
-  SequentialId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L384"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the unique sequential Id for this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual int SequentialId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Secondaries.html#MongoDB_Driver_MongoServer_Secondaries">Secondaries</a></dt>
+    <dd><p>Gets the secondary instances.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_ServerCount_" data-uid="MongoDB.Driver.MongoServer.ServerCount*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_ServerCount" data-uid="MongoDB.Driver.MongoServer.ServerCount">
-  ServerCount
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L181"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the number of instances of MongoServer that have been created.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int ServerCount { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.SequentialId.html#MongoDB_Driver_MongoServer_SequentialId">SequentialId</a></dt>
+    <dd><p>Gets the unique sequential Id for this server.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Settings_" data-uid="MongoDB.Driver.MongoServer.Settings*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Settings" data-uid="MongoDB.Driver.MongoServer.Settings">
-  Settings
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L392"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the settings for this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerSettings Settings { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.ServerCount.html#MongoDB_Driver_MongoServer_ServerCount">ServerCount</a></dt>
+    <dd><p>Gets the number of instances of MongoServer that have been created.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_State_" data-uid="MongoDB.Driver.MongoServer.State*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_State" data-uid="MongoDB.Driver.MongoServer.State">
-  State
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L400"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current state of this server (as of the last operation, not updated until another operation is performed).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerState State { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerState.html">MongoServerState</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Settings.html#MongoDB_Driver_MongoServer_Settings">Settings</a></dt>
+    <dd><p>Gets the settings for this server.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.State.html#MongoDB_Driver_MongoServer_State">State</a></dt>
+    <dd><p>Gets the current state of this server (as of the last operation, not updated until another operation is performed).</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoServer_Connect_" data-uid="MongoDB.Driver.MongoServer.Connect*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Connect" data-uid="MongoDB.Driver.MongoServer.Connect">
-  Connect()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L490"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Connects to the server. Normally there is no need to call this method as
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Connect.html#MongoDB_Driver_MongoServer_Connect">Connect()</a></dt>
+    <dd><p>Connects to the server. Normally there is no need to call this method as
 the driver will connect to the server automatically when needed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Connect()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Connect_" data-uid="MongoDB.Driver.MongoServer.Connect*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Connect_System_TimeSpan_" data-uid="MongoDB.Driver.MongoServer.Connect(System.TimeSpan)">
-  Connect(TimeSpan)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L500"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Connects to the server. Normally there is no need to call this method as
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Connect.html#MongoDB_Driver_MongoServer_Connect_System_TimeSpan_">Connect(TimeSpan)</a></dt>
+    <dd><p>Connects to the server. Normally there is no need to call this method as
 the driver will connect to the server automatically when needed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Connect(TimeSpan timeout)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>timeout</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>How long to wait before timing out.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_DatabaseExists_" data-uid="MongoDB.Driver.MongoServer.DatabaseExists*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_DatabaseExists_System_String_" data-uid="MongoDB.Driver.MongoServer.DatabaseExists(System.String)">
-  DatabaseExists(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L515"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests whether a database exists.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual bool DatabaseExists(string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.DatabaseExists.html#MongoDB_Driver_MongoServer_DatabaseExists_System_String_">DatabaseExists(string)</a></dt>
+    <dd><p>Tests whether a database exists.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the database exists.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Disconnect_" data-uid="MongoDB.Driver.MongoServer.Disconnect*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Disconnect" data-uid="MongoDB.Driver.MongoServer.Disconnect">
-  Disconnect()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L525"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Disconnects from the server. Normally there is no need to call this method so
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Disconnect.html#MongoDB_Driver_MongoServer_Disconnect">Disconnect()</a></dt>
+    <dd><p>Disconnects from the server. Normally there is no need to call this method so
 you should be sure to have a good reason to call it.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Disconnect()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_DropDatabase_" data-uid="MongoDB.Driver.MongoServer.DropDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_DropDatabase_System_String_" data-uid="MongoDB.Driver.MongoServer.DropDatabase(System.String)">
-  DropDatabase(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L535"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops a database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult DropDatabase(string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database to be dropped.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.DropDatabase.html#MongoDB_Driver_MongoServer_DropDatabase_System_String_">DropDatabase(string)</a></dt>
+    <dd><p>Drops a database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_FetchDBRef_" data-uid="MongoDB.Driver.MongoServer.FetchDBRef*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_FetchDBRef_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoServer.FetchDBRef(MongoDB.Driver.MongoDBRef)">
-  FetchDBRef(MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L557"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual BsonDocument FetchDBRef(MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.FetchDBRef.html#MongoDB_Driver_MongoServer_FetchDBRef_MongoDB_Driver_MongoDBRef_">FetchDBRef(MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument (or null if the document was not found).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.FetchDBRefAs.html#MongoDB_Driver_MongoServer_FetchDBRefAs_System_Type_MongoDB_Driver_MongoDBRef_">FetchDBRefAs(Type, MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_FetchDBRefAs_" data-uid="MongoDB.Driver.MongoServer.FetchDBRefAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_FetchDBRefAs_System_Type_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoServer.FetchDBRefAs(System.Type,MongoDB.Driver.MongoDBRef)">
-  FetchDBRefAs(Type, MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L579"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The nominal type of the document to fetch.</p>
-</dd>
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.FetchDBRefAs.html#MongoDB_Driver_MongoServer_FetchDBRefAs__1_MongoDB_Driver_MongoDBRef_">FetchDBRefAs&lt;TDocument&gt;(MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef, deserialized as a <code class="typeparamref">TDocument</code>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The document (or null if the document was not found).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetAllServers.html#MongoDB_Driver_MongoServer_GetAllServers">GetAllServers()</a></dt>
+    <dd><p>Gets an array containing a snapshot of the set of all servers that have been created so far.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_FetchDBRefAs_" data-uid="MongoDB.Driver.MongoServer.FetchDBRefAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_FetchDBRefAs__1_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoServer.FetchDBRefAs``1(MongoDB.Driver.MongoDBRef)">
-  FetchDBRefAs&lt;TDocument&gt;(MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L568"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef, deserialized as a <code class="typeparamref">TDocument</code>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual TDocument FetchDBRefAs&lt;TDocument&gt;(MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetDatabase.html#MongoDB_Driver_MongoServer_GetDatabase_System_String_">GetDatabase(string)</a></dt>
+    <dd><p>Gets a MongoDatabase instance representing a database on this server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TDocument</span></dt>
-    <dd><p>A <code class="typeparamref">TDocument</code> (or null if the document was not found).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetDatabase.html#MongoDB_Driver_MongoServer_GetDatabase_System_String_MongoDB_Driver_MongoDatabaseSettings_">GetDatabase(string, MongoDatabaseSettings)</a></dt>
+    <dd><p>Gets a MongoDatabase instance representing a database on this server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The nominal type of the document to fetch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetDatabase.html#MongoDB_Driver_MongoServer_GetDatabase_System_String_MongoDB_Driver_WriteConcern_">GetDatabase(string, WriteConcern)</a></dt>
+    <dd><p>Gets a MongoDatabase instance representing a database on this server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetAllServers_" data-uid="MongoDB.Driver.MongoServer.GetAllServers*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetAllServers" data-uid="MongoDB.Driver.MongoServer.GetAllServers">
-  GetAllServers()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L448"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an array containing a snapshot of the set of all servers that have been created so far.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MongoServer[] GetAllServers()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a>[]</dt>
-    <dd><p>An array containing a snapshot of the set of all servers that have been created so far.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetDatabaseNames.html#MongoDB_Driver_MongoServer_GetDatabaseNames">GetDatabaseNames()</a></dt>
+    <dd><p>Gets the names of the databases on this server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetDatabase_" data-uid="MongoDB.Driver.MongoServer.GetDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetDatabase_System_String_" data-uid="MongoDB.Driver.MongoServer.GetDatabase(System.String)">
-  GetDatabase(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L595"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoDatabase instance representing a database on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase GetDatabase(string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.GetServerInstance.html#MongoDB_Driver_MongoServer_GetServerInstance_MongoDB_Driver_MongoServerAddress_">GetServerInstance(MongoServerAddress)</a></dt>
+    <dd><p>Gets the server instance.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new or existing instance of MongoDatabase.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.IsDatabaseNameValid.html#MongoDB_Driver_MongoServer_IsDatabaseNameValid_System_String_System_String__">IsDatabaseNameValid(string, out string)</a></dt>
+    <dd><p>Checks whether a given database name is valid on this server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetDatabase_" data-uid="MongoDB.Driver.MongoServer.GetDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetDatabase_System_String_MongoDB_Driver_MongoDatabaseSettings_" data-uid="MongoDB.Driver.MongoServer.GetDatabase(System.String,MongoDB.Driver.MongoDatabaseSettings)">
-  GetDatabase(string, MongoDatabaseSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L623"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoDatabase instance representing a database on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase GetDatabase(string databaseName, MongoDatabaseSettings databaseSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>databaseSettings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDatabaseSettings.html">MongoDatabaseSettings</a></dt>
-    <dd><p>The settings to use with this database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Ping.html#MongoDB_Driver_MongoServer_Ping">Ping()</a></dt>
+    <dd><p>Checks whether the server is alive (throws an exception if not). If server is a replica set, pings all members one at a time.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new or existing instance of MongoDatabase.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetDatabase_" data-uid="MongoDB.Driver.MongoServer.GetDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetDatabase_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoServer.GetDatabase(System.String,MongoDB.Driver.WriteConcern)">
-  GetDatabase(string, WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L607"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoDatabase instance representing a database on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase GetDatabase(string databaseName, WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use with this database.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new or existing instance of MongoDatabase.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetDatabaseNames_" data-uid="MongoDB.Driver.MongoServer.GetDatabaseNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetDatabaseNames" data-uid="MongoDB.Driver.MongoServer.GetDatabaseNames">
-  GetDatabaseNames()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L640"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the names of the databases on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual IEnumerable&lt;string&gt; GetDatabaseNames()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>A list of database names.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_GetServerInstance_" data-uid="MongoDB.Driver.MongoServer.GetServerInstance*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_GetServerInstance_MongoDB_Driver_MongoServerAddress_" data-uid="MongoDB.Driver.MongoServer.GetServerInstance(MongoDB.Driver.MongoServerAddress)">
-  GetServerInstance(MongoServerAddress)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L661"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server instance.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServerInstance GetServerInstance(MongoServerAddress address)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>address</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoServerAddress.html">MongoServerAddress</a></dt>
-    <dd><p>The address.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
-    <dd><p>The server instance.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_IsDatabaseNameValid_" data-uid="MongoDB.Driver.MongoServer.IsDatabaseNameValid*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_IsDatabaseNameValid_System_String_System_String__" data-uid="MongoDB.Driver.MongoServer.IsDatabaseNameValid(System.String,System.String@)">
-  IsDatabaseNameValid(string, out string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L675"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Checks whether a given database name is valid on this server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual bool IsDatabaseNameValid(string databaseName, out string message)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The database name.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>An error message if the database name is not valid.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the database name is valid; otherwise, false.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Ping_" data-uid="MongoDB.Driver.MongoServer.Ping*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Ping" data-uid="MongoDB.Driver.MongoServer.Ping">
-  Ping()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L719"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Checks whether the server is alive (throws an exception if not). If server is a replica set, pings all members one at a time.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Ping()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_Reconnect_" data-uid="MongoDB.Driver.MongoServer.Reconnect*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_Reconnect" data-uid="MongoDB.Driver.MongoServer.Reconnect">
-  Reconnect()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L734"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Reconnects to the server. Normally there is no need to call this method. All connections
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.Reconnect.html#MongoDB_Driver_MongoServer_Reconnect">Reconnect()</a></dt>
+    <dd><p>Reconnects to the server. Normally there is no need to call this method. All connections
 are closed and new connections will be opened as needed. Calling
 this method frequently will result in connection thrashing.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Reconnect()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_UnregisterAllServers_" data-uid="MongoDB.Driver.MongoServer.UnregisterAllServers*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_UnregisterAllServers" data-uid="MongoDB.Driver.MongoServer.UnregisterAllServers">
-  UnregisterAllServers()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L459"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Unregisters all servers from the dictionary used by Create to remember which servers have already been created.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void UnregisterAllServers()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_UnregisterServer_" data-uid="MongoDB.Driver.MongoServer.UnregisterServer*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_UnregisterServer_MongoDB_Driver_MongoServer_" data-uid="MongoDB.Driver.MongoServer.UnregisterServer(MongoDB.Driver.MongoServer)">
-  UnregisterServer(MongoServer)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L475"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Unregisters a server from the dictionary used by Create to remember which servers have already been created.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void UnregisterServer(MongoServer server)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>server</code> <a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd><p>The server to unregister.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_WithReadConcern_" data-uid="MongoDB.Driver.MongoServer.WithReadConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_WithReadConcern_MongoDB_Driver_ReadConcern_" data-uid="MongoDB.Driver.MongoServer.WithReadConcern(MongoDB.Driver.ReadConcern)">
-  WithReadConcern(ReadConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L805"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoServer instance with a different read concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServer WithReadConcern(ReadConcern readConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
-    <dd><p>The read concern.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.UnregisterAllServers.html#MongoDB_Driver_MongoServer_UnregisterAllServers">UnregisterAllServers()</a></dt>
+    <dd><p>Unregisters all servers from the dictionary used by Create to remember which servers have already been created.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd><p>A new MongoServer instance with a different read concern setting.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.UnregisterServer.html#MongoDB_Driver_MongoServer_UnregisterServer_MongoDB_Driver_MongoServer_">UnregisterServer(MongoServer)</a></dt>
+    <dd><p>Unregisters a server from the dictionary used by Create to remember which servers have already been created.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_WithReadPreference_" data-uid="MongoDB.Driver.MongoServer.WithReadPreference*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_WithReadPreference_MongoDB_Driver_ReadPreference_" data-uid="MongoDB.Driver.MongoServer.WithReadPreference(MongoDB.Driver.ReadPreference)">
-  WithReadPreference(ReadPreference)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L817"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoServer instance with a different read preference setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServer WithReadPreference(ReadPreference readPreference)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.WithReadConcern.html#MongoDB_Driver_MongoServer_WithReadConcern_MongoDB_Driver_ReadConcern_">WithReadConcern(ReadConcern)</a></dt>
+    <dd><p>Returns a new MongoServer instance with a different read concern setting.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd><p>A new MongoServer instance with a different read preference setting.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.WithReadPreference.html#MongoDB_Driver_MongoServer_WithReadPreference_MongoDB_Driver_ReadPreference_">WithReadPreference(ReadPreference)</a></dt>
+    <dd><p>Returns a new MongoServer instance with a different read preference setting.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoServer_WithWriteConcern_" data-uid="MongoDB.Driver.MongoServer.WithWriteConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoServer_WithWriteConcern_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoServer.WithWriteConcern(MongoDB.Driver.WriteConcern)">
-  WithWriteConcern(WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoServer.cs/#L829"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoServer instance with a different write concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServer WithWriteConcern(WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoServer.WithWriteConcern.html#MongoDB_Driver_MongoServer_WithWriteConcern_MongoDB_Driver_WriteConcern_">WithWriteConcern(WriteConcern)</a></dt>
+    <dd><p>Returns a new MongoServer instance with a different write concern setting.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd><p>A new MongoServer instance with a different write concern setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

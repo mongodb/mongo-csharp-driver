@@ -149,3948 +149,621 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_Feature__ctor_" data-uid="MongoDB.Driver.Core.Misc.Feature.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature__ctor_System_String_System_Int32_System_Nullable_System_Int32__System_String_" data-uid="MongoDB.Driver.Core.Misc.Feature.#ctor(System.String,System.Int32,System.Nullable{System.Int32},System.String)">
-  Feature(string, int, int?, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L792"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Feature(string name, int firstSupportedWireVersion, int? supportRemovedWireVersion = null, string notSupportedMessage = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the feature.</p>
-</dd>
-    <dt><code>firstSupportedWireVersion</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The first wire version that supports the feature.</p>
-</dd>
-    <dt><code>supportRemovedWireVersion</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd><p>The wire version that stops support the feature.</p>
-</dd>
-    <dt><code>notSupportedMessage</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The not supported error message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.-ctor.html#MongoDB_Driver_Core_Misc_Feature__ctor_System_String_System_Int32_System_Nullable_System_Int32__System_String_">Feature(string, int, int?, string)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Aggregate_" data-uid="MongoDB.Driver.Core.Misc.Feature.Aggregate*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Aggregate" data-uid="MongoDB.Driver.Core.Misc.Feature.Aggregate">
-  Aggregate
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature Aggregate { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateAccumulator_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAccumulator*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateAccumulator" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAccumulator">
-  AggregateAccumulator
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L151"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate accumulato feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateAccumulator { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateAddFields_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAddFields*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateAddFields" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAddFields">
-  AggregateAddFields
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L156"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate AddFields feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateAddFields { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateAllowDiskUse_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAllowDiskUse*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateAllowDiskUse" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateAllowDiskUse">
-  AggregateAllowDiskUse
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L162"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate allow disk use feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateAllowDiskUse { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateBucketStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateBucketStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateBucketStage" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateBucketStage">
-  AggregateBucketStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate bucket stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateBucketStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateComment_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateComment*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateComment" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateComment">
-  AggregateComment
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L174"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate comment feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateComment { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateCountStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateCountStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateCountStage" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateCountStage">
-  AggregateCountStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L180"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate count stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateCountStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateCursorResult_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateCursorResult*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateCursorResult" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateCursorResult">
-  AggregateCursorResult
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L186"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate cursor result feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateCursorResult { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateExplain_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateExplain*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateExplain" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateExplain">
-  AggregateExplain
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L192"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate explain feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateExplain { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateFacetStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateFacetStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateFacetStage" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateFacetStage">
-  AggregateFacetStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L198"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate $facet stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateFacetStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateFunction_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateFunction*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateFunction" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateFunction">
-  AggregateFunction
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L204"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate $function stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateFunction { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateGraphLookupStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateGraphLookupStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateGraphLookupStage" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateGraphLookupStage">
-  AggregateGraphLookupStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L209"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate $graphLookup stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateGraphLookupStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateHint_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateHint*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateHint" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateHint">
-  AggregateHint
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L215"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate hint feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateHint { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateLet_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateLet*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateLet" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateLet">
-  AggregateLet
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L226"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate lookup stage let feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateLet { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateMerge_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateMerge*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateMerge" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateMerge">
-  AggregateMerge
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L232"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate merge feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateMerge { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateOptionsLet_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOptionsLet*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateOptionsLet" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOptionsLet">
-  AggregateOptionsLet
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L221"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate let feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateOptionsLet { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateOut_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOut*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateOut" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOut">
-  AggregateOut
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L237"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate out feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature AggregateOut { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateOutOnSecondary_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutOnSecondary*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateOutOnSecondary" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutOnSecondary">
-  AggregateOutOnSecondary
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L243"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate out on secondary feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateOutOnSecondary { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateOutTimeSeries_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutTimeSeries*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateOutTimeSeries" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutTimeSeries">
-  AggregateOutTimeSeries
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L248"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate out to time series feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateOutTimeSeries { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateOutToDifferentDatabase_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutToDifferentDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateOutToDifferentDatabase" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateOutToDifferentDatabase">
-  AggregateOutToDifferentDatabase
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L253"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate out to a different database feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateOutToDifferentDatabase { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateToString_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateToString*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateToString" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateToString">
-  AggregateToString
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L258"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate toString feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateToString { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_AggregateUnionWith_" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateUnionWith*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_AggregateUnionWith" data-uid="MongoDB.Driver.Core.Misc.Feature.AggregateUnionWith">
-  AggregateUnionWith
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L263"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate unionWith feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature AggregateUnionWith { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ArrayFilters_" data-uid="MongoDB.Driver.Core.Misc.Feature.ArrayFilters*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ArrayFilters" data-uid="MongoDB.Driver.Core.Misc.Feature.ArrayFilters">
-  ArrayFilters
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L268"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the arrayFilters feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ArrayFilters { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_BitwiseOperators_" data-uid="MongoDB.Driver.Core.Misc.Feature.BitwiseOperators*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_BitwiseOperators" data-uid="MongoDB.Driver.Core.Misc.Feature.BitwiseOperators">
-  BitwiseOperators
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L274"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the bitwise operators feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature BitwiseOperators { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_BypassDocumentValidation_" data-uid="MongoDB.Driver.Core.Misc.Feature.BypassDocumentValidation*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_BypassDocumentValidation" data-uid="MongoDB.Driver.Core.Misc.Feature.BypassDocumentValidation">
-  BypassDocumentValidation
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L279"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the bypass document validation feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature BypassDocumentValidation { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamAllChangesForCluster_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamAllChangesForCluster*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamAllChangesForCluster" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamAllChangesForCluster">
-  ChangeStreamAllChangesForCluster
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L291"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the change stream all changes for cluster feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ChangeStreamAllChangesForCluster { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamForDatabase_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamForDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamForDatabase" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamForDatabase">
-  ChangeStreamForDatabase
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L296"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the change stream for database feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ChangeStreamForDatabase { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamPostBatchResumeToken_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPostBatchResumeToken*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamPostBatchResumeToken" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPostBatchResumeToken">
-  ChangeStreamPostBatchResumeToken
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L301"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the change stream post batch resume token feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ChangeStreamPostBatchResumeToken { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamPrePostImages_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPrePostImages*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamPrePostImages" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPrePostImages">
-  ChangeStreamPrePostImages
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L306"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the change stream pre post images feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ChangeStreamPrePostImages { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamSplitEventStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamSplitEventStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamSplitEventStage" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamSplitEventStage">
-  ChangeStreamSplitEventStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L311"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the change stream splitEvent stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ChangeStreamSplitEventStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ChangeStreamStage" data-uid="MongoDB.Driver.Core.Misc.Feature.ChangeStreamStage">
-  ChangeStreamStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L285"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate $changeStream stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ChangeStreamStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ClientSideEncryption_" data-uid="MongoDB.Driver.Core.Misc.Feature.ClientSideEncryption*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ClientSideEncryption" data-uid="MongoDB.Driver.Core.Misc.Feature.ClientSideEncryption">
-  ClientSideEncryption
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L316"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the client side encryption feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ClientSideEncryption { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ClusteredIndexes_" data-uid="MongoDB.Driver.Core.Misc.Feature.ClusteredIndexes*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ClusteredIndexes" data-uid="MongoDB.Driver.Core.Misc.Feature.ClusteredIndexes">
-  ClusteredIndexes
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L321"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the clustered indexes feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ClusteredIndexes { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Collation_" data-uid="MongoDB.Driver.Core.Misc.Feature.Collation*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Collation" data-uid="MongoDB.Driver.Core.Misc.Feature.Collation">
-  Collation
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L326"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the collation feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature Collation { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CommandMessage_" data-uid="MongoDB.Driver.Core.Misc.Feature.CommandMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CommandMessage" data-uid="MongoDB.Driver.Core.Misc.Feature.CommandMessage">
-  CommandMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L332"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the command message feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature CommandMessage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CommandsThatWriteAcceptWriteConcern_" data-uid="MongoDB.Driver.Core.Misc.Feature.CommandsThatWriteAcceptWriteConcern*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CommandsThatWriteAcceptWriteConcern" data-uid="MongoDB.Driver.Core.Misc.Feature.CommandsThatWriteAcceptWriteConcern">
-  CommandsThatWriteAcceptWriteConcern
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L338"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the commands that write accept write concern feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature CommandsThatWriteAcceptWriteConcern { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CreateIndexCommitQuorum_" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexCommitQuorum*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CreateIndexCommitQuorum" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexCommitQuorum">
-  CreateIndexCommitQuorum
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L344"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the create index commit quorum feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature CreateIndexCommitQuorum { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CreateIndexesCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexesCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CreateIndexesCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexesCommand">
-  CreateIndexesCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L349"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the create indexes command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature CreateIndexesCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CreateIndexesUsingInsertOperations_" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexesUsingInsertOperations*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CreateIndexesUsingInsertOperations" data-uid="MongoDB.Driver.Core.Misc.Feature.CreateIndexesUsingInsertOperations">
-  CreateIndexesUsingInsertOperations
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L355"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the create indexes using insert operations feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature CreateIndexesUsingInsertOperations { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Csfle2_" data-uid="MongoDB.Driver.Core.Misc.Feature.Csfle2*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Csfle2" data-uid="MongoDB.Driver.Core.Misc.Feature.Csfle2">
-  Csfle2
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L365"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the client side field level encryption 2 feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature Csfle2 { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Csfle2QEv2_" data-uid="MongoDB.Driver.Core.Misc.Feature.Csfle2QEv2*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Csfle2QEv2" data-uid="MongoDB.Driver.Core.Misc.Feature.Csfle2QEv2">
-  Csfle2QEv2
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L370"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the client side field level encryption 2 queryable encryption v2 feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature Csfle2QEv2 { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CsfleRangeAlgorithm_" data-uid="MongoDB.Driver.Core.Misc.Feature.CsfleRangeAlgorithm*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CsfleRangeAlgorithm" data-uid="MongoDB.Driver.Core.Misc.Feature.CsfleRangeAlgorithm">
-  CsfleRangeAlgorithm
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L360"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the csfle range algorithm feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature CsfleRangeAlgorithm { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_CurrentOpCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.CurrentOpCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_CurrentOpCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.CurrentOpCommand">
-  CurrentOpCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L375"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current op command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature CurrentOpCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_DateOperatorsNewIn50_" data-uid="MongoDB.Driver.Core.Misc.Feature.DateOperatorsNewIn50*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_DateOperatorsNewIn50" data-uid="MongoDB.Driver.Core.Misc.Feature.DateOperatorsNewIn50">
-  DateOperatorsNewIn50
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L381"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the date operators added in 5.0 feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature DateOperatorsNewIn50 { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_DensifyStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.DensifyStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_DensifyStage" data-uid="MongoDB.Driver.Core.Misc.Feature.DensifyStage">
-  DensifyStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L386"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the aggregate $densify stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature DensifyStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_DirectConnectionSetting_" data-uid="MongoDB.Driver.Core.Misc.Feature.DirectConnectionSetting*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_DirectConnectionSetting" data-uid="MongoDB.Driver.Core.Misc.Feature.DirectConnectionSetting">
-  DirectConnectionSetting
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L402"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the directConnection setting feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature DirectConnectionSetting { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_DocumentValidation_" data-uid="MongoDB.Driver.Core.Misc.Feature.DocumentValidation*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_DocumentValidation" data-uid="MongoDB.Driver.Core.Misc.Feature.DocumentValidation">
-  DocumentValidation
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L396"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the document validation feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature DocumentValidation { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_DocumentsStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.DocumentsStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_DocumentsStage" data-uid="MongoDB.Driver.Core.Misc.Feature.DocumentsStage">
-  DocumentsStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L391"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the documents stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature DocumentsStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ElectionIdPriorityInSDAM_" data-uid="MongoDB.Driver.Core.Misc.Feature.ElectionIdPriorityInSDAM*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ElectionIdPriorityInSDAM" data-uid="MongoDB.Driver.Core.Misc.Feature.ElectionIdPriorityInSDAM">
-  ElectionIdPriorityInSDAM
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L407"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the electionIdPriorityInSDAM feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ElectionIdPriorityInSDAM { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Eval_" data-uid="MongoDB.Driver.Core.Misc.Feature.Eval*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Eval" data-uid="MongoDB.Driver.Core.Misc.Feature.Eval">
-  Eval
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L412"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the eval feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature Eval { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ExplainCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.ExplainCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ExplainCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.ExplainCommand">
-  ExplainCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L417"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the explain command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ExplainCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FailPoints_" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPoints*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FailPoints" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPoints">
-  FailPoints
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L423"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the fail points feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature FailPoints { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FailPointsBlockConnection_" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsBlockConnection*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FailPointsBlockConnection" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsBlockConnection">
-  FailPointsBlockConnection
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L429"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the fail points block connection feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature FailPointsBlockConnection { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommand">
-  FailPointsFailCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L434"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the fail points fail command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature FailPointsFailCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommandForSharded_" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommandForSharded*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommandForSharded" data-uid="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommandForSharded">
-  FailPointsFailCommandForSharded
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L439"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the fail points fail command for sharded feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature FailPointsFailCommandForSharded { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FilterLimit_" data-uid="MongoDB.Driver.Core.Misc.Feature.FilterLimit*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FilterLimit" data-uid="MongoDB.Driver.Core.Misc.Feature.FilterLimit">
-  FilterLimit
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L445"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets filter limit feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature FilterLimit { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FindAllowDiskUse_" data-uid="MongoDB.Driver.Core.Misc.Feature.FindAllowDiskUse*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FindAllowDiskUse" data-uid="MongoDB.Driver.Core.Misc.Feature.FindAllowDiskUse">
-  FindAllowDiskUse
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L450"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the find allowDiskUse feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature FindAllowDiskUse { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FindAndModifyWriteConcern_" data-uid="MongoDB.Driver.Core.Misc.Feature.FindAndModifyWriteConcern*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FindAndModifyWriteConcern" data-uid="MongoDB.Driver.Core.Misc.Feature.FindAndModifyWriteConcern">
-  FindAndModifyWriteConcern
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L456"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the find and modify write concern feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature FindAndModifyWriteConcern { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FindCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.FindCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FindCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.FindCommand">
-  FindCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L462"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the find command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature FindCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_FindProjectionExpressions_" data-uid="MongoDB.Driver.Core.Misc.Feature.FindProjectionExpressions*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_FindProjectionExpressions" data-uid="MongoDB.Driver.Core.Misc.Feature.FindProjectionExpressions">
-  FindProjectionExpressions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L468"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the find projection expressions feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature FindProjectionExpressions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_GeoNearCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.GeoNearCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_GeoNearCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.GeoNearCommand">
-  GeoNearCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L473"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the geoNear command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature GeoNearCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_GetField_" data-uid="MongoDB.Driver.Core.Misc.Feature.GetField*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_GetField" data-uid="MongoDB.Driver.Core.Misc.Feature.GetField">
-  GetField
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L478"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the getField feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature GetField { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_GetMoreComment_" data-uid="MongoDB.Driver.Core.Misc.Feature.GetMoreComment*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_GetMoreComment" data-uid="MongoDB.Driver.Core.Misc.Feature.GetMoreComment">
-  GetMoreComment
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L483"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the getMore comment feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature GetMoreComment { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_GroupCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.GroupCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_GroupCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.GroupCommand">
-  GroupCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L488"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the group command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature GroupCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_HedgedReads_" data-uid="MongoDB.Driver.Core.Misc.Feature.HedgedReads*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_HedgedReads" data-uid="MongoDB.Driver.Core.Misc.Feature.HedgedReads">
-  HedgedReads
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L493"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the hedged reads feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature HedgedReads { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_HiddenIndex_" data-uid="MongoDB.Driver.Core.Misc.Feature.HiddenIndex*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_HiddenIndex" data-uid="MongoDB.Driver.Core.Misc.Feature.HiddenIndex">
-  HiddenIndex
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L498"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the hidden index feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature HiddenIndex { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_HintForDeleteOperations_" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForDeleteOperations*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_HintForDeleteOperations" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForDeleteOperations">
-  HintForDeleteOperations
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L503"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the hint for delete operations feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature HintForDeleteOperations { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_HintForFindAndModifyFeature_" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForFindAndModifyFeature*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_HintForFindAndModifyFeature" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForFindAndModifyFeature">
-  HintForFindAndModifyFeature
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L509"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the hint for find and modify operations feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static HintForFindAndModifyFeature HintForFindAndModifyFeature { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.HintForFindAndModifyFeature.html">HintForFindAndModifyFeature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_HintForUpdateAndReplaceOperations_" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForUpdateAndReplaceOperations*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_HintForUpdateAndReplaceOperations" data-uid="MongoDB.Driver.Core.Misc.Feature.HintForUpdateAndReplaceOperations">
-  HintForUpdateAndReplaceOperations
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L514"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the hint for update and replace operations feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature HintForUpdateAndReplaceOperations { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_IndexOptionsDefaults_" data-uid="MongoDB.Driver.Core.Misc.Feature.IndexOptionsDefaults*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_IndexOptionsDefaults" data-uid="MongoDB.Driver.Core.Misc.Feature.IndexOptionsDefaults">
-  IndexOptionsDefaults
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L548"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the index options defaults feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature IndexOptionsDefaults { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotMasterConnectionException_" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotMasterConnectionException*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotMasterConnectionException" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotMasterConnectionException">
-  KeepConnectionPoolWhenNotMasterConnectionException
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L525"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the keep connection pool when NotPrimary connection exception feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use KeepConnectionPoolWhenNotPrimaryConnectionException instead.&quot;)]
-public static Feature KeepConnectionPoolWhenNotMasterConnectionException { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotPrimaryConnectionException_" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotPrimaryConnectionException*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotPrimaryConnectionException" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotPrimaryConnectionException">
-  KeepConnectionPoolWhenNotPrimaryConnectionException
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L520"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the keep connection pool when NotPrimary connection exception feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature KeepConnectionPoolWhenNotPrimaryConnectionException { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenReplSetStepDown_" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenReplSetStepDown*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenReplSetStepDown" data-uid="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenReplSetStepDown">
-  KeepConnectionPoolWhenReplSetStepDown
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L531"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the keep connection pool when replSetStepDown feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature KeepConnectionPoolWhenReplSetStepDown { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_KillAllSessions_" data-uid="MongoDB.Driver.Core.Misc.Feature.KillAllSessions*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_KillAllSessions" data-uid="MongoDB.Driver.Core.Misc.Feature.KillAllSessions">
-  KillAllSessions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L536"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Get the killAllSessions feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature KillAllSessions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_KillCursorsCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.KillCursorsCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_KillCursorsCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.KillCursorsCommand">
-  KillCursorsCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L542"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Get the killCursors command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature KillCursorsCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_LegacyWireProtocol_" data-uid="MongoDB.Driver.Core.Misc.Feature.LegacyWireProtocol*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_LegacyWireProtocol" data-uid="MongoDB.Driver.Core.Misc.Feature.LegacyWireProtocol">
-  LegacyWireProtocol
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L554"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the legacy wire protocol feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature LegacyWireProtocol { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ListCollectionsCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.ListCollectionsCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ListCollectionsCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.ListCollectionsCommand">
-  ListCollectionsCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L576"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the list collections command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ListCollectionsCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesAuthorizedDatabases_" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesAuthorizedDatabases*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesAuthorizedDatabases" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesAuthorizedDatabases">
-  ListDatabasesAuthorizedDatabases
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L559"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Get the list databases authorizedDatabases feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ListDatabasesAuthorizedDatabases { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesFilter_" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesFilter*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesFilter" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesFilter">
-  ListDatabasesFilter
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L564"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the list databases filter feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ListDatabasesFilter { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesNameOnlyOption_" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesNameOnlyOption*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ListDatabasesNameOnlyOption" data-uid="MongoDB.Driver.Core.Misc.Feature.ListDatabasesNameOnlyOption">
-  ListDatabasesNameOnlyOption
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L570"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Get the list databases nameOnly feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ListDatabasesNameOnlyOption { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ListIndexesCommand_" data-uid="MongoDB.Driver.Core.Misc.Feature.ListIndexesCommand*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ListIndexesCommand" data-uid="MongoDB.Driver.Core.Misc.Feature.ListIndexesCommand">
-  ListIndexesCommand
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L582"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the list indexes command feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ListIndexesCommand { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_LoadBalancedMode_" data-uid="MongoDB.Driver.Core.Misc.Feature.LoadBalancedMode*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_LoadBalancedMode" data-uid="MongoDB.Driver.Core.Misc.Feature.LoadBalancedMode">
-  LoadBalancedMode
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L588"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the load balanced mode feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature LoadBalancedMode { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_MaxStaleness_" data-uid="MongoDB.Driver.Core.Misc.Feature.MaxStaleness*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_MaxStaleness" data-uid="MongoDB.Driver.Core.Misc.Feature.MaxStaleness">
-  MaxStaleness
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L593"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the maximum staleness feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature MaxStaleness { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_MaxTime_" data-uid="MongoDB.Driver.Core.Misc.Feature.MaxTime*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_MaxTime" data-uid="MongoDB.Driver.Core.Misc.Feature.MaxTime">
-  MaxTime
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L599"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the maximum time feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature MaxTime { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_MmapV1StorageEngine_" data-uid="MongoDB.Driver.Core.Misc.Feature.MmapV1StorageEngine*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_MmapV1StorageEngine" data-uid="MongoDB.Driver.Core.Misc.Feature.MmapV1StorageEngine">
-  MmapV1StorageEngine
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L605"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the mmapv1 storage engine feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature MmapV1StorageEngine { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Name_" data-uid="MongoDB.Driver.Core.Misc.Feature.Name*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Name" data-uid="MongoDB.Driver.Core.Misc.Feature.Name">
-  Name
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L806"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Name { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_NotSupportedMessage_" data-uid="MongoDB.Driver.Core.Misc.Feature.NotSupportedMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_NotSupportedMessage" data-uid="MongoDB.Driver.Core.Misc.Feature.NotSupportedMessage">
-  NotSupportedMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L821"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error message to be used by the feature support checks.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string NotSupportedMessage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_PartialIndexes_" data-uid="MongoDB.Driver.Core.Misc.Feature.PartialIndexes*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_PartialIndexes" data-uid="MongoDB.Driver.Core.Misc.Feature.PartialIndexes">
-  PartialIndexes
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L610"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the partial indexes feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature PartialIndexes { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_PickAccumulatorsNewIn52_" data-uid="MongoDB.Driver.Core.Misc.Feature.PickAccumulatorsNewIn52*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_PickAccumulatorsNewIn52" data-uid="MongoDB.Driver.Core.Misc.Feature.PickAccumulatorsNewIn52">
-  PickAccumulatorsNewIn52
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L616"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the pick accumulators new in 5.2 feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature PickAccumulatorsNewIn52 { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ReadConcern_" data-uid="MongoDB.Driver.Core.Misc.Feature.ReadConcern*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ReadConcern" data-uid="MongoDB.Driver.Core.Misc.Feature.ReadConcern">
-  ReadConcern
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L621"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the read concern feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ReadConcern { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_RegexMatch_" data-uid="MongoDB.Driver.Core.Misc.Feature.RegexMatch*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_RegexMatch" data-uid="MongoDB.Driver.Core.Misc.Feature.RegexMatch">
-  RegexMatch
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L628"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the regex match feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature RegexMatch { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_RetryableReads_" data-uid="MongoDB.Driver.Core.Misc.Feature.RetryableReads*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_RetryableReads" data-uid="MongoDB.Driver.Core.Misc.Feature.RetryableReads">
-  RetryableReads
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L633"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the retryable reads feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature RetryableReads { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_RetryableWrites_" data-uid="MongoDB.Driver.Core.Misc.Feature.RetryableWrites*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_RetryableWrites" data-uid="MongoDB.Driver.Core.Misc.Feature.RetryableWrites">
-  RetryableWrites
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L639"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the retryable writes feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature RetryableWrites { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Round_" data-uid="MongoDB.Driver.Core.Misc.Feature.Round*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Round" data-uid="MongoDB.Driver.Core.Misc.Feature.Round">
-  Round
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L645"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the $round feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature Round { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ScramSha1Authentication_" data-uid="MongoDB.Driver.Core.Misc.Feature.ScramSha1Authentication*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ScramSha1Authentication" data-uid="MongoDB.Driver.Core.Misc.Feature.ScramSha1Authentication">
-  ScramSha1Authentication
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L650"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the scram sha1 authentication feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ScramSha1Authentication { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ScramSha256Authentication_" data-uid="MongoDB.Driver.Core.Misc.Feature.ScramSha256Authentication*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ScramSha256Authentication" data-uid="MongoDB.Driver.Core.Misc.Feature.ScramSha256Authentication">
-  ScramSha256Authentication
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L656"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the scram sha256 authentication feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ScramSha256Authentication { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ServerExtractsUsernameFromX509Certificate_" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerExtractsUsernameFromX509Certificate*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ServerExtractsUsernameFromX509Certificate" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerExtractsUsernameFromX509Certificate">
-  ServerExtractsUsernameFromX509Certificate
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L661"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server extracts username from X509 certificate feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature ServerExtractsUsernameFromX509Certificate { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ServerReturnsResumableChangeStreamErrorLabel_" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerReturnsResumableChangeStreamErrorLabel*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ServerReturnsResumableChangeStreamErrorLabel" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerReturnsResumableChangeStreamErrorLabel">
-  ServerReturnsResumableChangeStreamErrorLabel
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L667"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server returns resumableChangeStream label feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ServerReturnsResumableChangeStreamErrorLabel { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ServerReturnsRetryableWriteErrorLabel_" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerReturnsRetryableWriteErrorLabel*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ServerReturnsRetryableWriteErrorLabel" data-uid="MongoDB.Driver.Core.Misc.Feature.ServerReturnsRetryableWriteErrorLabel">
-  ServerReturnsRetryableWriteErrorLabel
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L672"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server returns retryable writeError label feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ServerReturnsRetryableWriteErrorLabel { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SetStage_" data-uid="MongoDB.Driver.Core.Misc.Feature.SetStage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SetStage" data-uid="MongoDB.Driver.Core.Misc.Feature.SetStage">
-  SetStage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L677"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the $set stage feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SetStage { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SetWindowFields_" data-uid="MongoDB.Driver.Core.Misc.Feature.SetWindowFields*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SetWindowFields" data-uid="MongoDB.Driver.Core.Misc.Feature.SetWindowFields">
-  SetWindowFields
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L682"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the set window fields feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SetWindowFields { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SetWindowFieldsLocf_" data-uid="MongoDB.Driver.Core.Misc.Feature.SetWindowFieldsLocf*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SetWindowFieldsLocf" data-uid="MongoDB.Driver.Core.Misc.Feature.SetWindowFieldsLocf">
-  SetWindowFieldsLocf
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L687"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the set window fields $locf feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SetWindowFieldsLocf { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ShardedTransactions_" data-uid="MongoDB.Driver.Core.Misc.Feature.ShardedTransactions*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ShardedTransactions" data-uid="MongoDB.Driver.Core.Misc.Feature.ShardedTransactions">
-  ShardedTransactions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L692"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the sharded transactions feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ShardedTransactions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SnapshotReads_" data-uid="MongoDB.Driver.Core.Misc.Feature.SnapshotReads*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SnapshotReads" data-uid="MongoDB.Driver.Core.Misc.Feature.SnapshotReads">
-  SnapshotReads
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L697"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the snapshot reads feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SnapshotReads { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SortArrayOperator_" data-uid="MongoDB.Driver.Core.Misc.Feature.SortArrayOperator*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SortArrayOperator" data-uid="MongoDB.Driver.Core.Misc.Feature.SortArrayOperator">
-  SortArrayOperator
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L702"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the $sortArray operator feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SortArrayOperator { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_SpeculativeAuthentication_" data-uid="MongoDB.Driver.Core.Misc.Feature.SpeculativeAuthentication*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_SpeculativeAuthentication" data-uid="MongoDB.Driver.Core.Misc.Feature.SpeculativeAuthentication">
-  SpeculativeAuthentication
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L707"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the speculative authentication feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature SpeculativeAuthentication { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_StableApi_" data-uid="MongoDB.Driver.Core.Misc.Feature.StableApi*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_StableApi" data-uid="MongoDB.Driver.Core.Misc.Feature.StableApi">
-  StableApi
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L712"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the speculative authentication feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature StableApi { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_StreamingHello_" data-uid="MongoDB.Driver.Core.Misc.Feature.StreamingHello*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_StreamingHello" data-uid="MongoDB.Driver.Core.Misc.Feature.StreamingHello">
-  StreamingHello
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L717"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the streaming hello feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature StreamingHello { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_StreamingIsMaster_" data-uid="MongoDB.Driver.Core.Misc.Feature.StreamingIsMaster*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_StreamingIsMaster" data-uid="MongoDB.Driver.Core.Misc.Feature.StreamingIsMaster">
-  StreamingIsMaster
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L722"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the streaming hello feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use StreamingHello instead.&quot;)]
-public static Feature StreamingIsMaster { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_TailableCursor_" data-uid="MongoDB.Driver.Core.Misc.Feature.TailableCursor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_TailableCursor" data-uid="MongoDB.Driver.Core.Misc.Feature.TailableCursor">
-  TailableCursor
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L728"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the tailable cursor feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature TailableCursor { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ToConversionOperators_" data-uid="MongoDB.Driver.Core.Misc.Feature.ToConversionOperators*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ToConversionOperators" data-uid="MongoDB.Driver.Core.Misc.Feature.ToConversionOperators">
-  ToConversionOperators
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L734"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the $toXyz conversion operators feature ($toDouble etc.).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature ToConversionOperators { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Transactions_" data-uid="MongoDB.Driver.Core.Misc.Feature.Transactions*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Transactions" data-uid="MongoDB.Driver.Core.Misc.Feature.Transactions">
-  Transactions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L739"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the transactions feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature Transactions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_TrigOperators_" data-uid="MongoDB.Driver.Core.Misc.Feature.TrigOperators*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_TrigOperators" data-uid="MongoDB.Driver.Core.Misc.Feature.TrigOperators">
-  TrigOperators
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L744"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the trig operators feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature TrigOperators { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_TrimOperator_" data-uid="MongoDB.Driver.Core.Misc.Feature.TrimOperator*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_TrimOperator" data-uid="MongoDB.Driver.Core.Misc.Feature.TrimOperator">
-  TrimOperator
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L749"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the trim operator feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature TrimOperator { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_UpdateWithAggregationPipeline_" data-uid="MongoDB.Driver.Core.Misc.Feature.UpdateWithAggregationPipeline*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_UpdateWithAggregationPipeline" data-uid="MongoDB.Driver.Core.Misc.Feature.UpdateWithAggregationPipeline">
-  UpdateWithAggregationPipeline
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L760"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the update with aggregation pipeline feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature UpdateWithAggregationPipeline { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_UserManagementCommands_" data-uid="MongoDB.Driver.Core.Misc.Feature.UserManagementCommands*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_UserManagementCommands" data-uid="MongoDB.Driver.Core.Misc.Feature.UserManagementCommands">
-  UserManagementCommands
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L754"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the user management commands feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature UserManagementCommands { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_Views_" data-uid="MongoDB.Driver.Core.Misc.Feature.Views*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_Views" data-uid="MongoDB.Driver.Core.Misc.Feature.Views">
-  Views
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L765"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the views feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature Views { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_WildcardIndexes_" data-uid="MongoDB.Driver.Core.Misc.Feature.WildcardIndexes*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_WildcardIndexes" data-uid="MongoDB.Driver.Core.Misc.Feature.WildcardIndexes">
-  WildcardIndexes
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L771"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the wildcard indexes feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Feature WildcardIndexes { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_WriteCommands_" data-uid="MongoDB.Driver.Core.Misc.Feature.WriteCommands*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_WriteCommands" data-uid="MongoDB.Driver.Core.Misc.Feature.WriteCommands">
-  WriteCommands
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L776"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the write commands feature.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;This property will be removed in a later release.&quot;)]
-public static Feature WriteCommands { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.html">Feature</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Aggregate.html#MongoDB_Driver_Core_Misc_Feature_Aggregate">Aggregate</a></dt>
+    <dd><p>Gets the aggregate feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateAccumulator.html#MongoDB_Driver_Core_Misc_Feature_AggregateAccumulator">AggregateAccumulator</a></dt>
+    <dd><p>Gets the aggregate accumulato feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateAddFields.html#MongoDB_Driver_Core_Misc_Feature_AggregateAddFields">AggregateAddFields</a></dt>
+    <dd><p>Gets the aggregate AddFields feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateAllowDiskUse.html#MongoDB_Driver_Core_Misc_Feature_AggregateAllowDiskUse">AggregateAllowDiskUse</a></dt>
+    <dd><p>Gets the aggregate allow disk use feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateBucketStage.html#MongoDB_Driver_Core_Misc_Feature_AggregateBucketStage">AggregateBucketStage</a></dt>
+    <dd><p>Gets the aggregate bucket stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateComment.html#MongoDB_Driver_Core_Misc_Feature_AggregateComment">AggregateComment</a></dt>
+    <dd><p>Gets the aggregate comment feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateCountStage.html#MongoDB_Driver_Core_Misc_Feature_AggregateCountStage">AggregateCountStage</a></dt>
+    <dd><p>Gets the aggregate count stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateCursorResult.html#MongoDB_Driver_Core_Misc_Feature_AggregateCursorResult">AggregateCursorResult</a></dt>
+    <dd><p>Gets the aggregate cursor result feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateExplain.html#MongoDB_Driver_Core_Misc_Feature_AggregateExplain">AggregateExplain</a></dt>
+    <dd><p>Gets the aggregate explain feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateFacetStage.html#MongoDB_Driver_Core_Misc_Feature_AggregateFacetStage">AggregateFacetStage</a></dt>
+    <dd><p>Gets the aggregate $facet stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateFunction.html#MongoDB_Driver_Core_Misc_Feature_AggregateFunction">AggregateFunction</a></dt>
+    <dd><p>Gets the aggregate $function stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateGraphLookupStage.html#MongoDB_Driver_Core_Misc_Feature_AggregateGraphLookupStage">AggregateGraphLookupStage</a></dt>
+    <dd><p>Gets the aggregate $graphLookup stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateHint.html#MongoDB_Driver_Core_Misc_Feature_AggregateHint">AggregateHint</a></dt>
+    <dd><p>Gets the aggregate hint feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateLet.html#MongoDB_Driver_Core_Misc_Feature_AggregateLet">AggregateLet</a></dt>
+    <dd><p>Gets the aggregate lookup stage let feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateMerge.html#MongoDB_Driver_Core_Misc_Feature_AggregateMerge">AggregateMerge</a></dt>
+    <dd><p>Gets the aggregate merge feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateOptionsLet.html#MongoDB_Driver_Core_Misc_Feature_AggregateOptionsLet">AggregateOptionsLet</a></dt>
+    <dd><p>Gets the aggregate let feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateOut.html#MongoDB_Driver_Core_Misc_Feature_AggregateOut">AggregateOut</a></dt>
+    <dd><p>Gets the aggregate out feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateOutOnSecondary.html#MongoDB_Driver_Core_Misc_Feature_AggregateOutOnSecondary">AggregateOutOnSecondary</a></dt>
+    <dd><p>Gets the aggregate out on secondary feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateOutTimeSeries.html#MongoDB_Driver_Core_Misc_Feature_AggregateOutTimeSeries">AggregateOutTimeSeries</a></dt>
+    <dd><p>Gets the aggregate out to time series feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateOutToDifferentDatabase.html#MongoDB_Driver_Core_Misc_Feature_AggregateOutToDifferentDatabase">AggregateOutToDifferentDatabase</a></dt>
+    <dd><p>Gets the aggregate out to a different database feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateToString.html#MongoDB_Driver_Core_Misc_Feature_AggregateToString">AggregateToString</a></dt>
+    <dd><p>Gets the aggregate toString feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.AggregateUnionWith.html#MongoDB_Driver_Core_Misc_Feature_AggregateUnionWith">AggregateUnionWith</a></dt>
+    <dd><p>Gets the aggregate unionWith feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ArrayFilters.html#MongoDB_Driver_Core_Misc_Feature_ArrayFilters">ArrayFilters</a></dt>
+    <dd><p>Gets the arrayFilters feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.BitwiseOperators.html#MongoDB_Driver_Core_Misc_Feature_BitwiseOperators">BitwiseOperators</a></dt>
+    <dd><p>Gets the bitwise operators feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.BypassDocumentValidation.html#MongoDB_Driver_Core_Misc_Feature_BypassDocumentValidation">BypassDocumentValidation</a></dt>
+    <dd><p>Gets the bypass document validation feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamAllChangesForCluster.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamAllChangesForCluster">ChangeStreamAllChangesForCluster</a></dt>
+    <dd><p>Gets the change stream all changes for cluster feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamForDatabase.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamForDatabase">ChangeStreamForDatabase</a></dt>
+    <dd><p>Gets the change stream for database feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPostBatchResumeToken.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamPostBatchResumeToken">ChangeStreamPostBatchResumeToken</a></dt>
+    <dd><p>Gets the change stream post batch resume token feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamPrePostImages.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamPrePostImages">ChangeStreamPrePostImages</a></dt>
+    <dd><p>Gets the change stream pre post images feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamSplitEventStage.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamSplitEventStage">ChangeStreamSplitEventStage</a></dt>
+    <dd><p>Gets the change stream splitEvent stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ChangeStreamStage.html#MongoDB_Driver_Core_Misc_Feature_ChangeStreamStage">ChangeStreamStage</a></dt>
+    <dd><p>Gets the aggregate $changeStream stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ClientSideEncryption.html#MongoDB_Driver_Core_Misc_Feature_ClientSideEncryption">ClientSideEncryption</a></dt>
+    <dd><p>Gets the client side encryption feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ClusteredIndexes.html#MongoDB_Driver_Core_Misc_Feature_ClusteredIndexes">ClusteredIndexes</a></dt>
+    <dd><p>Gets the clustered indexes feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Collation.html#MongoDB_Driver_Core_Misc_Feature_Collation">Collation</a></dt>
+    <dd><p>Gets the collation feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CommandMessage.html#MongoDB_Driver_Core_Misc_Feature_CommandMessage">CommandMessage</a></dt>
+    <dd><p>Gets the command message feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CommandsThatWriteAcceptWriteConcern.html#MongoDB_Driver_Core_Misc_Feature_CommandsThatWriteAcceptWriteConcern">CommandsThatWriteAcceptWriteConcern</a></dt>
+    <dd><p>Gets the commands that write accept write concern feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CreateIndexCommitQuorum.html#MongoDB_Driver_Core_Misc_Feature_CreateIndexCommitQuorum">CreateIndexCommitQuorum</a></dt>
+    <dd><p>Gets the create index commit quorum feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CreateIndexesCommand.html#MongoDB_Driver_Core_Misc_Feature_CreateIndexesCommand">CreateIndexesCommand</a></dt>
+    <dd><p>Gets the create indexes command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CreateIndexesUsingInsertOperations.html#MongoDB_Driver_Core_Misc_Feature_CreateIndexesUsingInsertOperations">CreateIndexesUsingInsertOperations</a></dt>
+    <dd><p>Gets the create indexes using insert operations feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Csfle2.html#MongoDB_Driver_Core_Misc_Feature_Csfle2">Csfle2</a></dt>
+    <dd><p>Gets the client side field level encryption 2 feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Csfle2QEv2.html#MongoDB_Driver_Core_Misc_Feature_Csfle2QEv2">Csfle2QEv2</a></dt>
+    <dd><p>Gets the client side field level encryption 2 queryable encryption v2 feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CsfleRangeAlgorithm.html#MongoDB_Driver_Core_Misc_Feature_CsfleRangeAlgorithm">CsfleRangeAlgorithm</a></dt>
+    <dd><p>Gets the csfle range algorithm feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.CurrentOpCommand.html#MongoDB_Driver_Core_Misc_Feature_CurrentOpCommand">CurrentOpCommand</a></dt>
+    <dd><p>Gets the current op command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.DateOperatorsNewIn50.html#MongoDB_Driver_Core_Misc_Feature_DateOperatorsNewIn50">DateOperatorsNewIn50</a></dt>
+    <dd><p>Gets the date operators added in 5.0 feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.DensifyStage.html#MongoDB_Driver_Core_Misc_Feature_DensifyStage">DensifyStage</a></dt>
+    <dd><p>Gets the aggregate $densify stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.DirectConnectionSetting.html#MongoDB_Driver_Core_Misc_Feature_DirectConnectionSetting">DirectConnectionSetting</a></dt>
+    <dd><p>Gets the directConnection setting feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.DocumentValidation.html#MongoDB_Driver_Core_Misc_Feature_DocumentValidation">DocumentValidation</a></dt>
+    <dd><p>Gets the document validation feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.DocumentsStage.html#MongoDB_Driver_Core_Misc_Feature_DocumentsStage">DocumentsStage</a></dt>
+    <dd><p>Gets the documents stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ElectionIdPriorityInSDAM.html#MongoDB_Driver_Core_Misc_Feature_ElectionIdPriorityInSDAM">ElectionIdPriorityInSDAM</a></dt>
+    <dd><p>Gets the electionIdPriorityInSDAM feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Eval.html#MongoDB_Driver_Core_Misc_Feature_Eval">Eval</a></dt>
+    <dd><p>Gets the eval feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ExplainCommand.html#MongoDB_Driver_Core_Misc_Feature_ExplainCommand">ExplainCommand</a></dt>
+    <dd><p>Gets the explain command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FailPoints.html#MongoDB_Driver_Core_Misc_Feature_FailPoints">FailPoints</a></dt>
+    <dd><p>Gets the fail points feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FailPointsBlockConnection.html#MongoDB_Driver_Core_Misc_Feature_FailPointsBlockConnection">FailPointsBlockConnection</a></dt>
+    <dd><p>Gets the fail points block connection feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommand.html#MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommand">FailPointsFailCommand</a></dt>
+    <dd><p>Gets the fail points fail command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FailPointsFailCommandForSharded.html#MongoDB_Driver_Core_Misc_Feature_FailPointsFailCommandForSharded">FailPointsFailCommandForSharded</a></dt>
+    <dd><p>Gets the fail points fail command for sharded feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FilterLimit.html#MongoDB_Driver_Core_Misc_Feature_FilterLimit">FilterLimit</a></dt>
+    <dd><p>Gets filter limit feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FindAllowDiskUse.html#MongoDB_Driver_Core_Misc_Feature_FindAllowDiskUse">FindAllowDiskUse</a></dt>
+    <dd><p>Gets the find allowDiskUse feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FindAndModifyWriteConcern.html#MongoDB_Driver_Core_Misc_Feature_FindAndModifyWriteConcern">FindAndModifyWriteConcern</a></dt>
+    <dd><p>Gets the find and modify write concern feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FindCommand.html#MongoDB_Driver_Core_Misc_Feature_FindCommand">FindCommand</a></dt>
+    <dd><p>Gets the find command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.FindProjectionExpressions.html#MongoDB_Driver_Core_Misc_Feature_FindProjectionExpressions">FindProjectionExpressions</a></dt>
+    <dd><p>Gets the find projection expressions feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.GeoNearCommand.html#MongoDB_Driver_Core_Misc_Feature_GeoNearCommand">GeoNearCommand</a></dt>
+    <dd><p>Gets the geoNear command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.GetField.html#MongoDB_Driver_Core_Misc_Feature_GetField">GetField</a></dt>
+    <dd><p>Gets the getField feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.GetMoreComment.html#MongoDB_Driver_Core_Misc_Feature_GetMoreComment">GetMoreComment</a></dt>
+    <dd><p>Gets the getMore comment feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.GroupCommand.html#MongoDB_Driver_Core_Misc_Feature_GroupCommand">GroupCommand</a></dt>
+    <dd><p>Gets the group command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.HedgedReads.html#MongoDB_Driver_Core_Misc_Feature_HedgedReads">HedgedReads</a></dt>
+    <dd><p>Gets the hedged reads feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.HiddenIndex.html#MongoDB_Driver_Core_Misc_Feature_HiddenIndex">HiddenIndex</a></dt>
+    <dd><p>Gets the hidden index feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.HintForDeleteOperations.html#MongoDB_Driver_Core_Misc_Feature_HintForDeleteOperations">HintForDeleteOperations</a></dt>
+    <dd><p>Gets the hint for delete operations feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.HintForFindAndModifyFeature.html#MongoDB_Driver_Core_Misc_Feature_HintForFindAndModifyFeature">HintForFindAndModifyFeature</a></dt>
+    <dd><p>Gets the hint for find and modify operations feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.HintForUpdateAndReplaceOperations.html#MongoDB_Driver_Core_Misc_Feature_HintForUpdateAndReplaceOperations">HintForUpdateAndReplaceOperations</a></dt>
+    <dd><p>Gets the hint for update and replace operations feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.IndexOptionsDefaults.html#MongoDB_Driver_Core_Misc_Feature_IndexOptionsDefaults">IndexOptionsDefaults</a></dt>
+    <dd><p>Gets the index options defaults feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotMasterConnectionException.html#MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotMasterConnectionException">KeepConnectionPoolWhenNotMasterConnectionException</a></dt>
+    <dd><p>Gets the keep connection pool when NotPrimary connection exception feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.html#MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenNotPrimaryConnectionException">KeepConnectionPoolWhenNotPrimaryConnectionException</a></dt>
+    <dd><p>Gets the keep connection pool when NotPrimary connection exception feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.KeepConnectionPoolWhenReplSetStepDown.html#MongoDB_Driver_Core_Misc_Feature_KeepConnectionPoolWhenReplSetStepDown">KeepConnectionPoolWhenReplSetStepDown</a></dt>
+    <dd><p>Gets the keep connection pool when replSetStepDown feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.KillAllSessions.html#MongoDB_Driver_Core_Misc_Feature_KillAllSessions">KillAllSessions</a></dt>
+    <dd><p>Get the killAllSessions feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.KillCursorsCommand.html#MongoDB_Driver_Core_Misc_Feature_KillCursorsCommand">KillCursorsCommand</a></dt>
+    <dd><p>Get the killCursors command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.LegacyWireProtocol.html#MongoDB_Driver_Core_Misc_Feature_LegacyWireProtocol">LegacyWireProtocol</a></dt>
+    <dd><p>Gets the legacy wire protocol feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ListCollectionsCommand.html#MongoDB_Driver_Core_Misc_Feature_ListCollectionsCommand">ListCollectionsCommand</a></dt>
+    <dd><p>Gets the list collections command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ListDatabasesAuthorizedDatabases.html#MongoDB_Driver_Core_Misc_Feature_ListDatabasesAuthorizedDatabases">ListDatabasesAuthorizedDatabases</a></dt>
+    <dd><p>Get the list databases authorizedDatabases feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ListDatabasesFilter.html#MongoDB_Driver_Core_Misc_Feature_ListDatabasesFilter">ListDatabasesFilter</a></dt>
+    <dd><p>Gets the list databases filter feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ListDatabasesNameOnlyOption.html#MongoDB_Driver_Core_Misc_Feature_ListDatabasesNameOnlyOption">ListDatabasesNameOnlyOption</a></dt>
+    <dd><p>Get the list databases nameOnly feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ListIndexesCommand.html#MongoDB_Driver_Core_Misc_Feature_ListIndexesCommand">ListIndexesCommand</a></dt>
+    <dd><p>Gets the list indexes command feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.LoadBalancedMode.html#MongoDB_Driver_Core_Misc_Feature_LoadBalancedMode">LoadBalancedMode</a></dt>
+    <dd><p>Gets the load balanced mode feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.MaxStaleness.html#MongoDB_Driver_Core_Misc_Feature_MaxStaleness">MaxStaleness</a></dt>
+    <dd><p>Gets the maximum staleness feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.MaxTime.html#MongoDB_Driver_Core_Misc_Feature_MaxTime">MaxTime</a></dt>
+    <dd><p>Gets the maximum time feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.MmapV1StorageEngine.html#MongoDB_Driver_Core_Misc_Feature_MmapV1StorageEngine">MmapV1StorageEngine</a></dt>
+    <dd><p>Gets the mmapv1 storage engine feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Name.html#MongoDB_Driver_Core_Misc_Feature_Name">Name</a></dt>
+    <dd><p>Gets the name of the feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.NotSupportedMessage.html#MongoDB_Driver_Core_Misc_Feature_NotSupportedMessage">NotSupportedMessage</a></dt>
+    <dd><p>Gets the error message to be used by the feature support checks.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.PartialIndexes.html#MongoDB_Driver_Core_Misc_Feature_PartialIndexes">PartialIndexes</a></dt>
+    <dd><p>Gets the partial indexes feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.PickAccumulatorsNewIn52.html#MongoDB_Driver_Core_Misc_Feature_PickAccumulatorsNewIn52">PickAccumulatorsNewIn52</a></dt>
+    <dd><p>Gets the pick accumulators new in 5.2 feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ReadConcern.html#MongoDB_Driver_Core_Misc_Feature_ReadConcern">ReadConcern</a></dt>
+    <dd><p>Gets the read concern feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.RegexMatch.html#MongoDB_Driver_Core_Misc_Feature_RegexMatch">RegexMatch</a></dt>
+    <dd><p>Gets the regex match feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.RetryableReads.html#MongoDB_Driver_Core_Misc_Feature_RetryableReads">RetryableReads</a></dt>
+    <dd><p>Gets the retryable reads feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.RetryableWrites.html#MongoDB_Driver_Core_Misc_Feature_RetryableWrites">RetryableWrites</a></dt>
+    <dd><p>Gets the retryable writes feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Round.html#MongoDB_Driver_Core_Misc_Feature_Round">Round</a></dt>
+    <dd><p>Gets the $round feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ScramSha1Authentication.html#MongoDB_Driver_Core_Misc_Feature_ScramSha1Authentication">ScramSha1Authentication</a></dt>
+    <dd><p>Gets the scram sha1 authentication feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ScramSha256Authentication.html#MongoDB_Driver_Core_Misc_Feature_ScramSha256Authentication">ScramSha256Authentication</a></dt>
+    <dd><p>Gets the scram sha256 authentication feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ServerExtractsUsernameFromX509Certificate.html#MongoDB_Driver_Core_Misc_Feature_ServerExtractsUsernameFromX509Certificate">ServerExtractsUsernameFromX509Certificate</a></dt>
+    <dd><p>Gets the server extracts username from X509 certificate feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ServerReturnsResumableChangeStreamErrorLabel.html#MongoDB_Driver_Core_Misc_Feature_ServerReturnsResumableChangeStreamErrorLabel">ServerReturnsResumableChangeStreamErrorLabel</a></dt>
+    <dd><p>Gets the server returns resumableChangeStream label feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ServerReturnsRetryableWriteErrorLabel.html#MongoDB_Driver_Core_Misc_Feature_ServerReturnsRetryableWriteErrorLabel">ServerReturnsRetryableWriteErrorLabel</a></dt>
+    <dd><p>Gets the server returns retryable writeError label feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SetStage.html#MongoDB_Driver_Core_Misc_Feature_SetStage">SetStage</a></dt>
+    <dd><p>Gets the $set stage feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SetWindowFields.html#MongoDB_Driver_Core_Misc_Feature_SetWindowFields">SetWindowFields</a></dt>
+    <dd><p>Gets the set window fields feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SetWindowFieldsLocf.html#MongoDB_Driver_Core_Misc_Feature_SetWindowFieldsLocf">SetWindowFieldsLocf</a></dt>
+    <dd><p>Gets the set window fields $locf feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ShardedTransactions.html#MongoDB_Driver_Core_Misc_Feature_ShardedTransactions">ShardedTransactions</a></dt>
+    <dd><p>Gets the sharded transactions feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SnapshotReads.html#MongoDB_Driver_Core_Misc_Feature_SnapshotReads">SnapshotReads</a></dt>
+    <dd><p>Gets the snapshot reads feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SortArrayOperator.html#MongoDB_Driver_Core_Misc_Feature_SortArrayOperator">SortArrayOperator</a></dt>
+    <dd><p>Gets the $sortArray operator feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.SpeculativeAuthentication.html#MongoDB_Driver_Core_Misc_Feature_SpeculativeAuthentication">SpeculativeAuthentication</a></dt>
+    <dd><p>Gets the speculative authentication feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.StableApi.html#MongoDB_Driver_Core_Misc_Feature_StableApi">StableApi</a></dt>
+    <dd><p>Gets the speculative authentication feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.StreamingHello.html#MongoDB_Driver_Core_Misc_Feature_StreamingHello">StreamingHello</a></dt>
+    <dd><p>Gets the streaming hello feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.StreamingIsMaster.html#MongoDB_Driver_Core_Misc_Feature_StreamingIsMaster">StreamingIsMaster</a></dt>
+    <dd><p>Gets the streaming hello feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.TailableCursor.html#MongoDB_Driver_Core_Misc_Feature_TailableCursor">TailableCursor</a></dt>
+    <dd><p>Gets the tailable cursor feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ToConversionOperators.html#MongoDB_Driver_Core_Misc_Feature_ToConversionOperators">ToConversionOperators</a></dt>
+    <dd><p>Gets the $toXyz conversion operators feature ($toDouble etc.).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Transactions.html#MongoDB_Driver_Core_Misc_Feature_Transactions">Transactions</a></dt>
+    <dd><p>Gets the transactions feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.TrigOperators.html#MongoDB_Driver_Core_Misc_Feature_TrigOperators">TrigOperators</a></dt>
+    <dd><p>Gets the trig operators feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.TrimOperator.html#MongoDB_Driver_Core_Misc_Feature_TrimOperator">TrimOperator</a></dt>
+    <dd><p>Gets the trim operator feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.UpdateWithAggregationPipeline.html#MongoDB_Driver_Core_Misc_Feature_UpdateWithAggregationPipeline">UpdateWithAggregationPipeline</a></dt>
+    <dd><p>Gets the update with aggregation pipeline feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.UserManagementCommands.html#MongoDB_Driver_Core_Misc_Feature_UserManagementCommands">UserManagementCommands</a></dt>
+    <dd><p>Gets the user management commands feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.Views.html#MongoDB_Driver_Core_Misc_Feature_Views">Views</a></dt>
+    <dd><p>Gets the views feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.WildcardIndexes.html#MongoDB_Driver_Core_Misc_Feature_WildcardIndexes">WildcardIndexes</a></dt>
+    <dd><p>Gets the wildcard indexes feature.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.WriteCommands.html#MongoDB_Driver_Core_Misc_Feature_WriteCommands">WriteCommands</a></dt>
+    <dd><p>Gets the write commands feature.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Misc_Feature_ToString_" data-uid="MongoDB.Driver.Core.Misc.Feature.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Misc_Feature_ToString" data-uid="MongoDB.Driver.Core.Misc.Feature.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Misc/Feature.cs/#L848"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Misc.Feature.ToString.html#MongoDB_Driver_Core_Misc_Feature_ToString">ToString()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
 
 
 

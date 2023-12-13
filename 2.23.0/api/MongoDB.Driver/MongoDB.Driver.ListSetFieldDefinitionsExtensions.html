@@ -146,117 +146,19 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set_" data-uid="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set*"></a>
-
-  <h3 id="MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set__2_MongoDB_Driver_ListSetFieldDefinitions___0__MongoDB_Driver_FieldDefinition___0___1____1_" data-uid="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set``2(MongoDB.Driver.ListSetFieldDefinitions{``0},MongoDB.Driver.FieldDefinition{``0,``1},``1)">
-  Set&lt;TDocument, TField&gt;(ListSetFieldDefinitions&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, TField)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/SetFieldDefinitionsBuilder.cs/#L69"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Set an additional field to value using a constant.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ListSetFieldDefinitions&lt;TDocument&gt; Set&lt;TDocument, TField&gt;(this ListSetFieldDefinitions&lt;TDocument&gt; fields, FieldDefinition&lt;TDocument, TField&gt; field, TField value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.ListSetFieldDefinitions-1.html">ListSetFieldDefinitions</a>&lt;TDocument&gt;</dt>
-    <dd><p>The existing ListSetFieldDefinitions.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TDocument, TField&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TField</span></dt>
-    <dd><p>The value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set.html#MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set__2_MongoDB_Driver_ListSetFieldDefinitions___0__MongoDB_Driver_FieldDefinition___0___1____1_">Set&lt;TDocument, TField&gt;(ListSetFieldDefinitions&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Set an additional field to value using a constant.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ListSetFieldDefinitions-1.html">ListSetFieldDefinitions</a>&lt;TDocument&gt;</dt>
-    <dd><p>The ListSetFieldDefinitions instance with a SetFieldDefinition added.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set.html#MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set__2_MongoDB_Driver_ListSetFieldDefinitions___0__System_Linq_Expressions_Expression_System_Func___0___1_____1_">Set&lt;TDocument, TField&gt;(ListSetFieldDefinitions&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Set an additional field to value using an Expression to specify the field and a constant to specify the value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set_" data-uid="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set*"></a>
-
-  <h3 id="MongoDB_Driver_ListSetFieldDefinitionsExtensions_Set__2_MongoDB_Driver_ListSetFieldDefinitions___0__System_Linq_Expressions_Expression_System_Func___0___1_____1_" data-uid="MongoDB.Driver.ListSetFieldDefinitionsExtensions.Set``2(MongoDB.Driver.ListSetFieldDefinitions{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},``1)">
-  Set&lt;TDocument, TField&gt;(ListSetFieldDefinitions&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/SetFieldDefinitionsBuilder.cs/#L84"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Set an additional field to value using an Expression to specify the field and a constant to specify the value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ListSetFieldDefinitions&lt;TDocument&gt; Set&lt;TDocument, TField&gt;(this ListSetFieldDefinitions&lt;TDocument&gt; fields, Expression&lt;Func&lt;TDocument, TField&gt;&gt; field, TField value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.ListSetFieldDefinitions-1.html">ListSetFieldDefinitions</a>&lt;TDocument&gt;</dt>
-    <dd><p>The existing ListSetFieldDefinitions.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">TField</span></dt>
-    <dd><p>The value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ListSetFieldDefinitions-1.html">ListSetFieldDefinitions</a>&lt;TDocument&gt;</dt>
-    <dd><p>The ListSetFieldDefinitions instance with a SetFieldDefinition added.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

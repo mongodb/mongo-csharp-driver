@@ -136,7 +136,7 @@ public class IndexKeysBuilder&lt;TDocument&gt; : BuilderBase, IConvertibleToBson
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Builders.BuilderBase.html#MongoDB_Driver_Builders_BuilderBase_ToString">BuilderBase.ToString()</a>
+      <a class="xref" href="MongoDB.Driver.Builders.BuilderBase.ToString.html#MongoDB_Driver_Builders_BuilderBase_ToString">BuilderBase.ToString()</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -162,10 +162,9 @@ public class IndexKeysBuilder&lt;TDocument&gt; : BuilderBase, IConvertibleToBson
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -173,530 +172,75 @@ public class IndexKeysBuilder&lt;TDocument&gt; : BuilderBase, IConvertibleToBson
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1__ctor_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1__ctor" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.#ctor">
-  IndexKeysBuilder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L466"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the IndexKeysBuilder class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.-ctor.html#MongoDB_Driver_Builders_IndexKeysBuilder_1__ctor">IndexKeysBuilder()</a></dt>
+    <dd><p>Initializes a new instance of the IndexKeysBuilder class.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Ascending_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Ascending*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Ascending_System_Linq_Expressions_Expression_System_Func__0_System_Object_____" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Ascending(System.Linq.Expressions.Expression{System.Func{`0,System.Object}}[])">
-  Ascending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L480"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to index in ascending order.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Ascending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[] memberExpressions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpressions</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;[]</dt>
-    <dd><p>One or more key names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Ascending.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Ascending_System_Linq_Expressions_Expression_System_Func__0_System_Object_____">Ascending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[])</a></dt>
+    <dd><p>Sets one or more key names to index in ascending order.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Descending.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Descending_System_Linq_Expressions_Expression_System_Func__0_System_Object_____">Descending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[])</a></dt>
+    <dd><p>Sets one or more key names to index in descending order.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Descending_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Descending*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Descending_System_Linq_Expressions_Expression_System_Func__0_System_Object_____" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Descending(System.Linq.Expressions.Expression{System.Func{`0,System.Object}}[])">
-  Descending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L493"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to index in descending order.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Descending(params Expression&lt;Func&lt;TDocument, object&gt;&gt;[] memberExpressions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpressions</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;[]</dt>
-    <dd><p>The member expressions.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.GeoSpatialHaystack.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack__1_System_Linq_Expressions_Expression_System_Func__0___0___">GeoSpatialHaystack&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Sets the key name to create a geospatial haystack index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.GeoSpatialHaystack.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack__2_System_Linq_Expressions_Expression_System_Func__0___0___System_Linq_Expressions_Expression_System_Func__0___1___">GeoSpatialHaystack&lt;TMember, TAdditionalMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, Expression&lt;Func&lt;TDocument, TAdditionalMember&gt;&gt;)</a></dt>
+    <dd><p>Sets the key name and additional field name to create a geospatial haystack index on.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialHaystack*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialHaystack``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  GeoSpatialHaystack&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L521"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a geospatial haystack index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;GeoHaystack indexes were deprecated in server version 4.4.&quot;)]
-public IndexKeysBuilder&lt;TDocument&gt; GeoSpatialHaystack&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.GeoSpatialSpherical.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialSpherical__1_System_Linq_Expressions_Expression_System_Func__0___0___">GeoSpatialSpherical&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Sets the key name to create a spherical geospatial index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.GeoSpatial.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatial__1_System_Linq_Expressions_Expression_System_Func__0___0___">GeoSpatial&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Sets the key name to create a geospatial index on.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Hashed.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Hashed__1_System_Linq_Expressions_Expression_System_Func__0___0___">Hashed&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Sets the key name to create a hashed index on.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialHaystack*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialHaystack__2_System_Linq_Expressions_Expression_System_Func__0___0___System_Linq_Expressions_Expression_System_Func__0___1___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialHaystack``2(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Linq.Expressions.Expression{System.Func{`0,``1}})">
-  GeoSpatialHaystack&lt;TMember, TAdditionalMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, Expression&lt;Func&lt;TDocument, TAdditionalMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L538"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name and additional field name to create a geospatial haystack index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;GeoHaystack indexes were deprecated in server version 4.4.&quot;)]
-public IndexKeysBuilder&lt;TDocument&gt; GeoSpatialHaystack&lt;TMember, TAdditionalMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression, Expression&lt;Func&lt;TDocument, TAdditionalMember&gt;&gt; additionalMemberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-    <dt><code>additionalMemberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TAdditionalMember&gt;&gt;</dt>
-    <dd><p>The additional member expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Text.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String______">Text(params Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;[])</a></dt>
+    <dd><p>Sets one or more key names to include in the text index.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Text.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_System_Linq_Expressions_Expression_System_Func__0_System_String_____">Text(params Expression&lt;Func&lt;TDocument, string&gt;&gt;[])</a></dt>
+    <dd><p>Sets one or more key names to include in the text index.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-    <dt><code>TAdditionalMember</code></dt>
-    <dd><p>The type of the additional member.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.TextAll.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_TextAll">TextAll()</a></dt>
+    <dd><p>Create a text index that indexes all text fields of a document.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialSpherical_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialSpherical*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatialSpherical__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatialSpherical``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  GeoSpatialSpherical&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L553"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a spherical geospatial index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; GeoSpatialSpherical&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.ToBsonDocument.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_ToBsonDocument">ToBsonDocument()</a></dt>
+    <dd><p>Converts this object to a BsonDocument.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.Wildcard.html#MongoDB_Driver_Builders_IndexKeysBuilder_1_Wildcard_System_Linq_Expressions_Expression_System_Func__0_System_Object___">Wildcard(Expression&lt;Func&lt;TDocument, object&gt;&gt;)</a></dt>
+    <dd><p>Sets a wildcard key to the index.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatial_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatial*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_GeoSpatial__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.GeoSpatial``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  GeoSpatial&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L507"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a geospatial index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; GeoSpatial&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Hashed_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Hashed*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Hashed__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Hashed``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  Hashed&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L567"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the key name to create a hashed index on.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Hashed&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt; memberExpression)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TMember&gt;&gt;</dt>
-    <dd><p>The member expression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TMember</code></dt>
-    <dd><p>The type of the member.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Text*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String______" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Text(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{System.String}}}[])">
-  Text(params Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L589"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to include in the text index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Text(params Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;[] memberExpressions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpressions</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;&gt;[]</dt>
-    <dd><p>The member expressions.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Text*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Text_System_Linq_Expressions_Expression_System_Func__0_System_String_____" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Text(System.Linq.Expressions.Expression{System.Func{`0,System.String}}[])">
-  Text(params Expression&lt;Func&lt;TDocument, string&gt;&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L578"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets one or more key names to include in the text index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Text(params Expression&lt;Func&lt;TDocument, string&gt;&gt;[] memberExpressions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpressions</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;[]</dt>
-    <dd><p>The member expressions.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_TextAll_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.TextAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_TextAll" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.TextAll">
-  TextAll()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L599"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create a text index that indexes all text fields of a document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; TextAll()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_ToBsonDocument_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.ToBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_ToBsonDocument" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.ToBsonDocument">
-  ToBsonDocument()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L611"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts this object to a BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override BsonDocument ToBsonDocument()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Wildcard_" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Wildcard*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_IndexKeysBuilder_1_Wildcard_System_Linq_Expressions_Expression_System_Func__0_System_Object___" data-uid="MongoDB.Driver.Builders.IndexKeysBuilder`1.Wildcard(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
-  Wildcard(Expression&lt;Func&lt;TDocument, object&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/IndexKeysBuilder.cs/#L623"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets a wildcard key to the index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IndexKeysBuilder&lt;TDocument&gt; Wildcard(Expression&lt;Func&lt;TDocument, object&gt;&gt; memberExpression = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>memberExpression</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The member expression representing the wildcard key name. If the wildcard name is empty, the generated key will be <code>All field paths</code>, otherwise <code>A single field path</code>.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.IndexKeysBuilder-1.html">IndexKeysBuilder</a>&lt;TDocument&gt;</dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

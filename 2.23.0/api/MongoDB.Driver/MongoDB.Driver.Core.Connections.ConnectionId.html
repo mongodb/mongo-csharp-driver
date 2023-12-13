@@ -141,465 +141,78 @@ public sealed class ConnectionId : IEquatable&lt;ConnectionId&gt;</code></pre>
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId__ctor_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId__ctor_MongoDB_Driver_Core_Servers_ServerId_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.#ctor(MongoDB.Driver.Core.Servers.ServerId)">
-  ConnectionId(ServerId)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L40"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ConnectionId(ServerId serverId)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>serverId</code> <a class="xref" href="MongoDB.Driver.Core.Servers.ServerId.html">ServerId</a></dt>
-    <dd><p>The server identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.-ctor.html#MongoDB_Driver_Core_Connections_ConnectionId__ctor_MongoDB_Driver_Core_Servers_ServerId_">ConnectionId(ServerId)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId__ctor_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId__ctor_MongoDB_Driver_Core_Servers_ServerId_System_Int64_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.#ctor(MongoDB.Driver.Core.Servers.ServerId,System.Int64)">
-  ConnectionId(ServerId, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L50"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ConnectionId(ServerId serverId, long localValue)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>serverId</code> <a class="xref" href="MongoDB.Driver.Core.Servers.ServerId.html">ServerId</a></dt>
-    <dd><p>The server identifier.</p>
-</dd>
-    <dt><code>localValue</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The local value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.-ctor.html#MongoDB_Driver_Core_Connections_ConnectionId__ctor_MongoDB_Driver_Core_Servers_ServerId_System_Int64_">ConnectionId(ServerId, long)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_LocalValue_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LocalValue*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_LocalValue" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LocalValue">
-  LocalValue
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L84"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the local value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use LongLocalValue instead.&quot;)]
-public int LocalValue { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The local value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.LocalValue.html#MongoDB_Driver_Core_Connections_ConnectionId_LocalValue">LocalValue</a></dt>
+    <dd><p>Gets the local value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_LongLocalValue_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LongLocalValue*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_LongLocalValue" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LongLocalValue">
-  LongLocalValue
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L96"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the local value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long LongLocalValue { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The local value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.LongLocalValue.html#MongoDB_Driver_Core_Connections_ConnectionId_LongLocalValue">LongLocalValue</a></dt>
+    <dd><p>Gets the local value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_LongServerValue_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LongServerValue*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_LongServerValue" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.LongServerValue">
-  LongServerValue
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L119"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long? LongServerValue { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?</dt>
-    <dd><p>The server value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.LongServerValue.html#MongoDB_Driver_Core_Connections_ConnectionId_LongServerValue">LongServerValue</a></dt>
+    <dd><p>Gets the server value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_ServerId_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ServerId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_ServerId" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ServerId">
-  ServerId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L73"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ServerId ServerId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.ServerId.html">ServerId</a></dt>
-    <dd><p>The server identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.ServerId.html#MongoDB_Driver_Core_Connections_ConnectionId_ServerId">ServerId</a></dt>
+    <dd><p>Gets the server identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_ServerValue_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ServerValue*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_ServerValue" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ServerValue">
-  ServerValue
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L107"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use LongServerValue instead.&quot;)]
-public int? ServerValue { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd><p>The server value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.ServerValue.html#MongoDB_Driver_Core_Connections_ConnectionId_ServerValue">ServerValue</a></dt>
+    <dd><p>Gets the server value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_Equals_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_Equals_MongoDB_Driver_Core_Connections_ConnectionId_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.Equals(MongoDB.Driver.Core.Connections.ConnectionId)">
-  Equals(ConnectionId)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L126"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Equals(ConnectionId other)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>other</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.Equals.html#MongoDB_Driver_Core_Connections_ConnectionId_Equals_MongoDB_Driver_Core_Connections_ConnectionId_">Equals(ConnectionId)</a></dt>
     <dd></dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.Equals.html#MongoDB_Driver_Core_Connections_ConnectionId_Equals_System_Object_">Equals(object)</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_Equals_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_Equals_System_Object_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.Equals(System.Object)">
-  Equals(object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L139"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.GetHashCode.html#MongoDB_Driver_Core_Connections_ConnectionId_GetHashCode">GetHashCode()</a></dt>
     <dd></dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_GetHashCode_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.GetHashCode*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_GetHashCode" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.GetHashCode">
-  GetHashCode()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_StructurallyEquals_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.StructurallyEquals*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_StructurallyEquals_MongoDB_Driver_Core_Connections_ConnectionId_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.StructurallyEquals(MongoDB.Driver.Core.Connections.ConnectionId)">
-  StructurallyEquals(ConnectionId)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L155"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Compares all fields of two ConnectionId instances (Equals ignores the ServerValue).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool StructurallyEquals(ConnectionId other)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>other</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The other ConnectionId.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.StructurallyEquals.html#MongoDB_Driver_Core_Connections_ConnectionId_StructurallyEquals_MongoDB_Driver_Core_Connections_ConnectionId_">StructurallyEquals(ConnectionId)</a></dt>
+    <dd><p>Compares all fields of two ConnectionId instances (Equals ignores the ServerValue).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if both instances are equal.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_ToString_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_ToString" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L169"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.ToString.html#MongoDB_Driver_Core_Connections_ConnectionId_ToString">ToString()</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Connections_ConnectionId_WithServerValue_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.WithServerValue*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Connections_ConnectionId_WithServerValue_System_Int64_" data-uid="MongoDB.Driver.Core.Connections.ConnectionId.WithServerValue(System.Int64)">
-  WithServerValue(long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Connections/ConnectionId.cs/#L186"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new instance of ConnectionId with a new server value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ConnectionId WithServerValue(long serverValue)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>serverValue</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The server value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.WithServerValue.html#MongoDB_Driver_Core_Connections_ConnectionId_WithServerValue_System_Int64_">WithServerValue(long)</a></dt>
+    <dd><p>Returns a new instance of ConnectionId with a new server value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>A ConnectionId.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

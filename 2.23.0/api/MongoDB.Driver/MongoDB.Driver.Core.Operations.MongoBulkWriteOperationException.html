@@ -130,22 +130,22 @@ public class MongoBulkWriteOperationException : MongoServerException, ISerializa
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.AddErrorLabelsFromCommandResult.html#MongoDB_Driver_MongoServerException_AddErrorLabelsFromCommandResult_MongoDB_Driver_MongoServerException_MongoDB_Bson_BsonDocument_">MongoServerException.AddErrorLabelsFromCommandResult(MongoServerException, BsonDocument)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoServerException.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
+      <a class="xref" href="MongoDB.Driver.MongoServerException.ConnectionId.html#MongoDB_Driver_MongoServerException_ConnectionId">MongoServerException.ConnectionId</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.ErrorLabels.html#MongoDB_Driver_MongoException_ErrorLabels">MongoException.ErrorLabels</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.AddErrorLabel.html#MongoDB_Driver_MongoException_AddErrorLabel_System_String_">MongoException.AddErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.HasErrorLabel.html#MongoDB_Driver_MongoException_HasErrorLabel_System_String_">MongoException.HasErrorLabel(string)</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.MongoException.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
+      <a class="xref" href="MongoDB.Driver.MongoException.RemoveErrorLabel.html#MongoDB_Driver_MongoException_RemoveErrorLabel_System_String_">MongoException.RemoveErrorLabel(string)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception.getbaseexception">Exception.GetBaseException()</a>
@@ -204,267 +204,51 @@ public class MongoBulkWriteOperationException : MongoServerException, ISerializa
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_System_Collections_Generic_IReadOnlyList_MongoDB_Driver_Core_Operations_BulkWriteOperationError__MongoDB_Driver_Core_Operations_BulkWriteConcernError_System_Collections_Generic_IReadOnlyList_MongoDB_Driver_Core_Operations_WriteRequest__" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.#ctor(MongoDB.Driver.Core.Connections.ConnectionId,MongoDB.Driver.Core.Operations.BulkWriteOperationResult,System.Collections.Generic.IReadOnlyList{MongoDB.Driver.Core.Operations.BulkWriteOperationError},MongoDB.Driver.Core.Operations.BulkWriteConcernError,System.Collections.Generic.IReadOnlyList{MongoDB.Driver.Core.Operations.WriteRequest})">
-  MongoBulkWriteOperationException(ConnectionId, BulkWriteOperationResult, IReadOnlyList&lt;BulkWriteOperationError&gt;, BulkWriteConcernError, IReadOnlyList&lt;WriteRequest&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L45"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.html">MongoBulkWriteOperationException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoBulkWriteOperationException(ConnectionId connectionId, BulkWriteOperationResult result, IReadOnlyList&lt;BulkWriteOperationError&gt; writeErrors, BulkWriteConcernError writeConcernError, IReadOnlyList&lt;WriteRequest&gt; unprocessedRequests)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionId</code> <a class="xref" href="MongoDB.Driver.Core.Connections.ConnectionId.html">ConnectionId</a></dt>
-    <dd><p>The connection identifier.</p>
-</dd>
-    <dt><code>result</code> <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationResult.html">BulkWriteOperationResult</a></dt>
-    <dd><p>The result.</p>
-</dd>
-    <dt><code>writeErrors</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationError.html">BulkWriteOperationError</a>&gt;</dt>
-    <dd><p>The write errors.</p>
-</dd>
-    <dt><code>writeConcernError</code> <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a></dt>
-    <dd><p>The write concern error.</p>
-</dd>
-    <dt><code>unprocessedRequests</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.html">WriteRequest</a>&gt;</dt>
-    <dd><p>The unprocessed requests.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.-ctor.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_MongoDB_Driver_Core_Connections_ConnectionId_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_System_Collections_Generic_IReadOnlyList_MongoDB_Driver_Core_Operations_BulkWriteOperationError__MongoDB_Driver_Core_Operations_BulkWriteConcernError_System_Collections_Generic_IReadOnlyList_MongoDB_Driver_Core_Operations_WriteRequest__">MongoBulkWriteOperationException(ConnectionId, BulkWriteOperationResult, IReadOnlyList&lt;BulkWriteOperationError&gt;, BulkWriteConcernError, IReadOnlyList&lt;WriteRequest&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.html">MongoBulkWriteOperationException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  MongoBulkWriteOperationException(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L71"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.html">MongoBulkWriteOperationException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoBulkWriteOperationException(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd><p>The SerializationInfo.</p>
-</dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
-    <dd><p>The StreamingContext.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.-ctor.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">MongoBulkWriteOperationException(SerializationInfo, StreamingContext)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.html">MongoBulkWriteOperationException</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_Result_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.Result*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_Result" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.Result">
-  Result
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L91"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the result of the bulk write operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BulkWriteOperationResult Result { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationResult.html">BulkWriteOperationResult</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_UnprocessedRequests_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.UnprocessedRequests*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_UnprocessedRequests" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.UnprocessedRequests">
-  UnprocessedRequests
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L103"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the unprocessed requests.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;WriteRequest&gt; UnprocessedRequests { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.html">WriteRequest</a>&gt;</dt>
-    <dd><p>The unprocessed requests.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.Result.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_Result">Result</a></dt>
+    <dd><p>Gets the result of the bulk write operation.</p>
 </dd>
   </dl>
-
-
-
-
-
-  <h4 class="section">Exceptions</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.notimplementedexception">NotImplementedException</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteConcernError_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteConcernError*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteConcernError" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteConcernError">
-  WriteConcernError
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L114"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the write concern error.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BulkWriteConcernError WriteConcernError { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a></dt>
-    <dd><p>The write concern error.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.UnprocessedRequests.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_UnprocessedRequests">UnprocessedRequests</a></dt>
+    <dd><p>Gets the unprocessed requests.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteErrors_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteErrors*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteErrors" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteErrors">
-  WriteErrors
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L125"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the write errors.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;BulkWriteOperationError&gt; WriteErrors { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationError.html">BulkWriteOperationError</a>&gt;</dt>
-    <dd><p>The write errors.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteConcernError.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteConcernError">WriteConcernError</a></dt>
+    <dd><p>Gets the write concern error.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.WriteErrors.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_WriteErrors">WriteErrors</a></dt>
+    <dd><p>Gets the write errors.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_GetObjectData_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.GetObjectData*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-  GetObjectData(SerializationInfo, StreamingContext)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/MongoBulkWriteOperationException.cs/#L132"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>info</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></dt>
-    <dd></dd>
-    <dt><code>context</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.GetObjectData.html#MongoDB_Driver_Core_Operations_MongoBulkWriteOperationException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_">GetObjectData(SerializationInfo, StreamingContext)</a></dt>
     <dd></dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
 

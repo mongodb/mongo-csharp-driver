@@ -165,217 +165,38 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_ProjectionDefinition_2_Render_" data-uid="MongoDB.Driver.ProjectionDefinition`2.Render*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_" data-uid="MongoDB.Driver.ProjectionDefinition`2.Render(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry)">
-  Render(IBsonSerializer&lt;TSource&gt;, IBsonSerializerRegistry)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinition.cs/#L139"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the projection to a <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual RenderedProjectionDefinition&lt;TProjection&gt; Render(IBsonSerializer&lt;TSource&gt; sourceSerializer, IBsonSerializerRegistry serializerRegistry)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>sourceSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TSource&gt;</dt>
-    <dd><p>The source serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.Render.html#MongoDB_Driver_ProjectionDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_">Render(IBsonSerializer&lt;TSource&gt;, IBsonSerializerRegistry)</a></dt>
+    <dd><p>Renders the projection to a <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition</a>&lt;TProjection&gt;</dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.Render.html#MongoDB_Driver_ProjectionDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_">Render(IBsonSerializer&lt;TSource&gt;, IBsonSerializerRegistry, LinqProvider)</a></dt>
+    <dd><p>Renders the projection to a <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinition_2_Render_" data-uid="MongoDB.Driver.ProjectionDefinition`2.Render*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinition_2_Render_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializerRegistry_MongoDB_Driver_Linq_LinqProvider_" data-uid="MongoDB.Driver.ProjectionDefinition`2.Render(MongoDB.Bson.Serialization.IBsonSerializer{`0},MongoDB.Bson.Serialization.IBsonSerializerRegistry,MongoDB.Driver.Linq.LinqProvider)">
-  Render(IBsonSerializer&lt;TSource&gt;, IBsonSerializerRegistry, LinqProvider)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinition.cs/#L151"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renders the projection to a <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract RenderedProjectionDefinition&lt;TProjection&gt; Render(IBsonSerializer&lt;TSource&gt; sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>sourceSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TSource&gt;</dt>
-    <dd><p>The source serializer.</p>
-</dd>
-    <dt><code>serializerRegistry</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
-    <dd><p>The serializer registry.</p>
-</dd>
-    <dt><code>linqProvider</code> <a class="xref" href="MongoDB.Driver.Linq.LinqProvider.html">LinqProvider</a></dt>
-    <dd><p>The LINQ provider.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition</a>&lt;TProjection&gt;</dt>
-    <dd><p>A <a class="xref" href="MongoDB.Driver.RenderedProjectionDefinition-1.html">RenderedProjectionDefinition&lt;TProjection&gt;</a>.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="operators">Operators
 </h2>
 
-
-  <a id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_MongoDB_Bson_BsonDocument__MongoDB_Driver_ProjectionDefinition__0__1_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit(MongoDB.Bson.BsonDocument)~MongoDB.Driver.ProjectionDefinition{`0,`1}">
-  implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinition.cs/#L163"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(BsonDocument document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.op_Implicit.html#MongoDB_Driver_ProjectionDefinition_2_op_Implicit_MongoDB_Bson_BsonDocument__MongoDB_Driver_ProjectionDefinition__0__1_">implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(BsonDocument)</a></dt>
+    <dd><p>Performs an implicit conversion from <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TSource, TProjection&gt;</dt>
-    <dd><p>The result of the conversion.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.op_Implicit.html#MongoDB_Driver_ProjectionDefinition_2_op_Implicit_MongoDB_Driver_ProjectionDefinition__0___MongoDB_Driver_ProjectionDefinition__0__1_">implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(ProjectionDefinition&lt;TSource&gt;)</a></dt>
+    <dd><p>Performs an implicit conversion from <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition&lt;TSource&gt;</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_MongoDB_Driver_ProjectionDefinition__0___MongoDB_Driver_ProjectionDefinition__0__1_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit(MongoDB.Driver.ProjectionDefinition{`0})~MongoDB.Driver.ProjectionDefinition{`0,`1}">
-  implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(ProjectionDefinition&lt;TSource&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinition.cs/#L197"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition&lt;TSource&gt;</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(ProjectionDefinition&lt;TSource&gt; projection)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TSource&gt;</dt>
-    <dd><p>The projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.op_Implicit.html#MongoDB_Driver_ProjectionDefinition_2_op_Implicit_System_String__MongoDB_Driver_ProjectionDefinition__0__1_">implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(string)</a></dt>
+    <dd><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TSource, TProjection&gt;</dt>
-    <dd><p>The result of the conversion.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinition_2_op_Implicit_System_String__MongoDB_Driver_ProjectionDefinition__0__1_" data-uid="MongoDB.Driver.ProjectionDefinition`2.op_Implicit(System.String)~MongoDB.Driver.ProjectionDefinition{`0,`1}">
-  implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinition.cs/#L180"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Performs an implicit conversion from <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a> to <a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition&lt;TSource, TProjection&gt;</a>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static implicit operator ProjectionDefinition&lt;TSource, TProjection&gt;(string json)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>json</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The JSON string.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-2.html">ProjectionDefinition</a>&lt;TSource, TProjection&gt;</dt>
-    <dd><p>The result of the conversion.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

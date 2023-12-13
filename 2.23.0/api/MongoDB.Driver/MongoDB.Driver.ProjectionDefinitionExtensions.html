@@ -146,912 +146,99 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FilterDefinition___1__" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch``2(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.FilterDefinition{``1})">
-  ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, FilterDefinition&lt;TItem&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L43"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that filters the contents of an array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; ElemMatch&lt;TDocument, TItem&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field, FilterDefinition&lt;TItem&gt; filter)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;TItem&gt;</dt>
-    <dd><p>The filter.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch.html#MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FilterDefinition___1__">ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, FilterDefinition&lt;TItem&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that filters the contents of an array.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch.html#MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___1__">ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TItem&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that filters the contents of an array.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-    <dt><code>TItem</code></dt>
-    <dd><p>The type of the item.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch.html#MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___1_System_Boolean___">ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TItem, bool&gt;&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that filters the contents of an array.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___1__" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch``2(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{``1}}},MongoDB.Driver.FilterDefinition{``1})">
-  ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TItem&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L60"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that filters the contents of an array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; ElemMatch&lt;TDocument, TItem&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt; field, FilterDefinition&lt;TItem&gt; filter)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TItem&gt;&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;TItem&gt;</dt>
-    <dd><p>The filter.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude.html#MongoDB_Driver_ProjectionDefinitionExtensions_Exclude__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__">Exclude&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that excludes a field.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude.html#MongoDB_Driver_ProjectionDefinitionExtensions_Exclude__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">Exclude&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that excludes a field.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-    <dt><code>TItem</code></dt>
-    <dd><p>The type of the item.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Include.html#MongoDB_Driver_ProjectionDefinitionExtensions_Include__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__">Include&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that includes a field.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_ElemMatch__2_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___1_System_Boolean___" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.ElemMatch``2(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{``1}}},System.Linq.Expressions.Expression{System.Func{``1,System.Boolean}})">
-  ElemMatch&lt;TDocument, TItem&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TItem, bool&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L77"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that filters the contents of an array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; ElemMatch&lt;TDocument, TItem&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt; field, Expression&lt;Func&lt;TItem, bool&gt;&gt; filter)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TItem&gt;&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>filter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TItem, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;&gt;</dt>
-    <dd><p>The filter.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Include.html#MongoDB_Driver_ProjectionDefinitionExtensions_Include__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">Include&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a projection that includes a field.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchHighlights.html#MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchHighlights__1_MongoDB_Driver_ProjectionDefinition___0__System_String_">MetaSearchHighlights&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Combines an existing projection with a search highlights projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-    <dt><code>TItem</code></dt>
-    <dd><p>The type of the item.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScoreDetails.html#MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScoreDetails__1_MongoDB_Driver_ProjectionDefinition___0__System_String_">MetaSearchScoreDetails&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Combines an existing projection with a search score details projection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Exclude_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Exclude__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude``1(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0})">
-  Exclude&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L92"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that excludes a field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Exclude&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScore.html#MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScore__1_MongoDB_Driver_ProjectionDefinition___0__System_String_">MetaSearchScore&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Combines an existing projection with a search score projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.MetaTextScore.html#MongoDB_Driver_ProjectionDefinitionExtensions_MetaTextScore__1_MongoDB_Driver_ProjectionDefinition___0__System_String_">MetaTextScore&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Combines an existing projection with a text score projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Meta.html#MongoDB_Driver_ProjectionDefinitionExtensions_Meta__1_MongoDB_Driver_ProjectionDefinition___0__System_String_System_String_">Meta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string, string)</a></dt>
+    <dd><p>Combines an existing projection with a meta projection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Exclude_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Exclude__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Exclude``1(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
-  Exclude&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L107"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that excludes a field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Exclude&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, object&gt;&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The field.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta.html#MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__">SearchMeta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a search metadata projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta.html#MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___">SearchMeta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)</a></dt>
+    <dd><p>Combines an existing projection with a search metadata projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Slice.html#MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__System_Int32_">Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Combines an existing projection with an array slice projection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Include_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Include*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Include__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Include``1(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0})">
-  Include&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L122"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that includes a field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Include&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Slice.html#MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__System_Int32_System_Int32_">Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, int, int)</a></dt>
+    <dd><p>Combines an existing projection with an array slice projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Slice.html#MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Int32_">Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Combines an existing projection with an array slice projection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinitionExtensions.Slice.html#MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Int32_System_Int32_">Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;, int, int)</a></dt>
+    <dd><p>Combines an existing projection with an array slice projection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Include_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Include*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Include__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Include``1(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
-  Include&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L137"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a projection that includes a field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Include&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, object&gt;&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchHighlights_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchHighlights*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchHighlights__1_MongoDB_Driver_ProjectionDefinition___0__System_String_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchHighlights``1(MongoDB.Driver.ProjectionDefinition{``0},System.String)">
-  MetaSearchHighlights&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a search highlights projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; MetaSearchHighlights&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, string field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScoreDetails_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScoreDetails*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScoreDetails__1_MongoDB_Driver_ProjectionDefinition___0__System_String_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScoreDetails``1(MongoDB.Driver.ProjectionDefinition{``0},System.String)">
-  MetaSearchScoreDetails&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L202"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a search score details projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; MetaSearchScoreDetails&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, string field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScore_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScore*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaSearchScore__1_MongoDB_Driver_ProjectionDefinition___0__System_String_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaSearchScore``1(MongoDB.Driver.ProjectionDefinition{``0},System.String)">
-  MetaSearchScore&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L185"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a search score projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; MetaSearchScore&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, string field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaTextScore_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaTextScore*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_MetaTextScore__1_MongoDB_Driver_ProjectionDefinition___0__System_String_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.MetaTextScore``1(MongoDB.Driver.ProjectionDefinition{``0},System.String)">
-  MetaTextScore&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L219"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a text score projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; MetaTextScore&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, string field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Meta_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Meta*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Meta__1_MongoDB_Driver_ProjectionDefinition___0__System_String_System_String_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Meta``1(MongoDB.Driver.ProjectionDefinition{``0},System.String,System.String)">
-  Meta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L153"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a meta projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Meta&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, string field, string metaFieldName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>metaFieldName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The meta field name.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta``1(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0})">
-  SearchMeta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L234"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a search metadata projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; SearchMeta&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_SearchMeta__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.SearchMeta``1(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
-  SearchMeta&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L251"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with a search metadata projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; SearchMeta&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, object&gt;&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__System_Int32_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice``1(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0},System.Int32)">
-  Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L269"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with an array slice projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Slice&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field, int limit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The limit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__MongoDB_Driver_FieldDefinition___0__System_Int32_System_Int32_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice``1(MongoDB.Driver.ProjectionDefinition{``0},MongoDB.Driver.FieldDefinition{``0},System.Int32,System.Int32)">
-  Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, FieldDefinition&lt;TDocument&gt;, int, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L286"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with an array slice projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Slice&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, FieldDefinition&lt;TDocument&gt; field, int skip, int limit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The skip.</p>
-</dd>
-    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The limit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Int32_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice``1(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Int32)">
-  Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L302"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with an array slice projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Slice&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, object&gt;&gt; field, int limit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The limit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_ProjectionDefinitionExtensions_Slice__1_MongoDB_Driver_ProjectionDefinition___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Int32_System_Int32_" data-uid="MongoDB.Driver.ProjectionDefinitionExtensions.Slice``1(MongoDB.Driver.ProjectionDefinition{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Int32,System.Int32)">
-  Slice&lt;TDocument&gt;(ProjectionDefinition&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, object&gt;&gt;, int, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/ProjectionDefinitionBuilder.cs/#L319"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines an existing projection with an array slice projection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ProjectionDefinition&lt;TDocument&gt; Slice&lt;TDocument&gt;(this ProjectionDefinition&lt;TDocument&gt; projection, Expression&lt;Func&lt;TDocument, object&gt;&gt; field, int skip, int limit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>projection</code> <a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The projection.</p>
-</dd>
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
-    <dd><p>The field.</p>
-</dd>
-    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The skip.</p>
-</dd>
-    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The limit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ProjectionDefinition-1.html">ProjectionDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A combined projection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

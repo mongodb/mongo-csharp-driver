@@ -146,132 +146,24 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Bson_GuidConverter_FromBytes_" data-uid="MongoDB.Bson.GuidConverter.FromBytes*"></a>
-
-  <h3 id="MongoDB_Bson_GuidConverter_FromBytes_System_Byte___MongoDB_Bson_GuidRepresentation_" data-uid="MongoDB.Bson.GuidConverter.FromBytes(System.Byte[],MongoDB.Bson.GuidRepresentation)">
-  FromBytes(byte[], GuidRepresentation)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/GuidConverter.cs/#L31"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a byte array to a Guid.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Guid FromBytes(byte[] bytes, GuidRepresentation representation)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>bytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The byte array.</p>
-</dd>
-    <dt><code>representation</code> <a class="xref" href="MongoDB.Bson.GuidRepresentation.html">GuidRepresentation</a></dt>
-    <dd><p>The representation of the Guid in the byte array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.GuidConverter.FromBytes.html#MongoDB_Bson_GuidConverter_FromBytes_System_Byte___MongoDB_Bson_GuidRepresentation_">FromBytes(byte[], GuidRepresentation)</a></dt>
+    <dd><p>Converts a byte array to a Guid.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>A Guid.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.GuidConverter.GetSubType.html#MongoDB_Bson_GuidConverter_GetSubType_MongoDB_Bson_GuidRepresentation_">GetSubType(GuidRepresentation)</a></dt>
+    <dd><p>Gets the sub type that corresponds to the guidRepresentation.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_GuidConverter_GetSubType_" data-uid="MongoDB.Bson.GuidConverter.GetSubType*"></a>
-
-  <h3 id="MongoDB_Bson_GuidConverter_GetSubType_MongoDB_Bson_GuidRepresentation_" data-uid="MongoDB.Bson.GuidConverter.GetSubType(MongoDB.Bson.GuidRepresentation)">
-  GetSubType(GuidRepresentation)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/GuidConverter.cs/#L69"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the sub type that corresponds to the guidRepresentation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BsonBinarySubType GetSubType(GuidRepresentation guidRepresentation)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>guidRepresentation</code> <a class="xref" href="MongoDB.Bson.GuidRepresentation.html">GuidRepresentation</a></dt>
-    <dd><p>The Guid representation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.GuidConverter.ToBytes.html#MongoDB_Bson_GuidConverter_ToBytes_System_Guid_MongoDB_Bson_GuidRepresentation_">ToBytes(Guid, GuidRepresentation)</a></dt>
+    <dd><p>Converts a Guid to a byte array.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Bson.BsonBinarySubType.html">BsonBinarySubType</a></dt>
-    <dd><p>The sub type.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_GuidConverter_ToBytes_" data-uid="MongoDB.Bson.GuidConverter.ToBytes*"></a>
-
-  <h3 id="MongoDB_Bson_GuidConverter_ToBytes_System_Guid_MongoDB_Bson_GuidRepresentation_" data-uid="MongoDB.Bson.GuidConverter.ToBytes(System.Guid,MongoDB.Bson.GuidRepresentation)">
-  ToBytes(Guid, GuidRepresentation)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/ObjectModel/GuidConverter.cs/#L92"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a Guid to a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static byte[] ToBytes(Guid guid, GuidRepresentation guidRepresentation)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>guid</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The Guid.</p>
-</dd>
-    <dt><code>guidRepresentation</code> <a class="xref" href="MongoDB.Bson.GuidRepresentation.html">GuidRepresentation</a></dt>
-    <dd><p>The representation of the Guid in the byte array.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>A byte array.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

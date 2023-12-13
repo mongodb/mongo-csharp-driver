@@ -149,511 +149,65 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Collections_Generic_IEnumerable_System_DateTime__System_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date(System.String,MongoDB.Driver.Search.SearchPathDefinition{`0},System.Collections.Generic.IEnumerable{System.DateTime},System.String)">
-  Date(string, SearchPathDefinition&lt;TDocument&gt;, IEnumerable&lt;DateTime&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L44"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down search result based on a date.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Date(string name, SearchPathDefinition&lt;TDocument&gt; path, IEnumerable&lt;DateTime&gt; boundaries, string @default = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the fact.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>&gt;</dt>
-    <dd><p>A list of date values that specify the boundaries for each bucket.</p>
-</dd>
-    <dt><code>default</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of an additional bucket that counts documents returned from the operator that
-do not fall within the specified boundaries.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Date.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Date_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Collections_Generic_IEnumerable_System_DateTime__System_String_">Date(string, SearchPathDefinition&lt;TDocument&gt;, IEnumerable&lt;DateTime&gt;, string)</a></dt>
+    <dd><p>Creates a facet that narrows down search result based on a date.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A date search facet.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Date.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Date_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_DateTime___">Date(string, SearchPathDefinition&lt;TDocument&gt;, params DateTime[])</a></dt>
+    <dd><p>Creates a facet that narrows down search result based on a date.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_DateTime___" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date(System.String,MongoDB.Driver.Search.SearchPathDefinition{`0},System.DateTime[])">
-  Date(string, SearchPathDefinition&lt;TDocument&gt;, params DateTime[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L60"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down search result based on a date.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Date(string name, SearchPathDefinition&lt;TDocument&gt; path, params DateTime[] boundaries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the fact.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>[]</dt>
-    <dd><p>A list of date values that specify the boundaries for each bucket.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Date.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Date__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable_System_DateTime__System_String_">Date&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;DateTime&gt;, string)</a></dt>
+    <dd><p>Creates a facet that narrows down search result based on a date.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A date search facet.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Date.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Date__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_DateTime___">Date&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, params DateTime[])</a></dt>
+    <dd><p>Creates a facet that narrows down search result based on a date.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable_System_DateTime__System_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Collections.Generic.IEnumerable{System.DateTime},System.String)">
-  Date&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;DateTime&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L80"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down search result based on a date.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Date&lt;TField&gt;(string name, Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, IEnumerable&lt;DateTime&gt; boundaries, string @default = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the fact.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>&gt;</dt>
-    <dd><p>A list of date values that specify the boundaries for each bucket.</p>
-</dd>
-    <dt><code>default</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of an additional bucket that counts documents returned from the operator that
-do not fall within the specified boundaries.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A date search facet.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Date__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_DateTime___" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Date``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,``0}},System.DateTime[])">
-  Date&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, params DateTime[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L97"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down search result based on a date.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Date&lt;TField&gt;(string name, Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, params DateTime[] boundaries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the fact.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>[]</dt>
-    <dd><p>A list of date values that specify the boundaries for each bucket.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A date search facet.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number(System.String,MongoDB.Driver.Search.SearchPathDefinition{`0},MongoDB.Bson.BsonValue[])">
-  Number(string, SearchPathDefinition&lt;TDocument&gt;, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L134"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that determines the frequency of numeric values by breaking the search
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Number.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Number_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Bson_BsonValue___">Number(string, SearchPathDefinition&lt;TDocument&gt;, params BsonValue[])</a></dt>
+    <dd><p>Creates a facet that determines the frequency of numeric values by breaking the search
 results into separate ranges of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Number(string name, SearchPathDefinition&lt;TDocument&gt; path, params BsonValue[] boundaries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>A list of numeric values that specify the boundaries for each bucket.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A number search facet.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__System_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number(System.String,MongoDB.Driver.Search.SearchPathDefinition{`0},System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue},System.String)">
-  Number(string, SearchPathDefinition&lt;TDocument&gt;, IEnumerable&lt;BsonValue&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L117"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that determines the frequency of numeric values by breaking the search
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Number.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Number_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__System_String_">Number(string, SearchPathDefinition&lt;TDocument&gt;, IEnumerable&lt;BsonValue&gt;, string)</a></dt>
+    <dd><p>Creates a facet that determines the frequency of numeric values by breaking the search
 results into separate ranges of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Number(string name, SearchPathDefinition&lt;TDocument&gt; path, IEnumerable&lt;BsonValue&gt; boundaries, string @default = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>A list of numeric values that specify the boundaries for each bucket.</p>
-</dd>
-    <dt><code>default</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of an additional bucket that counts documents returned from the operator that
-do not fall within the specified boundaries.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A number search facet.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Bson.BsonValue[])">
-  Number&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L173"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that determines the frequency of numeric values by breaking the search
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Number.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Number__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Bson_BsonValue___">Number&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, params BsonValue[])</a></dt>
+    <dd><p>Creates a facet that determines the frequency of numeric values by breaking the search
 results into separate ranges of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Number&lt;TField&gt;(string name, Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, params BsonValue[] boundaries)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>A list of numeric values that specify the boundaries for each bucket.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A number search facet.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_Number__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__System_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.Number``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue},System.String)">
-  Number&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;BsonValue&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L155"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that determines the frequency of numeric values by breaking the search
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.Number.html#MongoDB_Driver_Search_SearchFacetBuilder_1_Number__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__System_String_">Number&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;BsonValue&gt;, string)</a></dt>
+    <dd><p>Creates a facet that determines the frequency of numeric values by breaking the search
 results into separate ranges of numbers.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; Number&lt;TField&gt;(string name, Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, IEnumerable&lt;BsonValue&gt; boundaries, string @default = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>boundaries</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>A list of numeric values that specify the boundaries for each bucket.</p>
-</dd>
-    <dt><code>default</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of an additional bucket that counts documents returned from the operator that
-do not fall within the specified boundaries.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A number search facet.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.String*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_String_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Nullable_System_Int32__" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.String(System.String,MongoDB.Driver.Search.SearchPathDefinition{`0},System.Nullable{System.Int32})">
-  String(string, SearchPathDefinition&lt;TDocument&gt;, int?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L189"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down Atlas Search results based on the most frequent
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.String.html#MongoDB_Driver_Search_SearchFacetBuilder_1_String_System_String_MongoDB_Driver_Search_SearchPathDefinition__0__System_Nullable_System_Int32__">String(string, SearchPathDefinition&lt;TDocument&gt;, int?)</a></dt>
+    <dd><p>Creates a facet that narrows down Atlas Search results based on the most frequent
 string values in the specified string field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; String(string name, SearchPathDefinition&lt;TDocument&gt; path, int? numBuckets = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>numBuckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd><p>The maximum number of facet categories to return in the results.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A string search facet.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchFacetBuilder_1_String_" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.String*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchFacetBuilder_1_String__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Nullable_System_Int32__" data-uid="MongoDB.Driver.Search.SearchFacetBuilder`1.String``1(System.String,System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Nullable{System.Int32})">
-  String&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, int?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchFacetBuilder.cs/#L203"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a facet that narrows down Atlas Search result based on the most frequent
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.String.html#MongoDB_Driver_Search_SearchFacetBuilder_1_String__1_System_String_System_Linq_Expressions_Expression_System_Func__0___0___System_Nullable_System_Int32__">String&lt;TField&gt;(string, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, int?)</a></dt>
+    <dd><p>Creates a facet that narrows down Atlas Search result based on the most frequent
 string values in the specified string field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchFacet&lt;TDocument&gt; String&lt;TField&gt;(string name, Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, int? numBuckets = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the facet.</p>
-</dd>
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field path to facet on.</p>
-</dd>
-    <dt><code>numBuckets</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>?</dt>
-    <dd><p>The maximum number of facet categories to return in the results.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet</a>&lt;TDocument&gt;</dt>
-    <dd><p>A string search facet.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

@@ -152,10 +152,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -163,933 +162,130 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1__ctor_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1__ctor" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.#ctor">
-  ExpressionVisitor()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L32"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the ExpressionVisitor class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected ExpressionVisitor()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.-ctor.html#MongoDB_Driver_Linq_ExpressionVisitor_1__ctor">ExpressionVisitor()</a></dt>
+    <dd><p>Initializes a new instance of the ExpressionVisitor class.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.Visit*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_Expression__" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.Visit(System.Collections.ObjectModel.ReadOnlyCollection{System.Linq.Expressions.Expression})">
-  Visit(ReadOnlyCollection&lt;Expression&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L118"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits an Expression list.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected T Visit(ReadOnlyCollection&lt;Expression&gt; nodes)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>nodes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.objectmodel.readonlycollection-1">ReadOnlyCollection</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression">Expression</a>&gt;</dt>
-    <dd><p>The Expression list.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.Visit.html#MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_Expression__">Visit(ReadOnlyCollection&lt;Expression&gt;)</a></dt>
+    <dd><p>Visits an Expression list.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expressions.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.Visit.html#MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_System_Linq_Expressions_Expression_">Visit(Expression)</a></dt>
+    <dd><p>Visits an Expression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.Visit*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_Visit_System_Linq_Expressions_Expression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.Visit(System.Linq.Expressions.Expression)">
-  Visit(Expression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L42"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits an Expression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T Visit(Expression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression">Expression</a></dt>
-    <dd><p>The Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitBinary.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitBinary_System_Linq_Expressions_BinaryExpression_">VisitBinary(BinaryExpression)</a></dt>
+    <dd><p>Visits a BinaryExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitConditional.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConditional_System_Linq_Expressions_ConditionalExpression_">VisitConditional(ConditionalExpression)</a></dt>
+    <dd><p>Visits a ConditionalExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitBinary_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitBinary*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitBinary_System_Linq_Expressions_BinaryExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitBinary(System.Linq.Expressions.BinaryExpression)">
-  VisitBinary(BinaryExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L132"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a BinaryExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitBinary(BinaryExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.binaryexpression">BinaryExpression</a></dt>
-    <dd><p>The BinaryExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitConstant.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConstant_System_Linq_Expressions_ConstantExpression_">VisitConstant(ConstantExpression)</a></dt>
+    <dd><p>Visits a ConstantExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitElementInit.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInit_System_Linq_Expressions_ElementInit_">VisitElementInit(ElementInit)</a></dt>
+    <dd><p>Visits an ElementInit.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConditional_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitConditional*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConditional_System_Linq_Expressions_ConditionalExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitConditional(System.Linq.Expressions.ConditionalExpression)">
-  VisitConditional(ConditionalExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L145"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a ConditionalExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitConditional(ConditionalExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.conditionalexpression">ConditionalExpression</a></dt>
-    <dd><p>The ConditionalExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitElementInitList.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInitList_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_ElementInit__">VisitElementInitList(ReadOnlyCollection&lt;ElementInit&gt;)</a></dt>
+    <dd><p>Visits an ElementInit list.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitInvocation.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitInvocation_System_Linq_Expressions_InvocationExpression_">VisitInvocation(InvocationExpression)</a></dt>
+    <dd><p>Visits an InvocationExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConstant_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitConstant*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConstant_System_Linq_Expressions_ConstantExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitConstant(System.Linq.Expressions.ConstantExpression)">
-  VisitConstant(ConstantExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L158"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a ConstantExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitConstant(ConstantExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.constantexpression">ConstantExpression</a></dt>
-    <dd><p>The ConstantExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitLambda.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitLambda_System_Linq_Expressions_LambdaExpression_">VisitLambda(LambdaExpression)</a></dt>
+    <dd><p>Visits a LambdaExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitListInit.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitListInit_System_Linq_Expressions_ListInitExpression_">VisitListInit(ListInitExpression)</a></dt>
+    <dd><p>Visits a ListInitExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitElementInit*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInit_System_Linq_Expressions_ElementInit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitElementInit(System.Linq.Expressions.ElementInit)">
-  VisitElementInit(ElementInit)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits an ElementInit.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitElementInit(ElementInit node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.elementinit">ElementInit</a></dt>
-    <dd><p>The ElementInit.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMember.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMember_System_Linq_Expressions_MemberExpression_">VisitMember(MemberExpression)</a></dt>
+    <dd><p>Visits a MemberExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberAssignment.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberAssignment_System_Linq_Expressions_MemberAssignment_">VisitMemberAssignment(MemberAssignment)</a></dt>
+    <dd><p>Visits a MemberAssignment.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInitList_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitElementInitList*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitElementInitList_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_ElementInit__" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitElementInitList(System.Collections.ObjectModel.ReadOnlyCollection{System.Linq.Expressions.ElementInit})">
-  VisitElementInitList(ReadOnlyCollection&lt;ElementInit&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L182"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits an ElementInit list.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected T VisitElementInitList(ReadOnlyCollection&lt;ElementInit&gt; nodes)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>nodes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.objectmodel.readonlycollection-1">ReadOnlyCollection</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.elementinit">ElementInit</a>&gt;</dt>
-    <dd><p>The ElementInit list.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberBinding.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBinding_System_Linq_Expressions_MemberBinding_">VisitMemberBinding(MemberBinding)</a></dt>
+    <dd><p>Visits a MemberBinding.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expressions.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberBindingList.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBindingList_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_MemberBinding__">VisitMemberBindingList(ReadOnlyCollection&lt;MemberBinding&gt;)</a></dt>
+    <dd><p>Visits a MemberBinding list.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitInvocation_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitInvocation*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitInvocation_System_Linq_Expressions_InvocationExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitInvocation(System.Linq.Expressions.InvocationExpression)">
-  VisitInvocation(InvocationExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L197"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits an InvocationExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitInvocation(InvocationExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.invocationexpression">InvocationExpression</a></dt>
-    <dd><p>The InvocationExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberInit.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberInit_System_Linq_Expressions_MemberInitExpression_">VisitMemberInit(MemberInitExpression)</a></dt>
+    <dd><p>Visits a MemberInitExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberListBinding.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberListBinding_System_Linq_Expressions_MemberListBinding_">VisitMemberListBinding(MemberListBinding)</a></dt>
+    <dd><p>Visits a MemberListBinding.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitLambda_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitLambda*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitLambda_System_Linq_Expressions_LambdaExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitLambda(System.Linq.Expressions.LambdaExpression)">
-  VisitLambda(LambdaExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L212"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a LambdaExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitLambda(LambdaExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.lambdaexpression">LambdaExpression</a></dt>
-    <dd><p>The LambdaExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMemberMemberBinding.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberMemberBinding_System_Linq_Expressions_MemberMemberBinding_">VisitMemberMemberBinding(MemberMemberBinding)</a></dt>
+    <dd><p>Visits a MemberMemberBinding.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitMethodCall.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMethodCall_System_Linq_Expressions_MethodCallExpression_">VisitMethodCall(MethodCallExpression)</a></dt>
+    <dd><p>Visits a MethodCallExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitListInit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitListInit*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitListInit_System_Linq_Expressions_ListInitExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitListInit(System.Linq.Expressions.ListInitExpression)">
-  VisitListInit(ListInitExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L223"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a ListInitExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitListInit(ListInitExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.listinitexpression">ListInitExpression</a></dt>
-    <dd><p>The ListInitExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitNew.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNew_System_Linq_Expressions_NewExpression_">VisitNew(NewExpression)</a></dt>
+    <dd><p>Visits a NewExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitNewArray.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNewArray_System_Linq_Expressions_NewArrayExpression_">VisitNewArray(NewArrayExpression)</a></dt>
+    <dd><p>Visits a NewArrayExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMember_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMember*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMember_System_Linq_Expressions_MemberExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMember(System.Linq.Expressions.MemberExpression)">
-  VisitMember(MemberExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L235"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMember(MemberExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberexpression">MemberExpression</a></dt>
-    <dd><p>The MemberExpression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitParameter.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitParameter_System_Linq_Expressions_ParameterExpression_">VisitParameter(ParameterExpression)</a></dt>
+    <dd><p>Visits a ParameterExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitTypeBinary.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary_System_Linq_Expressions_TypeBinaryExpression_">VisitTypeBinary(TypeBinaryExpression)</a></dt>
+    <dd><p>Visits a TypeBinaryExpression.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberAssignment_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberAssignment*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberAssignment_System_Linq_Expressions_MemberAssignment_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberAssignment(System.Linq.Expressions.MemberAssignment)">
-  VisitMemberAssignment(MemberAssignment)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L246"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberAssignment.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberAssignment(MemberAssignment node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberassignment">MemberAssignment</a></dt>
-    <dd><p>The MemberAssignment.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.ExpressionVisitor-1.VisitUnary.html#MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary_System_Linq_Expressions_UnaryExpression_">VisitUnary(UnaryExpression)</a></dt>
+    <dd><p>Visits a UnaryExpression.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberBinding*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBinding_System_Linq_Expressions_MemberBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberBinding(System.Linq.Expressions.MemberBinding)">
-  VisitMemberBinding(MemberBinding)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L257"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberBinding.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberBinding(MemberBinding node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberbinding">MemberBinding</a></dt>
-    <dd><p>The MemberBinding.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBindingList_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberBindingList*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBindingList_System_Collections_ObjectModel_ReadOnlyCollection_System_Linq_Expressions_MemberBinding__" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberBindingList(System.Collections.ObjectModel.ReadOnlyCollection{System.Linq.Expressions.MemberBinding})">
-  VisitMemberBindingList(ReadOnlyCollection&lt;MemberBinding&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L280"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberBinding list.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberBindingList(ReadOnlyCollection&lt;MemberBinding&gt; nodes)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>nodes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.objectmodel.readonlycollection-1">ReadOnlyCollection</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberbinding">MemberBinding</a>&gt;</dt>
-    <dd><p>The MemberBinding list.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberInit_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberInit*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberInit_System_Linq_Expressions_MemberInitExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberInit(System.Linq.Expressions.MemberInitExpression)">
-  VisitMemberInit(MemberInitExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L294"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberInitExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberInit(MemberInitExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberinitexpression">MemberInitExpression</a></dt>
-    <dd><p>The MemberInitExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberListBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberListBinding*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberListBinding_System_Linq_Expressions_MemberListBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberListBinding(System.Linq.Expressions.MemberListBinding)">
-  VisitMemberListBinding(MemberListBinding)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L306"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberListBinding.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberListBinding(MemberListBinding node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.memberlistbinding">MemberListBinding</a></dt>
-    <dd><p>The MemberListBinding.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberMemberBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberMemberBinding*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberMemberBinding_System_Linq_Expressions_MemberMemberBinding_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMemberMemberBinding(System.Linq.Expressions.MemberMemberBinding)">
-  VisitMemberMemberBinding(MemberMemberBinding)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L317"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MemberMemberBinding.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMemberMemberBinding(MemberMemberBinding node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.membermemberbinding">MemberMemberBinding</a></dt>
-    <dd><p>The MemberMemberBinding.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMethodCall_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMethodCall*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMethodCall_System_Linq_Expressions_MethodCallExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitMethodCall(System.Linq.Expressions.MethodCallExpression)">
-  VisitMethodCall(MethodCallExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L328"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a MethodCallExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitMethodCall(MethodCallExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.methodcallexpression">MethodCallExpression</a></dt>
-    <dd><p>The MethodCallExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNew_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitNew*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNew_System_Linq_Expressions_NewExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitNew(System.Linq.Expressions.NewExpression)">
-  VisitNew(NewExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L340"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a NewExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitNew(NewExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.newexpression">NewExpression</a></dt>
-    <dd><p>The NewExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNewArray_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitNewArray*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitNewArray_System_Linq_Expressions_NewArrayExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitNewArray(System.Linq.Expressions.NewArrayExpression)">
-  VisitNewArray(NewArrayExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L351"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a NewArrayExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitNewArray(NewArrayExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.newarrayexpression">NewArrayExpression</a></dt>
-    <dd><p>The NewArrayExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitParameter_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitParameter*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitParameter_System_Linq_Expressions_ParameterExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitParameter(System.Linq.Expressions.ParameterExpression)">
-  VisitParameter(ParameterExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L362"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a ParameterExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitParameter(ParameterExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.parameterexpression">ParameterExpression</a></dt>
-    <dd><p>The ParameterExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitTypeBinary*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary_System_Linq_Expressions_TypeBinaryExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitTypeBinary(System.Linq.Expressions.TypeBinaryExpression)">
-  VisitTypeBinary(TypeBinaryExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L372"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a TypeBinaryExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitTypeBinary(TypeBinaryExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.typebinaryexpression">TypeBinaryExpression</a></dt>
-    <dd><p>The TypeBinaryExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitUnary*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary_System_Linq_Expressions_UnaryExpression_" data-uid="MongoDB.Driver.Linq.ExpressionVisitor`1.VisitUnary(System.Linq.Expressions.UnaryExpression)">
-  VisitUnary(UnaryExpression)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Linq/Expressions/ExpressionVisitorGeneric.cs/#L383"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Visits a UnaryExpression.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual T VisitUnary(UnaryExpression node)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>node</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.unaryexpression">UnaryExpression</a></dt>
-    <dd><p>The UnaryExpression.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">T</span></dt>
-    <dd><p>The result of visiting the Expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

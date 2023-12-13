@@ -152,268 +152,48 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory__ctor_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory__ctor_System_IO_Stream_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_MongoDB_Driver_Core_Compression_ICompressorSource_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.#ctor(System.IO.Stream,MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings,MongoDB.Driver.Core.Compression.ICompressorSource)">
-  BinaryMessageEncoderFactory(Stream, MessageEncoderSettings, ICompressorSource)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L40"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.html">BinaryMessageEncoderFactory</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BinaryMessageEncoderFactory(Stream stream, MessageEncoderSettings encoderSettings, ICompressorSource compressorSource = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>stream</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></dt>
-    <dd><p>The stream.</p>
-</dd>
-    <dt><code>encoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
-    <dd><p>The encoder settings.</p>
-</dd>
-    <dt><code>compressorSource</code> <a class="xref" href="MongoDB.Driver.Core.Compression.ICompressorSource.html">ICompressorSource</a></dt>
-    <dd><p>The compressor source.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.-ctor.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory__ctor_System_IO_Stream_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_MongoDB_Driver_Core_Compression_ICompressorSource_">BinaryMessageEncoderFactory(Stream, MessageEncoderSettings, ICompressorSource)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.html">BinaryMessageEncoderFactory</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandMessageEncoder" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandMessageEncoder">
-  GetCommandMessageEncoder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L52"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Command message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetCommandMessageEncoder()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandMessageEncoder">GetCommandMessageEncoder()</a></dt>
+    <dd><p>Gets an encoder for a Command message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandRequestMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandRequestMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandRequestMessageEncoder" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandRequestMessageEncoder">
-  GetCommandRequestMessageEncoder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L58"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Command request message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetCommandRequestMessageEncoder()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandRequestMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandRequestMessageEncoder">GetCommandRequestMessageEncoder()</a></dt>
+    <dd><p>Gets an encoder for a Command request message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandResponseMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandResponseMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandResponseMessageEncoder" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandResponseMessageEncoder">
-  GetCommandResponseMessageEncoder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L65"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Command response message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetCommandResponseMessageEncoder()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCommandResponseMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCommandResponseMessageEncoder">GetCommandResponseMessageEncoder()</a></dt>
+    <dd><p>Gets an encoder for a Command response message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCompressedMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCompressedMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCompressedMessageEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderSelector_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCompressedMessageEncoder(MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderSelector)">
-  GetCompressedMessageEncoder(IMessageEncoderSelector)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L72"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Compressed message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>originalEncoderSelector</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderSelector.html">IMessageEncoderSelector</a></dt>
-    <dd><p>The original encoder selector.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetCompressedMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetCompressedMessageEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderSelector_">GetCompressedMessageEncoder(IMessageEncoderSelector)</a></dt>
+    <dd><p>Gets an encoder for a Compressed message.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetQueryMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetQueryMessageEncoder">GetQueryMessageEncoder()</a></dt>
+    <dd><p>Gets an encoder for a Query message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetQueryMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetQueryMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetQueryMessageEncoder" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetQueryMessageEncoder">
-  GetQueryMessageEncoder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L78"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Query message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetQueryMessageEncoder()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetReplyMessageEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetReplyMessageEncoder__1_MongoDB_Bson_Serialization_IBsonSerializer___0__">GetReplyMessageEncoder&lt;TDocument&gt;(IBsonSerializer&lt;TDocument&gt;)</a></dt>
+    <dd><p>Gets an encoder for a Reply message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetReplyMessageEncoder_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetReplyMessageEncoder*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_BinaryEncoders_BinaryMessageEncoderFactory_GetReplyMessageEncoder__1_MongoDB_Bson_Serialization_IBsonSerializer___0__" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.BinaryMessageEncoderFactory.GetReplyMessageEncoder``1(MongoDB.Bson.Serialization.IBsonSerializer{``0})">
-  GetReplyMessageEncoder&lt;TDocument&gt;(IBsonSerializer&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/BinaryEncoders/BinaryMessageEncoderFactory.cs/#L84"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an encoder for a Reply message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMessageEncoder GetReplyMessageEncoder&lt;TDocument&gt;(IBsonSerializer&lt;TDocument&gt; serializer)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>serializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
-    <dd><p>The serializer.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder.html">IMessageEncoder</a></dt>
-    <dd><p>An encoder.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The type of the document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

@@ -149,1274 +149,152 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption__ctor_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption__ctor_MongoDB_Driver_Encryption_ClientEncryptionOptions_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.#ctor(MongoDB.Driver.Encryption.ClientEncryptionOptions)">
-  ClientEncryption(ClientEncryptionOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L45"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.html">ClientEncryption</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClientEncryption(ClientEncryptionOptions clientEncryptionOptions)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>clientEncryptionOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.ClientEncryptionOptions.html">ClientEncryptionOptions</a></dt>
-    <dd><p>The client encryption options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.-ctor.html#MongoDB_Driver_Encryption_ClientEncryption__ctor_MongoDB_Driver_Encryption_ClientEncryptionOptions_">ClientEncryption(ClientEncryptionOptions)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.html">ClientEncryption</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyName_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyName*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyName_System_Guid_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyName(System.Guid,System.String,System.Threading.CancellationToken)">
-  AddAlternateKeyName(Guid, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L71"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument AddAlternateKeyName(Guid id, string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyName.html#MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyName_System_Guid_System_String_System_Threading_CancellationToken_">AddAlternateKeyName(Guid, string, CancellationToken)</a></dt>
+    <dd><p>Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>Returns the previous version of the key document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyNameAsync.html#MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyNameAsync_System_Guid_System_String_System_Threading_CancellationToken_">AddAlternateKeyNameAsync(Guid, string, CancellationToken)</a></dt>
+    <dd><p>Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyNameAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_AddAlternateKeyNameAsync_System_Guid_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.AddAlternateKeyNameAsync(System.Guid,System.String,System.Threading.CancellationToken)">
-  AddAlternateKeyNameAsync(Guid, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L81"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonDocument&gt; AddAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The key alter name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKey.html#MongoDB_Driver_Encryption_ClientEncryption_CreateDataKey_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_">CreateDataKey(string, DataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>An alias function equivalent to createKey.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>Returns the previous version of the key document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKeyAsync.html#MongoDB_Driver_Encryption_ClientEncryption_CreateDataKeyAsync_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_">CreateDataKeyAsync(string, DataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>An alias function equivalent to createKey.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateDataKey_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKey*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateDataKey_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKey(System.String,MongoDB.Driver.Encryption.DataKeyOptions,System.Threading.CancellationToken)">
-  CreateDataKey(string, DataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L217"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>An alias function equivalent to createKey.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Guid CreateDataKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>dataKeyOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.DataKeyOptions.html">DataKeyOptions</a></dt>
-    <dd><p>The data key options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection.html#MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken_">CreateEncryptedCollection(IMongoDatabase, string, CreateCollectionOptions, string, BsonDocument, CancellationToken)</a></dt>
+    <dd><p>Create encrypted collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>A data key.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection.html#MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_">CreateEncryptedCollection(IMongoDatabase, string, CreateCollectionOptions, string, DataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>Create encrypted collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateDataKeyAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKeyAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateDataKeyAsync_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateDataKeyAsync(System.String,MongoDB.Driver.Encryption.DataKeyOptions,System.Threading.CancellationToken)">
-  CreateDataKeyAsync(string, DataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L230"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>An alias function equivalent to createKey.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;Guid&gt; CreateDataKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>dataKeyOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.DataKeyOptions.html">DataKeyOptions</a></dt>
-    <dd><p>The data key options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync.html#MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken_">CreateEncryptedCollectionAsync(IMongoDatabase, string, CreateCollectionOptions, string, BsonDocument, CancellationToken)</a></dt>
+    <dd><p>Create encrypted collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>&gt;</dt>
-    <dd><p>A data key.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync.html#MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_">CreateEncryptedCollectionAsync(IMongoDatabase, string, CreateCollectionOptions, string, DataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>Create encrypted collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection(MongoDB.Driver.IMongoDatabase,System.String,MongoDB.Driver.CreateCollectionOptions,System.String,MongoDB.Bson.BsonDocument,System.Threading.CancellationToken)">
-  CreateEncryptedCollection(IMongoDatabase, string, CreateCollectionOptions, string, BsonDocument, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L118"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create encrypted collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, BsonDocument masterKey, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>database</code> <a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The collection name.</p>
-</dd>
-    <dt><code>createCollectionOptions</code> <a class="xref" href="MongoDB.Driver.CreateCollectionOptions.html">CreateCollectionOptions</a></dt>
-    <dd><p>The create collection options.</p>
-</dd>
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>masterKey</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The master key.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.Decrypt.html#MongoDB_Driver_Encryption_ClientEncryption_Decrypt_MongoDB_Bson_BsonBinaryData_System_Threading_CancellationToken_">Decrypt(BsonBinaryData, CancellationToken)</a></dt>
+    <dd><p>Decrypts the specified value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html">CreateEncryptedCollectionResult</a></dt>
-    <dd><p>The operation result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.DecryptAsync.html#MongoDB_Driver_Encryption_ClientEncryption_DecryptAsync_MongoDB_Bson_BsonBinaryData_System_Threading_CancellationToken_">DecryptAsync(BsonBinaryData, CancellationToken)</a></dt>
+    <dd><p>Decrypts the specified value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html#MongoDB_Driver_Encryption_CreateEncryptedCollectionResult_EncryptedFields">EncryptedFields</a>.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollection(MongoDB.Driver.IMongoDatabase,System.String,MongoDB.Driver.CreateCollectionOptions,System.String,MongoDB.Driver.Encryption.DataKeyOptions,System.Threading.CancellationToken)">
-  CreateEncryptedCollection(IMongoDatabase, string, CreateCollectionOptions, string, DataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L97"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create encrypted collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the overload with masterKey instead.&quot;)]
-public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>database</code> <a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The collection name.</p>
-</dd>
-    <dt><code>createCollectionOptions</code> <a class="xref" href="MongoDB.Driver.CreateCollectionOptions.html">CreateCollectionOptions</a></dt>
-    <dd><p>The create collection options.</p>
-</dd>
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>dataKeyOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.DataKeyOptions.html">DataKeyOptions</a></dt>
-    <dd><p>The datakey options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.DeleteKey.html#MongoDB_Driver_Encryption_ClientEncryption_DeleteKey_System_Guid_System_Threading_CancellationToken_">DeleteKey(Guid, CancellationToken)</a></dt>
+    <dd><p>Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html">CreateEncryptedCollectionResult</a></dt>
-    <dd><p>The operation result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.DeleteKeyAsync.html#MongoDB_Driver_Encryption_ClientEncryption_DeleteKeyAsync_System_Guid_System_Threading_CancellationToken_">DeleteKeyAsync(Guid, CancellationToken)</a></dt>
+    <dd><p>Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollection_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html#MongoDB_Driver_Encryption_CreateEncryptedCollectionResult_EncryptedFields">EncryptedFields</a>.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync(MongoDB.Driver.IMongoDatabase,System.String,MongoDB.Driver.CreateCollectionOptions,System.String,MongoDB.Bson.BsonDocument,System.Threading.CancellationToken)">
-  CreateEncryptedCollectionAsync(IMongoDatabase, string, CreateCollectionOptions, string, BsonDocument, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L181"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create encrypted collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;CreateEncryptedCollectionResult&gt; CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, BsonDocument masterKey, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>database</code> <a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The collection name.</p>
-</dd>
-    <dt><code>createCollectionOptions</code> <a class="xref" href="MongoDB.Driver.CreateCollectionOptions.html">CreateCollectionOptions</a></dt>
-    <dd><p>The create collection options.</p>
-</dd>
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>masterKey</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The master key.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.Dispose.html#MongoDB_Driver_Encryption_ClientEncryption_Dispose">Dispose()</a></dt>
+    <dd></dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.Encrypt.html#MongoDB_Driver_Encryption_ClientEncryption_Encrypt_MongoDB_Bson_BsonValue_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_">Encrypt(BsonValue, EncryptOptions, CancellationToken)</a></dt>
+    <dd><p>Encrypts the specified value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html">CreateEncryptedCollectionResult</a>&gt;</dt>
-    <dd><p>The operation result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.EncryptAsync.html#MongoDB_Driver_Encryption_ClientEncryption_EncryptAsync_MongoDB_Bson_BsonValue_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_">EncryptAsync(BsonValue, EncryptOptions, CancellationToken)</a></dt>
+    <dd><p>Encrypts the specified value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Bson_BsonDocument_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html#MongoDB_Driver_Encryption_CreateEncryptedCollectionResult_EncryptedFields">EncryptedFields</a>.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.CreateEncryptedCollectionAsync(MongoDB.Driver.IMongoDatabase,System.String,MongoDB.Driver.CreateCollectionOptions,System.String,MongoDB.Driver.Encryption.DataKeyOptions,System.Threading.CancellationToken)">
-  CreateEncryptedCollectionAsync(IMongoDatabase, string, CreateCollectionOptions, string, DataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L160"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Create encrypted collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the overload with masterKey instead.&quot;)]
-public Task&lt;CreateEncryptedCollectionResult&gt; CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>database</code> <a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>The database.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The collection name.</p>
-</dd>
-    <dt><code>createCollectionOptions</code> <a class="xref" href="MongoDB.Driver.CreateCollectionOptions.html">CreateCollectionOptions</a></dt>
-    <dd><p>The create collection options.</p>
-</dd>
-    <dt><code>kmsProvider</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The kms provider.</p>
-</dd>
-    <dt><code>dataKeyOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.DataKeyOptions.html">DataKeyOptions</a></dt>
-    <dd><p>The datakey options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpression.html#MongoDB_Driver_Encryption_ClientEncryption_EncryptExpression_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_">EncryptExpression(BsonDocument, EncryptOptions, CancellationToken)</a></dt>
+    <dd><p>Encrypts a Match Expression or Aggregate Expression to query a range index.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html">CreateEncryptedCollectionResult</a>&gt;</dt>
-    <dd><p>The operation result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpressionAsync.html#MongoDB_Driver_Encryption_ClientEncryption_EncryptExpressionAsync_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_">EncryptExpressionAsync(BsonDocument, EncryptOptions, CancellationToken)</a></dt>
+    <dd><p>Encrypts a Match Expression or Aggregate Expression to query a range index.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_CreateEncryptedCollectionAsync_MongoDB_Driver_IMongoDatabase_System_String_MongoDB_Driver_CreateCollectionOptions_System_String_MongoDB_Driver_Encryption_DataKeyOptions_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <a class="xref" href="MongoDB.Driver.Encryption.CreateEncryptedCollectionResult.html#MongoDB_Driver_Encryption_CreateEncryptedCollectionResult_EncryptedFields">EncryptedFields</a>.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_Decrypt_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Decrypt*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_Decrypt_MongoDB_Bson_BsonBinaryData_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Decrypt(MongoDB.Bson.BsonBinaryData,System.Threading.CancellationToken)">
-  Decrypt(BsonBinaryData, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L242"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Decrypts the specified value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonValue Decrypt(BsonBinaryData value, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKey.html#MongoDB_Driver_Encryption_ClientEncryption_GetKey_System_Guid_System_Threading_CancellationToken_">GetKey(Guid, CancellationToken)</a></dt>
+    <dd><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The decrypted value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKeyAsync.html#MongoDB_Driver_Encryption_ClientEncryption_GetKeyAsync_System_Guid_System_Threading_CancellationToken_">GetKeyAsync(Guid, CancellationToken)</a></dt>
+    <dd><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_DecryptAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DecryptAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_DecryptAsync_MongoDB_Bson_BsonBinaryData_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DecryptAsync(MongoDB.Bson.BsonBinaryData,System.Threading.CancellationToken)">
-  DecryptAsync(BsonBinaryData, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L250"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Decrypts the specified value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonValue&gt; DecryptAsync(BsonBinaryData value, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyName.html#MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyName_System_String_System_Threading_CancellationToken_">GetKeyByAlternateKeyName(string, CancellationToken)</a></dt>
+    <dd><p>Finds a single key document with the given alter name.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The decrypted value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyNameAsync.html#MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyNameAsync_System_String_System_Threading_CancellationToken_">GetKeyByAlternateKeyNameAsync(string, CancellationToken)</a></dt>
+    <dd><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_DeleteKey_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DeleteKey*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_DeleteKey_System_Guid_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DeleteKey(System.Guid,System.Threading.CancellationToken)">
-  DeleteKey(Guid, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L258"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DeleteResult DeleteKey(Guid id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKeys.html#MongoDB_Driver_Encryption_ClientEncryption_GetKeys_System_Threading_CancellationToken_">GetKeys(CancellationToken)</a></dt>
+    <dd><p>Finds all documents in the key vault collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.DeleteResult.html">DeleteResult</a></dt>
-    <dd><p>Returns the result of the internal deleteOne() operation on the key vault collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.GetKeysAsync.html#MongoDB_Driver_Encryption_ClientEncryption_GetKeysAsync_System_Threading_CancellationToken_">GetKeysAsync(CancellationToken)</a></dt>
+    <dd><p>Finds all documents in the key vault collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_DeleteKeyAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DeleteKeyAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_DeleteKeyAsync_System_Guid_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.DeleteKeyAsync(System.Guid,System.Threading.CancellationToken)">
-  DeleteKeyAsync(Guid, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L267"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;DeleteResult&gt; DeleteKeyAsync(Guid id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyName.html#MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyName_System_Guid_System_String_System_Threading_CancellationToken_">RemoveAlternateKeyName(Guid, string, CancellationToken)</a></dt>
+    <dd><p>Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.DeleteResult.html">DeleteResult</a>&gt;</dt>
-    <dd><p>Returns the result of the internal deleteOne() operation on the key vault collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyNameAsync.html#MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyNameAsync_System_Guid_System_String_System_Threading_CancellationToken_">RemoveAlternateKeyNameAsync(Guid, string, CancellationToken)</a></dt>
+    <dd><p>Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_Dispose_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Dispose*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_Dispose" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Dispose">
-  Dispose()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L271"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_Encrypt_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Encrypt*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_Encrypt_MongoDB_Bson_BsonValue_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.Encrypt(MongoDB.Bson.BsonValue,MongoDB.Driver.Encryption.EncryptOptions,System.Threading.CancellationToken)">
-  Encrypt(BsonValue, EncryptOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L287"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts the specified value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>encryptOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a></dt>
-    <dd><p>The encrypt options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKey.html#MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKey_MongoDB_Driver_FilterDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_Encryption_RewrapManyDataKeyOptions_System_Threading_CancellationToken_">RewrapManyDataKey(FilterDefinition&lt;BsonDocument&gt;, RewrapManyDataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></dt>
-    <dd><p>The encrypted value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKeyAsync.html#MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKeyAsync_MongoDB_Driver_FilterDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_Encryption_RewrapManyDataKeyOptions_System_Threading_CancellationToken_">RewrapManyDataKeyAsync(FilterDefinition&lt;BsonDocument&gt;, RewrapManyDataKeyOptions, CancellationToken)</a></dt>
+    <dd><p>Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_EncryptAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_EncryptAsync_MongoDB_Bson_BsonValue_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptAsync(MongoDB.Bson.BsonValue,MongoDB.Driver.Encryption.EncryptOptions,System.Threading.CancellationToken)">
-  EncryptAsync(BsonValue, EncryptOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L297"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts the specified value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonBinaryData&gt; EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value.</p>
-</dd>
-    <dt><code>encryptOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a></dt>
-    <dd><p>The encrypt options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a>&gt;</dt>
-    <dd><p>The encrypted value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpression_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpression*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpression_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpression(MongoDB.Bson.BsonDocument,MongoDB.Driver.Encryption.EncryptOptions,System.Threading.CancellationToken)">
-  EncryptExpression(BsonDocument, EncryptOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L317"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts a Match Expression or Aggregate Expression to query a range index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument EncryptExpression(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>expression</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The expression that is expected to be a BSON document of one of the following forms:
-1. A Match Expression of this form:
-{$and: [{&quot;field&quot;: {$gt: &quot;value1&quot;}}, {&quot;field&quot;: {$lt: &quot;value2&quot; }}]}
-2. An Aggregate Expression of this form:
-{$and: [{$gt: [&quot;fieldpath&quot;, &quot;value1&quot;]}, {$lt: [&quot;fieldpath&quot;, &quot;value2&quot;]}]
-$gt may also be $gte. $lt may also be $lte.</p>
-</dd>
-    <dt><code>encryptOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a></dt>
-    <dd><p>The encryption options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The encrypted expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpression_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>Only supported for queryType &quot;rangePreview&quot;
-The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpressionAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpressionAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpressionAsync_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.EncryptExpressionAsync(MongoDB.Bson.BsonDocument,MongoDB.Driver.Encryption.EncryptOptions,System.Threading.CancellationToken)">
-  EncryptExpressionAsync(BsonDocument, EncryptOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L337"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Encrypts a Match Expression or Aggregate Expression to query a range index.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonDocument&gt; EncryptExpressionAsync(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>expression</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The expression that is expected to be a BSON document of one of the following forms:
-1. A Match Expression of this form:
-{$and: [{&quot;field&quot;: {$gt: &quot;value1&quot;}}, {&quot;field&quot;: {$lt: &quot;value2&quot; }}]}
-2. An Aggregate Expression of this form:
-{$and: [{$gt: [&quot;fieldpath&quot;, &quot;value1&quot;]}, {$lt: [&quot;fieldpath&quot;, &quot;value2&quot;]}]
-$gt may also be $gte. $lt may also be $lte.</p>
-</dd>
-    <dt><code>encryptOptions</code> <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a></dt>
-    <dd><p>The encryption options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>the encrypted expression.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_ClientEncryption_EncryptExpressionAsync_MongoDB_Bson_BsonDocument_MongoDB_Driver_Encryption_EncryptOptions_System_Threading_CancellationToken__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>Only supported for queryType &quot;rangePreview&quot;
-The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKey_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKey*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKey_System_Guid_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKey(System.Guid,System.Threading.CancellationToken)">
-  GetKey(Guid, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L346"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument GetKey(Guid id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>Returns the result of the internal find() operation on the key vault collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyAsync_System_Guid_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyAsync(System.Guid,System.Threading.CancellationToken)">
-  GetKeyAsync(Guid, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L355"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonDocument&gt; GetKeyAsync(Guid id, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>Returns the result of the internal find() operation on the key vault collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyName_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyName*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyName_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyName(System.String,System.Threading.CancellationToken)">
-  GetKeyByAlternateKeyName(string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L364"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds a single key document with the given alter name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument GetKeyByAlternateKeyName(string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>Returns a key document in the key vault collection with the given alternateKeyName.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyNameAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKeyByAlternateKeyNameAsync_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeyByAlternateKeyNameAsync(System.String,System.Threading.CancellationToken)">
-  GetKeyByAlternateKeyNameAsync(string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L373"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds a single key document with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonDocument&gt; GetKeyByAlternateKeyNameAsync(string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>Returns a key document in the key vault collection with the given alternateKeyName.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKeys_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeys*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKeys_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeys(System.Threading.CancellationToken)">
-  GetKeys(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L381"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds all documents in the key vault collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;BsonDocument&gt; GetKeys(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>Returns the result of the internal find() operation on the key vault collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_GetKeysAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeysAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_GetKeysAsync_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.GetKeysAsync(System.Threading.CancellationToken)">
-  GetKeysAsync(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L389"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds all documents in the key vault collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;IReadOnlyList&lt;BsonDocument&gt;&gt; GetKeysAsync(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
-    <dd><p>Returns the result of the internal find() operation on the key vault collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyName_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyName*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyName_System_Guid_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyName(System.Guid,System.String,System.Threading.CancellationToken)">
-  RemoveAlternateKeyName(Guid, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L399"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument RemoveAlternateKeyName(Guid id, string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>Returns the previous version of the key document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyNameAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyNameAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_RemoveAlternateKeyNameAsync_System_Guid_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RemoveAlternateKeyNameAsync(System.Guid,System.String,System.Threading.CancellationToken)">
-  RemoveAlternateKeyNameAsync(Guid, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L409"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;BsonDocument&gt; RemoveAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>id</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></dt>
-    <dd><p>The id.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>Returns the previous version of the key document.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKey_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKey*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKey_MongoDB_Driver_FilterDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_Encryption_RewrapManyDataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKey(MongoDB.Driver.FilterDefinition{MongoDB.Bson.BsonDocument},MongoDB.Driver.Encryption.RewrapManyDataKeyOptions,System.Threading.CancellationToken)">
-  RewrapManyDataKey(FilterDefinition&lt;BsonDocument&gt;, RewrapManyDataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L419"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public RewrapManyDataKeyResult RewrapManyDataKey(FilterDefinition&lt;BsonDocument&gt; filter, RewrapManyDataKeyOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The filter.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Encryption.RewrapManyDataKeyOptions.html">RewrapManyDataKeyOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Encryption.RewrapManyDataKeyResult.html">RewrapManyDataKeyResult</a></dt>
-    <dd><p>The result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKeyAsync_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKeyAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_ClientEncryption_RewrapManyDataKeyAsync_MongoDB_Driver_FilterDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_Encryption_RewrapManyDataKeyOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Encryption.ClientEncryption.RewrapManyDataKeyAsync(MongoDB.Driver.FilterDefinition{MongoDB.Bson.BsonDocument},MongoDB.Driver.Encryption.RewrapManyDataKeyOptions,System.Threading.CancellationToken)">
-  RewrapManyDataKeyAsync(FilterDefinition&lt;BsonDocument&gt;, RewrapManyDataKeyOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/ClientEncryption.cs/#L429"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;RewrapManyDataKeyResult&gt; RewrapManyDataKeyAsync(FilterDefinition&lt;BsonDocument&gt; filter, RewrapManyDataKeyOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>filter</code> <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The filter.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Encryption.RewrapManyDataKeyOptions.html">RewrapManyDataKeyOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.RewrapManyDataKeyResult.html">RewrapManyDataKeyResult</a>&gt;</dt>
-    <dd><p>The result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -146,291 +146,48 @@
 
 
 
-
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_Fields_Null_" data-uid="MongoDB.Driver.Builders.Fields.Null*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_Null" data-uid="MongoDB.Driver.Builders.Fields.Null">
-  Null
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L37"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a null value with a type of IMongoFields.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IMongoFields Null { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoFields.html">IMongoFields</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.Null.html#MongoDB_Driver_Builders_Fields_Null">Null</a></dt>
+    <dd><p>Gets a null value with a type of IMongoFields.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_Fields_ElemMatch_" data-uid="MongoDB.Driver.Builders.Fields.ElemMatch*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_ElemMatch_System_String_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.Builders.Fields.ElemMatch(System.String,MongoDB.Driver.IMongoQuery)">
-  ElemMatch(string, IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L49"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the first matching element in the array specified by name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder ElemMatch(string name, IMongoQuery query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name.</p>
-</dd>
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>The query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.ElemMatch.html#MongoDB_Driver_Builders_Fields_ElemMatch_System_String_MongoDB_Driver_IMongoQuery_">ElemMatch(string, IMongoQuery)</a></dt>
+    <dd><p>Returns the first matching element in the array specified by name.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The build (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.Exclude.html#MongoDB_Driver_Builders_Fields_Exclude_System_String___">Exclude(params string[])</a></dt>
+    <dd><p>Adds one or more field names to be excluded from the results.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Fields_Exclude_" data-uid="MongoDB.Driver.Builders.Fields.Exclude*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_Exclude_System_String___" data-uid="MongoDB.Driver.Builders.Fields.Exclude(System.String[])">
-  Exclude(params string[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds one or more field names to be excluded from the results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder Exclude(params string[] names)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>names</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
-    <dd><p>One or more field names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.Include.html#MongoDB_Driver_Builders_Fields_Include_System_String___">Include(params string[])</a></dt>
+    <dd><p>Adds one or more field names to be included in the results.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.MetaTextScore.html#MongoDB_Driver_Builders_Fields_MetaTextScore_System_String_">MetaTextScore(string)</a></dt>
+    <dd><p>Specifies the name of field to hold the computed relevance score for text search.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Fields_Include_" data-uid="MongoDB.Driver.Builders.Fields.Include*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_Include_System_String___" data-uid="MongoDB.Driver.Builders.Fields.Include(System.String[])">
-  Include(params string[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L69"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds one or more field names to be included in the results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder Include(params string[] names)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>names</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>[]</dt>
-    <dd><p>One or more field names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.Slice.html#MongoDB_Driver_Builders_Fields_Slice_System_String_System_Int32_">Slice(string, int)</a></dt>
+    <dd><p>Adds a slice to be included in the results.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Fields.Slice.html#MongoDB_Driver_Builders_Fields_Slice_System_String_System_Int32_System_Int32_">Slice(string, int, int)</a></dt>
+    <dd><p>Adds a slice to be included in the results.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Fields_MetaTextScore_" data-uid="MongoDB.Driver.Builders.Fields.MetaTextScore*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_MetaTextScore_System_String_" data-uid="MongoDB.Driver.Builders.Fields.MetaTextScore(System.String)">
-  MetaTextScore(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L79"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Specifies the name of field to hold the computed relevance score for text search.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder MetaTextScore(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the field to hold the computed relevance score.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Fields_Slice_" data-uid="MongoDB.Driver.Builders.Fields.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_Slice_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Fields.Slice(System.String,System.Int32)">
-  Slice(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L90"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a slice to be included in the results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder Slice(string name, int size)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the field to slice.</p>
-</dd>
-    <dt><code>size</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The size of the slice (negative sizes are taken from the end).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Fields_Slice_" data-uid="MongoDB.Driver.Builders.Fields.Slice*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Fields_Slice_System_String_System_Int32_System_Int32_" data-uid="MongoDB.Driver.Builders.Fields.Slice(System.String,System.Int32,System.Int32)">
-  Slice(string, int, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/FieldsBuilder.cs/#L102"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a slice to be included in the results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static FieldsBuilder Slice(string name, int skip, int limit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the field to slice.</p>
-</dd>
-    <dt><code>skip</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The number of values to skip.</p>
-</dd>
-    <dt><code>limit</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The number of values to extract.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.FieldsBuilder.html">FieldsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

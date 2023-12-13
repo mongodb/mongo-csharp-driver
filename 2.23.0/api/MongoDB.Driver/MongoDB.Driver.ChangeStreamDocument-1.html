@@ -151,600 +151,102 @@ public sealed class ChangeStreamDocument&lt;TDocument&gt; : BsonDocumentBackedCl
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1__ctor_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1__ctor_MongoDB_Bson_BsonDocument_MongoDB_Bson_Serialization_IBsonSerializer__0__" data-uid="MongoDB.Driver.ChangeStreamDocument`1.#ctor(MongoDB.Bson.BsonDocument,MongoDB.Bson.Serialization.IBsonSerializer{`0})">
-  ChangeStreamDocument(BsonDocument, IBsonSerializer&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L36"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument&lt;TDocument&gt;</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ChangeStreamDocument(BsonDocument backingDocument, IBsonSerializer&lt;TDocument&gt; documentSerializer)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>backingDocument</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The backing document.</p>
-</dd>
-    <dt><code>documentSerializer</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;TDocument&gt;</dt>
-    <dd><p>The document serializer.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.-ctor.html#MongoDB_Driver_ChangeStreamDocument_1__ctor_MongoDB_Bson_BsonDocument_MongoDB_Bson_Serialization_IBsonSerializer__0__">ChangeStreamDocument(BsonDocument, IBsonSerializer&lt;TDocument&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument&lt;TDocument&gt;</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_BackingDocument_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.BackingDocument*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_BackingDocument" data-uid="MongoDB.Driver.ChangeStreamDocument`1.BackingDocument">
-  BackingDocument
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L47"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the backing document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument BackingDocument { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_ClusterTime_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.ClusterTime*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_ClusterTime" data-uid="MongoDB.Driver.ChangeStreamDocument`1.ClusterTime">
-  ClusterTime
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L55"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the cluster time.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonTimestamp ClusterTime { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonTimestamp.html">BsonTimestamp</a></dt>
-    <dd><p>The cluster time.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.BackingDocument.html#MongoDB_Driver_ChangeStreamDocument_1_BackingDocument">BackingDocument</a></dt>
+    <dd><p>Gets the backing document.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_CollectionNamespace_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.CollectionNamespace*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_CollectionNamespace" data-uid="MongoDB.Driver.ChangeStreamDocument`1.CollectionNamespace">
-  CollectionNamespace
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L63"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the namespace of the collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionNamespace CollectionNamespace { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
-    <dd><p>The namespace of the collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.ClusterTime.html#MongoDB_Driver_ChangeStreamDocument_1_ClusterTime">ClusterTime</a></dt>
+    <dd><p>Gets the cluster time.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_CollectionUuid_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.CollectionUuid*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_CollectionUuid" data-uid="MongoDB.Driver.ChangeStreamDocument`1.CollectionUuid">
-  CollectionUuid
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L85"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets ui field from the oplog entry corresponding to the change event.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.CollectionNamespace.html#MongoDB_Driver_ChangeStreamDocument_1_CollectionNamespace">CollectionNamespace</a></dt>
+    <dd><p>Gets the namespace of the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.CollectionUuid.html#MongoDB_Driver_ChangeStreamDocument_1_CollectionUuid">CollectionUuid</a></dt>
+    <dd><p>Gets ui field from the oplog entry corresponding to the change event.
 Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 6.0 and later):</p>
 <ul><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Create">Create</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_CreateIndexes">CreateIndexes</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Delete">Delete</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Drop">Drop</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_DropIndexes">DropIndexes</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Insert">Insert</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Modify">Modify</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_RefineCollectionShardKey">RefineCollectionShardKey</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_ReshardCollection">ReshardCollection</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_ShardCollection">ShardCollection</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Update">Update</a></li></ul>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Guid? CollectionUuid { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>?</dt>
-    <dd><p>The UUID of the collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_DatabaseNamespace_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DatabaseNamespace*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_DatabaseNamespace" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DatabaseNamespace">
-  DatabaseNamespace
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L93"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the database namespace.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DatabaseNamespace DatabaseNamespace { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.DatabaseNamespace.html">DatabaseNamespace</a></dt>
-    <dd><p>The database namespace.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.DatabaseNamespace.html#MongoDB_Driver_ChangeStreamDocument_1_DatabaseNamespace">DatabaseNamespace</a></dt>
+    <dd><p>Gets the database namespace.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_DisambiguatedPaths_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DisambiguatedPaths*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_DisambiguatedPaths" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DisambiguatedPaths">
-  DisambiguatedPaths
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L124"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the disambiguated paths if present.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument DisambiguatedPaths { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The disambiguated paths.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.DisambiguatedPaths.html#MongoDB_Driver_ChangeStreamDocument_1_DisambiguatedPaths">DisambiguatedPaths</a></dt>
+    <dd><p>Gets the disambiguated paths if present.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_ChangeStreamDocument_1_DisambiguatedPaths_remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>
-A document containing a map that associates an update path to an array containing the path components used in the update document. This data
-can be used in combination with the other fields in an <a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html#MongoDB_Driver_ChangeStreamDocument_1_UpdateDescription">UpdateDescription</a> to determine the
-actual path in the document that was updated. This is necessary in cases where a key contains dot-separated strings (i.e. <code>{ "a.b": "c" }</code>) or
-a document contains a numeric literal string key (i.e. <code>{ "a": { "0": "a" } }</code>). Note that in this scenario, the numeric key can't be the top
-level key because <code>{ "0": "a" }</code> is not ambiguous - update paths would simply be <code>'0'</code> which is unambiguous because BSON documents cannot have
-arrays at the top level. Each entry in the document maps an update path to an array which contains the actual path used when the document
-was updated. For example, given a document with the following shape <code>{ "a": { "0": 0 } }</code> and an update of <code>{ $inc: { "a.0": 1 } }</code>,
-<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html#MongoDB_Driver_ChangeStreamDocument_1_DisambiguatedPaths">DisambiguatedPaths</a> would look like the following:
-</p>
-<pre><code class="lang-csharp">{
-   "a.0": ["a", "0"]
-}</code></pre>
-<p>
-In each array, all elements will be returned as strings with the exception of array indices, which will be returned as 32-bit integers.
-</p>
-<p>
-Added in MongoDB version 6.1.0.
-</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_DocumentKey_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DocumentKey*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_DocumentKey" data-uid="MongoDB.Driver.ChangeStreamDocument`1.DocumentKey">
-  DocumentKey
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L132"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the document key.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument DocumentKey { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The document key.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.DocumentKey.html#MongoDB_Driver_ChangeStreamDocument_1_DocumentKey">DocumentKey</a></dt>
+    <dd><p>Gets the document key.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_FullDocument_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.FullDocument*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_FullDocument" data-uid="MongoDB.Driver.ChangeStreamDocument`1.FullDocument">
-  FullDocument
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L140"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the full document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TDocument FullDocument { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TDocument</span></dt>
-    <dd><p>The full document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.FullDocument.html#MongoDB_Driver_ChangeStreamDocument_1_FullDocument">FullDocument</a></dt>
+    <dd><p>Gets the full document.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_FullDocumentBeforeChange_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.FullDocumentBeforeChange*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_FullDocumentBeforeChange" data-uid="MongoDB.Driver.ChangeStreamDocument`1.FullDocumentBeforeChange">
-  FullDocumentBeforeChange
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L162"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the full document before change.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TDocument FullDocumentBeforeChange { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TDocument</span></dt>
-    <dd><p>The full document before change.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.FullDocumentBeforeChange.html#MongoDB_Driver_ChangeStreamDocument_1_FullDocumentBeforeChange">FullDocumentBeforeChange</a></dt>
+    <dd><p>Gets the full document before change.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_OperationDescription_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.OperationDescription*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_OperationDescription" data-uid="MongoDB.Driver.ChangeStreamDocument`1.OperationDescription">
-  OperationDescription
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L200"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the description for the operation.
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.OperationDescription.html#MongoDB_Driver_ChangeStreamDocument_1_OperationDescription">OperationDescription</a></dt>
+    <dd><p>Gets the description for the operation.
 Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 6.0 and later):</p>
 <ul><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Create">Create</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_CreateIndexes">CreateIndexes</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_DropIndexes">DropIndexes</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Modify">Modify</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_RefineCollectionShardKey">RefineCollectionShardKey</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_Rename">Rename</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_ReshardCollection">ReshardCollection</a></li><li><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html#MongoDB_Driver_ChangeStreamOperationType_ShardCollection">ShardCollection</a></li></ul>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument OperationDescription { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The description of the operation.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_OperationType_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.OperationType*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_OperationType" data-uid="MongoDB.Driver.ChangeStreamDocument`1.OperationType">
-  OperationType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L208"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the type of the operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ChangeStreamOperationType OperationType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamOperationType.html">ChangeStreamOperationType</a></dt>
-    <dd><p>The type of the operation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.OperationType.html#MongoDB_Driver_ChangeStreamDocument_1_OperationType">OperationType</a></dt>
+    <dd><p>Gets the type of the operation.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_RenameTo_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.RenameTo*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_RenameTo" data-uid="MongoDB.Driver.ChangeStreamDocument`1.RenameTo">
-  RenameTo
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L216"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the new namespace for the ns collection. This field is omitted for all operation types except &quot;rename&quot;.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionNamespace RenameTo { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CollectionNamespace.html">CollectionNamespace</a></dt>
-    <dd><p>The new namespace of the ns collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.RenameTo.html#MongoDB_Driver_ChangeStreamDocument_1_RenameTo">RenameTo</a></dt>
+    <dd><p>Gets the new namespace for the ns collection. This field is omitted for all operation types except &quot;rename&quot;.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_ResumeToken_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.ResumeToken*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_ResumeToken" data-uid="MongoDB.Driver.ChangeStreamDocument`1.ResumeToken">
-  ResumeToken
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L224"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the resume token.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument ResumeToken { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The resume token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.ResumeToken.html#MongoDB_Driver_ChangeStreamDocument_1_ResumeToken">ResumeToken</a></dt>
+    <dd><p>Gets the resume token.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_SplitEvent_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.SplitEvent*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_SplitEvent" data-uid="MongoDB.Driver.ChangeStreamDocument`1.SplitEvent">
-  SplitEvent
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L229"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the split event.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ChangeStreamSplitEvent SplitEvent { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamSplitEvent.html">ChangeStreamSplitEvent</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_UpdateDescription_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.UpdateDescription*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_UpdateDescription" data-uid="MongoDB.Driver.ChangeStreamDocument`1.UpdateDescription">
-  UpdateDescription
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L237"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the update description.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ChangeStreamUpdateDescription UpdateDescription { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamUpdateDescription.html">ChangeStreamUpdateDescription</a></dt>
-    <dd><p>The update description.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.SplitEvent.html#MongoDB_Driver_ChangeStreamDocument_1_SplitEvent">SplitEvent</a></dt>
+    <dd><p>Gets the split event.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_ChangeStreamDocument_1_WallTime_" data-uid="MongoDB.Driver.ChangeStreamDocument`1.WallTime*"></a>
-
-  <h3 id="MongoDB_Driver_ChangeStreamDocument_1_WallTime" data-uid="MongoDB.Driver.ChangeStreamDocument`1.WallTime">
-  WallTime
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/ChangeStreamDocument.cs/#L245"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the wall time of the change stream event.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DateTime? WallTime { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>?</dt>
-    <dd><p>The wall time.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.UpdateDescription.html#MongoDB_Driver_ChangeStreamDocument_1_UpdateDescription">UpdateDescription</a></dt>
+    <dd><p>Gets the update description.</p>
 </dd>
   </dl>
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.WallTime.html#MongoDB_Driver_ChangeStreamDocument_1_WallTime">WallTime</a></dt>
+    <dd><p>Gets the wall time of the change stream event.</p>
+</dd>
+  </dl>
 
 
 

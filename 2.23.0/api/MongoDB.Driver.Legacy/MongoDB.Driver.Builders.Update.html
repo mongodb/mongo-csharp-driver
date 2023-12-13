@@ -146,2572 +146,305 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSet_" data-uid="MongoDB.Driver.Builders.Update.AddToSet*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSet_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.AddToSet(System.String,MongoDB.Bson.BsonValue)">
-  AddToSet(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L40"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value to a named array element if the value is not already in the array (see $addToSet).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSet(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSet.html#MongoDB_Driver_Builders_Update_AddToSet_System_String_MongoDB_Bson_BsonValue_">AddToSet(string, BsonValue)</a></dt>
+    <dd><p>Adds a value to a named array element if the value is not already in the array (see $addToSet).</p>
 </dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetEach_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetEach_System_String_MongoDB_Bson_BsonArray_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach(System.String,MongoDB.Bson.BsonArray)">
-  AddToSetEach(string, BsonArray)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L51"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetEach(string name, BsonArray values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonArray.html">BsonArray</a></dt>
-    <dd><p>The values to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetEach_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetEach_System_String_MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach(System.String,MongoDB.Bson.BsonValue[])">
-  AddToSetEach(string, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L73"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetEach(string name, params BsonValue[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>The values to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetEach_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetEach_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Driver.Builders.Update.AddToSetEach(System.String,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})">
-  AddToSetEach(string, IEnumerable&lt;BsonValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L62"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetEach(string name, IEnumerable&lt;BsonValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The values to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetEachWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update.AddToSetEachWrapped``1(System.String,System.Collections.Generic.IEnumerable{``0})">
-  AddToSetEachWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L85"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetEachWrapped&lt;T&gt;(string name, IEnumerable&lt;T&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The wrapped values to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.AddToSetEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetEachWrapped__1_System_String___0___" data-uid="MongoDB.Driver.Builders.Update.AddToSetEachWrapped``1(System.String,``0[])">
-  AddToSetEachWrapped&lt;T&gt;(string, params T[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L97"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetEachWrapped&lt;T&gt;(string name, params T[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> T[]</dt>
-    <dd><p>The wrapped values to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_AddToSetWrapped_" data-uid="MongoDB.Driver.Builders.Update.AddToSetWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_AddToSetWrapped__1_System_String___0_" data-uid="MongoDB.Driver.Builders.Update.AddToSetWrapped``1(System.String,``0)">
-  AddToSetWrapped&lt;T&gt;(string, T)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L109"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a wrapped value to a named array element if the value is not already in the array (see $addToSet).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder AddToSetWrapped&lt;T&gt;(string name, T value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">T</span></dt>
-    <dd><p>The wrapped value to add to the set.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseAnd_" data-uid="MongoDB.Driver.Builders.Update.BitwiseAnd*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseAnd_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Update.BitwiseAnd(System.String,System.Int32)">
-  BitwiseAnd(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L120"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseAnd(string name, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be and-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseAnd_" data-uid="MongoDB.Driver.Builders.Update.BitwiseAnd*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseAnd_System_String_System_Int64_" data-uid="MongoDB.Driver.Builders.Update.BitwiseAnd(System.String,System.Int64)">
-  BitwiseAnd(string, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L131"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseAnd(string name, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be and-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseOr_" data-uid="MongoDB.Driver.Builders.Update.BitwiseOr*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseOr_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Update.BitwiseOr(System.String,System.Int32)">
-  BitwiseOr(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L142"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseOr(string name, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be or-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseOr_" data-uid="MongoDB.Driver.Builders.Update.BitwiseOr*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseOr_System_String_System_Int64_" data-uid="MongoDB.Driver.Builders.Update.BitwiseOr(System.String,System.Int64)">
-  BitwiseOr(string, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L153"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseOr(string name, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be or-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseXor_" data-uid="MongoDB.Driver.Builders.Update.BitwiseXor*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseXor_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Update.BitwiseXor(System.String,System.Int32)">
-  BitwiseXor(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L164"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseXor(string name, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be xor-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_BitwiseXor_" data-uid="MongoDB.Driver.Builders.Update.BitwiseXor*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_BitwiseXor_System_String_System_Int64_" data-uid="MongoDB.Driver.Builders.Update.BitwiseXor(System.String,System.Int64)">
-  BitwiseXor(string, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L175"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder BitwiseXor(string name, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be modified.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be xor-ed with the current value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Combine_" data-uid="MongoDB.Driver.Builders.Update.Combine*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Combine_MongoDB_Driver_IMongoUpdate___" data-uid="MongoDB.Driver.Builders.Update.Combine(MongoDB.Driver.IMongoUpdate[])">
-  Combine(params IMongoUpdate[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L202"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Combine(params IMongoUpdate[] updates)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>updates</code> <a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a>[]</dt>
-    <dd><p>The UpdateBuilders to combine.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>A combined UpdateBuilder.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Combine_" data-uid="MongoDB.Driver.Builders.Update.Combine*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Combine_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoUpdate__" data-uid="MongoDB.Driver.Builders.Update.Combine(System.Collections.Generic.IEnumerable{MongoDB.Driver.IMongoUpdate})">
-  Combine(IEnumerable&lt;IMongoUpdate&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L185"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Combine(IEnumerable&lt;IMongoUpdate&gt; updates)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>updates</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a>&gt;</dt>
-    <dd><p>The UpdateBuilders to combine.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>A combined UpdateBuilder.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_CurrentDate_" data-uid="MongoDB.Driver.Builders.Update.CurrentDate*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_CurrentDate_System_String_" data-uid="MongoDB.Driver.Builders.Update.CurrentDate(System.String)">
-  CurrentDate(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L212"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the value of the named element to the current date (see $currentDate).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder CurrentDate(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_CurrentDate_" data-uid="MongoDB.Driver.Builders.Update.CurrentDate*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_CurrentDate_System_String_MongoDB_Driver_Builders_UpdateCurrentDateType_" data-uid="MongoDB.Driver.Builders.Update.CurrentDate(System.String,MongoDB.Driver.Builders.UpdateCurrentDateType)">
-  CurrentDate(string, UpdateCurrentDateType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L223"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the value of the named element to the current date (see $currentDate).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder CurrentDate(string name, UpdateCurrentDateType type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element.</p>
-</dd>
-    <dt><code>type</code> <a class="xref" href="MongoDB.Driver.Builders.UpdateCurrentDateType.html">UpdateCurrentDateType</a></dt>
-    <dd><p>The type to use.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Inc_" data-uid="MongoDB.Driver.Builders.Update.Inc*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Inc_System_String_System_Double_" data-uid="MongoDB.Driver.Builders.Update.Inc(System.String,System.Double)">
-  Inc(string, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L234"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Inc(string name, double value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be incremented.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to increment by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Inc_" data-uid="MongoDB.Driver.Builders.Update.Inc*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Inc_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Update.Inc(System.String,System.Int32)">
-  Inc(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L245"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Inc(string name, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be incremented.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to increment by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Inc_" data-uid="MongoDB.Driver.Builders.Update.Inc*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Inc_System_String_System_Int64_" data-uid="MongoDB.Driver.Builders.Update.Inc(System.String,System.Int64)">
-  Inc(string, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L256"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Increments the named element by a value (see $inc).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Inc(string name, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be incremented.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to increment by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Max_" data-uid="MongoDB.Driver.Builders.Update.Max*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Max_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.Max(System.String,MongoDB.Bson.BsonValue)">
-  Max(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L267"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Updates the named element if and only if the provided value is greater than its current value (see $max).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Max(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be updated.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value to use.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Min_" data-uid="MongoDB.Driver.Builders.Update.Min*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Min_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.Min(System.String,MongoDB.Bson.BsonValue)">
-  Min(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L278"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Updates the named element if and only if the provided value is less than its current value (see $max).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Min(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be updated.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value to use.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Mul_" data-uid="MongoDB.Driver.Builders.Update.Mul*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Mul_System_String_System_Double_" data-uid="MongoDB.Driver.Builders.Update.Mul(System.String,System.Double)">
-  Mul(string, double)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L289"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Mul(string name, double value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be multiplied.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to multiply by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Mul_" data-uid="MongoDB.Driver.Builders.Update.Mul*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Mul_System_String_System_Int32_" data-uid="MongoDB.Driver.Builders.Update.Mul(System.String,System.Int32)">
-  Mul(string, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L300"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Mul(string name, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be multiplied.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to multiply by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Mul_" data-uid="MongoDB.Driver.Builders.Update.Mul*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Mul_System_String_System_Int64_" data-uid="MongoDB.Driver.Builders.Update.Mul(System.String,System.Int64)">
-  Mul(string, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L311"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Multiplies the named element by a value (see $mul).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Mul(string name, long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be multiplied.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to multiply by.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PopFirst_" data-uid="MongoDB.Driver.Builders.Update.PopFirst*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PopFirst_System_String_" data-uid="MongoDB.Driver.Builders.Update.PopFirst(System.String)">
-  PopFirst(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L321"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the first value from the named array element (see $pop).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PopFirst(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PopLast_" data-uid="MongoDB.Driver.Builders.Update.PopLast*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PopLast_System_String_" data-uid="MongoDB.Driver.Builders.Update.PopLast(System.String)">
-  PopLast(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L331"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the last value from the named array element (see $pop).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PopLast(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Pull_" data-uid="MongoDB.Driver.Builders.Update.Pull*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Pull_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.Pull(System.String,MongoDB.Bson.BsonValue)">
-  Pull(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L342"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to some value (see $pull).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Pull(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Pull_" data-uid="MongoDB.Driver.Builders.Update.Pull*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Pull_System_String_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.Builders.Update.Pull(System.String,MongoDB.Driver.IMongoQuery)">
-  Pull(string, IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L353"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that match some query (see $pull).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Pull(string name, IMongoQuery query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query that specifies which elements to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullAll_" data-uid="MongoDB.Driver.Builders.Update.PullAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullAll_System_String_MongoDB_Bson_BsonArray_" data-uid="MongoDB.Driver.Builders.Update.PullAll(System.String,MongoDB.Bson.BsonArray)">
-  PullAll(string, BsonArray)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L364"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullAll(string name, BsonArray values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonArray.html">BsonArray</a></dt>
-    <dd><p>The values to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullAll_" data-uid="MongoDB.Driver.Builders.Update.PullAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullAll_System_String_MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Builders.Update.PullAll(System.String,MongoDB.Bson.BsonValue[])">
-  PullAll(string, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L386"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullAll(string name, params BsonValue[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>The values to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullAll_" data-uid="MongoDB.Driver.Builders.Update.PullAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullAll_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Driver.Builders.Update.PullAll(System.String,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})">
-  PullAll(string, IEnumerable&lt;BsonValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L375"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullAll(string name, IEnumerable&lt;BsonValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The values to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullAllWrapped_" data-uid="MongoDB.Driver.Builders.Update.PullAllWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullAllWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update.PullAllWrapped``1(System.String,System.Collections.Generic.IEnumerable{``0})">
-  PullAllWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L398"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullAllWrapped&lt;T&gt;(string name, IEnumerable&lt;T&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The wrapped values to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetEach.html#MongoDB_Driver_Builders_Update_AddToSetEach_System_String_MongoDB_Bson_BsonArray_">AddToSetEach(string, BsonArray)</a></dt>
+    <dd><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullAllWrapped_" data-uid="MongoDB.Driver.Builders.Update.PullAllWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullAllWrapped__1_System_String___0___" data-uid="MongoDB.Driver.Builders.Update.PullAllWrapped``1(System.String,``0[])">
-  PullAllWrapped&lt;T&gt;(string, params T[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L410"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullAllWrapped&lt;T&gt;(string name, params T[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetEach.html#MongoDB_Driver_Builders_Update_AddToSetEach_System_String_MongoDB_Bson_BsonValue___">AddToSetEach(string, params BsonValue[])</a></dt>
+    <dd><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
 </dd>
-    <dt><code>values</code> T[]</dt>
-    <dd><p>The wrapped values to remove.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PullWrapped_" data-uid="MongoDB.Driver.Builders.Update.PullWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PullWrapped__1_System_String___0_" data-uid="MongoDB.Driver.Builders.Update.PullWrapped``1(System.String,``0)">
-  PullWrapped&lt;T&gt;(string, T)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L422"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes all values from the named array element that are equal to some wrapped value (see $pull).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PullWrapped&lt;T&gt;(string name, T value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">T</span></dt>
-    <dd><p>The wrapped value to remove.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetEach.html#MongoDB_Driver_Builders_Update_AddToSetEach_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">AddToSetEach(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetEachWrapped.html#MongoDB_Driver_Builders_Update_AddToSetEachWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__">AddToSetEachWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetEachWrapped.html#MongoDB_Driver_Builders_Update_AddToSetEachWrapped__1_System_String___0___">AddToSetEachWrapped&lt;T&gt;(string, params T[])</a></dt>
+    <dd><p>Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Push_" data-uid="MongoDB.Driver.Builders.Update.Push*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Push_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.Push(System.String,MongoDB.Bson.BsonValue)">
-  Push(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L433"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value to the end of the named array element (see $push).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Push(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.AddToSetWrapped.html#MongoDB_Driver_Builders_Update_AddToSetWrapped__1_System_String___0_">AddToSetWrapped&lt;T&gt;(string, T)</a></dt>
+    <dd><p>Adds a wrapped value to a named array element if the value is not already in the array (see $addToSet).</p>
 </dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The value to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseAnd.html#MongoDB_Driver_Builders_Update_BitwiseAnd_System_String_System_Int32_">BitwiseAnd(string, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushAll_" data-uid="MongoDB.Driver.Builders.Update.PushAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushAll_System_String_MongoDB_Bson_BsonArray_" data-uid="MongoDB.Driver.Builders.Update.PushAll(System.String,MongoDB.Bson.BsonArray)">
-  PushAll(string, BsonArray)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L444"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushAll(string name, BsonArray values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseAnd.html#MongoDB_Driver_Builders_Update_BitwiseAnd_System_String_System_Int64_">BitwiseAnd(string, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonArray.html">BsonArray</a></dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseOr.html#MongoDB_Driver_Builders_Update_BitwiseOr_System_String_System_Int32_">BitwiseOr(string, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushAll_" data-uid="MongoDB.Driver.Builders.Update.PushAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushAll_System_String_MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Builders.Update.PushAll(System.String,MongoDB.Bson.BsonValue[])">
-  PushAll(string, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L466"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushAll(string name, params BsonValue[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>The values to add to the end of the array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseOr.html#MongoDB_Driver_Builders_Update_BitwiseOr_System_String_System_Int64_">BitwiseOr(string, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseXor.html#MongoDB_Driver_Builders_Update_BitwiseXor_System_String_System_Int32_">BitwiseXor(string, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushAll_" data-uid="MongoDB.Driver.Builders.Update.PushAll*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushAll_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Driver.Builders.Update.PushAll(System.String,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})">
-  PushAll(string, IEnumerable&lt;BsonValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L455"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushAll(string name, IEnumerable&lt;BsonValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.BitwiseXor.html#MongoDB_Driver_Builders_Update_BitwiseXor_System_String_System_Int64_">BitwiseXor(string, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Combine.html#MongoDB_Driver_Builders_Update_Combine_MongoDB_Driver_IMongoUpdate___">Combine(params IMongoUpdate[])</a></dt>
+    <dd><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushAllWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushAllWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushAllWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update.PushAllWrapped``1(System.String,System.Collections.Generic.IEnumerable{``0})">
-  PushAllWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L478"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of wrapped values to the end of the named array element (see $pushAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushAllWrapped&lt;T&gt;(string name, IEnumerable&lt;T&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Combine.html#MongoDB_Driver_Builders_Update_Combine_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoUpdate__">Combine(IEnumerable&lt;IMongoUpdate&gt;)</a></dt>
+    <dd><p>Combines several UpdateBuilders into a single UpdateBuilder.</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The wrapped values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.CurrentDate.html#MongoDB_Driver_Builders_Update_CurrentDate_System_String_">CurrentDate(string)</a></dt>
+    <dd><p>Sets the value of the named element to the current date (see $currentDate).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.CurrentDate.html#MongoDB_Driver_Builders_Update_CurrentDate_System_String_MongoDB_Driver_Builders_UpdateCurrentDateType_">CurrentDate(string, UpdateCurrentDateType)</a></dt>
+    <dd><p>Sets the value of the named element to the current date (see $currentDate).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushAllWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushAllWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushAllWrapped__1_System_String___0___" data-uid="MongoDB.Driver.Builders.Update.PushAllWrapped``1(System.String,``0[])">
-  PushAllWrapped&lt;T&gt;(string, params T[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L490"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of wrapped values to the end of the named array element (see $pushAll).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushAllWrapped&lt;T&gt;(string name, params T[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> T[]</dt>
-    <dd><p>The wrapped values to add to the end of the array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Inc.html#MongoDB_Driver_Builders_Update_Inc_System_String_System_Double_">Inc(string, double)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Inc.html#MongoDB_Driver_Builders_Update_Inc_System_String_System_Int32_">Inc(string, int)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped values.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Inc.html#MongoDB_Driver_Builders_Update_Inc_System_String_System_Int64_">Inc(string, long)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Bson_BsonArray_" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,MongoDB.Bson.BsonArray)">
-  PushEach(string, BsonArray)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L501"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, BsonArray values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Max.html#MongoDB_Driver_Builders_Update_Max_System_String_MongoDB_Bson_BsonValue_">Max(string, BsonValue)</a></dt>
+    <dd><p>Updates the named element if and only if the provided value is greater than its current value (see $max).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonArray.html">BsonArray</a></dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Min.html#MongoDB_Driver_Builders_Update_Min_System_String_MongoDB_Bson_BsonValue_">Min(string, BsonValue)</a></dt>
+    <dd><p>Updates the named element if and only if the provided value is less than its current value (see $max).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,MongoDB.Bson.BsonValue[])">
-  PushEach(string, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L523"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, params BsonValue[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Mul.html#MongoDB_Driver_Builders_Update_Mul_System_String_System_Double_">Mul(string, double)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Mul.html#MongoDB_Driver_Builders_Update_Mul_System_String_System_Int32_">Mul(string, int)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_MongoDB_Bson_BsonArray_" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,MongoDB.Driver.Builders.PushEachOptions,MongoDB.Bson.BsonArray)">
-  PushEach(string, PushEachOptions, BsonArray)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L535"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, PushEachOptions options, BsonArray values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
-    <dd><p>The options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Mul.html#MongoDB_Driver_Builders_Update_Mul_System_String_System_Int64_">Mul(string, long)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonArray.html">BsonArray</a></dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PopFirst.html#MongoDB_Driver_Builders_Update_PopFirst_System_String_">PopFirst(string)</a></dt>
+    <dd><p>Removes the first value from the named array element (see $pop).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_MongoDB_Bson_BsonValue___" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,MongoDB.Driver.Builders.PushEachOptions,MongoDB.Bson.BsonValue[])">
-  PushEach(string, PushEachOptions, params BsonValue[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L559"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, PushEachOptions options, params BsonValue[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>[]</dt>
-    <dd><p>The values to add to the end of the array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PopLast.html#MongoDB_Driver_Builders_Update_PopLast_System_String_">PopLast(string)</a></dt>
+    <dd><p>Removes the last value from the named array element (see $pop).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Pull.html#MongoDB_Driver_Builders_Update_Pull_System_String_MongoDB_Bson_BsonValue_">Pull(string, BsonValue)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to some value (see $pull).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,MongoDB.Driver.Builders.PushEachOptions,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})">
-  PushEach(string, PushEachOptions, IEnumerable&lt;BsonValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L547"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, PushEachOptions options, IEnumerable&lt;BsonValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Pull.html#MongoDB_Driver_Builders_Update_Pull_System_String_MongoDB_Driver_IMongoQuery_">Pull(string, IMongoQuery)</a></dt>
+    <dd><p>Removes all values from the named array element that match some query (see $pull).</p>
 </dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullAll.html#MongoDB_Driver_Builders_Update_PullAll_System_String_MongoDB_Bson_BsonArray_">PullAll(string, BsonArray)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEach_" data-uid="MongoDB.Driver.Builders.Update.PushEach*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEach_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__" data-uid="MongoDB.Driver.Builders.Update.PushEach(System.String,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})">
-  PushEach(string, IEnumerable&lt;BsonValue&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L512"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEach(string name, IEnumerable&lt;BsonValue&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
-    <dd><p>The values to add to the end of the array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullAll.html#MongoDB_Driver_Builders_Update_PullAll_System_String_MongoDB_Bson_BsonValue___">PullAll(string, params BsonValue[])</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullAll.html#MongoDB_Driver_Builders_Update_PullAll_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">PullAll(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped``1(System.String,MongoDB.Driver.Builders.PushEachOptions,System.Collections.Generic.IEnumerable{``0})">
-  PushEachWrapped&lt;T&gt;(string, PushEachOptions, IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L596"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEachWrapped&lt;T&gt;(string name, PushEachOptions options, IEnumerable&lt;T&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullAllWrapped.html#MongoDB_Driver_Builders_Update_PullAllWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__">PullAllWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).</p>
 </dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullAllWrapped.html#MongoDB_Driver_Builders_Update_PullAllWrapped__1_System_String___0___">PullAllWrapped&lt;T&gt;(string, params T[])</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PullWrapped.html#MongoDB_Driver_Builders_Update_PullWrapped__1_System_String___0_">PullWrapped&lt;T&gt;(string, T)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to some wrapped value (see $pull).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_MongoDB_Driver_Builders_PushEachOptions___0___" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped``1(System.String,MongoDB.Driver.Builders.PushEachOptions,``0[])">
-  PushEachWrapped&lt;T&gt;(string, PushEachOptions, params T[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L609"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEachWrapped&lt;T&gt;(string name, PushEachOptions options, params T[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.Builders.PushEachOptions.html">PushEachOptions</a></dt>
-    <dd><p>The options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Push.html#MongoDB_Driver_Builders_Update_Push_System_String_MongoDB_Bson_BsonValue_">Push(string, BsonValue)</a></dt>
+    <dd><p>Adds a value to the end of the named array element (see $push).</p>
 </dd>
-    <dt><code>values</code> T[]</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushAll.html#MongoDB_Driver_Builders_Update_PushAll_System_String_MongoDB_Bson_BsonArray_">PushAll(string, BsonArray)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushAll.html#MongoDB_Driver_Builders_Update_PushAll_System_String_MongoDB_Bson_BsonValue___">PushAll(string, params BsonValue[])</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped``1(System.String,System.Collections.Generic.IEnumerable{``0})">
-  PushEachWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L571"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEachWrapped&lt;T&gt;(string name, IEnumerable&lt;T&gt; values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushAll.html#MongoDB_Driver_Builders_Update_PushAll_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">PushAll(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
 </dd>
-    <dt><code>values</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;T&gt;</dt>
-    <dd><p>The values to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushAllWrapped.html#MongoDB_Driver_Builders_Update_PushAllWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__">PushAllWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Adds a list of wrapped values to the end of the named array element (see $pushAll).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushAllWrapped.html#MongoDB_Driver_Builders_Update_PushAllWrapped__1_System_String___0___">PushAllWrapped&lt;T&gt;(string, params T[])</a></dt>
+    <dd><p>Adds a list of wrapped values to the end of the named array element (see $pushAll).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushEachWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String___0___" data-uid="MongoDB.Driver.Builders.Update.PushEachWrapped``1(System.String,``0[])">
-  PushEachWrapped&lt;T&gt;(string, params T[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L583"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushEachWrapped&lt;T&gt;(string name, params T[] values)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
-</dd>
-    <dt><code>values</code> T[]</dt>
-    <dd><p>The values to add to the end of the array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Bson_BsonArray_">PushEach(string, BsonArray)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Bson_BsonValue___">PushEach(string, params BsonValue[])</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_MongoDB_Bson_BsonArray_">PushEach(string, PushEachOptions, BsonArray)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_PushWrapped_" data-uid="MongoDB.Driver.Builders.Update.PushWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_PushWrapped__1_System_String___0_" data-uid="MongoDB.Driver.Builders.Update.PushWrapped``1(System.String,``0)">
-  PushWrapped&lt;T&gt;(string, T)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L621"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a wrapped value to the end of the named array element (see $push).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder PushWrapped&lt;T&gt;(string name, T value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the array element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_MongoDB_Bson_BsonValue___">PushEach(string, PushEachOptions, params BsonValue[])</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
-    <dt><code>value</code> <span class="xref">T</span></dt>
-    <dd><p>The wrapped value to add to the end of the array.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">PushEach(string, PushEachOptions, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEach.html#MongoDB_Driver_Builders_Update_PushEach_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">PushEach(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Rename_" data-uid="MongoDB.Driver.Builders.Update.Rename*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Rename_System_String_System_String_" data-uid="MongoDB.Driver.Builders.Update.Rename(System.String,System.String)">
-  Rename(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L632"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renames an element (see $rename).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Rename(string oldElementName, string newElementName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>oldElementName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be renamed.</p>
-</dd>
-    <dt><code>newElementName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The new name of the element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEachWrapped.html#MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable___0__">PushEachWrapped&lt;T&gt;(string, PushEachOptions, IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>An UpdateDocuemnt.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEachWrapped.html#MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_MongoDB_Driver_Builders_PushEachOptions___0___">PushEachWrapped&lt;T&gt;(string, PushEachOptions, params T[])</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Replace_" data-uid="MongoDB.Driver.Builders.Update.Replace*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Replace_System_Type_System_Object_" data-uid="MongoDB.Driver.Builders.Update.Replace(System.Type,System.Object)">
-  Replace(Type, object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L656"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Replaces the entire document with a new document (the _id must remain the same).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IMongoUpdate Replace(Type nominalType, object document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>nominalType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The nominal type of the replacement document</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEachWrapped.html#MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String_System_Collections_Generic_IEnumerable___0__">PushEachWrapped&lt;T&gt;(string, IEnumerable&lt;T&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
-    <dt><code>document</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The replacement document.</p>
-</dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a></dt>
-    <dd><p>An UpdateWrapper.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushEachWrapped.html#MongoDB_Driver_Builders_Update_PushEachWrapped__1_System_String___0___">PushEachWrapped&lt;T&gt;(string, params T[])</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Replace_" data-uid="MongoDB.Driver.Builders.Update.Replace*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Replace__1___0_" data-uid="MongoDB.Driver.Builders.Update.Replace``1(``0)">
-  Replace&lt;TNominalType&gt;(TNominalType)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L643"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Replaces the entire document with a new document (the _id must remain the same).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IMongoUpdate Replace&lt;TNominalType&gt;(TNominalType document)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>document</code> <span class="xref">TNominalType</span></dt>
-    <dd><p>The replacement document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.PushWrapped.html#MongoDB_Driver_Builders_Update_PushWrapped__1_System_String___0_">PushWrapped&lt;T&gt;(string, T)</a></dt>
+    <dd><p>Adds a wrapped value to the end of the named array element (see $push).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a></dt>
-    <dd><p>An UpdateWrapper.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Rename.html#MongoDB_Driver_Builders_Update_Rename_System_String_System_String_">Rename(string, string)</a></dt>
+    <dd><p>Renames an element (see $rename).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TNominalType</code></dt>
-    <dd><p>The nominal type of the replacement document</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Replace.html#MongoDB_Driver_Builders_Update_Replace_System_Type_System_Object_">Replace(Type, object)</a></dt>
+    <dd><p>Replaces the entire document with a new document (the _id must remain the same).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Set_" data-uid="MongoDB.Driver.Builders.Update.Set*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Set_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.Set(System.String,MongoDB.Bson.BsonValue)">
-  Set(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L670"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the value of the named element to a new value (see $set).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Set(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be set.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The new value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Replace.html#MongoDB_Driver_Builders_Update_Replace__1___0_">Replace&lt;TNominalType&gt;(TNominalType)</a></dt>
+    <dd><p>Replaces the entire document with a new document (the _id must remain the same).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Set.html#MongoDB_Driver_Builders_Update_Set_System_String_MongoDB_Bson_BsonValue_">Set(string, BsonValue)</a></dt>
+    <dd><p>Sets the value of the named element to a new value (see $set).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_SetOnInsert_" data-uid="MongoDB.Driver.Builders.Update.SetOnInsert*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_SetOnInsert_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.Builders.Update.SetOnInsert(System.String,MongoDB.Bson.BsonValue)">
-  SetOnInsert(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L682"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the value of the named element to the specified value only when an insert occurs
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.SetOnInsert.html#MongoDB_Driver_Builders_Update_SetOnInsert_System_String_MongoDB_Bson_BsonValue_">SetOnInsert(string, BsonValue)</a></dt>
+    <dd><p>Sets the value of the named element to the specified value only when an insert occurs
 as part of an upsert operation (see $setOnInsert).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder SetOnInsert(string name, BsonValue value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be set.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The new value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.SetWrapped.html#MongoDB_Driver_Builders_Update_SetWrapped__1_System_String___0_">SetWrapped&lt;T&gt;(string, T)</a></dt>
+    <dd><p>Sets the value of the named element to a new wrapped value (see $set).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_SetWrapped_" data-uid="MongoDB.Driver.Builders.Update.SetWrapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_SetWrapped__1_System_String___0_" data-uid="MongoDB.Driver.Builders.Update.SetWrapped``1(System.String,``0)">
-  SetWrapped&lt;T&gt;(string, T)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L694"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the value of the named element to a new wrapped value (see $set).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder SetWrapped&lt;T&gt;(string name, T value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be set.</p>
-</dd>
-    <dt><code>value</code> <span class="xref">T</span></dt>
-    <dd><p>The new wrapped value.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Update.Unset.html#MongoDB_Driver_Builders_Update_Unset_System_String_">Unset(string)</a></dt>
+    <dd><p>Removes the named element from the document (see $unset).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>T</code></dt>
-    <dd><p>The type of wrapped value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_Update_Unset_" data-uid="MongoDB.Driver.Builders.Update.Unset*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_Update_Unset_System_String_" data-uid="MongoDB.Driver.Builders.Update.Unset(System.String)">
-  Unset(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L704"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes the named element from the document (see $unset).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static UpdateBuilder Unset(string name)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the element to be removed.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder.html">UpdateBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

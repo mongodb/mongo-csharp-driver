@@ -146,370 +146,62 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions__ctor_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions__ctor_MongoDB_Driver_Encryption_EncryptionAlgorithm_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__" data-uid="MongoDB.Driver.Encryption.EncryptOptions.#ctor(MongoDB.Driver.Encryption.EncryptionAlgorithm,MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.Nullable{System.Guid}},MongoDB.Driver.Optional{System.Nullable{System.Int64}},MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{MongoDB.Driver.Encryption.RangeOptions})">
-  EncryptOptions(EncryptionAlgorithm, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L156"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EncryptOptions(EncryptionAlgorithm algorithm, Optional&lt;string&gt; alternateKeyName = default, Optional&lt;Guid?&gt; keyId = default, Optional&lt;long?&gt; contentionFactor = default, Optional&lt;string&gt; queryType = default, Optional&lt;RangeOptions&gt; rangeOptions = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>algorithm</code> <a class="xref" href="MongoDB.Driver.Encryption.EncryptionAlgorithm.html">EncryptionAlgorithm</a></dt>
-    <dd><p>The encryption algorithm.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>keyId</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>?&gt;</dt>
-    <dd><p>The key Id.</p>
-</dd>
-    <dt><code>contentionFactor</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
-    <dd><p>The contention factor.</p>
-</dd>
-    <dt><code>queryType</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The query type.</p>
-</dd>
-    <dt><code>rangeOptions</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.RangeOptions.html">RangeOptions</a>&gt;</dt>
-    <dd><p>The range options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.-ctor.html#MongoDB_Driver_Encryption_EncryptOptions__ctor_MongoDB_Driver_Encryption_EncryptionAlgorithm_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__">EncryptOptions(EncryptionAlgorithm, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions__ctor_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions__ctor_System_String_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__" data-uid="MongoDB.Driver.Encryption.EncryptOptions.#ctor(System.String,MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.Nullable{System.Guid}},MongoDB.Driver.Optional{System.Nullable{System.Int64}},MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{MongoDB.Driver.Encryption.RangeOptions})">
-  EncryptOptions(string, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L121"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EncryptOptions(string algorithm, Optional&lt;string&gt; alternateKeyName = default, Optional&lt;Guid?&gt; keyId = default, Optional&lt;long?&gt; contentionFactor = default, Optional&lt;string&gt; queryType = default, Optional&lt;RangeOptions&gt; rangeOptions = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>algorithm</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The encryption algorithm.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>keyId</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>?&gt;</dt>
-    <dd><p>The key Id.</p>
-</dd>
-    <dt><code>contentionFactor</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
-    <dd><p>The contention factor.</p>
-</dd>
-    <dt><code>queryType</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The query type.</p>
-</dd>
-    <dt><code>rangeOptions</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.RangeOptions.html">RangeOptions</a>&gt;</dt>
-    <dd><p>The range options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.-ctor.html#MongoDB_Driver_Encryption_EncryptOptions__ctor_System_String_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__">EncryptOptions(string, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_Algorithm_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.Algorithm*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_Algorithm" data-uid="MongoDB.Driver.Encryption.EncryptOptions.Algorithm">
-  Algorithm
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L180"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the algorithm.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Algorithm { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The algorithm.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.Algorithm.html#MongoDB_Driver_Encryption_EncryptOptions_Algorithm">Algorithm</a></dt>
+    <dd><p>Gets the algorithm.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_AlternateKeyName_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.AlternateKeyName*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_AlternateKeyName" data-uid="MongoDB.Driver.Encryption.EncryptOptions.AlternateKeyName">
-  AlternateKeyName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L188"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the alternate key name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string AlternateKeyName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The alternate key name.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.AlternateKeyName.html#MongoDB_Driver_Encryption_EncryptOptions_AlternateKeyName">AlternateKeyName</a></dt>
+    <dd><p>Gets the alternate key name.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_ContentionFactor_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.ContentionFactor*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_ContentionFactor" data-uid="MongoDB.Driver.Encryption.EncryptOptions.ContentionFactor">
-  ContentionFactor
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L196"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the contention factor.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long? ContentionFactor { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?</dt>
-    <dd><p>The contention factor.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.ContentionFactor.html#MongoDB_Driver_Encryption_EncryptOptions_ContentionFactor">ContentionFactor</a></dt>
+    <dd><p>Gets the contention factor.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_KeyId_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.KeyId*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_KeyId" data-uid="MongoDB.Driver.Encryption.EncryptOptions.KeyId">
-  KeyId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L204"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the key identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Guid? KeyId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>?</dt>
-    <dd><p>The key identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.KeyId.html#MongoDB_Driver_Encryption_EncryptOptions_KeyId">KeyId</a></dt>
+    <dd><p>Gets the key identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_QueryType_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.QueryType*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_QueryType" data-uid="MongoDB.Driver.Encryption.EncryptOptions.QueryType">
-  QueryType
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L212"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the query type.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string QueryType { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The query type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.QueryType.html#MongoDB_Driver_Encryption_EncryptOptions_QueryType">QueryType</a></dt>
+    <dd><p>Gets the query type.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_RangeOptions_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.RangeOptions*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_RangeOptions" data-uid="MongoDB.Driver.Encryption.EncryptOptions.RangeOptions">
-  RangeOptions
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L225"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the range options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public RangeOptions RangeOptions { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Encryption.RangeOptions.html">RangeOptions</a></dt>
-    <dd><p>The range options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.RangeOptions.html#MongoDB_Driver_Encryption_EncryptOptions_RangeOptions">RangeOptions</a></dt>
+    <dd><p>Gets the range options.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Encryption_EncryptOptions_RangeOptions_remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>The Range algorithm is experimental only. It is not intended for public use.
-RangeOpts specifies index options for a Queryable Encryption field supporting &quot;rangePreview&quot; queries.
-RangeOptions only applies when algorithm is &quot;rangePreview&quot;.</p>
-</div>
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Encryption_EncryptOptions_With_" data-uid="MongoDB.Driver.Encryption.EncryptOptions.With*"></a>
-
-  <h3 id="MongoDB_Driver_Encryption_EncryptOptions_With_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__" data-uid="MongoDB.Driver.Encryption.EncryptOptions.With(MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.Nullable{System.Guid}},MongoDB.Driver.Optional{System.Nullable{System.Int64}},MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{MongoDB.Driver.Encryption.RangeOptions})">
-  With(Optional&lt;string&gt;, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Encryption/EncryptOptions.cs/#L237"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new EncryptOptions instance with some settings changed.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EncryptOptions With(Optional&lt;string&gt; algorithm = default, Optional&lt;string&gt; alternateKeyName = default, Optional&lt;Guid?&gt; keyId = default, Optional&lt;long?&gt; contentionFactor = default, Optional&lt;string&gt; queryType = default, Optional&lt;RangeOptions&gt; rangeOptions = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>algorithm</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The encryption algorithm.</p>
-</dd>
-    <dt><code>alternateKeyName</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The alternate key name.</p>
-</dd>
-    <dt><code>keyId</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a>?&gt;</dt>
-    <dd><p>The keyId.</p>
-</dd>
-    <dt><code>contentionFactor</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?&gt;</dt>
-    <dd><p>The contention factor.</p>
-</dd>
-    <dt><code>queryType</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The query type.</p>
-</dd>
-    <dt><code>rangeOptions</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Encryption.RangeOptions.html">RangeOptions</a>&gt;</dt>
-    <dd><p>The range options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.With.html#MongoDB_Driver_Encryption_EncryptOptions_With_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_Nullable_System_Guid___MongoDB_Driver_Optional_System_Nullable_System_Int64___MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_MongoDB_Driver_Encryption_RangeOptions__">With(Optional&lt;string&gt;, Optional&lt;string&gt;, Optional&lt;Guid?&gt;, Optional&lt;long?&gt;, Optional&lt;string&gt;, Optional&lt;RangeOptions&gt;)</a></dt>
+    <dd><p>Returns a new EncryptOptions instance with some settings changed.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Encryption.EncryptOptions.html">EncryptOptions</a></dt>
-    <dd><p>A new EncryptOptions instance.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

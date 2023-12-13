@@ -147,315 +147,48 @@ public abstract class MapReduceOutputOptions</code></pre>
 
 
 
-
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Inline_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Inline*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Inline" data-uid="MongoDB.Driver.MapReduceOutputOptions.Inline">
-  Inline
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L170"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>An inline map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MapReduceOutputOptions Inline { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Inline.html#MongoDB_Driver_MapReduceOutputOptions_Inline">Inline</a></dt>
+    <dd><p>An inline map-reduce output options.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Merge_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Merge*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Merge_System_String_System_String_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Merge(System.String,System.String)">
-  Merge(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L196"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A merge map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MapReduceOutputOptions Merge(string collectionName, string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Merge.html#MongoDB_Driver_MapReduceOutputOptions_Merge_System_String_System_String_">Merge(string, string)</a></dt>
     <dd><p>A merge map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Merge_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Merge*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Merge_System_String_System_String_System_Nullable_System_Boolean__System_Nullable_System_Boolean__" data-uid="MongoDB.Driver.MapReduceOutputOptions.Merge(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
-  Merge(string, string, bool?, bool?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L183"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A merge map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use an overload of Merge that does not have sharded and nonAtomic parameters instead.&quot;)]
-public static MapReduceOutputOptions Merge(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>sharded</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>Whether the output collection should be sharded.</p>
-</dd>
-    <dt><code>nonAtomic</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>Whether the server should not lock the database for the duration of the merge.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Merge.html#MongoDB_Driver_MapReduceOutputOptions_Merge_System_String_System_String_System_Nullable_System_Boolean__System_Nullable_System_Boolean__">Merge(string, string, bool?, bool?)</a></dt>
     <dd><p>A merge map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Reduce_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Reduce*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Reduce_System_String_System_String_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Reduce(System.String,System.String)">
-  Reduce(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L223"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A reduce map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MapReduceOutputOptions Reduce(string collectionName, string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Reduce.html#MongoDB_Driver_MapReduceOutputOptions_Reduce_System_String_System_String_">Reduce(string, string)</a></dt>
     <dd><p>A reduce map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Reduce_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Reduce*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Reduce_System_String_System_String_System_Nullable_System_Boolean__System_Nullable_System_Boolean__" data-uid="MongoDB.Driver.MapReduceOutputOptions.Reduce(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
-  Reduce(string, string, bool?, bool?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L210"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A reduce map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use an overload of Reduce that does not have sharded and nonAtomic parameters instead.&quot;)]
-public static MapReduceOutputOptions Reduce(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>sharded</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>Whether the output collection should be sharded.</p>
-</dd>
-    <dt><code>nonAtomic</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>Whether the server should not lock the database for the duration of the reduce.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Reduce.html#MongoDB_Driver_MapReduceOutputOptions_Reduce_System_String_System_String_System_Nullable_System_Boolean__System_Nullable_System_Boolean__">Reduce(string, string, bool?, bool?)</a></dt>
     <dd><p>A reduce map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Replace_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Replace*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Replace_System_String_System_String_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Replace(System.String,System.String)">
-  Replace(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L249"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A replace map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MapReduceOutputOptions Replace(string collectionName, string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>Name of the database.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Replace.html#MongoDB_Driver_MapReduceOutputOptions_Replace_System_String_System_String_">Replace(string, string)</a></dt>
     <dd><p>A replace map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MapReduceOutputOptions_Replace_" data-uid="MongoDB.Driver.MapReduceOutputOptions.Replace*"></a>
-
-  <h3 id="MongoDB_Driver_MapReduceOutputOptions_Replace_System_String_System_String_System_Nullable_System_Boolean__" data-uid="MongoDB.Driver.MapReduceOutputOptions.Replace(System.String,System.String,System.Nullable{System.Boolean})">
-  Replace(string, string, bool?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MapReduceOptions.cs/#L236"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>A replace map-reduce output options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use an overload of Replace that does not have a sharded parameter instead.&quot;)]
-public static MapReduceOutputOptions Replace(string collectionName, string databaseName = null, bool? sharded = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>Name of the database.</p>
-</dd>
-    <dt><code>sharded</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>?</dt>
-    <dd><p>Whether the output collection should be sharded.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.html">MapReduceOutputOptions</a></dt>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputOptions.Replace.html#MongoDB_Driver_MapReduceOutputOptions_Replace_System_String_System_String_System_Nullable_System_Boolean__">Replace(string, string, bool?)</a></dt>
     <dd><p>A replace map-reduce output options.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
 
 
 

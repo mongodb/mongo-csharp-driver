@@ -127,10 +127,10 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_MessageJsonEncoderBase_CreateJsonReader">MessageJsonEncoderBase.CreateJsonReader()</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase.CreateJsonReader.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_MessageJsonEncoderBase_CreateJsonReader">MessageJsonEncoderBase.CreateJsonReader()</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_MessageJsonEncoderBase_CreateJsonWriter">MessageJsonEncoderBase.CreateJsonWriter()</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase.CreateJsonWriter.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_MessageJsonEncoderBase_CreateJsonWriter">MessageJsonEncoderBase.CreateJsonWriter()</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -159,121 +159,28 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder__ctor_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder__ctor_System_IO_TextReader_System_IO_TextWriter_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderSelector_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.#ctor(System.IO.TextReader,System.IO.TextWriter,MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderSelector,MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings)">
-  CompressedMessageJsonEncoder(TextReader, TextWriter, IMessageEncoderSelector, MessageEncoderSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/JsonEncoders/CompressedMessageJsonEncoder.cs/#L44"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.html">CompressedMessageJsonEncoder</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CompressedMessageJsonEncoder(TextReader textReader, TextWriter textWriter, IMessageEncoderSelector originalEncoderSelector, MessageEncoderSettings encoderSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>textReader</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.textreader">TextReader</a></dt>
-    <dd><p>The text reader.</p>
-</dd>
-    <dt><code>textWriter</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.textwriter">TextWriter</a></dt>
-    <dd><p>The text writer.</p>
-</dd>
-    <dt><code>originalEncoderSelector</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoderSelector.html">IMessageEncoderSelector</a></dt>
-    <dd><p>The original encoder selector.</p>
-</dd>
-    <dt><code>encoderSettings</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.MessageEncoderSettings.html">MessageEncoderSettings</a></dt>
-    <dd><p>The encoder settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.-ctor.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder__ctor_System_IO_TextReader_System_IO_TextWriter_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderSelector_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettings_">CompressedMessageJsonEncoder(TextReader, TextWriter, IMessageEncoderSelector, MessageEncoderSettings)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.html">CompressedMessageJsonEncoder</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_ReadMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.ReadMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_ReadMessage" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.ReadMessage">
-  ReadMessage()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/JsonEncoders/CompressedMessageJsonEncoder.cs/#L56"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Reads the message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CompressedMessage ReadMessage()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.html">CompressedMessage</a></dt>
-    <dd><p>A message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.ReadMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_ReadMessage">ReadMessage()</a></dt>
+    <dd><p>Reads the message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_WriteMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.WriteMessage*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_WriteMessage_MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.WriteMessage(MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage)">
-  WriteMessage(CompressedMessage)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/Encoders/JsonEncoders/CompressedMessageJsonEncoder.cs/#L85"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Writes the message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void WriteMessage(CompressedMessage message)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>message</code> <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.CompressedMessage.html">CompressedMessage</a></dt>
-    <dd><p>The message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.CompressedMessageJsonEncoder.WriteMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_Encoders_JsonEncoders_CompressedMessageJsonEncoder_WriteMessage_MongoDB_Driver_Core_WireProtocol_Messages_CompressedMessage_">WriteMessage(CompressedMessage)</a></dt>
+    <dd><p>Writes the message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
 
 
   <h2 id="seealso">See Also</h2>

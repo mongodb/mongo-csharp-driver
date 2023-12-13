@@ -149,306 +149,44 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_First_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.First*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_First_MongoDB_Driver_Search_SearchSpanDefinition__0__System_Int32_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.First(MongoDB.Driver.Search.SearchSpanDefinition{`0},System.Int32)">
-  First(SearchSpanDefinition&lt;TDocument&gt;, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L38"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches near the beginning of the string.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; First(SearchSpanDefinition&lt;TDocument&gt; @operator, int endPositionLte)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operator</code> <a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The span operator.</p>
-</dd>
-    <dt><code>endPositionLte</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The highest position in which to match the query.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.First.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_First_MongoDB_Driver_Search_SearchSpanDefinition__0__System_Int32_">First(SearchSpanDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a span clause that matches near the beginning of the string.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A first span clause.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Near_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchSpanDefinition__0___System_Int32_System_Boolean_">Near(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt;, int, bool)</a></dt>
+    <dd><p>Creates a span clause that matches multiple string found near each other.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Near*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Near_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchSpanDefinition__0___System_Int32_System_Boolean_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Near(System.Collections.Generic.IEnumerable{MongoDB.Driver.Search.SearchSpanDefinition{`0}},System.Int32,System.Boolean)">
-  Near(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt;, int, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches multiple string found near each other.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Near(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt; clauses, int slop, bool inOrder = false)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>clauses</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;&gt;</dt>
-    <dd><p>The clauses.</p>
-</dd>
-    <dt><code>slop</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The allowable distance between words in the query phrase.</p>
-</dd>
-    <dt><code>inOrder</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether to require that the clauses appear in the specified order.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Or.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_MongoDB_Driver_Search_SearchSpanDefinition__0____">Or(params SearchSpanDefinition&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates a span clause that matches any of its subclauses.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A near span clause.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Or.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchSpanDefinition__0___">Or(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates a span clause that matches any of its subclauses.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Or*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_MongoDB_Driver_Search_SearchSpanDefinition__0____" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Or(MongoDB.Driver.Search.SearchSpanDefinition{`0}[])">
-  Or(params SearchSpanDefinition&lt;TDocument&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L67"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches any of its subclauses.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Or(params SearchSpanDefinition&lt;TDocument&gt;[] clauses)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>clauses</code> <a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;[]</dt>
-    <dd><p>The clauses.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Subtract.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Subtract_MongoDB_Driver_Search_SearchSpanDefinition__0__MongoDB_Driver_Search_SearchSpanDefinition__0__">Subtract(SearchSpanDefinition&lt;TDocument&gt;, SearchSpanDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a span clause that excludes certain strings from the search results.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>An or span clause.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Term.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_">Term(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition)</a></dt>
+    <dd><p>Creates a span clause that matches a single term.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Or*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchSpanDefinition__0___" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Or(System.Collections.Generic.IEnumerable{MongoDB.Driver.Search.SearchSpanDefinition{`0}})">
-  Or(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches any of its subclauses.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Or(IEnumerable&lt;SearchSpanDefinition&lt;TDocument&gt;&gt; clauses)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>clauses</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;&gt;</dt>
-    <dd><p>The clauses.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.Term.html#MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_">Term&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition)</a></dt>
+    <dd><p>Creates a span clause that matches a single term.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>An or span clause.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Subtract_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Subtract_MongoDB_Driver_Search_SearchSpanDefinition__0__MongoDB_Driver_Search_SearchSpanDefinition__0__" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Subtract(MongoDB.Driver.Search.SearchSpanDefinition{`0},MongoDB.Driver.Search.SearchSpanDefinition{`0})">
-  Subtract(SearchSpanDefinition&lt;TDocument&gt;, SearchSpanDefinition&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L76"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that excludes certain strings from the search results.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Subtract(SearchSpanDefinition&lt;TDocument&gt; include, SearchSpanDefinition&lt;TDocument&gt; exclude)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>include</code> <a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>Clause to be included.</p>
-</dd>
-    <dt><code>exclude</code> <a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>Clause to be excluded.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A subtract span clause.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Term*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Term(MongoDB.Driver.Search.SearchPathDefinition{`0},MongoDB.Driver.Search.SearchQueryDefinition)">
-  Term(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L87"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches a single term.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Term(SearchPathDefinition&lt;TDocument&gt; path, SearchQueryDefinition query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The indexed field or fields to search.</p>
-</dd>
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.Search.SearchQueryDefinition.html">SearchQueryDefinition</a></dt>
-    <dd><p>The string or strings to search for.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A term span clause.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Term*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchSpanDefinitionBuilder_1_Term__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_" data-uid="MongoDB.Driver.Search.SearchSpanDefinitionBuilder`1.Term``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},MongoDB.Driver.Search.SearchQueryDefinition)">
-  Term&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchSpanDefinitionBuilder.cs/#L97"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a span clause that matches a single term.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchSpanDefinition&lt;TDocument&gt; Term&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, SearchQueryDefinition query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The indexed field or fields to search.</p>
-</dd>
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.Search.SearchQueryDefinition.html">SearchQueryDefinition</a></dt>
-    <dd><p>The string or string to search for.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A term span clause.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

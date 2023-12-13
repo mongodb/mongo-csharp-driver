@@ -153,19 +153,18 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.html#MongoDB_Driver_IMongoClientExtensions_Watch_MongoDB_Driver_IMongoClient_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.Watch(IMongoClient, ChangeStreamOptions, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.Watch.html#MongoDB_Driver_IMongoClientExtensions_Watch_MongoDB_Driver_IMongoClient_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.Watch(IMongoClient, ChangeStreamOptions, CancellationToken)</a>
   </div>
   <div>
-      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.html#MongoDB_Driver_IMongoClientExtensions_Watch_MongoDB_Driver_IMongoClient_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.Watch(IMongoClient, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.Watch.html#MongoDB_Driver_IMongoClientExtensions_Watch_MongoDB_Driver_IMongoClient_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.Watch(IMongoClient, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
   </div>
   <div>
-      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.html#MongoDB_Driver_IMongoClientExtensions_WatchAsync_MongoDB_Driver_IMongoClient_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.WatchAsync(IMongoClient, ChangeStreamOptions, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.WatchAsync.html#MongoDB_Driver_IMongoClientExtensions_WatchAsync_MongoDB_Driver_IMongoClient_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.WatchAsync(IMongoClient, ChangeStreamOptions, CancellationToken)</a>
   </div>
   <div>
-      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.html#MongoDB_Driver_IMongoClientExtensions_WatchAsync_MongoDB_Driver_IMongoClient_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.WatchAsync(IMongoClient, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+      <a class="xref" href="MongoDB.Driver.IMongoClientExtensions.WatchAsync.html#MongoDB_Driver_IMongoClientExtensions_WatchAsync_MongoDB_Driver_IMongoClient_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoClientExtensions.WatchAsync(IMongoClient, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -173,1490 +172,194 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoClient__ctor_" data-uid="MongoDB.Driver.MongoClient.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient__ctor" data-uid="MongoDB.Driver.MongoClient.#ctor">
-  MongoClient()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoClient class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoClient()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient__ctor_" data-uid="MongoDB.Driver.MongoClient.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient__ctor_MongoDB_Driver_MongoClientSettings_" data-uid="MongoDB.Driver.MongoClient.#ctor(MongoDB.Driver.MongoClientSettings)">
-  MongoClient(MongoClientSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L57"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoClient class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoClient(MongoClientSettings settings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>settings</code> <a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a></dt>
-    <dd><p>The settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.-ctor.html#MongoDB_Driver_MongoClient__ctor">MongoClient()</a></dt>
+    <dd><p>Initializes a new instance of the MongoClient class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient__ctor_" data-uid="MongoDB.Driver.MongoClient.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient__ctor_MongoDB_Driver_MongoUrl_" data-uid="MongoDB.Driver.MongoClient.#ctor(MongoDB.Driver.MongoUrl)">
-  MongoClient(MongoUrl)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L76"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoClient class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoClient(MongoUrl url)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>url</code> <a class="xref" href="MongoDB.Driver.MongoUrl.html">MongoUrl</a></dt>
-    <dd><p>The URL.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.-ctor.html#MongoDB_Driver_MongoClient__ctor_MongoDB_Driver_MongoClientSettings_">MongoClient(MongoClientSettings)</a></dt>
+    <dd><p>Initializes a new instance of the MongoClient class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient__ctor_" data-uid="MongoDB.Driver.MongoClient.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient__ctor_System_String_" data-uid="MongoDB.Driver.MongoClient.#ctor(System.String)">
-  MongoClient(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L85"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the MongoClient class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoClient(string connectionString)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>connectionString</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The connection string.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.-ctor.html#MongoDB_Driver_MongoClient__ctor_MongoDB_Driver_MongoUrl_">MongoClient(MongoUrl)</a></dt>
+    <dd><p>Initializes a new instance of the MongoClient class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.-ctor.html#MongoDB_Driver_MongoClient__ctor_System_String_">MongoClient(string)</a></dt>
+    <dd><p>Initializes a new instance of the MongoClient class.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoClient_Cluster_" data-uid="MongoDB.Driver.MongoClient.Cluster*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_Cluster" data-uid="MongoDB.Driver.MongoClient.Cluster">
-  Cluster
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L100"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the cluster.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override ICluster Cluster { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Clusters.ICluster.html">ICluster</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.Cluster.html#MongoDB_Driver_MongoClient_Cluster">Cluster</a></dt>
+    <dd><p>Gets the cluster.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_Settings_" data-uid="MongoDB.Driver.MongoClient.Settings*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_Settings" data-uid="MongoDB.Driver.MongoClient.Settings">
-  Settings
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L106"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the settings.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed MongoClientSettings Settings { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.Settings.html#MongoDB_Driver_MongoClient_Settings">Settings</a></dt>
+    <dd><p>Gets the settings.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoClient_DropDatabase_" data-uid="MongoDB.Driver.MongoClient.DropDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_DropDatabase_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.DropDatabase(MongoDB.Driver.IClientSessionHandle,System.String,System.Threading.CancellationToken)">
-  DropDatabase(IClientSessionHandle, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L137"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the database with the specified name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database to drop.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.DropDatabase.html#MongoDB_Driver_MongoClient_DropDatabase_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_">DropDatabase(IClientSessionHandle, string, CancellationToken)</a></dt>
+    <dd><p>Drops the database with the specified name.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_DropDatabase_" data-uid="MongoDB.Driver.MongoClient.DropDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_DropDatabase_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.DropDatabase(System.String,System.Threading.CancellationToken)">
-  DropDatabase(string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L131"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the database with the specified name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed void DropDatabase(string name, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database to drop.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.DropDatabase.html#MongoDB_Driver_MongoClient_DropDatabase_System_String_System_Threading_CancellationToken_">DropDatabase(string, CancellationToken)</a></dt>
+    <dd><p>Drops the database with the specified name.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_DropDatabaseAsync_" data-uid="MongoDB.Driver.MongoClient.DropDatabaseAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_DropDatabaseAsync_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.DropDatabaseAsync(MongoDB.Driver.IClientSessionHandle,System.String,System.Threading.CancellationToken)">
-  DropDatabaseAsync(IClientSessionHandle, string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L155"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the database with the specified name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database to drop.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.DropDatabaseAsync.html#MongoDB_Driver_MongoClient_DropDatabaseAsync_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_">DropDatabaseAsync(IClientSessionHandle, string, CancellationToken)</a></dt>
+    <dd><p>Drops the database with the specified name.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.DropDatabaseAsync.html#MongoDB_Driver_MongoClient_DropDatabaseAsync_System_String_System_Threading_CancellationToken_">DropDatabaseAsync(string, CancellationToken)</a></dt>
+    <dd><p>Drops the database with the specified name.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_DropDatabaseAsync_" data-uid="MongoDB.Driver.MongoClient.DropDatabaseAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_DropDatabaseAsync_System_String_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.DropDatabaseAsync(System.String,System.Threading.CancellationToken)">
-  DropDatabaseAsync(string, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L149"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops the database with the specified name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database to drop.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.GetDatabase.html#MongoDB_Driver_MongoClient_GetDatabase_System_String_MongoDB_Driver_MongoDatabaseSettings_">GetDatabase(string, MongoDatabaseSettings)</a></dt>
+    <dd><p>Gets a database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></dt>
-    <dd><p>A task.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNames.html#MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_">ListDatabaseNames(IClientSessionHandle, ListDatabaseNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_GetDatabase_" data-uid="MongoDB.Driver.MongoClient.GetDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_GetDatabase_System_String_MongoDB_Driver_MongoDatabaseSettings_" data-uid="MongoDB.Driver.MongoClient.GetDatabase(System.String,MongoDB.Driver.MongoDatabaseSettings)">
-  GetDatabase(string, MongoDatabaseSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L167"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>settings</code> <a class="xref" href="MongoDB.Driver.MongoDatabaseSettings.html">MongoDatabaseSettings</a></dt>
-    <dd><p>The database settings.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNames.html#MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_">ListDatabaseNames(IClientSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.html">IMongoDatabase</a></dt>
-    <dd><p>An implementation of a database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNames.html#MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_">ListDatabaseNames(ListDatabaseNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNames_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.ListDatabaseNamesOptions,System.Threading.CancellationToken)">
-  ListDatabaseNames(IClientSessionHandle, ListDatabaseNamesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L202"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;string&gt; ListDatabaseNames(IClientSessionHandle session, ListDatabaseNamesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabaseNamesOptions.html">ListDatabaseNamesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNames.html#MongoDB_Driver_MongoClient_ListDatabaseNames_System_Threading_CancellationToken_">ListDatabaseNames(CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync.html#MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_">ListDatabaseNamesAsync(IClientSessionHandle, ListDatabaseNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNames_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames(MongoDB.Driver.IClientSessionHandle,System.Threading.CancellationToken)">
-  ListDatabaseNames(IClientSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L194"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;string&gt; ListDatabaseNames(IClientSessionHandle session, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync.html#MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_">ListDatabaseNamesAsync(IClientSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync.html#MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_">ListDatabaseNamesAsync(ListDatabaseNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNames_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNames_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames(MongoDB.Driver.ListDatabaseNamesOptions,System.Threading.CancellationToken)">
-  ListDatabaseNames(ListDatabaseNamesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L186"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;string&gt; ListDatabaseNames(ListDatabaseNamesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabaseNamesOptions.html">ListDatabaseNamesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync.html#MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_System_Threading_CancellationToken_">ListDatabaseNamesAsync(CancellationToken)</a></dt>
+    <dd><p>Returns the names of the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabases.html#MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_">ListDatabases(IClientSessionHandle, ListDatabasesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNames_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNames_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNames(System.Threading.CancellationToken)">
-  ListDatabaseNames(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L179"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;string&gt; ListDatabaseNames(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabases.html#MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_">ListDatabases(IClientSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabases.html#MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_">ListDatabases(ListDatabasesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.ListDatabaseNamesOptions,System.Threading.CancellationToken)">
-  ListDatabaseNamesAsync(IClientSessionHandle, ListDatabaseNamesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L237"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;string&gt;&gt; ListDatabaseNamesAsync(IClientSessionHandle session, ListDatabaseNamesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabaseNamesOptions.html">ListDatabaseNamesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabases.html#MongoDB_Driver_MongoClient_ListDatabases_System_Threading_CancellationToken_">ListDatabases(CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabasesAsync.html#MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_">ListDatabasesAsync(IClientSessionHandle, ListDatabasesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync(MongoDB.Driver.IClientSessionHandle,System.Threading.CancellationToken)">
-  ListDatabaseNamesAsync(IClientSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L229"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;string&gt;&gt; ListDatabaseNamesAsync(IClientSessionHandle session, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabasesAsync.html#MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_">ListDatabasesAsync(IClientSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabasesAsync.html#MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_">ListDatabasesAsync(ListDatabasesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_MongoDB_Driver_ListDatabaseNamesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync(MongoDB.Driver.ListDatabaseNamesOptions,System.Threading.CancellationToken)">
-  ListDatabaseNamesAsync(ListDatabaseNamesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L221"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;string&gt;&gt; ListDatabaseNamesAsync(ListDatabaseNamesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabaseNamesOptions.html">ListDatabaseNamesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.ListDatabasesAsync.html#MongoDB_Driver_MongoClient_ListDatabasesAsync_System_Threading_CancellationToken_">ListDatabasesAsync(CancellationToken)</a></dt>
+    <dd><p>Lists the databases on the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.StartSession.html#MongoDB_Driver_MongoClient_StartSession_MongoDB_Driver_ClientSessionOptions_System_Threading_CancellationToken_">StartSession(ClientSessionOptions, CancellationToken)</a></dt>
+    <dd><p>Starts a client session.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabaseNamesAsync_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabaseNamesAsync(System.Threading.CancellationToken)">
-  ListDatabaseNamesAsync(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L214"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the names of the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;string&gt;&gt; ListDatabaseNamesAsync(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.StartSessionAsync.html#MongoDB_Driver_MongoClient_StartSessionAsync_MongoDB_Driver_ClientSessionOptions_System_Threading_CancellationToken_">StartSessionAsync(ClientSessionOptions, CancellationToken)</a></dt>
+    <dd><p>Starts a client session.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;&gt;</dt>
-    <dd><p>The database names.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.WatchAsync.html#MongoDB_Driver_MongoClient_WatchAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in all databases.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabases_" data-uid="MongoDB.Driver.MongoClient.ListDatabases*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabases(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.ListDatabasesOptions,System.Threading.CancellationToken)">
-  ListDatabases(IClientSessionHandle, ListDatabasesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L272"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;BsonDocument&gt; ListDatabases(IClientSessionHandle session, ListDatabasesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabasesOptions.html">ListDatabasesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.WatchAsync.html#MongoDB_Driver_MongoClient_WatchAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in all databases.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>A cursor.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.Watch.html#MongoDB_Driver_MongoClient_Watch__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in all databases.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabases_" data-uid="MongoDB.Driver.MongoClient.ListDatabases*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabases(MongoDB.Driver.IClientSessionHandle,System.Threading.CancellationToken)">
-  ListDatabases(IClientSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L264"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;BsonDocument&gt; ListDatabases(IClientSessionHandle session, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.Watch.html#MongoDB_Driver_MongoClient_Watch__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in all databases.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>A cursor.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.WithReadConcern.html#MongoDB_Driver_MongoClient_WithReadConcern_MongoDB_Driver_ReadConcern_">WithReadConcern(ReadConcern)</a></dt>
+    <dd><p>Returns a new IMongoClient instance with a different read concern setting.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabases_" data-uid="MongoDB.Driver.MongoClient.ListDatabases*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabases_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabases(MongoDB.Driver.ListDatabasesOptions,System.Threading.CancellationToken)">
-  ListDatabases(ListDatabasesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L256"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;BsonDocument&gt; ListDatabases(ListDatabasesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabasesOptions.html">ListDatabasesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.WithReadPreference.html#MongoDB_Driver_MongoClient_WithReadPreference_MongoDB_Driver_ReadPreference_">WithReadPreference(ReadPreference)</a></dt>
+    <dd><p>Returns a new IMongoClient instance with a different read preference setting.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>A cursor.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClient.WithWriteConcern.html#MongoDB_Driver_MongoClient_WithWriteConcern_MongoDB_Driver_WriteConcern_">WithWriteConcern(WriteConcern)</a></dt>
+    <dd><p>Returns a new IMongoClient instance with a different write concern setting.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabases_" data-uid="MongoDB.Driver.MongoClient.ListDatabases*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabases_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabases(System.Threading.CancellationToken)">
-  ListDatabases(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L249"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IAsyncCursor&lt;BsonDocument&gt; ListDatabases(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>A cursor.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabasesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.ListDatabasesOptions,System.Threading.CancellationToken)">
-  ListDatabasesAsync(IClientSessionHandle, ListDatabasesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L308"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;BsonDocument&gt;&gt; ListDatabasesAsync(IClientSessionHandle session, ListDatabasesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabasesOptions.html">ListDatabasesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
-    <dd><p>A Task whose result is a cursor.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabasesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_IClientSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync(MongoDB.Driver.IClientSessionHandle,System.Threading.CancellationToken)">
-  ListDatabasesAsync(IClientSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L300"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;BsonDocument&gt;&gt; ListDatabasesAsync(IClientSessionHandle session, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
-    <dd><p>A Task whose result is a cursor.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabasesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabasesAsync_MongoDB_Driver_ListDatabasesOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync(MongoDB.Driver.ListDatabasesOptions,System.Threading.CancellationToken)">
-  ListDatabasesAsync(ListDatabasesOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L292"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;BsonDocument&gt;&gt; ListDatabasesAsync(ListDatabasesOptions options, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ListDatabasesOptions.html">ListDatabasesOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
-    <dd><p>A Task whose result is a cursor.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_ListDatabasesAsync_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_ListDatabasesAsync_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.ListDatabasesAsync(System.Threading.CancellationToken)">
-  ListDatabasesAsync(CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L285"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Lists the databases on the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IAsyncCursor&lt;BsonDocument&gt;&gt; ListDatabasesAsync(CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IAsyncCursor-1.html">IAsyncCursor</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
-    <dd><p>A Task whose result is a cursor.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_StartSession_" data-uid="MongoDB.Driver.MongoClient.StartSession*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_StartSession_MongoDB_Driver_ClientSessionOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.StartSession(MongoDB.Driver.ClientSessionOptions,System.Threading.CancellationToken)">
-  StartSession(ClientSessionOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L339"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Starts a client session.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ClientSessionOptions.html">ClientSessionOptions</a></dt>
-    <dd><p>The session options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>A client session.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_StartSessionAsync_" data-uid="MongoDB.Driver.MongoClient.StartSessionAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_StartSessionAsync_MongoDB_Driver_ClientSessionOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.StartSessionAsync(MongoDB.Driver.ClientSessionOptions,System.Threading.CancellationToken)">
-  StartSessionAsync(ClientSessionOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L345"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Starts a client session.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override sealed Task&lt;IClientSessionHandle&gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ClientSessionOptions.html">ClientSessionOptions</a></dt>
-    <dd><p>The session options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a>&gt;</dt>
-    <dd><p>A Task whose result is a client session.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_WatchAsync_" data-uid="MongoDB.Driver.MongoClient.WatchAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_WatchAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.WatchAsync``1(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.PipelineDefinition{MongoDB.Driver.ChangeStreamDocument{MongoDB.Bson.BsonDocument},``0},MongoDB.Driver.ChangeStreamOptions,System.Threading.CancellationToken)">
-  WatchAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L382"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Watches changes on all collections in all databases.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override Task&lt;IChangeStreamCursor&lt;TResult&gt;&gt; WatchAsync&lt;TResult&gt;(IClientSessionHandle session, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt; pipeline, ChangeStreamOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;, TResult&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamOptions.html">ChangeStreamOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IChangeStreamCursor-1.html">IChangeStreamCursor</a>&lt;TResult&gt;&gt;</dt>
-    <dd><p>A change stream.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_WatchAsync_" data-uid="MongoDB.Driver.MongoClient.WatchAsync*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_WatchAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.WatchAsync``1(MongoDB.Driver.PipelineDefinition{MongoDB.Driver.ChangeStreamDocument{MongoDB.Bson.BsonDocument},``0},MongoDB.Driver.ChangeStreamOptions,System.Threading.CancellationToken)">
-  WatchAsync&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L373"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Watches changes on all collections in all databases.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override Task&lt;IChangeStreamCursor&lt;TResult&gt;&gt; WatchAsync&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt; pipeline, ChangeStreamOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;, TResult&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamOptions.html">ChangeStreamOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="MongoDB.Driver.IChangeStreamCursor-1.html">IChangeStreamCursor</a>&lt;TResult&gt;&gt;</dt>
-    <dd><p>A change stream.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_Watch_" data-uid="MongoDB.Driver.MongoClient.Watch*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_Watch__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.Watch``1(MongoDB.Driver.IClientSessionHandle,MongoDB.Driver.PipelineDefinition{MongoDB.Driver.ChangeStreamDocument{MongoDB.Bson.BsonDocument},``0},MongoDB.Driver.ChangeStreamOptions,System.Threading.CancellationToken)">
-  Watch&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L360"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Watches changes on all collections in all databases.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IChangeStreamCursor&lt;TResult&gt; Watch&lt;TResult&gt;(IClientSessionHandle session, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt; pipeline, ChangeStreamOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.IClientSessionHandle.html">IClientSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;, TResult&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamOptions.html">ChangeStreamOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IChangeStreamCursor-1.html">IChangeStreamCursor</a>&lt;TResult&gt;</dt>
-    <dd><p>A change stream.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_Watch_" data-uid="MongoDB.Driver.MongoClient.Watch*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_Watch__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.MongoClient.Watch``1(MongoDB.Driver.PipelineDefinition{MongoDB.Driver.ChangeStreamDocument{MongoDB.Bson.BsonDocument},``0},MongoDB.Driver.ChangeStreamOptions,System.Threading.CancellationToken)">
-  Watch&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L351"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Watches changes on all collections in all databases.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IChangeStreamCursor&lt;TResult&gt; Watch&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt; pipeline, ChangeStreamOptions options = null, CancellationToken cancellationToken = default)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;<a class="xref" href="MongoDB.Driver.ChangeStreamDocument-1.html">ChangeStreamDocument</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;, TResult&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.ChangeStreamOptions.html">ChangeStreamOptions</a></dt>
-    <dd><p>The options.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IChangeStreamCursor-1.html">IChangeStreamCursor</a>&lt;TResult&gt;</dt>
-    <dd><p>A change stream.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_WithReadConcern_" data-uid="MongoDB.Driver.MongoClient.WithReadConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_WithReadConcern_MongoDB_Driver_ReadConcern_" data-uid="MongoDB.Driver.MongoClient.WithReadConcern(MongoDB.Driver.ReadConcern)">
-  WithReadConcern(ReadConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L395"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new IMongoClient instance with a different read concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IMongoClient WithReadConcern(ReadConcern readConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readConcern</code> <a class="xref" href="MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
-    <dd><p>The read concern.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoClient.html">IMongoClient</a></dt>
-    <dd><p>A new IMongoClient instance with a different read concern setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_WithReadPreference_" data-uid="MongoDB.Driver.MongoClient.WithReadPreference*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_WithReadPreference_MongoDB_Driver_ReadPreference_" data-uid="MongoDB.Driver.MongoClient.WithReadPreference(MongoDB.Driver.ReadPreference)">
-  WithReadPreference(ReadPreference)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L404"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new IMongoClient instance with a different read preference setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IMongoClient WithReadPreference(ReadPreference readPreference)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readPreference</code> <a class="xref" href="MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoClient.html">IMongoClient</a></dt>
-    <dd><p>A new IMongoClient instance with a different read preference setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoClient_WithWriteConcern_" data-uid="MongoDB.Driver.MongoClient.WithWriteConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoClient_WithWriteConcern_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoClient.WithWriteConcern(MongoDB.Driver.WriteConcern)">
-  WithWriteConcern(WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoClient.cs/#L413"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new IMongoClient instance with a different write concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override IMongoClient WithWriteConcern(WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>writeConcern</code> <a class="xref" href="MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.IMongoClient.html">IMongoClient</a></dt>
-    <dd><p>A new IMongoClient instance with a different write concern setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

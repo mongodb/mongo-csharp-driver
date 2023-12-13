@@ -149,346 +149,50 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Analyzer*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer_MongoDB_Driver_FieldDefinition__0__System_String_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Analyzer(MongoDB.Driver.FieldDefinition{`0},System.String)">
-  Analyzer(FieldDefinition&lt;TDocument&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L37"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path that searches using the specified analyzer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Analyzer(FieldDefinition&lt;TDocument&gt; field, string analyzerName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field definition</p>
-</dd>
-    <dt><code>analyzerName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the analyzer.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Analyzer.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer_MongoDB_Driver_FieldDefinition__0__System_String_">Analyzer(FieldDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Creates a search path that searches using the specified analyzer.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>An analyzer search path.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Analyzer.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer__1_System_Linq_Expressions_Expression_System_Func__0___0___System_String_">Analyzer&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, string)</a></dt>
+    <dd><p>Creates a search path that searches using the specified analyzer.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Analyzer*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Analyzer__1_System_Linq_Expressions_Expression_System_Func__0___0___System_String_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Analyzer``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.String)">
-  Analyzer&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L47"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path that searches using the specified analyzer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Analyzer&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; field, string analyzerName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field definition</p>
-</dd>
-    <dt><code>analyzerName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the analyzer.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Multi.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_MongoDB_Driver_FieldDefinition__0____">Multi(params FieldDefinition&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates a search path for multiple fields.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>An analyzer search path.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Multi.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_System_Collections_Generic_IEnumerable_MongoDB_Driver_FieldDefinition__0___">Multi(IEnumerable&lt;FieldDefinition&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates a search path for multiple fields.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Multi.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi__1_System_Linq_Expressions_Expression_System_Func__0___0_____">Multi&lt;TField&gt;(params Expression&lt;Func&lt;TDocument, TField&gt;&gt;[])</a></dt>
+    <dd><p>Creates a search path for multiple fields.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_MongoDB_Driver_FieldDefinition__0____" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi(MongoDB.Driver.FieldDefinition{`0}[])">
-  Multi(params FieldDefinition&lt;TDocument&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L63"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path for multiple fields.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Multi(params FieldDefinition&lt;TDocument&gt;[] fields)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>fields</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;[]</dt>
-    <dd><p>The array of field definitions.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Single.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single_MongoDB_Driver_FieldDefinition__0__">Single(FieldDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search path for a single field.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A multi-field search path.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Single.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single__1_System_Linq_Expressions_Expression_System_Func__0___0___">Single&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;)</a></dt>
+    <dd><p>Creates a search path for a single field.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_System_Collections_Generic_IEnumerable_MongoDB_Driver_FieldDefinition__0___" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi(System.Collections.Generic.IEnumerable{MongoDB.Driver.FieldDefinition{`0}})">
-  Multi(IEnumerable&lt;FieldDefinition&lt;TDocument&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L55"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path for multiple fields.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Multi(IEnumerable&lt;FieldDefinition&lt;TDocument&gt;&gt; fields)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>fields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;&gt;</dt>
-    <dd><p>The collection of field definitions.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A multi-field search path.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Multi__1_System_Linq_Expressions_Expression_System_Func__0___0_____" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Multi``1(System.Linq.Expressions.Expression{System.Func{`0,``0}}[])">
-  Multi&lt;TField&gt;(params Expression&lt;Func&lt;TDocument, TField&gt;&gt;[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L72"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path for multiple fields.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Multi&lt;TField&gt;(params Expression&lt;Func&lt;TDocument, TField&gt;&gt;[] fields)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>fields</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;[]</dt>
-    <dd><p>The array of field definitions.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A multi-field search path.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the fields.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Single*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single_MongoDB_Driver_FieldDefinition__0__" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Single(MongoDB.Driver.FieldDefinition{`0})">
-  Single(FieldDefinition&lt;TDocument&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L80"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path for a single field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Single(FieldDefinition&lt;TDocument&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>field</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>The field definition.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A single-field search path.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Single*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Single__1_System_Linq_Expressions_Expression_System_Func__0___0___" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Single``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
-  Single&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L89"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path for a single field.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Single&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; field)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>field</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
-    <dd><p>The field definition.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A single-field search path.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TField</code></dt>
-    <dd><p>The type of the field.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Wildcard_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Wildcard*"></a>
-
-  <h3 id="MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Wildcard_System_String_" data-uid="MongoDB.Driver.Search.SearchPathDefinitionBuilder`1.Wildcard(System.String)">
-  Wildcard(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Search/SearchPathDefinitionBuilder.cs/#L100"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a search path that uses special characters in the field name
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.Wildcard.html#MongoDB_Driver_Search_SearchPathDefinitionBuilder_1_Wildcard_System_String_">Wildcard(string)</a></dt>
+    <dd><p>Creates a search path that uses special characters in the field name
 that can match any character.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SearchPathDefinition&lt;TDocument&gt; Wildcard(string query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>query</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The wildcard string that the field name must match.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
-    <dd><p>A wildcard search path.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

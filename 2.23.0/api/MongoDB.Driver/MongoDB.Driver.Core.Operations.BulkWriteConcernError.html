@@ -144,304 +144,53 @@ public sealed class BulkWriteConcernError</code></pre>
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor(System.Int32,System.String,MongoDB.Bson.BsonDocument)">
-  BulkWriteConcernError(int, string, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L43"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BulkWriteConcernError(int code, string message, BsonDocument details)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>code</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The code.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>details</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The details.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.-ctor.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_MongoDB_Bson_BsonDocument_">BulkWriteConcernError(int, string, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_System_String_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor(System.Int32,System.String,System.String,MongoDB.Bson.BsonDocument)">
-  BulkWriteConcernError(int, string, string, BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L55"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>code</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The code.</p>
-</dd>
-    <dt><code>codeName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the code.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>details</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The details.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.-ctor.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_System_String_MongoDB_Bson_BsonDocument_">BulkWriteConcernError(int, string, string, BsonDocument)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_System_String_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_System_String__" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.#ctor(System.Int32,System.String,System.String,MongoDB.Bson.BsonDocument,System.Collections.Generic.IEnumerable{System.String})">
-  BulkWriteConcernError(int, string, string, BsonDocument, IEnumerable&lt;string&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L68"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details, IEnumerable&lt;string&gt; errorLabels)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>code</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The code.</p>
-</dd>
-    <dt><code>codeName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the code.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The message.</p>
-</dd>
-    <dt><code>details</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The details.</p>
-</dd>
-    <dt><code>errorLabels</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The error labels.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.-ctor.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError__ctor_System_Int32_System_String_System_String_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_System_String__">BulkWriteConcernError(int, string, string, BsonDocument, IEnumerable&lt;string&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Code_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Code*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Code" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Code">
-  Code
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L84"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Code { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Code.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError_Code">Code</a></dt>
+    <dd><p>Gets the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_CodeName_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.CodeName*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_CodeName" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.CodeName">
-  CodeName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L95"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the error code.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string CodeName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the error code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.CodeName.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError_CodeName">CodeName</a></dt>
+    <dd><p>Gets the name of the error code.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Details_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Details*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Details" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Details">
-  Details
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L106"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error details.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonDocument Details { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The error details.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Details.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError_Details">Details</a></dt>
+    <dd><p>Gets the error details.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_ErrorLabels_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.ErrorLabels*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_ErrorLabels" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.ErrorLabels">
-  ErrorLabels
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L117"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error labels.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt; ErrorLabels { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>The error labels.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.ErrorLabels.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError_ErrorLabels">ErrorLabels</a></dt>
+    <dd><p>Gets the error labels.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Message_" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Message*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_BulkWriteConcernError_Message" data-uid="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Message">
-  Message
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/BulkWriteConcernError.cs/#L128"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the error message.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Message { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The error message.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.Message.html#MongoDB_Driver_Core_Operations_BulkWriteConcernError_Message">Message</a></dt>
+    <dd><p>Gets the error message.</p>
 </dd>
   </dl>
-
-
-
-
-
-
 
 
 

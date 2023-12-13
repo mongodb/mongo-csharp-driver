@@ -143,10 +143,9 @@
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -154,2281 +153,314 @@
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDatabase__ctor_" data-uid="MongoDB.Driver.MongoDatabase.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase__ctor_MongoDB_Driver_MongoServer_System_String_MongoDB_Driver_MongoDatabaseSettings_" data-uid="MongoDB.Driver.MongoDatabase.#ctor(MongoDB.Driver.MongoServer,System.String,MongoDB.Driver.MongoDatabaseSettings)">
-  MongoDatabase(MongoServer, string, MongoDatabaseSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L54"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.-ctor.html#MongoDB_Driver_MongoDatabase__ctor_MongoDB_Driver_MongoServer_System_String_MongoDB_Driver_MongoDatabaseSettings_">MongoDatabase(MongoServer, string, MongoDatabaseSettings)</a></dt>
+    <dd><p>Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
 of MongoServer instead.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;User server.GetDatabase() instead.&quot;)]
-public MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>server</code> <a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd><p>The server that contains this database.</p>
-</dd>
-    <dt><code>name</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database.</p>
-</dd>
-    <dt><code>settings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDatabaseSettings.html">MongoDatabaseSettings</a></dt>
-    <dd><p>The settings to use to access this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDatabase_CommandCollection_" data-uid="MongoDB.Driver.MongoDatabase.CommandCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_CommandCollection" data-uid="MongoDB.Driver.MongoDatabase.CommandCollection">
-  CommandCollection
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L94"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the command collection for this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;CommandCollection will be removed and there will be no replacement.&quot;)]
-public virtual MongoCollection&lt;BsonDocument&gt; CommandCollection { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.CommandCollection.html#MongoDB_Driver_MongoDatabase_CommandCollection">CommandCollection</a></dt>
+    <dd><p>Gets the command collection for this database.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GridFS_" data-uid="MongoDB.Driver.MongoDatabase.GridFS*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GridFS" data-uid="MongoDB.Driver.MongoDatabase.GridFS">
-  GridFS
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L108"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the default GridFS instance for this database. The default GridFS instance uses default GridFS
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GridFS.html#MongoDB_Driver_MongoDatabase_GridFS">GridFS</a></dt>
+    <dd><p>Gets the default GridFS instance for this database. The default GridFS instance uses default GridFS
 settings. See also GetGridFS if you need to use GridFS with custom settings.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoGridFS GridFS { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
-    <dd></dd>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Item_" data-uid="MongoDB.Driver.MongoDatabase.Item*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Item_System_String_" data-uid="MongoDB.Driver.MongoDatabase.Item(System.String)">
-  this[string]
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L144"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Item.html#MongoDB_Driver_MongoDatabase_Item_System_String_">this[string]</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use GetCollection instead.&quot;)]
-public virtual MongoCollection&lt;BsonDocument&gt; this[string collectionName] { get; }</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Item_" data-uid="MongoDB.Driver.MongoDatabase.Item*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Item_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.Item(System.String,MongoDB.Driver.WriteConcern)">
-  this[string, WriteConcern]
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L157"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Item.html#MongoDB_Driver_MongoDatabase_Item_System_String_MongoDB_Driver_WriteConcern_">this[string, WriteConcern]</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use GetCollection instead.&quot;)]
-public virtual MongoCollection&lt;BsonDocument&gt; this[string collectionName, WriteConcern writeConcern] { get; }</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use when accessing this collection.</p>
 </dd>
   </dl>
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Name.html#MongoDB_Driver_MongoDatabase_Name">Name</a></dt>
+    <dd><p>Gets the name of this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Name_" data-uid="MongoDB.Driver.MongoDatabase.Name*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Name" data-uid="MongoDB.Driver.MongoDatabase.Name">
-  Name
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L116"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual string Name { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Server.html#MongoDB_Driver_MongoDatabase_Server">Server</a></dt>
+    <dd><p>Gets the server that contains this database.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Server_" data-uid="MongoDB.Driver.MongoDatabase.Server*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Server" data-uid="MongoDB.Driver.MongoDatabase.Server">
-  Server
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L124"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server that contains this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoServer Server { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Settings.html#MongoDB_Driver_MongoDatabase_Settings">Settings</a></dt>
+    <dd><p>Gets the settings being used to access this database.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Settings_" data-uid="MongoDB.Driver.MongoDatabase.Settings*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Settings" data-uid="MongoDB.Driver.MongoDatabase.Settings">
-  Settings
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L132"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the settings being used to access this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabaseSettings Settings { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDatabaseSettings.html">MongoDatabaseSettings</a></dt>
-    <dd></dd>
-  </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDatabase_AddUser_" data-uid="MongoDB.Driver.MongoDatabase.AddUser*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_AddUser_MongoDB_Driver_MongoUser_" data-uid="MongoDB.Driver.MongoDatabase.AddUser(MongoDB.Driver.MongoUser)">
-  AddUser(MongoUser)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L168"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a user to this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the new user management command &#39;createUser&#39; or &#39;updateUser&#39;.&quot;)]
-public virtual void AddUser(MongoUser user)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>user</code> <a class="xref" href="MongoDB.Driver.MongoUser.html">MongoUser</a></dt>
-    <dd><p>The user.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.AddUser.html#MongoDB_Driver_MongoDatabase_AddUser_MongoDB_Driver_MongoUser_">AddUser(MongoUser)</a></dt>
+    <dd><p>Adds a user to this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_CollectionExists_" data-uid="MongoDB.Driver.MongoDatabase.CollectionExists*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_CollectionExists_System_String_" data-uid="MongoDB.Driver.MongoDatabase.CollectionExists(System.String)">
-  CollectionExists(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L192"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tests whether a collection exists on this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual bool CollectionExists(string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.CollectionExists.html#MongoDB_Driver_MongoDatabase_CollectionExists_System_String_">CollectionExists(string)</a></dt>
+    <dd><p>Tests whether a collection exists on this database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the collection exists.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_CreateCollection_" data-uid="MongoDB.Driver.MongoDatabase.CreateCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_CreateCollection_System_String_" data-uid="MongoDB.Driver.MongoDatabase.CreateCollection(System.String)">
-  CreateCollection(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L208"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a collection. MongoDB creates collections automatically when they are first used, so
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.CreateCollection.html#MongoDB_Driver_MongoDatabase_CreateCollection_System_String_">CreateCollection(string)</a></dt>
+    <dd><p>Creates a collection. MongoDB creates collections automatically when they are first used, so
 this command is mainly here for frameworks.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult CreateCollection(string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_CreateCollection_" data-uid="MongoDB.Driver.MongoDatabase.CreateCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_CreateCollection_System_String_MongoDB_Driver_IMongoCollectionOptions_" data-uid="MongoDB.Driver.MongoDatabase.CreateCollection(System.String,MongoDB.Driver.IMongoCollectionOptions)">
-  CreateCollection(string, IMongoCollectionOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L220"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a collection. MongoDB creates collections automatically when they are first used, so
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.CreateCollection.html#MongoDB_Driver_MongoDatabase_CreateCollection_System_String_MongoDB_Driver_IMongoCollectionOptions_">CreateCollection(string, IMongoCollectionOptions)</a></dt>
+    <dd><p>Creates a collection. MongoDB creates collections automatically when they are first used, so
 you only need to call this method if you want to provide non-default options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.IMongoCollectionOptions.html">IMongoCollectionOptions</a></dt>
-    <dd><p>Options for creating this collection (usually a CollectionOptionsDocument or constructed using the CollectionOptions builder).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.CreateView.html#MongoDB_Driver_MongoDatabase_CreateView_System_String_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Driver_IMongoCreateViewOptions_">CreateView(string, string, IEnumerable&lt;BsonDocument&gt;, IMongoCreateViewOptions)</a></dt>
+    <dd><p>Creates a view.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_CreateView_" data-uid="MongoDB.Driver.MongoDatabase.CreateView*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_CreateView_System_String_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument__MongoDB_Driver_IMongoCreateViewOptions_" data-uid="MongoDB.Driver.MongoDatabase.CreateView(System.String,System.String,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument},MongoDB.Driver.IMongoCreateViewOptions)">
-  CreateView(string, string, IEnumerable&lt;BsonDocument&gt;, IMongoCreateViewOptions)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L333"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a view.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult CreateView(string viewName, string viewOn, IEnumerable&lt;BsonDocument&gt; pipeline, IMongoCreateViewOptions options)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>viewName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the view.</p>
-</dd>
-    <dt><code>viewOn</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection that the view is on.</p>
-</dd>
-    <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>The pipeline.</p>
-</dd>
-    <dt><code>options</code> <a class="xref" href="MongoDB.Driver.IMongoCreateViewOptions.html">IMongoCreateViewOptions</a></dt>
-    <dd><p>The options.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Drop.html#MongoDB_Driver_MongoDatabase_Drop">Drop()</a></dt>
+    <dd><p>Drops a database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.DropCollection.html#MongoDB_Driver_MongoDatabase_DropCollection_System_String_">DropCollection(string)</a></dt>
+    <dd><p>Drops a collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Drop_" data-uid="MongoDB.Driver.MongoDatabase.Drop*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Drop" data-uid="MongoDB.Driver.MongoDatabase.Drop">
-  Drop()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L379"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops a database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual void Drop()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_DropCollection_" data-uid="MongoDB.Driver.MongoDatabase.DropCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_DropCollection_System_String_" data-uid="MongoDB.Driver.MongoDatabase.DropCollection(System.String)">
-  DropCollection(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L389"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Drops a collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult DropCollection(string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection to drop.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Eval.html#MongoDB_Driver_MongoDatabase_Eval_MongoDB_Bson_BsonJavaScript_System_Object___">Eval(BsonJavaScript, params object[])</a></dt>
+    <dd><p>Evaluates JavaScript code at the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Eval.html#MongoDB_Driver_MongoDatabase_Eval_MongoDB_Driver_EvalArgs_">Eval(EvalArgs)</a></dt>
+    <dd><p>Evaluates JavaScript code at the server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Eval_" data-uid="MongoDB.Driver.MongoDatabase.Eval*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Eval_MongoDB_Bson_BsonJavaScript_System_Object___" data-uid="MongoDB.Driver.MongoDatabase.Eval(MongoDB.Bson.BsonJavaScript,System.Object[])">
-  Eval(BsonJavaScript, params object[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L429"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Evaluates JavaScript code at the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the overload of Eval that has an EvalArgs parameter instead.&quot;)]
-public virtual BsonValue Eval(BsonJavaScript code, params object[] args)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>code</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonJavaScript.html">BsonJavaScript</a></dt>
-    <dd><p>The code to evaluate.</p>
-</dd>
-    <dt><code>args</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>[]</dt>
-    <dd><p>Optional arguments (only used when the code is a function with parameters).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.Eval.html#MongoDB_Driver_MongoDatabase_Eval_MongoDB_Driver_EvalFlags_MongoDB_Bson_BsonJavaScript_System_Object___">Eval(EvalFlags, BsonJavaScript, params object[])</a></dt>
+    <dd><p>Evaluates JavaScript code at the server.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The result of evaluating the code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.FetchDBRef.html#MongoDB_Driver_MongoDatabase_FetchDBRef_MongoDB_Driver_MongoDBRef_">FetchDBRef(MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Eval_" data-uid="MongoDB.Driver.MongoDatabase.Eval*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Eval_MongoDB_Driver_EvalArgs_" data-uid="MongoDB.Driver.MongoDatabase.Eval(MongoDB.Driver.EvalArgs)">
-  Eval(EvalArgs)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L442"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Evaluates JavaScript code at the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual BsonValue Eval(EvalArgs args)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>args</code> <a class="xref" href="MongoDB.Driver.EvalArgs.html">EvalArgs</a></dt>
-    <dd><p>The args.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.FetchDBRefAs.html#MongoDB_Driver_MongoDatabase_FetchDBRefAs_System_Type_MongoDB_Driver_MongoDBRef_">FetchDBRefAs(Type, MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The result of evaluating the code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.FetchDBRefAs.html#MongoDB_Driver_MongoDatabase_FetchDBRefAs__1_MongoDB_Driver_MongoDBRef_">FetchDBRefAs&lt;TDocument&gt;(MongoDBRef)</a></dt>
+    <dd><p>Fetches the document referred to by the DBRef, deserialized as a <code class="typeparamref">TDocument</code>.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_Eval_" data-uid="MongoDB.Driver.MongoDatabase.Eval*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_Eval_MongoDB_Driver_EvalFlags_MongoDB_Bson_BsonJavaScript_System_Object___" data-uid="MongoDB.Driver.MongoDatabase.Eval(MongoDB.Driver.EvalFlags,MongoDB.Bson.BsonJavaScript,System.Object[])">
-  Eval(EvalFlags, BsonJavaScript, params object[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L414"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Evaluates JavaScript code at the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the overload of Eval that has an EvalArgs parameter instead.&quot;)]
-public virtual BsonValue Eval(EvalFlags flags, BsonJavaScript code, params object[] args)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>flags</code> <a class="xref" href="MongoDB.Driver.EvalFlags.html">EvalFlags</a></dt>
-    <dd><p>Flags that control Eval options.</p>
-</dd>
-    <dt><code>code</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonJavaScript.html">BsonJavaScript</a></dt>
-    <dd><p>The code to evaluate.</p>
-</dd>
-    <dt><code>args</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>[]</dt>
-    <dd><p>Optional arguments (only used when the code is a function with parameters).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.FindAllUsers.html#MongoDB_Driver_MongoDatabase_FindAllUsers">FindAllUsers()</a></dt>
+    <dd><p>Finds all users of this database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The result of evaluating the code.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.FindUser.html#MongoDB_Driver_MongoDatabase_FindUser_System_String_">FindUser(string)</a></dt>
+    <dd><p>Finds a user of this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_FetchDBRef_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRef*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_FetchDBRef_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRef(MongoDB.Driver.MongoDBRef)">
-  FetchDBRef(MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L467"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual BsonDocument FetchDBRef(MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument (or null if the document was not found).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_FetchDBRefAs_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRefAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_FetchDBRefAs_System_Type_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRefAs(System.Type,MongoDB.Driver.MongoDBRef)">
-  FetchDBRefAs(Type, MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L489"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>documentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The nominal type of the document to fetch.</p>
-</dd>
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>An instance of nominalType (or null if the document was not found).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_FetchDBRefAs_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRefAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_FetchDBRefAs__1_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDatabase.FetchDBRefAs``1(MongoDB.Driver.MongoDBRef)">
-  FetchDBRefAs&lt;TDocument&gt;(MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L478"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Fetches the document referred to by the DBRef, deserialized as a <code class="typeparamref">TDocument</code>.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual TDocument FetchDBRefAs&lt;TDocument&gt;(MongoDBRef dbRef)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dbRef</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoDBRef.html">MongoDBRef</a> to fetch.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TDocument</span></dt>
-    <dd><p>A <code class="typeparamref">TDocument</code> (or null if the document was not found).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDocument</code></dt>
-    <dd><p>The nominal type of the document to fetch.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_FindAllUsers_" data-uid="MongoDB.Driver.MongoDatabase.FindAllUsers*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_FindAllUsers" data-uid="MongoDB.Driver.MongoDatabase.FindAllUsers">
-  FindAllUsers()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L505"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds all users of this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the new user management command &#39;usersInfo&#39;.&quot;)]
-public virtual MongoUser[] FindAllUsers()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoUser.html">MongoUser</a>[]</dt>
-    <dd><p>An array of users.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_FindUser_" data-uid="MongoDB.Driver.MongoDatabase.FindUser*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_FindUser_System_String_" data-uid="MongoDB.Driver.MongoDatabase.FindUser(System.String)">
-  FindUser(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L525"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Finds a user of this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use the new user management command &#39;usersInfo&#39;.&quot;)]
-public virtual MongoUser FindUser(string username)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>username</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The username.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoUser.html">MongoUser</a></dt>
-    <dd><p>The user.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_String_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.String)">
-  GetCollection(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L589"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_String_">GetCollection(string)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;BsonDocument&gt; GetCollection(string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_String_MongoDB_Driver_MongoCollectionSettings_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.String,MongoDB.Driver.MongoCollectionSettings)">
-  GetCollection(string, MongoCollectionSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L601"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_String_MongoDB_Driver_MongoCollectionSettings_">GetCollection(string, MongoCollectionSettings)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of TDefaultDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;BsonDocument&gt; GetCollection(string collectionName, MongoCollectionSettings collectionSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>collectionSettings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoCollectionSettings.html">MongoCollectionSettings</a></dt>
-    <dd><p>The settings to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.String,MongoDB.Driver.WriteConcern)">
-  GetCollection(string, WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L613"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_String_MongoDB_Driver_WriteConcern_">GetCollection(string, WriteConcern)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;BsonDocument&gt; GetCollection(string collectionName, WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.Type,System.String)">
-  GetCollection(Type, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L625"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_">GetCollection(Type, string)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>defaultDocumentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The default document type.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_MongoDB_Driver_MongoCollectionSettings_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.Type,System.String,MongoDB.Driver.MongoCollectionSettings)">
-  GetCollection(Type, string, MongoCollectionSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L639"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_MongoDB_Driver_MongoCollectionSettings_">GetCollection(Type, string, MongoCollectionSettings)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName, MongoCollectionSettings collectionSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>defaultDocumentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The default document type.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>collectionSettings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoCollectionSettings.html">MongoCollectionSettings</a></dt>
-    <dd><p>The settings to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection(System.Type,System.String,MongoDB.Driver.WriteConcern)">
-  GetCollection(Type, string, WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L659"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection_System_Type_System_String_MongoDB_Driver_WriteConcern_">GetCollection(Type, string, WriteConcern)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName, WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>defaultDocumentType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The default document type.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
-    <dd><p>An instance of MongoCollection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollectionNames.html#MongoDB_Driver_MongoDatabase_GetCollectionNames">GetCollectionNames()</a></dt>
+    <dd><p>Gets a list of the names of all the collections in this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollectionNames_" data-uid="MongoDB.Driver.MongoDatabase.GetCollectionNames*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollectionNames" data-uid="MongoDB.Driver.MongoDatabase.GetCollectionNames">
-  GetCollectionNames()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L672"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a list of the names of all the collections in this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual IEnumerable&lt;string&gt; GetCollectionNames()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
-    <dd><p>A list of collection names.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection``1(System.String)">
-  GetCollection&lt;TDefaultDocument&gt;(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L547"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_">GetCollection&lt;TDefaultDocument&gt;(string)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of TDefaultDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;TDefaultDocument&gt; GetCollection&lt;TDefaultDocument&gt;(string collectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;TDefaultDocument&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDefaultDocument</code></dt>
-    <dd><p>The default document type for this collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_MongoDB_Driver_MongoCollectionSettings_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection``1(System.String,MongoDB.Driver.MongoCollectionSettings)">
-  GetCollection&lt;TDefaultDocument&gt;(string, MongoCollectionSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L561"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_MongoDB_Driver_MongoCollectionSettings_">GetCollection&lt;TDefaultDocument&gt;(string, MongoCollectionSettings)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of TDefaultDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;TDefaultDocument&gt; GetCollection&lt;TDefaultDocument&gt;(string collectionName, MongoCollectionSettings collectionSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>collectionSettings</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.MongoCollectionSettings.html">MongoCollectionSettings</a></dt>
-    <dd><p>The settings to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;TDefaultDocument&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDefaultDocument</code></dt>
-    <dd><p>The default document type for this collection.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCollection_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.GetCollection``1(System.String,MongoDB.Driver.WriteConcern)">
-  GetCollection&lt;TDefaultDocument&gt;(string, WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L575"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a MongoCollection instance representing a collection on this database
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCollection.html#MongoDB_Driver_MongoDatabase_GetCollection__1_System_String_MongoDB_Driver_WriteConcern_">GetCollection&lt;TDefaultDocument&gt;(string, WriteConcern)</a></dt>
+    <dd><p>Gets a MongoCollection instance representing a collection on this database
 with a default document type of TDefaultDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoCollection&lt;TDefaultDocument&gt; GetCollection&lt;TDefaultDocument&gt;(string collectionName, WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection.</p>
-</dd>
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern to use when accessing this collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection</a>&lt;TDefaultDocument&gt;</dt>
-    <dd><p>An instance of MongoCollection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetCurrentOp.html#MongoDB_Driver_MongoDatabase_GetCurrentOp">GetCurrentOp()</a></dt>
+    <dd><p>Gets the current operation.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TDefaultDocument</code></dt>
-    <dd><p>The default document type for this collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetGridFS.html#MongoDB_Driver_MongoDatabase_GetGridFS_MongoDB_Driver_GridFS_MongoGridFSSettings_">GetGridFS(MongoGridFSSettings)</a></dt>
+    <dd><p>Gets an instance of MongoGridFS for this database using custom GridFS settings.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetCurrentOp_" data-uid="MongoDB.Driver.MongoDatabase.GetCurrentOp*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetCurrentOp" data-uid="MongoDB.Driver.MongoDatabase.GetCurrentOp">
-  GetCurrentOp()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L692"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current operation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual BsonDocument GetCurrentOp()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The current operation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetProfilingInfo.html#MongoDB_Driver_MongoDatabase_GetProfilingInfo_MongoDB_Driver_IMongoQuery_">GetProfilingInfo(IMongoQuery)</a></dt>
+    <dd><p>Gets one or more documents from the system.profile collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetGridFS_" data-uid="MongoDB.Driver.MongoDatabase.GetGridFS*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetGridFS_MongoDB_Driver_GridFS_MongoGridFSSettings_" data-uid="MongoDB.Driver.MongoDatabase.GetGridFS(MongoDB.Driver.GridFS.MongoGridFSSettings)">
-  GetGridFS(MongoGridFSSettings)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L708"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets an instance of MongoGridFS for this database using custom GridFS settings.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoGridFS GetGridFS(MongoGridFSSettings gridFSSettings)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>gridFSSettings</code> <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFSSettings.html">MongoGridFSSettings</a></dt>
-    <dd><p>The GridFS settings to use.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetProfilingLevel.html#MongoDB_Driver_MongoDatabase_GetProfilingLevel">GetProfilingLevel()</a></dt>
+    <dd><p>Gets the current profiling level.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a></dt>
-    <dd><p>An instance of MongoGridFS.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetSisterDatabase.html#MongoDB_Driver_MongoDatabase_GetSisterDatabase_System_String_">GetSisterDatabase(string)</a></dt>
+    <dd><p>Gets a sister database on the same server.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetProfilingInfo_" data-uid="MongoDB.Driver.MongoDatabase.GetProfilingInfo*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetProfilingInfo_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.MongoDatabase.GetProfilingInfo(MongoDB.Driver.IMongoQuery)">
-  GetProfilingInfo(IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L725"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets one or more documents from the system.profile collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoCursor&lt;SystemProfileInfo&gt; GetProfilingInfo(IMongoQuery query)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>query</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>A query to select which documents to return.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.GetStats.html#MongoDB_Driver_MongoDatabase_GetStats">GetStats()</a></dt>
+    <dd><p>Gets the current database stats.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoCursor-1.html">MongoCursor</a>&lt;<a class="xref" href="MongoDB.Driver.SystemProfileInfo.html">SystemProfileInfo</a>&gt;</dt>
-    <dd><p>A cursor.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.IsCollectionNameValid.html#MongoDB_Driver_MongoDatabase_IsCollectionNameValid_System_String_System_String__">IsCollectionNameValid(string, out string)</a></dt>
+    <dd><p>Checks whether a given collection name is valid in this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetProfilingLevel_" data-uid="MongoDB.Driver.MongoDatabase.GetProfilingLevel*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetProfilingLevel" data-uid="MongoDB.Driver.MongoDatabase.GetProfilingLevel">
-  GetProfilingLevel()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L736"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current profiling level.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public GetProfilingLevelResult GetProfilingLevel()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.GetProfilingLevelResult.html">GetProfilingLevelResult</a></dt>
-    <dd><p>The profiling level.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RemoveUser.html#MongoDB_Driver_MongoDatabase_RemoveUser_MongoDB_Driver_MongoUser_">RemoveUser(MongoUser)</a></dt>
+    <dd><p>Removes a user from this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetSisterDatabase_" data-uid="MongoDB.Driver.MongoDatabase.GetSisterDatabase*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetSisterDatabase_System_String_" data-uid="MongoDB.Driver.MongoDatabase.GetSisterDatabase(System.String)">
-  GetSisterDatabase(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L747"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a sister database on the same server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase GetSisterDatabase(string databaseName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the sister database.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RemoveUser.html#MongoDB_Driver_MongoDatabase_RemoveUser_System_String_">RemoveUser(string)</a></dt>
+    <dd><p>Removes a user from this database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>An instance of MongoDatabase.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RenameCollection.html#MongoDB_Driver_MongoDatabase_RenameCollection_System_String_System_String_">RenameCollection(string, string)</a></dt>
+    <dd><p>Renames a collection on this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_GetStats_" data-uid="MongoDB.Driver.MongoDatabase.GetStats*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_GetStats" data-uid="MongoDB.Driver.MongoDatabase.GetStats">
-  GetStats()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L756"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current database stats.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual DatabaseStatsResult GetStats()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.DatabaseStatsResult.html">DatabaseStatsResult</a></dt>
-    <dd><p>An instance of DatabaseStatsResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RenameCollection.html#MongoDB_Driver_MongoDatabase_RenameCollection_System_String_System_String_System_Boolean_">RenameCollection(string, string, bool)</a></dt>
+    <dd><p>Renames a collection on this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_IsCollectionNameValid_" data-uid="MongoDB.Driver.MongoDatabase.IsCollectionNameValid*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_IsCollectionNameValid_System_String_System_String__" data-uid="MongoDB.Driver.MongoDatabase.IsCollectionNameValid(System.String,System.String@)">
-  IsCollectionNameValid(string, out string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L768"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Checks whether a given collection name is valid in this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual bool IsCollectionNameValid(string collectionName, out string message)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The collection name.</p>
-</dd>
-    <dt><code>message</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>An error message if the collection name is not valid.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommand.html#MongoDB_Driver_MongoDatabase_RunCommand_MongoDB_Driver_IMongoCommand_">RunCommand(IMongoCommand)</a></dt>
+    <dd><p>Runs a command on this database.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the collection name is valid; otherwise, false.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommand.html#MongoDB_Driver_MongoDatabase_RunCommand_System_String_">RunCommand(string)</a></dt>
+    <dd><p>Runs a command on this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RemoveUser_" data-uid="MongoDB.Driver.MongoDatabase.RemoveUser*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RemoveUser_MongoDB_Driver_MongoUser_" data-uid="MongoDB.Driver.MongoDatabase.RemoveUser(MongoDB.Driver.MongoUser)">
-  RemoveUser(MongoUser)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L801"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes a user from this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use RunCommand with a { dropUser: &lt;username&gt; } document.&quot;)]
-public virtual void RemoveUser(MongoUser user)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>user</code> <a class="xref" href="MongoDB.Driver.MongoUser.html">MongoUser</a></dt>
-    <dd><p>The user to remove.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommandAs.html#MongoDB_Driver_MongoDatabase_RunCommandAs_System_Type_MongoDB_Driver_IMongoCommand_">RunCommandAs(Type, IMongoCommand)</a></dt>
+    <dd><p>Runs a command on this database and returns the result as a TCommandResult.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RemoveUser_" data-uid="MongoDB.Driver.MongoDatabase.RemoveUser*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RemoveUser_System_String_" data-uid="MongoDB.Driver.MongoDatabase.RemoveUser(System.String)">
-  RemoveUser(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L811"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Removes a user from this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use RunCommand with a { dropUser: &lt;username&gt; } document.&quot;)]
-public virtual void RemoveUser(string username)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>username</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The username to remove.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommandAs.html#MongoDB_Driver_MongoDatabase_RunCommandAs_System_Type_System_String_">RunCommandAs(Type, string)</a></dt>
+    <dd><p>Runs a command on this database and returns the result as a TCommandResult.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RenameCollection_" data-uid="MongoDB.Driver.MongoDatabase.RenameCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RenameCollection_System_String_System_String_" data-uid="MongoDB.Driver.MongoDatabase.RenameCollection(System.String,System.String)">
-  RenameCollection(string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L829"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renames a collection on this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>oldCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The old name for the collection.</p>
-</dd>
-    <dt><code>newCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The new name for the collection.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommandAs.html#MongoDB_Driver_MongoDatabase_RunCommandAs__1_MongoDB_Driver_IMongoCommand_">RunCommandAs&lt;TCommandResult&gt;(IMongoCommand)</a></dt>
+    <dd><p>Runs a command on this database and returns the result as a TCommandResult.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommandAs.html#MongoDB_Driver_MongoDatabase_RunCommandAs__1_MongoDB_Driver_IMongoCommand_MongoDB_Driver_ReadPreference_">RunCommandAs&lt;TCommandResult&gt;(IMongoCommand, ReadPreference)</a></dt>
+    <dd><p>Runs a command on this database and returns the result as a TCommandResult.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RenameCollection_" data-uid="MongoDB.Driver.MongoDatabase.RenameCollection*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RenameCollection_System_String_System_String_System_Boolean_" data-uid="MongoDB.Driver.MongoDatabase.RenameCollection(System.String,System.String,System.Boolean)">
-  RenameCollection(string, string, bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L841"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Renames a collection on this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>oldCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The old name for the collection.</p>
-</dd>
-    <dt><code>newCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The new name for the collection.</p>
-</dd>
-    <dt><code>dropTarget</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether to drop the target collection first if it already exists.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.RunCommandAs.html#MongoDB_Driver_MongoDatabase_RunCommandAs__1_System_String_">RunCommandAs&lt;TCommandResult&gt;(string)</a></dt>
+    <dd><p>Runs a command on this database and returns the result as a TCommandResult.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.SetProfilingLevel.html#MongoDB_Driver_MongoDatabase_SetProfilingLevel_MongoDB_Driver_ProfilingLevel_">SetProfilingLevel(ProfilingLevel)</a></dt>
+    <dd><p>Sets the level of profile information to write.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommand_" data-uid="MongoDB.Driver.MongoDatabase.RunCommand*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommand_MongoDB_Driver_IMongoCommand_" data-uid="MongoDB.Driver.MongoDatabase.RunCommand(MongoDB.Driver.IMongoCommand)">
-  RunCommand(IMongoCommand)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L881"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RunCommand(IMongoCommand command)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>command</code> <a class="xref" href="MongoDB.Driver.IMongoCommand.html">IMongoCommand</a></dt>
-    <dd><p>The command object.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.SetProfilingLevel.html#MongoDB_Driver_MongoDatabase_SetProfilingLevel_MongoDB_Driver_ProfilingLevel_System_TimeSpan_">SetProfilingLevel(ProfilingLevel, TimeSpan)</a></dt>
+    <dd><p>Sets the level of profile information to write.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.ToString.html#MongoDB_Driver_MongoDatabase_ToString">ToString()</a></dt>
+    <dd><p>Gets a canonical string representation for this database.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommand_" data-uid="MongoDB.Driver.MongoDatabase.RunCommand*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommand_System_String_" data-uid="MongoDB.Driver.MongoDatabase.RunCommand(System.String)">
-  RunCommand(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L891"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RunCommand(string commandName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>commandName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the command.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.WithReadConcern.html#MongoDB_Driver_MongoDatabase_WithReadConcern_MongoDB_Driver_ReadConcern_">WithReadConcern(ReadConcern)</a></dt>
+    <dd><p>Returns a new MongoDatabase instance with a different read concern setting.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.WithReadPreference.html#MongoDB_Driver_MongoDatabase_WithReadPreference_MongoDB_Driver_ReadPreference_">WithReadPreference(ReadPreference)</a></dt>
+    <dd><p>Returns a new MongoDatabase instance with a different read preference setting.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommandAs_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommandAs_System_Type_MongoDB_Driver_IMongoCommand_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs(System.Type,MongoDB.Driver.IMongoCommand)">
-  RunCommandAs(Type, IMongoCommand)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L952"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database and returns the result as a TCommandResult.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>commandResultType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The command result type.</p>
-</dd>
-    <dt><code>command</code> <a class="xref" href="MongoDB.Driver.IMongoCommand.html">IMongoCommand</a></dt>
-    <dd><p>The command object.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.WithWriteConcern.html#MongoDB_Driver_MongoDatabase_WithWriteConcern_MongoDB_Driver_WriteConcern_">WithWriteConcern(WriteConcern)</a></dt>
+    <dd><p>Returns a new MongoDatabase instance with a different write concern setting.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A TCommandResult</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommandAs_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommandAs_System_Type_System_String_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs(System.Type,System.String)">
-  RunCommandAs(Type, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L965"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database and returns the result as a TCommandResult.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult RunCommandAs(Type commandResultType, string commandName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>commandResultType</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The command result type.</p>
-</dd>
-    <dt><code>commandName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the command.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A TCommandResult</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommandAs_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommandAs__1_MongoDB_Driver_IMongoCommand_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs``1(MongoDB.Driver.IMongoCommand)">
-  RunCommandAs&lt;TCommandResult&gt;(IMongoCommand)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L902"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database and returns the result as a TCommandResult.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual TCommandResult RunCommandAs&lt;TCommandResult&gt;(IMongoCommand command) where TCommandResult : CommandResult</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>command</code> <a class="xref" href="MongoDB.Driver.IMongoCommand.html">IMongoCommand</a></dt>
-    <dd><p>The command object.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TCommandResult</span></dt>
-    <dd><p>A TCommandResult</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TCommandResult</code></dt>
-    <dd><p>The type of the returned command result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommandAs_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommandAs__1_MongoDB_Driver_IMongoCommand_MongoDB_Driver_ReadPreference_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs``1(MongoDB.Driver.IMongoCommand,MongoDB.Driver.ReadPreference)">
-  RunCommandAs&lt;TCommandResult&gt;(IMongoCommand, ReadPreference)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L915"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database and returns the result as a TCommandResult.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TCommandResult RunCommandAs&lt;TCommandResult&gt;(IMongoCommand command, ReadPreference readPreference) where TCommandResult : CommandResult</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>command</code> <a class="xref" href="MongoDB.Driver.IMongoCommand.html">IMongoCommand</a></dt>
-    <dd><p>The command object.</p>
-</dd>
-    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TCommandResult</span></dt>
-    <dd><p>A TCommandResult</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TCommandResult</code></dt>
-    <dd><p>The type of the returned command result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_RunCommandAs_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_RunCommandAs__1_System_String_" data-uid="MongoDB.Driver.MongoDatabase.RunCommandAs``1(System.String)">
-  RunCommandAs&lt;TCommandResult&gt;(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L939"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Runs a command on this database and returns the result as a TCommandResult.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual TCommandResult RunCommandAs&lt;TCommandResult&gt;(string commandName) where TCommandResult : CommandResult</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>commandName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the command.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TCommandResult</span></dt>
-    <dd><p>A TCommandResult</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TCommandResult</code></dt>
-    <dd><p>The type of the returned command result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_SetProfilingLevel_" data-uid="MongoDB.Driver.MongoDatabase.SetProfilingLevel*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_SetProfilingLevel_MongoDB_Driver_ProfilingLevel_" data-uid="MongoDB.Driver.MongoDatabase.SetProfilingLevel(MongoDB.Driver.ProfilingLevel)">
-  SetProfilingLevel(ProfilingLevel)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L976"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the level of profile information to write.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult SetProfilingLevel(ProfilingLevel level)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>level</code> <a class="xref" href="MongoDB.Driver.ProfilingLevel.html">ProfilingLevel</a></dt>
-    <dd><p>The profiling level.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_SetProfilingLevel_" data-uid="MongoDB.Driver.MongoDatabase.SetProfilingLevel*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_SetProfilingLevel_MongoDB_Driver_ProfilingLevel_System_TimeSpan_" data-uid="MongoDB.Driver.MongoDatabase.SetProfilingLevel(MongoDB.Driver.ProfilingLevel,System.TimeSpan)">
-  SetProfilingLevel(ProfilingLevel, TimeSpan)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L987"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the level of profile information to write.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual CommandResult SetProfilingLevel(ProfilingLevel level, TimeSpan slow)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>level</code> <a class="xref" href="MongoDB.Driver.ProfilingLevel.html">ProfilingLevel</a></dt>
-    <dd><p>The profiling level.</p>
-</dd>
-    <dt><code>slow</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>The threshold that defines a slow query.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
-    <dd><p>A CommandResult.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_ToString_" data-uid="MongoDB.Driver.MongoDatabase.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_ToString" data-uid="MongoDB.Driver.MongoDatabase.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L1001"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a canonical string representation for this database.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A canonical string representation for this database.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_WithReadConcern_" data-uid="MongoDB.Driver.MongoDatabase.WithReadConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_WithReadConcern_MongoDB_Driver_ReadConcern_" data-uid="MongoDB.Driver.MongoDatabase.WithReadConcern(MongoDB.Driver.ReadConcern)">
-  WithReadConcern(ReadConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L1011"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoDatabase instance with a different read concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase WithReadConcern(ReadConcern readConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadConcern.html">ReadConcern</a></dt>
-    <dd><p>The read concern.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new MongoDatabase instance with a different read concern setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_WithReadPreference_" data-uid="MongoDB.Driver.MongoDatabase.WithReadPreference*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_WithReadPreference_MongoDB_Driver_ReadPreference_" data-uid="MongoDB.Driver.MongoDatabase.WithReadPreference(MongoDB.Driver.ReadPreference)">
-  WithReadPreference(ReadPreference)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L1024"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoDatabase instance with a different read preference setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase WithReadPreference(ReadPreference readPreference)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>readPreference</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new MongoDatabase instance with a different read preference setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDatabase_WithWriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.WithWriteConcern*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDatabase_WithWriteConcern_MongoDB_Driver_WriteConcern_" data-uid="MongoDB.Driver.MongoDatabase.WithWriteConcern(MongoDB.Driver.WriteConcern)">
-  WithWriteConcern(WriteConcern)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/MongoDatabase.cs/#L1037"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a new MongoDatabase instance with a different write concern setting.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public virtual MongoDatabase WithWriteConcern(WriteConcern writeConcern)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>writeConcern</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.WriteConcern.html">WriteConcern</a></dt>
-    <dd><p>The write concern.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
-    <dd><p>A new MongoDatabase instance with a different write concern setting.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -136,317 +136,58 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent__ctor_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent__ctor_MongoDB_Driver_Core_Clusters_ClusterDescription_MongoDB_Driver_Core_Clusters_ServerSelectors_IServerSelector_MongoDB_Driver_Core_Servers_ServerDescription_System_TimeSpan_System_Nullable_System_Int64__System_String_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.#ctor(MongoDB.Driver.Core.Clusters.ClusterDescription,MongoDB.Driver.Core.Clusters.ServerSelectors.IServerSelector,MongoDB.Driver.Core.Servers.ServerDescription,System.TimeSpan,System.Nullable{System.Int64},System.String)">
-  ClusterSelectedServerEvent(ClusterDescription, IServerSelector, ServerDescription, TimeSpan, long?, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L45"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.html">ClusterSelectedServerEvent</a> struct.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterSelectedServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, ServerDescription selectedServer, TimeSpan duration, long? operationId, string operationName)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>clusterDescription</code> <a class="xref" href="MongoDB.Driver.Core.Clusters.ClusterDescription.html">ClusterDescription</a></dt>
-    <dd><p>The cluster description.</p>
-</dd>
-    <dt><code>serverSelector</code> <a class="xref" href="MongoDB.Driver.Core.Clusters.ServerSelectors.IServerSelector.html">IServerSelector</a></dt>
-    <dd><p>The server selector.</p>
-</dd>
-    <dt><code>selectedServer</code> <a class="xref" href="MongoDB.Driver.Core.Servers.ServerDescription.html">ServerDescription</a></dt>
-    <dd><p>The selected server.</p>
-</dd>
-    <dt><code>duration</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>The duration of time it took to select the server.</p>
-</dd>
-    <dt><code>operationId</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?</dt>
-    <dd><p>The operation identifier.</p>
-</dd>
-    <dt><code>operationName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The operation name.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.-ctor.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent__ctor_MongoDB_Driver_Core_Clusters_ClusterDescription_MongoDB_Driver_Core_Clusters_ServerSelectors_IServerSelector_MongoDB_Driver_Core_Servers_ServerDescription_System_TimeSpan_System_Nullable_System_Int64__System_String_">ClusterSelectedServerEvent(ClusterDescription, IServerSelector, ServerDescription, TimeSpan, long?, string)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.html">ClusterSelectedServerEvent</a> struct.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterDescription_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterDescription*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterDescription" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterDescription">
-  ClusterDescription
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L67"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the cluster description.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterDescription ClusterDescription { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Clusters.ClusterDescription.html">ClusterDescription</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterDescription.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterDescription">ClusterDescription</a></dt>
+    <dd><p>Gets the cluster description.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterId_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterId" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterId">
-  ClusterId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the cluster identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ClusterId ClusterId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Clusters.ClusterId.html">ClusterId</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ClusterId.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ClusterId">ClusterId</a></dt>
+    <dd><p>Gets the cluster identifier.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Duration_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Duration*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Duration" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Duration">
-  Duration
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L75"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the duration of time it took to select the server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Duration { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Duration.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Duration">Duration</a></dt>
+    <dd><p>Gets the duration of time it took to select the server.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationId_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationId" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationId">
-  OperationId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L83"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the operation identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public long? OperationId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a>?</dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationId.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationId">OperationId</a></dt>
+    <dd><p>Gets the operation identifier.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationName_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationName*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationName" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationName">
-  OperationName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L91"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the operation name.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string OperationName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.OperationName.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_OperationName">OperationName</a></dt>
+    <dd><p>Gets the operation name.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_SelectedServer_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.SelectedServer*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_SelectedServer" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.SelectedServer">
-  SelectedServer
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L107"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the selected server.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ServerDescription SelectedServer { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Servers.ServerDescription.html">ServerDescription</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.SelectedServer.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_SelectedServer">SelectedServer</a></dt>
+    <dd><p>Gets the selected server.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ServerSelector_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ServerSelector*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ServerSelector" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ServerSelector">
-  ServerSelector
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L99"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the server selector.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IServerSelector ServerSelector { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Core.Clusters.ServerSelectors.IServerSelector.html">IServerSelector</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.ServerSelector.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_ServerSelector">ServerSelector</a></dt>
+    <dd><p>Gets the server selector.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Timestamp_" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Timestamp*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Timestamp" data-uid="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Timestamp">
-  Timestamp
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/ClusterSelectedServerEvent.cs/#L115"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the timestamp.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DateTime Timestamp { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Events.ClusterSelectedServerEvent.Timestamp.html#MongoDB_Driver_Core_Events_ClusterSelectedServerEvent_Timestamp">Timestamp</a></dt>
+    <dd><p>Gets the timestamp.</p>
+</dd>
   </dl>
-
-
-
-
-
-
 
 
 

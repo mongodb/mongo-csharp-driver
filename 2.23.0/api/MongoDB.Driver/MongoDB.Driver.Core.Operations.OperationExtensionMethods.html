@@ -146,231 +146,29 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync``1(MongoDB.Driver.Core.Operations.IReadOperation{``0},MongoDB.Driver.Core.Bindings.IChannelSourceHandle,MongoDB.Driver.ReadPreference,MongoDB.Driver.Core.Bindings.ICoreSessionHandle,System.Threading.CancellationToken)">
-  ExecuteAsync&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/OperationExtensionMethods.cs/#L91"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes a read operation using a channel source.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task&lt;TResult&gt; ExecuteAsync&lt;TResult&gt;(this IReadOperation&lt;TResult&gt; operation, IChannelSourceHandle channelSource, ReadPreference readPreference, ICoreSessionHandle session, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operation</code> <a class="xref" href="MongoDB.Driver.Core.Operations.IReadOperation-1.html">IReadOperation</a>&lt;TResult&gt;</dt>
-    <dd><p>The read operation.</p>
-</dd>
-    <dt><code>channelSource</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IChannelSourceHandle.html">IChannelSourceHandle</a></dt>
-    <dd><p>The channel source.</p>
-</dd>
-    <dt><code>readPreference</code> <a class="xref" href="MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
-</dd>
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.ICoreSessionHandle.html">ICoreSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">ExecuteAsync&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Executes a read operation using a channel source.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;TResult&gt;</dt>
-    <dd><p>A Task whose result is the result of the operation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">ExecuteAsync&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Executes a write operation using a channel source.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">Execute&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Executes a read operation using a channel source.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_ExecuteAsync__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.ExecuteAsync``1(MongoDB.Driver.Core.Operations.IWriteOperation{``0},MongoDB.Driver.Core.Bindings.IChannelSourceHandle,MongoDB.Driver.Core.Bindings.ICoreSessionHandle,System.Threading.CancellationToken)">
-  ExecuteAsync&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/OperationExtensionMethods.cs/#L116"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes a write operation using a channel source.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task&lt;TResult&gt; ExecuteAsync&lt;TResult&gt;(this IWriteOperation&lt;TResult&gt; operation, IChannelSourceHandle channelSource, ICoreSessionHandle session, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operation</code> <a class="xref" href="MongoDB.Driver.Core.Operations.IWriteOperation-1.html">IWriteOperation</a>&lt;TResult&gt;</dt>
-    <dd><p>The write operation.</p>
-</dd>
-    <dt><code>channelSource</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IChannelSourceHandle.html">IChannelSourceHandle</a></dt>
-    <dd><p>The channel source.</p>
-</dd>
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.ICoreSessionHandle.html">ICoreSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute.html#MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_">Execute&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)</a></dt>
+    <dd><p>Executes a write operation using a channel source.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;TResult&gt;</dt>
-    <dd><p>A Task whose result is the result of the operation.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IReadOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_ReadPreference_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute``1(MongoDB.Driver.Core.Operations.IReadOperation{``0},MongoDB.Driver.Core.Bindings.IChannelSourceHandle,MongoDB.Driver.ReadPreference,MongoDB.Driver.Core.Bindings.ICoreSessionHandle,System.Threading.CancellationToken)">
-  Execute&lt;TResult&gt;(IReadOperation&lt;TResult&gt;, IChannelSourceHandle, ReadPreference, ICoreSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/OperationExtensionMethods.cs/#L41"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes a read operation using a channel source.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static TResult Execute&lt;TResult&gt;(this IReadOperation&lt;TResult&gt; operation, IChannelSourceHandle channelSource, ReadPreference readPreference, ICoreSessionHandle session, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operation</code> <a class="xref" href="MongoDB.Driver.Core.Operations.IReadOperation-1.html">IReadOperation</a>&lt;TResult&gt;</dt>
-    <dd><p>The read operation.</p>
-</dd>
-    <dt><code>channelSource</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IChannelSourceHandle.html">IChannelSourceHandle</a></dt>
-    <dd><p>The channel source.</p>
-</dd>
-    <dt><code>readPreference</code> <a class="xref" href="MongoDB.Driver.ReadPreference.html">ReadPreference</a></dt>
-    <dd><p>The read preference.</p>
-</dd>
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.ICoreSessionHandle.html">ICoreSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TResult</span></dt>
-    <dd><p>The result of the operation.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute*"></a>
-
-  <h3 id="MongoDB_Driver_Core_Operations_OperationExtensionMethods_Execute__1_MongoDB_Driver_Core_Operations_IWriteOperation___0__MongoDB_Driver_Core_Bindings_IChannelSourceHandle_MongoDB_Driver_Core_Bindings_ICoreSessionHandle_System_Threading_CancellationToken_" data-uid="MongoDB.Driver.Core.Operations.OperationExtensionMethods.Execute``1(MongoDB.Driver.Core.Operations.IWriteOperation{``0},MongoDB.Driver.Core.Bindings.IChannelSourceHandle,MongoDB.Driver.Core.Bindings.ICoreSessionHandle,System.Threading.CancellationToken)">
-  Execute&lt;TResult&gt;(IWriteOperation&lt;TResult&gt;, IChannelSourceHandle, ICoreSessionHandle, CancellationToken)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Operations/OperationExtensionMethods.cs/#L66"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Executes a write operation using a channel source.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static TResult Execute&lt;TResult&gt;(this IWriteOperation&lt;TResult&gt; operation, IChannelSourceHandle channelSource, ICoreSessionHandle session, CancellationToken cancellationToken)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>operation</code> <a class="xref" href="MongoDB.Driver.Core.Operations.IWriteOperation-1.html">IWriteOperation</a>&lt;TResult&gt;</dt>
-    <dd><p>The write operation.</p>
-</dd>
-    <dt><code>channelSource</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.IChannelSourceHandle.html">IChannelSourceHandle</a></dt>
-    <dd><p>The channel source.</p>
-</dd>
-    <dt><code>session</code> <a class="xref" href="MongoDB.Driver.Core.Bindings.ICoreSessionHandle.html">ICoreSessionHandle</a></dt>
-    <dd><p>The session.</p>
-</dd>
-    <dt><code>cancellationToken</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></dt>
-    <dd><p>The cancellation token.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><span class="xref">TResult</span></dt>
-    <dd><p>The result of the operation.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Type Parameters</h4>
-  <dl class="parameters">
-    <dt><code>TResult</code></dt>
-    <dd><p>The type of the result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
 
 
 

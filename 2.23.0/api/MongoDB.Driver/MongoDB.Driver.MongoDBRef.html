@@ -144,462 +144,81 @@ public class MongoDBRef : IEquatable&lt;MongoDBRef&gt;</code></pre>
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDBRef__ctor_" data-uid="MongoDB.Driver.MongoDBRef.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef__ctor_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.MongoDBRef.#ctor(System.String,MongoDB.Bson.BsonValue)">
-  MongoDBRef(string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L48"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a MongoDBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoDBRef(string collectionName, BsonValue id)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection that contains the document.</p>
-</dd>
-    <dt><code>id</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The Id of the document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.-ctor.html#MongoDB_Driver_MongoDBRef__ctor_System_String_MongoDB_Bson_BsonValue_">MongoDBRef(string, BsonValue)</a></dt>
+    <dd><p>Creates a MongoDBRef.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef__ctor_" data-uid="MongoDB.Driver.MongoDBRef.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef__ctor_System_String_System_String_MongoDB_Bson_BsonValue_" data-uid="MongoDB.Driver.MongoDBRef.#ctor(System.String,System.String,MongoDB.Bson.BsonValue)">
-  MongoDBRef(string, string, BsonValue)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Creates a MongoDBRef.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MongoDBRef(string databaseName, string collectionName, BsonValue id)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>databaseName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the database that contains the document.</p>
-</dd>
-    <dt><code>collectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The name of the collection that contains the document.</p>
-</dd>
-    <dt><code>id</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd><p>The Id of the document.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.-ctor.html#MongoDB_Driver_MongoDBRef__ctor_System_String_System_String_MongoDB_Bson_BsonValue_">MongoDBRef(string, string, BsonValue)</a></dt>
+    <dd><p>Creates a MongoDBRef.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDBRef_CollectionName_" data-uid="MongoDB.Driver.MongoDBRef.CollectionName*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_CollectionName" data-uid="MongoDB.Driver.MongoDBRef.CollectionName">
-  CollectionName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L86"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the collection that contains the document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string CollectionName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.CollectionName.html#MongoDB_Driver_MongoDBRef_CollectionName">CollectionName</a></dt>
+    <dd><p>Gets the name of the collection that contains the document.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_DatabaseName_" data-uid="MongoDB.Driver.MongoDBRef.DatabaseName*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_DatabaseName" data-uid="MongoDB.Driver.MongoDBRef.DatabaseName">
-  DatabaseName
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L78"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the name of the database that contains the document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string DatabaseName { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.DatabaseName.html#MongoDB_Driver_MongoDBRef_DatabaseName">DatabaseName</a></dt>
+    <dd><p>Gets the name of the database that contains the document.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_Id_" data-uid="MongoDB.Driver.MongoDBRef.Id*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_Id" data-uid="MongoDB.Driver.MongoDBRef.Id">
-  Id
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L94"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the Id of the document.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BsonValue Id { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a></dt>
-    <dd></dd>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.Id.html#MongoDB_Driver_MongoDBRef_Id">Id</a></dt>
+    <dd><p>Gets the Id of the document.</p>
+</dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDBRef_Equals_" data-uid="MongoDB.Driver.MongoDBRef.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_Equals_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDBRef.Equals(MongoDB.Driver.MongoDBRef)">
-  Equals(MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L141"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether this instance and another specified MongoDBRef object have the same value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Equals(MongoDBRef rhs)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The MongoDBRef object to compare to this instance.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.Equals.html#MongoDB_Driver_MongoDBRef_Equals_MongoDB_Driver_MongoDBRef_">Equals(MongoDBRef)</a></dt>
+    <dd><p>Determines whether this instance and another specified MongoDBRef object have the same value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the value of the rhs parameter is the same as this instance; otherwise, false.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.Equals.html#MongoDB_Driver_MongoDBRef_Equals_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_">Equals(MongoDBRef, MongoDBRef)</a></dt>
+    <dd><p>Determines whether two specified MongoDBRef objects have the same value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_Equals_" data-uid="MongoDB.Driver.MongoDBRef.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_Equals_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDBRef.Equals(MongoDB.Driver.MongoDBRef,MongoDB.Driver.MongoDBRef)">
-  Equals(MongoDBRef, MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L129"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether two specified MongoDBRef objects have the same value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool Equals(MongoDBRef lhs, MongoDBRef rhs)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The first value to compare, or null.</p>
-</dd>
-    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The second value to compare, or null.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.Equals.html#MongoDB_Driver_MongoDBRef_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Determines whether this instance and a specified object, which must also be a MongoDBRef object, have the same value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the value of lhs is the same as the value of rhs; otherwise, false.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.GetHashCode.html#MongoDB_Driver_MongoDBRef_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Returns the hash code for this MongoDBRef object.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_Equals_" data-uid="MongoDB.Driver.MongoDBRef.Equals*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_Equals_System_Object_" data-uid="MongoDB.Driver.MongoDBRef.Equals(System.Object)">
-  Equals(object)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L154"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether this instance and a specified object, which must also be a MongoDBRef object, have the same value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>obj</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></dt>
-    <dd><p>The MongoDBRef object to compare to this instance.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.ToString.html#MongoDB_Driver_MongoDBRef_ToString">ToString()</a></dt>
+    <dd><p>Returns a string representation of the value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if obj is a MongoDBRef object and its value is the same as this instance; otherwise, false.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_GetHashCode_" data-uid="MongoDB.Driver.MongoDBRef.GetHashCode*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_GetHashCode" data-uid="MongoDB.Driver.MongoDBRef.GetHashCode">
-  GetHashCode()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L163"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the hash code for this MongoDBRef object.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>A 32-bit signed integer hash code.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_ToString_" data-uid="MongoDB.Driver.MongoDBRef.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_ToString" data-uid="MongoDB.Driver.MongoDBRef.ToString">
-  ToString()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L177"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns a string representation of the value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A string representation of the value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="operators">Operators
 </h2>
 
-
-  <a id="MongoDB_Driver_MongoDBRef_op_Equality_" data-uid="MongoDB.Driver.MongoDBRef.op_Equality*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_op_Equality_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDBRef.op_Equality(MongoDB.Driver.MongoDBRef,MongoDB.Driver.MongoDBRef)">
-  operator ==(MongoDBRef, MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L117"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether two specified MongoDBRef objects have the same value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool operator ==(MongoDBRef lhs, MongoDBRef rhs)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The first value to compare, or null.</p>
-</dd>
-    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The second value to compare, or null.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.op_Equality.html#MongoDB_Driver_MongoDBRef_op_Equality_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_">operator ==(MongoDBRef, MongoDBRef)</a></dt>
+    <dd><p>Determines whether two specified MongoDBRef objects have the same value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the value of lhs is the same as the value of rhs; otherwise, false.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoDBRef.op_Inequality.html#MongoDB_Driver_MongoDBRef_op_Inequality_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_">operator !=(MongoDBRef, MongoDBRef)</a></dt>
+    <dd><p>Determines whether two specified MongoDBRef objects have different values.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_MongoDBRef_op_Inequality_" data-uid="MongoDB.Driver.MongoDBRef.op_Inequality*"></a>
-
-  <h3 id="MongoDB_Driver_MongoDBRef_op_Inequality_MongoDB_Driver_MongoDBRef_MongoDB_Driver_MongoDBRef_" data-uid="MongoDB.Driver.MongoDBRef.op_Inequality(MongoDB.Driver.MongoDBRef,MongoDB.Driver.MongoDBRef)">
-  operator !=(MongoDBRef, MongoDBRef)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/MongoDBRef.cs/#L106"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Determines whether two specified MongoDBRef objects have different values.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool operator !=(MongoDBRef lhs, MongoDBRef rhs)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>lhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The first value to compare, or null.</p>
-</dd>
-    <dt><code>rhs</code> <a class="xref" href="MongoDB.Driver.MongoDBRef.html">MongoDBRef</a></dt>
-    <dd><p>The second value to compare, or null.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the value of lhs is different from the value of rhs; otherwise, false.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

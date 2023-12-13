@@ -130,7 +130,7 @@ public class CollectionOptionsBuilder : BuilderBase, IConvertibleToBsonDocument,
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Builders.BuilderBase.html#MongoDB_Driver_Builders_BuilderBase_ToString">BuilderBase.ToString()</a>
+      <a class="xref" href="MongoDB.Driver.Builders.BuilderBase.ToString.html#MongoDB_Driver_Builders_BuilderBase_ToString">BuilderBase.ToString()</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -156,10 +156,9 @@ public class CollectionOptionsBuilder : BuilderBase, IConvertibleToBsonDocument,
     <dt>Extension Methods</dt>
     <dd>
   <div>
-      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
   </div>
   </dd></dl>
-
 
 
 
@@ -167,460 +166,70 @@ public class CollectionOptionsBuilder : BuilderBase, IConvertibleToBsonDocument,
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder__ctor_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder__ctor" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.#ctor">
-  CollectionOptionsBuilder()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L154"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the CollectionOptionsBuilder class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder()</code></pre>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.-ctor.html#MongoDB_Driver_Builders_CollectionOptionsBuilder__ctor">CollectionOptionsBuilder()</a></dt>
+    <dd><p>Initializes a new instance of the CollectionOptionsBuilder class.</p>
+</dd>
+  </dl>
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetAutoIndexId_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetAutoIndexId*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetAutoIndexId_System_Boolean_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetAutoIndexId(System.Boolean)">
-  SetAutoIndexId(bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L165"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets whether to automatically create an index on the _id element.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Obsolete(&quot;AutoIndexId has been deprecated since server version 3.2.&quot;)]
-public CollectionOptionsBuilder SetAutoIndexId(bool value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether to automatically create an index on the _id element.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetAutoIndexId.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetAutoIndexId_System_Boolean_">SetAutoIndexId(bool)</a></dt>
+    <dd><p>Sets whether to automatically create an index on the _id element.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCapped.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCapped_System_Boolean_">SetCapped(bool)</a></dt>
+    <dd><p>Sets whether the collection is capped.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCapped_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCapped*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCapped_System_Boolean_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCapped(System.Boolean)">
-  SetCapped(bool)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L177"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets whether the collection is capped.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetCapped(bool value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>Whether the collection is capped.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCollation.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCollation_MongoDB_Driver_Collation_">SetCollation(Collation)</a></dt>
+    <dd><p>Sets the collation.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetIndexOptionDefaults.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetIndexOptionDefaults_MongoDB_Driver_IndexOptionDefaults_">SetIndexOptionDefaults(IndexOptionDefaults)</a></dt>
+    <dd><p>Sets the index options defaults.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCollation_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCollation*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetCollation_MongoDB_Driver_Collation_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetCollation(MongoDB.Driver.Collation)">
-  SetCollation(Collation)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L188"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the collation.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetCollation(Collation value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.Collation.html">Collation</a></dt>
-    <dd><p>The collation.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxDocuments.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxDocuments_System_Int64_">SetMaxDocuments(long)</a></dt>
+    <dd><p>Sets the max number of documents in a capped collection.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxSize.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxSize_System_Int64_">SetMaxSize(long)</a></dt>
+    <dd><p>Sets the max size of a capped collection.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetIndexOptionDefaults_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetIndexOptionDefaults*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetIndexOptionDefaults_MongoDB_Driver_IndexOptionDefaults_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetIndexOptionDefaults(MongoDB.Driver.IndexOptionDefaults)">
-  SetIndexOptionDefaults(IndexOptionDefaults)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L199"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the index options defaults.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetIndexOptionDefaults(IndexOptionDefaults value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.IndexOptionDefaults.html">IndexOptionDefaults</a></dt>
-    <dd><p>The index options defaults.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetStorageEngineOptions.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetStorageEngineOptions_MongoDB_Bson_BsonDocument_">SetStorageEngineOptions(BsonDocument)</a></dt>
+    <dd><p>Sets the storage engine options.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationAction.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationAction_MongoDB_Driver_DocumentValidationAction_">SetValidationAction(DocumentValidationAction)</a></dt>
+    <dd><p>Sets the validation action.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxDocuments_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxDocuments*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxDocuments_System_Int64_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxDocuments(System.Int64)">
-  SetMaxDocuments(long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L210"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the max number of documents in a capped collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetMaxDocuments(long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The max number of documents.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationLevel.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationLevel_MongoDB_Driver_DocumentValidationLevel_">SetValidationLevel(DocumentValidationLevel)</a></dt>
+    <dd><p>Sets the validation level.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidator.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidator_MongoDB_Driver_IMongoQuery_">SetValidator(IMongoQuery)</a></dt>
+    <dd><p>Sets the validator.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxSize_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxSize*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetMaxSize_System_Int64_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetMaxSize(System.Int64)">
-  SetMaxSize(long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L221"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the max size of a capped collection.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetMaxSize(long value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The max size.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.ToBsonDocument.html#MongoDB_Driver_Builders_CollectionOptionsBuilder_ToBsonDocument">ToBsonDocument()</a></dt>
+    <dd><p>Returns the result of the builder as a BsonDocument.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetStorageEngineOptions_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetStorageEngineOptions*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetStorageEngineOptions_MongoDB_Bson_BsonDocument_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetStorageEngineOptions(MongoDB.Bson.BsonDocument)">
-  SetStorageEngineOptions(BsonDocument)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L232"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the storage engine options.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>The value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationAction_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationAction*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationAction_MongoDB_Driver_DocumentValidationAction_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationAction(MongoDB.Driver.DocumentValidationAction)">
-  SetValidationAction(DocumentValidationAction)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L243"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the validation action.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetValidationAction(DocumentValidationAction validationAction)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>validationAction</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.DocumentValidationAction.html">DocumentValidationAction</a></dt>
-    <dd><p>The validation action.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationLevel_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationLevel*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidationLevel_MongoDB_Driver_DocumentValidationLevel_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidationLevel(MongoDB.Driver.DocumentValidationLevel)">
-  SetValidationLevel(DocumentValidationLevel)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L254"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the validation level.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetValidationLevel(DocumentValidationLevel validationLevel)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>validationLevel</code> <a class="xref" href="../MongoDB.Driver/MongoDB.Driver.DocumentValidationLevel.html">DocumentValidationLevel</a></dt>
-    <dd><p>The validation level.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidator_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidator*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_SetValidator_MongoDB_Driver_IMongoQuery_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.SetValidator(MongoDB.Driver.IMongoQuery)">
-  SetValidator(IMongoQuery)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L265"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Sets the validator.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CollectionOptionsBuilder SetValidator(IMongoQuery validator)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>validator</code> <a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
-    <dd><p>The validator.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="MongoDB.Driver.Builders.CollectionOptionsBuilder.html">CollectionOptionsBuilder</a></dt>
-    <dd><p>The builder (so method calls can be chained).</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Builders_CollectionOptionsBuilder_ToBsonDocument_" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.ToBsonDocument*"></a>
-
-  <h3 id="MongoDB_Driver_Builders_CollectionOptionsBuilder_ToBsonDocument" data-uid="MongoDB.Driver.Builders.CollectionOptionsBuilder.ToBsonDocument">
-  ToBsonDocument()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/Builders/CollectionOptionsBuilder.cs/#L275"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the result of the builder as a BsonDocument.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override BsonDocument ToBsonDocument()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
-    <dd><p>A BsonDocument.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

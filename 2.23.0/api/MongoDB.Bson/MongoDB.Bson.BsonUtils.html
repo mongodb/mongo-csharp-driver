@@ -146,402 +146,59 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Bson_BsonUtils_GetFriendlyTypeName_" data-uid="MongoDB.Bson.BsonUtils.GetFriendlyTypeName*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_GetFriendlyTypeName_System_Type_" data-uid="MongoDB.Bson.BsonUtils.GetFriendlyTypeName(System.Type)">
-  GetFriendlyTypeName(Type)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L35"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a friendly class name suitable for use in error messages.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string GetFriendlyTypeName(Type type)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>type</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.type">Type</a></dt>
-    <dd><p>The type.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.GetFriendlyTypeName.html#MongoDB_Bson_BsonUtils_GetFriendlyTypeName_System_Type_">GetFriendlyTypeName(Type)</a></dt>
+    <dd><p>Gets a friendly class name suitable for use in error messages.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A friendly class name.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ParseHexString.html#MongoDB_Bson_BsonUtils_ParseHexString_System_String_">ParseHexString(string)</a></dt>
+    <dd><p>Parses a hex string into its equivalent byte array.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ParseHexString_" data-uid="MongoDB.Bson.BsonUtils.ParseHexString*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ParseHexString_System_String_" data-uid="MongoDB.Bson.BsonUtils.ParseHexString(System.String)">
-  ParseHexString(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L59"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Parses a hex string into its equivalent byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static byte[] ParseHexString(string s)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The hex string to parse.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToDateTimeFromMillisecondsSinceEpoch.html#MongoDB_Bson_BsonUtils_ToDateTimeFromMillisecondsSinceEpoch_System_Int64_">ToDateTimeFromMillisecondsSinceEpoch(long)</a></dt>
+    <dd><p>Converts from number of milliseconds since Unix epoch to DateTime.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The byte equivalent of the hex string.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToHexChar.html#MongoDB_Bson_BsonUtils_ToHexChar_System_Int32_">ToHexChar(int)</a></dt>
+    <dd><p>Converts a value to a hex character.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToDateTimeFromMillisecondsSinceEpoch_" data-uid="MongoDB.Bson.BsonUtils.ToDateTimeFromMillisecondsSinceEpoch*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToDateTimeFromMillisecondsSinceEpoch_System_Int64_" data-uid="MongoDB.Bson.BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(System.Int64)">
-  ToDateTimeFromMillisecondsSinceEpoch(long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L80"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts from number of milliseconds since Unix epoch to DateTime.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime ToDateTimeFromMillisecondsSinceEpoch(long millisecondsSinceEpoch)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>millisecondsSinceEpoch</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The number of milliseconds since Unix epoch.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToHexString.html#MongoDB_Bson_BsonUtils_ToHexString_System_Byte___">ToHexString(byte[])</a></dt>
+    <dd><p>Converts a byte array to a hex string.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>A DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToLocalTime.html#MongoDB_Bson_BsonUtils_ToLocalTime_System_DateTime_">ToLocalTime(DateTime)</a></dt>
+    <dd><p>Converts a DateTime to local time (with special handling for MinValue and MaxValue).</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToHexChar_" data-uid="MongoDB.Bson.BsonUtils.ToHexChar*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToHexChar_System_Int32_" data-uid="MongoDB.Bson.BsonUtils.ToHexChar(System.Int32)">
-  ToHexChar(int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L108"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a value to a hex character.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static char ToHexChar(int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value (assumed to be between 0 and 15).</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToMillisecondsSinceEpoch.html#MongoDB_Bson_BsonUtils_ToMillisecondsSinceEpoch_System_DateTime_">ToMillisecondsSinceEpoch(DateTime)</a></dt>
+    <dd><p>Converts a DateTime to number of milliseconds since Unix epoch.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.char">char</a></dt>
-    <dd><p>The hex character.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToSecondsSinceEpoch.html#MongoDB_Bson_BsonUtils_ToSecondsSinceEpoch_System_DateTime_">ToSecondsSinceEpoch(DateTime)</a></dt>
+    <dd><p>Converts a DateTime to number of seconds since Unix epoch.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToHexString_" data-uid="MongoDB.Bson.BsonUtils.ToHexString*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToHexString_System_Byte___" data-uid="MongoDB.Bson.BsonUtils.ToHexString(System.Byte[])">
-  ToHexString(byte[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L118"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a byte array to a hex string.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string ToHexString(byte[] bytes)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>bytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>The byte array.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.ToUniversalTime.html#MongoDB_Bson_BsonUtils_ToUniversalTime_System_DateTime_">ToUniversalTime(DateTime)</a></dt>
+    <dd><p>Converts a DateTime to UTC (with special handling for MinValue and MaxValue).</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>A hex string.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonUtils.TryParseHexString.html#MongoDB_Bson_BsonUtils_TryParseHexString_System_String_System_Byte____">TryParseHexString(string, out byte[])</a></dt>
+    <dd><p>Tries to parse a hex string to a byte array.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToLocalTime_" data-uid="MongoDB.Bson.BsonUtils.ToLocalTime*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToLocalTime_System_DateTime_" data-uid="MongoDB.Bson.BsonUtils.ToLocalTime(System.DateTime)">
-  ToLocalTime(DateTime)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L143"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a DateTime to local time (with special handling for MinValue and MaxValue).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime ToLocalTime(DateTime dateTime)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dateTime</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>A DateTime.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The DateTime in local time.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToMillisecondsSinceEpoch_" data-uid="MongoDB.Bson.BsonUtils.ToMillisecondsSinceEpoch*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToMillisecondsSinceEpoch_System_DateTime_" data-uid="MongoDB.Bson.BsonUtils.ToMillisecondsSinceEpoch(System.DateTime)">
-  ToMillisecondsSinceEpoch(DateTime)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L164"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a DateTime to number of milliseconds since Unix epoch.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static long ToMillisecondsSinceEpoch(DateTime dateTime)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dateTime</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>A DateTime.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>Number of milliseconds since Unix epoch.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToSecondsSinceEpoch_" data-uid="MongoDB.Bson.BsonUtils.ToSecondsSinceEpoch*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToSecondsSinceEpoch_System_DateTime_" data-uid="MongoDB.Bson.BsonUtils.ToSecondsSinceEpoch(System.DateTime)">
-  ToSecondsSinceEpoch(DateTime)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L175"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a DateTime to number of seconds since Unix epoch.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static long ToSecondsSinceEpoch(DateTime dateTime)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dateTime</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>A DateTime.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>Number of seconds since Unix epoch.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_ToUniversalTime_" data-uid="MongoDB.Bson.BsonUtils.ToUniversalTime*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_ToUniversalTime_System_DateTime_" data-uid="MongoDB.Bson.BsonUtils.ToUniversalTime(System.DateTime)">
-  ToUniversalTime(DateTime)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L186"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a DateTime to UTC (with special handling for MinValue and MaxValue).</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime ToUniversalTime(DateTime dateTime)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>dateTime</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>A DateTime.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The DateTime in UTC.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Bson_BsonUtils_TryParseHexString_" data-uid="MongoDB.Bson.BsonUtils.TryParseHexString*"></a>
-
-  <h3 id="MongoDB_Bson_BsonUtils_TryParseHexString_System_String_System_Byte____" data-uid="MongoDB.Bson.BsonUtils.TryParseHexString(System.String,System.Byte[]@)">
-  TryParseHexString(string, out byte[])
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Bson/BsonUtils.cs/#L208"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Tries to parse a hex string to a byte array.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool TryParseHexString(string s, out byte[] bytes)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>s</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The hex string.</p>
-</dd>
-    <dt><code>bytes</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.byte">byte</a>[]</dt>
-    <dd><p>A byte array.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p>True if the hex string was successfully parsed.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -134,13 +134,13 @@
     <dt>Inherited Members</dt>
     <dd>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.MayBeCompressed.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MayBeCompressed">MongoDBMessage.MayBeCompressed</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MessageType">MongoDBMessage.MessageType</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.MessageType.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_MessageType">MongoDBMessage.MessageType</a>
     </div>
     <div>
-      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_">MongoDBMessage.GetEncoder(IMessageEncoderFactory)</a>
+      <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage.GetEncoder.html#MongoDB_Driver_Core_WireProtocol_Messages_MongoDBMessage_GetEncoder_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_IMessageEncoderFactory_">MongoDBMessage.GetEncoder(IMessageEncoderFactory)</a>
     </div>
     <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
@@ -169,218 +169,47 @@
 
 
 
-
   <h2 class="section" id="constructors">Constructors
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage__ctor_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.#ctor*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage__ctor_System_Int32_System_Func_System_Boolean__" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.#ctor(System.Int32,System.Func{System.Boolean})">
-  RequestMessage(int, Func&lt;bool&gt;)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L64"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.html">RequestMessage</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected RequestMessage(int requestId, Func&lt;bool&gt; shouldBeSent = null)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>requestId</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The request identifier.</p>
-</dd>
-    <dt><code>shouldBeSent</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-1">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
-    <dd><p>A delegate that determines whether this message should be sent.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.-ctor.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage__ctor_System_Int32_System_Func_System_Boolean__">RequestMessage(int, Func&lt;bool&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.html">RequestMessage</a> class.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="section" id="properties">Properties
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_CurrentGlobalRequestId_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.CurrentGlobalRequestId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_CurrentGlobalRequestId" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.CurrentGlobalRequestId">
-  CurrentGlobalRequestId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L37"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the current global request identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int CurrentGlobalRequestId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The current global request identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.CurrentGlobalRequestId.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_CurrentGlobalRequestId">CurrentGlobalRequestId</a></dt>
+    <dd><p>Gets the current global request identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_RequestId_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.RequestId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_RequestId" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.RequestId">
-  RequestId
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L77"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the request identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int RequestId { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The request identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.RequestId.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_RequestId">RequestId</a></dt>
+    <dd><p>Gets the request identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_ShouldBeSent_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.ShouldBeSent*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_ShouldBeSent" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.ShouldBeSent">
-  ShouldBeSent
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L88"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets a delegate that determines whether this message should be sent.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;bool&gt; ShouldBeSent { get; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-1">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
-    <dd><p>A delegate that determines whether this message be sent.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.ShouldBeSent.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_ShouldBeSent">ShouldBeSent</a></dt>
+    <dd><p>Gets a delegate that determines whether this message should be sent.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_WasSent_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.WasSent*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_WasSent" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.WasSent">
-  WasSent
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L99"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether this message was sent.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool WasSent { get; set; }</code></pre>
-  </div>
-
-
-
-
-
-  <h4 class="section">Property Value</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></dt>
-    <dd><p><code>true</code> if this message was sent; otherwise, <code>false</code>.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.WasSent.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_WasSent">WasSent</a></dt>
+    <dd><p>Gets or sets a value indicating whether this message was sent.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
 
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_GetNextRequestId_" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.GetNextRequestId*"></a>
-
-  <h3 id="MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_GetNextRequestId" data-uid="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.GetNextRequestId">
-  GetNextRequestId()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/WireProtocol/Messages/RequestMessage.cs/#L47"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Gets the next request identifier.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int GetNextRequestId()</code></pre>
-  </div>
-
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The next request identifier.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage.GetNextRequestId.html#MongoDB_Driver_Core_WireProtocol_Messages_RequestMessage_GetNextRequestId">GetNextRequestId()</a></dt>
+    <dd><p>Gets the next request identifier.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -146,1221 +146,139 @@
 
 
 
-
   <h2 class="section" id="methods">Methods
 </h2>
 
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Add_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add(System.DateTime,System.Int64,MongoDB.Driver.Linq.DateTimeUnit)">
-  Add(DateTime, long, DateTimeUnit)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L33"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value of the specified unit to a DateTime.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Add(this DateTime @this, long value, DateTimeUnit unit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Add.html#MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_">Add(DateTime, long, DateTimeUnit)</a></dt>
+    <dd><p>Adds a value of the specified unit to a DateTime.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Add.html#MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String_">Add(DateTime, long, DateTimeUnit, string)</a></dt>
+    <dd><p>Adds a value of the specified unit to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Add_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add(System.DateTime,System.Int64,MongoDB.Driver.Linq.DateTimeUnit,System.String)">
-  Add(DateTime, long, DateTimeUnit, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L47"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value of the specified unit to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Add(this DateTime @this, long value, DateTimeUnit unit, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Add.html#MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_TimeSpan_System_String_">Add(DateTime, TimeSpan, string)</a></dt>
+    <dd><p>Adds a TimeSpan value to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddDays.html#MongoDB_Driver_Linq_DateTimeExtensions_AddDays_System_DateTime_System_Double_System_String_">AddDays(DateTime, double, string)</a></dt>
+    <dd><p>Adds a value in days to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Add_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_TimeSpan_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Add(System.DateTime,System.TimeSpan,System.String)">
-  Add(DateTime, TimeSpan, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L60"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a TimeSpan value to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Add(this DateTime @this, TimeSpan value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddHours.html#MongoDB_Driver_Linq_DateTimeExtensions_AddHours_System_DateTime_System_Double_System_String_">AddHours(DateTime, double, string)</a></dt>
+    <dd><p>Adds a value in hours to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddMilliseconds.html#MongoDB_Driver_Linq_DateTimeExtensions_AddMilliseconds_System_DateTime_System_Double_System_String_">AddMilliseconds(DateTime, double, string)</a></dt>
+    <dd><p>Adds a value in milliseconds to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Add_System_DateTime_System_TimeSpan_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddDays_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddDays*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddDays_System_DateTime_System_Double_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddDays(System.DateTime,System.Double,System.String)">
-  AddDays(DateTime, double, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L73"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in days to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddDays(this DateTime @this, double value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddMinutes.html#MongoDB_Driver_Linq_DateTimeExtensions_AddMinutes_System_DateTime_System_Double_System_String_">AddMinutes(DateTime, double, string)</a></dt>
+    <dd><p>Adds a value in minutes to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddMonths.html#MongoDB_Driver_Linq_DateTimeExtensions_AddMonths_System_DateTime_System_Int32_System_String_">AddMonths(DateTime, int, string)</a></dt>
+    <dd><p>Adds a value in months to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddDays_System_DateTime_System_Double_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddHours_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddHours*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddHours_System_DateTime_System_Double_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddHours(System.DateTime,System.Double,System.String)">
-  AddHours(DateTime, double, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L86"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in hours to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddHours(this DateTime @this, double value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters.html#MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_System_DateTime_System_Int32_">AddQuarters(DateTime, int)</a></dt>
+    <dd><p>Adds a value in quarters to a DateTime.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters.html#MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_System_DateTime_System_Int32_System_String_">AddQuarters(DateTime, int, string)</a></dt>
+    <dd><p>Adds a value in quarters to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddHours_System_DateTime_System_Double_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddMilliseconds_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMilliseconds*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddMilliseconds_System_DateTime_System_Double_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMilliseconds(System.DateTime,System.Double,System.String)">
-  AddMilliseconds(DateTime, double, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L99"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in milliseconds to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddMilliseconds(this DateTime @this, double value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddSeconds.html#MongoDB_Driver_Linq_DateTimeExtensions_AddSeconds_System_DateTime_System_Double_System_String_">AddSeconds(DateTime, double, string)</a></dt>
+    <dd><p>Adds a value in seconds to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks.html#MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_System_DateTime_System_Int32_">AddWeeks(DateTime, int)</a></dt>
+    <dd><p>Adds a value in weeks to a DateTime taking.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddMilliseconds_System_DateTime_System_Double_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddMinutes_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMinutes*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddMinutes_System_DateTime_System_Double_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMinutes(System.DateTime,System.Double,System.String)">
-  AddMinutes(DateTime, double, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L112"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in minutes to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddMinutes(this DateTime @this, double value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks.html#MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_System_DateTime_System_Int32_System_String_">AddWeeks(DateTime, int, string)</a></dt>
+    <dd><p>Adds a value in weeks to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.AddYears.html#MongoDB_Driver_Linq_DateTimeExtensions_AddYears_System_DateTime_System_Int32_System_String_">AddYears(DateTime, int, string)</a></dt>
+    <dd><p>Adds a value in years to a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddMinutes_System_DateTime_System_Double_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddMonths_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMonths*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddMonths_System_DateTime_System_Int32_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddMonths(System.DateTime,System.Int32,System.String)">
-  AddMonths(DateTime, int, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L125"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in months to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddMonths(this DateTime @this, int value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_">Subtract(DateTime, DateTime, DateTimeUnit)</a></dt>
+    <dd><p>Subtracts the start date from the end date returning the result in the specified unit.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_String_">Subtract(DateTime, DateTime, DateTimeUnit, string)</a></dt>
+    <dd><p>Subtracts the start date from the end date returning the result in the specified unit taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddMonths_System_DateTime_System_Int32_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_System_DateTime_System_Int32_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters(System.DateTime,System.Int32)">
-  AddQuarters(DateTime, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L136"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in quarters to a DateTime.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddQuarters(this DateTime @this, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_System_String_">Subtract(DateTime, DateTime, string)</a></dt>
+    <dd><p>Subtracts the start date from the end date returning a TimeSpan taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_">Subtract(DateTime, long, DateTimeUnit)</a></dt>
+    <dd><p>Subtracts a value of the specified unit from a DateTime.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_System_DateTime_System_Int32_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddQuarters(System.DateTime,System.Int32,System.String)">
-  AddQuarters(DateTime, int, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L149"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in quarters to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddQuarters(this DateTime @this, int value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String_">Subtract(DateTime, long, DateTimeUnit, string)</a></dt>
+    <dd><p>Subtracts a value of the specified unit from a DateTime taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Subtract.html#MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_TimeSpan_System_String_">Subtract(DateTime, TimeSpan, string)</a></dt>
+    <dd><p>Subtracts a TimeSpan from a date taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddQuarters_System_DateTime_System_Int32_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddSeconds_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddSeconds*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddSeconds_System_DateTime_System_Double_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddSeconds(System.DateTime,System.Double,System.String)">
-  AddSeconds(DateTime, double, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L162"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in seconds to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddSeconds(this DateTime @this, double value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.ToString.html#MongoDB_Driver_Linq_DateTimeExtensions_ToString_System_DateTime_System_String_System_String_">ToString(DateTime, string, string)</a></dt>
+    <dd><p>Converts a DateTime value to a string.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Truncate.html#MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_">Truncate(DateTime, DateTimeUnit)</a></dt>
+    <dd><p>Truncates a DateTime value to the specified unit.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddSeconds_System_DateTime_System_Double_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_System_DateTime_System_Int32_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks(System.DateTime,System.Int32)">
-  AddWeeks(DateTime, int)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L173"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in weeks to a DateTime taking.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddWeeks(this DateTime @this, int value)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Truncate.html#MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_Int64_">Truncate(DateTime, DateTimeUnit, long)</a></dt>
+    <dd><p>Truncates a DateTime value to the specified unit and bin size.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Truncate.html#MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_Int64_System_String_">Truncate(DateTime, DateTimeUnit, long, string)</a></dt>
+    <dd><p>Truncates a DateTime value to the specified unit and bin size taking a timezone into consideration.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_System_DateTime_System_Int32_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddWeeks(System.DateTime,System.Int32,System.String)">
-  AddWeeks(DateTime, int, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L186"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in weeks to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddWeeks(this DateTime @this, int value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Week.html#MongoDB_Driver_Linq_DateTimeExtensions_Week_System_DateTime_">Week(DateTime)</a></dt>
+    <dd><p>Returns the week number of a specified DateTime value.</p>
 </dd>
   </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Linq.DateTimeExtensions.Week.html#MongoDB_Driver_Linq_DateTimeExtensions_Week_System_DateTime_System_String_">Week(DateTime, string)</a></dt>
+    <dd><p>Returns the week number of a specified DateTime value.</p>
 </dd>
   </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddWeeks_System_DateTime_System_Int32_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_AddYears_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddYears*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_AddYears_System_DateTime_System_Int32_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.AddYears(System.DateTime,System.Int32,System.String)">
-  AddYears(DateTime, int, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L199"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Adds a value in years to a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime AddYears(this DateTime @this, int value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_AddYears_System_DateTime_System_Int32_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateAdd for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.DateTime,MongoDB.Driver.Linq.DateTimeUnit)">
-  Subtract(DateTime, DateTime, DateTimeUnit)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L211"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts the start date from the end date returning the result in the specified unit.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static long Subtract(this DateTime @this, DateTime startDate, DateTimeUnit unit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>startDate</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The start date.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.DateTime,MongoDB.Driver.Linq.DateTimeUnit,System.String)">
-  Subtract(DateTime, DateTime, DateTimeUnit, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L225"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts the start date from the end date returning the result in the specified unit taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static long Subtract(this DateTime @this, DateTime startDate, DateTimeUnit unit, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>startDate</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The start date.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The result.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateDiff for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.DateTime,System.String)">
-  Subtract(DateTime, DateTime, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L238"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts the start date from the end date returning a TimeSpan taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static TimeSpan Subtract(this DateTime @this, DateTime value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_DateTime_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateDiff for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.Int64,MongoDB.Driver.Linq.DateTimeUnit)">
-  Subtract(DateTime, long, DateTimeUnit)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L263"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts a value of the specified unit from a DateTime.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Subtract(this DateTime @this, long value, DateTimeUnit unit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.Int64,MongoDB.Driver.Linq.DateTimeUnit,System.String)">
-  Subtract(DateTime, long, DateTimeUnit, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L277"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts a value of the specified unit from a DateTime taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Subtract(this DateTime @this, long value, DateTimeUnit unit, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_Int64_MongoDB_Driver_Linq_DateTimeUnit_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateSubtract for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_TimeSpan_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Subtract(System.DateTime,System.TimeSpan,System.String)">
-  Subtract(DateTime, TimeSpan, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L251"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Subtracts a TimeSpan from a date taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Subtract(this DateTime @this, TimeSpan value, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>value</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></dt>
-    <dd><p>The value to be added.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Subtract_System_DateTime_System_TimeSpan_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateSubtract for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_ToString_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.ToString*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_ToString_System_DateTime_System_String_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.ToString(System.DateTime,System.String,System.String)">
-  ToString(DateTime, string, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L289"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Converts a DateTime value to a string.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string ToString(this DateTime @this, string format, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The DateTime value.</p>
-</dd>
-    <dt><code>format</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The format string (optional, can be null).</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone to use in the returned string (optional, can be null).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The DateTime value converted to a string.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate(System.DateTime,MongoDB.Driver.Linq.DateTimeUnit)">
-  Truncate(DateTime, DateTimeUnit)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L300"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Truncates a DateTime value to the specified unit.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Truncate(this DateTime @this, DateTimeUnit unit)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_Int64_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate(System.DateTime,MongoDB.Driver.Linq.DateTimeUnit,System.Int64)">
-  Truncate(DateTime, DateTimeUnit, long)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L312"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Truncates a DateTime value to the specified unit and bin size.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-    <dt><code>binSize</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bin size.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_Int64_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Truncate(System.DateTime,MongoDB.Driver.Linq.DateTimeUnit,System.Int64,System.String)">
-  Truncate(DateTime, DateTimeUnit, long, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L326"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Truncates a DateTime value to the specified unit and bin size taking a timezone into consideration.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The original DateTime.</p>
-</dd>
-    <dt><code>unit</code> <a class="xref" href="MongoDB.Driver.Linq.DateTimeUnit.html">DateTimeUnit</a></dt>
-    <dd><p>The unit.</p>
-</dd>
-    <dt><code>binSize</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
-    <dd><p>The bin size.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The resulting DateTime.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-  <h4 class="section" id="MongoDB_Driver_Linq_DateTimeExtensions_Truncate_System_DateTime_MongoDB_Driver_Linq_DateTimeUnit_System_Int64_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>See the server documentation for $dateTrunc for information on timezones in MongoDB.</p>
-</div>
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Week_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Week*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Week_System_DateTime_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Week(System.DateTime)">
-  Week(DateTime)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L336"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the week number of a specified DateTime value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int Week(this DateTime @this)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The DateTime value.</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The week number of a specified DateTime value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
-
-
-  <a id="MongoDB_Driver_Linq_DateTimeExtensions_Week_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Week*"></a>
-
-  <h3 id="MongoDB_Driver_Linq_DateTimeExtensions_Week_System_DateTime_System_String_" data-uid="MongoDB.Driver.Linq.DateTimeExtensions.Week(System.DateTime,System.String)">
-  Week(DateTime, string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/sanych-sun/mongo-csharp-driver/blob/master/src/MongoDB.Driver/Linq/DateTimeExtensions.cs/#L347"><i class="bi bi-code-slash"></i></a>
-  </h3>
-
-  <div class="markdown level1 summary"><p>Returns the week number of a specified DateTime value.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static int Week(this DateTime @this, string timezone)</code></pre>
-  </div>
-
-  <h4 class="section">Parameters</h4>
-  <dl class="parameters">
-    <dt><code>this</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
-    <dd><p>The DateTime value.</p>
-</dd>
-    <dt><code>timezone</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
-    <dd><p>The timezone to use (optional, can be null).</p>
-</dd>
-  </dl>
-
-  <h4 class="section">Returns</h4>
-  <dl class="parameters">
-    <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
-    <dd><p>The week number of a specified DateTime value.</p>
-</dd>
-  </dl>
-
-
-
-
-
-
-
-
-
 
 
 
