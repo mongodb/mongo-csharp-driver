@@ -12,4 +12,4 @@ echo "Running Atlas Data Lake driver tests"
 export MONGODB_URI="mongodb://mhuser:pencil@localhost"
 export ATLAS_DATA_LAKE_TESTS_ENABLED=true
 
-powershell.exe .\\build.ps1 --target TestAtlasDataLake
+./build.sh --target=TestAtlasDataLake
