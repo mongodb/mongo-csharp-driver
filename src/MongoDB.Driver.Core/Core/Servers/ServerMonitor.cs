@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerMonitorSettings _serverMonitorSettings;
 
         private Thread _serverMonitorThread;
+        private bool _streamingEnabled;
 
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
@@ -105,6 +106,13 @@ namespace MongoDB.Driver.Core.Servers
 
             _logger = loggerFactory?.CreateLogger<IServerMonitor>();
             _eventLoggerSdam = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
+
+            _streamingEnabled = serverMonitorSettings.ServerMonitoringMode switch
+            {
+                ServerMonitoringMode.Stream => true,
+                ServerMonitoringMode.Poll => false,
+                _ => !IsRunningInFaaS() // ServerMonitoringMode.Auto
+            };
         }
 
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
@@ -155,7 +163,6 @@ namespace MongoDB.Driver.Core.Servers
             {
                 _logger?.LogDebug(_serverId, "Initializing");
 
-                _roundTripTimeMonitor.Start();
                 _serverMonitorThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
                 _serverMonitorThread.Start(_monitorCancellationToken);
 
@@ -182,7 +189,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             BsonDocument helloCommand;
             var commandResponseHandling = CommandResponseHandling.Return;
-            if (connection.Description.HelloResult.TopologyVersion != null)
+            if (_streamingEnabled && connection.Description.HelloResult.TopologyVersion != null)
             {
                 connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
                 commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
@@ -411,13 +418,19 @@ namespace MongoDB.Driver.Core.Servers
                     SetDescription(newDescription);
                 }
 
-                processAnother =
-                    // serverSupportsStreaming
-                    (newDescription.Type != ServerType.Unknown && heartbeatHelloResult != null && heartbeatHelloResult.TopologyVersion != null) ||
-                    // connectionIsStreaming
-                    (helloProtocol != null && helloProtocol.MoreToCome) ||
-                    // transitionedWithNetworkError
+                var serverSupportsStreaming = (newDescription.Type != ServerType.Unknown &&
+                                               heartbeatHelloResult != null &&
+                                               heartbeatHelloResult.TopologyVersion != null);
+                var connectionIsStreaming = (helloProtocol != null && helloProtocol.MoreToCome);
+                var transitionedWithNetworkError =
                     (IsNetworkError(heartbeatException) && previousDescription.Type != ServerType.Unknown);
+
+                if (_streamingEnabled && serverSupportsStreaming && !_roundTripTimeMonitor.Started)
+                {
+                    _roundTripTimeMonitor.Start(); // start RTT monitoring on separate thread
+                }
+
+                processAnother = (_streamingEnabled && (serverSupportsStreaming || connectionIsStreaming)) || transitionedWithNetworkError;
             }
 
             bool IsNetworkError(Exception ex)
@@ -433,7 +446,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.HelloResult.TopologyVersion != null));
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, _streamingEnabled && connection.Description.HelloResult.TopologyVersion != null));
 
             var stopwatch = Stopwatch.StartNew();
             try
@@ -441,14 +454,20 @@ namespace MongoDB.Driver.Core.Servers
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 stopwatch.Stop();
 
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null, helloResult.Wrapped));
+                // RTT check if using polling monitoring
+                if ((!_streamingEnabled || (_streamingEnabled && connection.Description.HelloResult.TopologyVersion == null)) && helloResult != null)
+                {
+                    _roundTripTimeMonitor.AddSample(stopwatch.Elapsed);
+                }
+
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, _streamingEnabled && connection.Description.HelloResult.TopologyVersion != null, helloResult.Wrapped));
 
                 return helloResult;
             }
             catch (Exception ex)
             {
                 stopwatch.Stop();
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, connection.Description.HelloResult.TopologyVersion != null));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, _streamingEnabled && connection.Description.HelloResult.TopologyVersion != null));
 
                 throw;
             }
@@ -475,6 +494,16 @@ namespace MongoDB.Driver.Core.Servers
         {
             Interlocked.Exchange(ref _currentDescription, newDescription);
             OnDescriptionChanged(oldDescription, newDescription);
+        }
+
+        private bool IsRunningInFaaS()
+        {
+            return (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
+                   Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
+                   Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||
+                   Environment.GetEnvironmentVariable("K_SERVICE") != null ||
+                   Environment.GetEnvironmentVariable("FUNCTION_NAME") != null ||
+                   Environment.GetEnvironmentVariable("VERCEL") != null;
         }
 
         private void ThrowIfDisposed()

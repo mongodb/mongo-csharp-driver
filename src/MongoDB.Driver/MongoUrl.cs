@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver
 {
@@ -73,6 +74,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _localThreshold;
         private readonly ConnectionStringScheme _scheme;
         private readonly IEnumerable<MongoServerAddress> _servers;
+        private readonly ServerMonitoringMode? _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly int? _srvMaxHosts;
@@ -147,6 +149,7 @@ namespace MongoDB.Driver
             _retryWrites = builder.RetryWrites;
             _scheme = builder.Scheme;
             _servers = builder.Servers;
+            _serverMonitoringMode = builder.ServerMonitoringMode;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
             _srvMaxHosts = builder.SrvMaxHosts;
@@ -491,6 +494,14 @@ namespace MongoDB.Driver
         public IEnumerable<MongoServerAddress> Servers
         {
             get { return _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts.Value) : _servers; }
+        }
+
+        /// <summary>
+        /// Gets the server monitoring mode to use.
+        /// </summary>
+        public ServerMonitoringMode? ServerMonitoringMode
+        {
+            get { return _serverMonitoringMode; }
         }
 
         /// <summary>

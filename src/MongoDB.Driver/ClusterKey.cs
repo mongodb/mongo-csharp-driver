@@ -19,6 +19,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -58,6 +59,7 @@ namespace MongoDB.Driver
         private readonly int _sendBufferSize;
         private readonly ServerApi _serverApi;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
+        private readonly ServerMonitoringMode _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly int _srvMaxHosts;
@@ -99,6 +101,7 @@ namespace MongoDB.Driver
             int sendBufferSize,
             ServerApi serverApi,
             IReadOnlyList<MongoServerAddress> servers,
+            ServerMonitoringMode serverMonitoringMode,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
             int srvMaxHosts,
@@ -138,6 +141,7 @@ namespace MongoDB.Driver
             _sendBufferSize = sendBufferSize;
             _serverApi = serverApi;
             _servers = servers;
+            _serverMonitoringMode = serverMonitoringMode;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
             _srvMaxHosts = srvMaxHosts;
@@ -203,6 +207,7 @@ namespace MongoDB.Driver
         public int SendBufferSize { get { return _sendBufferSize; } }
         public ServerApi ServerApi { get { return _serverApi; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
+        public ServerMonitoringMode ServerMonitoringMode { get { return _serverMonitoringMode; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
         public int SrvMaxHosts { get { return _srvMaxHosts; } }
@@ -259,6 +264,7 @@ namespace MongoDB.Driver
                 _sendBufferSize == rhs._sendBufferSize &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
+                _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 _srvMaxHosts == rhs._srvMaxHosts &&

@@ -139,7 +139,8 @@ namespace MongoDB.Driver
         {
             return settings.With(
                 heartbeatInterval: clusterKey.HeartbeatInterval,
-                heartbeatTimeout: clusterKey.HeartbeatTimeout);
+                heartbeatTimeout: clusterKey.HeartbeatTimeout,
+                serverMonitoringMode: clusterKey.ServerMonitoringMode);
         }
 
         private SslStreamSettings ConfigureSsl(SslStreamSettings settings, ClusterKey clusterKey)

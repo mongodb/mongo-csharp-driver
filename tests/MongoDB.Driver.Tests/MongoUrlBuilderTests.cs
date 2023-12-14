@@ -23,6 +23,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -94,6 +95,7 @@ namespace MongoDB.Driver.Tests
                 RetryWrites = true,
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
+                ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
@@ -145,6 +147,7 @@ namespace MongoDB.Driver.Tests
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
+                "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
@@ -205,6 +208,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(6), builder.LocalThreshold);
                 Assert.Equal(ConnectionStringScheme.MongoDB, builder.Scheme);
                 Assert.Equal(new MongoServerAddress("host", 27017), builder.Server);
+                Assert.Equal(ServerMonitoringMode.Poll, builder.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
                 Assert.Equal("username", builder.Username);

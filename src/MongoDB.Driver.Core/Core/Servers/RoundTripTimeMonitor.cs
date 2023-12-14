@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Servers
     internal interface IRoundTripTimeMonitor : IDisposable
     {
         TimeSpan Average { get; }
+        bool Started { get; }
         void AddSample(TimeSpan roundTripTime);
         void Reset();
         void Start();
@@ -48,6 +49,8 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerId _serverId;
         private readonly ILogger<RoundTripTimeMonitor> _logger;
 
+        private bool _started;
+
         public RoundTripTimeMonitor(
             IConnectionFactory connectionFactory,
             ServerId serverId,
@@ -63,6 +66,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
+            _started = false;
 
             _logger = logger;
         }
@@ -74,6 +78,17 @@ namespace MongoDB.Driver.Core.Servers
                 lock (_lock)
                 {
                     return _averageRoundTripTimeCalculator.Average;
+                }
+            }
+        }
+
+        public bool Started
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _started;
                 }
             }
         }
@@ -99,6 +114,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             _roundTripTimeMonitorThread = new Thread(ThreadStart) { IsBackground = true };
             _roundTripTimeMonitorThread.Start();
+            _started = true;
 
             void ThreadStart()
             {

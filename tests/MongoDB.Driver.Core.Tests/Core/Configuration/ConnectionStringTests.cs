@@ -26,6 +26,7 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Servers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -356,6 +357,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReplicaSet.Should().BeNull();
             subject.LocalThreshold.Should().Be(null);
             subject.SocketTimeout.Should().Be(null);
+            subject.ServerMonitoringMode.Should().Be(null);
 #pragma warning disable 618
             subject.Ssl.Should().Be(null);
             subject.SslVerifyCertificate.Should().Be(null);
@@ -404,6 +406,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "retryWrites=true;" +
                 "loadBalanced=false;" +
                 "localThreshold=50ms;" +
+                "serverMonitoringMode=stream;" +
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
@@ -450,6 +453,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
+            subject.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
 #pragma warning disable 618
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);

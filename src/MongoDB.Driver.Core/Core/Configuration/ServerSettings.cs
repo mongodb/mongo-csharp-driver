@@ -17,6 +17,7 @@ using System;
 using System.Net.Sockets;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -36,11 +37,17 @@ namespace MongoDB.Driver.Core.Configuration
         /// Gets the default heartbeat timeout.
         /// </summary>
         public static TimeSpan DefaultHeartbeatTimeout => Timeout.InfiniteTimeSpan;
+
+        /// <summary>
+        /// Gets the default heartbeat timeout.
+        /// </summary>
+        public static ServerMonitoringMode DefaultServerMonitoringMode => ServerMonitoringMode.Auto;
         #endregion
 
         // fields
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
+        private readonly ServerMonitoringMode _serverMonitoringMode;
 
         // constructors
         /// <summary>
@@ -48,12 +55,15 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
         /// <param name="heartbeatTimeout">The heartbeat timeout.</param>
+        /// <param name="serverMonitoringMode">The server monitoring mode.</param>
         public ServerSettings(
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
-            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
+            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>),
+            Optional<ServerMonitoringMode> serverMonitoringMode = default)
         {
             _heartbeatInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(heartbeatInterval.WithDefault(DefaultHeartbeatInterval), "heartbeatInterval");
             _heartbeatTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(heartbeatTimeout.WithDefault(DefaultHeartbeatTimeout), "heartbeatTimeout");
+            _serverMonitoringMode = serverMonitoringMode.WithDefault(DefaultServerMonitoringMode);
         }
 
         // properties
@@ -79,20 +89,34 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _heartbeatTimeout; }
         }
 
+        /// <summary>
+        /// Gets the server monitoring mode.
+        /// </summary>
+        /// <value>
+        /// The server monitoring mode.
+        /// </value>
+        public ServerMonitoringMode ServerMonitoringMode
+        {
+            get { return _serverMonitoringMode; }
+        }
+
         // methods
         /// <summary>
         /// Returns a new ServerSettings instance with some settings changed.
         /// </summary>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
         /// <param name="heartbeatTimeout">The heartbeat timeout.</param>
+        /// <param name="serverMonitoringMode">The server monitoring mode.</param>
         /// <returns>A new ServerSettings instance.</returns>
         public ServerSettings With(
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
-            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
+            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>),
+            Optional<ServerMonitoringMode> serverMonitoringMode = default)
         {
             return new ServerSettings(
                 heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
-                heartbeatTimeout: heartbeatTimeout.WithDefault(_heartbeatTimeout));
+                heartbeatTimeout: heartbeatTimeout.WithDefault(_heartbeatTimeout),
+                serverMonitoringMode: serverMonitoringMode.WithDefault(_serverMonitoringMode));
         }
     }
 }

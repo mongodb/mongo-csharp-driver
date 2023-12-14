@@ -26,6 +26,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.Tests
                 "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;loadBalanced=false;" +
                 "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
-                "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -283,6 +284,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(_localHost, settings.Servers.First());
             Assert.Equal(null, settings.ServerApi);
             Assert.Equal(1, settings.Servers.Count());
+            Assert.Equal(ServerMonitoringMode.Auto, settings.ServerMonitoringMode);
             Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.Null(settings.SslSettings);
@@ -540,6 +542,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.ServerMonitoringMode = ServerMonitoringMode.Poll;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.ServerSelectionTimeout = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
@@ -693,7 +699,7 @@ namespace MongoDB.Driver.Tests
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
                 "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
-                "serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -744,6 +750,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.RetryWrites, settings.RetryWrites);
             Assert.Equal(url.Scheme, settings.Scheme);
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
+            Assert.Equal(ServerMonitoringMode.Stream, settings.ServerMonitoringMode);
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
 #pragma warning disable 618
@@ -1318,6 +1325,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestServerMonitoringMode()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(ServerMonitoringMode.Auto, settings.ServerMonitoringMode);
+
+            var serverMonitoringMode = ServerMonitoringMode.Stream;
+            settings.ServerMonitoringMode = serverMonitoringMode;
+            Assert.Equal(serverMonitoringMode, settings.ServerMonitoringMode);
+
+            settings.Freeze();
+            Assert.Equal(serverMonitoringMode, settings.ServerMonitoringMode);
+            Assert.Throws<InvalidOperationException>(() => { settings.ServerMonitoringMode = serverMonitoringMode; });
+        }
+
+        [Fact]
         public void TestServerSelectionTimeout()
         {
             var settings = new MongoClientSettings();
@@ -1502,6 +1524,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                 ServerApi = serverApi,
                 Servers = servers,
+                ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
@@ -1550,6 +1573,7 @@ namespace MongoDB.Driver.Tests
             result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
             result.ServerApi.Should().Be(subject.ServerApi);
             result.Servers.Should().Equal(subject.Servers);
+            result.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Poll);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
             result.SslSettings.Should().Be(subject.SslSettings);
