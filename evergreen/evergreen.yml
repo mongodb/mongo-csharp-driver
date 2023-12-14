@@ -269,14 +269,11 @@ functions:
     - command: shell.exec
       params:
         script: |
-          DRIVERS_TOOLS="${DRIVERS_TOOLS}" \
-          sh ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/build-mongohouse-local.sh
+          DRIVERS_TOOLS="${DRIVERS_TOOLS}" bash ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/pull-mongohouse-image.sh
     - command: shell.exec
       params:
-        background: true
         script: |
-          DRIVERS_TOOLS="${DRIVERS_TOOLS}" \
-          sh ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/run-mongohouse-local.sh
+          DRIVERS_TOOLS="${DRIVERS_TOOLS}" bash ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/run-mongohouse-image.sh
 
   run-load-balancer:
     - command: shell.exec
@@ -2194,7 +2191,7 @@ buildvariants:
 - name: atlas-data-lake-test
   display_name: "Atlas Data Lake Tests"
   run_on:
-    - windows-64-vs2017-test
+    - ubuntu2004-large
   tasks:
     - name: atlas-data-lake-test
 
