@@ -35,6 +35,16 @@ namespace MongoDB.Driver.Core.Clusters
         {
         }
 
+        [Fact]
+        public void ClusterFactory_should_create_cluster_when_loggerfactory_is_not_set()
+        {
+            const string connectionString = "mongodb://a.MONGO.COSMOS.AZURE.COM:19555";
+            var subject = CreateSubject(connectionString, null);
+            var cluster = subject.CreateCluster();
+
+            cluster.Should().NotBeNull();
+        }
+
         [Theory]
         [InlineData("mongodb://a.MONGO.COSMOS.AZURE.COM:19555", ExpectedCosmosDBMessage)]
         [InlineData("mongodb://a.MONGO.COSMOS.AZURE.COM:19555", ExpectedCosmosDBMessage)]
@@ -59,7 +69,7 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData("mongodb://a.mongo.cosmos.azure.com:19554,b.docdb-elastic.amazonaws.com:27017,c.mongo.cosmos.azure.com:19555/", ExpectedCosmosDBMessage)]
         public void ClusterFactory_should_log_if_external_environment_is_detected(string connectionString, string expectedMessage)
         {
-            var subject = CreateSubject(connectionString);
+            var subject = CreateSubject(connectionString, LoggerFactory);
             _ = subject.CreateCluster();
 
             var logs = GetLogs();
@@ -77,14 +87,14 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData("mongodb+srv://a.docdb-elastic.amazonaws.com.tld/")]
         public void ClusterFactory_should_not_log_if_no_external_environment_is_detected(string connectionString)
         {
-            var subject = CreateSubject(connectionString);
+            var subject = CreateSubject(connectionString, LoggerFactory);
             _ = subject.CreateCluster();
 
             var logs = GetLogs();
             logs.Length.Should().Be(0);
         }
 
-        private ClusterFactory CreateSubject(string connectionString)
+        private ClusterFactory CreateSubject(string connectionString, ILoggerFactory loggerFactory)
         {
             var parsedConnectionString = new ConnectionString(connectionString);
 
@@ -92,7 +102,7 @@ namespace MongoDB.Driver.Core.Clusters
             var serverFactoryMock = Mock.Of<IClusterableServerFactory>();
 
             var clusterSettings = new ClusterSettings(endPoints: Optional.Enumerable(parsedConnectionString.Hosts));
-            var clusterFactory = new ClusterFactory(clusterSettings, serverFactoryMock, eventSubscriberMock, LoggerFactory);
+            var clusterFactory = new ClusterFactory(clusterSettings, serverFactoryMock, eventSubscriberMock, loggerFactory);
 
             return clusterFactory;
         }

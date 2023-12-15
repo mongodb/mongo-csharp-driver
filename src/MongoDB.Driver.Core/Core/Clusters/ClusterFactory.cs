@@ -110,6 +110,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void ProcessClusterEnvironment(ClusterSettings settings)
         {
+            if (_loggerFactory == null)
+            {
+                return;
+            }
+
             foreach (var (host, _) in  settings.EndPoints.Select(EndPointHelper.GetHostAndPort))
             {
                 if (LogIfCosmosDB(host) || LogIfDocumentDB(host))
@@ -129,7 +134,7 @@ namespace MongoDB.Driver.Core.Clusters
                 if (suffixes.Any(s => host.EndsWith(s, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     var logger = _loggerFactory.CreateLogger<LogCategories.Client>();
-                    logger.LogInformation("You appear to be connected to a {environment} cluster. For more information regarding feature compatibility and support please visit {url}", environment, documentationUrl);
+                    logger?.LogInformation("You appear to be connected to a {environment} cluster. For more information regarding feature compatibility and support please visit {url}", environment, documentationUrl);
 
                     return true;
                 }
