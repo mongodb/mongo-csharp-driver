@@ -15,4 +15,4 @@ An online version of these release notes is available [here](https://github.com/
 
 The full list of issues resolved in this release is available at [CSHARP JIRA project](https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.23.0%20ORDER%20BY%20key%20ASC).
 
-Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.23.0/).
+Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.23/).
