@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -63,6 +64,7 @@ namespace MongoDB.Driver
         private ConnectionStringScheme _scheme;
         private string _sdamLogFilename;
         private List<MongoServerAddress> _servers;
+        private ServerMonitoringMode _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private SslSettings _sslSettings;
@@ -117,6 +119,7 @@ namespace MongoDB.Driver
             _scheme = ConnectionStringScheme.MongoDB;
             _sdamLogFilename = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
+            _serverMonitoringMode = ServerMonitoringMode.Auto;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
@@ -614,6 +617,20 @@ namespace MongoDB.Driver
         /// Gets or sets the server selection timeout.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">MongoServerSettings is frozen.</exception>
+        public ServerMonitoringMode ServerMonitoringMode
+        {
+            get { return _serverMonitoringMode; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _serverMonitoringMode = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the server selection timeout.
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">MongoServerSettings is frozen.</exception>
         public TimeSpan ServerSelectionTimeout
         {
             get { return _serverSelectionTimeout; }
@@ -826,6 +843,7 @@ namespace MongoDB.Driver
             serverSettings.SdamLogFilename = clientSettings.SdamLogFilename;
 #pragma warning restore CS0618 // Type or member is obsolete
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
+            serverSettings.ServerMonitoringMode = clientSettings.ServerMonitoringMode;
             serverSettings.ServerSelectionTimeout = clientSettings.ServerSelectionTimeout;
             serverSettings.SocketTimeout = clientSettings.SocketTimeout;
             serverSettings.SslSettings = (clientSettings.SslSettings == null) ? null : clientSettings.SslSettings.Clone();
@@ -904,6 +922,7 @@ namespace MongoDB.Driver
             serverSettings.SdamLogFilename = null; // SdamLogFilename must be provided in code
 #pragma warning restore CS0618 // Type or member is obsolete
             serverSettings.Servers = new List<MongoServerAddress>(url.Servers);
+            serverSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             serverSettings.SocketTimeout = url.SocketTimeout;
             serverSettings.SslSettings = null;
@@ -957,6 +976,7 @@ namespace MongoDB.Driver
             clone._scheme = _scheme;
             clone._sdamLogFilename = _sdamLogFilename;
             clone._servers = new List<MongoServerAddress>(_servers);
+            clone._serverMonitoringMode = _serverMonitoringMode;
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
@@ -1020,6 +1040,7 @@ namespace MongoDB.Driver
                _scheme == rhs._scheme &&
                _sdamLogFilename == rhs._sdamLogFilename &&
                _servers.SequenceEqual(rhs._servers) &&
+                _serverMonitoringMode == rhs._serverMonitoringMode &&
                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                _socketTimeout == rhs._socketTimeout &&
                _sslSettings == rhs._sslSettings &&
@@ -1101,6 +1122,7 @@ namespace MongoDB.Driver
                 .Hash(_scheme)
                 .Hash(_sdamLogFilename)
                 .HashElements(_servers)
+                .Hash(_serverMonitoringMode)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
                 .Hash(_sslSettings)
@@ -1172,6 +1194,7 @@ namespace MongoDB.Driver
                 parts.Add($"SDAMLogFilename={_sdamLogFilename}");
             }
             parts.Add(string.Format("Servers={0}", string.Join(",", _servers.Select(s => s.ToString()).ToArray())));
+            parts.Add(string.Format("ServerMonitoringMode={0}", _serverMonitoringMode));
             parts.Add(string.Format("ServerSelectionTimeout={0}", _serverSelectionTimeout));
             parts.Add(string.Format("SocketTimeout={0}", _socketTimeout));
             if (_sslSettings != null)
@@ -1223,6 +1246,7 @@ namespace MongoDB.Driver
                 MongoDefaults.TcpSendBufferSize,
                 serverApi: null, // not supported for legacy
                 _servers.ToList(),
+                _serverMonitoringMode,
                 _serverSelectionTimeout,
                 _socketTimeout,
                 srvMaxHosts: 0, // not supported for legacy

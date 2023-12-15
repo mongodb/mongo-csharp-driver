@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                         case "retrywrites":
                             AssertBoolean(connectionString.RetryWrites, expectedOption.Value);
                             break;
-                        case "serverMonitoringMode":
+                        case "servermonitoringmode":
                             AssertEnum(connectionString.ServerMonitoringMode, expectedOption.Value);
                             break;
                         case "serverselectiontimeoutms":

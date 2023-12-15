@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
@@ -25,6 +26,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
@@ -498,9 +500,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var readConcern = ReadConcern.Default;
                 var retryReads = true;
                 var retryWrites = true;
+                ServerMonitoringMode? serverMonitoringMode = null;
                 TimeSpan? serverSelectionTimeout = null;
                 int? waitQueueSize = null;
-                TimeSpan? socketTimeout = null;                
+                TimeSpan? socketTimeout = null;
                 var useMultipleShardRouters = false;
                 TimeSpan? waitQueueTimeout = null;
                 var writeConcern = WriteConcern.Acknowledged;
@@ -553,6 +556,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                         var levelValue = option.Value.AsString;
                                         var level = (ReadConcernLevel)Enum.Parse(typeof(ReadConcernLevel), levelValue, true);
                                         readConcern = new ReadConcern(level);
+                                        break;
+                                    case "serverMonitoringMode":
+                                        serverMonitoringMode = (ServerMonitoringMode)Enum.Parse(typeof(ServerMonitoringMode), option.Value.AsString, true);
                                         break;
                                     case "serverSelectionTimeoutMS":
                                         serverSelectionTimeout = TimeSpan.FromMilliseconds(option.Value.AsInt32);
@@ -703,6 +709,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         settings.WriteConcern = writeConcern;
                         settings.HeartbeatInterval = heartbeatFrequency.GetValueOrDefault(defaultValue: TimeSpan.FromMilliseconds(5)); // 5 ms default value for spec tests
                         settings.ServerApi = serverApi;
+                        settings.ServerMonitoringMode =
+                            serverMonitoringMode.GetValueOrDefault(settings.ServerMonitoringMode);
                         settings.ServerSelectionTimeout = serverSelectionTimeout.GetValueOrDefault(defaultValue: settings.ServerSelectionTimeout);
                         settings.SocketTimeout = socketTimeout.GetValueOrDefault(defaultValue: settings.SocketTimeout);
                         if (eventCapturers.Length > 0)

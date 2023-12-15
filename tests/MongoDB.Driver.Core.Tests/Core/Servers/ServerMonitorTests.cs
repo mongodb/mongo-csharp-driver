@@ -343,7 +343,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2), serverMonitoringMode: ServerMonitoringMode.Poll);
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1), serverMonitoringMode: ServerMonitoringMode.Poll);
             var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2));
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
             var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
