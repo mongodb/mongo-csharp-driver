@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
-using System.Linq;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc
@@ -28,8 +27,11 @@ namespace MongoDB.Benchmarks.SingleDoc
     public class FindOneBenchmark
     {
         private DisposableMongoClient _client;
-        private BsonDocument _tweetDocument;
         private IMongoCollection<BsonDocument> _collection;
+        private BsonDocument _tweetDocument;
+
+        [Params(16220000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

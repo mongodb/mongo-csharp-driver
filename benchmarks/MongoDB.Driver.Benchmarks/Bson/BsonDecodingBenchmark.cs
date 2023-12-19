@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
+using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using System.Collections.Generic;
-using System.IO;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Bson
@@ -29,12 +28,12 @@ namespace MongoDB.Benchmarks.Bson
     public class BsonDecodingBenchmark
     {
         private byte[] _bytes;
-        private MemoryStream _stream;
-        private BsonBinaryReader _reader;
         private BsonDeserializationContext _context;
+        private BsonBinaryReader _reader;
+        private MemoryStream _stream;
 
         [ParamsSource(nameof(BenchmarkDataSources))]
-        public BenchmarkData BenchmarkData { get; set; }
+        public BsonBenchmarkData BenchmarkData { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -62,11 +61,11 @@ namespace MongoDB.Benchmarks.Bson
             _reader.Dispose();
         }
 
-        public IEnumerable<BenchmarkData> BenchmarkDataSources() => new[]
+        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new[]
         {
-            new BenchmarkData("extended_bson/flat_bson.json", "Flat"),
-            new BenchmarkData("extended_bson/full_bson.json", "Full"),
-            new BenchmarkData("extended_bson/deep_bson.json", "Deep")
+            new BsonBenchmarkData("extended_bson/flat_bson.json", "Flat", 75310000),
+            new BsonBenchmarkData("extended_bson/full_bson.json", "Full", 57340000),
+            new BsonBenchmarkData("extended_bson/deep_bson.json", "Deep", 19640000)
         };
     }
 }

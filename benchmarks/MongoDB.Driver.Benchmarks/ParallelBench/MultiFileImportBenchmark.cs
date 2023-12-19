@@ -13,15 +13,14 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.ParallelBench
@@ -32,8 +31,11 @@ namespace MongoDB.Benchmarks.ParallelBench
     public class MultiFileImportBenchmark
     {
         private DisposableMongoClient _client;
-        private IMongoDatabase _database;
         private IMongoCollection<BsonDocument> _collection;
+        private IMongoDatabase _database;
+
+        [Params(565000000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

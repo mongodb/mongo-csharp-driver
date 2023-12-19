@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-using BenchmarkDotNet.Exporters;
-using BenchmarkDotNet.Loggers;
-using BenchmarkDotNet.Reports;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using BenchmarkDotNet.Exporters;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Reports;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Exporters
@@ -36,7 +35,7 @@ namespace MongoDB.Benchmarks.Exporters
         {
             var exportedFiles = new List<string>();
 
-            var benchmarksGroupedByRuntime = summary.Reports.GroupBy(b => b.GetRuntimeInfo()).ToList();
+            var benchmarksGroupedByRuntime = summary.Reports.GroupBy(b => b.GetRuntimeInfo()).ToArray();
             foreach (var benchmarkGroup in benchmarksGroupedByRuntime)
             {
                 var runtime = benchmarkGroup.Key;
@@ -44,7 +43,7 @@ namespace MongoDB.Benchmarks.Exporters
                 var path = Path.Combine(summary.ResultsDirectoryPath, filename);
 
                 using StreamWriter writer = new(path, false);
-                var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToList();
+                var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToArray();
 
                 writer.WriteLine("Scores Summary: ");
                 foreach (var category in DriverBenchmarkCategory.AllCategories)

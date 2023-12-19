@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using MongoDB.Bson.IO;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.Exporters
@@ -42,7 +41,7 @@ namespace MongoDB.Benchmarks.Exporters
 
         public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
         {
-            var benchmarkResults = summary.Reports.Select(report => new BenchmarkResult(report)).ToList();
+            var benchmarkResults = summary.Reports.Select(report => new BenchmarkResult(report)).ToArray();
 
             var resultsPath = Path.Combine(summary.ResultsDirectoryPath, _outputFile);
 

@@ -15,7 +15,7 @@
 
 namespace MongoDB.Benchmarks.Bson
 {
-    public readonly record struct BenchmarkData(string Filepath, string DataSetName)
+    public readonly record struct BsonBenchmarkData(string Filepath, string DataSetName, int DataSetSize)
     {
         public override string ToString() => $"{DataSetName}";
     }

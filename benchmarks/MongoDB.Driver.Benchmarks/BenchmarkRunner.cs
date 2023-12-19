@@ -36,7 +36,10 @@ namespace MongoDB.Benchmarks
             // the parser will try to parse the options defined above and will return any extra options
             var benchmarkSwitcherArgs = parser.Parse(args).ToArray();
 
-            var config = DefaultConfig.Instance.WithOption(ConfigOptions.JoinSummary, true).AddExporter(new LocalExporter());
+            var config = DefaultConfig.Instance
+                .WithOption(ConfigOptions.JoinSummary, true)
+                .AddExporter(new LocalExporter())
+                .HideColumns("BenchmarkDataSetSize");
 
             if (exportingToEvergreen)
             {

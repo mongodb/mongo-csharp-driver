@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
-using System.Collections.Generic;
-using System.Linq;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -29,9 +28,12 @@ namespace MongoDB.Benchmarks.MultiDoc
     public class InsertManySmallBenchmark
     {
         private DisposableMongoClient _client;
+        private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private IEnumerable<BsonDocument> _smallDocuments;
-        private IMongoCollection<BsonDocument> _collection;
+
+        [Params(2750000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

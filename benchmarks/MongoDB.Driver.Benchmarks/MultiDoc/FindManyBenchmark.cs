@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
-using System.Linq;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -27,9 +26,12 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class FindManyBenchmark
     {
-        private BsonDocument _tweetDocument;
         private DisposableMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
+        private BsonDocument _tweetDocument;
+
+        [Params(16220000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

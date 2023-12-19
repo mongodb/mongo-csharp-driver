@@ -17,7 +17,6 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc
@@ -27,9 +26,12 @@ namespace MongoDB.Benchmarks.SingleDoc
     public class InsertOneSmallBenchmark
     {
         private DisposableMongoClient _client;
+        private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private BsonDocument _smallDocument;
-        private IMongoCollection<BsonDocument> _collection;
+
+        [Params(2750000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
+using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
-using System.IO;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -28,8 +27,11 @@ namespace MongoDB.Benchmarks.MultiDoc
     public class GridFsDownloadBenchmark
     {
         private DisposableMongoClient _client;
-        private GridFSBucket _gridFsBucket;
         private ObjectId _fileId;
+        private GridFSBucket _gridFsBucket;
+
+        [Params(52428800)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

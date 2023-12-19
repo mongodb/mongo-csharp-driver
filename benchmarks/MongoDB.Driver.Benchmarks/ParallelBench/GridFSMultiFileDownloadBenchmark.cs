@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
+using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
-using System.IO;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.ParallelBench
@@ -30,6 +29,9 @@ namespace MongoDB.Benchmarks.ParallelBench
         private DisposableMongoClient _client;
         private GridFSBucket _gridFsBucket;
         private DirectoryInfo _tmpDirectory;
+
+        [Params(262144000)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -64,8 +66,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalCleanup]
         public void Teardown()
         {
-            ClearDirectory();
-            _tmpDirectory.Delete();
+            _tmpDirectory.Delete(true);
             _client.Dispose();
         }
 

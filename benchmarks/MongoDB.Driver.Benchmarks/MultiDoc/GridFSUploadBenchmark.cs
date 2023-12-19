@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
+using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
-using System.IO;
-
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -26,9 +25,12 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class GridFsUploadBenchmark
     {
-        private byte[] _fileBytes;
         private DisposableMongoClient _client;
+        private byte[] _fileBytes;
         private GridFSBucket _gridFsBucket;
+
+        [Params(52428800)]
+        public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()

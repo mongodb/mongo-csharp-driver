@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-using MongoDB.Bson;
-using MongoDB.Benchmarks.MultiDoc;
-using MongoDB.Benchmarks.ParallelBench;
-using MongoDB.Benchmarks.SingleDoc;
-using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Benchmarks
 {
@@ -45,22 +42,8 @@ namespace MongoDB.Benchmarks
 
         public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
         {
-            Func<BenchmarkResult, bool> predicate;
-            if (benchmarkCategory == DriverBenchmarkCategory.DriverBench)
-            {
-                var categoriesToMatch = new List<string>()
-                {
-                    DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.WriteBench
-                };
-                predicate = benchmark => categoriesToMatch.Any(s => benchmark.Categories.Contains(s)); // select any benchmarks part of the read or write categories
-            }
-            else
-            {
-                predicate = benchmark => benchmark.Categories.Contains(benchmarkCategory);
-            }
-
             var identifiedBenchmarksScores = benchmarkResults
-                .Where(predicate)
+                .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
                 .Select(benchmark => benchmark.Score).ToList();
 
             if (identifiedBenchmarksScores.Any())
@@ -70,22 +53,6 @@ namespace MongoDB.Benchmarks
 
             return 0;
         }
-
-        public static int GetDatasetSize(string benchmarkName) =>
-            benchmarkName switch
-            {
-                "FlatBsonEncodingBenchmark" or "FlatBsonDecodingBenchmark" => 75310000,
-                "DeepBsonEncodingBenchmark" or "DeepBsonDecodingBenchmark" => 19640000,
-                "FullBsonEncodingBenchmark" or "FullBsonDecodingBenchmark" => 57340000,
-                nameof(GridFSMultiFileUploadBenchmark) or nameof(GridFSMultiFileDownloadBenchmark) => 262144000,
-                nameof(MultiFileImportBenchmark) or nameof(MultiFileExportBenchmark) => 565000000,
-                nameof(InsertOneLargeBenchmark) or nameof(InsertManyLargeBenchmark) => 27310890,
-                nameof(InsertOneSmallBenchmark) or nameof(InsertManySmallBenchmark) => 2750000,
-                nameof(GridFsUploadBenchmark) or nameof(GridFsDownloadBenchmark) => 52428800,
-                nameof(FindOneBenchmark) or nameof(FindManyBenchmark) => 16220000,
-                nameof(RunCommandBenchmark) => 130000,
-                _ => 0
-            };
 
         public static class MongoConfiguration
         {
