@@ -455,7 +455,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the server selection timeout.
+        /// Gets the server monitoring mode.
         /// </summary>
         public ServerMonitoringMode? ServerMonitoringMode
         {

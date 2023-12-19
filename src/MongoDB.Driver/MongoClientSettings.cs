@@ -1007,10 +1007,7 @@ namespace MongoDB.Driver
             clientSettings.RetryWrites = url.RetryWrites.GetValueOrDefault(true);
             clientSettings.Scheme = url.Scheme;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
-            if (url.ServerMonitoringMode.HasValue)
-            {
-                clientSettings.ServerMonitoringMode = (ServerMonitoringMode)url.ServerMonitoringMode;
-            }
+            clientSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);

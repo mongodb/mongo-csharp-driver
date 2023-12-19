@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Configuration
         public static TimeSpan DefaultHeartbeatTimeout => Timeout.InfiniteTimeSpan;
 
         /// <summary>
-        /// Gets the default heartbeat timeout.
+        /// Gets the default server monitoring mode.
         /// </summary>
         public static ServerMonitoringMode DefaultServerMonitoringMode => ServerMonitoringMode.Auto;
         #endregion

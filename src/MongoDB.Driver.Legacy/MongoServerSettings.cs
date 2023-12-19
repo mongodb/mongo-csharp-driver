@@ -614,7 +614,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the server selection timeout.
+        /// Gets or sets the server monitoring mode.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">MongoServerSettings is frozen.</exception>
         public ServerMonitoringMode ServerMonitoringMode
