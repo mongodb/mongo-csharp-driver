@@ -38,9 +38,7 @@ namespace MongoDB.Driver
         private bool _checkCertificateRevocation = false;
         private X509CertificateCollection _clientCertificateCollection;
         private LocalCertificateSelectionCallback _clientCertificateSelectionCallback;
-        // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
-        private const SslProtocols SslProtocolsTls13 = (SslProtocols)12288;
-        private SslProtocols _enabledSslProtocols = SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
+        private SslProtocols _enabledSslProtocols = SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
         private RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
         // the following fields are set when the SslSettings are frozen

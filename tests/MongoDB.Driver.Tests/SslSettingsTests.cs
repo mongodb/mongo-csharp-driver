@@ -22,6 +22,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
 using FluentAssertions;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Tests
 {
@@ -118,9 +119,7 @@ namespace MongoDB.Driver.Tests
             settings.CheckCertificateRevocation.Should().BeFalse();
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
-            // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
-            const SslProtocols sslProtocolsTls13 = (SslProtocols)12288;
-            Assert.Equal(sslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
@@ -158,9 +157,7 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-            // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
-            const SslProtocols sslProtocolsTls13 = (SslProtocols)12288;
-            Assert.Equal(sslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
 
             var enabledSslProtocols = SslProtocols.Tls;
             settings.EnabledSslProtocols = enabledSslProtocols;
