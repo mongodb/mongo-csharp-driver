@@ -34,7 +34,9 @@ namespace MongoDB.Driver.Core.Configuration
             subject.CheckCertificateRevocation.Should().BeFalse();
             subject.ClientCertificates.Should().BeEmpty();
             subject.ClientCertificateSelectionCallback.Should().BeNull();
-            subject.EnabledSslProtocols.Should().Be((SslProtocols)12288 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
+            // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
+            const SslProtocols sslProtocolsTls13 = (SslProtocols)12288;
+            subject.EnabledSslProtocols.Should().Be(sslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
             subject.ServerCertificateValidationCallback.Should().BeNull();
         }
 
