@@ -164,7 +164,8 @@ namespace MongoDB.Driver.Core.Connections
             var connectionInitializer = new ConnectionInitializer(
                 null,
                 new CompressorConfiguration[0],
-                new ServerApi(ServerApiVersion.V1)); // use serverApi to choose command message protocol
+                new ServerApi(ServerApiVersion.V1), // use serverApi to choose command message protocol
+                null);
             var authenticatorFactoryMock = new Mock<IAuthenticatorFactory>();
             authenticatorFactoryMock
                 .Setup(a => a.Create())

@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateClientDocument_should_return_expected_result()
         {
-            var result = ClientDocumentHelper.CreateClientDocument(null);
+            var result = ClientDocumentHelper.CreateClientDocument(null, null);
 
             var names = result.Names.ToList();
             names.Count.Should().Be(3);
@@ -50,18 +51,64 @@ namespace MongoDB.Driver.Core.Connections
             [Values("net45", "net46")]
             string platformString,
             [Values(null, "aws.lambda", "versel")]
-            string env)
+            string env,
+            [Values(null, "libName;", "libName;1.0.0")]
+            string driverInfoString)
         {
             var driverDocument = BsonDocument.Parse(driverDocumentString);
             var osDocument = BsonDocument.Parse(osDocumentString);
+            var (driverInfo, driverDocumentStringCombined) = ParseDriverInfo();
 
             var envDocument = env != null ? new BsonDocument("name", env) : null;
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument);
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, driverInfo);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
             var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
-            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentString}, os : {osDocumentString}, platform : '{platformString}'{envElement} }}";
+            var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentStringCombined}, os : {osDocumentString}, platform : '{platformString}'{envElement} }}";
             result.Should().Be(expectedResult);
+
+            (DriverInfo DriverInfo, string DriverDocument) ParseDriverInfo()
+            {
+                if (driverInfoString == null)
+                {
+                    return (null, driverDocumentString);
+                }
+
+                var parts = driverInfoString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                var name = parts[0];
+                var version = parts.Length > 1 ? parts[1] : null;
+
+                var driverDocumentCombined = new BsonDocument()
+                {
+                    { "name", $"{driverDocument["name"]}|{name}" },
+                    { "version", version != null ? $"{driverDocument["version"]}|{version}" : driverDocument["version"] }
+                };
+
+                return new(new(name, version), driverDocumentCombined.ToString());
+            }
+        }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("lib1", "1.0")]
+        [InlineData("lib2", null)]
+        public void CreateClientDocument_with_driver_info_should_return_expected_result(string libName, string libVersion)
+        {
+            var expectedDriverName = libName == null ? "mongo-csharp-driver" : $"mongo-csharp-driver|{libName}";
+
+            var driverInfo = libName != null ? new DriverInfo(libName, libVersion) : null;
+            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, driverInfo)["driver"];
+
+            driverDocument["name"].AsString.Should().Be(expectedDriverName);
+
+            if (libVersion != null)
+            {
+                driverDocument["version"].AsString.Should().EndWith(libVersion);
+            }
+            else
+            {
+                driverDocument["version"].AsString.Should().NotContain("|");
+            }
         }
 
         [Fact]

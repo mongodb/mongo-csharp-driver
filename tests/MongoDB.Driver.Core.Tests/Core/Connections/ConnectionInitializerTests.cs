@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Connections
                 source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1));
+            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1), null);
             var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
 
             helloDocument.Should().Contain("hello");
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Connections
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
+            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi, null);
 
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
@@ -364,7 +364,11 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         private ConnectionInitializer CreateSubject(bool withServerApi = false) =>
-            new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null);
+            new ConnectionInitializer(
+                "test",
+                new[] { new CompressorConfiguration(CompressorType.Zlib) },
+                serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null,
+                driverInfo: null);
 
         private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
         {

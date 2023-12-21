@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -31,6 +30,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly string _applicationName;
         private readonly IReadOnlyList<IAuthenticatorFactory> _authenticatorFactories;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
+        private readonly DriverInfo _driverInfo;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
+        /// <param name="driverInfo">The driver information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
@@ -48,6 +49,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ConnectionSettings(
             Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
+            Optional<DriverInfo> driverInfo = default,
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
@@ -55,6 +57,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _authenticatorFactories = Ensure.IsNotNull(authenticatorFactories.WithDefault(Enumerable.Empty<IAuthenticatorFactory>()), nameof(authenticatorFactories)).ToList().AsReadOnly();
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
+            _driverInfo = driverInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
@@ -104,6 +107,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Driver information.
+        /// </summary>
+        public DriverInfo DriverInfo
+        {
+            get { return _driverInfo; }
+        }
+
+        /// <summary>
         /// Gets the maximum idle time.
         /// </summary>
         /// <value>
@@ -131,6 +142,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
+        /// <param name="driverInfo">The driver information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
@@ -139,6 +151,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ConnectionSettings With(
             Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
+            Optional<DriverInfo> driverInfo = default,
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
@@ -147,6 +160,7 @@ namespace MongoDB.Driver.Core.Configuration
             return new ConnectionSettings(
                 authenticatorFactories: Optional.Enumerable(authenticatorFactories.WithDefault(_authenticatorFactories)),
                 compressors: Optional.Enumerable(compressors.WithDefault(_compressors)),
+                driverInfo: driverInfo.WithDefault(_driverInfo),
                 loadBalanced: loadBalanced.WithDefault(_loadBalanced),
                 maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
                 maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime),

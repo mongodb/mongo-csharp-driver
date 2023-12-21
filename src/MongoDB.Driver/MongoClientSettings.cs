@@ -47,6 +47,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
         private bool? _directConnection;
+        private DriverInfo _driverInfo;
         private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
@@ -336,6 +337,19 @@ namespace MongoDB.Driver
                 _directConnection = value;
                 _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection; // _connectionMode is always Automatic here
 #pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets an information of a library using .NET Driver.
+        /// </summary>
+        public DriverInfo DriverInfo
+        {
+            get { return _driverInfo; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _driverInfo = value;
             }
         }
 
@@ -1011,6 +1025,7 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._directConnection = _directConnection;
+            clone._driverInfo = _driverInfo;
             clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
@@ -1080,6 +1095,7 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
                 _directConnection.Equals(rhs._directConnection) &&
+                object.Equals(_driverInfo, rhs._driverInfo) &&
                 _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
@@ -1167,6 +1183,7 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
                 .Hash(_directConnection)
+                .Hash(_driverInfo)
                 .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
@@ -1233,6 +1250,10 @@ namespace MongoDB.Driver
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection && _directConnection.HasValue)
             {
                 sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
+            }
+            if (_driverInfo != null)
+            {
+                sb.AppendFormat("DriverInfo={0};", _driverInfo);
             }
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
@@ -1304,6 +1325,7 @@ namespace MongoDB.Driver
                 _credentials.ToList(),
                 _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
+                _driverInfo,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,

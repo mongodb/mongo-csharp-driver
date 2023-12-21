@@ -57,7 +57,8 @@ namespace MongoDB.Driver.Core.Connections
         public void AddClientDocumentToCommand_with_ConnectionInitializer_client_document_should_return_expected_result()
         {
             var command = HelloHelper.CreateCommand(null);
-            var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null);
+            var driverInfo = new DriverInfo("lib", "1.0.0");
+            var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null, driverInfo: driverInfo);
             var subjectClientDocument = (BsonDocument)Reflector.GetFieldValue(connectionInitializer, "_clientDocument");
             var result = HelloHelper.AddClientDocumentToCommand(command, subjectClientDocument);
 
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Core.Connections
             clientDocumentNames[2].Should().Be("os");
             clientDocumentNames[3].Should().Be("platform");
             clientDocument["application"]["name"].AsString.Should().Be("test");
-            clientDocument["driver"]["name"].AsString.Should().Be("mongo-csharp-driver");
+            clientDocument["driver"]["name"].AsString.Should().Be("mongo-csharp-driver|lib");
             clientDocument["driver"]["version"].BsonType.Should().Be(BsonType.String);
         }
 
