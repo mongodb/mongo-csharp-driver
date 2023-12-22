@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
-        /// <param name="libraryInfo">The driver information.</param>
+        /// <param name="libraryInfo">The library information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
-        /// <param name="libraryInfo">The driver information.</param>
+        /// <param name="libraryInfo">The library information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
