@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// Represents the information of library using .NET driver.
+    /// Represents information about a library using the .NET driver.
     /// </summary>
     public sealed class LibraryInfo : IEquatable<LibraryInfo>
     {
@@ -37,8 +37,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Initializes a new instance of the <see cref="LibraryInfo"/> class.
         /// </summary>
-        /// <param name="name">Library name.</param>
-        /// <param name="version">Library version.</param>
+        /// <param name="name">The library name.</param>
+        /// <param name="version">The library version.</param>
         public LibraryInfo(string name, string version = default)
         {
             Name = Ensure.IsNotNullOrEmpty(name, nameof(name));

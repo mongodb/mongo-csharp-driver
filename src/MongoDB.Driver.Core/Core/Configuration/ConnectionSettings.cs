@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Information of library using .NET driver.
+        /// Information about a library using the .NET driver.
         /// </summary>
         public LibraryInfo LibraryInfo
         {

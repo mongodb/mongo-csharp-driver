@@ -112,6 +112,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
+            _libraryInfo = null;
             _linqProvider = LinqProvider.V3;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
@@ -413,7 +414,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets an information of a library using .NET Driver.
+        /// Gets or sets information about a library using the .NET Driver.
         /// </summary>
         public LibraryInfo LibraryInfo
         {
@@ -973,6 +974,7 @@ namespace MongoDB.Driver
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
+            clientSettings.LibraryInfo = null;
             clientSettings.LinqProvider = LinqProvider.V3;
             clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
@@ -1025,11 +1027,11 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._directConnection = _directConnection;
-            clone._libraryInfo = _libraryInfo;
             clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
+            clone._libraryInfo = _libraryInfo;
             clone._linqProvider = _linqProvider;
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
@@ -1095,11 +1097,11 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
                 _directConnection.Equals(rhs._directConnection) &&
-                object.Equals(_libraryInfo, rhs._libraryInfo) &&
                 _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                object.Equals(_libraryInfo, rhs._libraryInfo) &&
                 _linqProvider == rhs._linqProvider &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
@@ -1183,11 +1185,11 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
                 .Hash(_directConnection)
-                .Hash(_libraryInfo)
                 .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
+                .Hash(_libraryInfo)
                 .Hash(_loadBalanced)
                 .Hash(_localThreshold)
                 .Hash(_maxConnecting)
@@ -1251,14 +1253,14 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
             }
-            if (_libraryInfo != null)
-            {
-                sb.AppendFormat("libraryInfo={0};", _libraryInfo);
-            }
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);
+            if (_libraryInfo != null)
+            {
+                sb.AppendFormat("libraryInfo={0};", _libraryInfo);
+            }
             sb.AppendFormat("LinqProvider={0};", _linqProvider);
             if (_loadBalanced)
             {
@@ -1325,10 +1327,10 @@ namespace MongoDB.Driver
                 _credentials.ToList(),
                 _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
-                _libraryInfo,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
+                _libraryInfo,
                 _loadBalanced,
                 _localThreshold,
                 _loggingSettings,

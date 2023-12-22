@@ -1204,10 +1204,10 @@ namespace MongoDB.Driver
                 _credentials.ToList(),
                 cryptClientSettings: null,
                 _directConnection,
-                null,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
+                libraryInfo: null,
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
                 loggingSettings: null,

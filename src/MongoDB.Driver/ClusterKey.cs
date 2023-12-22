@@ -240,10 +240,10 @@ namespace MongoDB.Driver
                 _credentials.SequenceEqual(rhs._credentials) &&
                 object.Equals(_cryptClientSettings, rhs._cryptClientSettings) &&
                 _directConnection.Equals(rhs._directConnection) &&
-                object.Equals(_libraryInfo, rhs.LibraryInfo) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                object.Equals(_libraryInfo, rhs.LibraryInfo) &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
