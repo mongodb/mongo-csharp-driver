@@ -262,14 +262,13 @@ namespace MongoDB.Driver.Core.Connections
         {
             var helper = new OpenConnectionHelper(this);
 
-            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
                 var connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
-                handshakeDescription = connectionInitializerContext.Description;
+                _description = connectionInitializerContext.Description;
                 _description = _connectionInitializer.Authenticate(this, connectionInitializerContext, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
@@ -277,7 +276,6 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
@@ -288,14 +286,13 @@ namespace MongoDB.Driver.Core.Connections
         {
             var helper = new OpenConnectionHelper(this);
 
-            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
                 var connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
-                handshakeDescription = connectionInitializerContext.Description;
+                _description = connectionInitializerContext.Description;
                 _description = await _connectionInitializer.AuthenticateAsync(this, connectionInitializerContext, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
@@ -303,7 +300,6 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }

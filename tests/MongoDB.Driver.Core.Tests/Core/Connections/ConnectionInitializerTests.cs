@@ -318,12 +318,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : {WireVersion.Server36} }}"));
-            var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
+            var gleReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(legacyHelloReply);
-            connection.EnqueueReplyMessage(gleReply);
+            connection.EnqueueCommandResponseMessage(gleReply);
 
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
@@ -345,6 +344,39 @@ namespace MongoDB.Driver.Core.Connections
                         throw new InvalidOperationException($"Unexpected compression {compressorType}.");
                 }
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InitializeConnection_should_switch_command_wire_protocol_after_handshake_if_OP_MSG_is_supported(
+            [Values(false, true)] bool async)
+        {
+            var legacyHelloReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson(
+                    $"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}"));
+            var credentials = new UsernamePasswordCredential(
+                source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
+            var authenticator = CreateAuthenticator("default", credentials);
+            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
+            var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
+            connection.EnqueueReplyMessage(legacyHelloReply);
+
+            var subject = CreateSubject();
+            // We expect authentication to fail since we have not enqueued the expected authentication replies
+            try
+            {
+                _ = InitializeConnection(subject, connection, async, CancellationToken.None);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ex.Message.Should().Be("Queue empty.");
+            }
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            sentMessages[0]["opcode"].AsString.Should().Be("query");
+            sentMessages[1]["opcode"].AsString.Should().Be("opmsg");
         }
 
         // private methods
@@ -370,17 +402,19 @@ namespace MongoDB.Driver.Core.Connections
                 serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null,
                 libraryInfo: null);
 
-        private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
+        private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, MockConnection connection, bool async, CancellationToken cancellationToken)
         {
             ConnectionInitializerContext connectionInitializerContext;
             if (async)
             {
                 connectionInitializerContext = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
+                connection.Description = connectionInitializerContext.Description;
                 return connectionInitializer.AuthenticateAsync(connection, connectionInitializerContext, cancellationToken).GetAwaiter().GetResult();
             }
             else
             {
                 connectionInitializerContext = connectionInitializer.SendHello(connection, cancellationToken);
+                connection.Description = connectionInitializerContext.Description;
                 return connectionInitializer.Authenticate(connection, connectionInitializerContext, cancellationToken);
             }
         }
