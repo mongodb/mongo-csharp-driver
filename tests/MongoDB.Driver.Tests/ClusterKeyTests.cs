@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("ConnectTimeout", true)]
         [InlineData("Credentials", false)]
         [InlineData("DirectConnection", true)]
-        [InlineData("DriverInfo", true)]
+        [InlineData("libraryInfo", true)]
         [InlineData("EncryptedFieldsMap", true)]
         [InlineData("HeartbeatInterval", true)]
         [InlineData("HeartbeatTimeout", true)]
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Tests
             var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
             bool? directConnection = null;
-            var driverInfo = new DriverInfo("name", "1.0.0");
+            var libraryInfo = new LibraryInfo("name", "1.0.0");
             var encryptedFieldsMap = new Dictionary<string, BsonDocument>();
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                         }
                         break;
-                    case "DriverInfo": driverInfo = new DriverInfo("name", "1.0.1"); break;
+                    case "libraryInfo": libraryInfo = new LibraryInfo("name", "1.0.1"); break;
                     case "EncryptedFieldsMap": encryptedFieldsMap.Add("k1", new BsonDocument()); break;
                     case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
                     case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
@@ -304,7 +304,7 @@ namespace MongoDB.Driver.Tests
                 credentials,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
-                driverInfo,
+                libraryInfo,
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,
@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests
             var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
             bool? directConnection = null;
-            var driverInfo = new DriverInfo("my_lib");
+            var libraryInfo = new LibraryInfo("my_lib");
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
@@ -397,7 +397,7 @@ namespace MongoDB.Driver.Tests
                 credentials,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
-                driverInfo,
+                libraryInfo,
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().BeEmpty();
             subject.Compressors.Should().BeEmpty();
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMinutes(10));
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMinutes(30));
         }
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().Be("app");
             subject.AuthenticatorFactories.Should().Equal(__defaults.AuthenticatorFactories);
             subject.Compressors.Should().Equal(__defaults.Compressors);
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().Equal(authenticatorFactories);
             subject.Compressors.Should().BeEquivalentTo(__defaults.Compressors);
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
@@ -127,20 +127,20 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().BeEmpty();
             subject.Compressors.Should().Equal(compressors);
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
 
         [Fact]
-        public void constructor_with_driver_info_should_initialize_instance()
+        public void constructor_with_library_info_should_initialize_instance()
         {
-            var subject = new ConnectionSettings(driverInfo: new DriverInfo("lib", "1.0"));
+            var subject = new ConnectionSettings(libraryInfo: new LibraryInfo("lib", "1.0"));
 
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().Equal(__defaults.AuthenticatorFactories);
             subject.Compressors.Should().Equal(__defaults.Compressors);
-            subject.DriverInfo.Should().Be(new DriverInfo("lib", "1.0"));
+            subject.LibraryInfo.Should().Be(new LibraryInfo("lib", "1.0"));
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().BeEmpty();
             subject.Compressors.Should().Equal(__defaults.Compressors);
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(maxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactories.Should().BeEmpty();
             subject.Compressors.Should().Equal(__defaults.Compressors);
-            subject.DriverInfo.Should().BeNull();
+            subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(maxLifeTime);
         }
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(newApplicationName);
             result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
             result.Compressors.Should().Equal(__defaults.Compressors);
-            result.DriverInfo.Should().BeNull();
+            result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactories.Should().Equal(newAuthenticatorFactories);
             result.Compressors.Should().Equal(subject.Compressors);
-            result.DriverInfo.Should().BeNull();
+            result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -222,24 +222,24 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
             result.Compressors.Should().Equal(newCompressors);
-            result.DriverInfo.Should().BeNull();
+            result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
 
         [Fact]
-        public void With_driverinfo_should_return_expected_result()
+        public void With_libraryInfo_should_return_expected_result()
         {
-            var oldDriverInfo = new DriverInfo("old_lib", "1.0");
-            var newDriverInfo = new DriverInfo("new_lib", "1.0");
-            var subject = new ConnectionSettings(driverInfo: oldDriverInfo);
+            var oldlibraryInfo = new LibraryInfo("old_lib", "1.0");
+            var newlibraryInfo = new LibraryInfo("new_lib", "1.0");
+            var subject = new ConnectionSettings(libraryInfo: oldlibraryInfo);
 
-            var result = subject.With(driverInfo: newDriverInfo);
+            var result = subject.With(libraryInfo: newlibraryInfo);
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
             result.Compressors.Should().Equal(__defaults.Compressors);
-            result.DriverInfo.Should().Be(newDriverInfo);
+            result.LibraryInfo.Should().Be(newlibraryInfo);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
             result.Compressors.Should().Equal(subject.Compressors);
-            result.DriverInfo.Should().BeNull();
+            result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(newMaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
             result.Compressors.Should().Equal(subject.Compressors);
-            result.DriverInfo.Should().BeNull();
+            result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(newMaxLifeTime);
         }

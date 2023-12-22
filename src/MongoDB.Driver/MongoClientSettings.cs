@@ -47,11 +47,11 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
         private bool? _directConnection;
-        private DriverInfo _driverInfo;
         private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
+        private LibraryInfo _libraryInfo;
         private LinqProvider _linqProvider;
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
@@ -341,19 +341,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets an information of a library using .NET Driver.
-        /// </summary>
-        public DriverInfo DriverInfo
-        {
-            get { return _driverInfo; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _driverInfo = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the representation to use for Guids.
         /// </summary>
         [Obsolete("Configure serializers instead.")]
@@ -422,6 +409,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _ipv6 = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets an information of a library using .NET Driver.
+        /// </summary>
+        public LibraryInfo LibraryInfo
+        {
+            get { return _libraryInfo; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _libraryInfo = value;
             }
         }
 
@@ -1025,7 +1025,7 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._directConnection = _directConnection;
-            clone._driverInfo = _driverInfo;
+            clone._libraryInfo = _libraryInfo;
             clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
@@ -1095,7 +1095,7 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
                 _directConnection.Equals(rhs._directConnection) &&
-                object.Equals(_driverInfo, rhs._driverInfo) &&
+                object.Equals(_libraryInfo, rhs._libraryInfo) &&
                 _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
@@ -1183,7 +1183,7 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
                 .Hash(_directConnection)
-                .Hash(_driverInfo)
+                .Hash(_libraryInfo)
                 .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
@@ -1251,9 +1251,9 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
             }
-            if (_driverInfo != null)
+            if (_libraryInfo != null)
             {
-                sb.AppendFormat("DriverInfo={0};", _driverInfo);
+                sb.AppendFormat("libraryInfo={0};", _libraryInfo);
             }
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
@@ -1325,7 +1325,7 @@ namespace MongoDB.Driver
                 _credentials.ToList(),
                 _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
-                _driverInfo,
+                _libraryInfo,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,

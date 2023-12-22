@@ -53,28 +53,28 @@ namespace MongoDB.Driver.Core.Connections
             [Values(null, "aws.lambda", "versel")]
             string env,
             [Values(null, "libName;", "libName;1.0.0")]
-            string driverInfoString)
+            string libraryInfoString)
         {
             var driverDocument = BsonDocument.Parse(driverDocumentString);
             var osDocument = BsonDocument.Parse(osDocumentString);
-            var (driverInfo, driverDocumentStringCombined) = ParseDriverInfo();
+            var (libraryInfo, driverDocumentStringCombined) = ParselibraryInfo();
 
             var envDocument = env != null ? new BsonDocument("name", env) : null;
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, driverInfo);
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, libraryInfo);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
             var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
             var expectedResult = $"{{ {applicationNameElement} driver : {driverDocumentStringCombined}, os : {osDocumentString}, platform : '{platformString}'{envElement} }}";
             result.Should().Be(expectedResult);
 
-            (DriverInfo DriverInfo, string DriverDocument) ParseDriverInfo()
+            (LibraryInfo libraryInfo, string DriverDocument) ParselibraryInfo()
             {
-                if (driverInfoString == null)
+                if (libraryInfoString == null)
                 {
                     return (null, driverDocumentString);
                 }
 
-                var parts = driverInfoString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = libraryInfoString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 var name = parts[0];
                 var version = parts.Length > 1 ? parts[1] : null;
 
@@ -92,12 +92,12 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData(null, null)]
         [InlineData("lib1", "1.0")]
         [InlineData("lib2", null)]
-        public void CreateClientDocument_with_driver_info_should_return_expected_result(string libName, string libVersion)
+        public void CreateClientDocument_with_library_info_should_return_expected_result(string libName, string libVersion)
         {
             var expectedDriverName = libName == null ? "mongo-csharp-driver" : $"mongo-csharp-driver|{libName}";
 
-            var driverInfo = libName != null ? new DriverInfo(libName, libVersion) : null;
-            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, driverInfo)["driver"];
+            var libraryInfo = libName != null ? new LibraryInfo(libName, libVersion) : null;
+            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo)["driver"];
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
 

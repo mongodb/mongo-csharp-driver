@@ -40,9 +40,9 @@ namespace MongoDB.Driver.Core.Connections
             string applicationName,
             IReadOnlyList<CompressorConfiguration> compressors,
             ServerApi serverApi,
-            DriverInfo driverInfo)
+            LibraryInfo libraryInfo)
         {
-            _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName, driverInfo);
+            _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName, libraryInfo);
             _compressors = Ensure.IsNotNull(compressors, nameof(compressors));
             _serverApi = serverApi;
         }

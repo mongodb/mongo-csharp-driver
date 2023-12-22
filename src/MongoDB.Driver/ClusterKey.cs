@@ -38,11 +38,11 @@ namespace MongoDB.Driver
         private readonly IReadOnlyList<MongoCredential> _credentials;
         private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool? _directConnection;
-        private readonly DriverInfo _driverInfo;
         private readonly int _hashCode;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
+        private readonly LibraryInfo _libraryInfo;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly LoggingSettings _loggingSettings;
@@ -80,10 +80,10 @@ namespace MongoDB.Driver
             IReadOnlyList<MongoCredential> credentials,
             CryptClientSettings cryptClientSettings,
             bool? directConnection,
-            DriverInfo driverInfo,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
+            LibraryInfo libraryInfo,
             bool loadBalanced,
             TimeSpan localThreshold,
             LoggingSettings loggingSettings,
@@ -119,10 +119,10 @@ namespace MongoDB.Driver
             _credentials = credentials;
             _cryptClientSettings = cryptClientSettings;
             _directConnection = directConnection;
-            _driverInfo = driverInfo;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
+            _libraryInfo = libraryInfo;
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _loggingSettings = loggingSettings;
@@ -184,10 +184,10 @@ namespace MongoDB.Driver
                 return _directConnection;
             }
         }
-        public DriverInfo DriverInfo { get { return _driverInfo; } }
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
+        public LibraryInfo LibraryInfo { get { return _libraryInfo; } }
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public LoggingSettings LoggingSettings { get { return _loggingSettings; } }
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
                 _credentials.SequenceEqual(rhs._credentials) &&
                 object.Equals(_cryptClientSettings, rhs._cryptClientSettings) &&
                 _directConnection.Equals(rhs._directConnection) &&
-                object.Equals(_driverInfo, rhs.DriverInfo) &&
+                object.Equals(_libraryInfo, rhs.LibraryInfo) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&

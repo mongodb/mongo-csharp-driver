@@ -368,7 +368,7 @@ namespace MongoDB.Driver.Core.Connections
                 "test",
                 new[] { new CompressorConfiguration(CompressorType.Zlib) },
                 serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null,
-                driverInfo: null);
+                libraryInfo: null);
 
         private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
         {

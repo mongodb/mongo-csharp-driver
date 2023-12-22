@@ -1204,6 +1204,7 @@ namespace MongoDB.Driver
                 _credentials.ToList(),
                 cryptClientSettings: null,
                 _directConnection,
+                null,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,

@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Configuration
     /// <summary>
     /// Represents the information of library using .NET driver.
     /// </summary>
-    public sealed class DriverInfo : IEquatable<DriverInfo>
+    public sealed class LibraryInfo : IEquatable<LibraryInfo>
     {
         /// <summary>
         /// Gets the library name.
@@ -35,11 +35,11 @@ namespace MongoDB.Driver.Core.Configuration
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DriverInfo"/> class.
+        /// Initializes a new instance of the <see cref="LibraryInfo"/> class.
         /// </summary>
         /// <param name="name">Library name.</param>
         /// <param name="version">Library version.</param>
-        public DriverInfo(string name, string version = default)
+        public LibraryInfo(string name, string version = default)
         {
             Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
             Version = version;
@@ -47,40 +47,40 @@ namespace MongoDB.Driver.Core.Configuration
 
         // public operators
         /// <summary>
-        /// Determines whether two <see cref="DriverInfo"/> instances are equal.
+        /// Determines whether two <see cref="LibraryInfo"/> instances are equal.
         /// </summary>
         /// <param name="lhs">The LHS.</param>
         /// <param name="rhs">The RHS.</param>
         /// <returns>
         ///   <c>true</c> if the left hand side is equal to the right hand side; otherwise, <c>false</c>.
         /// </returns>
-        public static bool operator ==(DriverInfo lhs, DriverInfo rhs)
+        public static bool operator ==(LibraryInfo lhs, LibraryInfo rhs)
         {
             return object.Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         /// <summary>
-        /// Determines whether two <see cref="DriverInfo"/> instances are not equal.
+        /// Determines whether two <see cref="LibraryInfo"/> instances are not equal.
         /// </summary>
         /// <param name="lhs">The LHS.</param>
         /// <param name="rhs">The RHS.</param>
         /// <returns>
         ///   <c>true</c> if the left hand side is not equal to the right hand side; otherwise, <c>false</c>.
         /// </returns>
-        public static bool operator !=(DriverInfo lhs, DriverInfo rhs)
+        public static bool operator !=(LibraryInfo lhs, LibraryInfo rhs)
         {
             return !(lhs == rhs);
         }
 
         // public methods
         /// <summary>
-        /// Determines whether the specified <see cref="DriverInfo" /> is equal to this instance.
+        /// Determines whether the specified <see cref="LibraryInfo" /> is equal to this instance.
         /// </summary>
-        /// <param name="rhs">The <see cref="DriverInfo" /> to compare with this instance.</param>
+        /// <param name="rhs">The <see cref="LibraryInfo" /> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="DriverInfo" /> is equal to this instance; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified <see cref="LibraryInfo" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(DriverInfo rhs)
+        public bool Equals(LibraryInfo rhs)
         {
             return
                 rhs != null &&
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public override bool Equals(object obj) => Equals(obj as DriverInfo);
+        public override bool Equals(object obj) => Equals(obj as LibraryInfo);
 
         /// <inheritdoc/>
         public override int GetHashCode() => base.GetHashCode();

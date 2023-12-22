@@ -320,17 +320,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestDriverInfo()
+        public void TestlibraryInfo()
         {
             var settings = new MongoClientSettings();
-            settings.DriverInfo.Should().BeNull();
+            settings.LibraryInfo.Should().BeNull();
 
-            var driverInfo = new DriverInfo("lib_name", "1.0.0");
-            settings.DriverInfo = driverInfo;
+            var libraryInfo = new LibraryInfo("lib_name", "1.0.0");
+            settings.LibraryInfo = libraryInfo;
 
             settings.Freeze();
-            settings.DriverInfo.Should().Be(driverInfo);
-            var exception = Record.Exception(() => settings.DriverInfo = null);
+            settings.LibraryInfo.Should().Be(libraryInfo);
+            var exception = Record.Exception(() => settings.LibraryInfo = null);
             exception.Should().BeOfType<InvalidOperationException>();
         }
 
@@ -458,7 +458,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.DriverInfo = new DriverInfo("name", "version");
+            clone.LibraryInfo = new LibraryInfo("name", "version");
             Assert.False(clone.Equals(settings));
 
 #pragma warning disable 618
@@ -1484,7 +1484,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
-                DriverInfo = new DriverInfo("name", "version"),
+                LibraryInfo = new LibraryInfo("name", "version"),
                 HeartbeatInterval = TimeSpan.FromSeconds(7),
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
@@ -1530,7 +1530,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable CS0618 // Type or member is obsolete
             result.Credentials.Should().Equal(subject.Credentials);
 #pragma warning restore CS0618 // Type or member is obsolete
-            result.DriverInfo.Should().Be(subject.DriverInfo);
+            result.LibraryInfo.Should().Be(subject.LibraryInfo);
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
