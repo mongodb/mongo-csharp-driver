@@ -19,10 +19,10 @@ using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("ConnectTimeout", true)]
         [InlineData("Credentials", false)]
         [InlineData("DirectConnection", true)]
+        [InlineData("libraryInfo", true)]
         [InlineData("EncryptedFieldsMap", true)]
         [InlineData("HeartbeatInterval", true)]
         [InlineData("HeartbeatTimeout", true)]
@@ -197,6 +198,7 @@ namespace MongoDB.Driver.Tests
             var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
             bool? directConnection = null;
+            var libraryInfo = new LibraryInfo("name", "1.0.0");
             var encryptedFieldsMap = new Dictionary<string, BsonDocument>();
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
@@ -259,6 +261,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                         }
                         break;
+                    case "libraryInfo": libraryInfo = new LibraryInfo("name", "1.0.1"); break;
                     case "EncryptedFieldsMap": encryptedFieldsMap.Add("k1", new BsonDocument()); break;
                     case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
                     case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
@@ -304,6 +307,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,
+                libraryInfo,
                 loadBalanced,
                 localThreshold,
                 loggingSettings,
@@ -349,6 +353,7 @@ namespace MongoDB.Driver.Tests
             var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
             bool? directConnection = null;
+            var libraryInfo = new LibraryInfo("my_lib");
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
@@ -395,6 +400,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,
+                libraryInfo,
                 loadBalanced,
                 localThreshold,
                 loggingSettings,

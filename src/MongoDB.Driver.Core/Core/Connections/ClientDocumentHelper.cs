@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -41,13 +42,15 @@ namespace MongoDB.Driver.Core.Connections
         static ClientDocumentHelper() => Initialize();
 
         // private static methods
-        internal static BsonDocument CreateClientDocument(string applicationName)
+        internal static BsonDocument CreateClientDocument(string applicationName, LibraryInfo libraryInfo)
         {
-            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value, __envDocument.Value);
+            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value, __envDocument.Value, libraryInfo);
         }
 
-        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString, BsonDocument envDocument)
+        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString, BsonDocument envDocument, LibraryInfo libraryInfo)
         {
+            driverDocument = AppendLibraryInfoToDriverDocument(driverDocument, libraryInfo);
+
             var clientDocument = new BsonDocument
             {
                 { "application", () => new BsonDocument("name", applicationName), applicationName != null },
@@ -371,6 +374,28 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             return clientDocument;
+        }
+
+        private static BsonDocument AppendLibraryInfoToDriverDocument(BsonDocument driverDocument, LibraryInfo libraryInfo)
+        {
+            if (libraryInfo == null)
+            {
+                return driverDocument;
+            }
+
+            var driverName = $"{driverDocument["name"]}|{libraryInfo.Name}";
+            var driverVersion = driverDocument["version"];
+
+            if (!string.IsNullOrWhiteSpace(libraryInfo.Version))
+            {
+                driverVersion = $"{driverVersion}|{libraryInfo.Version}";
+            }
+
+            return new()
+            {
+                { "name", driverName },
+                { "version", driverVersion }
+            };
         }
 
         private static bool TryGetType(string typeName, out Type type)

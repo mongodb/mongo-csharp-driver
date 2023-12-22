@@ -91,6 +91,7 @@ namespace MongoDB.Driver.Tests
                 credentials: credentials,
                 cryptClientSettings: cryptClientSettings,
                 directConnection: null,
+                libraryInfo: null,
                 heartbeatInterval: TimeSpan.FromSeconds(2),
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,

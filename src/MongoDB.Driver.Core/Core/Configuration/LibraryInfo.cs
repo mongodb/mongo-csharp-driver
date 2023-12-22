@@ -14,88 +14,87 @@
 */
 
 using System;
-using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// Represents the settings for logging.
+    /// Represents information about a library using the .NET driver.
     /// </summary>
-    public sealed class LoggingSettings : IEquatable<LoggingSettings>
+    public sealed class LibraryInfo : IEquatable<LibraryInfo>
     {
         /// <summary>
-        /// Gets the logger factory.
+        /// Gets the library name.
         /// </summary>
-        [CLSCompliant(false)]
-        public ILoggerFactory LoggerFactory { get; }
+        public string Name { get; }
 
         /// <summary>
-        /// Gets the maximum document size in chars.
+        /// Gets the library version.
         /// </summary>
-        public int MaxDocumentSize { get; }
+        public string Version { get; }
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoggingSettings"/> class.
+        /// Initializes a new instance of the <see cref="LibraryInfo"/> class.
         /// </summary>
-        /// <param name="loggerFactory">The logger factory.</param>
-        /// <param name="maxDocumentSize">The maximum document size in chars.</param>
-        [CLSCompliant(false)]
-        public LoggingSettings(
-            ILoggerFactory loggerFactory = default,
-            Optional<int> maxDocumentSize = default)
+        /// <param name="name">The library name.</param>
+        /// <param name="version">The library version.</param>
+        public LibraryInfo(string name, string version = default)
         {
-            LoggerFactory = loggerFactory;
-            MaxDocumentSize = maxDocumentSize.WithDefault(MongoInternalDefaults.Logging.MaxDocumentSize);
+            Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
+            Version = version;
         }
 
         // public operators
         /// <summary>
-        /// Determines whether two <see cref="LoggingSettings"/> instances are equal.
+        /// Determines whether two <see cref="LibraryInfo"/> instances are equal.
         /// </summary>
         /// <param name="lhs">The LHS.</param>
         /// <param name="rhs">The RHS.</param>
         /// <returns>
         ///   <c>true</c> if the left hand side is equal to the right hand side; otherwise, <c>false</c>.
         /// </returns>
-        public static bool operator ==(LoggingSettings lhs, LoggingSettings rhs)
+        public static bool operator ==(LibraryInfo lhs, LibraryInfo rhs)
         {
             return object.Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         /// <summary>
-        /// Determines whether two <see cref="LoggingSettings"/> instances are not equal.
+        /// Determines whether two <see cref="LibraryInfo"/> instances are not equal.
         /// </summary>
         /// <param name="lhs">The LHS.</param>
         /// <param name="rhs">The RHS.</param>
         /// <returns>
         ///   <c>true</c> if the left hand side is not equal to the right hand side; otherwise, <c>false</c>.
         /// </returns>
-        public static bool operator !=(LoggingSettings lhs, LoggingSettings rhs)
+        public static bool operator !=(LibraryInfo lhs, LibraryInfo rhs)
         {
             return !(lhs == rhs);
         }
 
         // public methods
         /// <summary>
-        /// Determines whether the specified <see cref="LoggingSettings" /> is equal to this instance.
+        /// Determines whether the specified <see cref="LibraryInfo" /> is equal to this instance.
         /// </summary>
-        /// <param name="rhs">The <see cref="LoggingSettings" /> to compare with this instance.</param>
+        /// <param name="rhs">The <see cref="LibraryInfo" /> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="LoggingSettings" /> is equal to this instance; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified <see cref="LibraryInfo" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(LoggingSettings rhs)
+        public bool Equals(LibraryInfo rhs)
         {
             return
                 rhs != null &&
-                LoggerFactory == rhs.LoggerFactory &&
-                MaxDocumentSize == rhs.MaxDocumentSize;
+                Name == rhs.Name &&
+                Version == rhs.Version;
         }
 
         /// <inheritdoc/>
-        public override bool Equals(object obj) => Equals(obj as LoggingSettings);
+        public override bool Equals(object obj) => Equals(obj as LibraryInfo);
 
         /// <inheritdoc/>
         public override int GetHashCode() => base.GetHashCode();
+
+        /// <inheritdoc/>
+        public override string ToString() => $"{Name}-{Version}";
     }
 }

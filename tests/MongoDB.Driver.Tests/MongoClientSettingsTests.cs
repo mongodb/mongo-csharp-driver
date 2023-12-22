@@ -23,13 +23,12 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -320,6 +319,21 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<InvalidOperationException>();
         }
 
+        [Fact]
+        public void TestlibraryInfo()
+        {
+            var settings = new MongoClientSettings();
+            settings.LibraryInfo.Should().BeNull();
+
+            var libraryInfo = new LibraryInfo("lib_name", "1.0.0");
+            settings.LibraryInfo = libraryInfo;
+
+            settings.Freeze();
+            settings.LibraryInfo.Should().Be(libraryInfo);
+            var exception = Record.Exception(() => settings.LibraryInfo = null);
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
         [Theory]
 #pragma warning disable CS0618 // Type or member is obsolete
         [InlineData("connect", ConnectionMode.Automatic, "directConnection", true, true)]
@@ -441,6 +455,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.DirectConnection = false;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.LibraryInfo = new LibraryInfo("name", "version");
             Assert.False(clone.Equals(settings));
 
 #pragma warning disable 618
@@ -1456,10 +1474,6 @@ namespace MongoDB.Driver.Tests
                 EnabledSslProtocols = SslProtocols.Tls
             };
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MongoClientSettings
             {
                 AllowInsecureTls = false,
@@ -1470,6 +1484,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
+                LibraryInfo = new LibraryInfo("name", "version"),
                 HeartbeatInterval = TimeSpan.FromSeconds(7),
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
@@ -1496,10 +1511,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -1519,6 +1530,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable CS0618 // Type or member is obsolete
             result.Credentials.Should().Equal(subject.Credentials);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.LibraryInfo.Should().Be(subject.LibraryInfo);
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);

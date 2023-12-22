@@ -1207,6 +1207,7 @@ namespace MongoDB.Driver
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
+                libraryInfo: null,
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
                 loggingSettings: null,

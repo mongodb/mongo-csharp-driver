@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
+        private readonly LibraryInfo _libraryInfo;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly LoggingSettings _loggingSettings;
@@ -82,6 +83,7 @@ namespace MongoDB.Driver
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
+            LibraryInfo libraryInfo,
             bool loadBalanced,
             TimeSpan localThreshold,
             LoggingSettings loggingSettings,
@@ -120,6 +122,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
+            _libraryInfo = libraryInfo;
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _loggingSettings = loggingSettings;
@@ -184,6 +187,7 @@ namespace MongoDB.Driver
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
+        public LibraryInfo LibraryInfo { get { return _libraryInfo; } }
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public LoggingSettings LoggingSettings { get { return _loggingSettings; } }
@@ -239,6 +243,7 @@ namespace MongoDB.Driver
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                object.Equals(_libraryInfo, rhs.LibraryInfo) &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
