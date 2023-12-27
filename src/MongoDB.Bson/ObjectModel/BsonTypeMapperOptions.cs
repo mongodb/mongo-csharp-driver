@@ -64,6 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets or sets the default BsonTypeMapperOptions.
         /// </summary>
+        [Obsolete("This property will be removed in later release.")]
         public static BsonTypeMapperOptions Defaults
         {
             get { return __defaults; }

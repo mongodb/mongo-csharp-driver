@@ -24,6 +24,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A helper class used to create and compile delegates for creator maps.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CreatorMapDelegateCompiler : ExpressionVisitor
     {
         // private fields

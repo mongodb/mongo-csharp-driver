@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -20,6 +21,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents the effective CopyTo method.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IStreamEfficientCopyTo
     {
         /// <summary>

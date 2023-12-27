@@ -100,7 +100,6 @@ namespace MongoDB.Bson.IO
             get { return _name; }
         }
 
-        // public static methods
         // public methods
         /// <summary>
         /// Closes the writer.

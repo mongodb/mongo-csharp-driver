@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Provides serializers for primitive types.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class PrimitiveSerializationProvider : BsonSerializationProviderBase
     {
         private static readonly Dictionary<Type, Type> __serializersTypes;

@@ -323,6 +323,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classType">The class type.</param>
         /// <returns>The class map.</returns>
+        [Obsolete("This method will be removed in later release.")]
         public static BsonClassMap LookupClassMap(Type classType)
         {
             if (classType == null)

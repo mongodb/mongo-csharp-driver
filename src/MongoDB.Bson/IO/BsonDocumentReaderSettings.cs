@@ -48,6 +48,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets or sets the default settings for a BsonDocumentReader.
         /// </summary>
+        [Obsolete("This property will be removed in later release.")]
         public static BsonDocumentReaderSettings Defaults
         {
             get

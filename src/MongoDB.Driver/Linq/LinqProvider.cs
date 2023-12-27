@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq
         /// but you can still select the V2 provider by configuring it in MongoClientSettings. The V2 LINQ provider is no
         /// longer being actively maintained and will eventually be removed.
         /// </summary>
+        [Obsolete("V2 provider will be removed in later release.")]
         V2 = 2,
 
         /// <summary>

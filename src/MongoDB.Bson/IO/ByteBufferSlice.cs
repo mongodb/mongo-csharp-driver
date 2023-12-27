@@ -21,6 +21,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a slice of a byte buffer.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ByteBufferSlice : IByteBuffer
     {
         private readonly IByteBuffer _buffer;

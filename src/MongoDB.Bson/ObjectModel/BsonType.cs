@@ -47,10 +47,13 @@ namespace MongoDB.Bson
         /// BSON binary data.
         /// </summary>
         Binary = 0x05,
+
         /// <summary>
         /// A BSON undefined value.
         /// </summary>
+        [Obsolete("Undefined type is depricated and will be removed in later release.")]
         Undefined = 0x06,
+
         /// <summary>
         /// A BSON ObjectId.
         /// </summary>
@@ -75,10 +78,13 @@ namespace MongoDB.Bson
         /// BSON JavaScript code.
         /// </summary>
         JavaScript = 0x0d,
+
         /// <summary>
         /// A BSON symbol.
         /// </summary>
+        [Obsolete("Symbol type is depricated and will be removed in later release.")]
         Symbol = 0x0e,
+
         /// <summary>
         /// BSON JavaScript code with a scope (a set of variables with values).
         /// </summary>

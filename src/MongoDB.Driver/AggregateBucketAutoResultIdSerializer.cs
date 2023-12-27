@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -24,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Static factory class for AggregateBucketAutoResultIdSerializer.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public static class AggregateBucketAutoResultIdSerializer
     {
         /// <summary>
@@ -42,6 +44,7 @@ namespace MongoDB.Driver
     /// A serializer for AggregateBucketAutoResultId.
     /// </summary>
     /// <typeparam name="TValue">The type of the values.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class AggregateBucketAutoResultIdSerializer<TValue> : ClassSerializerBase<AggregateBucketAutoResultId<TValue>>, IBsonDocumentSerializer
     {
         private readonly IBsonSerializer<TValue> _valueSerializer;

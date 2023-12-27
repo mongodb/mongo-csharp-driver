@@ -22,6 +22,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Provides a serializer for interfaces.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class DiscriminatedInterfaceSerializationProvider : BsonSerializationProviderBase
     {
         /// <inheritdoc/>

@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Various static utility methods.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public static class MongoUtils
     {
         // public static methods

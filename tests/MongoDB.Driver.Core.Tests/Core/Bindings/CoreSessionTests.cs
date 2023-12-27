@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Core.Bindings
         [InlineData("RN", "Server version 4.0 does not support the ShardedTransactions feature.")]
         [InlineData("RN,RT", "Server version 4.0 does not support the ShardedTransactions feature.")]
         [InlineData("RT,RN", "Server version 4.0 does not support the ShardedTransactions feature.")]
-        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMesage)
+        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMessage)
         {
             var clusterId = new ClusterId(1);
             string unsupportedFeatureName = null;
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Core.Bindings
             var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
 
             var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Be(expectedMesage);
+            e.Message.Should().Be(expectedMessage);
         }
 
         // private methods

@@ -51,4 +51,10 @@
   <ItemGroup>
     <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <NoWarn>
+      CS0618 <!--Temporary disable obsolete warnings due the massive volume of warnings-->
+    </NoWarn>
+  </PropertyGroup>
 </Project>

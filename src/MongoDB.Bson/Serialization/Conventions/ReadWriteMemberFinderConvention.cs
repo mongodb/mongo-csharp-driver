@@ -18,7 +18,7 @@ using System.Reflection;
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// A convention that finds readable and writeable members and adds them to the class map.
+    /// A convention that finds readable and writable members and adds them to the class map.
     /// </summary>
     public class ReadWriteMemberFinderConvention : ConventionBase, IClassMapConvention
     {

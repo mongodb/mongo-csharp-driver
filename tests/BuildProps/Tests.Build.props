@@ -54,4 +54,25 @@
     </PackageReference>
   </ItemGroup>
 
+  <PropertyGroup>
+    <NoWarn>
+      1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
+      CS0618; <!--Temporary disable obsolete warnings due the massive volume of warnings-->
+      xUnit1010; <!--The value is not convertible to the method parameter type (https://xunit.github.io/xunit.analyzers/rules/xUnit1010.html)-->
+      xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
+      xUnit1016; <!--MemberData must reference a public member (https://xunit.github.io/xunit.analyzers/rules/xUnit1016.html)-->
+      xUnit1024; <!--Test methods cannot have overloads (https://xunit.github.io/xunit.analyzers/rules/xUnit1024.html)-->
+      xUnit1025; <!--InlineData should be unique within the Theory it belongs to (https://xunit.github.io/xunit.analyzers/rules/xUnit1025.html)-->
+      xUnit1026; <!--Theory methods should use all of their parameters (https://xunit.github.io/xunit.analyzers/rules/xUnit1026.html)-->
+      xUnit2000; <!--Constants and literals should be the expected argument (https://xunit.github.io/xunit.analyzers/rules/xUnit2000.html-->
+      xUnit2003; <!--Do not use equality check to test for null value (https://xunit.github.io/xunit.analyzers/rules/xUnit2003.html-->
+      xUnit2004; <!--Do not use equality check to test for boolean conditions (https://xunit.github.io/xunit.analyzers/rules/xUnit2004.html)-->
+      xUnit2005; <!--Do not use identity check on value type (https://xunit.github.io/xunit.analyzers/rules/xUnit205.html-->
+      xUnit2009; <!--Do not use boolean check to check for substrings (https://xunit.github.io/xunit.analyzers/rules/xUnit2009.html)-->
+      xUnit2012; <!--Do not use Enumerable.Any() to check if a value exists in a collection (https://xunit.github.io/xunit.analyzers/rules/xUnit2012.html)-->
+      xUnit2013; <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
+      xUnit2015; <!--Do not use typeof expression to check the exception type (https://xunit.github.io/xunit.analyzers/rules/xUnit2015.html)-->
+      xUnit2017; <!--Do not use Contains() to check if a value exists in a collection (https://xunit.github.io/xunit.analyzers/rules/xUnit2017.html)-->
+    </NoWarn>
+  </PropertyGroup>
 </Project>

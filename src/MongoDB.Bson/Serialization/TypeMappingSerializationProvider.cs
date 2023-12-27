@@ -22,6 +22,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serialization provider based on a mapping from value types to serializer types.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class TypeMappingSerializationProvider : BsonSerializationProviderBase
     {
         // private fields

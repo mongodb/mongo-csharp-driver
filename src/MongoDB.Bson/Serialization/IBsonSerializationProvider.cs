@@ -34,8 +34,9 @@ namespace MongoDB.Bson.Serialization
     /// An interface implemented by serialization providers that are aware of registries.
     /// </summary>
     /// <remarks>
-    /// This interface was added to preserve backward compatability (changing IBsonSerializationProvider would have been a backward breaking change).
+    /// This interface was added to preserve backward compatibility (changing IBsonSerializationProvider would have been a backward breaking change).
     /// </remarks>
+    [Obsolete("This interface will be merged with IBsonSerializationProvider interface in later release.")]
     public interface IRegistryAwareBsonSerializationProvider : IBsonSerializationProvider
     {
         /// <summary>

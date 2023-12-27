@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Default values for various Mongo settings.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public static class MongoDefaults
     {
         // private static fields
