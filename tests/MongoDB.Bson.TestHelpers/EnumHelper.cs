@@ -19,6 +19,7 @@ using System.Linq;
 
 namespace MongoDB.Bson.TestHelpers
 {
+    [Obsolete("This class will be removed in later release.")]
     public static class EnumHelper
     {
         public static IEnumerable<TEnum> GetValues<TEnum>() where TEnum : System.Enum

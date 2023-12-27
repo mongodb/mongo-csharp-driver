@@ -47,6 +47,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets or sets the default JsonWriterSettings.
         /// </summary>
+        [Obsolete("This property will be removed in later release.")]
         public static JsonWriterSettings Defaults
         {
             get

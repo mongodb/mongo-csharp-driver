@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating an index.
     /// </summary>
+    [Obsolete("This class will be removed in later release, please use CreateIndexOptions<TDocument> instead.")]
     public class CreateIndexOptions
     {
         // fields

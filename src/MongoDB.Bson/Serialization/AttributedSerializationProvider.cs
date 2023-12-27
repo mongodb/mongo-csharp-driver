@@ -23,6 +23,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Provides serializers based on an attribute.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class AttributedSerializationProvider : BsonSerializationProviderBase
     {
         /// <inheritdoc/>

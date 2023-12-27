@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// An abstract base class for an Expression visitor.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class ExpressionVisitor
     {
         // constructors
@@ -41,7 +42,7 @@ namespace MongoDB.Bson.Serialization
         /// Visits an Expression.
         /// </summary>
         /// <param name="node">The Expression.</param>
-        /// <returns>The Expression (posibly modified).</returns>
+        /// <returns>The Expression (possibly modified).</returns>
         protected virtual Expression Visit(Expression node)
         {
             if (node == null)
