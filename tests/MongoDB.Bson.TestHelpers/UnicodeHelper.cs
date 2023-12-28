@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Bson.TestHelpers
 {
-    [Obsolete("This class will be removed in later release.")]
     public static class UnicodeHelper
     {
         public static string Unescape(string value)

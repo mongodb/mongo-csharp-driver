@@ -42,7 +42,6 @@ namespace MongoDB.Driver
     /// A serializer for AggregateBucketAutoResultId.
     /// </summary>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    [Obsolete("This class will be removed in later release.")]
     public class AggregateBucketAutoResultIdSerializer<TValue> : ClassSerializerBase<AggregateBucketAutoResultId<TValue>>, IBsonDocumentSerializer
     {
         private readonly IBsonSerializer<TValue> _valueSerializer;
