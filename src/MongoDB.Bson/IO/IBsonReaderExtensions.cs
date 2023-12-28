@@ -20,7 +20,6 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Contains extensions methods for IBsonReader.
     /// </summary>
-    /// IByteBuffer
     public static class IBsonReaderExtensions
     {
         /// <summary>
