@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Linq // this class is Linq2 specific but leave the name
     /// A model for a queryable to be executed using the aggregation framework.
     /// </summary>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    [Obsolete("This class will be removed in later release.")]
     public sealed class AggregateQueryableExecutionModel<TOutput> : QueryableExecutionModel
     {
         private readonly IReadOnlyList<BsonDocument> _stages;

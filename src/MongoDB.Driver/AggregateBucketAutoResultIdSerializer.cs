@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -25,7 +24,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Static factory class for AggregateBucketAutoResultIdSerializer.
     /// </summary>
-    [Obsolete("This class will be removed in later release.")]
     public static class AggregateBucketAutoResultIdSerializer
     {
         /// <summary>
