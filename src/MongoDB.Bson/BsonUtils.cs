@@ -20,6 +20,7 @@ using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
 {
+
     /// <summary>
     /// A static class containing BSON utility methods.
     /// </summary>
