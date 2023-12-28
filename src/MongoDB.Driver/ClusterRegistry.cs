@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -30,7 +29,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a registry of already created clusters.
     /// </summary>
-    [Obsolete("This class will be removed in later release.")]
     public class ClusterRegistry
     {
         #region static
