@@ -49,13 +49,18 @@ namespace MongoDB.Benchmarks.ParallelBench
         [Benchmark]
         public void GridFsMultiUpload()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(50, fileNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                var filename = $"file{fileNumber:D2}.txt";
-                var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
+                var numFilesToDownload = threadNumber == 15 ? 5 : 3;
+                var startingFileNumber = threadNumber * 3;
+                for (int i = 0; i < numFilesToDownload; i++)
+                {
+                    var filename = $"file{(startingFileNumber+i):D2}.txt";
+                    var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
 
-                using var file = File.Open(resourcePath, FileMode.Open);
-                _gridFsBucket.UploadFromStream(filename, file);
+                    using var file = File.Open(resourcePath, FileMode.Open);
+                    _gridFsBucket.UploadFromStream(filename, file);
+                }
             });
         }
 

@@ -58,16 +58,21 @@ namespace MongoDB.Benchmarks.ParallelBench
         [Benchmark]
         public void MultiFileExport()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(100, fileNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                var filepath = $"{DataFolderPath}parallel/tmpLDJSON/ldjson{fileNumber:D3}.txt";
-                var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip(fileNumber * 5000).Limit(5000).ToList();
-
-                using (StreamWriter streamWriter = File.CreateText(filepath))
+                var numFilesToExport = threadNumber == 15 ? 10 : 6;
+                var startingFileNumber = threadNumber * 6;
+                for (int i = 0; i < numFilesToExport; i++)
                 {
-                    foreach (var document in documents)
+                    var filepath = $"{DataFolderPath}parallel/tmpLDJSON/ldjson{(startingFileNumber+i):D3}.txt";
+                    var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip((startingFileNumber+i) * 5000).Limit(5000).ToList();
+
+                    using (StreamWriter streamWriter = File.CreateText(filepath))
                     {
-                        streamWriter.WriteLine(document.ToJson());
+                        foreach (var document in documents)
+                        {
+                            streamWriter.WriteLine(document.ToJson());
+                        }
                     }
                 }
             }, 100000);

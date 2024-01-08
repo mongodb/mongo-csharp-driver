@@ -14,6 +14,7 @@
  */
 
 using System.IO;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.GridFS;
@@ -53,13 +54,20 @@ namespace MongoDB.Benchmarks.ParallelBench
         [Benchmark]
         public void GridFsMultiDownload()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(50, i =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                string filename = $"file{i:D2}.txt";
-                string resourcePath = $"{DataFolderPath}parallel/tmpGridFS/{filename}";
+                var numFilesToDownload = threadNumber == 15 ? 5 : 3;
+                var startingFileNumber = threadNumber * 3;
+                for (int i = 0; i < numFilesToDownload; i++)
+                {
+                    string filename = $"file{(startingFileNumber+i):D2}.txt";
+                    string resourcePath = $"{DataFolderPath}parallel/tmpGridFS/{filename}";
 
-                using var file = File.Create(resourcePath);
-                _gridFsBucket.DownloadToStreamByName(filename, file);
+                    using (var file = File.Create(resourcePath))
+                    {
+                        _gridFsBucket.DownloadToStreamByName(filename, file);
+                    }
+                }
             });
         }
 

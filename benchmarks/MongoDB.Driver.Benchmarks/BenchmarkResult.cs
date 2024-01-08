@@ -41,7 +41,10 @@ namespace MongoDB.Benchmarks
             }
 
             Categories = benchmarkReport.BenchmarkCase.Descriptor.Categories;
-            Score = dataSetSize / (benchmarkReport.ResultStatistics.Median / 1000);
+
+            // change the median from nanoseconds to seconds for calculating the score.
+            // since dataSetSize is in bytes, divide the score to convert to MB/s
+            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1000000000D)) / 1000000D;
         }
     }
 }

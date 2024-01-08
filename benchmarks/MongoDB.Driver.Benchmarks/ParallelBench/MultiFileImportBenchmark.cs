@@ -54,12 +54,17 @@ namespace MongoDB.Benchmarks.ParallelBench
         [Benchmark]
         public void MultiFileImport()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(100, fileNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{fileNumber:D3}.txt";
-                var documents = new List<BsonDocument>(5000);
-                documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
-                _collection.InsertMany(documents);
+                var numFilesToExport = threadNumber == 15 ? 10 : 6;
+                var startingFileNumber = threadNumber * 6;
+                for (int i = 0; i < numFilesToExport; i++)
+                {
+                    var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{(startingFileNumber+i):D3}.txt";
+                    var documents = new List<BsonDocument>(5000);
+                    documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
+                    _collection.InsertMany(documents);
+                }
             }, 100000);
         }
 
