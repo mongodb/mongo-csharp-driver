@@ -51,9 +51,9 @@ namespace MongoDB.Benchmarks.ParallelBench
         {
             ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                var numFilesToDownload = threadNumber == 15 ? 5 : 3;
+                var numFilesToUpload = threadNumber == 15 ? 5 : 3;
                 var startingFileNumber = threadNumber * 3;
-                for (int i = 0; i < numFilesToDownload; i++)
+                for (int i = 0; i < numFilesToUpload; i++)
                 {
                     var filename = $"file{(startingFileNumber+i):D2}.txt";
                     var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";

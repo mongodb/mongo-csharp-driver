@@ -56,9 +56,9 @@ namespace MongoDB.Benchmarks.ParallelBench
         {
             ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
             {
-                var numFilesToExport = threadNumber == 15 ? 10 : 6;
+                var numFilesToImport = threadNumber == 15 ? 10 : 6;
                 var startingFileNumber = threadNumber * 6;
-                for (int i = 0; i < numFilesToExport; i++)
+                for (int i = 0; i < numFilesToImport; i++)
                 {
                     var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{(startingFileNumber+i):D3}.txt";
                     var documents = new List<BsonDocument>(5000);
