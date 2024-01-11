@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using FluentAssertions;
 using System;
 using System.IO;
 using System.Linq;
@@ -20,9 +21,8 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using Xunit;
-using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
