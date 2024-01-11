@@ -34,6 +34,9 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly SslProtocols _enabledSslProtocols;
         private readonly RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
+        // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
+        internal const SslProtocols SslProtocolsTls13 = (SslProtocols)12288;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="SslStreamSettings"/> class.
@@ -53,7 +56,7 @@ namespace MongoDB.Driver.Core.Configuration
             _checkCertificateRevocation = checkCertificateRevocation.WithDefault(false);
             _clientCertificates = Ensure.IsNotNull(clientCertificates.WithDefault(Enumerable.Empty<X509Certificate>()), "clientCertificates").ToList();
             _clientCertificateSelectionCallback = clientCertificateSelectionCallback.WithDefault(null);
-            _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
+            _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
             _serverCertificateValidationCallback = serverCertificateValidationCallback.WithDefault(null);
         }
 

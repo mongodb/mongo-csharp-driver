@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using FluentAssertions;
 using System;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,8 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
-using FluentAssertions;
 
 namespace MongoDB.Driver.Tests
 {
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Tests
             settings.CheckCertificateRevocation.Should().BeFalse();
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
-            Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
@@ -156,7 +157,7 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-            Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
 
             var enabledSslProtocols = SslProtocols.Tls;
             settings.EnabledSslProtocols = enabledSslProtocols;
