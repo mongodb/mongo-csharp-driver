@@ -38,7 +38,7 @@ namespace MongoDB.Benchmarks.Bson
         [GlobalSetup]
         public void Setup()
         {
-            _bytes = ReadExtendedJsonToBytes(BenchmarkData.Filepath);
+            _bytes = ReadExtendedJsonToBytes(BenchmarkData.FilePath);
             _stream = new MemoryStream(_bytes);
             _reader = new BsonBinaryReader(_stream);
             _context = BsonDeserializationContext.CreateRoot(_reader);
@@ -57,15 +57,15 @@ namespace MongoDB.Benchmarks.Bson
         [GlobalCleanup]
         public void Cleanup()
         {
-            _stream.Dispose();
             _reader.Dispose();
+            _stream.Dispose();
         }
 
-        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new[]
+        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new BsonBenchmarkData[]
         {
-            new BsonBenchmarkData("extended_bson/flat_bson.json", "Flat", 75310000),
-            new BsonBenchmarkData("extended_bson/full_bson.json", "Full", 57340000),
-            new BsonBenchmarkData("extended_bson/deep_bson.json", "Deep", 19640000)
+            new("extended_bson/flat_bson.json", "Flat", 75_310_000),
+            new("extended_bson/full_bson.json", "Full", 57_340_000),
+            new("extended_bson/deep_bson.json", "Deep", 19_640_000)
         };
     }
 }

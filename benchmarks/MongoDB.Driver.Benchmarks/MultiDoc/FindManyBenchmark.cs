@@ -30,7 +30,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private IMongoCollection<BsonDocument> _collection;
         private BsonDocument _tweetDocument;
 
-        [Params(16220000)]
+        [Params(16_220_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
@@ -38,7 +38,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         {
             _client = MongoConfiguration.CreateDisposableClient();
             _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
-            _collection = _client.GetDatabase("perftest").GetCollection<BsonDocument>("corpus");
+            _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
 
             PopulateCollection();
         }

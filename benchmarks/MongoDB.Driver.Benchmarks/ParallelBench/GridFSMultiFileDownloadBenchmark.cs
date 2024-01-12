@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
+using System.Collections.Concurrent;
 using System.IO;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.GridFS;
@@ -29,18 +29,20 @@ namespace MongoDB.Benchmarks.ParallelBench
     {
         private DisposableMongoClient _client;
         private GridFSBucket _gridFsBucket;
-        private DirectoryInfo _tmpDirectory;
+        private string _tmpDirectoryPath;
+        private ConcurrentQueue<(string, int)> _filesToDownload;
 
-        [Params(262144000)]
+        [Params(262_144_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
+            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
             _gridFsBucket.Drop();
-            _tmpDirectory = Directory.CreateDirectory($"{DataFolderPath}parallel/tmpGridFS");
+            _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpGridFS";
+            _filesToDownload = new ConcurrentQueue<(string, int)>();
 
             PopulateDatabase();
         }
@@ -48,20 +50,24 @@ namespace MongoDB.Benchmarks.ParallelBench
         [IterationSetup]
         public void BeforeTask()
         {
-            ClearDirectory();
+            if (Directory.Exists(_tmpDirectoryPath))
+            {
+                Directory.Delete(_tmpDirectoryPath, true);
+            }
+            Directory.CreateDirectory(_tmpDirectoryPath);
+
+            AddFilesToQueue(_filesToDownload, _tmpDirectoryPath, "file", 50);
         }
 
         [Benchmark]
         public void GridFsMultiDownload()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
             {
-                var numFilesToDownload = threadNumber == 15 ? 5 : 3;
-                var startingFileNumber = threadNumber * 3;
-                for (int i = 0; i < numFilesToDownload; i++)
+                while (_filesToDownload.TryDequeue(out var fileToDownloadInfo))
                 {
-                    string filename = $"file{(startingFileNumber+i):D2}.txt";
-                    string resourcePath = $"{DataFolderPath}parallel/tmpGridFS/{filename}";
+                    var filename = $"file{fileToDownloadInfo.Item2:D2}.txt";
+                    var resourcePath = fileToDownloadInfo.Item1;
 
                     using (var file = File.Create(resourcePath))
                     {
@@ -74,16 +80,8 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalCleanup]
         public void Teardown()
         {
-            _tmpDirectory.Delete(true);
+            Directory.Delete(_tmpDirectoryPath, true);
             _client.Dispose();
-        }
-
-        private void ClearDirectory()
-        {
-            foreach (var file in _tmpDirectory.EnumerateFiles())
-            {
-                file.Delete();
-            }
         }
 
         private void PopulateDatabase()

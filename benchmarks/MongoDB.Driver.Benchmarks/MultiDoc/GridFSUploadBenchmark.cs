@@ -29,7 +29,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private byte[] _fileBytes;
         private GridFSBucket _gridFsBucket;
 
-        [Params(52428800)]
+        [Params(52_428_800)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
@@ -37,7 +37,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         {
             _client = MongoConfiguration.CreateDisposableClient();
             _fileBytes = File.ReadAllBytes($"{DataFolderPath}single_and_multi_document/gridfs_large.bin");
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
+            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
         }
 
         [IterationSetup]

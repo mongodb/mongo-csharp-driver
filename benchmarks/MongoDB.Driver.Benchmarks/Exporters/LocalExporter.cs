@@ -42,7 +42,7 @@ namespace MongoDB.Benchmarks.Exporters
                 var filename = $"local-report({runtime}).txt";
                 var path = Path.Combine(summary.ResultsDirectoryPath, filename);
 
-                using StreamWriter writer = new(path, false);
+                using var writer = new StreamWriter(path, false);
                 var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToArray();
 
                 writer.WriteLine("Scores Summary: ");

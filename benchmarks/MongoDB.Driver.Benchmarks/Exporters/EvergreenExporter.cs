@@ -45,7 +45,8 @@ namespace MongoDB.Benchmarks.Exporters
 
             var resultsPath = Path.Combine(summary.ResultsDirectoryPath, _outputFile);
 
-            using (var jsonWriter = new JsonWriter(File.CreateText(resultsPath), new JsonWriterSettings { Indent = true }))
+            using (var resultsFileWriter = File.CreateText(resultsPath))
+            using (var jsonWriter = new JsonWriter(resultsFileWriter, new JsonWriterSettings { Indent = true }))
             {
                 jsonWriter.WriteStartArray();
 

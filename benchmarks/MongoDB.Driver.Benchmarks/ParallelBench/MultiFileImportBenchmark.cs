@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -33,39 +33,40 @@ namespace MongoDB.Benchmarks.ParallelBench
         private DisposableMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
+        private ConcurrentQueue<(string, int)> _filesToUpload;
 
-        [Params(565000000)]
+        [Params(565_000_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _database = _client.GetDatabase("perftest");
+            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+            _filesToUpload = new ConcurrentQueue<(string, int)>();
         }
 
         [IterationSetup]
         public void BeforeTask()
         {
-            _database.DropCollection("corpus");
-            _collection = _database.GetCollection<BsonDocument>("corpus");
+            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+
+            AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/ldjson_multi", "ldjson", 100);
         }
 
         [Benchmark]
         public void MultiFileImport()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
             {
-                var numFilesToImport = threadNumber == 15 ? 10 : 6;
-                var startingFileNumber = threadNumber * 6;
-                for (int i = 0; i < numFilesToImport; i++)
+                while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
                 {
-                    var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{(startingFileNumber+i):D3}.txt";
-                    var documents = new List<BsonDocument>(5000);
-                    documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
+                    var resourcePath = filesToUploadInfo.Item1;
+                    var documents = File.ReadLines(resourcePath).Select(BsonDocument.Parse).ToArray();
                     _collection.InsertMany(documents);
                 }
-            }, 100000);
+            }, 100_000);
         }
 
         [GlobalCleanup]

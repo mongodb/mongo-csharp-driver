@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System.Collections.Concurrent;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.TestHelpers;
@@ -28,15 +29,17 @@ namespace MongoDB.Benchmarks.ParallelBench
     {
         private DisposableMongoClient _client;
         private GridFSBucket _gridFsBucket;
+        private ConcurrentQueue<(string, int)> _filesToUpload;
 
-        [Params(262144000)]
+        [Params(262_144_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase("perftest"));
+            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
+            _filesToUpload = new ConcurrentQueue<(string, int)>();
         }
 
         [IterationSetup]
@@ -44,19 +47,19 @@ namespace MongoDB.Benchmarks.ParallelBench
         {
             _gridFsBucket.Drop();
             _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
+
+            AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/gridfs_multi", "file", 50);
         }
 
         [Benchmark]
         public void GridFsMultiUpload()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
             {
-                var numFilesToUpload = threadNumber == 15 ? 5 : 3;
-                var startingFileNumber = threadNumber * 3;
-                for (int i = 0; i < numFilesToUpload; i++)
+                while(_filesToUpload.TryDequeue(out var filesToUploadInfo))
                 {
-                    var filename = $"file{(startingFileNumber+i):D2}.txt";
-                    var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
+                    var filename = $"file{filesToUploadInfo.Item2:D2}.txt";
+                    var resourcePath = filesToUploadInfo.Item1;
 
                     using var file = File.Open(resourcePath, FileMode.Open);
                     _gridFsBucket.UploadFromStream(filename, file);

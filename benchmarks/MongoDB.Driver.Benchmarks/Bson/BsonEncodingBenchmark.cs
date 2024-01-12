@@ -42,7 +42,7 @@ namespace MongoDB.Benchmarks.Bson
             _stream = new MemoryStream();
             _writer = new BsonBinaryWriter(_stream);
             _context = BsonSerializationContext.CreateRoot(_writer);
-            _document = ReadExtendedJson(BenchmarkData.Filepath);
+            _document = ReadExtendedJson(BenchmarkData.FilePath);
         }
 
         [Benchmark]
@@ -58,15 +58,15 @@ namespace MongoDB.Benchmarks.Bson
         [GlobalCleanup]
         public void Cleanup()
         {
-            _stream.Dispose();
             _writer.Dispose();
+            _stream.Dispose();
         }
 
-        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new[]
+        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new BsonBenchmarkData[]
         {
-            new BsonBenchmarkData("extended_bson/flat_bson.json", "Flat", 75310000),
-            new BsonBenchmarkData("extended_bson/full_bson.json", "Full", 57340000),
-            new BsonBenchmarkData("extended_bson/deep_bson.json", "Deep", 19640000)
+            new("extended_bson/flat_bson.json", "Flat", 75_310_000),
+            new("extended_bson/full_bson.json", "Full", 57_340_000),
+            new("extended_bson/deep_bson.json", "Deep", 19_640_000)
         };
     }
 }

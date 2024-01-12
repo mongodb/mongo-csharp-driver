@@ -26,7 +26,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         private DisposableMongoClient _client;
         private IMongoDatabase _database;
 
-        [Params(130000)]
+        [Params(130_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]

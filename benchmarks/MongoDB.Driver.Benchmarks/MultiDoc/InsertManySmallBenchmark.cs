@@ -32,14 +32,14 @@ namespace MongoDB.Benchmarks.MultiDoc
         private IMongoDatabase _database;
         private IEnumerable<BsonDocument> _smallDocuments;
 
-        [Params(2750000)]
+        [Params(2_750_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _database = _client.GetDatabase("perftest");
+            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
 
             var smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
             _smallDocuments = Enumerable.Range(0, 10000).Select(_ => smallDocument.DeepClone().AsBsonDocument);
@@ -48,8 +48,8 @@ namespace MongoDB.Benchmarks.MultiDoc
         [IterationSetup]
         public void BeforeTask()
         {
-            _database.DropCollection("corpus");
-            _collection = _database.GetCollection<BsonDocument>("corpus");
+            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
         }
 
         [Benchmark]

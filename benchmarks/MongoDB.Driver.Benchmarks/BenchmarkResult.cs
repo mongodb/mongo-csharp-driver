@@ -21,7 +21,7 @@ namespace MongoDB.Benchmarks
 {
     public sealed class BenchmarkResult
     {
-        public IEnumerable<string> Categories { get; }
+        public HashSet<string> Categories { get; }
         public string Name { get; }
         public double Score { get; }
 
@@ -40,11 +40,11 @@ namespace MongoDB.Benchmarks
                 dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
             }
 
-            Categories = benchmarkReport.BenchmarkCase.Descriptor.Categories;
+            Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
 
             // change the median from nanoseconds to seconds for calculating the score.
             // since dataSetSize is in bytes, divide the score to convert to MB/s
-            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1000000000D)) / 1000000D;
+            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
         }
     }
 }

@@ -30,22 +30,22 @@ namespace MongoDB.Benchmarks.SingleDoc
         private IMongoDatabase _database;
         private BsonDocument _smallDocument;
 
-        [Params(2750000)]
+        [Params(2_750_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _database = _client.GetDatabase("perftest");
+            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
             _smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
         }
 
         [IterationSetup]
         public void BeforeTask()
         {
-            _database.DropCollection("corpus");
-            _collection = _database.GetCollection<BsonDocument>("corpus");
+            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
         }
 
         [Benchmark]

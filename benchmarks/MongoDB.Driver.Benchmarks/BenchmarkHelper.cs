@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,24 +28,21 @@ namespace MongoDB.Benchmarks
     {
         public const string DataFolderPath = "../../../../../../../data/";
 
-        public static BsonDocument ReadExtendedJson(string resourcePath)
+        public static void AddFilesToQueue(ConcurrentQueue<(string, int)> filesQueue, string directoryPath, string fileNamePrefix, int fileCount)
         {
-            string extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
-            return BsonDocument.Parse(extendedJson);
-        }
-
-        public static byte[] ReadExtendedJsonToBytes(string resourcePath)
-        {
-            string extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
-            var document = BsonDocument.Parse(extendedJson);
-            return document.ToBson();
+            var addingLDJSONfiles = fileNamePrefix == "ldjson";
+            for (int i = 0; i < fileCount; i++)
+            {
+                var fileName = addingLDJSONfiles ? $"{fileNamePrefix}{i:D3}.txt" : $"{fileNamePrefix}{i:D2}.txt";
+                filesQueue.Enqueue(($"{directoryPath}/{fileName}", i)); // enqueue complete filepath and filenumber
+            }
         }
 
         public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
         {
             var identifiedBenchmarksScores = benchmarkResults
                 .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
-                .Select(benchmark => benchmark.Score).ToList();
+                .Select(benchmark => benchmark.Score).ToArray();
 
             if (identifiedBenchmarksScores.Any())
             {
@@ -54,15 +52,31 @@ namespace MongoDB.Benchmarks
             return 0;
         }
 
+        public static BsonDocument ReadExtendedJson(string resourcePath)
+        {
+            var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
+            return BsonDocument.Parse(extendedJson);
+        }
+
+        public static byte[] ReadExtendedJsonToBytes(string resourcePath)
+        {
+            var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
+            var document = BsonDocument.Parse(extendedJson);
+            return document.ToBson();
+        }
+
         public static class MongoConfiguration
         {
+            public const string PerfTestDatabaseName = "perftest";
+            public const string PerfTestCollectionName = "corpus";
+
             public static DisposableMongoClient CreateDisposableClient()
             {
-                string mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+                var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
                 var client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
-                client.DropDatabase("perftest");
+                client.DropDatabase(PerfTestDatabaseName);
 
-                return  new DisposableMongoClient(client, null);
+                return new DisposableMongoClient(client, null);
             }
         }
     }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -33,18 +33,20 @@ namespace MongoDB.Benchmarks.ParallelBench
         private DisposableMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
-        private DirectoryInfo _tmpDirectory;
+        private string _tmpDirectoryPath;
+        private ConcurrentQueue<(string, int)> _filesToDownload;
 
-        [Params(565000000)]
+        [Params(565_000_000)]
         public int BenchmarkDataSetSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
             _client = MongoConfiguration.CreateDisposableClient();
-            _database = _client.GetDatabase("perftest");
-            _collection = _database.GetCollection<BsonDocument>("corpus");
-            _tmpDirectory = Directory.CreateDirectory($"{DataFolderPath}parallel/tmpLDJSON");
+            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+            _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpLDJSON";
+            _filesToDownload = new ConcurrentQueue<(string, int)>();
 
             PopulateCollection();
         }
@@ -52,22 +54,26 @@ namespace MongoDB.Benchmarks.ParallelBench
         [IterationSetup]
         public void BeforeTask()
         {
-            ClearDirectory();
+            if (Directory.Exists(_tmpDirectoryPath))
+            {
+                Directory.Delete(_tmpDirectoryPath, true);
+            }
+            Directory.CreateDirectory(_tmpDirectoryPath);
+
+            AddFilesToQueue(_filesToDownload, _tmpDirectoryPath, "ldjson", 100);
         }
 
         [Benchmark]
         public void MultiFileExport()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(16, threadNumber =>
+            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
             {
-                var numFilesToExport = threadNumber == 15 ? 10 : 6;
-                var startingFileNumber = threadNumber * 6;
-                for (int i = 0; i < numFilesToExport; i++)
+                while (_filesToDownload.TryDequeue(out var fileToDownloadInfo))
                 {
-                    var filepath = $"{DataFolderPath}parallel/tmpLDJSON/ldjson{(startingFileNumber+i):D3}.txt";
-                    var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip((startingFileNumber+i) * 5000).Limit(5000).ToList();
+                    var (filePath, fileNumber) = fileToDownloadInfo;
+                    var documents = _collection.Find(Builders<BsonDocument>.Filter.Empty).Skip(fileNumber * 5000).Limit(5000).ToList();
 
-                    using (StreamWriter streamWriter = File.CreateText(filepath))
+                    using (var streamWriter = File.CreateText(filePath))
                     {
                         foreach (var document in documents)
                         {
@@ -75,22 +81,14 @@ namespace MongoDB.Benchmarks.ParallelBench
                         }
                     }
                 }
-            }, 100000);
+            }, 100_000);
         }
 
         [GlobalCleanup]
         public void Teardown()
         {
-            _tmpDirectory.Delete(true);
+            Directory.Delete(_tmpDirectoryPath, true);
             _client.Dispose();
-        }
-
-        private void ClearDirectory()
-        {
-            foreach (var file in _tmpDirectory.EnumerateFiles())
-            {
-                file.Delete();
-            }
         }
 
         private void PopulateCollection()
@@ -98,8 +96,7 @@ namespace MongoDB.Benchmarks.ParallelBench
             for (int i = 0; i < 100; i++)
             {
                 var resourcePath = $"{DataFolderPath}parallel/ldjson_multi/ldjson{i:D3}.txt";
-                var documents = new List<BsonDocument>(5000);
-                documents.AddRange(File.ReadLines(resourcePath).Select(BsonDocument.Parse));
+                var documents = File.ReadLines(resourcePath).Select(BsonDocument.Parse).ToArray();
                 _collection.InsertMany(documents);
             }
         }
