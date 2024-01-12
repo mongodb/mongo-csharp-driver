@@ -244,6 +244,7 @@ functions:
           SSL=${SSL} \
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+          SKIP_LEGACY_SHELL=${SKIP_LEGACY_SHELL} \
             sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
@@ -421,6 +422,18 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
+
+  run-performance-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}" ../../evergreen/run-perf-tests.sh
+    - command: perf.send
+      params:
+        file: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json
 
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
@@ -1399,6 +1412,18 @@ tasks:
           vars:
             FRAMEWORK: net60
 
+    - name: performance-tests-net60-server-v6.0
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            VERSION: "v6.0-perf"
+            TOPOLOGY: "server"
+            SSL: "nossl"
+            AUTH: "noauth"
+            SKIP_LEGACY_SHELL: "true"
+        - func: install-dotnet
+        - func: run-performance-tests
+
     # ECDSA tests
     # Disabled until https://jira.mongodb.org/browse/SPEC-1589 is resolved
     # - name: test-ocsp-ecdsa-valid-cert-server-staples-ca-responder
@@ -2179,6 +2204,14 @@ buildvariants:
   display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   tasks:
     - name: test-serverless
+
+# Performance tests
+- name: driver-performance-tests
+  display_name: "Driver Performance Tests"
+  run_on:
+    - rhel90-dbx-perf-large
+  tasks:
+    - name: performance-tests-net60-server-v6.0
 
 # Atlas tests
 - name: atlas-connectivity-tests

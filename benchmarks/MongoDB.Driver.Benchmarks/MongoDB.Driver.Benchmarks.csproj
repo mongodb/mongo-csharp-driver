@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
+    <RootNamespace>MongoDB.Benchmarks</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <Configuration>Release</Configuration>
+    <NoWarn>NU1701,CA1001</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj" />
+    <ProjectReference Include="..\..\tests\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
+  </ItemGroup>
+</Project>

@@ -63,6 +63,10 @@ src/packages
 # Cake Artifacts
 .dotnet
 
+# Benchmark Artifacts
+benchmarks/MongoDB.Driver.Benchmarks/BenchmarkDotNet.Artifacts
+benchmarks/MongoDB.Driver.Benchmarks/data
+
 # Other
 artifacts
 packages
