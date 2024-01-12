@@ -33,7 +33,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private IEnumerable<BsonDocument> _smallDocuments;
 
         [Params(2_750_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()

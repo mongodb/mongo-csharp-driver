@@ -32,7 +32,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         private ConcurrentQueue<(string, int)> _filesToUpload;
 
         [Params(262_144_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()
@@ -56,7 +56,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         {
             ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
             {
-                while(_filesToUpload.TryDequeue(out var filesToUploadInfo))
+                while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
                 {
                     var filename = $"file{filesToUploadInfo.Item2:D2}.txt";
                     var resourcePath = filesToUploadInfo.Item1;

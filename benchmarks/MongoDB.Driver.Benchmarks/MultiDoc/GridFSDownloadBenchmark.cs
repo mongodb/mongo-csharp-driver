@@ -31,7 +31,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private GridFSBucket _gridFsBucket;
 
         [Params(52_428_800)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()

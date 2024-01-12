@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.8" Condition="'$(OS)' == 'Windows_NT'"/>
     <PackageReference Include="NDesk.Options" Version="0.2.1" />
   </ItemGroup>
 

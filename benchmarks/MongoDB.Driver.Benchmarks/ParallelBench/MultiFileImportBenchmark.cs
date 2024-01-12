@@ -36,7 +36,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         private ConcurrentQueue<(string, int)> _filesToUpload;
 
         [Params(565_000_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()

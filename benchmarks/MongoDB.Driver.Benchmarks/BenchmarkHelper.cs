@@ -52,6 +52,15 @@ namespace MongoDB.Benchmarks
             return 0;
         }
 
+        public static void CreateEmptyDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+            Directory.CreateDirectory(path);
+        }
+
         public static BsonDocument ReadExtendedJson(string resourcePath)
         {
             var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);

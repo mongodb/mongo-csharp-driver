@@ -31,7 +31,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private BsonDocument _tweetDocument;
 
         [Params(16_220_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()

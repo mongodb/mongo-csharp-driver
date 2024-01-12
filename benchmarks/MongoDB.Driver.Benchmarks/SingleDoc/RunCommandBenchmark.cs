@@ -27,7 +27,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         private IMongoDatabase _database;
 
         [Params(130_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()

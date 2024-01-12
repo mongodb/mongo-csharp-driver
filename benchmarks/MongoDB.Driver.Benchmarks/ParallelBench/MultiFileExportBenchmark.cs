@@ -37,7 +37,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         private ConcurrentQueue<(string, int)> _filesToDownload;
 
         [Params(565_000_000)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()
@@ -54,12 +54,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         [IterationSetup]
         public void BeforeTask()
         {
-            if (Directory.Exists(_tmpDirectoryPath))
-            {
-                Directory.Delete(_tmpDirectoryPath, true);
-            }
-            Directory.CreateDirectory(_tmpDirectoryPath);
-
+            CreateEmptyDirectory(_tmpDirectoryPath);
             AddFilesToQueue(_filesToDownload, _tmpDirectoryPath, "ldjson", 100);
         }
 

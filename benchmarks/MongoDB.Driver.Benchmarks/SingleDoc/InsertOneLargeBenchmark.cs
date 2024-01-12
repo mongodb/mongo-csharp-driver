@@ -31,7 +31,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         private BsonDocument _largeDocument;
 
         [Params(27_310_890)]
-        public int BenchmarkDataSetSize { get; set; }
+        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
         public void Setup()
