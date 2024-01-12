@@ -56,6 +56,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The type if type type name can be resolved; otherwise, null.</returns>
         public static Type GetActualType(string typeName)
         {
+            if (string.IsNullOrEmpty(typeName))
+            {
+                return null;
+            }
+            
             var type = Type.GetType(typeName);
             if (type != null)
             {
