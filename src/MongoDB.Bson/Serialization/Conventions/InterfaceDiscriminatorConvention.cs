@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 throw new ArgumentException("<TInterface> must be an interface", nameof(TInterface));
             }
 
-            var dependents = interfaceType.Assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass);
+            var dependents = interfaceType.Assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x));
 
             foreach (var dependent in dependents)
             {
