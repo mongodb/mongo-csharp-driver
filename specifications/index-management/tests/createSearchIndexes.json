@@ -48,7 +48,8 @@
             "models": []
           },
           "expectError": {
-            "isError": true
+            "isError": true,
+            "errorContains": "Atlas"
           }
         }
       ],
@@ -87,7 +88,8 @@
             ]
           },
           "expectError": {
-            "isError": true
+            "isError": true,
+            "errorContains": "Atlas"
           }
         }
       ],
@@ -135,7 +137,8 @@
             ]
           },
           "expectError": {
-            "isError": true
+            "isError": true,
+            "errorContains": "Atlas"
           }
         }
       ],
