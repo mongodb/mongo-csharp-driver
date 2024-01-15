@@ -447,6 +447,22 @@ namespace MongoDB.Driver.Tests.Search
             results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
         }
 
+        [Fact]
+        public void Sort_MetaSearchScore()
+        {
+            var results = GetSynonymTestCollection().Aggregate()
+                .Search(
+                    Builders<Movie>.Search.QueryString(x => x.Title, "dance"),
+                    new() { Sort = Builders<Movie>.Sort.MetaSearchScoreAscending() })
+                .Project<Movie>(Builders<Movie>.Projection
+                    .Include(x => x.Title)
+                    .MetaSearchScore("score"))
+                .Limit(10)
+                .ToList();
+            results.First().Title.Should().Be("Invitation to the Dance");
+            results.Should().BeInAscendingOrder(m => m.Score);
+        }
+
         [Theory]
         [InlineData("first")]
         [InlineData("near")]
@@ -615,6 +631,9 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("title")]
             public string Title { get; set; }
+
+            [BsonElement("score")]
+            public double Score { get; set; }
         }
 
         [BsonIgnoreExtraElements]

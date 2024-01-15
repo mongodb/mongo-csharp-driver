@@ -90,6 +90,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a descending sort on the computed relevance score of atlas search.
+        /// </summary>
+        /// <returns>A meta search score sort.</returns>
+        public static SortDefinition<TDocument> MetaSearchScoreDescending<TDocument>(this SortDefinition<TDocument> sort)
+        {
+            var builder = Builders<TDocument>.Sort;
+            return builder.Combine(sort, builder.MetaSearchScoreDescending());
+        }
+
+        /// <summary>
+        /// Creates a ascending sort on the computed relevance score of atlas search.
+        /// </summary>
+        /// <returns>A meta search score sort.</returns>
+        public static SortDefinition<TDocument> MetaSearchScoreAscending<TDocument>(this SortDefinition<TDocument> sort)
+        {
+            var builder = Builders<TDocument>.Sort;
+            return builder.Combine(sort, builder.MetaSearchScoreAscending());
+        }
+
+        /// <summary>
         /// Combines an existing sort with a descending sort on the computed relevance score of a text search.
         /// The field name should be the name of the projected relevance score field.
         /// </summary>
@@ -170,6 +190,29 @@ namespace MongoDB.Driver
         public SortDefinition<TDocument> Descending(Expression<Func<TDocument, object>> field)
         {
             return Descending(new ExpressionFieldDefinition<TDocument>(field));
+        }
+
+        /// <summary>
+        /// Creates a descending sort on the computed relevance score of atlas search.
+        /// </summary>
+        /// <returns>A meta search score sort.</returns>
+        public SortDefinition<TDocument> MetaSearchScoreDescending()
+        {
+            return new BsonDocumentSortDefinition<TDocument>(new BsonDocument("unused", new BsonDocument("$meta", "searchScore")));
+        }
+
+        /// <summary>
+        /// Creates a ascending sort on the computed relevance score of atlas search.
+        /// </summary>
+        /// <returns>A meta search score sort.</returns>
+        public SortDefinition<TDocument> MetaSearchScoreAscending()
+        {
+            var sortDocument = new BsonDocument()
+            {
+                { "$meta", "searchScore" },
+                { "order", 1 }
+            };
+            return new BsonDocumentSortDefinition<TDocument>(new BsonDocument("unused", sortDocument));
         }
 
         /// <summary>

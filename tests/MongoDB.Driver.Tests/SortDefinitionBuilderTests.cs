@@ -94,6 +94,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void MetaSearchScoreAscending()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.MetaSearchScoreAscending(), "{unused: {$meta: 'searchScore', order: 1}}");
+        }
+
+        [Fact]
+        public void MetaSearchScoreDescending()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.MetaSearchScoreDescending(), "{unused: {$meta: 'searchScore'}}");
+        }
+
+        [Fact]
         public void MetaTextScore()
         {
             var subject = CreateSubject<BsonDocument>();
