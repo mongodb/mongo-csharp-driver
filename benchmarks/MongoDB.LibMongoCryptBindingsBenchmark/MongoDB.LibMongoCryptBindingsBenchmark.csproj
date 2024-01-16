@@ -17,7 +17,8 @@
         <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.8" Condition="'$(OS)' == 'Windows_NT'"/>
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
-      <ProjectReference Include="..\tests\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
+      <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
+      <ProjectReference Include="..\..\tests\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
+      <ProjectReference Include="..\..\tests\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
     </ItemGroup>
 </Project>
