@@ -68,7 +68,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.TestHelpers", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Benchmarks", "benchmarks\MongoDB.Driver.Benchmarks\MongoDB.Driver.Benchmarks.csproj", "{CF670F4A-49DD-4030-A4A0-1F4D600EB70A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.LibMongoCryptBindingsBenchmark", "benchmarks\MongoDB.LibMongoCryptBindingsBenchmark\MongoDB.LibMongoCryptBindingsBenchmark.csproj", "{F62C156D-842C-425A-AAB5-6C26531CB61D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Benchmarks", "benchmarks\MongoDB.Libmongocrypt.Benchmarks\MongoDB.Libmongocrypt.Benchmarks.csproj", "{F62C156D-842C-425A-AAB5-6C26531CB61D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

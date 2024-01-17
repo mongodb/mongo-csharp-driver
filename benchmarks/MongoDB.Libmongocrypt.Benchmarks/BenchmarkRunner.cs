@@ -1,14 +1,14 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace MongoDB.LibMongoCryptBindingsBenchmark
+namespace MongoDB.Libmongocrypt.Benchmarks
 {
-    public class Program
+    public class BenchmarkRunner
     {
         public static void Main(string[] args)
         {
             var config = DefaultConfig.Instance;
-            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+            BenchmarkSwitcher.FromAssembly(typeof(BenchmarkRunner).Assembly).Run(args, config);
         }
     }
 }

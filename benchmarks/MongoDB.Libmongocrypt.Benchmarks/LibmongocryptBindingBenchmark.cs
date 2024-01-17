@@ -9,9 +9,9 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 
-namespace MongoDB.LibMongoCryptBindingsBenchmark
+namespace MongoDB.Libmongocrypt.Benchmarks
 {
-    public class MongoCryptBenchmark
+    public class LibmongocryptBindingBenchmark
     {
         private const int RepeatCount = 10;
         private const string LocalMasterKey =
@@ -22,7 +22,7 @@ namespace MongoDB.LibMongoCryptBindingsBenchmark
         private AutoEncryptionLibMongoCryptController _libMongoCryptController;
 
         [Params(1, 2, 8, 64)]
-        public int ThreadsCounts;
+        public int ThreadsCount;
 
         [GlobalSetup]
         public void Setup()
@@ -85,7 +85,7 @@ namespace MongoDB.LibMongoCryptBindingsBenchmark
         [Benchmark]
         public void BulkDecryptionUsingBinding()
         {
-            ThreadingUtilities.ExecuteOnNewThreads(ThreadsCounts, _ =>
+            ThreadingUtilities.ExecuteOnNewThreads(ThreadsCount, _ =>
             {
                 for (int i = 0; i < RepeatCount; i++)
                 {
