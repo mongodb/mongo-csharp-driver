@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -31,7 +32,17 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// A <see cref="BsonDocument" />.
         /// </returns>
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
         public abstract BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext);
+
+        /// <summary>
+        /// Renders the search definition to a <see cref="BsonDocument" />.
+        /// </summary>
+        /// <param name="renderContext">The render context.</param>
+        /// <returns>
+        /// A <see cref="BsonDocument" />.
+        /// </returns>
+        public abstract BsonDocument Render(RenderContext<TDocument> renderContext);
 
         /// <summary>
         /// Performs an implicit conversion from a BSON document to a <see cref="SearchDefinition{TDocument}"/>.
@@ -75,7 +86,12 @@ namespace MongoDB.Driver.Search
         public BsonDocument Document { get; private set; }
 
         /// <inheritdoc />
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
         public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            Render(new RenderContext<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathPrefix: renderContext.PathPrefix));
+
+        /// <inheritdoc />
+        public override BsonDocument Render(RenderContext<TDocument> renderContext) =>
             (BsonDocument)Document.Clone();
     }
 
@@ -100,7 +116,12 @@ namespace MongoDB.Driver.Search
         public string Json { get; private set; }
 
         /// <inheritdoc />
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
         public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            Render(new RenderContext<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathPrefix: renderContext.PathPrefix));
+
+        /// <inheritdoc />
+        public override BsonDocument Render(RenderContext<TDocument> renderContext) =>
             BsonDocument.Parse(Json);
     }
 
@@ -153,7 +174,12 @@ namespace MongoDB.Driver.Search
         }
 
         /// <inheritdoc />
-        public sealed override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext)
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
+        public sealed override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            Render(new RenderContext<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathPrefix: renderContext.PathPrefix));
+
+        /// <inheritdoc />
+        public override BsonDocument Render(RenderContext<TDocument> renderContext)
         {
             var renderedArgs = RenderArguments(renderContext);
             renderedArgs.Add("path", () => _path.Render(renderContext), _path != null);
@@ -162,6 +188,6 @@ namespace MongoDB.Driver.Search
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(SearchDefinitionRenderContext<TDocument> renderContext) => new();
+        private protected virtual BsonDocument RenderArguments(RenderContext<TDocument> renderContext) => new();
     }
 }

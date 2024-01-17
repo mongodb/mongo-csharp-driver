@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -30,7 +31,17 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
+        // [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
         public abstract BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext);
+
+        /// <summary>
+        /// Renders the path to a <see cref="BsonValue"/>.
+        /// </summary>
+        /// <param name="renderContext">The render context.</param>
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public BsonValue Render(RenderContext<TDocument> renderContext) =>
+            // TODO Switch obsolete overload to falback to this one
+            Render(new SearchDefinitionRenderContext<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, renderContext.PathPrefix));
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="FieldDefinition{TDocument}"/> to

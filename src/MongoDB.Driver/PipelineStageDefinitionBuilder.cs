@@ -1416,7 +1416,7 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr, linqProvider) =>
                 {
-                    var renderedSearchDefinition = searchDefinition.Render(new(s, sr));
+                    var renderedSearchDefinition = searchDefinition.Render(new RenderContext<TInput>(s, sr));
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
 

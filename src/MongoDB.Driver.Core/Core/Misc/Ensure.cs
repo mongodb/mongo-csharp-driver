@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace MongoDB.Driver.Core.Misc
@@ -176,7 +177,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static TimeSpan IsGreaterThanZero(TimeSpan value, string paramName) =>
+        public static TimeSpan IsGreaterThanZero(TimeSpan value, [CallerArgumentExpression("value")]string paramName = "value") =>
             IsGreaterThan(value, TimeSpan.Zero, paramName);
 
         /// <summary>
@@ -218,7 +219,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static T IsNotNull<T>(T value, string paramName) where T : class
+        public static T IsNotNull<T>(T value, [CallerArgumentExpression("value")]string paramName = "value") where T : class
         {
             if (value == null)
             {

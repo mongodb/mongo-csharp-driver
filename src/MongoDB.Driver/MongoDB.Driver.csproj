@@ -23,4 +23,8 @@
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <NoWarn>CS0618</NoWarn>
+  </PropertyGroup>
+
 </Project>
