@@ -35,6 +35,7 @@ namespace MongoDB.Libmongocrypt.Benchmarks
         private byte[] _encryptedValuesDocumentBytes;
         private DisposableMongoClient _disposableKeyVaultClient;
         private AutoEncryptionLibMongoCryptController _libMongoCryptController;
+        private CryptClient _cryptClient;
 
         [Params(1, 2, 8, 64)]
         public int ThreadsCount;
@@ -42,7 +43,7 @@ namespace MongoDB.Libmongocrypt.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            byte[] localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var localKey = new Dictionary<string, object> { { "key", localMasterKey } };
@@ -91,9 +92,9 @@ namespace MongoDB.Libmongocrypt.Benchmarks
                 _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
                 // Create libmongocrypt binding that will be used for decryption
-                var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
+                _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
                 _libMongoCryptController =
-                    AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, cryptClient, autoEncryptionOptions);
+                    AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
             }
         }
 
@@ -112,6 +113,7 @@ namespace MongoDB.Libmongocrypt.Benchmarks
         [GlobalCleanup]
         public void Cleanup()
         {
+            _cryptClient.Dispose();
             _disposableKeyVaultClient.Dispose();
         }
     }
