@@ -709,8 +709,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         settings.WriteConcern = writeConcern;
                         settings.HeartbeatInterval = heartbeatFrequency.GetValueOrDefault(defaultValue: TimeSpan.FromMilliseconds(5)); // 5 ms default value for spec tests
                         settings.ServerApi = serverApi;
-                        settings.ServerMonitoringMode =
-                            serverMonitoringMode.GetValueOrDefault(settings.ServerMonitoringMode);
+                        settings.ServerMonitoringMode = serverMonitoringMode.GetValueOrDefault(settings.ServerMonitoringMode);
                         settings.ServerSelectionTimeout = serverSelectionTimeout.GetValueOrDefault(defaultValue: settings.ServerSelectionTimeout);
                         settings.SocketTimeout = socketTimeout.GetValueOrDefault(defaultValue: settings.SocketTimeout);
                         if (eventCapturers.Length > 0)

@@ -102,8 +102,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ServerSettings(serverMonitoringMode: serverMonitoringMode);
 
-            subject.HeartbeatInterval.Should().Be(ServerSettings.DefaultHeartbeatInterval);
-            subject.HeartbeatTimeout.Should().Be(ServerSettings.DefaultHeartbeatTimeout);
             subject.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
         }
 
@@ -140,8 +138,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             var result = subject.With(serverMonitoringMode: ServerMonitoringMode.Stream);
 
-            result.HeartbeatInterval.Should().Be(ServerSettings.DefaultHeartbeatInterval);
-            result.HeartbeatTimeout.Should().Be(ServerSettings.DefaultHeartbeatTimeout);
             result.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
         }
     }

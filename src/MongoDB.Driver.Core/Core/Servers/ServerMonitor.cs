@@ -185,11 +185,16 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
+        private bool UsingStreamingProtocol(HelloResult helloResult)
+        {
+            return _isStreamingEnabled && helloResult?.TopologyVersion != null;
+        }
+
         private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection, bool helloOk)
         {
             BsonDocument helloCommand;
             var commandResponseHandling = CommandResponseHandling.Return;
-            if (_isStreamingEnabled && connection.Description.HelloResult.TopologyVersion != null)
+            if (UsingStreamingProtocol(connection.Description.HelloResult))
             {
                 connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
                 commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
@@ -418,14 +423,14 @@ namespace MongoDB.Driver.Core.Servers
                     SetDescription(newDescription);
                 }
 
-                var serverSupportsStreaming = (newDescription.Type != ServerType.Unknown &&
-                                               heartbeatHelloResult != null &&
-                                               heartbeatHelloResult.TopologyVersion != null);
-                var connectionIsStreaming = (helloProtocol != null && helloProtocol.MoreToCome);
+                var serverSupportsStreaming = newDescription.Type != ServerType.Unknown &&
+                                              heartbeatHelloResult != null &&
+                                              heartbeatHelloResult.TopologyVersion != null;
+                var connectionIsStreaming = helloProtocol != null && helloProtocol.MoreToCome;
                 var transitionedWithNetworkError =
-                    (IsNetworkError(heartbeatException) && previousDescription.Type != ServerType.Unknown);
+                    IsNetworkError(heartbeatException) && previousDescription.Type != ServerType.Unknown;
 
-                if (_isStreamingEnabled && serverSupportsStreaming && !_roundTripTimeMonitor.Started)
+                if (_isStreamingEnabled && serverSupportsStreaming && !_roundTripTimeMonitor.IsStarted) // use streaming protocol
                 {
                     _roundTripTimeMonitor.Start(); // start RTT monitoring on separate thread
                 }
@@ -446,7 +451,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, _isStreamingEnabled && connection.Description.HelloResult.TopologyVersion != null));
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, UsingStreamingProtocol(connection.Description.HelloResult)));
 
             var stopwatch = Stopwatch.StartNew();
             try
@@ -455,19 +460,19 @@ namespace MongoDB.Driver.Core.Servers
                 stopwatch.Stop();
 
                 // RTT check if using polling monitoring
-                if ((!_isStreamingEnabled || (_isStreamingEnabled && connection.Description.HelloResult.TopologyVersion == null)) && helloResult != null)
+                if (UsingStreamingProtocol(connection.Description.HelloResult) is not true)
                 {
                     _roundTripTimeMonitor.AddSample(stopwatch.Elapsed);
                 }
 
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, _isStreamingEnabled && connection.Description.HelloResult.TopologyVersion != null, helloResult.Wrapped));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, UsingStreamingProtocol(connection.Description.HelloResult), helloResult.Wrapped));
 
                 return helloResult;
             }
             catch (Exception ex)
             {
                 stopwatch.Stop();
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, _isStreamingEnabled && connection.Description.HelloResult.TopologyVersion != null));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, UsingStreamingProtocol(connection.Description.HelloResult)));
 
                 throw;
             }
@@ -498,6 +503,12 @@ namespace MongoDB.Driver.Core.Servers
 
         private bool IsRunningInFaaS()
         {
+            /* FaaS providers for each environment variable
+             * aws.lambda: AWS_EXECUTION_ENV, AWS_LAMBDA_RUNTIME_API
+             * azure.func: FUNCTIONS_WORKER_RUNTIME
+             * gcp.func: K_SERVICE, FUNCTION_NAME
+             * vercel: VERCEL
+             */
             return (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
                    Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
                    Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||

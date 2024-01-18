@@ -421,11 +421,17 @@ namespace MongoDB.Driver.Core.Servers
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, helloOk: true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), loadBalanced: true, $db : \"admin\" }} }} ] }}");
         }
 
-        [Fact]
-        public void Should_use_polling_protocol_if_running_in_FaaS_platform()
+        [Theory]
+        [InlineData("AWS_EXECUTION_ENV", "AWS_Lambda_test")]
+        [InlineData("AWS_LAMBDA_RUNTIME_API", "aws_lambda_runtime_api")]
+        [InlineData("FUNCTIONS_WORKER_RUNTIME", "functions_worker_runtime")]
+        [InlineData("K_SERVICE", "k_service")]
+        [InlineData("FUNCTION_NAME", "function_name")]
+        [InlineData("VERCEL", "vercel")]
+        public void Should_use_polling_protocol_if_running_in_FaaS_platform(string environmentVariableName, string environmentVariableValue)
         {
-            // set environment to simulate being on FaaS platform
-            Environment.SetEnvironmentVariable("VERCEL", "vercel");
+            // set environment variable to simulate being on FaaS platform
+            Environment.SetEnvironmentVariable(environmentVariableName, environmentVariableValue);
 
             var capturedEvents = new EventCapturer()
                 .Capture<ServerHeartbeatStartedEvent>()
@@ -446,7 +452,7 @@ namespace MongoDB.Driver.Core.Servers
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>().Subject.Awaited.Should().Be(false);
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>().Subject.Awaited.Should().Be(false);
 
-            Environment.SetEnvironmentVariable("VERCEL", null);
+            Environment.SetEnvironmentVariable(environmentVariableName, null);
         }
 
         // private methods
@@ -462,7 +468,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             mockRoundTripTimeMonitor = new Mock<IRoundTripTimeMonitor>();
             mockRoundTripTimeMonitor.Setup(m => m.Start());
-            mockRoundTripTimeMonitor.SetupGet(m => m.Started).Returns(false);
+            mockRoundTripTimeMonitor.SetupGet(m => m.IsStarted).Returns(false);
 
             if (captureConnectionEvents)
             {
