@@ -2,20 +2,20 @@
 
 This suite implements the benchmarks described in this [spec](https://github.com/mongodb/specifications/blob/master/source/benchmarking/benchmarking.rst).
 
-## Running the Benchmarks
+## Running the Driver Benchmarks
 
 - Run `/scripts/download-data.sh` to download the data used for the benchmarks. Make sure to run the download script and the benchmarks from
   the benchmark root (directory containing this README).
-- Run `dotnet run -c Release` which will start the benchmark runner and give you the option to select which benchmarks to run. Follow
+- Run `dotnet run -c Release -- --driverBenchmarks` which will start the benchmark runner and give you the option to select which benchmarks to run. Follow
    the prompts on the console. Make sure to have a mongod instance running on localhost (or you can specify a custom connection string
    by setting the `MONGODB_URI` environment variable). You can set the environment variable as an exported console variable or using
    the `--envVars KEY:VALUE` option with the command for running the benchmarks.
-   (e.g `dotnet run -c Release -- --envVars MONGODB_URI:"ConnectionString"`)
+   (e.g `dotnet run -c Release -- --driverBenchmarks --envVars MONGODB_URI:"ConnectionString"`)
 
 You can also select the benchmarks to run directly on the command for running the benchmarks as such
-`dotnet run -c Release -- --fitler "*BenchmarkClassName*"`. The benchmarks are also grouped into categories namely: BSONBench, WriteBench
+`dotnet run -c Release -- --driverBenchmarks --fitler "*BenchmarkClassName*"`. The benchmarks are also grouped into categories namely: BSONBench, WriteBench
 ReadBench, ParallelBench, SingleBench, MultiBench and DriverBench. So if you wanted to only run the WriteBench benchmarks, you can do so
-as follows: `dotnet run -c Release -- --anyCategories "WriteBench"`.
+as follows: `dotnet run -c Release -- --driverBenchmarks --anyCategories "WriteBench"`.
 
 Note: You can provide multiple categories but the `--anyCategories` option will select benchmarks that belong to any of the categories.
 You can use the `--allCategories` option to select benchmarks that belong to all the provided categories.
@@ -39,3 +39,9 @@ More information on BenchmarkDotNet can be found [here](https://benchmarkdotnet.
 There is a python script in the `/scripts` folder called `compare-results` that can be used to compare the results of different
 benchmark runs. The script expects json files in the format of the exported file for evergreen, so you will to have run the benchmarks
 with the `--evergreen` option to generate the evergreen results json file in order to compare different benchmark runs.
+
+## Running other Benchmarks
+
+Other benchmarks defined in this project that are not part of the driver benchmark spec
+can also be run using the benchmark runner. You can do the same things as described in the Running the
+Driver Benchmarks section to run your benchmarks. Just omit the `--driverBenchmarks` option.

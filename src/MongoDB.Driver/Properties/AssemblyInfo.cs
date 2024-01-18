@@ -31,5 +31,5 @@ using MongoDB.Bson;
 [assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.TestHelpers")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-[assembly: InternalsVisibleTo("MongoDB.Libmongocrypt.Benchmarks")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Benchmarks")]
 

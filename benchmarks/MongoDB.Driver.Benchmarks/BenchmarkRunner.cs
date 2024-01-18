@@ -24,27 +24,30 @@ namespace MongoDB.Benchmarks
     {
         public static void Main(string[] args)
         {
+            var executingDriverBenchmarks = false;
             var exportingToEvergreen = false;
-            var evergreenOutputFile = "evergreen-results.json";
+            var evergreenOutputFile = "evergreen-results.json"; // default output file name
 
             var parser = new OptionSet
             {
                 { "evergreen", v => exportingToEvergreen = v != null },
+                { "driverBenchmarks", v => executingDriverBenchmarks = v != null },
                 { "o|output-file=", v => evergreenOutputFile = v }
             };
 
             // the parser will try to parse the options defined above and will return any extra options
             var benchmarkSwitcherArgs = parser.Parse(args).ToArray();
 
-            var config = DefaultConfig.Instance
-                .WithOption(ConfigOptions.JoinSummary, true)
-                .AddExporter(new LocalExporter())
-                .HideColumns("BenchmarkDataSetSize");
+            var config = DefaultConfig.Instance;
 
-            if (exportingToEvergreen)
-            {
-                config = config.AddExporter(new EvergreenExporter(evergreenOutputFile));
-            }
+            config = executingDriverBenchmarks
+                ? config
+                    .WithOption(ConfigOptions.JoinSummary, true)
+                    .AddExporter(new LocalExporter())
+                    .HideColumns("BenchmarkDataSetSize")
+                : config;
+
+            config = exportingToEvergreen ? config.AddExporter(new EvergreenExporter(evergreenOutputFile)) : config;
 
             BenchmarkSwitcher.FromAssembly(typeof(BenchmarkRunner).Assembly).Run(benchmarkSwitcherArgs, config);
         }

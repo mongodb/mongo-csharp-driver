@@ -23,8 +23,9 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Libmongocrypt;
 
-namespace MongoDB.Libmongocrypt.Benchmarks
+namespace MongoDB.Benchmarks
 {
     public class LibmongocryptBindingBenchmark
     {
@@ -38,7 +39,7 @@ namespace MongoDB.Libmongocrypt.Benchmarks
         private CryptClient _cryptClient;
 
         [Params(1, 2, 8, 64)]
-        public int ThreadsCount;
+        public int ThreadsCount { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -107,7 +108,7 @@ namespace MongoDB.Libmongocrypt.Benchmarks
                 {
                     _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
                 }
-            });
+            }, 20000);
         }
 
         [GlobalCleanup]
