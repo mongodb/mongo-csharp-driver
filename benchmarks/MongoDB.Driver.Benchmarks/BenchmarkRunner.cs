@@ -41,14 +41,18 @@ namespace MongoDB.Benchmarks
             var config = DefaultConfig.Instance;
 
             // use a modified config if running driver benchmarks
-            config = executingDriverBenchmarks
-                ? config
+            if (executingDriverBenchmarks)
+            {
+                config = config
                     .WithOption(ConfigOptions.JoinSummary, true)
                     .AddExporter(new LocalExporter())
-                    .HideColumns("BenchmarkDataSetSize")
-                : config;
+                    .HideColumns("BenchmarkDataSetSize");
+            }
 
-            config = exportingToEvergreen ? config.AddExporter(new EvergreenExporter(evergreenOutputFile)) : config;
+            if (exportingToEvergreen)
+            {
+                config = config.AddExporter(new EvergreenExporter(evergreenOutputFile));
+            }
 
             BenchmarkSwitcher.FromAssembly(typeof(BenchmarkRunner).Assembly).Run(benchmarkSwitcherArgs, config);
         }

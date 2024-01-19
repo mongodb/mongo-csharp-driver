@@ -30,8 +30,7 @@ namespace MongoDB.Benchmarks
     public class LibmongocryptBindingBenchmark
     {
         private const int RepeatCount = 10;
-        private const string LocalMasterKey =
-            "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
+        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
         private byte[] _encryptedValuesDocumentBytes;
         private DisposableMongoClient _disposableKeyVaultClient;
@@ -70,6 +69,7 @@ namespace MongoDB.Benchmarks
                 keyVaultNamespace,
                 kmsProviders);
 
+            var encryptedValuesDocument = new BsonDocument();
             using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
             {
                 var dataKeyId = clientEncryption.CreateDataKey(
@@ -81,7 +81,6 @@ namespace MongoDB.Benchmarks
                     EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
                     keyId: dataKeyId);
 
-                var encryptedValuesDocument = new BsonDocument();
                 for (int i = 0; i < 1500; i++)
                 {
                     var toEncryptString = $"value {(i + 1):D4}";
@@ -89,14 +88,12 @@ namespace MongoDB.Benchmarks
                         clientEncryption.Encrypt(toEncryptString, encryptOptions, CancellationToken.None);
                     encryptedValuesDocument.Add(new BsonElement($"key{(i + 1):D4}", encryptedString));
                 }
-
-                _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
-
-                // Create libmongocrypt binding that will be used for decryption
-                _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
-                _libMongoCryptController =
-                    AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
             }
+            _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
+
+            // Create libmongocrypt binding that will be used for decryption
+            _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
+            _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
         }
 
         [Benchmark]
