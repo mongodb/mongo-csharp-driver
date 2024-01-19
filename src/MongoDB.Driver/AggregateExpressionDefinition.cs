@@ -75,7 +75,14 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>The rendered aggregation expression.</returns>
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
         public abstract BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+
+        /// <summary>
+        /// Renders the aggregation expression.
+        /// </summary>
+        /// <param name="renderContext">The render context.</param>
+        public abstract BsonValue Render(RenderContext<TSource> renderContext);
     }
 
     /// <summary>
@@ -101,10 +108,12 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return _expression;
-        }
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
+        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider) =>
+            Render(new(sourceSerializer, serializerRegistry, linqProvider));
+
+        /// <inheritdoc/>
+        public override BsonValue Render(RenderContext<TSource> renderContext) => _expression;
     }
 
     /// <summary>
@@ -143,10 +152,15 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
+        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider) =>
+            Render(new(sourceSerializer, serializerRegistry, linqProvider));
+
+        /// <inheritdoc/>
+        public override BsonValue Render(RenderContext<TSource> renderContext)
         {
-            var contextData = _contextData?.With("SerializerRegistry", serializerRegistry);
-            return linqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions, contextData);
+            var contextData = _contextData?.With("SerializerRegistry", renderContext.SerializerRegistry);
+            return renderContext.LinqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, renderContext.DocumentSerializer, renderContext.SerializerRegistry, _translationOptions, contextData);
         }
     }
 
@@ -177,9 +191,14 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override BsonValue Render(IBsonSerializer<NoPipelineInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        [Obsolete("Use Render(RenderContext<TSource> renderContext) overload instead.")]
+        public override BsonValue Render(IBsonSerializer<NoPipelineInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider) =>
+            Render(new(sourceSerializer, serializerRegistry, linqProvider));
+
+        /// <inheritdoc/>
+        public override BsonValue Render(RenderContext<NoPipelineInput> renderContext)
         {
-            var documentSerializer = _documentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _documentSerializer ?? renderContext.SerializerRegistry.GetSerializer<TDocument>();
             return SerializationHelper.SerializeValues(documentSerializer, _documents);
         }
     }
