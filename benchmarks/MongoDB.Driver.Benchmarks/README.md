@@ -7,7 +7,7 @@ This suite implements the benchmarks described in this [spec](https://github.com
 - Run `/scripts/download-data.sh` to download the data used for the benchmarks. Make sure to run the download script and the benchmarks from
   the benchmark root (directory containing this README).
 - Run `dotnet run -c Release -- --driverBenchmarks` which will start the benchmark runner and give you the option to select which benchmarks to run. Follow
-   the prompts on the console. Make sure to have a mongod instance running on localhost (or you can specify a custom connection string
+   the prompts on the console (the `--driverBenchmarks` options runs the benchmarks using a special config for driver benchmarks). Make sure to have a mongod instance running on localhost (or you can specify a custom connection string
    by setting the `MONGODB_URI` environment variable). You can set the environment variable as an exported console variable or using
    the `--envVars KEY:VALUE` option with the command for running the benchmarks.
    (e.g `dotnet run -c Release -- --driverBenchmarks --envVars MONGODB_URI:"ConnectionString"`)

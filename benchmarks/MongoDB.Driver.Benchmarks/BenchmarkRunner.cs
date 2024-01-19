@@ -40,6 +40,7 @@ namespace MongoDB.Benchmarks
 
             var config = DefaultConfig.Instance;
 
+            // use a modified config if running driver benchmarks
             config = executingDriverBenchmarks
                 ? config
                     .WithOption(ConfigOptions.JoinSummary, true)
