@@ -21,6 +21,7 @@ using MongoDB.Driver.TestHelpers;
 namespace MongoDB.Benchmarks.SingleDoc
 {
     [IterationTime(3000)]
+    [BenchmarkCategory("RunBench")]
     public class RunCommandBenchmark
     {
         private DisposableMongoClient _client;
