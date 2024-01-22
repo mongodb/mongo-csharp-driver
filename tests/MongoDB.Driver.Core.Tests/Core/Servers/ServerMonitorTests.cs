@@ -344,14 +344,14 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatSucceededEvent>();
 
             var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1), serverMonitoringMode: ServerMonitoringMode.Poll);
-            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
+            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
 
             subject.Initialize();
-            SpinWait.SpinUntil(() => mockConnection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>().Subject.Awaited.Should().Be(false);
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>().Subject.Awaited.Should().Be(false);
@@ -440,12 +440,12 @@ namespace MongoDB.Driver.Core.Servers
             var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
             var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
-            SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
+            SetupHeartbeatConnection(mockConnection, isStreamable: false, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
 
             subject.Initialize();
-            SpinWait.SpinUntil(() => mockConnection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>().Subject.Awaited.Should().Be(false);
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>().Subject.Awaited.Should().Be(false);
