@@ -138,6 +138,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "IndexOfAny":
                     return IndexOfAnyMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "IsMissing":
+                case "IsNullOrMissing":
+                    return FieldExistsOrIsMissingMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "Log":
                 case "Log10":
                     return LogMethodToAggregationExpressionTranslator.Translate(context, expression);
