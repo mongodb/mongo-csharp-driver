@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(MqlMethod.Exists))
             {
-                return FieldExistsOrIsMissingMethodToAggregationExpressionTranslator.Translate(context, expression);
+                return IsMissingMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             if (method.Is(ArrayMethod.Exists) || ListMethod.IsExistsMethod(expression.Method))

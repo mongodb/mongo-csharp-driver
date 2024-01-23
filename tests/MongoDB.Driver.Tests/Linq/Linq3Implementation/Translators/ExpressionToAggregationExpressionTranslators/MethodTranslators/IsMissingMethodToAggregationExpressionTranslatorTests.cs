@@ -21,7 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class FieldExistsOrIsMissingMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class IsMissingMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
         [Fact]
         public void Select_Exists_should_work()

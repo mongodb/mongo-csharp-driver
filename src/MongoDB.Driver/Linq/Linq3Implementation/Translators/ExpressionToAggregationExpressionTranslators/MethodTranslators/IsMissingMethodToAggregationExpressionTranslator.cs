@@ -25,7 +25,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    internal static class FieldExistsOrIsMissingMethodToAggregationExpressionTranslator
+    internal static class IsMissingMethodToAggregationExpressionTranslator
     {
         private static readonly MethodInfo[] __isMissingMethods =
         {
