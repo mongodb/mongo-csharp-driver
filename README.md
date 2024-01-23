@@ -166,5 +166,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Samir Boulema             https://github.com/sboulema
 * Dmitry Lukyanov           https://github.com/DmitryLukyanov
 * Andrea Balducci           https://github.com/andreabalducci
+* Sergei Lipin              https://github.com/prchaoz
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).

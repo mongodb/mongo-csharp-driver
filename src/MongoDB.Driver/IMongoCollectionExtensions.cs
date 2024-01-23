@@ -812,7 +812,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
@@ -821,14 +821,14 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TField>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.Distinct<IEnumerable<TField>, TField>(
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
+            return collection.DistinctMany(
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 filter,
                 options,
                 cancellationToken);
@@ -838,7 +838,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
@@ -847,13 +847,13 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, FieldDefinition<TDocument, IEnumerable<TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, FieldDefinition<TDocument, IEnumerable<TItem>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.Distinct<IEnumerable<TField>, TField>(
+            return collection.DistinctMany(
                 field,
                 new ExpressionFilterDefinition<TDocument>(filter),
                 options,
@@ -864,7 +864,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
@@ -873,14 +873,14 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TField>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.Distinct<IEnumerable<TField>, TField>(
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
+            return collection.DistinctMany(
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);
@@ -890,7 +890,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="session">The session.</param>
         /// <param name="field">The field.</param>
@@ -900,16 +900,16 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TField>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.Distinct<IEnumerable<TField>, TField>(
+            return collection.DistinctMany(
                 session,
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 filter,
                 options,
                 cancellationToken);
@@ -919,7 +919,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="session">The session.</param>
         /// <param name="field">The field.</param>
@@ -929,179 +929,14 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.Distinct<IEnumerable<TField>, TField>(
-                session,
-                field,
-                new ExpressionFilterDefinition<TDocument>(filter),
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static IAsyncCursor<TField> DistinctMany<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TField>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.Distinct<IEnumerable<TField>, TField>(
-                session,
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
-                new ExpressionFilterDefinition<TDocument>(filter),
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TField>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
-                filter,
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, FieldDefinition<TDocument, IEnumerable<TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
-                field,
-                new ExpressionFilterDefinition<TDocument>(filter),
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TField>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
-                new ExpressionFilterDefinition<TDocument>(filter),
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TField>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
-                session,
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
-                filter,
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified array field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
+            return collection.DistinctMany(
                 session,
                 field,
                 new ExpressionFilterDefinition<TDocument>(filter),
@@ -1113,7 +948,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified array field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="session">The session.</param>
         /// <param name="field">The field.</param>
@@ -1123,16 +958,181 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctManyAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TField>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static IAsyncCursor<TItem> DistinctMany<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
 
-            return collection.DistinctAsync<IEnumerable<TField>, TField>(
+            return collection.DistinctMany(
                 session,
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(field),
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
+                new ExpressionFilterDefinition<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
+                filter,
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, FieldDefinition<TDocument, IEnumerable<TItem>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                field,
+                new ExpressionFilterDefinition<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
+                new ExpressionFilterDefinition<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                session,
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
+                filter,
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                session,
+                field,
+                new ExpressionFilterDefinition<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified array field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TItem>> DistinctManyAsync<TDocument, TItem>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.DistinctManyAsync(
+                session,
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);

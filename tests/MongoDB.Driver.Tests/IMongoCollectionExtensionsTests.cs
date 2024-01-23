@@ -483,14 +483,14 @@ namespace MongoDB.Driver.Tests
                         {
                             collection.DistinctManyAsync(session, fieldExpression, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctManyAsync(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             collection.DistinctMany(session, fieldExpression, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctMany(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -500,14 +500,14 @@ namespace MongoDB.Driver.Tests
                         {
                             collection.DistinctManyAsync(session, fieldExpression, filterDefinition, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                s => s.DistinctManyAsync(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             collection.DistinctMany(session, fieldExpression, filterDefinition, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                s => s.DistinctMany(session, It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -520,14 +520,14 @@ namespace MongoDB.Driver.Tests
                         {
                             IMongoCollectionExtensions.DistinctManyAsync(collection, session, fieldDefinition, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctManyAsync(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             IMongoCollectionExtensions.DistinctMany(collection, session, fieldDefinition, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctMany(session, fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -547,14 +547,14 @@ namespace MongoDB.Driver.Tests
                         {
                             collection.DistinctManyAsync(fieldExpression, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctManyAsync(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             collection.DistinctMany(fieldExpression, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctMany(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -564,14 +564,14 @@ namespace MongoDB.Driver.Tests
                         {
                             collection.DistinctManyAsync(fieldExpression, filterDefinition, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                s => s.DistinctManyAsync(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             collection.DistinctMany(fieldExpression, filterDefinition, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
+                                s => s.DistinctMany(It.IsAny<ExpressionFieldDefinition<Person, IEnumerable<string>>>(), filterDefinition, options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -584,14 +584,14 @@ namespace MongoDB.Driver.Tests
                         {
                             IMongoCollectionExtensions.DistinctManyAsync(collection, fieldDefinition, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.DistinctAsync<IEnumerable<string>, string>(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctManyAsync(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                         else
                         {
                             IMongoCollectionExtensions.DistinctMany(collection, fieldDefinition, filterExpression, options, cancellationToken);
                             mockCollection.Verify(
-                                s => s.Distinct<IEnumerable<string>, string>(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
+                                s => s.DistinctMany(fieldDefinition, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken),
                                 Times.Once);
                         }
                     }
@@ -1414,7 +1414,6 @@ namespace MongoDB.Driver.Tests
         public class Pet
         {
             public string Type { get; set; }
-
             public string Name { get; set; }
         }
     }

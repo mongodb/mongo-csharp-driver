@@ -1263,7 +1263,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void Distinct_should_execute_a_DistinctOperation_when_type_parameter_is_array_field(
+        public void DistinctMany_should_execute_a_DistinctOperation_when_type_parameter_is_array_field(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool lambda,
             [Values(false, true)] bool async)
@@ -1272,8 +1272,10 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var fieldName = "A";
 
-            FieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]> fieldDefinition = lambda ? new ExpressionFieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]>(x => x.A) :
-                new StringFieldDefinition<ClassForDistinctWithArrayField, EnumForDistinctWithArrayField[]>(fieldName);
+            FieldDefinition<ClassForDistinctWithArrayField, IEnumerable<EnumForDistinctWithArrayField>> fieldDefinition =
+                lambda ?
+                    new ExpressionFieldDefinition<ClassForDistinctWithArrayField, IEnumerable<EnumForDistinctWithArrayField>>(x => x.A) :
+                    new StringFieldDefinition<ClassForDistinctWithArrayField, IEnumerable<EnumForDistinctWithArrayField>>(fieldName);
             var filterDocument = new BsonDocument("x", 1);
             var filterDefinition = (FilterDefinition<ClassForDistinctWithArrayField>)filterDocument;
             var options = new DistinctOptions
@@ -1288,22 +1290,22 @@ namespace MongoDB.Driver
             {
                 if (async)
                 {
-                    subject.DistinctAsync<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(session, fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                    subject.DistinctManyAsync(session, fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Distinct<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(session, fieldDefinition, filterDefinition, options, cancellationToken);
+                    subject.DistinctMany(session, fieldDefinition, filterDefinition, options, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.DistinctAsync<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                    subject.DistinctManyAsync(fieldDefinition, filterDefinition, options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Distinct<EnumForDistinctWithArrayField[], EnumForDistinctWithArrayField>(fieldDefinition, filterDefinition, options, cancellationToken);
+                    subject.DistinctMany(fieldDefinition, filterDefinition, options, cancellationToken);
                 }
             }
 
@@ -1320,8 +1322,7 @@ namespace MongoDB.Driver
             operation.RetryRequested.Should().BeTrue();
 
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<ClassForDistinctWithArrayField>();
-            BsonSerializationInfo fieldSerializationInfo;
-            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out fieldSerializationInfo).Should().BeTrue();
+            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out var fieldSerializationInfo).Should().BeTrue();
             var fieldSerializer = (ArraySerializer<EnumForDistinctWithArrayField>)fieldSerializationInfo.Serializer;
             operation.ValueSerializer.Should().BeSameAs(fieldSerializer.ItemSerializer);
         }

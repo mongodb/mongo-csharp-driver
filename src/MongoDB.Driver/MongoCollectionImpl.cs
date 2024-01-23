@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -353,22 +354,6 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
-        public override IAsyncCursor<TItem> Distinct<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => Distinct<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override IAsyncCursor<TItem> Distinct<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new DistinctOptions();
-
-            var operation = CreateDistinctOperation<TField, TItem>(field, filter, options);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
-
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => DistinctAsync(session, field, filter, options, cancellationToken), cancellationToken);
@@ -385,19 +370,35 @@ namespace MongoDB.Driver
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TItem> DistinctMany<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return UsingImplicitSession(session => DistinctAsync<TField, TItem>(session, field, filter, options, cancellationToken), cancellationToken);
+            return UsingImplicitSession(session => DistinctMany(session, field, filter, options, cancellationToken), cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TItem>> DistinctAsync<TField, TItem>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TItem> DistinctMany<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new DistinctOptions();
 
-            var operation = CreateDistinctOperation<TField, TItem>(field, filter, options);
+            var operation = CreateDistinctManyOperation(field, filter, options);
+            return ExecuteReadOperation(session, operation, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => DistinctManyAsync(session, field, filter, options, cancellationToken), cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? new DistinctOptions();
+
+            var operation = CreateDistinctManyOperation(field, filter, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -1006,14 +1007,14 @@ namespace MongoDB.Driver
             };
         }
 
-        private DistinctOperation<TItem> CreateDistinctOperation<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options) where TField : IEnumerable<TItem>
+        private DistinctOperation<TItem> CreateDistinctManyOperation<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options)
         {
             var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
-            var valueSerializer = GetValueSerializerForDistinct<TField, TItem>(renderedField, _settings.SerializerRegistry);
+            var itemSerializer = GetItemSerializerForDistinctMany(renderedField, _settings.SerializerRegistry);
 
             return new DistinctOperation<TItem>(
                 _collectionNamespace,
-                valueSerializer,
+                itemSerializer,
                 renderedField.FieldName,
                 _messageEncoderSettings)
             {
@@ -1300,7 +1301,7 @@ namespace MongoDB.Driver
             return serializerRegistry.GetSerializer<TField>();
         }
 
-        private IBsonSerializer<TItem> GetValueSerializerForDistinct<TField, TItem>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry) where TField : IEnumerable<TItem>
+        private IBsonSerializer<TItem> GetItemSerializerForDistinctMany<TItem>(RenderedFieldDefinition<IEnumerable<TItem>> renderedField, IBsonSerializerRegistry serializerRegistry)
         {
             if (renderedField.UnderlyingSerializer != null)
             {
