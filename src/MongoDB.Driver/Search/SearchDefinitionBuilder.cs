@@ -299,6 +299,34 @@ namespace MongoDB.Driver.Search
                 new GeoWithinSearchDefinition<TDocument, TCoordinates>(path, area, score);
 
         /// <summary>
+        /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, number, date, string.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="values">Values to compare the field with.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An In search definition.</returns>
+        public SearchDefinition<TDocument> In<TField>(
+            SearchPathDefinition<TDocument> path,
+            IEnumerable<TField> values,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new InSearchDefinition<TDocument, TField>(path, values, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, number, date, string.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="values">Values to compare the field with.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An In search definition.</returns>
+        public SearchDefinition<TDocument> In<TField>(
+            Expression<Func<TDocument, TField>> path,
+            IEnumerable<TField> values,
+            SearchScoreDefinition<TDocument> score = null) =>
+                In(new ExpressionFieldDefinition<TDocument>(path), values, score);
+
+        /// <summary>
         /// Creates a search definition that returns documents similar to the input documents.
         /// </summary>
         /// <typeparam name="TLike">The type of the like documents.</typeparam>

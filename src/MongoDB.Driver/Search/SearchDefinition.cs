@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Search
             Facet,
             GeoShape,
             GeoWithin,
+            In,
             MoreLikeThis,
             Near,
             Phrase,
