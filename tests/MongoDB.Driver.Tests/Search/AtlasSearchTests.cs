@@ -223,6 +223,22 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void In()
+        {
+            var results = GetSynonymTestCollection()
+                .Aggregate()
+                .Search(
+                    Builders<Movie>.Search.In(x => x.Runtime, new[] { 31, 231 }),
+                    new() { Sort = Builders<Movie>.Sort.Descending(x => x.Runtime)})
+                .Limit(10)
+                .ToList();
+
+            results.Count.Should().Be(2);
+            results[0].Runtime.Should().Be(231);
+            results[1].Runtime.Should().Be(31);
+        }
+
+        [Fact]
         public void MoreLikeThis()
         {
             var likeThisDocument = new HistoricalDocument
@@ -437,14 +453,12 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Sort()
         {
-            var results = GetTestCollection().Aggregate()
-                .Search(
-                    Builders.Search.Text(x => x.Body, "liberty"),
-                    new() { Sort = Builders.Sort.Descending(x => x.Title) })
-                .Project<HistoricalDocument>(Builders.Projection.Include(x => x.Title))
-                .Limit(1)
-                .ToList();
-            results.Should().ContainSingle().Which.Title.Should().Be("US Constitution");
+            var result = SearchSingle(
+                Builders.Search.Text(x => x.Body, "liberty"),
+                Builders.Projection.Include(x => x.Title),
+                Builders.Sort.Descending(x => x.Title));
+
+            result.Title.Should().Be("US Constitution");
         }
 
         [Fact]
@@ -631,6 +645,9 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("title")]
             public string Title { get; set; }
+
+            [BsonElement("runtime")]
+            public int Runtime { get; set; }
 
             [BsonElement("score")]
             public double Score { get; set; }

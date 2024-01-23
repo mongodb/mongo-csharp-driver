@@ -475,6 +475,118 @@ namespace MongoDB.Driver.Tests.Search
                 "{ geoWithin: { circle: { center: { type: 'Point', coordinates: [-161.323242, 22.512557] }, radius: 7.5 }, path: 'location' } }");
         }
 
+        [Theory]
+        [MemberData(nameof(InTestData))]
+        public void In<T>(T[] fieldValues, string[] fieldsRendered)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.In("x", fieldValues),
+                $"{{ in: {{ path: 'x', value: [{string.Join(",", fieldsRendered)}] }} }}");
+        }
+
+        public static readonly object[][] InTestData =
+        {
+             new object[] { new bool[] { true, false }, new[] { "true", "false" } },
+             new object[] { new byte[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new short[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new int[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new uint[] { 1, 2 }, new[] { "1", "2" } },
+             new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" } },
+             new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" } },
+             new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" } },
+             new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" } },
+             new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" } },
+             new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+             new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" } },
+             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" } }
+        };
+
+        [Theory]
+        [MemberData(nameof(InTypedTestData))]
+        public void In_typed<T>(
+            T[] fieldValues,
+            string[] fieldValuesRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldNameRendered)
+        {
+            var subject = CreateSubject<Person>();
+            var fieldValuesArray = $"[{string.Join(",", fieldValuesRendered)}]";
+
+            AssertRendered(
+                subject.In("x", fieldValues),
+                $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
+
+            AssertRendered(
+                subject.In(fieldExpression, fieldValues),
+                $"{{ in: {{path: '{fieldNameRendered}', value: {fieldValuesArray} }} }}");
+        }
+
+        public static readonly object[][] InTypedTestData =
+       {
+             new object[] { new bool[] { true, false }, new[] { "true", "false" }, Exp(p => p.Retired), "ret" },
+             new object[] { new byte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt8), nameof(Person.UInt8) },
+             new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int8), nameof(Person.Int8) },
+             new object[] { new short[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int16), nameof(Person.Int16) },
+             new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt16), nameof(Person.UInt16) },
+             new object[] { new int[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int32), nameof(Person.Int32) },
+             new object[] { new uint[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt32), nameof(Person.UInt32) },
+             new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" }, Exp(p => p.Int64), nameof(Person.Int64) },
+             new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" }, Exp(p => p.Float), nameof(Person.Float) },
+             new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" }, Exp(p => p.Double), nameof(Person.Double) },
+             new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" }, Exp(p => p.Decimal), nameof(Person.Decimal) },
+             new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" }, Exp(p => p.FirstName), "fn" },
+             new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.Birthday), "dob" },
+             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
+             new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
+             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
+        };
+
+        [Theory]
+        [MemberData(nameof(InUnsupportedTypesTestData))]
+        public void In_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Record.Exception(() => subject.In("x", new[] { value } )).Should().BeOfType<InvalidCastException>();
+
+            var subjectTyped = CreateSubject<Person>();
+            Record.Exception(() => subjectTyped.In(fieldExpression, new[] { value })).Should().BeOfType<InvalidCastException>();
+        }
+
+        [Fact]
+        public void In_should_throw_when_values_are_invalid()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Record.Exception(() => subject.In("x", new int[] { })).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => subject.In<int>("x", null)).Should().BeOfType<ArgumentNullException>();
+
+            var subjectTyped = CreateSubject<Person>();
+            Record.Exception(() => subjectTyped.In(p => p.Age, new int[] { })).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => subjectTyped.In(p => p.Age, null)).Should().BeOfType<ArgumentNullException>();
+        }
+
+        public static object[][] InUnsupportedTypesTestData => new[]
+        {
+            new object[] { (ulong)1, Exp(p => p.UInt64) },
+            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
+        };
+
+        [Fact]
+        public void In_should_throw_when_values_are_not_of_same_type()
+        {
+            var values = new object[] { 1.5, 1 };
+
+            var subject = CreateSubject<BsonDocument>();
+            Record.Exception(() => subject.In("x", values)).Should().BeOfType<ArgumentException>();
+
+            var subjectTyped = CreateSubject<Person>();
+            Record.Exception(() => subjectTyped.In(p => p.Object, values)).Should().BeOfType<ArgumentException>();
+        }
+
         [Fact]
         public void MoreLikeThis()
         {
@@ -1117,6 +1229,7 @@ namespace MongoDB.Driver.Tests.Search
             public ulong UInt64 { get; set; }
             public float Float { get; set; }
             public double Double { get; set; }
+            public decimal Decimal { get; set; }
 
             public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
@@ -1135,6 +1248,8 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("ret")]
             public bool Retired { get; set; }
+
+            public object Object { get; set; }
         }
 
         public class Family

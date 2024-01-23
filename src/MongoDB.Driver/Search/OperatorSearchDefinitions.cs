@@ -222,6 +222,48 @@ namespace MongoDB.Driver.Search
             new(_area.Render());
     }
 
+    internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly BsonArray _values;
+
+        public InSearchDefinition(
+           SearchPathDefinition<TDocument> path,
+           IEnumerable<TField> values,
+           SearchScoreDefinition<TDocument> score)
+                : base(OperatorType.In, path, score)
+        {
+            Ensure.IsNotNullOrEmpty(values, nameof(values));
+            var array = new BsonArray(values.Select(ToBsonValue));
+
+            var bsonType = array[0].GetType();
+            _values = Ensure.That(array, arr => arr.All(v => v.GetType() == bsonType), nameof(values), "All values must be of the same type.");
+        }
+
+        private protected override BsonDocument RenderArguments(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            new("value", _values);
+
+        private static BsonValue ToBsonValue(TField value) =>
+            value switch
+            {
+                bool v => (BsonBoolean)v,
+                sbyte v => (BsonInt32)v,
+                byte v => (BsonInt32)v,
+                short v => (BsonInt32)v,
+                ushort v => (BsonInt32)v,
+                int v => (BsonInt32)v,
+                uint v => (BsonInt64)v,
+                long v => (BsonInt64)v,
+                float v => (BsonDouble)v,
+                double v => (BsonDouble)v,
+                decimal v => (BsonDecimal128)v,
+                DateTime v => (BsonDateTime)v,
+                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
+                string v => (BsonString)v,
+                ObjectId v => (BsonObjectId)v,
+                _ => throw new InvalidCastException()
+            };
+    }
+
     internal sealed class MoreLikeThisSearchDefinition<TDocument, TLike> : OperatorSearchDefinition<TDocument>
     {
         private readonly TLike[] _like;
