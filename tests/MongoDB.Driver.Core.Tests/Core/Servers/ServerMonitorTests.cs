@@ -146,7 +146,9 @@ namespace MongoDB.Driver.Core.Servers
             changes[0].OldServerDescription.State.Should().Be(ServerState.Disconnected);
             changes[0].NewServerDescription.State.Should().Be(ServerState.Connected);
 
-            capturedEvents.Any().Should().BeFalse();
+            // ServerHeartbeatStartedEvent and ServerHeartbeatSucceededEvent events should be emitted during initial handshake
+            capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
+            capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
         }
 #endif
 
@@ -163,8 +165,9 @@ namespace MongoDB.Driver.Core.Servers
             subject.Description.State.Should().Be(ServerState.Connected);
             subject.Description.Type.Should().Be(ServerType.Standalone);
 
-            // no ServerHeartbeat events should be triggered during initial handshake
-            capturedEvents.Any().Should().BeFalse();
+            // ServerHeartbeatStartedEvent and ServerHeartbeatSucceededEvent events should be emitted during initial handshake
+            capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
+            capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
         }
 
         [Fact]
@@ -229,12 +232,13 @@ namespace MongoDB.Driver.Core.Servers
                 : 2;
             capturedEvents.WaitForOrThrowIfTimeout(
                 events =>
-                    events.Count(e => e is ServerDescriptionChangedEvent) >= expectedServerDescriptionChangedEventCount,  // the connection has been initialized and the first heatbeat event has been fired
+                    events.Count(e => e is ServerDescriptionChangedEvent) >= expectedServerDescriptionChangedEventCount,  // the connection has been initialized and the first heartbeat event has been fired
                 TimeSpan.FromSeconds(10));
 
+            capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>(); // heartbeat succeeded before connection initialized
             capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>(); // connection initialized
             AssertHeartbeatAttempt();
-            capturedEvents.Any().Should().BeFalse(); // the next attempt will be in 10 seconds because the second stremable respone has 10 seconds delay
+            capturedEvents.Any().Should().BeFalse(); // the next attempt will be in 10 seconds because the second streamable response has 10 seconds delay
 
             void AssertHeartbeatAttempt()
             {
@@ -248,7 +252,10 @@ namespace MongoDB.Driver.Core.Servers
                     var serverDescriptionChangedEvent = capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
                     serverDescriptionChangedEvent.NewDescription.HeartbeatException.Should().Be(exception);
 
-                    serverDescriptionChangedEvent = capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>().Subject;  // when we catch exceptions, we close the current connection, so opening connection will trigger one more ServerDescriptionChangedEvent
+                    // when we catch exceptions, we close the current connection,
+                    // so opening connection will trigger one more ServerHeartbeatSucceededEvent and ServerDescriptionChangedEvent
+                    capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
+                    serverDescriptionChangedEvent = capturedEvents.Next().Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
                     serverDescriptionChangedEvent.OldDescription.HeartbeatException.Should().Be(exception);
                     serverDescriptionChangedEvent.NewDescription.HeartbeatException.Should().BeNull();
                 }

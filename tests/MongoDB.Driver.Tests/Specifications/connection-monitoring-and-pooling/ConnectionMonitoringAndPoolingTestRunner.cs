@@ -702,6 +702,13 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                                 return EndPointHelper.Equals(serverId.EndPoint, server.EndPoint);
                             }
 
+                            if (o is ServerHeartbeatStartedEvent ||
+                                o is ServerHeartbeatSucceededEvent ||
+                                o is ServerHeartbeatFailedEvent)
+                            {
+                                return false;
+                            }
+
                             return true;
                         };
 

@@ -202,6 +202,7 @@ namespace MongoDB.Driver.Core.Servers
         private IConnection InitializeConnection(CancellationToken cancellationToken) // called setUpConnection in spec
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, false));
 
             var stopwatch = Stopwatch.StartNew();
             try
@@ -209,11 +210,16 @@ namespace MongoDB.Driver.Core.Servers
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
                 connection.Open(cancellationToken);
+
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, false, connection.Description.HelloResult.Wrapped));
             }
-            catch
+            catch (Exception exception)
             {
                 // dispose it here because the _connection is not initialized yet
                 try { connection.Dispose(); } catch { }
+
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, exception, false));
+
                 throw;
             }
             stopwatch.Stop();
