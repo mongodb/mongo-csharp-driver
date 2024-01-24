@@ -185,16 +185,13 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private bool UsingStreamingProtocol(HelloResult helloResult)
-        {
-            return _isStreamingEnabled && helloResult?.TopologyVersion != null;
-        }
+        private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;
 
         private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection, bool helloOk)
         {
             BsonDocument helloCommand;
             var commandResponseHandling = CommandResponseHandling.Return;
-            if (UsingStreamingProtocol(connection.Description.HelloResult))
+            if (IsUsingStreamingProtocol(connection.Description.HelloResult))
             {
                 connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
                 commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
@@ -424,15 +421,17 @@ namespace MongoDB.Driver.Core.Servers
                 }
 
                 var serverSupportsStreaming = newDescription.Type != ServerType.Unknown &&
-                                              heartbeatHelloResult != null &&
-                                              heartbeatHelloResult.TopologyVersion != null;
+                    heartbeatHelloResult != null &&
+                    heartbeatHelloResult.TopologyVersion != null;
+
                 var connectionIsStreaming = helloProtocol != null && helloProtocol.MoreToCome;
                 var transitionedWithNetworkError =
                     IsNetworkError(heartbeatException) && previousDescription.Type != ServerType.Unknown;
 
-                if (_isStreamingEnabled && serverSupportsStreaming && !_roundTripTimeMonitor.IsStarted) // use streaming protocol
+                if (_isStreamingEnabled && serverSupportsStreaming && !_roundTripTimeMonitor.IsStarted)
                 {
-                    _roundTripTimeMonitor.Start(); // start RTT monitoring on separate thread
+                    // we are using streaming protocol and should start RTT monitoring on a separate thread as per the specs
+                    _roundTripTimeMonitor.Start();
                 }
 
                 processAnother = (_isStreamingEnabled && (serverSupportsStreaming || connectionIsStreaming)) || transitionedWithNetworkError;
@@ -451,7 +450,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, UsingStreamingProtocol(connection.Description.HelloResult)));
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, IsUsingStreamingProtocol(connection.Description.HelloResult)));
 
             var stopwatch = Stopwatch.StartNew();
             try
@@ -460,19 +459,19 @@ namespace MongoDB.Driver.Core.Servers
                 stopwatch.Stop();
 
                 // RTT check if using polling monitoring
-                if (UsingStreamingProtocol(connection.Description.HelloResult) is not true)
+                if (!IsUsingStreamingProtocol(connection.Description.HelloResult))
                 {
                     _roundTripTimeMonitor.AddSample(stopwatch.Elapsed);
                 }
 
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, UsingStreamingProtocol(connection.Description.HelloResult), helloResult.Wrapped));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, IsUsingStreamingProtocol(connection.Description.HelloResult), helloResult.Wrapped));
 
                 return helloResult;
             }
             catch (Exception ex)
             {
                 stopwatch.Stop();
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, UsingStreamingProtocol(connection.Description.HelloResult)));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, IsUsingStreamingProtocol(connection.Description.HelloResult)));
 
                 throw;
             }

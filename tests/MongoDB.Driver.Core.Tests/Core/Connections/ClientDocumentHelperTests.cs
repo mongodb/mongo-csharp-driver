@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -369,24 +370,6 @@ namespace MongoDB.Driver.Core.Connections
             string fieldName;
             document = NavigateDots(document, dottedFieldName, out fieldName);
             document[fieldName] = value;
-        }
-
-        // nested type
-        private class DisposableEnvironmentVariable : IDisposable
-        {
-            private readonly string _initialValue;
-            private readonly string _name;
-
-            public DisposableEnvironmentVariable(string variable)
-            {
-                var parts = variable.Split(new [] {'='}, StringSplitOptions.RemoveEmptyEntries);
-                _name = parts[0];
-                var value = parts.Length > 1 ? parts[1] : "dummy";
-                _initialValue = Environment.GetEnvironmentVariable(_name);
-                Environment.SetEnvironmentVariable(_name, value);
-            }
-
-            public void Dispose() => Environment.SetEnvironmentVariable(_name, _initialValue);
         }
     }
 }
