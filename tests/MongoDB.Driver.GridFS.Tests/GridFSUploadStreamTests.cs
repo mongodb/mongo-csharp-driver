@@ -15,8 +15,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Xunit;
@@ -69,6 +72,43 @@ namespace MongoDB.Driver.GridFS.Tests
             }
 
             action.ShouldNotThrow();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Upload_of_duplicate_file_should_not_invalidate_existing_data(
+            [Values(false, true)] bool async)
+        {
+            var content1 = Enumerable.Repeat((byte)1, 20).ToArray();
+            var content2 = Enumerable.Repeat((byte)2, 100).ToArray();
+
+            var fileId = ObjectId.GenerateNewId();
+            var fileName = "filename";
+            var uploadOptions = new GridFSUploadOptions
+            {
+                ChunkSizeBytes = 10,
+                BatchSize = 5,
+            };
+
+            var bucket = CreateBucket();
+            if (async)
+            {
+                await bucket.UploadFromBytesAsync(fileId, fileName, content1, uploadOptions);
+            }
+            else
+            {
+                bucket.UploadFromBytes(fileId, fileName, content1, uploadOptions);
+            }
+
+            var exception = async
+                ? await Record.ExceptionAsync(() =>  bucket.UploadFromBytesAsync(fileId, fileName, content2, uploadOptions))
+                : Record.Exception(() => bucket.UploadFromBytes(fileId, fileName, content2, uploadOptions));
+            exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>();
+
+            var uploadedContent = async
+                ? await bucket.DownloadAsBytesAsync(fileId)
+                : bucket.DownloadAsBytes(fileId);
+            uploadedContent.Should().Equal(content1);
         }
 
         // private methods

@@ -23,7 +23,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -374,6 +373,32 @@ namespace MongoDB.Driver.GridFS
             base.Dispose(disposing);
         }
 
+        private void ExecuteOrSetAbortedOnException(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch
+            {
+                _aborted = true;
+                throw;
+            }
+        }
+
+        private async Task ExecuteOrSetAbortedOnExceptionAsync(Func<Task> action)
+        {
+            try
+            {
+                await action().ConfigureAwait(false);
+            }
+            catch
+            {
+                _aborted = true;
+                throw;
+            }
+        }
+
         private IMongoCollection<BsonDocument> GetChunksCollection()
         {
             return GetCollection("chunks");
@@ -476,34 +501,38 @@ namespace MongoDB.Driver.GridFS
         }
 
         private void WriteBatch(CancellationToken cancellationToken)
-        {
-            var chunksCollection = GetChunksCollection();
-            var chunkDocuments = CreateWriteBatchChunkDocuments();
-            chunksCollection.InsertMany(chunkDocuments, cancellationToken: cancellationToken);
-            _batch.Clear();
-        }
+            => ExecuteOrSetAbortedOnException(() =>
+            {
+                var chunksCollection = GetChunksCollection();
+                var chunkDocuments = CreateWriteBatchChunkDocuments();
+                chunksCollection.InsertMany(chunkDocuments, cancellationToken: cancellationToken);
+                _batch.Clear();
+            });
 
-        private async Task WriteBatchAsync(CancellationToken cancellationToken)
-        {
-            var chunksCollection = GetChunksCollection();
-            var chunkDocuments = CreateWriteBatchChunkDocuments();
-            await chunksCollection.InsertManyAsync(chunkDocuments, cancellationToken: cancellationToken).ConfigureAwait(false);
-            _batch.Clear();
-        }
+        private Task WriteBatchAsync(CancellationToken cancellationToken)
+            => ExecuteOrSetAbortedOnExceptionAsync(async () =>
+            {
+                var chunksCollection = GetChunksCollection();
+                var chunkDocuments = CreateWriteBatchChunkDocuments();
+                await chunksCollection.InsertManyAsync(chunkDocuments, cancellationToken: cancellationToken).ConfigureAwait(false);
+                _batch.Clear();
+            });
 
         private void WriteFilesCollectionDocument(CancellationToken cancellationToken)
-        {
-            var filesCollection = GetFilesCollection();
-            var filesCollectionDocument = CreateFilesCollectionDocument();
-            filesCollection.InsertOne(filesCollectionDocument, cancellationToken: cancellationToken);
-        }
+            => ExecuteOrSetAbortedOnException(() =>
+            {
+                var filesCollection = GetFilesCollection();
+                var filesCollectionDocument = CreateFilesCollectionDocument();
+                filesCollection.InsertOne(filesCollectionDocument, cancellationToken: cancellationToken);
+            });
 
-        private async Task WriteFilesCollectionDocumentAsync(CancellationToken cancellationToken)
-        {
-            var filesCollection = GetFilesCollection();
-            var filesCollectionDocument = CreateFilesCollectionDocument();
-            await filesCollection.InsertOneAsync(filesCollectionDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
-        }
+        private Task WriteFilesCollectionDocumentAsync(CancellationToken cancellationToken)
+            => ExecuteOrSetAbortedOnExceptionAsync(() =>
+            {
+                var filesCollection = GetFilesCollection();
+                var filesCollectionDocument = CreateFilesCollectionDocument();
+                return filesCollection.InsertOneAsync(filesCollectionDocument, cancellationToken: cancellationToken);
+            });
 
         private void WriteFinalBatch(CancellationToken cancellationToken)
         {
