@@ -128,13 +128,13 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             bool EnqueueEvent(string @event)
             {
                 // Ignore RTT events
-                if (!Environment.StackTrace.Contains(nameof(RoundTripTimeMonitor)))
+                if (Environment.StackTrace.Contains(nameof(RoundTripTimeMonitor)))
                 {
-                    events.Enqueue(@event);
-                    return true;
+                    return false;
                 }
 
-                return false;
+                events.Enqueue(@event);
+                return true;
             }
         }
 
