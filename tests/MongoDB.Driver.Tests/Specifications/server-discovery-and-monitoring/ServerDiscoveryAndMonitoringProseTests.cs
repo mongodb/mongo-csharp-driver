@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -25,12 +26,14 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
@@ -41,12 +44,12 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         [Fact]
         public void Heartbeat_should_work_as_expected()
         {
-            var heartbeatSuceededTimestamps = new ConcurrentQueue<DateTime>();
+            var heartbeatSucceededTimestamps = new ConcurrentQueue<DateTime>();
             var eventCapturer = new EventCapturer()
                 .Capture<ServerHeartbeatSucceededEvent>(
                     (@event) =>
                     {
-                        heartbeatSuceededTimestamps.Enqueue(DateTime.UtcNow);
+                        heartbeatSucceededTimestamps.Enqueue(DateTime.UtcNow);
                         return true;
                     }
                 );
@@ -64,12 +67,12 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     });
             }
 
-            var heartbeatSuceededTimestampsList = heartbeatSuceededTimestamps.ToList();
+            var heartbeatSucceededTimestampsList = heartbeatSucceededTimestamps.ToList();
             // we have at least 3 items here
             // Skip the first event because we have nothing to compare it to
-            for (int i = 1; i < heartbeatSuceededTimestampsList.Count; i++)
+            for (int i = 1; i < heartbeatSucceededTimestampsList.Count; i++)
             {
-                var attemptDuration = heartbeatSuceededTimestampsList[i] - heartbeatSuceededTimestampsList[i - 1];
+                var attemptDuration = heartbeatSucceededTimestampsList[i] - heartbeatSucceededTimestampsList[i - 1];
                 attemptDuration
                     .Should()
                     .BeLessThan(TimeSpan.FromSeconds(2));
@@ -77,8 +80,66 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
+        // Heartbeat prose tests
+        // https://github.com/mongodb/specifications/blob/c5771dce88eed54386690039f76142e1d741d83f/source/server-discovery-and-monitoring/tests/README.rst?plain=1#L268-L289
         [Fact]
-        public void Monitor_sleep_at_least_minHeartbeatFreqencyMS_between_checks()
+        public void Heartbeat_should_be_emitted_before_connection_open()
+        {
+            const string HelloReceivedEvent = "client hello received";
+            const string ClientConnectedEvent = "client connected";
+
+            var events = new ConcurrentQueue<string>();
+            var eventCapturer = new EventCapturer()
+                .Capture<ServerHeartbeatStartedEvent>(e => EnqueueEvent(nameof(ServerHeartbeatStartedEvent)))
+                .Capture<ServerHeartbeatSucceededEvent>(e => EnqueueEvent(nameof(ServerHeartbeatSucceededEvent)))
+                .Capture<ServerHeartbeatFailedEvent>(e => EnqueueEvent(nameof(ServerHeartbeatFailedEvent)));
+
+            var mockStream = new Mock<Stream>();
+            mockStream
+                .Setup(s => s.Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Callback(() => EnqueueEvent(HelloReceivedEvent))
+                .Throws(new Exception("Stream is closed."));
+
+            var mockStreamFactory = new Mock<IStreamFactory>();
+            mockStreamFactory
+                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
+                .Callback(() => EnqueueEvent(ClientConnectedEvent))
+                .Returns(mockStream.Object);
+
+            var settings = new MongoClientSettings();
+            settings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(500);
+            settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5000);
+            settings.ClusterConfigurator = c => c
+                .Subscribe(eventCapturer)
+                .RegisterStreamFactory(f => mockStreamFactory.Object);
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+
+            eventCapturer.WaitForEventOrThrowIfTimeout<ServerHeartbeatFailedEvent>(TimeSpan.FromSeconds(5));
+
+            events.ShouldAllBeEquivalentTo(new[]
+            {
+                nameof(ServerHeartbeatStartedEvent),
+                HelloReceivedEvent,
+                ClientConnectedEvent,
+                nameof(ServerHeartbeatFailedEvent),
+            });
+
+            bool EnqueueEvent(string @event)
+            {
+                // Ignore RTT events
+                if (Environment.StackTrace.Contains(nameof(RoundTripTimeMonitor)))
+                {
+                    return false;
+                }
+
+                events.Enqueue(@event);
+                return true;
+            }
+        }
+
+        [Fact]
+        public void Monitor_sleep_at_least_minHeartbeatFrequencyMS_between_checks()
         {
             var minVersion = new SemanticVersion(4, 9, 0, "");
             RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
@@ -232,6 +293,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 {
                     typeof(ServerHeartbeatFailedEvent),
                     typeof(ConnectionPoolClearedEvent),
+                    typeof(ServerHeartbeatSucceededEvent),
                     typeof(ConnectionPoolReadyEvent),
                     typeof(ServerHeartbeatSucceededEvent),
                 },
