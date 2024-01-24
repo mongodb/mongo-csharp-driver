@@ -23,6 +23,63 @@ namespace MongoDB.Driver
     public static class Mql
     {
         /// <summary>
+        /// Converts a string to a DateTime using the $dateFromString aggregation operator.
+        /// </summary>
+        /// <param name="dateString">The string.</param>
+        /// <returns>A DateTime.</returns>
+        public static DateTime DateFromString(string dateString)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+        }
+
+        /// <summary>
+        /// Converts a string to a DateTime using the $dateFromString aggregation operator.
+        /// </summary>
+        /// <param name="dateString">The string.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>A DateTime.</returns>
+        public static DateTime DateFromString(
+            string dateString,
+            string format)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+        }
+
+        /// <summary>
+        /// Converts a string to a DateTime using the $dateFromString aggregation operator.
+        /// </summary>
+        /// <param name="dateString">The string.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="timezone">The time zone.</param>
+        /// <returns>A DateTime.</returns>
+        public static DateTime DateFromString(
+            string dateString,
+            string format,
+            string timezone)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+        }
+
+        /// <summary>
+        /// Converts a string to a DateTime using the $dateFromString aggregation operator.
+        /// </summary>
+        /// <param name="dateString">The string.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="timezone">The time zone.</param>
+        /// <param name="onError">The onError value.</param>
+        /// <param name="onNull">The onNull value.</param>
+        /// <returns>A DateTime.</returns>
+        public static DateTime? DateFromString(
+            string dateString,
+            string format,
+            string timezone,
+            DateTime? onError,
+            DateTime? onNull)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+        }
+
+        /// <summary>
         /// Tests whether a field exists.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>

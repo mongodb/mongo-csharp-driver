@@ -66,6 +66,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __csfle2Qev2 = new Feature("Csfle2Qev2", WireVersion.Server70, notSupportedMessage: "Driver support of Queryable Encryption is incompatible with server. Upgrade server to use Queryable Encryption.");
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
+        private static readonly Feature __dateFromStringFormatArgument = new Feature("DateFromStringFormatArgument", WireVersion.Server40);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
@@ -374,6 +375,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature CurrentOpCommand => __currentOpCommand;
+
+        /// <summary>
+        /// Gets the $dateFromString format argument feature.
+        /// </summary>
+        public static Feature DateFromStringFormatArgument => __dateFromStringFormatArgument;
 
         /// <summary>
         /// Gets the date operators added in 5.0 feature.

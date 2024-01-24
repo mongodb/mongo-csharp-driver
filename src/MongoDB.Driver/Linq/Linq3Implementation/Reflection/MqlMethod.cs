@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
@@ -20,6 +21,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class MqlMethod
     {
         // private static fields
+        private static readonly MethodInfo __dateFromString;
+        private static readonly MethodInfo __dateFromStringWithFormat;
+        private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
+        private static readonly MethodInfo __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
         private static readonly MethodInfo __exists;
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
@@ -27,12 +32,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // static constructor
         static MqlMethod()
         {
+            __dateFromString = ReflectionInfo.Method((string dateStringl) => Mql.DateFromString(dateStringl));
+            __dateFromStringWithFormat = ReflectionInfo.Method((string dateString, string format) => Mql.DateFromString(dateString, format));
+            __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
+            __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull = ReflectionInfo.Method((string dateString, string format, string timezone, DateTime? onError, DateTime? onNull) => Mql.DateFromString(dateString, format, timezone, onError, onNull));
             __exists = ReflectionInfo.Method((object field) => Mql.Exists(field));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
         }
 
         // public properties
+        public static MethodInfo DateFromString => __dateFromString;
+        public static MethodInfo DateFromStringWithFormat => __dateFromStringWithFormat;
+        public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;
+        public static MethodInfo DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull => __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
         public static MethodInfo Exists => __exists;
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
