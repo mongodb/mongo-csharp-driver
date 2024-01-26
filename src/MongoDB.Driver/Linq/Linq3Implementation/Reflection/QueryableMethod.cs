@@ -24,12 +24,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class QueryableMethod
     {
         // private static fields
-        private static readonly MethodInfo __aggregate;
+        private static readonly MethodInfo __aggregateWithFunc;
         private static readonly MethodInfo __aggregateWithSeedAndFunc;
-        private static readonly MethodInfo __aggregateWithSeedFuncAndSelector;
+        private static readonly MethodInfo __aggregateWithSeedFuncAndResultSelector;
         private static readonly MethodInfo __all;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
+        private static readonly MethodInfo __asQueryable;
         private static readonly MethodInfo __averageDecimal;
         private static readonly MethodInfo __averageDecimalWithSelector;
         private static readonly MethodInfo __averageDouble;
@@ -128,12 +129,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // static constructor
         static QueryableMethod()
         {
-            __aggregate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object, object>> func) => source.Aggregate(func));
+            __aggregateWithFunc = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object, object>> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func) => source.Aggregate(seed, func));
-            __aggregateWithSeedFuncAndSelector = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func, Expression<Func<object, object>> selector) => source.Aggregate(seed, func, selector));
+            __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func, Expression<Func<object, object>> selector) => source.Aggregate(seed, func, selector));
             __all = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IQueryable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Any(predicate));
+            __asQueryable = ReflectionInfo.Method((IEnumerable<object> source) => source.AsQueryable());
             __averageDecimal = ReflectionInfo.Method((IQueryable<decimal> source) => source.Average());
             __averageDecimalWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, decimal>> selector) => source.Average(selector));
             __averageDouble = ReflectionInfo.Method((IQueryable<double> source) => source.Average());
@@ -149,7 +151,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __averageNullableInt32 = ReflectionInfo.Method((IQueryable<int?> source) => source.Average());
             __averageNullableInt32WithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int?>> selector) => source.Average(selector));
             __averageNullableInt64 = ReflectionInfo.Method((IQueryable<long?> source) => source.Average());
-            __averageNullableInt64WithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, double?>> selector) => source.Average(selector));
+            __averageNullableInt64WithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, long?>> selector) => source.Average(selector));
             __averageNullableSingle = ReflectionInfo.Method((IQueryable<float?> source) => source.Average());
             __averageNullableSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float?>> selector) => source.Average(selector));
             __averageSingle = ReflectionInfo.Method((IQueryable<float> source) => source.Average());
@@ -231,11 +233,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         }
 
         // public properties
-        public static MethodInfo Aggregate => __aggregate;
+        public static MethodInfo AggregateWithFunc => __aggregateWithFunc;
         public static MethodInfo AggregateWithSeedAndFunc => __aggregateWithSeedAndFunc;
-        public static MethodInfo AggregateWithSeedFuncAndSelector => __aggregateWithSeedFuncAndSelector;
+        public static MethodInfo AggregateWithSeedFuncAndResultSelector => __aggregateWithSeedFuncAndResultSelector;
         public static MethodInfo All => __all;
         public static MethodInfo Any => __any;
+        public static MethodInfo AnyWithPredicate => __anyWithPredicate;
+        public static MethodInfo AsQueryable => __asQueryable;
         public static MethodInfo AverageDecimal => __averageDecimal;
         public static MethodInfo AverageDecimalWithSelector => __averageDecimalWithSelector;
         public static MethodInfo AverageDouble => __averageDouble;
@@ -256,7 +260,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageNullableSingleWithSelector => __averageNullableSingleWithSelector;
         public static MethodInfo AverageSingle => __averageSingle;
         public static MethodInfo AverageSingleWithSelector => __averageSingleWithSelector;
-        public static MethodInfo AnyWithPredicate => __anyWithPredicate;
         public static MethodInfo Cast => __cast;
         public static MethodInfo Concat => __concat;
         public static MethodInfo Contains => __contains;

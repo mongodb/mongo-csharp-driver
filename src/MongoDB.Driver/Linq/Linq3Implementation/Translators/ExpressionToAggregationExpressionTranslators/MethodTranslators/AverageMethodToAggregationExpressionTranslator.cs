@@ -47,7 +47,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.AverageNullableSingle,
             EnumerableMethod.AverageNullableSingleWithSelector,
             EnumerableMethod.AverageSingle,
-            EnumerableMethod.AverageSingleWithSelector
+            EnumerableMethod.AverageSingleWithSelector,
+            QueryableMethod.AverageDecimal,
+            QueryableMethod.AverageDecimalWithSelector,
+            QueryableMethod.AverageDouble,
+            QueryableMethod.AverageDoubleWithSelector,
+            QueryableMethod.AverageInt32,
+            QueryableMethod.AverageInt32WithSelector,
+            QueryableMethod.AverageInt64,
+            QueryableMethod.AverageInt64WithSelector,
+            QueryableMethod.AverageNullableDecimal,
+            QueryableMethod.AverageNullableDecimalWithSelector,
+            QueryableMethod.AverageNullableDouble,
+            QueryableMethod.AverageNullableDoubleWithSelector,
+            QueryableMethod.AverageNullableInt32,
+            QueryableMethod.AverageNullableInt32WithSelector,
+            QueryableMethod.AverageNullableInt64,
+            QueryableMethod.AverageNullableInt64WithSelector,
+            QueryableMethod.AverageNullableSingle,
+            QueryableMethod.AverageNullableSingleWithSelector,
+            QueryableMethod.AverageSingle,
+            QueryableMethod.AverageSingleWithSelector
         };
 
         private static readonly MethodInfo[] __averageWithSelectorMethods =
@@ -61,7 +81,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.AverageNullableInt32WithSelector,
             EnumerableMethod.AverageNullableInt64WithSelector,
             EnumerableMethod.AverageNullableSingleWithSelector,
-            EnumerableMethod.AverageSingleWithSelector
+            EnumerableMethod.AverageSingleWithSelector,
+            QueryableMethod.AverageDecimalWithSelector,
+            QueryableMethod.AverageDoubleWithSelector,
+            QueryableMethod.AverageInt32WithSelector,
+            QueryableMethod.AverageInt64WithSelector,
+            QueryableMethod.AverageNullableDecimalWithSelector,
+            QueryableMethod.AverageNullableDoubleWithSelector,
+            QueryableMethod.AverageNullableInt32WithSelector,
+            QueryableMethod.AverageNullableInt64WithSelector,
+            QueryableMethod.AverageNullableSingleWithSelector,
+            QueryableMethod.AverageSingleWithSelector
         };
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -73,11 +103,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 AstExpression ast;
                 if (method.IsOneOf(__averageWithSelectorMethods))
                 {
-                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var selectorParameter = selectorLambda.Parameters[0];
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var selectorSymbol = context.CreateSymbol(selectorParameter, sourceItemSerializer);

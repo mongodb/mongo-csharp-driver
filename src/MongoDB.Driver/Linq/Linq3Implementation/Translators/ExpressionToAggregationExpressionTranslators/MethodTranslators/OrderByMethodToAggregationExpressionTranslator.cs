@@ -32,19 +32,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.OrderBy,
             EnumerableMethod.OrderByDescending,
             EnumerableMethod.ThenBy,
-            EnumerableMethod.ThenByDescending
+            EnumerableMethod.ThenByDescending,
+            QueryableMethod.OrderBy,
+            QueryableMethod.OrderByDescending,
+            QueryableMethod.ThenBy,
+            QueryableMethod.ThenByDescending
         };
 
         private static MethodInfo[] __orderByMethods =
         {
             EnumerableMethod.OrderBy,
-            EnumerableMethod.OrderByDescending
+            EnumerableMethod.OrderByDescending,
+            QueryableMethod.OrderBy,
+            QueryableMethod.OrderByDescending
         };
 
         private static MethodInfo[] __thenByMethods =
         {
             EnumerableMethod.ThenBy,
-            EnumerableMethod.ThenByDescending
+            EnumerableMethod.ThenByDescending,
+            QueryableMethod.ThenBy,
+            QueryableMethod.ThenByDescending
         };
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -56,11 +64,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                if (method.IsOneOf(__thenByMethods))
+                {
+                    NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsOrderedQueryableSource(expression, sourceTranslation);
+                }
+                else
+                {
+                    NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+                }
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var thenByExceptionMessage = "ThenBy or ThenByDescending cannot be executed client-side and should be moved to the LINQ query.";
-                var orderedEnumerableSerializer = IOrderedEnumerableSerializer.Create(itemSerializer, thenByExceptionMessage);
+                var orderedEnumerableSerializer = NestedAsOrderedQueryableSerializer.CreateIOrderedEnumerableOrNestedAsOrderedQueryableSerializer(expression.Type, itemSerializer);
 
-                var keySelectorLambda = (LambdaExpression)arguments[1];
+                var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                 var order = GetOrder(method);
 
                 if (IsIdentityLambda(keySelectorLambda))

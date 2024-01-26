@@ -45,7 +45,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.SumNullableSingle,
             EnumerableMethod.SumNullableSingleWithSelector,
             EnumerableMethod.SumSingle,
-            EnumerableMethod.SumSingleWithSelector
+            EnumerableMethod.SumSingleWithSelector,
+            QueryableMethod.SumDecimal,
+            QueryableMethod.SumDecimalWithSelector,
+            QueryableMethod.SumDouble,
+            QueryableMethod.SumDoubleWithSelector,
+            QueryableMethod.SumInt32,
+            QueryableMethod.SumInt32WithSelector,
+            QueryableMethod.SumInt64,
+            QueryableMethod.SumInt64WithSelector,
+            QueryableMethod.SumNullableDecimal,
+            QueryableMethod.SumNullableDecimalWithSelector,
+            QueryableMethod.SumNullableDouble,
+            QueryableMethod.SumNullableDoubleWithSelector,
+            QueryableMethod.SumNullableInt32,
+            QueryableMethod.SumNullableInt32WithSelector,
+            QueryableMethod.SumNullableInt64,
+            QueryableMethod.SumNullableInt64WithSelector,
+            QueryableMethod.SumNullableSingle,
+            QueryableMethod.SumNullableSingleWithSelector,
+            QueryableMethod.SumSingle,
+            QueryableMethod.SumSingleWithSelector
         };
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -58,6 +78,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 AstExpression ast;
                 IBsonSerializer serializer;
@@ -68,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var selectorParameter = selectorLambda.Parameters[0];
                     var selectorSymbol = context.CreateSymbol(selectorParameter, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorSymbol);

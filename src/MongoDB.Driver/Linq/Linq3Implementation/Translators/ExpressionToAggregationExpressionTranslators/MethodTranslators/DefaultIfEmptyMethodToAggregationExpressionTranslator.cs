@@ -14,48 +14,68 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class DefaultIfEmptyMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __defaultIfEmptyMethods =
+        {
+            EnumerableMethod.DefaultIfEmpty,
+            EnumerableMethod.DefaultIfEmptyWithDefaultValue,
+            QueryableMethod.DefaultIfEmpty,
+            QueryableMethod.DefaultIfEmptyWithDefaultValue,
+        };
+
+        private static readonly MethodInfo[] __defaultIfEmptyWithDefaultValueMethods =
+        {
+            EnumerableMethod.DefaultIfEmptyWithDefaultValue,
+            QueryableMethod.DefaultIfEmptyWithDefaultValue,
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(EnumerableMethod.DefaultIfEmpty, EnumerableMethod.DefaultIfEmptyWithDefaultValue))
+            if (method.IsOneOf(__defaultIfEmptyMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var sourceVar = AstExpression.Var("source");
-                var sourceVarBinding = AstExpression.VarBinding(sourceVar, sourceTranslation.Ast);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                 AstExpression defaultValueAst;
-                if (method.Is(EnumerableMethod.DefaultIfEmpty))
+                if (method.IsOneOf(__defaultIfEmptyWithDefaultValueMethods))
+                {
+                    var defaultValueExpression = arguments[1];
+                    var defaultValueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, defaultValueExpression);
+                    defaultValueAst = AstExpression.ComputedArray(new[] { defaultValueTranslation.Ast });
+                }
+                else
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var defaultValue = sourceItemSerializer.ValueType.GetDefaultValue();
                     var serializedDefaultValue = SerializationHelper.SerializeValue(sourceItemSerializer, defaultValue);
                     defaultValueAst = AstExpression.Constant(new BsonArray { serializedDefaultValue });
                 }
-                else
-                {
-                    var defaultValueExpression = arguments[1];
-                    var defaultValueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, defaultValueExpression);
-                    defaultValueAst = AstExpression.ComputedArray(new[] { defaultValueTranslation.Ast });
-                }
                 var ast = AstExpression.Let(
                     sourceVarBinding,
                     AstExpression.Cond(
-                        AstExpression.Eq(AstExpression.Size(sourceVar), 0),
+                        AstExpression.Eq(AstExpression.Size(sourceAst), 0),
                         defaultValueAst,
-                        sourceVar));
-                return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
+                        sourceAst));
+
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                return new AggregationExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

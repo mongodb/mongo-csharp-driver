@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -24,15 +24,69 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class MaxOrMinMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __maxOrMinMethods =
+        {
+            EnumerableMethod.Max,
+            EnumerableMethod.MaxDecimal,
+            EnumerableMethod.MaxDecimalWithSelector,
+            EnumerableMethod.MaxDouble,
+            EnumerableMethod.MaxDoubleWithSelector,
+            EnumerableMethod.MaxInt32,
+            EnumerableMethod.MaxInt32WithSelector,
+            EnumerableMethod.MaxInt64,
+            EnumerableMethod.MaxInt64WithSelector,
+            EnumerableMethod.MaxNullableDecimal,
+            EnumerableMethod.MaxNullableDecimalWithSelector,
+            EnumerableMethod.MaxNullableDouble,
+            EnumerableMethod.MaxNullableDoubleWithSelector,
+            EnumerableMethod.MaxNullableInt32,
+            EnumerableMethod.MaxNullableInt32WithSelector,
+            EnumerableMethod.MaxNullableInt64,
+            EnumerableMethod.MaxNullableInt64WithSelector,
+            EnumerableMethod.MaxNullableSingle,
+            EnumerableMethod.MaxNullableSingleWithSelector,
+            EnumerableMethod.MaxSingle,
+            EnumerableMethod.MaxSingleWithSelector,
+            EnumerableMethod.MaxWithSelector,
+            EnumerableMethod.Min,
+            EnumerableMethod.MinDecimal,
+            EnumerableMethod.MinDecimalWithSelector,
+            EnumerableMethod.MinDouble,
+            EnumerableMethod.MinDoubleWithSelector,
+            EnumerableMethod.MinInt32,
+            EnumerableMethod.MinInt32WithSelector,
+            EnumerableMethod.MinInt64,
+            EnumerableMethod.MinInt64WithSelector,
+            EnumerableMethod.MinNullableDecimal,
+            EnumerableMethod.MinNullableDecimalWithSelector,
+            EnumerableMethod.MinNullableDouble,
+            EnumerableMethod.MinNullableDoubleWithSelector,
+            EnumerableMethod.MinNullableInt32,
+            EnumerableMethod.MinNullableInt32WithSelector,
+            EnumerableMethod.MinNullableInt64,
+            EnumerableMethod.MinNullableInt64WithSelector,
+            EnumerableMethod.MinNullableSingle,
+            EnumerableMethod.MinNullableSingleWithSelector,
+            EnumerableMethod.MinSingle,
+            EnumerableMethod.MinSingleWithSelector,
+            EnumerableMethod.MinWithSelector,
+            QueryableMethod.Max,
+            QueryableMethod.MaxWithSelector,
+            QueryableMethod.Min,
+            QueryableMethod.MinWithSelector
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.DeclaringType == typeof(Enumerable) && (method.Name == "Max" || method.Name == "Min"))
+            if (method.IsOneOf(__maxOrMinMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
                 AstExpression ast;
                 IBsonSerializer serializer;
                 if (arguments.Count == 1)
@@ -43,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var selectorParameter = selectorLambda.Parameters[0];
                     var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
@@ -57,6 +111,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = method.Name == "Max" ? AstExpression.Max(mappedArray) : AstExpression.Min(mappedArray);
                     serializer = selectorTranslation.Serializer;
                 }
+
                 return new AggregationExpression(expression, ast, serializer);
             }
 

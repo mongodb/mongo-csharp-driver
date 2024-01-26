@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -23,16 +24,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SelectMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __selectMethods =
+        {
+            EnumerableMethod.Select,
+            QueryableMethod.Select
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Select))
+            if (method.IsOneOf(__selectMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var selectorLambda = (LambdaExpression)arguments[1];
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                 var selectorParameter = selectorLambda.Parameters[0];
                 var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
@@ -42,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     sourceTranslation.Ast,
                     selectorParameterSymbol.Var,
                     translatedSelector.Ast);
-                var serializer = IEnumerableSerializer.Create(translatedSelector.Serializer);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer : translatedSelector.Serializer);
                 return new AggregationExpression(expression, ast, serializer);
             }
 

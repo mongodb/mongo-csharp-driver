@@ -551,6 +551,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             return false;
         }
 
+        public static bool IsToArrayMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression)
+        {
+            var method = methodCallExpression.Method;
+            var parameters = method.GetParameters();
+            var arguments = methodCallExpression.Arguments;
+
+            if (method.Name == "ToArray")
+            {
+                var returnType = method.ReturnType;
+                if (returnType.IsArray)
+                {
+                    var returnItemType = returnType.GetElementType();
+
+                    sourceExpression = method switch
+                    {
+                        _ when method.IsStatic && parameters.Length == 1 => arguments[0],
+                        _ when !method.IsStatic && parameters.Length == 0 => methodCallExpression.Object,
+                        _ => null
+                    };
+                    if (sourceExpression != null)
+                    {
+                        var sourceType = sourceExpression.Type;
+                        if (sourceType.ImplementsIEnumerable(out var sourceItemType) &&
+                            sourceItemType == returnItemType)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            sourceExpression = null;
+            return false;
+        }
+
         public static MethodInfo MakeSelect(Type sourceType, Type resultType)
         {
             return __select.MakeGenericMethod(sourceType, resultType);

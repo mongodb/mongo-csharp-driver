@@ -14,25 +14,37 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class DistinctMethodToAggregationExpressionTranslator
     {
+        private readonly static MethodInfo[] __distinctMethods =
+        {
+            EnumerableMethod.Distinct,
+            QueryableMethod.Distinct
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Distinct))
+            if (method.IsOneOf(__distinctMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
                 var ast = AstExpression.SetIntersection(sourceTranslation.Ast);
-                return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                return new AggregationExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

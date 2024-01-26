@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Contains))
+            if (method.IsOneOf(EnumerableMethod.Contains, QueryableMethod.Contains))
             {
                 sourceExpression = arguments[0];
                 valueExpression = arguments[1];
@@ -57,6 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
+
                 if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
                 {
                     var itemType = ienumerableInterface.GetGenericArguments()[0];
@@ -73,12 +73,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        private static AggregationExpression TranslateEnumerableContains(TranslationContext context, Expression expression, Expression sourceExpression, Expression valueExpression)
+        private static AggregationExpression TranslateEnumerableContains(TranslationContext context, MethodCallExpression expression, Expression sourceExpression, Expression valueExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+            NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
-            return new AggregationExpression(expression, ast, new BooleanSerializer());
+            return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
         }
     }
 }

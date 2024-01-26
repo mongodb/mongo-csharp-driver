@@ -29,9 +29,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.ToArray))
+            if (EnumerableMethod.IsToArrayMethod(expression, out var sourceExpression))
             {
-                var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var arrayItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var arrayItemType = arrayItemSerializer.ValueType;

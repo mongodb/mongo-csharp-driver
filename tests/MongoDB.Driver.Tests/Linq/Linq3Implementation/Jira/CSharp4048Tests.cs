@@ -737,7 +737,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [null], else : '$$source' } } } } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : [{ $size : '$_elements' }, 0] }, then : [null], else : '$_elements' } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -762,7 +762,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { source : '$_elements' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [0], else : '$$source' } } } } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : [{ $size : '$_elements' }, 0] }, then : [0], else : '$_elements' } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -874,7 +874,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void IGrouping_ElementAtOrDefault_of_root_should_work_but_is_not_yet_implemented()
+        public void IGrouping_ElementAtOrDefault_of_root_should_work()
         {
             var collection = CreateCollection();
 
@@ -883,12 +883,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.ElementAtOrDefault(0) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $gte : [0, { $size : '$_elements' }] }, then : null, else : { $arrayElemAt : ['$_elements', 0] } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = new C { Id = 1, X = 1 } });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = new C { Id = 2, X = 2 } });
         }
 
         [Fact]
-        public void IGrouping_ElementAtOrDefault_of_scalar_should_work_but_is_not_yet_implemented()
+        public void IGrouping_ElementAtOrDefault_of_scalar_should_work()
         {
             var collection = CreateCollection();
 
@@ -897,8 +908,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.ElementAtOrDefault(0) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $gte : [0, { $size : '$_elements' }] }, then : 0, else : { $arrayElemAt : ['$_elements', 0] } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = 1 });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = 2 });
         }
 
         [Fact]
@@ -1052,7 +1074,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void IGrouping_FirstOrDefault_of_root_should_work_but_is_not_yet_implemented()
+        public void IGrouping_FirstOrDefault_of_root_should_work()
         {
             var collection = CreateCollection();
 
@@ -1061,12 +1083,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.FirstOrDefault() })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 }, __agg1 : { $first : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : ['$__agg0', 0] }, then : null, else : '$__agg1' } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = new C { Id = 1, X = 1 } });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = new C { Id = 2, X = 2 } });
         }
 
         [Fact]
-        public void IGrouping_FirstOrDefault_of_scalar_should_work_but_is_not_yet_implemented()
+        public void IGrouping_FirstOrDefault_of_scalar_should_work()
         {
             var collection = CreateCollection();
 
@@ -1075,12 +1108,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.FirstOrDefault() })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 }, __agg1 : { $first : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : ['$__agg0', 0] }, then : 0, else : '$__agg1' } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = 1 });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = 2 });
         }
 
         [Fact]
-        public void IGrouping_FirstOrDefault_with_predicate_of_root_should_work_but_is_not_yet_implemented()
+        public void IGrouping_FirstOrDefault_with_predicate_of_root_should_work()
         {
             var collection = CreateCollection();
 
@@ -1089,12 +1133,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.FirstOrDefault(e => e.X != 1) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].Id.Should().Be(1);
+            results[0].Result.Should().BeNull();
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = new { Id = 2, X = 2 } });
         }
 
         [Fact]
-        public void IGrouping_FirstOrDefault_with_predicate_of_scalar_should_work_but_is_not_yet_implemented()
+        public void IGrouping_FirstOrDefault_with_predicate_of_scalar_should_work()
         {
             var collection = CreateCollection();
 
@@ -1103,8 +1159,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.FirstOrDefault(e => e != 1) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = 0 });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = 2 });
         }
 
         [Fact]
@@ -1258,7 +1325,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void IGrouping_LastOrDefault_of_root_should_work_but_is_not_yet_implemented()
+        public void IGrouping_LastOrDefault_of_root_should_work()
         {
             var collection = CreateCollection();
 
@@ -1267,12 +1334,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.LastOrDefault() })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 }, __agg1 : { $last : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : ['$__agg0', 0] }, then : null, else : '$__agg1' } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = new { Id = 1, X = 1 } });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = new { Id = 2, X = 2 } });
         }
 
         [Fact]
-        public void IGrouping_LastOrDefault_of_scalar_should_work_but_is_not_yet_implemented()
+        public void IGrouping_LastOrDefault_of_scalar_should_work()
         {
             var collection = CreateCollection();
 
@@ -1281,12 +1359,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.LastOrDefault() })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 }, __agg1 : { $last : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : { $cond : { if : { $eq : ['$__agg0', 0] }, then : 0, else : '$__agg1' } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = 1 });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = 2 });
         }
 
         [Fact]
-        public void IGrouping_LastOrDefault_with_predicate_of_root_should_work_but_is_not_yet_implemented()
+        public void IGrouping_LastOrDefault_with_predicate_of_root_should_work()
         {
             var collection = CreateCollection();
 
@@ -1295,12 +1384,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.LastOrDefault(e => e.X != 1) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', -1] } } } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].Id.Should().Be(1);
+            results[0].Result.Should().BeNull();
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = new { Id = 2, X = 2 } });
         }
 
         [Fact]
-        public void IGrouping_LastOrDefault_with_predicate_of_scalar_should_work_but_is_not_yet_implemented()
+        public void IGrouping_LastOrDefault_with_predicate_of_scalar_should_work()
         {
             var collection = CreateCollection();
 
@@ -1309,8 +1410,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(g => new { Id = g.Key, Result = g.LastOrDefault(e => e != 1) })
                 .OrderBy(x => x.Id);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var stages = Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', -1] } } } } } } }",
+                "{ $sort : { _id : 1 } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = queryable.ToList();
+            results.Count.Should().Be(2);
+            results[0].ShouldBeEquivalentTo(new { Id = 1, Result = 0 });
+            results[1].ShouldBeEquivalentTo(new { Id = 2, Result = 2 });
         }
 
         [Fact]

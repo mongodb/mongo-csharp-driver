@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Linq3TestHelpers.Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $project : { _v : { $map : { input : { $let : { vars : { source : '$InnerArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [null], else : '$$source' } } } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : { $cond : { if : { $eq : [{ $size : '$InnerArray' }, 0] }, then : [null], else : '$InnerArray' } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }"
             };
             Linq3TestHelpers.AssertStages(stages, expectedStages);
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Linq3TestHelpers.Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $project : { _v : { $map : { input : { $let : { vars : { source : '$InnerArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [{ S : 'default' }], else : '$$source' } } } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : { $cond : { if : { $eq : [{ $size : '$InnerArray' }, 0] }, then : [{ S : 'default' }], else : '$InnerArray' } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }"
             };
             Linq3TestHelpers.AssertStages(stages, expectedStages);

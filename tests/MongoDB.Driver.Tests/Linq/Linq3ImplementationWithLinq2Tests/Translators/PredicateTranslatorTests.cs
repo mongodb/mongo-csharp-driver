@@ -540,16 +540,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void AsQueryable()
         {
-            Expression<Func<C, bool>> filter = x => x.D == "Don't";
-
-            var exception = Record.Exception(() =>
+            // TODO: fix assertion once AsQueryable is implemented for filters also
             Assert(
-                x => x.G.AsQueryable().Any(filter),
+                x => x.G.AsQueryable().Any(x => x.D == "Don't"),
                 1,
-                "{ 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } }")
-            );
-
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+                "{ $expr : { $anyElementTrue : { $map : { input : '$G', as : 'x', in : { $eq : ['$$x.D', \"Don't\"] } } } } }");
         }
 
         [Fact]

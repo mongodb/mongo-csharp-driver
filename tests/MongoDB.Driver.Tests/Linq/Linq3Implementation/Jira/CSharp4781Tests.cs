@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             else
             {
                 var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $let : { vars : { source : '$IntArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [0], else : '$$source' } } } }, _id : 0 } }");
+                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$IntArray' }, 0] }, then : [0], else : '$IntArray' } }, _id : 0 } }");
 
                 var results = queryable.ToArray();
                 results.Should().HaveCount(2);
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             else
             {
                 var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $let : { vars : { source : '$StringArray' }, in : { $cond : { if : { $eq : [{ $size : '$$source' }, 0] }, then : [null], else : '$$source' } } } }, _id : 0 } }");
+                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$StringArray' }, 0] }, then : [null], else : '$StringArray' } }, _id : 0 } }");
 
                 var results = queryable.ToArray();
                 results.Should().HaveCount(2);

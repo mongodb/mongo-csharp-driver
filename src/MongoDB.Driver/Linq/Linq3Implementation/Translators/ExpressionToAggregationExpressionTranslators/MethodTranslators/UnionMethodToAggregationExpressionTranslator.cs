@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -23,20 +24,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class UnionMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __unionMethods =
+        {
+            EnumerableMethod.Union,
+            QueryableMethod.Union
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Union))
+            if (method.IsOneOf(__unionMethods))
             {
                 var firstExpression = arguments[0];
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, firstTranslation);
                 var secondExpression = arguments[1];
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
                 var ast = AstExpression.SetUnion(firstTranslation.Ast, secondTranslation.Ast);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
-                var serializer = IEnumerableSerializer.Create(itemSerializer);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
                 return new AggregationExpression(expression, ast, serializer);
             }
 

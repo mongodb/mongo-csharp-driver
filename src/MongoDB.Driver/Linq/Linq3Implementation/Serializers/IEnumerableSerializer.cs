@@ -16,53 +16,19 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
-    internal class IEnumerableSerializer<TItem> : SerializerBase<IEnumerable<TItem>>, IBsonArraySerializer
+    internal class IEnumerableSerializer<TItem> : IEnumerableSerializerBase<IEnumerable<TItem>, TItem>
     {
-        // private fields
-        private readonly IBsonSerializer<TItem> _itemSerializer;
-
         // constructors
         public IEnumerableSerializer(IBsonSerializer<TItem> itemSerializer)
+            : base(itemSerializer)
         {
-            _itemSerializer = Ensure.IsNotNull(itemSerializer, nameof(itemSerializer));
         }
 
-        // public methods
-        public override IEnumerable<TItem> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        {
-            var reader = context.Reader;
-            reader.ReadStartArray();
-            var value = new List<TItem>();
-            while (reader.ReadBsonType() != 0)
-            {
-                var item = _itemSerializer.Deserialize(context);
-                value.Add(item);
-            }
-            reader.ReadEndArray();
-            return value;
-        }
-
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<TItem> value)
-        {
-            var writer = context.Writer;
-            writer.WriteStartArray();
-            foreach (var item in value)
-            {
-                _itemSerializer.Serialize(context, item);
-            }
-            writer.WriteEndArray();
-        }
-
-        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
-        {
-            serializationInfo = new BsonSerializationInfo(null, _itemSerializer, typeof(TItem));
-            return true;
-        }
+        // protected methods
+        protected override IEnumerable<TItem> CreateDeserializedValue(List<TItem> items) => items;
     }
 
     internal static class IEnumerableSerializer

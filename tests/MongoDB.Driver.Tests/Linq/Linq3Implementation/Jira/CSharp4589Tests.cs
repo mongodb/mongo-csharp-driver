@@ -109,12 +109,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v: { $map : {
-                            input : { $let : {
-                                vars : { source : '$teamAllianceMappingsListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [null],
-                                    else : '$$source' } } } },
+                            input : { $cond : {
+                                if : { $eq : [{ $size : '$teamAllianceMappingsListTemp' }, 0] },
+                                then : [null],
+                                else : '$teamAllianceMappingsListTemp' } },
                             as : 'allianceMapping',
                             in : { TransparentIdentifier0 : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
                         _id: 0 } }",
@@ -124,12 +122,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { TransparentIdentifier1 : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v : { $map : {
-                            input : { $let : {
-                                vars : { source : '$organizationAdminsListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [null],
-                                    else : '$$source' } } } },
+                            input : { $cond : {
+                                if : { $eq : [{ $size : '$organizationAdminsListTemp' }, 0] },
+                                then : [null],
+                                else : '$organizationAdminsListTemp' } },
                             as : 'organizationAdmin',
                             in : { TransparentIdentifier2 : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
                         _id : 0 } }",
@@ -139,12 +135,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { TransparentIdentifier3 : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v : { $map : {
-                            input : { $let : {
-                                vars : { source : '$usersListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [null],
-                                    else : '$$source' } } } },
+                            input : { $cond : {
+                                if : { $eq : [{ $size : '$usersListTemp' }, 0] },
+                                then : [null],
+                                else : '$usersListTemp' } },
                             as : 'organizationUser',
                             in : {
                                 TeamId : '$TransparentIdentifier3.TransparentIdentifier2.TransparentIdentifier1.TransparentIdentifier0.team.TeamId',
@@ -213,12 +207,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v: { $map : {
-                            input : { $let : {
-                                vars : { source : '$teamAllianceMappingsListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [null],
-                                    else : '$$source' } } } },
+                            input : { $cond : {
+                                if : { $eq : [{ $size : '$teamAllianceMappingsListTemp' }, 0] },
+                                then : [null],
+                                else : '$teamAllianceMappingsListTemp' } },
                             as : 'allianceMapping',
                             in : { '<>h__TransparentIdentifier0' : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
                         _id: 0 } }",
@@ -228,12 +220,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { '<>h__TransparentIdentifier1' : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v : { $map : {
-                            input : { $let : {
-                                vars : { source : '$organizationAdminsListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
-                                    then : [null],
-                                    else : '$$source' } } } },
+                            input : { $cond : {
+                                if : { $eq : [{ $size : '$organizationAdminsListTemp' }, 0] },
+                                then : [null],
+                                else : '$organizationAdminsListTemp' } },
                             as : 'organizationAdmin',
                             in : { '<>h__TransparentIdentifier2' : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
                         _id : 0 } }",
@@ -243,12 +233,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     "{ $project : { '<>h__TransparentIdentifier3' : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
                     @"{ $project : {
                         _v : { $map : {
-                            input : { $let : {
-                                vars : { source : '$usersListTemp' },
-                                in : { $cond : {
-                                    if : { $eq : [{ $size : '$$source' }, 0] },
+                            input : { $cond : {
+                                    if : { $eq : [{ $size : '$usersListTemp' }, 0] },
                                     then : [null],
-                                    else : '$$source' } } } },
+                                    else : '$usersListTemp' } },
                             as : 'organizationUser',
                             in : {
                                 TeamId : '$<>h__TransparentIdentifier3.<>h__TransparentIdentifier2.<>h__TransparentIdentifier1.<>h__TransparentIdentifier0.team.TeamId',

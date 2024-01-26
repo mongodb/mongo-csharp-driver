@@ -27,12 +27,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Aggregate_with_func_should_work(
+            [Values(false, true)] bool withNestedAsQueryable,
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var collection = CreateCollection(linqProvider);
 
-            var queryable = collection.AsQueryable()
-                .Select(x => x.A.Aggregate((x, y) => x * y));
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate((x, y) => x * y)) :
+                collection.AsQueryable().Select(x => x.A.Aggregate((x, y) => x * y));
 
             var stages = Translate(collection, queryable);
             var results = queryable.ToList();
@@ -49,15 +51,67 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Aggregate_with_seed_and_func_should_work(
+            [Values(false, true)] bool withNestedAsQueryable,
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        {
+            var collection = CreateCollection(linqProvider);
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate(2, (x, y) => x * y)) :
+                collection.AsQueryable().Select(x => x.A.Aggregate(2, (x, y) => x * y));
+
+            var stages = Translate(collection, queryable);
+            if (linqProvider == LinqProvider.V2)
+            {
+                AssertStages(stages, "{ $project : { __fld0 : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
+            }
+            else
+            {
+                AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
+            }
+
+            var results = queryable.ToList();
+            results.Should().Equal(2, 2, 4, 12);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Aggregate_with_seed_func_and_result_selector_should_work(
+            [Values(false, true)] bool withNestedAsQueryable,
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        {
+            var collection = CreateCollection(linqProvider);
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate(2, (x, y) => x * y, x => x * 3)) :
+                collection.AsQueryable().Select(x => x.A.Aggregate(2, (x, y) => x * y, x => x * 3));
+
+            var stages = Translate(collection, queryable);
+            if (linqProvider == LinqProvider.V2)
+            {
+                AssertStages(stages, "{ $project : { __fld0 : { $let : { vars : { x : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } } }, in : { $multiply : ['$$x', 3] } } }, _id : 0 } }");
+            }
+            else
+            {
+                AssertStages(stages, "{ $project : { _v     : { $let : { vars : { x : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } } }, in : { $multiply : ['$$x', 3] } } }, _id : 0 } }");
+            }
+
+            var results = queryable.ToList();
+            results.Should().Equal(6, 6, 12, 36);
+        }
+
         private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
         {
             var collection = GetCollection<C>("test", linqProvider);
             CreateCollection(
-                GetCollection<BsonDocument>("test"),
-                BsonDocument.Parse("{ _id : 0, A : [] }"),
-                BsonDocument.Parse("{ _id : 1, A : [1] }"),
-                BsonDocument.Parse("{ _id : 2, A : [1, 2] }"),
-                BsonDocument.Parse("{ _id : 3, A : [1, 2, 3] }"));
+                collection,
+                new C { Id = 0, A = new int[0] },
+                new C { Id = 1, A = new int[] { 1 } },
+                new C { Id = 2, A = new int[] { 1, 2 } },
+                new C { Id = 3, A = new int[] { 1, 2, 3 } });
             return collection;
         }
 

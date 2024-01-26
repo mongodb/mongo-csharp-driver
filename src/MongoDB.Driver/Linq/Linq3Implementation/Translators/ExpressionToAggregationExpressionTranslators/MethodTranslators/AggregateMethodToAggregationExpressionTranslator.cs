@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -28,7 +27,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             EnumerableMethod.AggregateWithFunc,
             EnumerableMethod.AggregateWithSeedAndFunc,
-            EnumerableMethod.AggregateWithSeedFuncAndResultSelector
+            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
+            QueryableMethod.AggregateWithFunc,
+            QueryableMethod.AggregateWithSeedAndFunc,
+            QueryableMethod.AggregateWithSeedFuncAndResultSelector
+        };
+
+        private static readonly MethodInfo[] __aggregateWithoutSeedMethods =
+        {
+            EnumerableMethod.AggregateWithFunc,
+            QueryableMethod.AggregateWithFunc
+        };
+
+        private static readonly MethodInfo[] __aggregateWithSeedMethods =
+        {
+            EnumerableMethod.AggregateWithSeedAndFunc,
+            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
+            QueryableMethod.AggregateWithSeedAndFunc,
+            QueryableMethod.AggregateWithSeedFuncAndResultSelector
+        };
+
+        private static readonly MethodInfo[] __aggregateWithSeedFuncAndResultSelectorMethods =
+       {
+            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
+            QueryableMethod.AggregateWithSeedFuncAndResultSelector
         };
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -40,11 +62,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                if (method.Is(EnumerableMethod.AggregateWithFunc))
+                if (method.IsOneOf(__aggregateWithoutSeedMethods))
                 {
-                    var funcLambda = (LambdaExpression)arguments[1];
+                    var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
                     var accumulatorSymbol = context.CreateSymbolWithVarName(accumulatorParameter, varName: "value", itemSerializer); // note: MQL uses $$value for the accumulator
@@ -71,12 +94,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     return new AggregationExpression(expression, ast, itemSerializer);
                 }
-                else if (method.IsOneOf(EnumerableMethod.AggregateWithSeedAndFunc, EnumerableMethod.AggregateWithSeedFuncAndResultSelector))
+                else if (method.IsOneOf(__aggregateWithSeedMethods))
                 {
                     var seedExpression = arguments[1];
                     var seedTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, seedExpression);
 
-                    var funcLambda = (LambdaExpression)arguments[2];
+                    var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
                     var accumulatorSerializer = context.KnownSerializersRegistry.GetSerializer(accumulatorParameter);
@@ -92,9 +115,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: funcTranslation.Ast);
                     var serializer = accumulatorSerializer;
 
-                    if (method.Is(EnumerableMethod.AggregateWithSeedFuncAndResultSelector))
+                    if (method.IsOneOf(__aggregateWithSeedFuncAndResultSelectorMethods))
                     {
-                        var resultSelectorLambda = (LambdaExpression)arguments[3];
+                        var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
                         var resultSelectorParameter = resultSelectorLambda.Parameters[0];
                         var resultSelectorParameterSerializer = context.KnownSerializersRegistry.GetSerializer(resultSelectorParameter);
                         var resultSelectorSymbol = context.CreateSymbol(resultSelectorParameter, resultSelectorParameterSerializer);

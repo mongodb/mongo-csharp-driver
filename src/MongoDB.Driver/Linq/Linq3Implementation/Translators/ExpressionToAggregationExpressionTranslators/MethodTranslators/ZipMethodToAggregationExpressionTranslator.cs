@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -24,18 +25,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ZipMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __zipMethods =
+        {
+            EnumerableMethod.Zip,
+            QueryableMethod.Zip
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Zip))
+            if (method.IsOneOf(__zipMethods))
             {
                 var firstExpression = arguments[0];
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, firstTranslation);
                 var secondExpression = arguments[1];
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
-                var resultSelectorLambda = (LambdaExpression)arguments[2];
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                 var resultSelectorParameters = resultSelectorLambda.Parameters;
                 var resultSelectorParameter1 = resultSelectorParameters[0];
                 var resultSelectorParameter2 = resultSelectorParameters[1];
@@ -51,7 +59,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         AstExpression.VarBinding(resultSelectorSymbol1.Var, AstExpression.ArrayElemAt(@as, 0)),
                         AstExpression.VarBinding(resultSelectorSymbol2.Var, AstExpression.ArrayElemAt(@as, 1)),
                         @in: resultSelectorTranslation.Ast));
-                var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);
+                var itemSerializer = resultSelectorTranslation.Serializer;
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
                 return new AggregationExpression(expression, ast, serializer);
             }
 

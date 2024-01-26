@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -36,13 +37,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 EnumerableMethod.Count,
                 EnumerableMethod.CountWithPredicate,
                 EnumerableMethod.LongCount,
-                EnumerableMethod.LongCountWithPredicate
+                EnumerableMethod.LongCountWithPredicate,
+                QueryableMethod.Count,
+                QueryableMethod.CountWithPredicate,
+                QueryableMethod.LongCount,
+                QueryableMethod.LongCountWithPredicate
             };
 
             __countWithPredicateMethods = new[]
             {
                 EnumerableMethod.CountWithPredicate,
-                EnumerableMethod.LongCountWithPredicate
+                EnumerableMethod.LongCountWithPredicate,
+                QueryableMethod.CountWithPredicate,
+                QueryableMethod.LongCountWithPredicate
             };
         }
 
@@ -55,6 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 AstExpression ast;
                 if (method.IsOneOf(__countWithPredicateMethods))
@@ -64,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         throw new ExpressionNotSupportedException(expression);
                     }
 
-                    var predicateLambda = (LambdaExpression)arguments[1];
+                    var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var predicateParameter = predicateLambda.Parameters[0];
                     var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var predicateSymbol = context.CreateSymbol(predicateParameter, predicateParameterSerializer);

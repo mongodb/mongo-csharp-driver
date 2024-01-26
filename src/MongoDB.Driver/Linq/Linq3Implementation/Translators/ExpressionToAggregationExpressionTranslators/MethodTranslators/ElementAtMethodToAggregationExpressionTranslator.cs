@@ -14,27 +14,66 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class ElementAtMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __elementAtMethods =
+        {
+            EnumerableMethod.ElementAt,
+            EnumerableMethod.ElementAtOrDefault,
+            QueryableMethod.ElementAt,
+            QueryableMethod.ElementAtOrDefault
+        };
+
+        private static readonly MethodInfo[] __elementAtOrDefaultMethods =
+        {
+            EnumerableMethod.ElementAtOrDefault,
+            QueryableMethod.ElementAtOrDefault
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.ElementAt))
+            if (method.IsOneOf(__elementAtMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
                 var indexExpression = arguments[1];
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-                var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
+                AstExpression ast;
+                if (method.IsOneOf(__elementAtOrDefaultMethods))
+                {
+                    var defaultValue = itemSerializer.ValueType.GetDefaultValue();
+                    var serializedDefaultValue = SerializationHelper.SerializeValue(itemSerializer, defaultValue);
+
+                    var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
+                    var (indexVarBinding, indexAst) = AstExpression.UseVarIfNotSimple("index", indexTranslation.Ast);
+                    ast = AstExpression.Let(
+                        var1: sourceVarBinding,
+                        var2: indexVarBinding,
+                        @in: AstExpression.Cond(
+                            @if: AstExpression.Gte(indexAst, AstExpression.Size(sourceAst)),
+                            then: serializedDefaultValue,
+                            @else: AstExpression.ArrayElemAt(sourceAst, indexAst)));
+                }
+                else
+                {
+                    ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
+                }
+
                 return new AggregationExpression(expression, ast, itemSerializer);
             }
 
