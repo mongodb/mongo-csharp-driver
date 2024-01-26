@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Servers
         public void RoundTripTimeMonitor_should_be_started_only_once_if_using_streaming_protocol()
         {
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(50));
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
             var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, false);
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var serverMonitorSettings = new ServerMonitorSettings(
                 TimeSpan.FromSeconds(5),
-                TimeSpan.FromMilliseconds(50),
+                TimeSpan.FromMilliseconds(100),
                 serverMonitoringMode: ServerMonitoringMode.Poll);
 
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
@@ -374,7 +374,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(50), serverMonitoringMode: ServerMonitoringMode.Poll);
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100), serverMonitoringMode: ServerMonitoringMode.Poll);
             var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Core.Servers
                     .Capture<ServerHeartbeatStartedEvent>()
                     .Capture<ServerHeartbeatSucceededEvent>();
 
-                var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(50));
+                var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
                 var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
                 SetupHeartbeatConnection(mockConnection, isStreamable: false, autoFillStreamingResponses: false);
