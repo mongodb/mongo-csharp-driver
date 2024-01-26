@@ -185,29 +185,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;
-
-        private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection, bool helloOk)
-        {
-            BsonDocument helloCommand;
-            var commandResponseHandling = CommandResponseHandling.Return;
-            if (IsUsingStreamingProtocol(connection.Description.HelloResult))
-            {
-                connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
-                commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
-
-                var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
-                var maxAwaitTime = _serverMonitorSettings.HeartbeatInterval == Timeout.InfiniteTimeSpan ? veryLargeHeartbeatInterval : _serverMonitorSettings.HeartbeatInterval;
-                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, connection.Description.HelloResult.TopologyVersion, maxAwaitTime, connection.Settings.LoadBalanced);
-            }
-            else
-            {
-                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, loadBalanced: connection.Settings.LoadBalanced);
-            }
-
-            return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);
-        }
-
         private IConnection InitializeConnection(CancellationToken cancellationToken) // called setUpConnection in spec
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
@@ -237,66 +214,76 @@ namespace MongoDB.Driver.Core.Servers
             return connection;
         }
 
-        private void MonitorServer(CancellationToken monitorCancellationToken)
+        private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection, bool helloOk)
         {
-            var metronome = new Metronome(_serverMonitorSettings.HeartbeatInterval);
-
-            while (!monitorCancellationToken.IsCancellationRequested)
+            BsonDocument helloCommand;
+            var commandResponseHandling = CommandResponseHandling.Return;
+            if (IsUsingStreamingProtocol(connection.Description.HelloResult))
             {
-                try
+                connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
+                commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
+
+                var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
+                var maxAwaitTime = _serverMonitorSettings.HeartbeatInterval == Timeout.InfiniteTimeSpan ? veryLargeHeartbeatInterval : _serverMonitorSettings.HeartbeatInterval;
+                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, connection.Description.HelloResult.TopologyVersion, maxAwaitTime, connection.Settings.LoadBalanced);
+            }
+            else
+            {
+                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, loadBalanced: connection.Settings.LoadBalanced);
+            }
+
+            return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);
+        }
+
+        private bool IsRunningInFaaS()
+        {
+            /* FaaS providers for each environment variable
+             * aws.lambda: AWS_EXECUTION_ENV, AWS_LAMBDA_RUNTIME_API
+             * azure.func: FUNCTIONS_WORKER_RUNTIME
+             * gcp.func: K_SERVICE, FUNCTION_NAME
+             * vercel: VERCEL
+             */
+            return (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
+                   Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
+                   Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||
+                   Environment.GetEnvironmentVariable("K_SERVICE") != null ||
+                   Environment.GetEnvironmentVariable("FUNCTION_NAME") != null ||
+                   Environment.GetEnvironmentVariable("VERCEL") != null;
+        }
+
+        private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;
+
+        private HelloResult GetHelloResult(
+            IConnection connection,
+            CommandWireProtocol<BsonDocument> helloProtocol,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, IsUsingStreamingProtocol(connection.Description.HelloResult)));
+
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+                stopwatch.Stop();
+
+                // RTT check if using polling monitoring
+                if (!IsUsingStreamingProtocol(connection.Description.HelloResult))
                 {
-                    CancellationToken cachedHeartbeatCancellationToken;
-                    lock (_lock)
-                    {
-                        cachedHeartbeatCancellationToken = _heartbeatCancellationTokenSource.Token; // we want to cache the current cancellation token in case the source changes
-                    }
-
-                    try
-                    {
-                        Heartbeat(cachedHeartbeatCancellationToken);
-                    }
-                    catch (OperationCanceledException) when (cachedHeartbeatCancellationToken.IsCancellationRequested)
-                    {
-                        // ignore OperationCanceledException when heartbeat cancellation is requested
-                    }
-                    catch (Exception unexpectedException)
-                    {
-                        // if we catch an exception here it's because of a bug in the driver (but we need to defend ourselves against that)
-                        _eventLoggerSdam.LogAndPublish(
-                            unexpectedException,
-                            new SdamInformationEvent(
-                                "Unexpected exception in ServerMonitor.MonitorServer: {0}",
-                                unexpectedException));
-
-                        // since an unexpected exception was thrown set the server description to Unknown (with the unexpected exception)
-                        try
-                        {
-                            // keep this code as simple as possible to keep the surface area with any remaining possible bugs as small as possible
-                            var newDescription = _baseDescription.WithHeartbeatException(unexpectedException); // not With in case the bug is in With
-                            SetDescription(newDescription); // not SetDescriptionIfChanged in case the bug is in SetDescriptionIfChanged
-                        }
-                        catch
-                        {
-                            // if even the simple code in the try throws just give up (at least we've raised the unexpected exception via an SdamInformationEvent)
-                        }
-                    }
-
-                    HeartbeatDelay newHeartbeatDelay;
-                    lock (_lock)
-                    {
-                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
-                        if (_heartbeatDelay != null)
-                        {
-                            _heartbeatDelay.Dispose();
-                        }
-                        _heartbeatDelay = newHeartbeatDelay;
-                    }
-                    newHeartbeatDelay.Wait(monitorCancellationToken); // corresponds to wait method in spec
+                    _roundTripTimeMonitor.AddSample(stopwatch.Elapsed);
                 }
-                catch
-                {
-                    // ignore these exceptions
-                }
+
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, IsUsingStreamingProtocol(connection.Description.HelloResult), helloResult.Wrapped));
+
+                return helloResult;
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, IsUsingStreamingProtocol(connection.Description.HelloResult)));
+
+                throw;
             }
         }
 
@@ -443,37 +430,66 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private HelloResult GetHelloResult(
-            IConnection connection,
-            CommandWireProtocol<BsonDocument> helloProtocol,
-            CancellationToken cancellationToken)
+        private void MonitorServer(CancellationToken monitorCancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var metronome = new Metronome(_serverMonitorSettings.HeartbeatInterval);
 
-            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, IsUsingStreamingProtocol(connection.Description.HelloResult)));
-
-            var stopwatch = Stopwatch.StartNew();
-            try
+            while (!monitorCancellationToken.IsCancellationRequested)
             {
-                var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
-                stopwatch.Stop();
-
-                // RTT check if using polling monitoring
-                if (!IsUsingStreamingProtocol(connection.Description.HelloResult))
+                try
                 {
-                    _roundTripTimeMonitor.AddSample(stopwatch.Elapsed);
+                    CancellationToken cachedHeartbeatCancellationToken;
+                    lock (_lock)
+                    {
+                        cachedHeartbeatCancellationToken = _heartbeatCancellationTokenSource.Token; // we want to cache the current cancellation token in case the source changes
+                    }
+
+                    try
+                    {
+                        Heartbeat(cachedHeartbeatCancellationToken);
+                    }
+                    catch (OperationCanceledException) when (cachedHeartbeatCancellationToken.IsCancellationRequested)
+                    {
+                        // ignore OperationCanceledException when heartbeat cancellation is requested
+                    }
+                    catch (Exception unexpectedException)
+                    {
+                        // if we catch an exception here it's because of a bug in the driver (but we need to defend ourselves against that)
+                        _eventLoggerSdam.LogAndPublish(
+                            unexpectedException,
+                            new SdamInformationEvent(
+                                "Unexpected exception in ServerMonitor.MonitorServer: {0}",
+                                unexpectedException));
+
+                        // since an unexpected exception was thrown set the server description to Unknown (with the unexpected exception)
+                        try
+                        {
+                            // keep this code as simple as possible to keep the surface area with any remaining possible bugs as small as possible
+                            var newDescription = _baseDescription.WithHeartbeatException(unexpectedException); // not With in case the bug is in With
+                            SetDescription(newDescription); // not SetDescriptionIfChanged in case the bug is in SetDescriptionIfChanged
+                        }
+                        catch
+                        {
+                            // if even the simple code in the try throws just give up (at least we've raised the unexpected exception via an SdamInformationEvent)
+                        }
+                    }
+
+                    HeartbeatDelay newHeartbeatDelay;
+                    lock (_lock)
+                    {
+                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
+                        if (_heartbeatDelay != null)
+                        {
+                            _heartbeatDelay.Dispose();
+                        }
+                        _heartbeatDelay = newHeartbeatDelay;
+                    }
+                    newHeartbeatDelay.Wait(monitorCancellationToken); // corresponds to wait method in spec
                 }
-
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, IsUsingStreamingProtocol(connection.Description.HelloResult), helloResult.Wrapped));
-
-                return helloResult;
-            }
-            catch (Exception ex)
-            {
-                stopwatch.Stop();
-                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, stopwatch.Elapsed, ex, IsUsingStreamingProtocol(connection.Description.HelloResult)));
-
-                throw;
+                catch
+                {
+                    // ignore these exceptions
+                }
             }
         }
 
@@ -498,22 +514,6 @@ namespace MongoDB.Driver.Core.Servers
         {
             Interlocked.Exchange(ref _currentDescription, newDescription);
             OnDescriptionChanged(oldDescription, newDescription);
-        }
-
-        private bool IsRunningInFaaS()
-        {
-            /* FaaS providers for each environment variable
-             * aws.lambda: AWS_EXECUTION_ENV, AWS_LAMBDA_RUNTIME_API
-             * azure.func: FUNCTIONS_WORKER_RUNTIME
-             * gcp.func: K_SERVICE, FUNCTION_NAME
-             * vercel: VERCEL
-             */
-            return (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
-                   Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
-                   Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||
-                   Environment.GetEnvironmentVariable("K_SERVICE") != null ||
-                   Environment.GetEnvironmentVariable("FUNCTION_NAME") != null ||
-                   Environment.GetEnvironmentVariable("VERCEL") != null;
         }
 
         private void ThrowIfDisposed()
