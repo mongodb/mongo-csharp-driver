@@ -14,9 +14,9 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (IsInstanceCompareToMethod(method))
+            if (IComparableMethod.IsCompareToMethod(method))
             {
                 var objectExpression = expression.Object;
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
@@ -38,17 +38,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsInstanceCompareToMethod(MethodInfo method)
-        {
-            var parameters = method.GetParameters();
-            return
-                !method.IsStatic &&
-                method.ReturnParameter.ParameterType == typeof(int) &&
-                method.Name == "CompareTo" &&
-                parameters.Length == 1 &&
-                parameters[0].ParameterType == method.DeclaringType;
         }
     }
 }

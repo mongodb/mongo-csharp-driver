@@ -14,10 +14,10 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             return
                 leftExpression is MethodCallExpression leftMethodCallExpression &&
-                IsCompareToMethod(leftMethodCallExpression.Method);
+                IComparableMethod.IsCompareToMethod(leftMethodCallExpression.Method);
         }
 
         // caller is responsible for ensuring constant is on the right
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             Expression rightExpression)
         {
             if (leftExpression is MethodCallExpression leftMethodCallExpression &&
-                IsCompareToMethod(leftMethodCallExpression.Method))
+                IComparableMethod.IsCompareToMethod(leftMethodCallExpression.Method))
             {
                 var fieldExpression = leftMethodCallExpression.Object;
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
@@ -57,18 +57,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsCompareToMethod(MethodInfo method)
-        {
-            ParameterInfo[] parameters;
-            return
-                method.IsPublic == true &&
-                method.IsStatic == false &&
-                method.ReturnType == typeof(int) &&
-                method.Name == "CompareTo" &&
-                (parameters = method.GetParameters()).Length == 1 &&
-                (parameters[0].ParameterType == typeof(object) || parameters[0].ParameterType == method.DeclaringType);
         }
     }
 }
