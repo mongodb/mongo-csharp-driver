@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Search
             var projectionDefinition = Builders.Projection
                 .Include(x => x.Body)
                 .Include(x => x.Title)
-                .MetaSearchScore("score");
+                .MetaSearchScore(x => x.Score);
 
             var result = SearchSingle(searchDefinition, projectionDefinition);
             result.Title.Should().Be("Declaration of Independence");
@@ -299,9 +299,9 @@ namespace MongoDB.Driver.Tests.Search
                 .Project<HistoricalDocument>(Builders.Projection
                     .Include(x => x.Title)
                     .Include(x => x.Body)
-                    .MetaSearchScore("score")
-                    .MetaSearchHighlights("highlights")
-                    .MetaSearchScoreDetails("scoreDetails"))
+                    .MetaSearchScore(x => x.Score)
+                    .MetaSearchHighlights(x => x.Highlights)
+                    .MetaSearchScoreDetails(x => x.ScoreDetails))
                 .ToList();
 
             var result = results.Should().ContainSingle().Subject;
@@ -470,7 +470,7 @@ namespace MongoDB.Driver.Tests.Search
                     new() { Sort = Builders<Movie>.Sort.MetaSearchScoreAscending() })
                 .Project<Movie>(Builders<Movie>.Projection
                     .Include(x => x.Title)
-                    .MetaSearchScore("score"))
+                    .MetaSearchScore(x => x.Score))
                 .Limit(10)
                 .ToList();
             results.First().Title.Should().Be("Invitation to the Dance");
@@ -572,13 +572,16 @@ namespace MongoDB.Driver.Tests.Search
                 IndexName = "sample_mflix__embedded_movies"
             };
 
-            var actualTitles = GetEmbeddedMoviesCollection()
+            var results = GetEmbeddedMoviesCollection()
                 .Aggregate()
                 .VectorSearch(m => m.Embedding, vector, 5, options)
-                .Project(Builders<EmbeddedMovie>.Projection.Expression(m => m.Title))
+                .Project<EmbeddedMovie>(Builders<EmbeddedMovie>.Projection
+                    .Include(m => m.Title)
+                    .MetaVectorSearchScore(p => p.Score))
                 .ToList();
 
-            actualTitles.ShouldBeEquivalentTo(expectedTitles);
+            results.Select(m => m.Title).ShouldBeEquivalentTo(expectedTitles);
+            results.Should().OnlyContain(m => m.Score > 0.9);
         }
 
         [Fact]
@@ -737,6 +740,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("plot_embedding")]
             public double[] Embedding { get; set; }
+
+            [BsonElement("score")]
+            public double Score { get; set; }
         }
     }
 }

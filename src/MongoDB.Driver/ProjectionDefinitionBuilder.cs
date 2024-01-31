@@ -167,7 +167,24 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> MetaSearchHighlights<TDocument>(
             this ProjectionDefinition<TDocument> projection,
-            string field)
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchHighlights(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search highlights projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchHighlights<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaSearchHighlights(field));
@@ -184,7 +201,24 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> MetaSearchScore<TDocument>(
             this ProjectionDefinition<TDocument> projection,
-            string field)
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchScore(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search score projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaSearchScore(field));
@@ -201,7 +235,24 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> MetaSearchScoreDetails<TDocument>(
             this ProjectionDefinition<TDocument> projection,
-            string field)
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search score details projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchScoreDetails<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
@@ -216,10 +267,63 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> MetaTextScore<TDocument>(this ProjectionDefinition<TDocument> projection, string field)
+        public static ProjectionDefinition<TDocument> MetaTextScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaTextScore(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a text score projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaTextScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaTextScore(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a VectorSearch score projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaVectorSearchScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaVectorSearchScore(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a VectorSearch score projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaVectorSearchScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaVectorSearchScore(field));
         }
 
         /// <summary>
@@ -475,7 +579,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A text score projection.
         /// </returns>
-        public ProjectionDefinition<TSource> Meta(string field, string metaFieldName)
+        public ProjectionDefinition<TSource> Meta(FieldDefinition<TSource> field, string metaFieldName)
         {
             return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$meta", metaFieldName));
         }
@@ -487,9 +591,21 @@ namespace MongoDB.Driver
         /// <returns>
         /// A search highlights projection.
         /// </returns>
-        public ProjectionDefinition<TSource> MetaSearchHighlights(string field)
+        public ProjectionDefinition<TSource> MetaSearchHighlights(FieldDefinition<TSource> field)
         {
             return Meta(field, "searchHighlights");
+        }
+
+        /// <summary>
+        /// Creates a search highlights projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search highlights projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchHighlights<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaSearchHighlights(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
@@ -499,9 +615,21 @@ namespace MongoDB.Driver
         /// <returns>
         /// A search score projection.
         /// </returns>
-        public ProjectionDefinition<TSource> MetaSearchScore(string field)
+        public ProjectionDefinition<TSource> MetaSearchScore(FieldDefinition<TSource> field)
         {
             return Meta(field, "searchScore");
+        }
+
+        /// <summary>
+        /// Creates a search score projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchScore<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaSearchScore(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
@@ -511,9 +639,21 @@ namespace MongoDB.Driver
         /// <returns>
         /// A search score details projection.
         /// </returns>
-        public ProjectionDefinition<TSource> MetaSearchScoreDetails(string field)
+        public ProjectionDefinition<TSource> MetaSearchScoreDetails(FieldDefinition<TSource> field)
         {
             return Meta(field, "searchScoreDetails");
+        }
+
+        /// <summary>
+        /// Creates a search score details projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search score details projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchScoreDetails<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaSearchScoreDetails(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
@@ -523,9 +663,45 @@ namespace MongoDB.Driver
         /// <returns>
         /// A text score projection.
         /// </returns>
-        public ProjectionDefinition<TSource> MetaTextScore(string field)
+        public ProjectionDefinition<TSource> MetaTextScore(FieldDefinition<TSource> field)
         {
             return Meta(field, "textScore");
+        }
+
+        /// <summary>
+        /// Creates a text score projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A text score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaTextScore<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaTextScore(new ExpressionFieldDefinition<TSource>(field));
+        }
+
+        /// <summary>
+        /// Creates a VectorSearch score projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A VectorSearch score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaVectorSearchScore(FieldDefinition<TSource> field)
+        {
+            return Meta(field, "vectorSearchScore");
+        }
+
+        /// <summary>
+        /// Creates a VectorSearch score projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A VectorSearch score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaVectorSearchScore<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaVectorSearchScore(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>

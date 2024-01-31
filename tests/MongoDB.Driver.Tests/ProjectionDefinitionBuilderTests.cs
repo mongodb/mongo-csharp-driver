@@ -163,6 +163,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void MetaTextScore_typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.MetaTextScore(p => p.FirstName), "{fn: {$meta: 'textScore'}}");
+        }
+
+        [Fact]
         public void Slice()
         {
             var subject = CreateSubject<BsonDocument>();

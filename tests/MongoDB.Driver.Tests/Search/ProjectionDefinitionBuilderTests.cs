@@ -16,6 +16,7 @@
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Search
@@ -26,32 +27,50 @@ namespace MongoDB.Driver.Tests.Search
         public void MetaSearchHighlights()
         {
             var subject = CreateSubject<BsonDocument>();
-
             AssertRendered(subject.MetaSearchHighlights("a"), "{ a: { $meta: 'searchHighlights' } }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.MetaSearchHighlights(p => p.MetaField), "{ mf : { $meta: 'searchHighlights' } }");
         }
 
         [Fact]
         public void MetaSearchScore()
         {
             var subject = CreateSubject<BsonDocument>();
-
             AssertRendered(subject.MetaSearchScore("a"), "{ a : { $meta: 'searchScore' } }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.MetaSearchScore(p => p.MetaField), "{ mf : { $meta: 'searchScore' } }");
         }
 
         [Fact]
         public void MetaSearchScoreDetails()
         {
             var subject = CreateSubject<BsonDocument>();
-
             AssertRendered(subject.MetaSearchScoreDetails("a"), "{ a : { $meta: 'searchScoreDetails' } }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.MetaSearchScoreDetails(p => p.MetaField), "{ mf : { $meta: 'searchScoreDetails' } }");
+        }
+
+        [Fact]
+        public void MetaVectorSearchScore()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            AssertRendered(subject.MetaVectorSearchScore("a"), "{ a : { $meta: 'vectorSearchScore' } }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.MetaVectorSearchScore(p => p.MetaField), "{ mf : { $meta: 'vectorSearchScore' } }");
         }
 
         [Fact]
         public void SearchMeta()
         {
             var subject = CreateSubject<BsonDocument>();
-
             AssertRendered(subject.SearchMeta("a"), "{ a: '$$SEARCH_META' }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.SearchMeta(p => p.MetaField), "{ mf: '$$SEARCH_META' }");
         }
 
         private void AssertRendered<TDocument>(ProjectionDefinition<TDocument> projection, string expected) =>
@@ -67,5 +86,11 @@ namespace MongoDB.Driver.Tests.Search
 
         private ProjectionDefinitionBuilder<TDocument> CreateSubject<TDocument>() =>
             new ProjectionDefinitionBuilder<TDocument>();
+
+        public class SimplestPerson
+        {
+            [BsonElement("mf")]
+            public string MetaField { get; set; }
+        }
     }
 }
