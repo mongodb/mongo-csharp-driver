@@ -2,7 +2,7 @@ using System;
 
 namespace MongoDB.Driver.Core.TestHelpers;
 
-public class DisposableEnvironmentVariable : IDisposable
+public sealed class DisposableEnvironmentVariable : IDisposable
 {
     private readonly string _initialValue;
     private readonly string _name;

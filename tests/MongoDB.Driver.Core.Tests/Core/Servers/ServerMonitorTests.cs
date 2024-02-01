@@ -1,17 +1,17 @@
 /* Copyright 2016-present MongoDB Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,.Setup software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,.Setup software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 using System;
 using System.Collections.Generic;
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Servers
         public void RoundTripTimeMonitor_should_be_started_only_once_if_using_streaming_protocol()
         {
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(5));
             var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
@@ -321,6 +321,7 @@ namespace MongoDB.Driver.Core.Servers
             SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Once);
+            mockRoundTripTimeMonitor.Verify(m => m.IsStarted, Times.AtLeast(4));
         }
 
         [Fact]
@@ -328,7 +329,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var serverMonitorSettings = new ServerMonitorSettings(
                 TimeSpan.FromSeconds(5),
-                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromMilliseconds(5),
                 serverMonitoringMode: ServerMonitoringMode.Poll);
 
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
@@ -374,7 +375,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100), serverMonitoringMode: ServerMonitoringMode.Poll);
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(5), serverMonitoringMode: ServerMonitoringMode.Poll);
             var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
@@ -469,7 +470,7 @@ namespace MongoDB.Driver.Core.Servers
                     .Capture<ServerHeartbeatStartedEvent>()
                     .Capture<ServerHeartbeatSucceededEvent>();
 
-                var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
+                var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(5));
                 var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
                 SetupHeartbeatConnection(mockConnection, isStreamable: false, autoFillStreamingResponses: false);
