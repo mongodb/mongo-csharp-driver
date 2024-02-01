@@ -18,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
