@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Libgssapi
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
 
             var securePassword = SecureStringHelper.ToSecureString(_password);
-            var credential = GssapiSecurityCredential.Acquire(_username, securePassword);
+            using var credential = GssapiSecurityCredential.Acquire(_username, securePassword);
             credential.Should().NotBeNull();
         }
 
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Libgssapi
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
 
-            var credential = GssapiSecurityCredential.Acquire(_username);
+            using var credential = GssapiSecurityCredential.Acquire(_username);
             credential.Should().NotBeNull();
         }
 
