@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 results.Should().HaveCount(4);
                 results[0].Should().Equal();
                 results[1].Should().Equal(1);
-                results[2].Should().Equal(1, 2);
-                results[3].Should().Equal(1, 2);
+                results[2].Should().BeEquivalentTo(1, 2);
+                results[3].Should().BeEquivalentTo(1, 2);
             }
         }
 
@@ -75,8 +75,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 results.Should().HaveCount(4);
                 results[0].Should().Equal();
                 results[1].Should().Equal(1);
-                results[2].Should().Equal(1, 2);
-                results[3].Should().Equal(1, 2);
+                results[2].Should().BeEquivalentTo(1, 2);
+                results[3].Should().BeEquivalentTo(1, 2);
             }
         }
 
