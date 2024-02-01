@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            var majorStatus = NativeMethods.gss_delete_sec_context(out var minorStatus, handle, IntPtr.Zero);
+            var majorStatus = NativeMethods.gss_delete_sec_context(out var minorStatus, ref handle, IntPtr.Zero);
             return majorStatus == 0 && minorStatus == 0;
         }
 

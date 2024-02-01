@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         public static extern uint gss_release_cred(out uint minorStatus, IntPtr credentialHandle);
 
         [DllImport(GSSAPI_LIBRARY)]
-        public static extern uint gss_delete_sec_context(out uint minorStatus, IntPtr securityContextHandle, IntPtr outputToken);
+        public static extern uint gss_delete_sec_context(out uint minorStatus, ref IntPtr securityContextHandle, IntPtr outputToken);
 
         [DllImport(GSSAPI_LIBRARY)]
         public static extern uint gss_wrap(out uint minorStatus, IntPtr securityContextHandle, int confidentialityRequested, int protectionType, GssInputBuffer inputBuffer, out int confidentialityState, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer outputBuffer);
