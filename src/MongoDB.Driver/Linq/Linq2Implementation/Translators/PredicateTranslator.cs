@@ -501,7 +501,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Translators
 
             var fieldExpression = GetFieldExpression(variableExpression);
 
-            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, _serializerRegistry, constantExpression.Type, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, _serializerRegistry, constantExpression.Type, value, LinqProvider.V2);
             var serializedValue = valueSerializer.ToBsonValue(value);
 
             switch (operatorType)

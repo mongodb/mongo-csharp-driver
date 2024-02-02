@@ -20,18 +20,19 @@ using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
     internal static class FieldValueSerializerHelper
     {
-        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, LinqProvider linqProvider)
         {
-            return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
+            return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false, linqProvider);
         }
 
-        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, bool allowScalarValueForArrayField)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, bool allowScalarValueForArrayField, LinqProvider linqProvider)
         {
             var fieldType = fieldSerializer.ValueType;
 
@@ -48,15 +49,18 @@ namespace MongoDB.Driver
                 return fieldSerializer;
             }
 
-            // serialize numeric values without converting them
-            if (fieldType.IsNumeric() && valueType.IsNumeric())
+            // serialize numeric values without converting them (only when using LINQ2)
+            if (linqProvider == LinqProvider.V2)
             {
-                var valueSerializer = BsonSerializer.SerializerRegistry.GetSerializer(valueType);
-                if (HasStringRepresentation(fieldSerializer))
+                if (fieldType.IsNumeric() && valueType.IsNumeric())
                 {
-                    valueSerializer = WithStringRepresentation(valueSerializer);
+                    var valueSerializer = BsonSerializer.SerializerRegistry.GetSerializer(valueType);
+                    if (HasStringRepresentation(fieldSerializer))
+                    {
+                        valueSerializer = WithStringRepresentation(valueSerializer);
+                    }
+                    return valueSerializer;
                 }
-                return valueSerializer;
             }
 
             var fieldTypeInfo = fieldType.GetTypeInfo();
@@ -105,21 +109,24 @@ namespace MongoDB.Driver
                 return (IBsonSerializer)nullableEnumConvertingSerializerConstructor.Invoke(new object[] { nonNullableFieldSerializer });
             }
 
-            // synthesize an IEnumerableSerializer serializer using the item serializer from the field serializer
-            Type fieldIEnumerableInterfaceType;
-            Type valueIEnumerableInterfaceType;
-            Type itemType;
-            if (
-                (fieldIEnumerableInterfaceType = fieldType.FindIEnumerable()) != null &&
-                (valueIEnumerableInterfaceType = valueType.FindIEnumerable()) != null &&
-                (itemType = fieldIEnumerableInterfaceType.GetSequenceElementType()) == valueIEnumerableInterfaceType.GetSequenceElementType() &&
-                fieldSerializer is IChildSerializerConfigurable)
+            // synthesize an IEnumerableSerializer serializer using the item serializer from the field serializer (only when using LINQ2)
+            if (linqProvider == LinqProvider.V2)
             {
-                var itemSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
-                var itemSerializerInterfaceType = typeof(IBsonSerializer<>).MakeGenericType(itemType);
-                var ienumerableSerializerType = typeof(IEnumerableSerializer<>).MakeGenericType(itemType);
-                var ienumerableSerializerConstructor = ienumerableSerializerType.GetTypeInfo().GetConstructor(new[] { itemSerializerInterfaceType });
-                return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
+                Type fieldIEnumerableInterfaceType;
+                Type valueIEnumerableInterfaceType;
+                Type itemType;
+                if (
+                    (fieldIEnumerableInterfaceType = fieldType.FindIEnumerable()) != null &&
+                    (valueIEnumerableInterfaceType = valueType.FindIEnumerable()) != null &&
+                    (itemType = fieldIEnumerableInterfaceType.GetSequenceElementType()) == valueIEnumerableInterfaceType.GetSequenceElementType() &&
+                    fieldSerializer is IChildSerializerConfigurable)
+                {
+                    var itemSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
+                    var itemSerializerInterfaceType = typeof(IBsonSerializer<>).MakeGenericType(itemType);
+                    var ienumerableSerializerType = typeof(IEnumerableSerializer<>).MakeGenericType(itemType);
+                    var ienumerableSerializerConstructor = ienumerableSerializerType.GetTypeInfo().GetConstructor(new[] { itemSerializerInterfaceType });
+                    return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
+                }
             }
 
             if (allowScalarValueForArrayField)
@@ -132,7 +139,7 @@ namespace MongoDB.Driver
                     if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         var itemSerializer = itemSerializationInfo.Serializer;
-                        return GetSerializerForValueType(itemSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
+                        return GetSerializerForValueType(itemSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false, linqProvider);
                     }
                 }
             }
@@ -141,7 +148,7 @@ namespace MongoDB.Driver
             return ConvertIfPossibleSerializer.Create(valueType, fieldType, fieldSerializer, serializerRegistry);
         }
 
-        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, object value)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, object value, LinqProvider linqProvider)
         {
             if (!valueType.GetTypeInfo().IsValueType && value == null)
             {
@@ -149,7 +156,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
+                return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false, linqProvider);
             }
         }
 
@@ -216,8 +223,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var serializer = _serializerRegistry.GetSerializer<TFrom>();
-                    serializer.Serialize(context, args, value);
+                    throw new InvalidOperationException($"Value could not be converted from type {typeof(TFrom)} to type {typeof(TTo)} to be serialized by the proper serializer.");
                 }
             }
 
