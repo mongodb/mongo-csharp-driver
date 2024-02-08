@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Driver.Core.Servers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -39,12 +40,21 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void DefaultServerMonitoringMode_should_return_expected_result()
+        {
+            var result = ServerSettings.DefaultServerMonitoringMode;
+
+            result.Should().Be(ServerMonitoringMode.Auto);
+        }
+
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new ServerSettings();
 
             subject.HeartbeatInterval.Should().Be(ServerSettings.DefaultHeartbeatInterval);
             subject.HeartbeatTimeout.Should().Be(ServerSettings.DefaultHeartbeatTimeout);
+            subject.ServerMonitoringMode.Should().Be(ServerSettings.DefaultServerMonitoringMode);
         }
 
         [Fact]
@@ -86,6 +96,16 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void constructor_with_serverMonitoringMode_should_initialize_instance()
+        {
+            var serverMonitoringMode = ServerMonitoringMode.Stream;
+
+            var subject = new ServerSettings(serverMonitoringMode: serverMonitoringMode);
+
+            subject.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
+        }
+
+        [Fact]
         public void With_heartbeatInterval_should_return_expected_result()
         {
             var oldHeartbeatInterval = TimeSpan.FromSeconds(1);
@@ -109,6 +129,16 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
             result.HeartbeatTimeout.Should().Be(newHeartbeatTimeout);
+        }
+
+        [Fact]
+        public void With_serverMonitoringMode_should_return_expected_result()
+        {
+            var subject = new ServerSettings(serverMonitoringMode: ServerMonitoringMode.Poll);
+
+            var result = subject.With(serverMonitoringMode: ServerMonitoringMode.Stream);
+
+            result.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
         }
     }
 }

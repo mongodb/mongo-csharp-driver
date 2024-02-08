@@ -319,6 +319,45 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                             throw new FormatException($"Unexpected {expectedEventType} fields.");
                         }
                         break;
+                    case ServerHeartbeatStartedEvent serverHeartbeatStartedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "awaited":
+                                    serverHeartbeatStartedEvent.Awaited.Should().Be(element.Value.AsBoolean);
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case ServerHeartbeatSucceededEvent serverHeartbeatSucceededEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "awaited":
+                                    serverHeartbeatSucceededEvent.Awaited.Should().Be(element.Value.AsBoolean);
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case ServerHeartbeatFailedEvent serverHeartbeatFailedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "awaited":
+                                    serverHeartbeatFailedEvent.Awaited.Should().Be(element.Value.AsBoolean);
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
+                        break;
                     default:
                         throw new FormatException($"Unrecognized event type: '{expectedEventType}'.");
                 }
@@ -370,6 +409,30 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                             { "timestamp", commandFailedEvent.Timestamp.ToString("HH:mm:ss.fffffffK") }
                         };
                         actualEventsDocuments.Add(new BsonDocument("commandFailedEvent", commandFailedDocument));
+                        break;
+                    case ServerHeartbeatStartedEvent serverHeartbeatStartedEvent:
+                        var serverHeartbeatStartedEventDocument = new BsonDocument
+                        {
+                            { "awaited", serverHeartbeatStartedEvent.Awaited }
+                        };
+                        actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name,
+                            serverHeartbeatStartedEventDocument));
+                        break;
+                    case ServerHeartbeatSucceededEvent serverHeartbeatSucceededEvent:
+                        var serverHeartbeatSucceededEventDocument = new BsonDocument
+                        {
+                            { "awaited", serverHeartbeatSucceededEvent.Awaited }
+                        };
+                        actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name,
+                            serverHeartbeatSucceededEventDocument));
+                        break;
+                    case ServerHeartbeatFailedEvent serverHeartbeatFailedEvent:
+                        var serverHeartbeatFailedEventDocument = new BsonDocument
+                        {
+                            { "awaited", serverHeartbeatFailedEvent.Awaited }
+                        };
+                        actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name,
+                            serverHeartbeatFailedEventDocument));
                         break;
                     default:
                         actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name, actualEvent.ToString()));

@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Linq;
 using MongoDB.Shared;
@@ -71,6 +72,7 @@ namespace MongoDB.Driver
         private string _sdamLogFilename;
         private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
+        private ServerMonitoringMode _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private int _srvMaxHosts;
@@ -131,6 +133,7 @@ namespace MongoDB.Driver
             _sdamLogFilename = null;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
+            _serverMonitoringMode = ServerMonitoringMode.Auto;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _srvMaxHosts = 0;
@@ -714,6 +717,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the server monitoring mode to use.
+        /// </summary>
+        public ServerMonitoringMode ServerMonitoringMode
+        {
+            get { return _serverMonitoringMode; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serverMonitoringMode = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the server selection timeout.
         /// </summary>
         public TimeSpan ServerSelectionTimeout
@@ -991,6 +1007,7 @@ namespace MongoDB.Driver
             clientSettings.RetryWrites = url.RetryWrites.GetValueOrDefault(true);
             clientSettings.Scheme = url.Scheme;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
+            clientSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
@@ -1051,6 +1068,7 @@ namespace MongoDB.Driver
             clone._sdamLogFilename = _sdamLogFilename;
             clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
+            clone._serverMonitoringMode = _serverMonitoringMode;
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
             clone._srvMaxHosts = _srvMaxHosts;
@@ -1121,6 +1139,7 @@ namespace MongoDB.Driver
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
+                _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
@@ -1207,6 +1226,7 @@ namespace MongoDB.Driver
                 .Hash(_sdamLogFilename)
                 .Hash(_serverApi)
                 .HashElements(_servers)
+                .Hash(_serverMonitoringMode)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
                 .Hash(_srvMaxHosts)
@@ -1294,6 +1314,7 @@ namespace MongoDB.Driver
                 sb.AppendFormat("ServerApi={0};", _serverApi);
             }
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
+            sb.AppendFormat("serverMonitoringMode={0};", _serverMonitoringMode);
             sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
             sb.AppendFormat("SrvMaxHosts={0}", _srvMaxHosts);
@@ -1346,6 +1367,7 @@ namespace MongoDB.Driver
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?
                 _serverApi,
                 _servers.ToList(),
+                _serverMonitoringMode,
                 _serverSelectionTimeout,
                 _socketTimeout,
                 _srvMaxHosts,

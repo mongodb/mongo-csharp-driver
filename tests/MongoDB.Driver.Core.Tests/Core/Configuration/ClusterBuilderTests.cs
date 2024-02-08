@@ -39,12 +39,13 @@ namespace MongoDB.Driver.Core.Configuration
             var connectTimeout = TimeSpan.FromMilliseconds(connectTimeoutMilliseconds);
             var authenticatorFactories = new[] { new AuthenticatorFactory(() => new DefaultAuthenticator(new UsernamePasswordCredential("source", "username", "password"), serverApi: null)) };
             var heartbeatTimeout = TimeSpan.FromMilliseconds(heartbeatTimeoutMilliseconds);
+            var serverMonitoringMode = ServerMonitoringMode.Stream;
             var expectedServerMonitorConnectTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorConnectTimeoutMilliseconds);
             var expectedServerMonitorSocketTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorSocketTimeoutMilliseconds);
             var subject = new ClusterBuilder()
                 .ConfigureTcp(s => s.With(connectTimeout: connectTimeout))
                 .ConfigureConnection(s => s.With(authenticatorFactories: authenticatorFactories))
-                .ConfigureServer(s => s.With(heartbeatTimeout: heartbeatTimeout));
+                .ConfigureServer(s => s.With(heartbeatTimeout: heartbeatTimeout, serverMonitoringMode: serverMonitoringMode));
 
             var result = (ServerMonitorFactory)subject.CreateServerMonitorFactory();
 
@@ -61,6 +62,7 @@ namespace MongoDB.Driver.Core.Configuration
             var eventSuscriber = result._eventSubscriber();
 
             var serverSettings = result._serverMonitorSettings();
+            serverSettings.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
         }
 
         [Fact]

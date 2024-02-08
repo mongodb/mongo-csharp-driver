@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Servers
     internal interface IRoundTripTimeMonitor : IDisposable
     {
         TimeSpan Average { get; }
+        bool IsStarted { get; }
         void AddSample(TimeSpan roundTripTime);
         void Reset();
         void Start();
@@ -77,6 +78,8 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
         }
+
+        public bool IsStarted => _roundTripTimeMonitorThread != null;
 
         // public methods
         public void Dispose()

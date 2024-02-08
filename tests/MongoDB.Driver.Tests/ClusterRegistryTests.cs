@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -110,6 +111,7 @@ namespace MongoDB.Driver.Tests
                 sendBufferSize: 10,
                 serverApi: serverApi,
                 servers: servers,
+                serverMonitoringMode: ServerMonitoringMode.Stream,
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
                 srvMaxHosts: 0,

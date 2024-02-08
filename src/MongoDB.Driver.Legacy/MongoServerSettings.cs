@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -1223,6 +1224,7 @@ namespace MongoDB.Driver
                 MongoDefaults.TcpSendBufferSize,
                 serverApi: null, // not supported for legacy
                 _servers.ToList(),
+                ServerMonitoringMode.Auto,
                 _serverSelectionTimeout,
                 _socketTimeout,
                 srvMaxHosts: 0, // not supported for legacy
