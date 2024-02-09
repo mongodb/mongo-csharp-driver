@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
 
             __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
 
-            var retryableErrorCodes = new HashSet<ServerErrorCode>
+            var retryableReadAndWriteErrorCodes = new HashSet<ServerErrorCode>
             {
                 ServerErrorCode.ExceededTimeLimit,
                 ServerErrorCode.HostNotFound,
@@ -59,9 +59,12 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.SocketException
             };
 
-            __retryableReadErrorCodes = new HashSet<ServerErrorCode>(retryableErrorCodes);
+            __retryableReadErrorCodes = new HashSet<ServerErrorCode>(retryableReadAndWriteErrorCodes)
+            {
+                ServerErrorCode.ReadConcernMajorityNotAvailableYet
+            };
 
-            __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(retryableErrorCodes);
+            __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(retryableReadAndWriteErrorCodes);
 
             __resumableChangeStreamErrorCodes = new HashSet<ServerErrorCode>()
             {
