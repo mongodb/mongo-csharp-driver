@@ -814,12 +814,12 @@ namespace MongoDB.Bson.IO
         // private methods
         private string EscapedString(string value)
         {
-            if (value.All(c => !NeedsEscaping(c)))
+            if (!NeedsEscaping(value, out var escapedLength))
             {
                 return value;
             }
 
-            var sb = new StringBuilder(value.Length);
+            var sb = new StringBuilder(escapedLength);
 
             foreach (char c in value)
             {
@@ -935,7 +935,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private static bool NeedsEscaping(char c)
+        private static int EscapedLength(char c)
         {
             switch (c)
             {
@@ -946,7 +946,7 @@ namespace MongoDB.Bson.IO
                 case '\n':
                 case '\r':
                 case '\t':
-                    return true;
+                    return 2;
 
                 default:
                     switch (CharUnicodeInfo.GetUnicodeCategory(c))
@@ -970,12 +970,25 @@ namespace MongoDB.Bson.IO
                         case UnicodeCategory.CurrencySymbol:
                         case UnicodeCategory.ModifierSymbol:
                         case UnicodeCategory.OtherSymbol:
-                            return false;
+                            return 1;
 
                         default:
-                            return true;
+                            return 4;
                     }
             }
+        }
+
+        private static bool NeedsEscaping(string value, out int escapedLength)
+        {
+            var unescapedLength = value.Length;
+
+            escapedLength = 0;
+            for (var i = 0; i < unescapedLength; i++)
+            {
+                escapedLength += EscapedLength(value[i]);
+            }
+
+            return escapedLength != unescapedLength;
         }
 
         private void WriteNameHelper(string name)
