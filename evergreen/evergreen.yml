@@ -944,7 +944,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
         permissions: public-read
@@ -953,7 +953,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
         permissions: public-read
@@ -964,14 +964,14 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
 
@@ -2331,22 +2331,24 @@ buildvariants:
 - matrix_name: build-packages
   matrix_spec:
     build-target: "release"
+    os: "windows-64" # should produce package on Windows to make sure full framework binaries created.
   display_name: "Package Pack"
-  run_on: ubuntu2004-small
   tags: ["build-packages", "release-tag"]
   tasks:
     - name: build-packages
       git_tag_only: true
+      priority: 10
 
 - matrix_name: generate-apidocs
   matrix_spec:
     build-target: "release"
+    os: "ubuntu-2004"
   display_name: "Generate API Documentation"
-  run_on: ubuntu2004-small
   tags: ["build-apidocs", "release-tag"]
   tasks:
     - name: generate-apidocs
       git_tag_only: true
+      priority: 10
       depends_on:
         - name: build-packages
           variant: ".build-packages"
@@ -2355,12 +2357,13 @@ buildvariants:
 - matrix_name: push-packages
   matrix_spec:
     build-target: "release"
+    os: "ubuntu-2004"
   display_name: "Package Push"
-  run_on: ubuntu2004-small
   tags: ["push-packages", "release-tag"]
   tasks:
     - name: push-packages
       git_tag_only: true
+      priority: 10
       depends_on:
         - name: build-packages
           variant: ".build-packages"
