@@ -2200,7 +2200,7 @@ buildvariants:
     - name: test-serverless
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804", target_framework: ["netstandard20", "netstandard21"], serverless_proxy_type: "*" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard20", "netstandard21"], serverless_proxy_type: "*" }
   display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   tasks:
     - name: test-serverless
