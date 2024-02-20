@@ -17,10 +17,10 @@ if [ -z "$PACKAGE_VERSION" ]; then
   exit 1
 fi
 
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Bson."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.Core."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.GridFS."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/mongocsharpdriver."$PACKAGE_VERSION".nupkg
+#dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Bson."$PACKAGE_VERSION".nupkg
+#dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.Core."$PACKAGE_VERSION".nupkg
+#dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver."$PACKAGE_VERSION".nupkg
+#dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.GridFS."$PACKAGE_VERSION".nupkg
+#dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/mongocsharpdriver."$PACKAGE_VERSION".nupkg
 
 
