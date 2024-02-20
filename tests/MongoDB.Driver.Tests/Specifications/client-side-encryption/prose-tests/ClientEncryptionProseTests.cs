@@ -1514,7 +1514,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                             AssertTlsWithoutClientCertOnWindows(exception);
                                             break;
                                         case OperatingSystemPlatform.Linux:
-                                            AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                            AssertTlsWithoutClientCertOnLinux(exception);
                                             break;
                                         case OperatingSystemPlatform.MacOS:
                                             AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
@@ -1554,7 +1554,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
@@ -1592,7 +1592,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
@@ -1630,7 +1630,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
@@ -1663,6 +1663,29 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 isCertificateExpired.Should().Be(isExpired);
                 isInvalidHost.Should().Be(invalidHost);
+            }
+
+            void AssertTlsWithoutClientCertOnLinux(Exception exception)
+            {
+                try
+                {
+                    AssertInnerEncryptionException(
+                        exception,
+                        Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true),
+                        "Authentication failed, see inner exception.",
+                        "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                }
+                catch (XunitException)
+                {
+                    // With Tls1.3, there is no report of a failed handshake if the client certificate verification fails
+                    // since the client receives a 'Finished' message from the server before sending its certificate, it assumes
+                    // authentication and we will not know if there was an error until we next read/write from the server.
+                    AssertInnerEncryptionException<SocketException>(
+                        exception,
+                        async
+                            ? "Unable to read data from the transport connection: Connection reset by peer."
+                            : "Unable to write data to the transport connection: Connection reset by peer.");
+                }
             }
 
             void AssertTlsWithoutClientCertOnWindows(Exception exception)
