@@ -21,6 +21,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using Xunit;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -45,8 +46,10 @@ namespace MongoDB.Driver.Core.Operations
         public void AddRetryableWriteErrorLabelIfRequired_should_add_RetryableWriteError_for_MongoWriteConcernException_when_required(int errorCode, bool shouldAddErrorLabel)
         {
             var exception = CoreExceptionHelper.CreateMongoWriteConcernException(BsonDocument.Parse($"{{ writeConcernError : {{ code : {errorCode} }} }}"));
+            var maxWireVersion = Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(maxWireVersion);
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, connectionDescription);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
@@ -59,8 +62,9 @@ namespace MongoDB.Driver.Core.Operations
             var exception = (MongoException)CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
             var feature = Feature.ServerReturnsRetryableWriteErrorLabel;
             var wireVersion = serverReturnsRetryableWriteErrorLabel ? feature.FirstSupportedWireVersion : feature.LastNotSupportedWireVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(wireVersion);
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, wireVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, connectionDescription);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().BeTrue();
@@ -89,8 +93,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
+            var maxWireVersion = Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(maxWireVersion);
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, connectionDescription);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
