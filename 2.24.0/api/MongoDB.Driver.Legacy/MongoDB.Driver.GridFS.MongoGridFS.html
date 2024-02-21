@@ -1,0 +1,485 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoGridFS
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoGridFS
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/master/apiSpec/new?filename=MongoDB_Driver_GridFS_MongoGridFS.md&amp;value=---%0Auid%3A%20MongoDB.Driver.GridFS.MongoGridFS%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.GridFS.MongoGridFS">
+
+
+
+  <h1 id="MongoDB_Driver_GridFS_MongoGridFS" data-uid="MongoDB.Driver.GridFS.MongoGridFS" class="text-break">
+    Class MongoGridFS
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Legacy/GridFS/MongoGridFS.cs/#L29"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.GridFS.html">GridFS</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a GridFS file system.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MongoGridFS</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoGridFS</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.-ctor.html#MongoDB_Driver_GridFS_MongoGridFS__ctor_MongoDB_Driver_MongoDatabase_">MongoGridFS(MongoDatabase)</a></dt>
+    <dd><p>Initializes a new instance of the MongoGridFS class.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.-ctor.html#MongoDB_Driver_GridFS_MongoGridFS__ctor_MongoDB_Driver_MongoDatabase_MongoDB_Driver_GridFS_MongoGridFSSettings_">MongoGridFS(MongoDatabase, MongoGridFSSettings)</a></dt>
+    <dd><p>Initializes a new instance of the MongoGridFS class.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.-ctor.html#MongoDB_Driver_GridFS_MongoGridFS__ctor_MongoDB_Driver_MongoServer_System_String_MongoDB_Driver_GridFS_MongoGridFSSettings_">MongoGridFS(MongoServer, string, MongoGridFSSettings)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.html">MongoGridFS</a> class.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Chunks.html#MongoDB_Driver_GridFS_MongoGridFS_Chunks">Chunks</a></dt>
+    <dd><p>Gets the chunks collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Database.html#MongoDB_Driver_GridFS_MongoGridFS_Database">Database</a></dt>
+    <dd><p>Gets the database containing the GridFS collections.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.DatabaseName.html#MongoDB_Driver_GridFS_MongoGridFS_DatabaseName">DatabaseName</a></dt>
+    <dd><p>Gets the database containing the GridFS collections.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Files.html#MongoDB_Driver_GridFS_MongoGridFS_Files">Files</a></dt>
+    <dd><p>Gets the files collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Server.html#MongoDB_Driver_GridFS_MongoGridFS_Server">Server</a></dt>
+    <dd><p>Gets the server containing the GridFS collections.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Settings.html#MongoDB_Driver_GridFS_MongoGridFS_Settings">Settings</a></dt>
+    <dd><p>Gets the GridFS settings.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.AppendText.html#MongoDB_Driver_GridFS_MongoGridFS_AppendText_System_String_">AppendText(string)</a></dt>
+    <dd><p>Appends UTF-8 encoded text to an existing GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.CopyTo.html#MongoDB_Driver_GridFS_MongoGridFS_CopyTo_System_String_System_String_">CopyTo(string, string)</a></dt>
+    <dd><p>Copies a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.CopyTo.html#MongoDB_Driver_GridFS_MongoGridFS_CopyTo_System_String_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">CopyTo(string, string, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Copies a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Create.html#MongoDB_Driver_GridFS_MongoGridFS_Create_System_String_">Create(string)</a></dt>
+    <dd><p>Creates or overwrites a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Create.html#MongoDB_Driver_GridFS_MongoGridFS_Create_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">Create(string, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Creates or overwrites a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.CreateText.html#MongoDB_Driver_GridFS_MongoGridFS_CreateText_System_String_">CreateText(string)</a></dt>
+    <dd><p>Creates or opens a GridFS file for writing UTF-8 encoded text.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.CreateText.html#MongoDB_Driver_GridFS_MongoGridFS_CreateText_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">CreateText(string, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Creates or opens a GridFS file for writing UTF-8 encoded text.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Delete.html#MongoDB_Driver_GridFS_MongoGridFS_Delete_MongoDB_Driver_IMongoQuery_">Delete(IMongoQuery)</a></dt>
+    <dd><p>Deletes GridFS files.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Delete.html#MongoDB_Driver_GridFS_MongoGridFS_Delete_System_String_">Delete(string)</a></dt>
+    <dd><p>Deletes all versions of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.DeleteById.html#MongoDB_Driver_GridFS_MongoGridFS_DeleteById_MongoDB_Bson_BsonValue_">DeleteById(BsonValue)</a></dt>
+    <dd><p>Deletes a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_IO_Stream_MongoDB_Driver_GridFS_MongoGridFSFileInfo_">Download(Stream, MongoGridFSFileInfo)</a></dt>
+    <dd><p>Downloads a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_IO_Stream_MongoDB_Driver_IMongoQuery_">Download(Stream, IMongoQuery)</a></dt>
+    <dd><p>Downloads the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_IO_Stream_MongoDB_Driver_IMongoQuery_System_Int32_">Download(Stream, IMongoQuery, int)</a></dt>
+    <dd><p>Downloads a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_IO_Stream_System_String_">Download(Stream, string)</a></dt>
+    <dd><p>Downloads the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_IO_Stream_System_String_System_Int32_">Download(Stream, string, int)</a></dt>
+    <dd><p>Downloads a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_">Download(string)</a></dt>
+    <dd><p>Downloads the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_MongoDB_Driver_GridFS_MongoGridFSFileInfo_">Download(string, MongoGridFSFileInfo)</a></dt>
+    <dd><p>Downloads a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_MongoDB_Driver_IMongoQuery_">Download(string, IMongoQuery)</a></dt>
+    <dd><p>Downloads the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_MongoDB_Driver_IMongoQuery_System_Int32_">Download(string, IMongoQuery, int)</a></dt>
+    <dd><p>Downloads a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_System_Int32_">Download(string, int)</a></dt>
+    <dd><p>Downloads a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_System_String_">Download(string, string)</a></dt>
+    <dd><p>Downloads the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Download.html#MongoDB_Driver_GridFS_MongoGridFS_Download_System_String_System_String_System_Int32_">Download(string, string, int)</a></dt>
+    <dd><p>Downloads a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.EnsureIndexes.html#MongoDB_Driver_GridFS_MongoGridFS_EnsureIndexes">EnsureIndexes()</a></dt>
+    <dd><p>Ensures that the proper indexes for GridFS exist (only creates the new indexes if there are fewer than 1000 GridFS files).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.EnsureIndexes.html#MongoDB_Driver_GridFS_MongoGridFS_EnsureIndexes_System_Int32_">EnsureIndexes(int)</a></dt>
+    <dd><p>Ensures that the proper indexes for GridFS exist.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Exists.html#MongoDB_Driver_GridFS_MongoGridFS_Exists_MongoDB_Driver_IMongoQuery_">Exists(IMongoQuery)</a></dt>
+    <dd><p>Tests whether a GridFS file exists.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Exists.html#MongoDB_Driver_GridFS_MongoGridFS_Exists_System_String_">Exists(string)</a></dt>
+    <dd><p>Tests whether a GridFS file exists.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.ExistsById.html#MongoDB_Driver_GridFS_MongoGridFS_ExistsById_MongoDB_Bson_BsonValue_">ExistsById(BsonValue)</a></dt>
+    <dd><p>Tests whether a GridFS file exists.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Find.html#MongoDB_Driver_GridFS_MongoGridFS_Find_MongoDB_Driver_IMongoQuery_">Find(IMongoQuery)</a></dt>
+    <dd><p>Finds matching GridFS files.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Find.html#MongoDB_Driver_GridFS_MongoGridFS_Find_System_String_">Find(string)</a></dt>
+    <dd><p>Finds matching GridFS files.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindAll.html#MongoDB_Driver_GridFS_MongoGridFS_FindAll">FindAll()</a></dt>
+    <dd><p>Finds all GridFS files.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindOne.html#MongoDB_Driver_GridFS_MongoGridFS_FindOne_MongoDB_Driver_IMongoQuery_">FindOne(IMongoQuery)</a></dt>
+    <dd><p>Finds the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindOne.html#MongoDB_Driver_GridFS_MongoGridFS_FindOne_MongoDB_Driver_IMongoQuery_System_Int32_">FindOne(IMongoQuery, int)</a></dt>
+    <dd><p>Finds a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindOne.html#MongoDB_Driver_GridFS_MongoGridFS_FindOne_System_String_">FindOne(string)</a></dt>
+    <dd><p>Finds the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindOne.html#MongoDB_Driver_GridFS_MongoGridFS_FindOne_System_String_System_Int32_">FindOne(string, int)</a></dt>
+    <dd><p>Finds a specific version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.FindOneById.html#MongoDB_Driver_GridFS_MongoGridFS_FindOneById_MongoDB_Bson_BsonValue_">FindOneById(BsonValue)</a></dt>
+    <dd><p>Finds a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.MoveTo.html#MongoDB_Driver_GridFS_MongoGridFS_MoveTo_System_String_System_String_">MoveTo(string, string)</a></dt>
+    <dd><p>Moves the most recent version of a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Open.html#MongoDB_Driver_GridFS_MongoGridFS_Open_System_String_System_IO_FileMode_">Open(string, FileMode)</a></dt>
+    <dd><p>Opens a GridFS file with the specified mode.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Open.html#MongoDB_Driver_GridFS_MongoGridFS_Open_System_String_System_IO_FileMode_System_IO_FileAccess_">Open(string, FileMode, FileAccess)</a></dt>
+    <dd><p>Opens a GridFS file with the specified mode and access.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Open.html#MongoDB_Driver_GridFS_MongoGridFS_Open_System_String_System_IO_FileMode_System_IO_FileAccess_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">Open(string, FileMode, FileAccess, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Opens a GridFS file with the specified mode, access and create options.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.OpenRead.html#MongoDB_Driver_GridFS_MongoGridFS_OpenRead_System_String_">OpenRead(string)</a></dt>
+    <dd><p>Opens an existing GridFS file for reading.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.OpenText.html#MongoDB_Driver_GridFS_MongoGridFS_OpenText_System_String_">OpenText(string)</a></dt>
+    <dd><p>Opens an existing UTF-8 encoded text GridFS file for reading.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.OpenWrite.html#MongoDB_Driver_GridFS_MongoGridFS_OpenWrite_System_String_">OpenWrite(string)</a></dt>
+    <dd><p>Opens an existing GridFS file for writing.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.OpenWrite.html#MongoDB_Driver_GridFS_MongoGridFS_OpenWrite_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">OpenWrite(string, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Opens an existing GridFS file for writing.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.SetAliases.html#MongoDB_Driver_GridFS_MongoGridFS_SetAliases_MongoDB_Driver_GridFS_MongoGridFSFileInfo_System_String___">SetAliases(MongoGridFSFileInfo, string[])</a></dt>
+    <dd><p>Sets the aliases for an existing GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.SetContentType.html#MongoDB_Driver_GridFS_MongoGridFS_SetContentType_MongoDB_Driver_GridFS_MongoGridFSFileInfo_System_String_">SetContentType(MongoGridFSFileInfo, string)</a></dt>
+    <dd><p>Sets the content type for an existing GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.SetMetadata.html#MongoDB_Driver_GridFS_MongoGridFS_SetMetadata_MongoDB_Driver_GridFS_MongoGridFSFileInfo_MongoDB_Bson_BsonValue_">SetMetadata(MongoGridFSFileInfo, BsonValue)</a></dt>
+    <dd><p>Sets the metadata for an existing GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Upload.html#MongoDB_Driver_GridFS_MongoGridFS_Upload_System_IO_Stream_System_String_">Upload(Stream, string)</a></dt>
+    <dd><p>Uploads a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Upload.html#MongoDB_Driver_GridFS_MongoGridFS_Upload_System_IO_Stream_System_String_MongoDB_Driver_GridFS_MongoGridFSCreateOptions_">Upload(Stream, string, MongoGridFSCreateOptions)</a></dt>
+    <dd><p>Uploads a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Upload.html#MongoDB_Driver_GridFS_MongoGridFS_Upload_System_String_">Upload(string)</a></dt>
+    <dd><p>Uploads a GridFS file.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.GridFS.MongoGridFS.Upload.html#MongoDB_Driver_GridFS_MongoGridFS_Upload_System_String_System_String_">Upload(string, string)</a></dt>
+    <dd><p>Uploads a GridFS file.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
