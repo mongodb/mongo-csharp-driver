@@ -19,7 +19,7 @@ namespace MongoDB.Bson.EqualsPoc
         public bool Equals(EquatableBaseClass other) =>
             object.ReferenceEquals(this, other) ||
             !object.ReferenceEquals(other, null) &&
-            this.GetType() == other.GetType() &&
+            this.GetType().Equals(other.GetType()) &&
             object.Equals(_ref1, other._ref1) &&
             _value1.Equals(other._value1);
 
