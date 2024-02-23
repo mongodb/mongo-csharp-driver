@@ -9,4 +9,4 @@ fi
 echo Creating nuget package...
 
 dotnet clean ./CSharpDriver.sln
-dotnet pack ./CSharpDriver.sln -o ./artifacts/nuget -c Release -p:Version="$PACKAGE_VERSION" --include-symbols -p:SymbolPackageFormat=snupkg
+dotnet pack ./CSharpDriver.sln -o ./artifacts/nuget -c Release -p:Version="$PACKAGE_VERSION" --include-symbols -p:SymbolPackageFormat=snupkg -p:ContinuousIntegrationBuild=true
