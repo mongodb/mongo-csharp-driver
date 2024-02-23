@@ -91,22 +91,6 @@ functions:
           # See what we've done
           cat expansion.yml
 
-          # Do not output expansion.yml contents after this point
-
-          # Add CSFLE variables that shouldn't be output to the logs
-          cat <<EOT >> expansion.yml
-          PREPARE_CSFLE: |
-            set +o xtrace # Disable tracing.
-            export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-            export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-            export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-            export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-            export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-            export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-            export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
-            set -o xtrace # Enable tracing.
-          EOT
-
     # Load the expansion file to make an evergreen variable with the current unique version
     - command: expansions.update
       params:
@@ -312,9 +296,15 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FLE_AWS_ACCESS_KEY_ID"
+          - "FLE_AWS_SECRET_ACCESS_KEY"
+          - "FLE_AZURE_TENANT_ID"
+          - "FLE_AZURE_CLIENT_ID"
+          - "FLE_AZURE_CLIENT_SECRET"
+          - "FLE_GCP_EMAIL"
+          - "FLE_GCP_PRIVATE_KEY"
         script: |
-          set +x
-          ${PREPARE_CSFLE}
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
@@ -340,14 +330,19 @@ functions:
       type: test
       params:
         working_dir: "mongo-csharp-driver"
+        include_expansions_in_env:
+          - "FLE_AWS_ACCESS_KEY_ID"
+          - "FLE_AWS_SECRET_ACCESS_KEY"
+          - "FLE_AZURE_TENANT_ID"
+          - "FLE_AZURE_CLIENT_ID"
+          - "FLE_AZURE_CLIENT_SECRET"
+          - "FLE_GCP_EMAIL"
+          - "FLE_GCP_PRIVATE_KEY"
         script: |
-          set +x
-          ${PREPARE_CSFLE}
           export KMS_MOCK_SERVERS_ENABLED=true
           export GCE_METADATA_HOST="localhost:5000"
           export AZURE_IMDS_MOCK_ENDPOINT="localhost:8080"
           ${PREPARE_SHELL}
-          set +o xtrace
           OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
@@ -368,9 +363,15 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FLE_AWS_ACCESS_KEY_ID"
+          - "FLE_AWS_SECRET_ACCESS_KEY"
+          - "FLE_AZURE_TENANT_ID"
+          - "FLE_AZURE_CLIENT_ID"
+          - "FLE_AZURE_CLIENT_SECRET"
+          - "FLE_GCP_EMAIL"
+          - "FLE_GCP_PRIVATE_KEY"
         script: |
-          set +x
-          ${PREPARE_CSFLE}
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
@@ -398,19 +399,32 @@ functions:
       params:
         silent: true
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "ATLAS_FREE"
+          - "ATLAS_FREE_SRV"
+          - "ATLAS_REPLICA"
+          - "ATLAS_REPLICA_SRV"
+          - "ATLAS_SHARDED"
+          - "ATLAS_SHARDED_SRV"
+          - "ATLAS_TLS11"
+          - "ATLAS_TLS11_SRV"
+          - "ATLAS_TLS12"
+          - "ATLAS_TLS12_SRV"
+          - "ATLAS_SERVERLESS"
+          - "ATLAS_SERVERLESS_SRV"
         script: |
-          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
-          ATLAS_FREE="${ATLAS_FREE}" ATLAS_FREE_SRV="${ATLAS_FREE_SRV}" ATLAS_REPLICA="${ATLAS_REPLICA}" ATLAS_REPLICA_SRV="${ATLAS_REPLICA_SRV}" ATLAS_SHARDED="${ATLAS_SHARDED}" ATLAS_SHARDED_SRV="${ATLAS_SHARDED_SRV}" ATLAS_TLS11="${ATLAS_TLS11}" ATLAS_TLS11_SRV="${ATLAS_TLS11_SRV}" ATLAS_TLS12="${ATLAS_TLS12}" ATLAS_TLS12_SRV="${ATLAS_TLS12_SRV}" ATLAS_SERVERLESS="${ATLAS_SERVERLESS}" ATLAS_SERVERLESS_SRV="${ATLAS_SERVERLESS_SRV}" evergreen/run-atlas-connectivity-tests.sh
+          . evergreen/run-atlas-connectivity-tests.sh
 
   run-gssapi-auth-tests:
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AUTH_GSSAPI"
+          - "AUTH_HOST"
         script: |
           PROJECT_DIRECTORY=${PROJECT_DIRECTORY} \
-            AUTH_HOST="${AUTH_HOST}" \
-            AUTH_GSSAPI="${AUTH_GSSAPI}" \
             FRAMEWORK=${FRAMEWORK} \
             evergreen/run-gssapi-auth-tests.sh
 
@@ -419,9 +433,11 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        env:
+          MONGODB_URI: ${plain_auth_mongodb_uri}
         script: |
           ${PREPARE_SHELL}
-          MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
+          . evergreen/run-plain-auth-tests.sh
 
   run-performance-tests:
     - command: shell.exec
@@ -444,7 +460,10 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
-        include_expansions_in_env: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           ${PREPARE_SHELL}
           cd $DRIVERS_TOOLS/.evergreen/auth_aws
@@ -565,9 +584,11 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "ATLAS_SEARCH"
         script: |
           ${PREPARE_SHELL}
-          ATLAS_SEARCH="${ATLAS_SEARCH}" evergreen/run-atlas-search-test.sh
+          evergreen/run-atlas-search-test.sh
 
   run-atlas-search-index-helpers-test:
     - command: shell.exec
@@ -690,14 +711,21 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FLE_AWS_ACCESS_KEY_ID"
+          - "FLE_AWS_SECRET_ACCESS_KEY"
+          - "FLE_AZURE_TENANT_ID"
+          - "FLE_AZURE_CLIENT_ID"
+          - "FLE_AZURE_CLIENT_SECRET"
+          - "FLE_GCP_EMAIL"
+          - "FLE_GCP_PRIVATE_KEY"
+          - "SERVERLESS_ATLAS_USER"
+          - "SERVERLESS_ATLAS_PASSWORD"
+          - "SERVERLESS_URI"
         script: |
           ${PREPARE_SHELL}
-          ${PREPARE_CSFLE}
           AUTH=${AUTH} \
           FRAMEWORK=${FRAMEWORK} \
-          SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
-          SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
-          SERVERLESS_URI="${SERVERLESS_URI}" \
           SSL=${SSL} \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-serverless-tests.sh
@@ -727,17 +755,17 @@ functions:
     - command: shell.exec
       params:
         shell: bash
+        include_expansions_in_env:
+          - "SERVERLESS_API_PUBLIC_KEY"
+          - "SERVERLESS_API_PRIVATE_KEY"
         script: |
           ${PREPARE_SHELL}
-          set +o xtrace # Disable tracing
           if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
             SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
           else
             SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
           fi
           SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
-          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
-          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
           LOADBALANCED=ON \
             bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
     - command: expansions.update
@@ -748,18 +776,18 @@ functions:
     - command: shell.exec
       params:
         shell: bash
+        include_expansions_in_env:
+          - "SERVERLESS_API_PUBLIC_KEY"
+          - "SERVERLESS_API_PRIVATE_KEY"
         script: |
           if [ "" != "${SERVERLESS}" ]; then
             ${PREPARE_SHELL}
-            set +o xtrace # Disable tracing
             if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
               SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
             else
               SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
             fi
             SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
-            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
-            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
             SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
               bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
           fi
@@ -1896,26 +1924,30 @@ task_groups:
       - command: shell.exec
         params:
           shell: "bash"
+          silent: true
+          env:
+            AZUREKMS_CLIENTID : ${testazurekms_clientid}
+            AZUREKMS_TENANTID : ${testazurekms_tenantid}
+            AZUREKMS_SECRET= : ${testazurekms_secret}
+            AZUREKMS_RESOURCEGROUP: ${testazurekms_resourcegroup}
+            AZUREKMS_SCOPE : ${testazurekms_scope}
           script: |
             ${PREPARE_SHELL}
             echo '${testazurekms_publickey}' > /tmp/testazurekms_publickey
             echo '${testazurekms_privatekey}' > /tmp/testazurekms_privatekey
             # Set 600 permissions on private key file. Otherwise ssh / scp may error with permissions "are too open".
             chmod 600 /tmp/testazurekms_privatekey
-            export AZUREKMS_CLIENTID=${testazurekms_clientid}
-            export AZUREKMS_TENANTID=${testazurekms_tenantid}
-            export AZUREKMS_SECRET=${testazurekms_secret}
+
             export AZUREKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
             export AZUREKMS_PUBLICKEYPATH=/tmp/testazurekms_publickey
             export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-            export AZUREKMS_SCOPE=${testazurekms_scope}
             export AZUREKMS_VMNAME_PREFIX=CSHARPDRIVER
             $DRIVERS_TOOLS/.evergreen/csfle/azurekms/create-and-setup-vm.sh
       - command: expansions.update
         params:
           file: testazurekms-expansions.yml
     teardown_group:
+      - func: upload-test-results
       # Load expansions again. The setup task may have failed before running `expansions.update`.
       - command: expansions.update
         params:
@@ -1923,10 +1955,11 @@ task_groups:
       - command: shell.exec
         params:
           shell: "bash"
+          env:
+            AZUREKMS_VMNAME : ${AZUREKMS_VMNAME}
+            AZUREKMS_RESOURCEGROUP : ${testazurekms_resourcegroup}
           script: |
             ${PREPARE_SHELL}
-            export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
-            export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
             $DRIVERS_TOOLS/.evergreen/csfle/azurekms/delete-vm.sh
     tasks:
       - test-csfle-with-azure-kms
@@ -1944,12 +1977,14 @@ task_groups:
       - command: shell.exec
         params:
           shell: "bash"
+          silent: true
+          include_expansions_in_env:
+            - "GCPKMS_SERVICEACCOUNT"
           script: |
             ${PREPARE_SHELL}
             echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > /tmp/testgcpkms_key_file.json
             export GCPKMS_KEYFILE=/tmp/testgcpkms_key_file.json
             export GCPKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export GCPKMS_SERVICEACCOUNT="${GCPKMS_SERVICEACCOUNT}"
             export GCPKMS_MACHINETYPE="e2-standard-4"
             $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
       # Load the GCPKMS_GCLOUD, GCPKMS_INSTANCE, GCPKMS_REGION, and GCPKMS_ZONE expansions.
@@ -1957,6 +1992,7 @@ task_groups:
         params:
           file: testgcpkms-expansions.yml
     teardown_group:
+      - func: upload-test-results
       - command: shell.exec
         params:
           shell: "bash"
@@ -1997,6 +2033,7 @@ task_groups:
         params:
           file: atlas-expansion.yml
     teardown_group:
+      - func: upload-test-results
       - command: shell.exec
         params:
           env:
