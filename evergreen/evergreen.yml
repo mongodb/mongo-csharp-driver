@@ -2309,7 +2309,6 @@ buildvariants:
   tasks:
     - name: test-aws-lambda-task-group
 
-
 # Atlas tests
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
