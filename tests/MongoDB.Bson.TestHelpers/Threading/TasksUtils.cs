@@ -45,6 +45,15 @@ namespace MongoDB.Bson.TestHelpers
                 new ThreadPerTaskScheduler()))
             .ToArray();
 
+        public static Task[] RunTasksOnOwnThread(int count, Func<int, Task> taskCreator, CancellationToken cancellationToken = default) =>
+            Enumerable.Range(0, count)
+                .Select(i => Task.Factory.StartNew(
+                    () => taskCreator(i),
+                    cancellationToken,
+                    TaskCreationOptions.None,
+                    new ThreadPerTaskScheduler()).Unwrap())
+                .ToArray();
+
         public static Task<T>[] CreateTasks<T>(int count, Func<int, Task<T>> taskCreator) =>
             Enumerable.Range(0, count)
             .Select(i => taskCreator(i))

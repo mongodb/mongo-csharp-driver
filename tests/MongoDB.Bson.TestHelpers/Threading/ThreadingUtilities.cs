@@ -92,7 +92,7 @@ namespace MongoDB.Bson.TestHelpers
             var exceptions = new ConcurrentBag<Exception>();
             var tasksExecutingCountEvent = new CountdownEvent(threadsCount);
 
-            var allTasks = TasksUtils.CreateTasksOnOwnThread(threadsCount, async i =>
+            var allTasks = TasksUtils.RunTasksOnOwnThread(threadsCount, async i =>
             {
                 try
                 {
