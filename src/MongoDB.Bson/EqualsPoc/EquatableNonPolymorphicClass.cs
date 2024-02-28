@@ -16,11 +16,14 @@ namespace MongoDB.Bson.EqualsPoc
         public override bool Equals(object obj) =>
             Equals(obj as EquatableNonPolymorphicClass);
 
-        public bool Equals(EquatableNonPolymorphicClass other) =>
-            object.ReferenceEquals(this, other) ||
-            !object.ReferenceEquals(other, null) &&
-            object.Equals(_ref, other._ref) &&
-            _value.Equals(other._value);
+        public bool Equals(EquatableNonPolymorphicClass other)
+        {
+            if (object.ReferenceEquals(other, null)) { return false; }
+            if (object.ReferenceEquals(this, other)) { return true; }
+            return
+                object.Equals(_ref, other._ref) &&
+                _value.Equals(other._value);
+        }
 
         public override int GetHashCode() => 0; // implement as appropriate
 

@@ -17,11 +17,15 @@ namespace MongoDB.Bson.EqualsPoc
         public override bool Equals(object obj) =>
             Equals(obj as EquatableDerivedClass);
 
-        public bool Equals(EquatableDerivedClass other) =>
-            object.ReferenceEquals(this, other) ||
-            base.Equals(other) &&
-            object.Equals(_ref2, other._ref2) &&
-            _value2.Equals(other._value2);
+        public bool Equals(EquatableDerivedClass other)
+        {
+            if (object.ReferenceEquals(other, null)) { return false; }
+            if (object.ReferenceEquals(this, other)) { return true; }
+            return
+                 base.Equals(other) &&
+                object.Equals(_ref2, other._ref2) &&
+                _value2.Equals(other._value2);
+        }
 
         public override int GetHashCode() => 0; // implement as appropriate
     }

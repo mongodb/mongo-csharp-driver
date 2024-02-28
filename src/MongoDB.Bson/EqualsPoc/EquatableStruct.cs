@@ -16,9 +16,12 @@ namespace MongoDB.Bson.EqualsPoc
         public override bool Equals(object obj) =>
             obj is EquatableStruct other && Equals(other);
 
-        public bool Equals(EquatableStruct other) =>
-            object.Equals(_ref, other._ref) &&
-            _value.Equals(other._value);
+        public bool Equals(EquatableStruct other)
+        {
+            return
+                object.Equals(_ref, other._ref) &&
+                _value.Equals(other._value);
+        }
 
         public override int GetHashCode() => 0; // implement as appropriate
 
