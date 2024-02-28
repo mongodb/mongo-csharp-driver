@@ -1459,6 +1459,24 @@ tasks:
         - func: install-dotnet
         - func: run-performance-tests
 
+    - name: test-aws-lambda-deployed
+      commands:
+        - command: ec2.assume_role
+          params:
+            role_arn: ${LAMBDA_AWS_ROLE_ARN}
+            duration_seconds: 3600
+        - command: shell.exec
+          params:
+            working_dir: mongo-csharp-driver
+            add_expansions_to_env: true
+            script: |
+              ${PREPARE_SHELL}
+              export PATH="$PATH:/home/ubuntu/.dotnet/tools"
+              bash ${DRIVERS_TOOLS}/.evergreen/aws_lambda/run-deployed-lambda-aws-tests.sh
+            env:
+              TEST_LAMBDA_DIRECTORY: ${PROJECT_DIRECTORY}/tests/LambdaTests
+              AWS_REGION: us-east-1
+
     # ECDSA tests
     # Disabled until https://jira.mongodb.org/browse/SPEC-1589 is resolved
     # - name: test-ocsp-ecdsa-valid-cert-server-staples-ca-responder
@@ -2058,6 +2076,32 @@ task_groups:
     tasks:
       - atlas-search-index-helpers-test
 
+  - name: test-aws-lambda-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: install-dotnet
+      - command: subprocess.exec
+        params:
+          binary: bash
+          add_expansions_to_env: true
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
+      - command: expansions.update
+        params:
+          file: atlas-expansion.yml
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          add_expansions_to_env: true
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
+    tasks:
+      - test-aws-lambda-deployed
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2256,6 +2300,15 @@ buildvariants:
     - rhel90-dbx-perf-large
   tasks:
     - name: performance-tests-net60-server-v6.0
+
+# AWS Lambda tests
+- name: aws-lambda-tests
+  display_name: "AWS Lambda Tests"
+  run_on:
+    - ubuntu2204-small
+  tasks:
+    - name: test-aws-lambda-task-group
+
 
 # Atlas tests
 - name: atlas-connectivity-tests

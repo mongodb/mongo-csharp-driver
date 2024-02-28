@@ -67,6 +67,9 @@ src/packages
 benchmarks/MongoDB.Driver.Benchmarks/BenchmarkDotNet.Artifacts
 benchmarks/MongoDB.Driver.Benchmarks/data
 
+# AWS Lambda Function Tests Artifacts
+tests/LambdaTests/.aws-sam
+
 # Other
 artifacts
 packages
