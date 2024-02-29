@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             documentSerializer ??= serializerRegistry.GetSerializer<TDocument>();
-            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = pipelineDefinition.Render(new(documentSerializer, serializerRegistry, linqProvider));
             return renderedPipeline.Documents.ToList();
         }
 
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
-            return filterDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            return filterDefinition.Render(new(documentSerializer, serializerRegistry, linqProvider));
         }
 
         protected BsonDocument TranslateFilter<TDocument>(IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter)
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
-            return filter.Render(documentSerializer, serializerRegistry, linqProvider);
+            return filter.Render(new(documentSerializer, serializerRegistry, linqProvider));
         }
 
         protected BsonDocument TranslateFindFilter<TDocument, TProjection>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TProjection> find)
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         protected BsonDocument TranslateFindFilter<TDocument, TProjection>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TProjection> find, LinqProvider linqProvider)
         {
             var filterDefinition = ((FindFluent<TDocument, TProjection>)find).Filter;
-            return filterDefinition.Render(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            return filterDefinition.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
         }
 
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         {
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedProjection = projection.RenderForFind(documentSerializer, serializerRegistry, linqProvider);
+            var renderedProjection = projection.Render(new(documentSerializer, serializerRegistry, linqProvider, isAggregateMode: false));
             return renderedProjection.Document;
         }
     }

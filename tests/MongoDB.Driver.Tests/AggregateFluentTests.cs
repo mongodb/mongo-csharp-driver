@@ -1358,7 +1358,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
-            return pipeline.Render(inputSerializer, serializerRegistry);
+            return pipeline.Render(new(inputSerializer, serializerRegistry));
         }
 
         private List<IRenderedPipelineStageDefinition> RenderStages(

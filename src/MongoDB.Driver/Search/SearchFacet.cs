@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Search
@@ -40,8 +41,17 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the search facet to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="renderContext">The render context.</param>
+        /// <param name="renderArgs">The render arguments.</param>
         /// <returns>A <see cref="BsonDocument" />.</returns>
-        public abstract BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext);
+        [Obsolete("Use Render(RenderArgs<TDocument> renderArgs) overload instead.")]
+        public virtual BsonDocument Render(SearchDefinitionRenderArgs<TDocument> renderArgs) =>
+            Render(new RenderArgs<TDocument>(renderArgs.DocumentSerializer, renderArgs.SerializerRegistry, pathRenderArgs: new PathRenderArgs(renderArgs.PathPrefix)));
+
+        /// <summary>
+        /// Renders the search facet to a <see cref="BsonDocument"/>.
+        /// </summary>
+        /// <param name="renderArgs">The render arguments.</param>
+        /// <returns>A <see cref="BsonDocument" />.</returns>
+        public abstract BsonDocument Render(RenderArgs<TDocument> renderArgs);
     }
 }

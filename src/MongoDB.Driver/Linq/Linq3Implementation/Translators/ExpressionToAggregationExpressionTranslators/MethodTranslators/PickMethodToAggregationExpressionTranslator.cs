@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static AstSortFields TranslateSortByDefinitionGeneric<TDocument>(Expression expression, Expression sortByExpression, SortDefinition<TDocument> sortByDefinition, IBsonSerializer<TDocument> documentSerializer)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var sortDocument = sortByDefinition.Render(documentSerializer, serializerRegistry);
+            var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry));
             var fields = new List<AstSortField>();
             foreach (var element in sortDocument)
             {

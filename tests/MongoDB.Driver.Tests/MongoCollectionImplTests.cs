@@ -24,7 +24,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -32,6 +31,7 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -2142,7 +2142,7 @@ namespace MongoDB.Driver
             request.Weights.Should().Be(options.Weights);
             if (usingWildcardIndex)
             {
-                var wildcardProjection = wildcardProjectionDefinition.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+                var wildcardProjection = wildcardProjectionDefinition.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry));
                 request.WildcardProjection.Should().Be(wildcardProjection);
             }
             else
@@ -2279,7 +2279,7 @@ namespace MongoDB.Driver
             request1.Weights.Should().Be(weights);
             if (usingWildcardIndex)
             {
-                var wildcardProjection = wildcardProjectionDefinition.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+                var wildcardProjection = wildcardProjectionDefinition.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry));
                 request1.WildcardProjection.Should().Be(wildcardProjection);
             }
             else
@@ -3897,7 +3897,7 @@ namespace MongoDB.Driver
         {
             var inputSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(inputSerializer, serializerRegistry);
+            return pipeline.Render(new(inputSerializer, serializerRegistry));
         }
 
         private static void VerifyBulkWrite(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, BsonDocument let, WriteRequest[] expectedRequests)

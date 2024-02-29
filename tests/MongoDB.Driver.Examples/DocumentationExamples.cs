@@ -13,12 +13,11 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -1615,28 +1614,28 @@ namespace MongoDB.Driver.Examples
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            return filter.Render(serializer, registry);
+            return filter.Render(new(serializer, registry));
         }
 
         private BsonDocument Render(ProjectionDefinition<BsonDocument, BsonDocument> projection)
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            return projection.Render(serializer, registry).Document;
+            return projection.Render(new(serializer, registry)).Document;
         }
 
         private BsonDocument Render(UpdateDefinition<BsonDocument> update)
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            return update.Render(serializer, registry).AsBsonDocument;
+            return update.Render(new(serializer, registry)).AsBsonDocument;
         }
 
         private BsonArray Render(PipelineDefinition<BsonDocument, BsonDocument> pipeline)
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            var renderedPipeline = pipeline.Render(serializer, registry);
+            var renderedPipeline = pipeline.Render(new(serializer, registry));
             return new BsonArray(renderedPipeline.Documents);
         }
 

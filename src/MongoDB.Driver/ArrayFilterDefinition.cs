@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using System;
 
 namespace MongoDB.Driver
 {
@@ -103,7 +103,24 @@ namespace MongoDB.Driver
         /// <returns>
         /// A <see cref="BsonDocument" />.
         /// </returns>
-        public abstract BsonDocument Render(IBsonSerializer<TItem> itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TSource> renderArgs) overload instead.")]
+        public virtual BsonDocument Render(IBsonSerializer<TItem> itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new(itemSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new((IBsonSerializer<TItem>)itemSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the array filter to a <see cref="BsonDocument" />.
+        /// </summary>
+        /// <param name="renderArgs">The render arguments.</param>
+        /// <returns> A <see cref="BsonDocument" />.</returns>
+        public abstract BsonDocument Render(RenderArgs<TItem> renderArgs);
     }
 
     /// <summary>
@@ -136,13 +153,7 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry, linqProvider);
-        }
-
-        /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TItem> itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TItem> renderArgs)
         {
             return _document;
         }
@@ -187,14 +198,9 @@ namespace MongoDB.Driver
         public string Json => _json;
 
         // public methods
-        /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry, linqProvider);
-        }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TItem> itemSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TItem> renderArgs)
         {
             return _document;
         }

@@ -33,13 +33,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
         {
-            var rendered = pipeline.Render(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            var rendered = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider));
             return rendered.Documents;
         }
 
         public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
         {
-            var rendered = stage.Render(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            var rendered = stage.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider));
             return rendered.Documents;
         }
 
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
-            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = pipelineDefinition.Render(new(documentSerializer, serializerRegistry, linqProvider));
             return renderedPipeline.Documents.ToList();
         }
 

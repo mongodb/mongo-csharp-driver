@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(SearchFacet<TDocument> facet, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedFacet = facet.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
+            var renderedFacet = facet.Render(new RenderArgs<TDocument>(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedFacet.Should().BeEquivalentTo(expected);
         }

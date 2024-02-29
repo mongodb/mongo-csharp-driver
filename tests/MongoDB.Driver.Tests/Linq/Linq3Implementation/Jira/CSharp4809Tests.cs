@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
 
-            var renderedFilter = filter.Render(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            var renderedFilter = filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
             renderedFilter.Should().Be("{ _id : ObjectId('111111111111111111111111' ) }");
 
             var result = collection.FindSync(filter).Single();
