@@ -56,10 +56,10 @@ namespace MongoDB.Driver.Tests.Search
 
             var pipeline = (new EmptyPipelineDefinition<BsonDocument>()).Search(searchDefinition, searchOptions);
 
-            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry);
+            var renderedPipeline = pipeline.Render(new(BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry));
             AssertStages();
 
-            renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry);
+            renderedPipeline = pipeline.Render(new(BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry));
             AssertStages();
 
             void AssertStages()

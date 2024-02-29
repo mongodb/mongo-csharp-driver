@@ -54,10 +54,10 @@ namespace MongoDB.Driver
             const string operatorName = "$bucket";
             var stage = new DelegatedPipelineStageDefinition<TInput, AggregateBucketResult<TValue>>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var valueSerializer = sr.GetSerializer<TValue>();
-                    var renderedGroupBy = groupBy.Render(s, sr, linqProvider);
+                    var valueSerializer = args.SerializerRegistry.GetSerializer<TValue>();
+                    var renderedGroupBy = groupBy.Render(args);
                     var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
                     var serializedDefaultBucket = options != null && options.DefaultBucket.HasValue ? valueSerializer.ToBsonValue(options.DefaultBucket.Value) : null;
                     var document = new BsonDocument
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
                     return new RenderedPipelineStageDefinition<AggregateBucketResult<TValue>>(
                         operatorName,
                         document,
-                        sr.GetSerializer<AggregateBucketResult<TValue>>());
+                        args.SerializerRegistry.GetSerializer<AggregateBucketResult<TValue>>());
                 });
 
             return stage;
@@ -103,14 +103,14 @@ namespace MongoDB.Driver
             const string operatorName = "$bucket";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var valueSerializer = sr.GetSerializer<TValue>();
-                    var outputSerializer = sr.GetSerializer<TOutput>();
-                    var renderedGroupBy = groupBy.Render(s, sr, linqProvider);
+                    var valueSerializer = args.SerializerRegistry.GetSerializer<TValue>();
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+                    var renderedGroupBy = groupBy.Render(args);
                     var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
                     var serializedDefaultBucket = options != null && options.DefaultBucket.HasValue ? valueSerializer.ToBsonValue(options.DefaultBucket.Value) : null;
-                    var renderedOutput = output.Render(s, sr, linqProvider);
+                    var renderedOutput = output.Render(args);
                     var document = new BsonDocument
                     {
                         { operatorName, new BsonDocument
@@ -198,9 +198,9 @@ namespace MongoDB.Driver
             const string operatorName = "$bucketAuto";
             var stage = new DelegatedPipelineStageDefinition<TInput, AggregateBucketAutoResult<TValue>>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedGroupBy = groupBy.Render(s, sr, linqProvider);
+                    var renderedGroupBy = groupBy.Render(args);
                     var document = new BsonDocument
                     {
                             { operatorName, new BsonDocument
@@ -214,7 +214,7 @@ namespace MongoDB.Driver
                     return new RenderedPipelineStageDefinition<AggregateBucketAutoResult<TValue>>(
                         operatorName,
                         document,
-                        sr.GetSerializer<AggregateBucketAutoResult<TValue>>());
+                        args.SerializerRegistry.GetSerializer<AggregateBucketAutoResult<TValue>>());
                 });
 
             return stage;
@@ -244,11 +244,11 @@ namespace MongoDB.Driver
             const string operatorName = "$bucketAuto";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var outputSerializer = sr.GetSerializer<TOutput>();
-                    var renderedGroupBy = groupBy.Render(s, sr, linqProvider);
-                    var renderedOutput = output.Render(s, sr, linqProvider);
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+                    var renderedGroupBy = groupBy.Render(args);
+                    var renderedOutput = output.Render(args);
                     var document = new BsonDocument
                     {
                         { operatorName, new BsonDocument
@@ -361,7 +361,7 @@ namespace MongoDB.Driver
             const string operatorName = "$changeStream";
             var stage = new DelegatedPipelineStageDefinition<TInput, ChangeStreamDocument<TInput>>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
                     var renderedOptions = new BsonDocument
                     {
@@ -372,7 +372,7 @@ namespace MongoDB.Driver
                         { "startAtOperationTime", options.StartAtOperationTime, options.StartAtOperationTime != null }
                     };
                     var document = new BsonDocument(operatorName, renderedOptions);
-                    var outputSerializer = new ChangeStreamDocumentSerializer<TInput>(s);
+                    var outputSerializer = new ChangeStreamDocumentSerializer<TInput>(args.DocumentSerializer);
                     return new RenderedPipelineStageDefinition<ChangeStreamDocument<TInput>>(
                         operatorName,
                         document,
@@ -400,12 +400,12 @@ namespace MongoDB.Driver
             const string operatorName = "$count";
             var stage = new DelegatedPipelineStageDefinition<TInput, AggregateCountResult>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
                     return new RenderedPipelineStageDefinition<AggregateCountResult>(
                         operatorName,
                         new BsonDocument(operatorName, "count"),
-                        sr.GetSerializer<AggregateCountResult>());
+                        args.SerializerRegistry.GetSerializer<AggregateCountResult>());
                 });
 
             return stage;
@@ -430,21 +430,21 @@ namespace MongoDB.Driver
             const string operatorName = "$densify";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedPartitionByFields = partitionByFields?.Select(f => f.Render(s, sr, linqProvider).FieldName).ToList();
+                    var renderedPartitionByFields = partitionByFields?.Select(f => f.Render(args).FieldName).ToList();
                     var document = new BsonDocument
                     {
                         {
                             operatorName, new BsonDocument
                             {
-                                { "field", field.Render(s, sr, linqProvider).FieldName },
+                                { "field", field.Render(args).FieldName },
                                 { "partitionByFields", () => new BsonArray(renderedPartitionByFields), partitionByFields != null && renderedPartitionByFields.Count > 0 },
                                 { "range", range.Render() }
                             }
                         }
                     };
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
                 });
 
             return stage;
@@ -526,13 +526,13 @@ namespace MongoDB.Driver
             const string operatorName = "$documents";
             var stage = new DelegatedPipelineStageDefinition<NoPipelineInput, TDocument>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedDocuments = documents.Render(NoPipelineInputSerializer.Instance, sr, linqProvider);
+                    var renderedDocuments = documents.Render(args.WithNewDocumentType(NoPipelineInputSerializer.Instance));
                     return new RenderedPipelineStageDefinition<TDocument>(
                         operatorName,
                         new BsonDocument(operatorName, renderedDocuments),
-                        documentSerializer ?? sr.GetSerializer<TDocument>());
+                        documentSerializer ?? args.SerializerRegistry.GetSerializer<TDocument>());
                 });
 
             return stage;
@@ -571,16 +571,16 @@ namespace MongoDB.Driver
             var materializedFacets = facets.ToArray();
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
                     var facetsDocument = new BsonDocument();
                     foreach (var facet in materializedFacets)
                     {
-                        var renderedPipeline = facet.RenderPipeline(s, sr, linqProvider);
+                        var renderedPipeline = facet.RenderPipeline(args);
                         facetsDocument.Add(facet.Name, renderedPipeline);
                     }
                     var document = new BsonDocument("$facet", facetsDocument);
-                    var outputSerializer = options?.OutputSerializer ?? sr.GetSerializer<TOutput>();
+                    var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
@@ -669,18 +669,19 @@ namespace MongoDB.Driver
             const string operatorName = "$graphLookup";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var inputSerializer = s;
-                    var outputSerializer = options?.OutputSerializer ?? sr.GetSerializer<TOutput>();
-                    var fromSerializer = options?.FromSerializer ?? sr.GetSerializer<TFrom>();
-                    var asElementSerializer = options?.AsElementSerializer ?? sr.GetSerializer<TAsElement>();
-                    var renderedConnectFromField = connectFromField.Render(fromSerializer, sr, linqProvider);
-                    var renderedConnectToField = connectToField.Render(fromSerializer, sr, linqProvider);
-                    var renderedStartWith = startWith.Render(inputSerializer, sr, linqProvider);
-                    var renderedAs = @as.Render(outputSerializer, sr, linqProvider);
-                    var renderedDepthField = depthField?.Render(asElementSerializer, sr, linqProvider);
-                    var renderedRestrictSearchWithMatch = options?.RestrictSearchWithMatch?.Render(fromSerializer, sr, linqProvider);
+                    var inputSerializer = args.DocumentSerializer;
+                    var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
+                    var fromSerializer = options?.FromSerializer ?? args.SerializerRegistry.GetSerializer<TFrom>();
+                    var fromRenderArgs = args.WithNewDocumentType(fromSerializer);
+                    var asElementSerializer = options?.AsElementSerializer ?? args.SerializerRegistry.GetSerializer<TAsElement>();
+                    var renderedConnectFromField = connectFromField.Render(fromRenderArgs);
+                    var renderedConnectToField = connectToField.Render(fromRenderArgs);
+                    var renderedStartWith = startWith.Render(args);
+                    var renderedAs = @as.Render(args.WithNewDocumentType(outputSerializer));
+                    var renderedDepthField = depthField?.Render(args.WithNewDocumentType(asElementSerializer));
+                    var renderedRestrictSearchWithMatch = options?.RestrictSearchWithMatch?.Render(fromRenderArgs);
                     var document = new BsonDocument
                     {
                         { operatorName, new BsonDocument
@@ -856,9 +857,9 @@ namespace MongoDB.Driver
             const string operatorName = "$group";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedProjection = group.Render(s, sr, linqProvider);
+                    var renderedProjection = group.Render(args);
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
                 });
 
@@ -939,17 +940,17 @@ namespace MongoDB.Driver
             const string operatorName = "$lookup";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var foreignSerializer = options.ForeignSerializer ?? (inputSerializer as IBsonSerializer<TForeignDocument>) ?? sr.GetSerializer<TForeignDocument>();
-                    var outputSerializer = options.ResultSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? sr.GetSerializer<TOutput>();
+                    var foreignSerializer = options.ForeignSerializer ?? args.GetSerializer<TForeignDocument>();
+                    var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(
                         operatorName, new BsonDocument(operatorName, new BsonDocument
                         {
                             { "from", foreignCollection.CollectionNamespace.CollectionName },
-                            { "localField", localField.Render(inputSerializer, sr, linqProvider).FieldName },
-                            { "foreignField", foreignField.Render(foreignSerializer, sr, linqProvider).FieldName },
-                            { "as", @as.Render(outputSerializer, sr, linqProvider).FieldName }
+                            { "localField", localField.Render(args).FieldName },
+                            { "foreignField", foreignField.Render(args.WithNewDocumentType(foreignSerializer)).FieldName },
+                            { "as", @as.Render(args.WithNewDocumentType(outputSerializer)).FieldName }
                         }),
                         outputSerializer);
                 });
@@ -1017,18 +1018,18 @@ namespace MongoDB.Driver
             const string operatorName = "$lookup";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var foreignSerializer = options.ForeignSerializer ?? foreignCollection.DocumentSerializer ?? inputSerializer as IBsonSerializer<TForeignDocument> ?? sr.GetSerializer<TForeignDocument>();
-                    var outputSerializer = options.ResultSerializer ?? inputSerializer as IBsonSerializer<TOutput> ?? sr.GetSerializer<TOutput>();
-                    var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(foreignSerializer, sr, linqProvider).Documents);
+                    var foreignSerializer = options.ForeignSerializer ?? args.GetSerializer<TForeignDocument>();
+                    var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
+                    var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(args.WithNewDocumentType(foreignSerializer)).Documents);
 
                     var lookupBody = new BsonDocument
                     {
                         { "from", foreignCollection.CollectionNamespace.CollectionName },
                         { "let", let, let != null },
                         { "pipeline", lookupPipelineDocuments },
-                        { "as", @as.Render(outputSerializer, sr, linqProvider).FieldName }
+                        { "as", @as.Render(args.WithNewDocumentType(outputSerializer)).FieldName }
                     };
 
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, lookupBody), outputSerializer);
@@ -1084,7 +1085,7 @@ namespace MongoDB.Driver
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (s, sr, linqProvider) => new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr, linqProvider)), s));
+                args => new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(args)), args.DocumentSerializer));
 
             return stage;
         }
@@ -1140,9 +1141,9 @@ namespace MongoDB.Driver
             const string operatorName = "$merge";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (inputSerializer, serializerRegistry, linqProvider) =>
+                args =>
                 {
-                    var outputSerializer = mergeOptions.OutputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>();
+                    var outputSerializer = mergeOptions.OutputSerializer ?? args.GetSerializer<TOutput>();
 
                     var outputCollectionNamespace = outputCollection.CollectionNamespace;
                     var outputDatabaseNamespace = outputCollectionNamespace.DatabaseNamespace;
@@ -1171,7 +1172,7 @@ namespace MongoDB.Driver
                         var whenMatched = mergeOptions.WhenMatched.Value;
                         if (whenMatched == MergeStageWhenMatched.Pipeline)
                         {
-                            var renderedPipeline = mergeOptions.WhenMatchedPipeline.Render(outputSerializer, serializerRegistry, linqProvider);
+                            var renderedPipeline = mergeOptions.WhenMatchedPipeline.Render(args.WithNewDocumentType(outputSerializer));
                             renderedWhenMatched = new BsonArray(renderedPipeline.Documents);
                         }
                         else
@@ -1228,12 +1229,12 @@ namespace MongoDB.Driver
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
                     return new RenderedPipelineStageDefinition<TOutput>(
                         operatorName,
                         new BsonDocument(operatorName, ofTypeFilter),
-                        outputSerializer ?? (s as IBsonSerializer<TOutput>) ?? sr.GetSerializer<TOutput>());
+                        outputSerializer ?? args.GetSerializer<TOutput>());
                 });
 
             return stage;
@@ -1277,9 +1278,9 @@ namespace MongoDB.Driver
             const string operatorName = "$project";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedProjection = projection.Render(s, sr, linqProvider);
+                    var renderedProjection = projection.Render(args);
                     IEnumerable<BsonDocument> documents;
                     if (renderedProjection.Document == null)
                     {
@@ -1377,20 +1378,19 @@ namespace MongoDB.Driver
             const string operatorName = "$search";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderContext = new SearchDefinitionRenderContext<TInput>(s, sr);
-                    var renderedSearchDefinition = searchDefinition.Render(renderContext);
-                    renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(renderContext), searchOptions.Highlight != null);
+                    var renderedSearchDefinition = searchDefinition.Render(args);
+                    renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(args), searchOptions.Highlight != null);
                     renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
-                    renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(s, sr), searchOptions.Sort != null);
+                    renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(args), searchOptions.Sort != null);
                     renderedSearchDefinition.Add("index", searchOptions.IndexName, searchOptions.IndexName != null);
                     renderedSearchDefinition.Add("returnStoredSource", searchOptions.ReturnStoredSource, searchOptions.ReturnStoredSource);
                     renderedSearchDefinition.Add("scoreDetails", searchOptions.ScoreDetails, searchOptions.ScoreDetails);
                     renderedSearchDefinition.Add("tracking", () => searchOptions.Tracking.Render(), searchOptions.Tracking != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
                 });
 
             return stage;
@@ -1414,9 +1414,9 @@ namespace MongoDB.Driver
             const string operatorName = "$searchMeta";
             var stage = new DelegatedPipelineStageDefinition<TInput, SearchMetaResult>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedSearchDefinition = searchDefinition.Render(new(s, sr));
+                    var renderedSearchDefinition = searchDefinition.Render(args);
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
 
@@ -1424,7 +1424,7 @@ namespace MongoDB.Driver
                     return new RenderedPipelineStageDefinition<SearchMetaResult>(
                         operatorName,
                         document,
-                        sr.GetSerializer<SearchMetaResult>());
+                        args.SerializerRegistry.GetSerializer<SearchMetaResult>());
                 });
 
             return stage;
@@ -1445,10 +1445,10 @@ namespace MongoDB.Driver
             const string operatorName = "$replaceRoot";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var document = new BsonDocument(operatorName, new BsonDocument("newRoot", newRoot.Render(s, sr, linqProvider)));
-                    var outputSerializer = sr.GetSerializer<TOutput>();
+                    var document = new BsonDocument(operatorName, new BsonDocument("newRoot", newRoot.Render(args)));
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
@@ -1486,10 +1486,10 @@ namespace MongoDB.Driver
             const string operatorName = "$replaceWith";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var document = new BsonDocument(operatorName, newRoot.Render(s, sr, linqProvider));
-                    var outputSerializer = sr.GetSerializer<TOutput>();
+                    var document = new BsonDocument(operatorName, newRoot.Render(args));
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
@@ -1526,11 +1526,11 @@ namespace MongoDB.Driver
             const string operatorName = "$set";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var renderedFields = fields.Render(inputSerializer, sr, linqProvider);
+                    var renderedFields = fields.Render(args);
                     var stage = new BsonDocument(operatorName, renderedFields);
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, stage, inputSerializer);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, stage, args.DocumentSerializer);
                 });
 
             return stage;
@@ -1565,18 +1565,18 @@ namespace MongoDB.Driver
             const string operatorName = "$setWindowFields";
             var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
                         { "$setWindowFields", new BsonDocument
                             {
-                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                                { "output", output.Render(args.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
-                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<BsonDocument>();
                     return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
                 });
 
@@ -1602,19 +1602,19 @@ namespace MongoDB.Driver
             const string operatorName = "$setWindowFields";
             var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
                         { "$setWindowFields", new BsonDocument
                             {
-                                { "partitionBy", partitionBy.Render(inputSerializer, sr, linqProvider) },
-                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                                { "partitionBy", partitionBy.Render(args) },
+                                { "output", output.Render(args.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
-                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<BsonDocument>();
                     return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
                 });
 
@@ -1643,20 +1643,20 @@ namespace MongoDB.Driver
             const string operatorName = "$setWindowFields";
             var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
-                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
                         { "$setWindowFields", new BsonDocument
                             {
-                                { "partitionBy", partitionBy.Render(inputSerializer, sr, linqProvider) },
-                                { "sortBy", sortBy.Render(inputSerializer, sr, linqProvider) },
-                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                                { "partitionBy", partitionBy.Render(args) },
+                                { "sortBy", sortBy.Render(args) },
+                                { "output", output.Render(args.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
-                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<BsonDocument>();
                     return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
                 });
 
@@ -1785,10 +1785,10 @@ namespace MongoDB.Driver
             const string operatorName = "$sortByCount";
             var stage = new DelegatedPipelineStageDefinition<TInput, AggregateSortByCountResult<TValue>>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var outputSerializer = sr.GetSerializer<AggregateSortByCountResult<TValue>>();
-                    return new RenderedPipelineStageDefinition<AggregateSortByCountResult<TValue>>(operatorName, new BsonDocument(operatorName, value.Render(s, sr, linqProvider)), outputSerializer);
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<AggregateSortByCountResult<TValue>>();
+                    return new RenderedPipelineStageDefinition<AggregateSortByCountResult<TValue>>(operatorName, new BsonDocument(operatorName, value.Render(args)), outputSerializer);
                 });
 
             return stage;
@@ -1831,13 +1831,13 @@ namespace MongoDB.Driver
             const string operatorName = "$unionWith";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (inputSerializer, sr, linqProvider) =>
+                args =>
                 {
                     BsonArray withPipelineDocuments;
                     if (withPipeline != null)
                     {
-                        var withSerializer = withCollection.DocumentSerializer ?? inputSerializer as IBsonSerializer<TWith> ?? sr.GetSerializer<TWith>();
-                        withPipelineDocuments = new BsonArray(withPipeline.Render(withSerializer, sr, linqProvider).Documents);
+                        var withSerializer = withCollection.DocumentSerializer ?? args.GetSerializer<TWith>();
+                        withPipelineDocuments = new BsonArray(withPipeline.Render(args.WithNewDocumentType(withSerializer)).Documents);
                     }
                     else
                     {
@@ -1850,7 +1850,7 @@ namespace MongoDB.Driver
                         { "pipeline", withPipelineDocuments, withPipelineDocuments != null }
                     };
 
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, unionWithBody), inputSerializer);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, unionWithBody), args.DocumentSerializer);
                 });
 
             return stage;
@@ -1874,15 +1874,15 @@ namespace MongoDB.Driver
             const string operatorName = "$unwind";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
-                    var outputSerializer = options.ResultSerializer ?? (s as IBsonSerializer<TOutput>) ?? sr.GetSerializer<TOutput>();
+                    var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
 
-                    var fieldName = "$" + field.Render(s, sr, linqProvider).FieldName;
+                    var fieldName = "$" + field.Render(args).FieldName;
                     string includeArrayIndexFieldName = null;
                     if (options.IncludeArrayIndex != null)
                     {
-                        includeArrayIndexFieldName = options.IncludeArrayIndex.Render(outputSerializer, sr, linqProvider).FieldName;
+                        includeArrayIndexFieldName = options.IncludeArrayIndex.Render(args.WithNewDocumentType(outputSerializer)).FieldName;
                     }
 
                     BsonValue value = fieldName;
@@ -1992,29 +1992,23 @@ namespace MongoDB.Driver
             const string operatorName = "$vectorSearch";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                (s, sr, linqProvider) =>
+                args =>
                 {
                     var vectorSearchOperator = new BsonDocument
                     {
                         { "queryVector", queryVector.Array },
-                        { "path", field.Render(s, sr, linqProvider).FieldName },
+                        { "path", field.Render(args).FieldName },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10 },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => RenderFilter(s, sr, linqProvider), options?.Filter != null },
+                        { "filter", () => options.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
                     };
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
                 });
 
             return stage;
-
-            BsonDocument RenderFilter(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-            {
-                using var renderContext = FilterDefinitionRenderContext.StartRender(true);
-                return options.Filter.Render(documentSerializer, serializerRegistry, linqProvider);
-            }
         }
 
         // private methods
@@ -2063,19 +2057,14 @@ namespace MongoDB.Driver
             get { return _outputExpression; }
         }
 
-        public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (linqProvider != LinqProvider.V2)
+            if (args.LinqProvider != LinqProvider.V2)
             {
                 throw new InvalidOperationException("ExpressionBucketOutputProjection can only be used with LINQ2.");
             }
 
-            return linqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
-        }
-
-        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            throw new InvalidOperationException();
+            return args.LinqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
         }
     }
 
@@ -2102,18 +2091,13 @@ namespace MongoDB.Driver
             get { return _groupExpression; }
         }
 
-        public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (linqProvider != LinqProvider.V2)
+            if (args.LinqProvider != LinqProvider.V2)
             {
                 throw new InvalidOperationException("The GroupExpressionProjection class can only be used with LINQ2.");
             }
-            return linqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
-        }
-
-        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            throw new InvalidOperationException();
+            return args.LinqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
         }
     }
 
@@ -2133,15 +2117,9 @@ namespace MongoDB.Driver
             get { return _expression; }
         }
 
-        public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return linqProvider.GetAdapter().TranslateExpressionToProjection(_expression, inputSerializer, serializerRegistry, _translationOptions);
-        }
-
-        internal override RenderedProjectionDefinition<TOutput> RenderForFind(IBsonSerializer<TInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return linqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
-        }
+        public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args) => args.RenderForFind ?
+            args.LinqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry) :
+            args.LinqProvider.GetAdapter().TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
     }
 
     internal class SortPipelineStageDefinition<TInput> : PipelineStageDefinition<TInput, TInput>
@@ -2155,11 +2133,11 @@ namespace MongoDB.Driver
 
         public override string OperatorName => "$sort";
 
-        public override RenderedPipelineStageDefinition<TInput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TInput> Render(RenderArgs<TInput> args)
         {
-            var renderedSort = Sort.Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedSort = Sort.Render(args);
             var document = new BsonDocument(OperatorName, renderedSort);
-            return new RenderedPipelineStageDefinition<TInput>(OperatorName, document, inputSerializer);
+            return new RenderedPipelineStageDefinition<TInput>(OperatorName, document, args.DocumentSerializer);
         }
     }
 }

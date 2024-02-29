@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = BsonDocumentSerializer.Instance;
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(documentSerializer);
-            var renderedPipeline = pipeline.Render(changeStreamDocumentSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedPipeline = pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry, LinqProvider.V3));
             return renderedPipeline.Documents;
         }
     }

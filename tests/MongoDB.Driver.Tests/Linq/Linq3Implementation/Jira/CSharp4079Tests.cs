@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var documentSerializer = BsonSerializer.LookupSerializer<TDocument>();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return update.Render(documentSerializer, serializerRegistry, linqProvider);
+            return update.Render(new(documentSerializer, serializerRegistry, linqProvider));
         }
 
         private class C

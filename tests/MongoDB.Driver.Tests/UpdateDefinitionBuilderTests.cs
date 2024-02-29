@@ -696,7 +696,7 @@ namespace MongoDB.Driver.Tests
         private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider = LinqProvider.V3)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            return update.Render(new(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
         }
 
         private class Person

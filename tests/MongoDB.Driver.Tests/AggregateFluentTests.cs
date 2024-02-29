@@ -13,20 +13,21 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -1358,7 +1359,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
-            return pipeline.Render(inputSerializer, serializerRegistry);
+            return pipeline.Render(new(inputSerializer, serializerRegistry));
         }
 
         private List<IRenderedPipelineStageDefinition> RenderStages(
@@ -1370,7 +1371,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var stage in stages)
             {
-                var renderedStage = stage.Render(inputSerializer, serializerRegistry);
+                var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
                 renderedStages.Add(renderedStage);
                 inputSerializer = renderedStage.OutputSerializer;
             }

@@ -61,7 +61,7 @@ namespace MongoDB.Driver.TestConsoleApplication
             var builder = Builders<Person>.Filter;
             var filter = builder.Eq(x => x.Id, "my id") & builder.Eq(x => x.Name, "Jack");
 
-            filter.Render(col.DocumentSerializer, col.Settings.SerializerRegistry);
+            filter.Render(new(col.DocumentSerializer, col.Settings.SerializerRegistry));
 
             // await col.Find(filter).ToListAsync();
             return Task.FromResult(true);
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.TestConsoleApplication
         private static Task ExpressionMethod(IMongoCollection<Person> col)
         {
             var filter = new ExpressionFilterDefinition<Person>(x => x.Id == "my id" && x.Name == "Jack");
-            filter.Render(col.DocumentSerializer, col.Settings.SerializerRegistry);
+            filter.Render(new(col.DocumentSerializer, col.Settings.SerializerRegistry));
             //await col.Find(x => x.Id == "my id" && x.Name == "Jack").ToListAsync();
             return Task.FromResult(true);
         }

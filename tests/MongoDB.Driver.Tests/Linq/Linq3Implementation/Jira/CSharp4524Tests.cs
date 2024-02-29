@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var projection = find.Options.Projection;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<MyData>();
-            var renderedProjection = projection.Render(documentSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedProjection = projection.Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
             renderedProjection.Document.Should().Be("{ Date : '$StartDate', Period : '$SpawnPeriod', _id : 0 }");
 
             results.Should().HaveCount(1);

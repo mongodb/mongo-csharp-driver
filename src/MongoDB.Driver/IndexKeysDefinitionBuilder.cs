@@ -18,10 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -450,13 +447,13 @@ namespace MongoDB.Driver
             _keys = Ensure.IsNotNull(keys, nameof(keys)).ToList();
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             var document = new BsonDocument();
 
             foreach (var key in _keys)
             {
-                var renderedKey = key.Render(documentSerializer, serializerRegistry, linqProvider);
+                var renderedKey = key.Render(args);
 
                 foreach (var element in renderedKey.Elements)
                 {
@@ -486,9 +483,9 @@ namespace MongoDB.Driver
             _direction = direction;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(args);
 
             BsonValue value;
             switch (_direction)
@@ -519,14 +516,14 @@ namespace MongoDB.Driver
             _additionalFieldName = additionalFieldName;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(args);
 
             var document = new BsonDocument(renderedField.FieldName, "geoHaystack");
             if (_additionalFieldName != null)
             {
-                var additionalRenderedField = _additionalFieldName.Render(documentSerializer, serializerRegistry, linqProvider);
+                var additionalRenderedField = _additionalFieldName.Render(args);
                 document.Add(additionalRenderedField.FieldName, 1);
             }
 
@@ -545,9 +542,9 @@ namespace MongoDB.Driver
             _type = type;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(args);
             return new BsonDocument(renderedField.FieldName, _type);
         }
     }
@@ -561,7 +558,7 @@ namespace MongoDB.Driver
             _field = field;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             string fieldName;
             if (_field == null)
@@ -570,7 +567,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
+                var renderedField = _field.Render(args);
                 fieldName = renderedField.FieldName;
                 fieldName += ".$**";
             }

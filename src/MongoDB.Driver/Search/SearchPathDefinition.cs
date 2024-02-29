@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -30,7 +31,16 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
-        public abstract BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext);
+        [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
+        public virtual BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            Render(new RenderArgs<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathRenderArgs: new(renderContext.PathPrefix)));
+
+        /// <summary>
+        /// Renders the path to a <see cref="BsonValue"/>.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public abstract BsonValue Render(RenderArgs<TDocument> args);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="FieldDefinition{TDocument}"/> to
@@ -101,15 +111,14 @@ namespace MongoDB.Driver.Search
         /// Renders the field.
         /// </summary>
         /// <param name="fieldDefinition">The field definition.</param>
-        /// <param name="renderContext">The render context.</param>
+        /// <param name="args">The render arguments.</param>
         /// <returns>The rendered field.</returns>
-        protected string RenderField(FieldDefinition<TDocument> fieldDefinition, SearchDefinitionRenderContext<TDocument> renderContext)
+        protected string RenderField(FieldDefinition<TDocument> fieldDefinition, RenderArgs<TDocument> args)
         {
-            var renderedField = fieldDefinition.Render(renderContext.DocumentSerializer, renderContext.SerializerRegistry);
+            var renderedField = fieldDefinition.Render(args);
+            var prefix = args.PathRenderArgs.PathPrefix;
 
-            return renderContext.PathPrefix == null ?
-                renderedField.FieldName :
-                $"{renderContext.PathPrefix}.{renderedField.FieldName}";
+            return prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
         }
     }
 }

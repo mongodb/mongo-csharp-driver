@@ -25,8 +25,7 @@ namespace MongoDB.Driver.Tests
 {
     public class FilterDefinitionBuilderEnumerableNullableEnumContainsNullableEnumTests
     {
-        private static IBsonSerializerRegistry __registry = BsonSerializer.SerializerRegistry;
-        private static IBsonSerializer<C> __serializer = BsonSerializer.SerializerRegistry.GetSerializer<C>();
+        private static RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
         private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public enum E { A, B };
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Tests
             var values = (IEnumerable<E?>)new E?[] { null, E.A, E.B };
             var filter = __subject.Where(x => values.Contains(x.P));
 
-            var result = filter.Render(__serializer, __registry);
+            var result = filter.Render(__args);
 
             result.Should().Be("{ P : { $in : [ null, 'A', 'B' ] } }");
         }

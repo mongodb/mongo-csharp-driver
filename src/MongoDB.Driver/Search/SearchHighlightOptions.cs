@@ -97,12 +97,12 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the options to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="renderContext">The render context.</param>
+        /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="BsonDocument" />.</returns>
-        public BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext)
+        public BsonDocument Render(RenderArgs<TDocument> args)
             => new()
             {
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(args) },
                 { "maxCharsToExamine", _maxCharsToExamine, _maxCharsToExamine != null},
                 { "maxNumPassages", _maxNumPassages, _maxNumPassages != null }
             };

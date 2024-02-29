@@ -39,13 +39,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             _output = output;
         }
 
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (linqProvider != LinqProvider.V3)
+            if (args.LinqProvider != LinqProvider.V3)
             {
                 throw new InvalidOperationException($"{GetType().Name} is only intended for use with LINQ3.");
             }
 
+            var inputSerializer = args.DocumentSerializer;
+            var serializerRegistry = args.SerializerRegistry;
             var groupingStage = RenderGroupingStage(inputSerializer, serializerRegistry, out var groupingSerializer);
             var projectStage = RenderProjectStage(groupingSerializer, serializerRegistry, out var outputSerializer);
             var optimizedStages = OptimizeGroupingStages(groupingStage, projectStage, inputSerializer, outputSerializer);
@@ -97,20 +99,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override string OperatorName => "$bucket";
 
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (linqProvider == LinqProvider.V2)
+            if (args.LinqProvider == LinqProvider.V2)
             {
                 var linq2Stage = PipelineStageDefinitionBuilder.Bucket(
                     new ExpressionAggregateExpressionDefinition<TInput, TValue>(_groupBy, _translationOptions),
                     _boundaries,
                     new ExpressionBucketOutputProjection<TInput, TValue, TOutput>(x => default(TValue), _output, _translationOptions),
                     _options);
-                return linq2Stage.Render(inputSerializer, serializerRegistry, linqProvider);
+                return linq2Stage.Render(args);
             }
             else
             {
-                return base.Render(inputSerializer, serializerRegistry, linqProvider);
+                return base.Render(args);
             }
         }
 
@@ -191,16 +193,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override string OperatorName => "$group";
 
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (linqProvider == LinqProvider.V2)
+            if (args.LinqProvider == LinqProvider.V2)
             {
                 var linq2Stage = PipelineStageDefinitionBuilder.Group(new GroupExpressionProjection<TInput, TValue, TOutput>(_groupBy, _output, _translationOptions));
-                return linq2Stage.Render(inputSerializer, serializerRegistry, linqProvider);
+                return linq2Stage.Render(args);
             }
             else
             {
-                return base.Render(inputSerializer, serializerRegistry, linqProvider);
+                return base.Render(args);
             }
         }
 

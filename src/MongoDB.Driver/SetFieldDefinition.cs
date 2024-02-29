@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -34,7 +35,18 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The linq provider.</param>
         /// <returns>The rendered SetFieldDefinition.</returns>
-        public abstract BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
+        public virtual BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the SetFieldDefinition.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>The rendered SetFieldDefinition.</returns>
+        public abstract BsonElement Render(RenderArgs<TDocument> args);
     }
 
     /// <summary>
@@ -62,9 +74,9 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonElement Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(args);
             var serializedValue = SerializationHelper.SerializeValue(renderedField.ValueSerializer, _value);
 
             return new BsonElement(renderedField.FieldName, serializedValue);

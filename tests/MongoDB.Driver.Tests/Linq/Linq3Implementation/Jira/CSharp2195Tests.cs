@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<RawBsonDocument>();
-            var renderedFilter = filter.Render(documentSerializer, serializerRegistry);
+            var renderedFilter = filter.Render(new(documentSerializer, serializerRegistry));
             renderedFilter.Should().Be("{ life : 42 }");
 
             var results = collection.FindSync(filter).ToList();

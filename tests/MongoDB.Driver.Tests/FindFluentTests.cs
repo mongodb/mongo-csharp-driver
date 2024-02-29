@@ -20,12 +20,12 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests
 {
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests
             {
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var sourceSerializer = serializerRegistry.GetSerializer<Person>();
-                var renderedProjection = options.Projection.Render(sourceSerializer, serializerRegistry);
+                var renderedProjection = options.Projection.Render(new(sourceSerializer, serializerRegistry));
                 return renderedProjection.Document == null && renderedProjection.ProjectionSerializer is BsonDocumentSerializer;
             };
 

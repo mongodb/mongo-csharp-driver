@@ -84,6 +84,7 @@ namespace MongoDB.Driver
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
+        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
         public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
@@ -96,7 +97,16 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
-        public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
+        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider) =>
+            Render(new (inputSerializer, serializerRegistry, linqProvider));
+
+        /// <summary>
+        /// Renders the pipeline.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
+        public abstract RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args);
 
         /// <inheritdoc/>
         public override string ToString()
@@ -142,7 +152,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedPipeline = Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = Render(new(inputSerializer, serializerRegistry, linqProvider));
             return $"[{string.Join(", ", renderedPipeline.Documents.Select(stage => stage.ToJson()))}]";
         }
 
@@ -302,11 +312,11 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _stages.Select(s => new BsonDocumentPipelineStageDefinition<TInput, TOutput>(s, _outputSerializer));
 
         /// <inheritdoc />
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             return new RenderedPipelineDefinition<TOutput>(
                 _stages,
-                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+                _outputSerializer ?? args.GetSerializer<TOutput>());
         }
     }
 
@@ -349,14 +359,14 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _stages;
 
         /// <inheritdoc />
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var pipeline = new List<BsonDocument>();
 
-            IBsonSerializer currentSerializer = inputSerializer;
+            IBsonSerializer currentSerializer = args.DocumentSerializer;
             foreach (var stage in _stages)
             {
-                var renderedStage = stage.Render(currentSerializer, serializerRegistry, linqProvider);
+                var renderedStage = stage.Render(currentSerializer, args.SerializerRegistry, args.LinqProvider);
                 currentSerializer = renderedStage.OutputSerializer;
                 foreach (var document in renderedStage.Documents)
                 {
@@ -369,7 +379,7 @@ namespace MongoDB.Driver
 
             return new RenderedPipelineDefinition<TOutput>(
                 pipeline,
-                _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+                _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? args.SerializerRegistry.GetSerializer<TOutput>());
         }
 
         private static List<IPipelineStageDefinition> VerifyStages(List<IPipelineStageDefinition> stages)
@@ -414,9 +424,9 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override IEnumerable<IPipelineStageDefinition> Stages => _wrapped.Stages;
 
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            var rendered = _wrapped.Render(inputSerializer, serializerRegistry, linqProvider);
+            var rendered = _wrapped.Render(args);
 
             // do some combining of $match documents if possible. This is optimized for the
             // OfType case where we've added a discriminator as a match at the beginning of the pipeline.
@@ -429,7 +439,7 @@ namespace MongoDB.Driver
                     var combinedFilter = Builders<BsonDocument>.Filter.And(
                         (BsonDocument)firstStage.Value,
                         (BsonDocument)secondStage.Value);
-                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(BsonDocumentSerializer.Instance, serializerRegistry, linqProvider));
+                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(args.WithNewDocumentType(BsonDocumentSerializer.Instance)));
 
                     rendered.Documents[0] = combinedStage;
                     rendered.Documents.RemoveAt(1);

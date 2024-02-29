@@ -79,14 +79,25 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>The rendered pipeline.</returns>
-        public abstract BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
+        public virtual BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return RenderPipeline(new(inputSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the facet pipeline.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public abstract BsonArray RenderPipeline(RenderArgs<TInput> args);
     }
 
     /// <summary>
     /// Represents a facet to be passed to the Facet method.
     /// </summary>
     /// <typeparam name="TInput">The type of the input documents.</typeparam>
-    /// <typeparam name="TOutput">The type of the otuput documents.</typeparam>
+    /// <typeparam name="TOutput">The type of the output documents.</typeparam>
     public class AggregateFacet<TInput, TOutput> : AggregateFacet<TInput>
     {
         /// <summary>
@@ -112,9 +123,9 @@ namespace MongoDB.Driver
         public PipelineDefinition<TInput, TOutput> Pipeline { get; private set; }
 
         /// <inheritdoc/>
-        public override BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonArray RenderPipeline(RenderArgs<TInput> args)
         {
-            var renderedPipeline = Pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = Pipeline.Render(args);
             return new BsonArray(renderedPipeline.Documents);
         }
     }

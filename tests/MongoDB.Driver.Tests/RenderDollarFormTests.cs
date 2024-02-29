@@ -14,8 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -23,46 +21,8 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class FilterDefinitionRenderContextTests
+    public class RenderDollarFormTests
     {
-        [Fact]
-        public void FilterDefinitionRenderContext_dollarForm_default_value_should_be_false()
-        {
-            FilterDefinitionRenderContext.RenderDollarForm.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task FilterDefinitionRenderContext_should_be_scoped_to_task()
-        {
-            bool? renderDollarFormValueObservedByTask = null;
-            var taskReadyToRenderEvent = new ManualResetEventSlim();
-            var unblockTaskEvent = new ManualResetEventSlim();
-            var rendererTask = Task.Run(RendererTask);
-
-            // Wait for task to set RenderDollarForm = true;
-            taskReadyToRenderEvent.Wait();
-
-            // Try to 'override' RenderDollarForm value and unblock the task
-            FilterDefinitionRenderContext.RenderDollarForm = false;
-            unblockTaskEvent.Set();
-
-            // Wait fot task to finish and set renderDollarFormValueObservedByTask
-            await rendererTask;
-
-            renderDollarFormValueObservedByTask.Should().Be(true);
-            FilterDefinitionRenderContext.RenderDollarForm.Should().Be(false);
-
-            void RendererTask()
-            {
-                using var renderContext = FilterDefinitionRenderContext.StartRender(true);
-
-                taskReadyToRenderEvent.Set();
-                unblockTaskEvent.Wait();
-
-                renderDollarFormValueObservedByTask = FilterDefinitionRenderContext.RenderDollarForm;
-            }
-        }
-
         [Theory]
         [MemberData(nameof(Correct_form_should_be_rendered_test_cases))]
         public void Correct_form_should_be_rendered(FilterDefinition<BsonDocument> filterDefinition, bool renderDollarForm, string expectedFilter)
@@ -71,8 +31,7 @@ namespace MongoDB.Driver.Tests
             var documentSerializer = serializerRegistry.GetSerializer<BsonDocument>();
             var expectedFilterDocument = BsonDocument.Parse(expectedFilter);
 
-            using var renderContext = FilterDefinitionRenderContext.StartRender(renderDollarForm);
-            var actualFilter = filterDefinition.Render(documentSerializer, serializerRegistry);
+            var actualFilter = filterDefinition.Render(new(documentSerializer, serializerRegistry, renderDollarForm: renderDollarForm));
 
             actualFilter.Should().Be(expectedFilterDocument);
         }

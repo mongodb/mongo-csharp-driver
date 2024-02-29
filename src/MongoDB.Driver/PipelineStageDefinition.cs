@@ -145,6 +145,7 @@ namespace MongoDB.Driver
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>An <see cref="IRenderedPipelineStageDefinition" /></returns>
+        [Obsolete("Use other Render overload instead.")]
         IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
@@ -210,6 +211,7 @@ namespace MongoDB.Driver
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
+        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
         public virtual RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
@@ -222,7 +224,18 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
-        public abstract RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
+        public RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new RenderArgs<TInput>(inputSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the specified document serializer.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
+        public abstract RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args);
 
         /// <inheritdoc/>
         public override string ToString()
@@ -256,7 +269,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedStage = Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedStage = Render(new(inputSerializer, serializerRegistry, linqProvider));
             var documents = renderedStage.Documents;
             if (documents.Count == 1)
             {
@@ -315,13 +328,13 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, LinqProvider.V3);
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, LinqProvider.V3));
         }
 
         /// <inheritdoc />
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, linqProvider);
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, linqProvider));
         }
     }
 
@@ -353,12 +366,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             return new RenderedPipelineStageDefinition<TOutput>(
                 OperatorName,
                 _document,
-                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+                _outputSerializer ?? args.GetSerializer<TOutput>());
         }
     }
 
@@ -409,21 +422,21 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             return new RenderedPipelineStageDefinition<TOutput>(
                 OperatorName,
                 BsonDocument.Parse(_json),
-                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+                _outputSerializer ?? args.GetSerializer<TOutput>());
         }
     }
 
     internal sealed class DelegatedPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly string _operatorName;
-        private readonly Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, LinqProvider, RenderedPipelineStageDefinition<TOutput>> _renderer;
+        private readonly Func<RenderArgs<TInput>, RenderedPipelineStageDefinition<TOutput>> _renderer;
 
-        public DelegatedPipelineStageDefinition(string operatorName, Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, LinqProvider, RenderedPipelineStageDefinition<TOutput>> renderer)
+        public DelegatedPipelineStageDefinition(string operatorName, Func<RenderArgs<TInput>, RenderedPipelineStageDefinition<TOutput>> renderer)
         {
             _operatorName = operatorName;
             _renderer = renderer;
@@ -434,9 +447,9 @@ namespace MongoDB.Driver
             get { return _operatorName; }
         }
 
-        public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            return _renderer(inputSerializer, serializerRegistry, linqProvider);
+            return _renderer(args);
         }
     }
 }

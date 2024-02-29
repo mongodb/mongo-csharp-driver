@@ -22,13 +22,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -884,26 +884,26 @@ namespace MongoDB.Driver.Tests
         private string RenderField<TDocument, TField>(FieldDefinition<TDocument, TField> field)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return field.Render(serializer, BsonSerializer.SerializerRegistry).FieldName;
+            return field.Render(new(serializer, BsonSerializer.SerializerRegistry)).FieldName;
         }
 
         private BsonDocument RenderFilter<TDocument>(FilterDefinition<TDocument> filter)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var doc = filter.Render(serializer, BsonSerializer.SerializerRegistry);
+            var doc = filter.Render(new(serializer, BsonSerializer.SerializerRegistry));
             return doc;
         }
 
         private List<BsonDocument> RenderPipeline<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TInput>();
-            return pipeline.Render(serializer, BsonSerializer.SerializerRegistry).Documents.ToList();
+            return pipeline.Render(new(serializer, BsonSerializer.SerializerRegistry)).Documents.ToList();
         }
 
         private BsonDocument RenderUpdate<TDocument>(UpdateDefinition<TDocument> update)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(serializer, BsonSerializer.SerializerRegistry).AsBsonDocument;
+            return update.Render(new(serializer, BsonSerializer.SerializerRegistry)).AsBsonDocument;
         }
 
         public class A

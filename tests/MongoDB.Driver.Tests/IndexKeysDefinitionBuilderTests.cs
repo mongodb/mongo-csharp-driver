@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Tests
         private BsonDocument Render<TDocument>(IndexKeysDefinition<TDocument> keys)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return keys.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            return keys.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
         }
 
         private IndexKeysDefinitionBuilder<TDocument> CreateSubject<TDocument>()
