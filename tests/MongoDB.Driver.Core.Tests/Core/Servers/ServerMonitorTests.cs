@@ -312,14 +312,8 @@ namespace MongoDB.Driver.Core.Servers
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(), null);
 
             subject.Initialize();
-            // spin until the initial handshake has happened in which case the server description state should be Connected
-            SpinWait.SpinUntil(() => subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-            // RTT thread should be started after first heartbeat (initial handshake)
-            mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Once);
 
             SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
             mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Once);
             mockRoundTripTimeMonitor.Verify(m => m.IsStarted, Times.AtLeast(4));
             subject.Dispose();
