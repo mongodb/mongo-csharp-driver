@@ -21,7 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class FilterDefinitionRenderDollarFormTests
+    public class RenderDollarFormTests
     {
         [Theory]
         [MemberData(nameof(Correct_form_should_be_rendered_test_cases))]
