@@ -16,8 +16,8 @@
             if (object.ReferenceEquals(obj, null)) { return false; }
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
+                GetType().Equals(obj.GetType()) &&
                 obj is EqualsOnlyBaseClass other &&
-                GetType().Equals(other.GetType()) &&
                 object.Equals(_ref1, other._ref1) &&
                 _value1.Equals(other._value1);
         }

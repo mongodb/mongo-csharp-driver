@@ -17,8 +17,8 @@
             if (object.ReferenceEquals(obj, null)) { return false; }
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
+                base.Equals(obj) &&
                 obj is EqualsOnlyDerivedClass other &&
-                base.Equals(other) &&
                 object.Equals(_ref2, other._ref2) &&
                 _value2.Equals(other._value2);
         }
