@@ -1412,6 +1412,13 @@ tasks:
           vars:
             FRAMEWORK: net60
 
+    - name: test-smoke-tests-net80
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: net80
+
     - name: performance-tests-net60-server-v6.0
       commands:
         - func: bootstrap-mongo-orchestration
@@ -2306,6 +2313,7 @@ buildvariants:
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
 
 - matrix_name: "smoke-tests-linux"
   matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
@@ -2316,6 +2324,7 @@ buildvariants:
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
 
 - matrix_name: "smoke-tests-macOS"
   matrix_spec: { os: "macos-1100", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
@@ -2326,6 +2335,7 @@ buildvariants:
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
 
 # Package release variants
 - matrix_name: build-packages
