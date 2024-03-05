@@ -166,6 +166,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                         case "srvmaxhosts":
                             connectionString.SrvMaxHosts.Should().Be(expectedOption.Value.ToInt32());
                             break;
+                        case "srvservicename":
+                            connectionString.SrvServiceName.Should().Be(expectedOption.Value.AsString);
+                            break;
                         case "ssl":
 #pragma warning disable 618
                             AssertBoolean(connectionString.Ssl, expectedOption.Value);
@@ -351,9 +354,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
             {
                 // Not supported readConcernLevel options are not allowed for parsing
                 "concern-options.json:Arbitrary string readConcernLevel does not cause a warning",
-                // srvServiceName not yet implemented (CSHARP-3745)
-                "srv-options.json:Non-SRV URI with custom srvServiceName",
-                "srv-options.json:SRV URI with custom srvServiceName",
                 // tlsAllowInvalidCertificates and tlsAllowInvalidHostnames are not supported
                 "tls-options.json:tlsAllowInvalidCertificates and tlsInsecure both present (and false) raises an error",
                 "tls-options.json:tlsAllowInvalidCertificates and tlsInsecure both present (and true) raises an error",
