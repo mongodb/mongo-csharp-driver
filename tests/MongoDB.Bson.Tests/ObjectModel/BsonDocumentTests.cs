@@ -137,6 +137,21 @@ namespace MongoDB.Bson.Tests
             var clone = (BsonDocument)document.Clone();
             Assert.Equal(clone, document);
             Assert.Same(clone["d"], document["d"]);
+            Assert.False(clone.AllowDuplicateNames);
+        }
+
+        [Fact]
+        public void TestClone_with_duplicate_elements()
+        {
+            var document = new BsonDocument(allowDuplicateNames: true)
+            {
+                { "d",  new BsonDocument("x", 1) },
+                { "d",  new BsonDocument("x", 2) },
+            };
+
+            var clone = (BsonDocument)document.Clone();
+            clone.Should().Be(document);
+            clone.AllowDuplicateNames.Should().BeTrue();
         }
 
         [Fact]
@@ -153,6 +168,7 @@ namespace MongoDB.Bson.Tests
         {
             var element = new BsonElement("x", 1);
             var document = new BsonDocument(element);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -168,6 +184,7 @@ namespace MongoDB.Bson.Tests
                 new BsonElement("y", 2)
             };
             var document = new BsonDocument((IEnumerable<BsonElement>)elements);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(2, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(2, document["y"].AsInt32);
@@ -184,6 +201,7 @@ namespace MongoDB.Bson.Tests
         {
             var originalDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var document = new BsonDocument(originalDocument);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(2, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(2, document["y"].AsInt32);
@@ -196,6 +214,20 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
+        public void TestConstructorElementsDocumentDuplicateNames()
+        {
+            var documentA = new BsonDocument(allowDuplicateNames: true)
+            {
+                { "x", 1 },
+                { "x", 2 },
+            };
+            var documentB = new BsonDocument(documentA);
+
+            documentB.AllowDuplicateNames.Should().BeTrue();
+            documentB.Elements.ShouldAllBeEquivalentTo(documentA.Elements);
+        }
+
+        [Fact]
         public void TestConstructorElementsParams()
         {
             var element1 = new BsonElement("x", 1);
@@ -203,6 +235,8 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(element1, element2);
 #pragma warning restore
+            Assert.False(document.AllowDuplicateNames);
+            Assert.Equal(2, document.ElementCount);
             Assert.Equal(2, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(2, document["y"].AsInt32);
@@ -219,6 +253,7 @@ namespace MongoDB.Bson.Tests
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -233,6 +268,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
 #pragma warning restore
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -244,6 +280,7 @@ namespace MongoDB.Bson.Tests
         {
             var hashtable = (IDictionary)new Hashtable { { "x", 1 } };
             var document = new BsonDocument(hashtable);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -255,6 +292,7 @@ namespace MongoDB.Bson.Tests
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -269,6 +307,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
 #pragma warning restore
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -283,6 +322,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             var document = new BsonDocument(hashtable, keys);
 #pragma warning restore
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -293,6 +333,7 @@ namespace MongoDB.Bson.Tests
         public void TestConstructorNameValue()
         {
             var document = new BsonDocument("x", 1);
+            Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
             Assert.Equal(true, document.Contains("x"));
@@ -374,6 +415,25 @@ namespace MongoDB.Bson.Tests
             var clone = (BsonDocument)document.DeepClone();
             Assert.Equal(clone, document);
             Assert.NotSame(clone["d"], document["d"]);
+            Assert.False(((BsonDocument)document["d"]).AllowDuplicateNames);
+        }
+
+        [Fact]
+        public void TestDeepClone_with_duplicate_elements()
+        {
+            var documentWithDuplicateElements = new BsonDocument(allowDuplicateNames: true)
+            {
+                { "x", 1 },
+                { "x", 2 }
+            };
+
+            var document = new BsonDocument("d", documentWithDuplicateElements);
+            var clone = (BsonDocument)document.DeepClone();
+            var clonedNestedDocument = (BsonDocument)clone["d"];
+
+            clonedNestedDocument.Should().NotBeSameAs((BsonDocument)document["d"]);
+            clonedNestedDocument.Elements.ShouldAllBeEquivalentTo(documentWithDuplicateElements.Elements);
+            clonedNestedDocument.AllowDuplicateNames.Should().BeTrue();
         }
 
         [Fact]
