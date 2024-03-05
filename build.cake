@@ -439,6 +439,7 @@ Task("SmokeTestsNetCoreApp21").IsDependentOn("SmokeTests");
 Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet50").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet60").IsDependentOn("SmokeTests");
+Task("SmokeTestsNet80").IsDependentOn("SmokeTests");
 
 Task("TestsPackaging")
     .IsDependentOn("TestsPackagingProjectReference")
@@ -658,6 +659,7 @@ Setup<BuildConfig>(
             string s when s.EndsWith("net472") => "net472",
             string s when s.EndsWith("net50") => "net5.0",
             string s when s.EndsWith("net60") => "net6.0",
+            string s when s.EndsWith("net80") => "net8.0",
             _ => null
         };
 
