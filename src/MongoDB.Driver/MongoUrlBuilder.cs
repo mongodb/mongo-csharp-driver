@@ -74,6 +74,7 @@ namespace MongoDB.Driver
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private int? _srvMaxHosts;
+        private string _srvServiceName;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -132,6 +133,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _srvMaxHosts = null;
+            _srvServiceName = null;
             _username = null;
             _useTls = false;
             _w = null;
@@ -673,6 +675,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the SRV service name which modifies the srv URI to look like:
+        /// `_{srvServiceName}._tcp.{hostname}.{domainname}`.
+        /// </summary>
+        public string SrvServiceName
+        {
+            get { return _srvServiceName; }
+            set { _srvServiceName = value; }
+        }
+
+        /// <summary>
         /// Gets or sets whether to disable certificate revocation checking during the TLS handshake.
         /// </summary>
         public bool TlsDisableCertificateRevocationCheck
@@ -1083,6 +1095,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("srvMaxHosts={0}&", _srvMaxHosts);
             }
+            if (!string.IsNullOrEmpty(_srvServiceName))
+            {
+                query.AppendFormat("srvServiceName={0}&", _srvServiceName);
+            }
             if (query.Length != 0)
             {
                 query.Length = query.Length - 1; // remove trailing "&"
@@ -1183,6 +1199,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _srvMaxHosts = connectionString.SrvMaxHosts;
+            _srvServiceName = connectionString.SrvServiceName;
             _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);

@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly ServerApi _serverApi;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly int _srvMaxHosts;
+        private readonly string _srvServiceName;
         private readonly IServerSelector _preServerSelector;
         private readonly IServerSelector _postServerSelector;
 
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
+        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: `_{srvServiceName}._tcp.{hostname}.{domainname}`. Defaults to "mongodb"</param>
         public ClusterSettings(
 #pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -88,7 +90,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
-            Optional<int> srvMaxHosts = default)
+            Optional<int> srvMaxHosts = default,
+            Optional<string> srvServiceName = default(Optional<string>))
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
@@ -107,6 +110,7 @@ namespace MongoDB.Driver.Core.Configuration
             _postServerSelector = postServerSelector.WithDefault(null);
             _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
             _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(srvMaxHosts.WithDefault(0), nameof(srvMaxHosts));
+            _srvServiceName = srvServiceName.WithDefault("mongodb");
 
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(_connectionMode, _connectionModeSwitch, _directConnection);
         }
@@ -259,6 +263,13 @@ namespace MongoDB.Driver.Core.Configuration
         public int SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
+        /// Gets the SRV service name which modifies the srv URI to look like:
+        /// `_{srvServiceName}._tcp.{hostname}.{domainname}`.
+        /// The default value is "mongodb".
+        /// </summary>
+        public string SrvServiceName => _srvServiceName;
+
+        /// <summary>
         /// Gets the pre server selector.
         /// </summary>
         /// <value>
@@ -299,6 +310,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
+        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: `_{srvServiceName}._tcp.{hostname}.{domainname}`. Defaults to "mongodb"</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -317,7 +329,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
-            Optional<int> srvMaxHosts = default)
+            Optional<int> srvMaxHosts = default,
+            Optional<string> srvServiceName = default(Optional<string>))
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
@@ -334,7 +347,8 @@ namespace MongoDB.Driver.Core.Configuration
                 preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
                 postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),
                 scheme: scheme.WithDefault(_scheme),
-                srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts));
+                srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts),
+                srvServiceName: srvServiceName.WithDefault(_srvServiceName));
         }
 
         // internal methods
