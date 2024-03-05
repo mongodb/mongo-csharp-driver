@@ -39,6 +39,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             _listSerializer = BsonSerializer.LookupSerializer<List<object>>();
         }
 
+        // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ExpandoObjectSerializer other &&
+                object.Equals(_listSerializer, other._listSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        // protected methods
         /// <summary>
         /// Configures the deserialization context.
         /// </summary>

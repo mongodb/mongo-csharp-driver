@@ -203,6 +203,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ImpliedImplementationInterfaceSerializer<TInterface, TImplementation> other &&
+                object.Equals(_lazyImplementationSerializer.Value, other._lazyImplementationSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Tries to get the serialization info for the individual items of the array.
         /// </summary>

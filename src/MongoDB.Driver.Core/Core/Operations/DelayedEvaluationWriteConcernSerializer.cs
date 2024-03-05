@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class DelayedEvaluationWriteConcernSerializer : SealedClassSerializerBase<Func<WriteConcern>>
     {
-        // private fields
+        // protected methods
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Func<WriteConcern> value)
         {
             var writeConcern = value();

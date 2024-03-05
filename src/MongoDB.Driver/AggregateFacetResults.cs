@@ -22,6 +22,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -98,5 +99,18 @@ namespace MongoDB.Driver
 
             return new AggregateFacetResults(facets);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is AggregateFacetResultsSerializer other &&
+                SequenceComparer.Equals(_names, other._names) &&
+                SequenceComparer.Equals(_serializers, other._serializers);
+        }
+
+        public override int GetHashCode() => 0;
     }
 }

@@ -264,6 +264,33 @@ namespace MongoDB.Bson.Serialization
             _frozen = true;
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is BsonMemberMap other &&
+                _frozen.Equals(true) && // BsonMemberMaps should only be equal if they are frozen
+                object.Equals(_defaultValue, other._defaultValue) &&
+                object.Equals(_defaultValueCreator, other._defaultValueCreator) &&
+                _defaultValueSpecified.Equals(other._defaultValueSpecified) &&
+                object.Equals(_elementName, other._elementName) &&
+                object.Equals(_frozen, other._frozen) &&
+                _ignoreIfDefault.Equals(other._ignoreIfDefault) &&
+                _ignoreIfNull.Equals(other._ignoreIfNull) &&
+                _isRequired.Equals(other._isRequired) &&
+                object.Equals(_memberInfo, other._memberInfo) &&
+                object.Equals(_memberType, other._memberType) &&
+                _order.Equals(other._order) &&
+                object.Equals(_serializer, other._serializer) &&
+                object.Equals(_shouldSerializeMethod, other._shouldSerializeMethod);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Gets the serializer.
         /// </summary>

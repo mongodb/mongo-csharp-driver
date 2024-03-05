@@ -131,13 +131,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
             return
+                base.Equals(obj) &&
                 obj is NullableSerializer<T> other &&
-                ValueSerializer.Equals(other.ValueSerializer);
+                object.Equals(_lazySerializer.Value, other._lazySerializer.Value);
         }
 
         /// <inheritdoc/>
-        public override int GetHashCode() => ValueSerializer.GetHashCode();
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Serializes a value.

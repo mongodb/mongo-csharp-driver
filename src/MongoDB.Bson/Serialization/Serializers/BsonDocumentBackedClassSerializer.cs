@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -39,6 +40,20 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is BsonDocumentBackedClassSerializer<TClass> other &&
+                DictionaryComparer.Equals(_memberSerializationInfo, other._memberSerializationInfo);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>

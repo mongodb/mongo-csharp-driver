@@ -189,6 +189,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is KeyValuePairSerializer<TKey, TValue> other &&
+                object.Equals(_lazyKeySerializer.Value, other._lazyKeySerializer.Value) &&
+                object.Equals(_lazyValueSerializer.Value, other._lazyValueSerializer.Value) &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Serializes a value.
         /// </summary>
