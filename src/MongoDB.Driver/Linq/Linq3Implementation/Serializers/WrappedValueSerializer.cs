@@ -67,6 +67,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             return value;
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is WrappedValueSerializer<TValue> other &&
+                object.Equals(_fieldName, other._fieldName) &&
+                object.Equals(_valueSerializer, other._valueSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             var writer = context.Writer;

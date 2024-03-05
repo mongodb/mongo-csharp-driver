@@ -155,6 +155,18 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // public methods
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is InsertSerializer other &&
+                    object.Equals(_documentSerializer, other._documentSerializer);
+            }
+
+            public override int GetHashCode() => 0;
+
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDocument value)
             {
                 IBsonSerializer serializer;

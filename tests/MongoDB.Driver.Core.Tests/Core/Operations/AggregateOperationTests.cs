@@ -929,4 +929,176 @@ namespace MongoDB.Driver.Core.Operations
             });
         }
     }
+
+    public class AggregateOperation_AggregateResultDeserializerTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+            var y = new DerivedFromAggregateResultDeserializer<int>(Int32Serializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+            var y = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var resultSerializer1 = new Int32Serializer(BsonType.Int32);
+            var resultSerializer2 = new Int32Serializer(BsonType.String);
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(resultSerializer1);
+            var y = new AggregateOperation<int>.AggregateResultDeserializer(resultSerializer2);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        internal class DerivedFromAggregateResultDeserializer<TResult> : AggregateOperation<TResult>.AggregateResultDeserializer
+        {
+            public DerivedFromAggregateResultDeserializer(IBsonSerializer<TResult> resultSerializer) : base(resultSerializer)
+            {
+            }
+        }
+    }
+
+    public class AggregateOperation_AggregateCursorDeserializerTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+            var y = new DerivedFromCursorDeserializer<int>(Int32Serializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+            var y = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var resultSerializer1 = new Int32Serializer(BsonType.Int32);
+            var resultSerializer2 = new Int32Serializer(BsonType.String);
+            var x = new AggregateOperation<int>.CursorDeserializer(resultSerializer1);
+            var y = new AggregateOperation<int>.CursorDeserializer(resultSerializer2);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        internal class DerivedFromCursorDeserializer<TResult> : AggregateOperation<TResult>.CursorDeserializer
+        {
+            public DerivedFromCursorDeserializer(IBsonSerializer<TResult> resultSerializer) : base(resultSerializer)
+            {
+            }
+        }
+    }
 }

@@ -29,6 +29,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
 
+        // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is GeoJsonLineStringCoordinatesSerializer<TCoordinates> other &&
+                object.Equals(_coordinatesSerializer, other._coordinatesSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         // protected methods
         /// <summary>
         /// Deserializes a value.

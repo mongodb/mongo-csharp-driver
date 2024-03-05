@@ -118,6 +118,73 @@ namespace MongoDB.Driver
             result.Should().Be("null");
         }
 
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ChangeStreamUpdateDescriptionSerializer();
+            var y = new DerivedFromChangeStreamUpdateDescriptionSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ChangeStreamSplitEventSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ChangeStreamSplitEventSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ChangeStreamUpdateDescriptionSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ChangeStreamUpdateDescriptionSerializer();
+            var y = new ChangeStreamUpdateDescriptionSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ChangeStreamUpdateDescriptionSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromChangeStreamUpdateDescriptionSerializer : ChangeStreamUpdateDescriptionSerializer
+        {
+        }
+
         // private methods
         private ChangeStreamUpdateDescriptionSerializer CreateSubject()
         {

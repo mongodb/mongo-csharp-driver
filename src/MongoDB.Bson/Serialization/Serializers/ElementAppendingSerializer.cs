@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson.IO;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -66,6 +67,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             throw new NotSupportedException();
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is ElementAppendingSerializer<TDocument> other &&
+                object.Equals(_documentSerializer, other._documentSerializer) &&
+                SequenceComparer.Equals(_elements, other._elements) &&
+                object.Equals(_writerSettingsConfigurator, other._writerSettingsConfigurator);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc />
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDocument value)

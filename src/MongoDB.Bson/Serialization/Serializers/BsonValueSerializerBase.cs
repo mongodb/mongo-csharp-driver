@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>

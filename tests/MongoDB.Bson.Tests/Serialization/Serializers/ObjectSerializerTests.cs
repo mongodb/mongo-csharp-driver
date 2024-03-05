@@ -569,53 +569,100 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_should_return_true_when_instances_are_equal()
+        public void Equals_derived_should_return_false()
         {
-            var discriminatorConvention = new ScalarDiscriminatorConvention("_t");
-            var subject1 = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Standard, ObjectSerializer.DefaultAllowedTypes);
-            var subject2 = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Standard, ObjectSerializer.DefaultAllowedTypes);
+            var x = new ObjectSerializer();
+            var y = new DerivedFromObjectSerializer();
 
-            var result = subject1.Equals(subject2);
-            var hashCode1 = subject1.GetHashCode();
-            var hashCode2 = subject2.GetHashCode();
+            var result = x.Equals(y);
 
-            result.Should().BeTrue();
-            hashCode2.Should().Be(hashCode1); // required by the contract of Equals
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ObjectSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ObjectSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ObjectSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ObjectSerializer();
+            var y = new ObjectSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void Equals_should_return_false_when_instances_are_not_equal(
-            [Values("allowedTypes", "discriminatorConvention", "guidRepresentation")]
-            string notEqualFieldName)
+        [InlineData("allowedDeserializationTypes")]
+        [InlineData("allowedSerializationTypes")]
+        [InlineData("discriminatorConvention")]
+        [InlineData("guidRepresentation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
         {
-            IDiscriminatorConvention discriminatorConvention = new ScalarDiscriminatorConvention("_t");
-            var guidRepresentation = GuidRepresentation.Standard;
-            var allowedTypes = ObjectSerializer.DefaultAllowedTypes;
-            var subject1 = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
-
-            switch (notEqualFieldName)
+            var discriminatorConvention1 = new ScalarDiscriminatorConvention("_t");
+            var discriminatorConvention2 = new ScalarDiscriminatorConvention("_u");
+            var guidRepresentation1 = GuidRepresentation.Standard;
+            var guidRepresentation2 = GuidRepresentation.CSharpLegacy;
+            Func<Type, bool> allowedDeserializationTypes1 = t => false;
+            Func<Type, bool> allowedDeserializationTypes2 = t => true;
+            Func<Type, bool> allowedSerializationTypes1 = t => false;
+            Func<Type, bool> allowedSerializationTypes2 = t => true;
+            var x = new ObjectSerializer(discriminatorConvention1, guidRepresentation1, allowedDeserializationTypes1, allowedSerializationTypes1);
+            var y = notEqualFieldName switch
             {
-                case "allowedTypes": allowedTypes = ObjectSerializer.NoAllowedTypes; break;
-                case "discriminatorConvention": discriminatorConvention = new HierarchicalDiscriminatorConvention("_t"); break;
-                case "guidRepresentation": guidRepresentation = GuidRepresentation.CSharpLegacy; break;
-                default: throw new ArgumentException($"Invalid notEqualFieldName: {notEqualFieldName}.", nameof(notEqualFieldName));
-            }
-            var subject2 = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
+                "discriminatorConvention" => new ObjectSerializer(discriminatorConvention2, guidRepresentation1, allowedDeserializationTypes1, allowedSerializationTypes1),
+                "guidRepresentation" => new ObjectSerializer(discriminatorConvention1, guidRepresentation2, allowedDeserializationTypes1, allowedSerializationTypes1),
+                "allowedDeserializationTypes" => new ObjectSerializer(discriminatorConvention1, guidRepresentation1, allowedDeserializationTypes2, allowedSerializationTypes1),
+                "allowedSerializationTypes" => new ObjectSerializer(discriminatorConvention1, guidRepresentation1, allowedDeserializationTypes1, allowedSerializationTypes2),
+                _ => throw new Exception()
+            };
 
-            var result = subject1.Equals(subject2);
-            var hashCode1 = subject1.GetHashCode();
-            var hashCode2 = subject2.GetHashCode();
+            var result = x.Equals(y);
 
-            result.Should().BeFalse();
-            if (notEqualFieldName == "allowedTypes")
-            {
-                hashCode2.Should().Be(hashCode1); // because allowedTypes is not part of the hash code computation
-            }
-            else
-            {
-                hashCode2.Should().NotBe(hashCode1); // not strictly required but desirable
-            }
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ObjectSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromObjectSerializer : ObjectSerializer
+        {
         }
 
         [Theory]

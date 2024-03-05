@@ -42,6 +42,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             throw new InvalidOperationException("This serializer is not intended to be used.");
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is ISetWindowFieldsPartitionSerializer<TInput> other &&
+                object.Equals(_inputSerializer, other._inputSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ISetWindowFieldsPartition<TInput> value)
         {
             throw new InvalidOperationException("This serializer is not intended to be used.");

@@ -35,6 +35,16 @@ namespace MongoDB.Driver
             return _derivedDocumentSerializer.Deserialize(context, args);
         }
 
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is OfTypeSerializer<TRootDocument, TDerivedDocument> other &&
+                object.Equals(_derivedDocumentSerializer, other._derivedDocumentSerializer);
+        }
+
         public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
@@ -49,6 +59,8 @@ namespace MongoDB.Driver
                 return false;
             }
         }
+
+        public override int GetHashCode() => 0;
 
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDerivedDocument value)
         {

@@ -14,12 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -57,5 +51,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             var from = _fromSerializer.Deserialize(context);
             return _projector(from);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ProjectingDeserializer<TFrom, TTo> other &&
+                object.Equals(_fromSerializer, other._fromSerializer) &&
+                object.Equals(_projector, other._projector);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
     }
 }

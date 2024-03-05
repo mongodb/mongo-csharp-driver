@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Options
 {
@@ -57,6 +56,21 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is RepresentationConverter other &&
+                _allowOverflow.Equals(other._allowOverflow) &&
+                _allowTruncation.Equals(other._allowTruncation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Converts a Decimal128 to a Decimal.
         /// </summary>

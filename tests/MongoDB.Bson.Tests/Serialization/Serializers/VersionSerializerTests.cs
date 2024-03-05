@@ -14,11 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
@@ -116,6 +114,84 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             Assert.Equal(2, version.Minor);
             Assert.Equal(3, version.Build);
             Assert.Equal(4, version.Revision);
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new VersionSerializer();
+            var y = new DerivedFromVersionSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new VersionSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new VersionSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new VersionSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new VersionSerializer();
+            var y = new VersionSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new VersionSerializer(BsonType.String);
+            var y = new VersionSerializer(BsonType.Document);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new VersionSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromVersionSerializer : VersionSerializer
+        {
         }
     }
 }

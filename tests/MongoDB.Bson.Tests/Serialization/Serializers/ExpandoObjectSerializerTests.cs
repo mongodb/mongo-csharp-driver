@@ -16,7 +16,9 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
 
@@ -94,5 +96,75 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal(expected, json);
         }
 #endif
+    }
+
+    public class ExpandoObjectSerializerTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ExpandoObjectSerializer();
+            var y = new DerivedFromExpandoObjectSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ExpandoObjectSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ExpandoObjectSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ExpandoObjectSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ExpandoObjectSerializer();
+            var y = new ExpandoObjectSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ExpandoObjectSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromExpandoObjectSerializer : ExpandoObjectSerializer
+        {
+        }
     }
 }

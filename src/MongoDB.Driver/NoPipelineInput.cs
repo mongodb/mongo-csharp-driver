@@ -60,6 +60,17 @@ namespace MongoDB.Driver
             throw new NotSupportedException();
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return GetType().Equals(obj.GetType());
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         void IBsonSerializer.Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
             throw new NotSupportedException();

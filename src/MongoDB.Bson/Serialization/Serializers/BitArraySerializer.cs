@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // private fields
         private readonly SerializerHelper _helper;
-        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -85,6 +84,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is BitArraySerializer other &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        // protected methods
 #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         /// <summary>
         /// Deserializes a value.
@@ -110,7 +124,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         switch (flag)
                         {
-                            case Flags.Length: length = _int32Serializer.Deserialize(context); break;
+                            case Flags.Length: length = Int32Serializer.Instance.Deserialize(context); break;
                             case Flags.Bytes: bytes = bsonReader.ReadBytes(); break;
                         }
                     });

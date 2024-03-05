@@ -37,7 +37,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // private fields
         private readonly SerializerHelper _helper;
-        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -90,6 +89,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is VersionSerializer other &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -109,10 +123,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         switch (flag)
                         {
-                            case Flags.Major: major = _int32Serializer.Deserialize(context); break;
-                            case Flags.Minor: minor = _int32Serializer.Deserialize(context); break;
-                            case Flags.Build: build = _int32Serializer.Deserialize(context); break;
-                            case Flags.Revision: revision = _int32Serializer.Deserialize(context); break;
+                            case Flags.Major: major = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Minor: minor = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Build: build = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Revision: revision = Int32Serializer.Instance.Deserialize(context); break;
                         }
                     });
                     switch (foundMemberFlags)

@@ -23,7 +23,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFindProjectionTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translators
