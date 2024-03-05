@@ -2372,7 +2372,6 @@ buildvariants:
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
 
 # Package release variants
 - matrix_name: build-packages
@@ -2415,4 +2414,3 @@ buildvariants:
         - name: build-packages
           variant: ".build-packages"
         ## add dependency onto packages smoke test once it implemented
-

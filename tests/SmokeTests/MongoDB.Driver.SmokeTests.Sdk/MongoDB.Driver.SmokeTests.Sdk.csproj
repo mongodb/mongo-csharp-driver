@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net472;net5.0;net6.0;net8.0</TargetFrameworks>
+    <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net472;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsOSX)'!='true'">$(TargetFrameworks);net8.0</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>..\..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
