@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var result = subject.CreateDnsMonitor(cluster, lookupDomainName, cancellationToken);
+            var result = subject.CreateDnsMonitor(cluster, "mongodb", lookupDomainName, cancellationToken);
 
             var dnsMonitor = result.Should().BeOfType<DnsMonitor>().Subject;
             dnsMonitor._cluster().Should().BeSameAs(cluster);

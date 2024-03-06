@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ServerApi.Should().BeNull();
             subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(30));
             subject.SrvMaxHosts.Should().Be(0);
+            subject.SrvServiceName.Should().Be("mongodb");
         }
 
         [Fact]
@@ -314,6 +315,15 @@ namespace MongoDB.Driver.Core.Configuration
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>()
                 .Subject.ParamName.Should().Be("srvMaxHosts");
+        }
+
+        [Fact]
+        public void Constructor_with_srvServiceName_should_initialize_instance()
+        {
+            var srvServiceName = "customname";
+            var subject = new ClusterSettings(srvServiceName: srvServiceName);
+
+            subject.SrvServiceName.Should().Be(srvServiceName);
         }
 
         [Theory]

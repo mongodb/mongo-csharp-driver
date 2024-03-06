@@ -1498,6 +1498,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://localhost/?ssl=false", "mongodb+srv://localhost/?tls=false")]
         [InlineData("mongodb+srv://localhost/?ssl=true", "mongodb+srv://localhost")]
         [InlineData("mongodb+srv://localhost/?srvMaxHosts=2", "mongodb+srv://localhost/?srvMaxHosts=2")]
+        [InlineData("mongodb+srv://localhost/?srvServiceName=customname", "mongodb+srv://localhost/?srvServiceName=customname")]
+        [InlineData("mongodb+srv://localhost/?srvServiceName= ", "mongodb+srv://localhost")]
         public void ToString_should_return_expected_result_for_scheme_port_and_ssl(string connectionString, string expectedResult)
         {
             var subject = new MongoUrlBuilder(connectionString);

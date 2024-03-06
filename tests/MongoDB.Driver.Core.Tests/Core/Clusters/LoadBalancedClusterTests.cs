@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             var mockDnsMonitorFactory = new Mock<IDnsMonitorFactory>();
             mockDnsMonitorFactory
-                .Setup(m => m.CreateDnsMonitor(It.IsAny<IDnsMonitoringCluster>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.CreateDnsMonitor(It.IsAny<IDnsMonitoringCluster>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(Mock.Of<IDnsMonitor>());
             return mockDnsMonitorFactory;
         }

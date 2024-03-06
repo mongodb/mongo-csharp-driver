@@ -677,6 +677,12 @@ namespace MongoDB.Driver.Tests
                 settings.SrvMaxHosts = 2;
             });
 
+            AssertException(settings =>
+            {
+                settings.Scheme = ConnectionStringScheme.MongoDB;
+                settings.SrvServiceName = "customname";
+            });
+
             void AssertException(Action<MongoClientSettings> setAction)
             {
                 var settings = new MongoClientSettings();
