@@ -36,7 +36,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {
-    [Category("Authentication", "OidcMechanism")]
+    [Category("Authentication", "MongoDbOidc")]
     public class OidcAuthenticationProseTests : LoggableTestClass
     {
         // some auth configuration may support only this name
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                         ? await collection.FindAsync(Builders<BsonDocument>.Filter.Empty)
                         : collection.FindSync(Builders<BsonDocument>.Filter.Empty);
                 }
-            });
+            }, (int)TimeSpan.FromSeconds(20).TotalMilliseconds);
 
             VerifyCallbackUsage(callbackMock, async, Times.Once());
         }

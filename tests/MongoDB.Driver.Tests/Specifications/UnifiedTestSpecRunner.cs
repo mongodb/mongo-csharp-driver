@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications
         {
         }
 
-        [Category("Authentication", "MONGODB-OIDC")]
+        [Category("Authentication", "MongoDbOidc")]
         [UnifiedTestsTheory("auth.tests.unified")]
         public void Auth(JsonDrivenTestCase testCase) => Run(testCase);
 
