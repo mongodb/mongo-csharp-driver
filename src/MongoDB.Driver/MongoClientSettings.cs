@@ -1320,8 +1320,8 @@ namespace MongoDB.Driver
             sb.AppendFormat("ReadConcern={0};", _readConcern);
             sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
-            sb.AppendFormat("RetryReads={0}", _retryReads);
-            sb.AppendFormat("RetryWrites={0}", _retryWrites);
+            sb.AppendFormat("RetryReads={0};", _retryReads);
+            sb.AppendFormat("RetryWrites={0};", _retryWrites);
             if (_scheme != ConnectionStringScheme.MongoDB)
             {
                 sb.AppendFormat("Scheme={0};", _scheme);
@@ -1338,7 +1338,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("serverMonitoringMode={0};", _serverMonitoringMode);
             sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
-            sb.AppendFormat("SrvMaxHosts={0}", _srvMaxHosts);
+            sb.AppendFormat("SrvMaxHosts={0};", _srvMaxHosts);
             sb.AppendFormat("SrvServiceName={0};", _srvServiceName);
             if (_sslSettings != null)
             {
