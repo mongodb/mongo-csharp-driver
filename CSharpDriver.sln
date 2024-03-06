@@ -68,9 +68,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.TestHelpers", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Benchmarks", "benchmarks\MongoDB.Driver.Benchmarks\MongoDB.Driver.Benchmarks.csproj", "{CF670F4A-49DD-4030-A4A0-1F4D600EB70A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LambdaTests", "LambdaTests", "{66E1914C-9E10-4B28-915E-AB3773EFDAB2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FaasTests", "FaasTests", "{66E1914C-9E10-4B28-915E-AB3773EFDAB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.LambdaTest", "tests\LambdaTests\MongoDB.Driver.LambdaTest\MongoDB.Driver.LambdaTest.csproj", "{33B11279-DA4A-46EA-99BF-9DEDCAC50D95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.LambdaTest", "tests\FaasTests\LambdaTests\MongoDB.Driver.LambdaTest\MongoDB.Driver.LambdaTest.csproj", "{33B11279-DA4A-46EA-99BF-9DEDCAC50D95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
