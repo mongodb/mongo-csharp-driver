@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.LambdaTest
                     { "averageServerHeartbeatDurationMS", $"{_totalHeartbeatDurationMs / _totalHeartbeatCount :F3}"},
                     { "openConnections", $"{_openConnections}" },
                     { "heartBeatCount", $"{_totalHeartbeatCount}" },
-                    { "CommandCount", $"{_totalCommandCount}" },
+                    { "commandCount", $"{_totalCommandCount}" },
                 };
             }
 
@@ -138,7 +139,7 @@ namespace MongoDB.Driver.LambdaTest
 
         private void Handle(ConnectionClosedEvent @event)
         {
-            _openConnections--;
+            Interlocked.Decrement(ref _openConnections);
         }
 
         private void Reset()
