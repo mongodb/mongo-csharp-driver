@@ -56,7 +56,6 @@
 
   <PropertyGroup>
     <NoWarn>
-      1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
       CS0618; <!--Temporary disable obsolete warnings due the massive volume of warnings-->
       xUnit1010; <!--The value is not convertible to the method parameter type (https://xunit.github.io/xunit.analyzers/rules/xUnit1010.html)-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->

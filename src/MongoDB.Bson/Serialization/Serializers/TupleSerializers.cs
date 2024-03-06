@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public interface IBsonTupleSerializer
     {
         /// <summary>
-        /// Gets this serializer for an item.
+        /// Gets the serializer for an item.
         /// </summary>
         /// <param name="itemNumber">The item number.</param>
         /// <returns>The serializer for the item.</returns>

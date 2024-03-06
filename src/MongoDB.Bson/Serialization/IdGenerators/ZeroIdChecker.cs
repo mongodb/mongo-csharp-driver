@@ -22,7 +22,6 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     /// </summary>
     /// <typeparam name="T">The type of the Id.</typeparam>
     // TODO: is it worth trying to remove the dependency on IEquatable<T>?
-    [Obsolete("This class will be removed in later release.")]
     public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T>
     {
         // constructors
