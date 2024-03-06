@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public IReadOnlyList<EndPoint> Hosts
         {
-            get { return  _srvMaxHosts > 0 ? _hosts.Take(_srvMaxHosts.Value).ToList() : _hosts; }
+            get { return _srvMaxHosts > 0 ? _hosts.Take(_srvMaxHosts.Value).ToList() : _hosts; }
         }
 
         /// <summary>
@@ -490,7 +490,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         /// <summary>
         /// Gets the SRV service name which modifies the srv URI to look like:
-        /// `_{srvServiceName}._tcp.{hostname}.{domainname}`
+        /// <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code>
         /// </summary>
         public string SrvServiceName => _srvServiceName;
 

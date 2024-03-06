@@ -774,8 +774,8 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets or sets the SRV service name which modifies the srv URI to look like:
-        /// `_{srvServiceName}._tcp.{hostname}.{domainname}`.
-        /// Defaults to "mongodb".
+        /// <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code>
+        /// The default value is "mongodb".
         /// </summary>
         public string SrvServiceName
         {

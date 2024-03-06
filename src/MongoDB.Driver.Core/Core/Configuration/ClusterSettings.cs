@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
-        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: `_{srvServiceName}._tcp.{hostname}.{domainname}`. Defaults to "mongodb"</param>
+        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
         public ClusterSettings(
 #pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         /// <summary>
         /// Gets the SRV service name which modifies the srv URI to look like:
-        /// `_{srvServiceName}._tcp.{hostname}.{domainname}`.
+        /// <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code>
         /// The default value is "mongodb".
         /// </summary>
         public string SrvServiceName => _srvServiceName;
@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
-        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: `_{srvServiceName}._tcp.{hostname}.{domainname}`. Defaults to "mongodb"</param>
+        /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
 #pragma warning disable CS0618 // Type or member is obsolete

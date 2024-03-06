@@ -225,7 +225,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the SRV service name.
+        /// Gets the SRV service name.
         /// </summary>
         public static string SrvServiceName
         {
