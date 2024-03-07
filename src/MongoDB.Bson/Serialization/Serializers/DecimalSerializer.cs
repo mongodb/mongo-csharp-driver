@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public DecimalSerializer(BsonType representation)
-            : this(representation, new RepresentationConverter(false, false))
+            : this(representation, new RepresentationConverter(allowOverflow: false, allowTruncation: true))
         {
         }
 

@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private BsonType _representation;
+        private readonly BsonType _representation;
         private bool _allowOverflow;
         private bool _allowTruncation;
 
@@ -37,6 +37,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         public BsonRepresentationAttribute(BsonType representation)
         {
             _representation = representation;
+            _allowOverflow = false;
+            _allowTruncation = representation == BsonType.Decimal128;
         }
 
         // public properties
