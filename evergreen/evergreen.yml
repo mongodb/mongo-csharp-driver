@@ -725,11 +725,11 @@ functions:
           - "OS"
           - "FRAMEWORK"
         env:
-          ADMIN_USER: ${OIDC_ALTAS_USER}
+          ADMIN_USER: ${OIDC_ATLAS_USER}
           ADMIN_PASSWORD: ${OIDC_ATLAS_PASSWORD}
           MONGODB_URI: ${OIDC_ATLAS_URI_SINGLE}
         args:
-          - evergreen/run-mongodb-oidc-test.sh
+          - evergreen/run-mongodb-oidc-tests.sh
 
   run-serverless-tests:
     - command: shell.exec
