@@ -2206,7 +2206,7 @@ buildvariants:
     - name: plain-auth-tests
 
 - matrix_name: mongodb-oidc-tests
-  matrix_spec: { os: "*" }
+  matrix_spec: { os: [ "windows-64", "ubuntu-2004", "macos-1100" ] }
   display_name: "MongoDB-OIDC Auth tests - ${os}"
   tasks:
     - name: test-oidc-auth-aws
