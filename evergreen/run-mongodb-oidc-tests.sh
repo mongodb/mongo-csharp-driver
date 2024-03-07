@@ -34,11 +34,6 @@ if [ -z "$MONGODB_URI" ]; then
   exit 1
 fi
 
-if [ -z "$OIDC_TOKEN_DIR" ]; then
-  echo "OIDC_TOKEN_DIR should be specified"
-  exit 1
-fi
-
 if [ "$OS" = "Windows_NT" ]; then
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     setx $var z:\\data\\tmp
