@@ -66,5 +66,5 @@ export OIDC_TESTS_ENABLED="true"
 if [ "Windows_NT" = "$OS" ]; then
   powershell.exe .\\build.ps1 --target "TestMongoDbOidc"
 else
-  ./build.sh --target="TestServerless"
+  ./build.sh --target="TestMongoDbOidc"
 fi
