@@ -264,11 +264,6 @@ Task("TestMongoDbOidc")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"MongoDbOidc\""));
 
-Task("TestMongoDbOidcNet472").IsDependentOn("TestMongoDbOidc");
-Task("TestMongoDbOidcNetStandard20").IsDependentOn("TestMongoDbOidc");
-Task("TestMongoDbOidcNetStandard21").IsDependentOn("TestMongoDbOidc");
-Task("TestMongoDbOidcNet60").IsDependentOn("TestMongoDbOidc");
-
 Task("TestServerless")
     .IsDependentOn("Build")
     .DoesForEach(

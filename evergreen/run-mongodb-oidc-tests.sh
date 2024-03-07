@@ -4,7 +4,6 @@
 set -o errexit # Exit the script with error if any of the commands fail
 
 # Supported/used environment variables:
-#   FRAMEWORK                           Used in build.cake task, must be set
 #   OS                                  Operating system, must be set
 #   ADMIN_USER                          Admin user, must be set
 #   ADMIN_PASSWORD                      Admin password, must be set
@@ -19,11 +18,6 @@ set -o errexit # Exit the script with error if any of the commands fail
 ############################################
 #            Main Program                  #
 ############################################
-
-if [ -z "$FRAMEWORK" ]; then
-  echo "FRAMEWORK should be specified"
-  exit 1
-fi
 
 if [ -z "$ADMIN_USER" ]; then
   echo "ADMIN_USER should be specified"
@@ -75,7 +69,7 @@ export OIDC_PROVIDER_NAME="aws"
 export OIDC_TESTS_ENABLED="true"
 
 if [ "Windows_NT" = "$OS" ]; then
-  powershell.exe .\\build.ps1 --target "TestMongoDbOidc${FRAMEWORK}"
+  powershell.exe .\\build.ps1 --target "TestMongoDbOidc"
 else
-  ./build.sh --target="TestServerless${FRAMEWORK}"
+  ./build.sh --target="TestServerless"
 fi
