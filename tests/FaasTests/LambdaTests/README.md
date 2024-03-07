@@ -14,13 +14,13 @@ Prerequisites:
 - AWS SAM CLI
 - Docker daemon running with mongodb instance
 
-Build the application with the `sam build` command from the `tests/LambdaTests` folder.
+Build the application with the `sam build` command from the `tests/FaasTests/LambdaTests` folder.
 
 ```bash
 sam build
 ```
 
-The SAM CLI installs dependencies defined in `tests/LambdaTests/src/MongoDB.Driver.LambdaTest.csproj`, creates a deployment package, and saves it in a `.aws-sam/build` folder.
+The SAM CLI installs dependencies defined in `./MongoDB.Driver.LambdaTest/MongoDB.Driver.LambdaTest.csproj`, creates a deployment package, and saves it in a `.aws-sam/build` folder.
 
 Run the function locally and invoke them with the `sam local invoke` command.
 

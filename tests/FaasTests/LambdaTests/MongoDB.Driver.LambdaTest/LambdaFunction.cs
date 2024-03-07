@@ -134,7 +134,7 @@ namespace MongoDB.Driver.LambdaTest
 
         private void Handle(ConnectionCreatedEvent @event)
         {
-            _openConnections++;
+            Interlocked.Increment(ref _openConnections);
         }
 
         private void Handle(ConnectionClosedEvent @event)
