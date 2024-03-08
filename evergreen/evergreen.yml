@@ -1471,10 +1471,9 @@ tasks:
             add_expansions_to_env: true
             script: |
               ${PREPARE_SHELL}
-              export PATH="$PATH:/home/ubuntu/.dotnet/tools"
-              bash ${DRIVERS_TOOLS}/.evergreen/aws_lambda/run-deployed-lambda-aws-tests.sh
+              evergreen/run-deployed-lambda-aws-tests.sh
             env:
-              TEST_LAMBDA_DIRECTORY: ${PROJECT_DIRECTORY}/tests/LambdaTests
+              TEST_LAMBDA_DIRECTORY: ${PROJECT_DIRECTORY}/tests/FaasTests/LambdaTests
               AWS_REGION: us-east-1
 
     # ECDSA tests
