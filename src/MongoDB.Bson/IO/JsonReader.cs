@@ -1812,6 +1812,10 @@ namespace MongoDB.Bson.IO
                     throw new FormatException(message);
                 }
                 var value = nextToken.StringValue;
+                if (value.Contains("\0"))
+                {
+                    throw new FormatException($"$regularExpression {name} cannot contain embedded nulls.");
+                }
 
                 switch (name)
                 {
