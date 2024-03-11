@@ -819,7 +819,7 @@ namespace MongoDB.Bson.IO
                 return value;
             }
 
-            var sb = new StringBuilder(value.Length + 1);
+            var sb = new StringBuilder(value.Length * 2);
 
             foreach (char c in value)
             {
@@ -935,20 +935,20 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private bool NeedsEscaping(string text)
+        private static bool NeedsEscaping(string text)
         {
-           foreach (var letter in text)
-           {
-              if (NeedsEscaping(letter))
-              {
-                  return true;
-              }
-           }
+            foreach (var letter in text)
+            {
+                if (NeedsEscaping(letter))
+                {
+                    return true;
+                }
+            }
 
             return false;
         }
 
-        private bool NeedsEscaping(char c)
+        private static bool NeedsEscaping(char c)
         {
             switch (c)
             {
