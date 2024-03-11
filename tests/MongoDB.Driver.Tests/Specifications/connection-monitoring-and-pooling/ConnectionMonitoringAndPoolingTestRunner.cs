@@ -163,10 +163,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     break;
                 }
             }
-#if WINDOWS
+
             AssertError(test, exception);
             AssertEvents(test, eventCapturer, eventsFilter);
-#endif
         }
 
         // private methods
@@ -515,7 +514,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             switch (exception)
             {
                 case ObjectDisposedException objectDisposedException
-                    when objectDisposedException.Message == "Cannot access a disposed object.\r\nObject name: 'ExclusiveConnectionPool'.":
+                    when objectDisposedException.Message == $"Cannot access a disposed object.{Environment.NewLine}Object name: 'ExclusiveConnectionPool'.":
                     expectedErrorMessage = "Attempted to check out a connection from closed connection pool";
                     return "PoolClosedError";
                 case TimeoutException timeoutException
@@ -648,7 +647,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 var async = test.GetValue(Schema.async).ToBoolean();
                 cluster = CoreTestConfiguration.CreateCluster(b => b
                     .ConfigureServer(s => s.With(
-                        heartbeatInterval: TimeSpan.FromMinutes(10)))
+                        heartbeatInterval: TimeSpan.FromMinutes(10), serverMonitoringMode: ServerMonitoringMode.Poll))
                     .ConfigureConnectionPool(c => c.With(
                         maxConnecting: connectionPoolSettings.MaxConnecting,
                         maxConnections: connectionPoolSettings.MaxConnections,
@@ -722,7 +721,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     if (resetPool)
                     {
                         eventCapturer.Clear();
-                        connectionPool.SetReady();
                     }
                 }
             }
