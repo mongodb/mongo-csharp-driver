@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -56,14 +55,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         protected void CreateCollection<TDocument>(IMongoCollection<TDocument> collection, params TDocument[] documents)
         {
             CreateCollection(collection, (IEnumerable<TDocument>)documents); ;
-        }
-
-        protected (BsonDocument[] Stages, TResult Result) ExecuteQueryCapturingStages<TInput, TResult>(IMongoQueryable<TInput> queryable, Func<IMongoQueryable<TInput>, TResult> executor)
-        {
-            var provider = (MongoQueryProvider)queryable.Provider;
-            var result = executor(queryable);
-            var stages = provider.GetMostRecentPipelineStages();
-            return (stages, result);
         }
 
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null, LinqProvider linqProvider = LinqProvider.V3)

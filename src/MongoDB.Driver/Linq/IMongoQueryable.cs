@@ -14,6 +14,7 @@
 */
 
 using System.Linq;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq
 {
@@ -22,6 +23,11 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public interface IMongoQueryable : IQueryable
     {
+        /// <summary>
+        /// Gets the pipeline stages that were logged when the queryable was executed.
+        /// </summary>
+        BsonDocument[] LoggedStages { get; }
+
         /// <summary>
         /// Gets the execution model.
         /// </summary>
@@ -58,6 +64,5 @@ namespace MongoDB.Driver.Linq
     /// </typeparam>
     public interface IOrderedMongoQueryable<T> : IMongoQueryable<T>, IOrderedQueryable<T>
     {
-
     }
 }

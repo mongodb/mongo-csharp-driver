@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         // public properties
         public abstract CollectionNamespace CollectionNamespace { get; }
+        public abstract BsonDocument[] LoggedStages { get; }
         public AggregateOptions Options => _options;
         public abstract IBsonSerializer PipelineInputSerializer { get; }
         public IClientSessionHandle Session => _session;
@@ -54,7 +55,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
-        public abstract BsonDocument[] GetMostRecentPipelineStages();
     }
 
     internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IMongoDatabase _database;
-        private ExecutableQuery<TDocument> _mostRecentExecutableQuery;
+        private ExecutableQuery<TDocument> _executedQuery;
 
         // constructors
         public MongoQueryProvider(
@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public IMongoCollection<TDocument> Collection => _collection;
         public override CollectionNamespace CollectionNamespace => _collection == null ? null : _collection.CollectionNamespace;
         public IMongoDatabase Database => _database;
+        public override BsonDocument[] LoggedStages => _executedQuery?.LoggedStages;
         public override IBsonSerializer PipelineInputSerializer => _collection == null ? NoPipelineInputSerializer.Instance : _collection.DocumentSerializer;
 
         // public methods
@@ -115,17 +116,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override TResult Execute<TResult>(Expression expression)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
-            return Execute(executableQuery);
-        }
-
-        public TResult Execute<TResult>(ExecutableQuery<TDocument, TResult> executableQuery)
-        {
             return Execute(executableQuery, CancellationToken.None);
         }
 
         public TResult Execute<TResult>(ExecutableQuery<TDocument, TResult> executableQuery, CancellationToken cancellationToken)
         {
-            _mostRecentExecutableQuery = executableQuery;
+            _executedQuery = executableQuery;
             return executableQuery.Execute(_session, cancellationToken);
         }
 
@@ -135,22 +131,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return ExecuteAsync(executableQuery, cancellationToken);
         }
 
-        public Task<TResult> ExecuteAsync<TResult>(ExecutableQuery<TDocument, TResult> executableQuery)
-        {
-            return ExecuteAsync(executableQuery, CancellationToken.None);
-        }
-
         public Task<TResult> ExecuteAsync<TResult>(ExecutableQuery<TDocument, TResult> executableQuery, CancellationToken cancellationToken)
         {
-            _mostRecentExecutableQuery = executableQuery;
+            _executedQuery = executableQuery;
             return executableQuery.ExecuteAsync(_session, cancellationToken);
-        }
-
-        public override BsonDocument[] GetMostRecentPipelineStages()
-        {
-            var pipeline = _mostRecentExecutableQuery.Pipeline;
-            var renderedPipeline = (BsonArray)pipeline.Render();
-            return renderedPipeline.Cast<BsonDocument>().ToArray();
         }
     }
 }

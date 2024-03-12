@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -24,18 +25,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     {
         [Theory]
         [ParameterAttributeData]
-        public void IMongoQueryable_Any_should_add_expected_stages(
+        public async Task IMongoQueryable_Any_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
             var queryable = collection.AsQueryable();
 
-            var (stages, result) = ExecuteQueryCapturingStages(
-                queryable,
-                queryable => async ? queryable.AnyAsync().Result : queryable.Any());
+            var result = async ? await queryable.AnyAsync() : queryable.Any();
 
             AssertStages(
-                stages,
+                queryable.LoggedStages,
                 "{ $limit : 1 }",
                 "{ $project : { _id : 0, _v : null } }");
             result.Should().Be(true);
@@ -43,50 +42,44 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void IMongoQueryable_First_should_add_expected_stages(
+        public async Task IMongoQueryable_First_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
             var queryable = collection.AsQueryable();
 
-            var (stages, result) = ExecuteQueryCapturingStages(
-                queryable,
-                queryable => async ? queryable.FirstAsync().Result : queryable.First());
+            var result = async ? await queryable.FirstAsync() : queryable.First();
 
-            AssertStages(stages, "{ $limit : 1 }");
+            AssertStages(queryable.LoggedStages, "{ $limit : 1 }");
             result.Id.Should().Be(1);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void IMongoQueryable_FirstOrDefault_should_add_expected_stages(
+        public async Task IMongoQueryable_FirstOrDefault_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
             var queryable = collection.AsQueryable();
 
-            var (stages, result) = ExecuteQueryCapturingStages(
-                queryable,
-                queryable => async ? queryable.FirstOrDefaultAsync().Result : queryable.FirstOrDefault());
+            var result = async ? await queryable.FirstOrDefaultAsync() : queryable.FirstOrDefault();
 
-            AssertStages(stages, "{ $limit : 1 }");
+            AssertStages(queryable.LoggedStages, "{ $limit : 1 }");
             result.Id.Should().Be(1);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void IMongoQueryable_Single_should_add_expected_stages(
+        public async Task IMongoQueryable_Single_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
             var queryable = collection.AsQueryable().Where(x => x.X == 1);
 
-            var (stages, result) = ExecuteQueryCapturingStages(
-                queryable,
-                queryable => async ? queryable.SingleAsync().Result : queryable.Single());
+            var result = async ? await queryable.SingleAsync() : queryable.Single();
 
             AssertStages(
-                stages,
+                queryable.LoggedStages,
                 "{ $match : { X : 1 } }",
                 "{ $limit : 2 }");
             result.Id.Should().Be(1);
@@ -94,18 +87,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void IMongoQueryable_SingleOrDefault_should_add_expected_stages(
+        public async Task IMongoQueryable_SingleOrDefault_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
             var queryable = collection.AsQueryable().Where(x => x.X == 1);
 
-            var (stages, result) = ExecuteQueryCapturingStages(
-                queryable,
-                queryable => async ? queryable.SingleOrDefaultAsync().Result : queryable.SingleOrDefault());
+            var result = async ? await queryable.SingleOrDefaultAsync() : queryable.SingleOrDefault();
 
             AssertStages(
-                stages,
+                queryable.LoggedStages,
                 "{ $match : { X : 1 } }",
                 "{ $limit : 2 }");
             result.Id.Should().Be(1);

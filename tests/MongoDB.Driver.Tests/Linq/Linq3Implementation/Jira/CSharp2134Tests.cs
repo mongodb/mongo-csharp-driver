@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq.Linq3Implementation;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -26,21 +25,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [InlineData(false, true)]
         [InlineData(true, false)]
-        public void Projection_of_ArrayOfDocuments_dictionary_keys_and_values_should_work(bool includeNullId, bool expectedResult)
+        public void All_with_predicate_should_work(bool includeNullId, bool expectedResult)
         {
             var collection = CreateCollection(includeNullId);
-
             var queryable = collection.AsQueryable();
-            var result = queryable.All(x => x.Id != null);
 
-            var provider = (MongoQueryProvider)queryable.Provider;
-            var stages = provider.GetMostRecentPipelineStages();
+            var result = queryable.All(x => x.Id != null); // AllAsync is not implemented
+
             AssertStages(
-                stages,
+                queryable.LoggedStages,
                 "{ $match : { _id : null } }",
                 "{ $limit : 1 }",
                 "{ $project : { _id : 0, _v : null } }");
-
             result.Should().Be(expectedResult);
         }
 

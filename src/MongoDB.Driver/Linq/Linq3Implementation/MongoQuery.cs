@@ -20,6 +20,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
@@ -54,6 +55,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public Expression Expression => _expression;
 
+        public BsonDocument[] LoggedStages => _provider.LoggedStages;
+
         public MongoQueryProvider<TDocument> Provider => _provider;
 
         IQueryProvider IQueryable.Provider => _provider;
@@ -62,13 +65,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override IAsyncCursor<TOutput> Execute()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return _provider.Execute(executableQuery);
+            return _provider.Execute(executableQuery, CancellationToken.None);
         }
 
         public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-            return _provider.ExecuteAsync(executableQuery);
+            return _provider.ExecuteAsync(executableQuery, CancellationToken.None);
         }
 
         public IEnumerator<TOutput> GetEnumerator()

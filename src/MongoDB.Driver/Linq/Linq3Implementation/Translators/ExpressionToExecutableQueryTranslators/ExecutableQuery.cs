@@ -39,17 +39,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             AstPipeline unoptimizedPipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
-            var pipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            var optimizedPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
             return provider.Collection == null ?
-                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, unoptimizedPipeline, pipeline, finalizer) :
-                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Collection, provider.Options, unoptimizedPipeline, pipeline, finalizer);
+                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, optimizedPipeline, finalizer) :
+                new ExecutableQuery<TDocument, TOutput, TResult>(provider.Collection, provider.Options, optimizedPipeline, finalizer);
         }
     }
 
     internal abstract class ExecutableQuery<TDocument>
     {
+        public abstract BsonDocument[] LoggedStages { get; }
         public abstract AstPipeline Pipeline { get; }
-        public abstract AstPipeline UnoptimizedPipeline { get; }
     }
 
     internal abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
@@ -64,18 +64,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IMongoDatabase _database;
         private readonly IExecutableQueryFinalizer<TOutput, TResult> _finalizer;
+        private BsonDocument[] _loggedStages = null;
         private readonly AggregateOptions _options;
         private readonly AstPipeline _pipeline;
-        private readonly AstPipeline _unoptimizedPipeline;
 
         // constructors
         public ExecutableQuery(
             IMongoCollection<TDocument> collection,
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
-            : this(options, unoptimizedPipeline, pipeline, finalizer)
+            : this(options, pipeline, finalizer)
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
         }
@@ -83,39 +82,37 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         public ExecutableQuery(
             IMongoDatabase database,
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
-            : this(options, unoptimizedPipeline, pipeline, finalizer)
+            : this(options, pipeline, finalizer)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
         }
 
         private ExecutableQuery(
             AggregateOptions options,
-            AstPipeline unoptimizedPipeline,
             AstPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
             _options = options;
-            _unoptimizedPipeline = unoptimizedPipeline;
             _pipeline = pipeline;
             _finalizer = finalizer;
         }
 
         // public properties
+        public override BsonDocument[] LoggedStages => _loggedStages;
         public override AstPipeline Pipeline => _pipeline;
-        public override AstPipeline UnoptimizedPipeline => _unoptimizedPipeline;
 
         // public methods
         public override TResult Execute(IClientSessionHandle session, CancellationToken cancellationToken)
         {
+            _loggedStages = RenderPipeline();
             var cursor = (_collection, session) switch
             {
-                (null, null) => _database.Aggregate(CreateDatabasePipelineDefinition(), _options, cancellationToken),
-                (null, _) => _database.Aggregate(session, CreateDatabasePipelineDefinition(), _options, cancellationToken),
-                (_, null) => _collection.Aggregate(CreateCollectionPipelineDefinition(), _options, cancellationToken),
-                (_, _) => _collection.Aggregate(session, CreateCollectionPipelineDefinition(), _options, cancellationToken)
+                (null, null) => _database.Aggregate(CreateDatabasePipelineDefinition(_loggedStages), _options, cancellationToken),
+                (null, _) => _database.Aggregate(session, CreateDatabasePipelineDefinition(_loggedStages), _options, cancellationToken),
+                (_, null) => _collection.Aggregate(CreateCollectionPipelineDefinition(_loggedStages), _options, cancellationToken),
+                (_, _) => _collection.Aggregate(session, CreateCollectionPipelineDefinition(_loggedStages), _options, cancellationToken)
             };
 
             return _finalizer.Finalize(cursor, cancellationToken);
@@ -123,12 +120,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
         public override async Task<TResult> ExecuteAsync(IClientSessionHandle session, CancellationToken cancellationToken)
         {
+            _loggedStages = RenderPipeline();
             var cursor = (_collection, session) switch
             {
-                (null, null) => await _database.AggregateAsync(CreateDatabasePipelineDefinition(), _options, cancellationToken).ConfigureAwait(false),
-                (null, _) => await _database.AggregateAsync(session, CreateDatabasePipelineDefinition(), _options, cancellationToken).ConfigureAwait(false),
-                (_, null) => await _collection.AggregateAsync(CreateCollectionPipelineDefinition(), _options, cancellationToken).ConfigureAwait(false),
-                (_, _) => await _collection.AggregateAsync(session, CreateCollectionPipelineDefinition(), _options, cancellationToken).ConfigureAwait(false)
+                (null, null) => await _database.AggregateAsync(CreateDatabasePipelineDefinition(_loggedStages), _options, cancellationToken).ConfigureAwait(false),
+                (null, _) => await _database.AggregateAsync(session, CreateDatabasePipelineDefinition(_loggedStages), _options, cancellationToken).ConfigureAwait(false),
+                (_, null) => await _collection.AggregateAsync(CreateCollectionPipelineDefinition(_loggedStages), _options, cancellationToken).ConfigureAwait(false),
+                (_, _) => await _collection.AggregateAsync(session, CreateCollectionPipelineDefinition(_loggedStages), _options, cancellationToken).ConfigureAwait(false)
             };
 
             return await _finalizer.FinalizeAsync(cursor, cancellationToken).ConfigureAwait(false);
@@ -141,16 +139,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         }
 
         // private methods
-        private BsonDocumentStagePipelineDefinition<TDocument, TOutput> CreateCollectionPipelineDefinition()
+        private BsonDocumentStagePipelineDefinition<TDocument, TOutput> CreateCollectionPipelineDefinition(BsonDocument[] stages)
         {
-            var stages = _pipeline.Stages.Select(s => (BsonDocument)s.Render());
             return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
         }
 
-        private BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput> CreateDatabasePipelineDefinition()
+        private BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput> CreateDatabasePipelineDefinition(BsonDocument[] stages)
         {
-            var stages = _pipeline.Stages.Select(s => (BsonDocument)s.Render());
             return new BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
+        }
+
+        private BsonDocument[] RenderPipeline()
+        {
+            return _pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
         }
     }
 }
