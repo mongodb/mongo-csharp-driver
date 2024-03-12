@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Configuration
             _postServerSelector = postServerSelector.WithDefault(null);
             _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
             _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(srvMaxHosts.WithDefault(0), nameof(srvMaxHosts));
-            _srvServiceName = srvServiceName.WithDefault("mongodb");
+            _srvServiceName = srvServiceName.WithDefault(MongoInternalDefaults.MongoClientSettings.SrvServiceName);
 
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(_connectionMode, _connectionModeSwitch, _directConnection);
         }

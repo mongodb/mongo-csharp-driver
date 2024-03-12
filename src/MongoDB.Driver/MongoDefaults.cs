@@ -41,7 +41,6 @@ namespace MongoDB.Driver
         private static UTF8Encoding __readEncoding = Utf8Encodings.Strict;
         private static TimeSpan __serverSelectionTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
-        private static string __srvServiceName = "mongodb";
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
         private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
@@ -222,14 +221,6 @@ namespace MongoDB.Driver
         {
             get { return __socketTimeout; }
             set { __socketTimeout = value; }
-        }
-
-        /// <summary>
-        /// Gets the SRV service name.
-        /// </summary>
-        public static string SrvServiceName
-        {
-            get { return __srvServiceName; }
         }
 
         /// <summary>

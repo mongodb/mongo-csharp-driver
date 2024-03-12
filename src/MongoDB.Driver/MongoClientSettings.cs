@@ -138,7 +138,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _srvMaxHosts = 0;
-            _srvServiceName = MongoDefaults.SrvServiceName;
+            _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
             _useTls = false;
 #pragma warning disable 618
@@ -1028,7 +1028,7 @@ namespace MongoDB.Driver
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
-            clientSettings.SrvServiceName = url.SrvServiceName ?? MongoDefaults.SrvServiceName;
+            clientSettings.SrvServiceName = url.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             clientSettings.SslSettings = null;
             if (url.TlsDisableCertificateRevocationCheck)
             {
@@ -1441,7 +1441,7 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Specifying srvMaxHosts when connecting to a replica set is invalid.");
             }
 
-            if (_srvServiceName != MongoDefaults.SrvServiceName && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+            if (_srvServiceName != MongoInternalDefaults.MongoClientSettings.SrvServiceName && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
             {
                 throw new InvalidOperationException("Specifying srvServiceName is only allowed with the mongodb+srv scheme.");
             }

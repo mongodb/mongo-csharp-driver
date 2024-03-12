@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Configuration
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
             Parse();
 
-            _srvPrefix = $"_{_srvServiceName ?? "mongodb"}._tcp.";
+            _srvPrefix = $"_{_srvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName}._tcp.";
 
             _isResolved = _scheme != ConnectionStringScheme.MongoDBPlusSrv;
         }
