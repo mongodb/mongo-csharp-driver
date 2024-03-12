@@ -101,7 +101,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} sh ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          sh ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -437,7 +437,8 @@ functions:
           MONGODB_URI: ${plain_auth_mongodb_uri}
         script: |
           ${PREPARE_SHELL}
-          . evergreen/run-plain-auth-tests.sh
+          OS=${OS} \
+            evergreen/run-plain-auth-tests.sh
 
   run-performance-tests:
     - command: shell.exec
