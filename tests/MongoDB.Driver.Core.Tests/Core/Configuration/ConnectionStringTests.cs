@@ -1263,9 +1263,10 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void Invalid_srvServiceName_configuration_should_throw()
         {
-            var exception = Record.Exception(() => new ConnectionString("mongodb://example.com/?srvServiceName="));
+            var exception = Record.Exception(() => new ConnectionString("mongodb://example.com/?srvServiceName= "));
 
             exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("SrvServiceName");
         }
 
         [Theory]

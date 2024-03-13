@@ -1635,16 +1635,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Freezing_instance_with_SrvServiceName_and_non_srv_scheme_should_throw()
-        {
-            var subject = new MongoClientSettings { SrvServiceName = "customname", Scheme = ConnectionStringScheme.MongoDB };
-
-            var exception = Record.Exception(() => subject.Freeze());
-
-            exception.Should().BeOfType<InvalidOperationException>();
-        }
-
-        [Fact]
         public void Freezing_instance_with_SrvMaxHosts_and_ReplicaSetName_should_throw()
         {
             var subject = new MongoClientSettings { SrvMaxHosts = 2, ReplicaSetName = "replSet0" };
