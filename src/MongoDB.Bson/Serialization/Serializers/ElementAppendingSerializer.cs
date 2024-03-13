@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (object.ReferenceEquals(obj, null)) { return false; }
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
-                base.Equals(obj) &&
+                GetType().Equals(obj.GetType()) &&
                 obj is ElementAppendingSerializer<TDocument> other &&
                 object.Equals(_documentSerializer, other._documentSerializer) &&
                 SequenceComparer.Equals(_elements, other._elements) &&

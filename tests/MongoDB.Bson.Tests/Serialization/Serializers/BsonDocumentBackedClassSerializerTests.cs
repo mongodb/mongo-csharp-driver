@@ -14,31 +14,19 @@
 */
 
 using System;
+using System.Reflection;
 using FluentAssertions;
-using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 
-namespace MongoDB.Bson.Tests.Serialization.Conventions
+namespace MongoDB.Bson.Serialization.Serializers
 {
-    public class StandardDiscriminatorConventionTests
+    public class BsonDocumentBasedClassSerializerTests
     {
-        [Fact]
-        public void TestConstructorThrowsWhenElementNameContainsNulls()
-        {
-            Assert.Throws<ArgumentException>(() => new ScalarDiscriminatorConvention("a\0b"));
-        }
-
-        [Fact]
-        public void TestConstructorThrowsWhenElementNameIsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() => new ScalarDiscriminatorConvention(null));
-        }
-
         [Fact]
         public void Equals_derived_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new DerivedFromConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
+            var y = new DerivedFromConcreteBsonDocumentBackedClassSerializer<C>();
 
             var result = x.Equals(y);
 
@@ -48,7 +36,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_null_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
 
             var result = x.Equals(null);
 
@@ -58,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_object_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
             var y = new object();
 
             var result = x.Equals(y);
@@ -69,7 +57,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_self_should_return_true()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
 
             var result = x.Equals(x);
 
@@ -79,8 +67,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_with_equal_fields_should_return_true()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
+            var y = new ConcreteBsonDocumentBackedClassSerializer<C>();
 
             var result = x.Equals(y);
 
@@ -90,8 +78,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_with_not_equal_field_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new ConcreteStandardDiscriminatorConvention("_u");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
+            var y = new ConcreteBsonDocumentBackedClassSerializer<C>();
+            var registerMemberMethod = typeof(BsonDocumentBackedClassSerializer<C>).GetMethod("RegisterMember", BindingFlags.NonPublic | BindingFlags.Instance);
+            registerMemberMethod.Invoke(y, new object[] { "Y", "y", Int32Serializer.Instance });
 
             var result = x.Equals(y);
 
@@ -101,31 +91,35 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void GetHashCode_should_return_zero()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ConcreteBsonDocumentBackedClassSerializer<C>();
 
             var result = x.GetHashCode();
 
             result.Should().Be(0);
         }
 
-        public class ConcreteStandardDiscriminatorConvention : StandardDiscriminatorConvention
+        private class ConcreteBsonDocumentBackedClassSerializer<TClass> : BsonDocumentBackedClassSerializer<TClass>
+            where TClass : BsonDocumentBackedClass
         {
-            public ConcreteStandardDiscriminatorConvention(string elementName)
-                : base(elementName)
+            public ConcreteBsonDocumentBackedClassSerializer()
             {
+                RegisterMember("X", "x", Int32Serializer.Instance);
             }
 
-            public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
+            protected override TClass CreateInstance(BsonDocument backingDocument) => throw new NotImplementedException();
         }
 
-        public class DerivedFromConcreteStandardDiscriminatorConvention : ConcreteStandardDiscriminatorConvention
+        private class DerivedFromConcreteBsonDocumentBackedClassSerializer<TClass> : ConcreteBsonDocumentBackedClassSerializer<TClass>
+            where TClass : BsonDocumentBackedClass
         {
-            public DerivedFromConcreteStandardDiscriminatorConvention(string elementName)
-                : base(elementName)
+            public DerivedFromConcreteBsonDocumentBackedClassSerializer()
             {
             }
+        }
 
-            public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
+        private class C : BsonDocumentBackedClass
+        {
+            public C(BsonDocument document) : base(document, new ConcreteBsonDocumentBackedClassSerializer<C>()) { }
         }
     }
 }

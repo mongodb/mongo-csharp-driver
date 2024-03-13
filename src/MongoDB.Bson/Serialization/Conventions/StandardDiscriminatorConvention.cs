@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
                 GetType().Equals(obj.GetType()) &&
-                obj is ScalarDiscriminatorConvention other &&
+                obj is StandardDiscriminatorConvention other &&
                 object.Equals(_elementName, other._elementName);
         }
 

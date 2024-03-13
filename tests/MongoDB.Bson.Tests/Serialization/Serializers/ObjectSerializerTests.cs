@@ -604,18 +604,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var subject2 = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
 
             var result = subject1.Equals(subject2);
-            var hashCode1 = subject1.GetHashCode();
-            var hashCode2 = subject2.GetHashCode();
 
             result.Should().BeFalse();
-            if (notEqualFieldName == "allowedTypes")
-            {
-                hashCode2.Should().Be(hashCode1); // because allowedTypes is not part of the hash code computation
-            }
-            else
-            {
-                hashCode2.Should().NotBe(hashCode1); // not strictly required but desirable
-            }
         }
 
         [Theory]

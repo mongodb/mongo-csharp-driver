@@ -266,7 +266,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
             return
+                base.Equals(obj) &&
                 obj is DateTimeSerializer other &&
                 _dateOnly.Equals(other._dateOnly) &&
                 _kind.Equals(other._kind) &&

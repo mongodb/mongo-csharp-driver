@@ -13,32 +13,19 @@
 * limitations under the License.
 */
 
-using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
-    public class StandardDiscriminatorConventionTests
+    public class ObjectDiscriminatorConventionTests
     {
-        [Fact]
-        public void TestConstructorThrowsWhenElementNameContainsNulls()
-        {
-            Assert.Throws<ArgumentException>(() => new ScalarDiscriminatorConvention("a\0b"));
-        }
-
-        [Fact]
-        public void TestConstructorThrowsWhenElementNameIsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() => new ScalarDiscriminatorConvention(null));
-        }
-
         [Fact]
         public void Equals_derived_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new DerivedFromConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
+            var y = new DerivedFromObjectDiscriminatorConvention("_t");
 
             var result = x.Equals(y);
 
@@ -48,7 +35,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_null_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
 
             var result = x.Equals(null);
 
@@ -58,7 +45,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_object_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
             var y = new object();
 
             var result = x.Equals(y);
@@ -69,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_self_should_return_true()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
 
             var result = x.Equals(x);
 
@@ -79,8 +66,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_with_equal_fields_should_return_true()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
+            var y = new ObjectDiscriminatorConvention("_t");
 
             var result = x.Equals(y);
 
@@ -90,8 +77,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Equals_with_not_equal_field_should_return_false()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
-            var y = new ConcreteStandardDiscriminatorConvention("_u");
+            var x = new ObjectDiscriminatorConvention("_t");
+            var y = new ObjectDiscriminatorConvention("_u");
 
             var result = x.Equals(y);
 
@@ -101,31 +88,19 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void GetHashCode_should_return_zero()
         {
-            var x = new ConcreteStandardDiscriminatorConvention("_t");
+            var x = new ObjectDiscriminatorConvention("_t");
 
             var result = x.GetHashCode();
 
             result.Should().Be(0);
         }
 
-        public class ConcreteStandardDiscriminatorConvention : StandardDiscriminatorConvention
+        public class DerivedFromObjectDiscriminatorConvention : ObjectDiscriminatorConvention
         {
-            public ConcreteStandardDiscriminatorConvention(string elementName)
+            public DerivedFromObjectDiscriminatorConvention(string elementName)
                 : base(elementName)
             {
             }
-
-            public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
-        }
-
-        public class DerivedFromConcreteStandardDiscriminatorConvention : ConcreteStandardDiscriminatorConvention
-        {
-            public DerivedFromConcreteStandardDiscriminatorConvention(string elementName)
-                : base(elementName)
-            {
-            }
-
-            public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
         }
     }
 }
