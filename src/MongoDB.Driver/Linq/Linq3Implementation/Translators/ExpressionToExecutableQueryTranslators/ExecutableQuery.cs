@@ -13,14 +13,17 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators
 {
@@ -141,17 +144,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         // private methods
         private BsonDocumentStagePipelineDefinition<TDocument, TOutput> CreateCollectionPipelineDefinition(BsonDocument[] stages)
         {
-            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
+            var outputSerializer = GetOutputSerializer();
+            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, outputSerializer);
         }
 
         private BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput> CreateDatabasePipelineDefinition(BsonDocument[] stages)
         {
-            return new BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
+            var outputSerializer = GetOutputSerializer();
+            return new BsonDocumentStagePipelineDefinition<NoPipelineInput, TOutput>(stages, outputSerializer);
         }
 
         private BsonDocument[] RenderPipeline()
         {
             return _pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+        }
+
+        private IBsonSerializer<TOutput> GetOutputSerializer()
+        {
+            var outputSerializer = _pipeline.OutputSerializer;
+            var outputType = outputSerializer.ValueType;
+
+            if (outputType == typeof(TOutput))
+            {
+                return (IBsonSerializer<TOutput>)outputSerializer;
+            }
+
+            if (!typeof(TOutput).IsAssignableFrom(outputType))
+            {
+                throw new NotSupportedException($"The type of the pipeline output is {outputType} which is not assignable to {typeof(TOutput)}.");
+            }
+
+            if (typeof(TOutput).IsNullableOf(outputType))
+            {
+                return (IBsonSerializer<TOutput>)NullableSerializer.Create(outputSerializer);
+            }
+
+            return (IBsonSerializer<TOutput>)DowncastingSerializer.Create(typeof(TOutput), outputType, outputSerializer);
         }
     }
 }
