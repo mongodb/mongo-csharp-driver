@@ -69,6 +69,22 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Initializes a new instance of the BsonDocument by coping elements from another BsonDocument.
+        /// </summary>
+        /// <param name="document">The document whose elements will be copied</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public BsonDocument(BsonDocument document)
+        {
+            if (document == null)
+            {
+                throw new ArgumentNullException(nameof(document));
+            }
+
+            _allowDuplicateNames = document.AllowDuplicateNames;
+            AddRange(document);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
@@ -733,7 +749,7 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the document.</returns>
         public override BsonValue Clone()
         {
-            BsonDocument clone = new BsonDocument();
+            BsonDocument clone = new BsonDocument() { AllowDuplicateNames = AllowDuplicateNames };
             foreach (BsonElement element in _elements)
             {
                 clone.Add(element.Clone());
@@ -745,7 +761,7 @@ namespace MongoDB.Bson
         /// Compares this document to another document.
         /// </summary>
         /// <param name="rhs">The other document.</param>
-        /// <returns>A 32-bit signed integer that indicates whether this document is less than, equal to, or greather than the other.</returns>
+        /// <returns>A 32-bit signed integer that indicates whether this document is less than, equal to, or greater than the other.</returns>
         public virtual int CompareTo(BsonDocument rhs)
         {
             if (rhs == null) { return 1; }
@@ -776,7 +792,7 @@ namespace MongoDB.Bson
         /// Compares the BsonDocument to another BsonValue.
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
-        /// <returns>A 32-bit signed integer that indicates whether this BsonDocument is less than, equal to, or greather than the other BsonValue.</returns>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonDocument is less than, equal to, or greater than the other BsonValue.</returns>
         public override int CompareTo(BsonValue other)
         {
             if (other == null) { return 1; }
@@ -818,7 +834,7 @@ namespace MongoDB.Bson
         /// <returns>A deep clone of the document.</returns>
         public override BsonValue DeepClone()
         {
-            BsonDocument clone = new BsonDocument();
+            BsonDocument clone = new BsonDocument() { AllowDuplicateNames = AllowDuplicateNames };
             foreach (BsonElement element in _elements)
             {
                 clone.Add(element.DeepClone());
