@@ -600,6 +600,17 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void With_srvServiceName_should_return_expected_result()
+        {
+            var srvServiceName = "customname";
+            var subject = new ClusterSettings();
+
+            var result = subject.With(srvServiceName: srvServiceName);
+
+            result.SrvServiceName.Should().Be(srvServiceName);
+        }
+
+        [Fact]
         public void With_negative_srvMaxHosts_should_throw()
         {
             var subject = new ClusterSettings();

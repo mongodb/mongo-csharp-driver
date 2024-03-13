@@ -783,7 +783,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _srvServiceName = value;
+                _srvServiceName = Ensure.IsNotNullOrEmpty(value, nameof(SrvServiceName));
             }
         }
 
@@ -1028,7 +1028,7 @@ namespace MongoDB.Driver
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
-            clientSettings.SrvServiceName = url.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
+            clientSettings.SrvServiceName = url.SrvServiceName;
             clientSettings.SslSettings = null;
             if (url.TlsDisableCertificateRevocationCheck)
             {

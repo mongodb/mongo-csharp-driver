@@ -1590,6 +1590,23 @@ namespace MongoDB.Driver.Tests
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
+        [Fact]
+        public void TestSrvServiceName()
+        {
+            var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+            subject.SrvServiceName.Should().Be(MongoInternalDefaults.MongoClientSettings.SrvServiceName);
+
+            var srvServicName = "customname";
+            subject.SrvServiceName = srvServicName;
+            subject.SrvServiceName.Should().Be(srvServicName);
+
+            subject.Freeze();
+            subject.SrvServiceName.Should().Be(srvServicName);
+
+            var exception = Record.Exception(() => subject.SrvServiceName = srvServicName);
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
@@ -1615,6 +1632,16 @@ namespace MongoDB.Driver.Tests
             var exception = Record.Exception(() => subject.SrvMaxHosts = -1);
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void Freezing_instance_with_SrvServiceName_and_non_srv_scheme_should_throw()
+        {
+            var subject = new MongoClientSettings { SrvServiceName = "customname", Scheme = ConnectionStringScheme.MongoDB };
+
+            var exception = Record.Exception(() => subject.Freeze());
+
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]

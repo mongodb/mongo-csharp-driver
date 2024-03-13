@@ -1142,6 +1142,10 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "srvservicename":
                     _srvServiceName = value;
+                    if (string.IsNullOrEmpty(_srvServiceName))
+                    {
+                        throw new MongoConfigurationException("SrvServiceName cannot be null or empty.");
+                    }
                     break;
                 case "ssl": // Obsolete
                 case "tls":
