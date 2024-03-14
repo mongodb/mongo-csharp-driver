@@ -958,6 +958,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public abstract IFilteredMongoCollection<TDocument> WithFilter(FilterDefinition<TDocument> filter);
+
+        /// <inheritdoc />
         public virtual IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
             throw new NotImplementedException();
