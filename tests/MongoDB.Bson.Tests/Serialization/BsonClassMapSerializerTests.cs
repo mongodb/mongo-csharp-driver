@@ -39,10 +39,42 @@ namespace MongoDB.Bson.Tests.Serialization
             exception.Should().BeOfType<BsonSerializationException>();
         }
 
+        [Fact]
+        public void Deserialize_should_throw_when_no_creators_found()
+        {
+            var bsonClassMap = new BsonClassMap<ModelWithCtor>();
+            bsonClassMap.AutoMap();
+            bsonClassMap.Freeze();
+
+            var subject = new BsonClassMapSerializer<ModelWithCtor>(bsonClassMap);
+
+            using var reader = new JsonReader("{ \"_id\": \"just_an_id\" }");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<BsonSerializationException>()
+                .Subject.Message.Should().Be($"No matching creator found for class {typeof(ModelWithCtor).FullName}.");
+        }
+
         // nested classes
         private class MyModel
         {
             public string Id { get; set; }
+        }
+
+        private class ModelWithCtor
+        {
+            private readonly string _myId;
+            private readonly int _i;
+
+            public ModelWithCtor(string id, int i)
+            {
+                _myId = id;
+                _i = i;
+            }
+
+            public string Id => _myId;
+            public int I => _i;
         }
     }
 }
