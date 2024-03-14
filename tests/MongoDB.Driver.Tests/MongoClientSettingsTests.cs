@@ -677,6 +677,12 @@ namespace MongoDB.Driver.Tests
                 settings.SrvMaxHosts = 2;
             });
 
+            AssertException(settings =>
+            {
+                settings.Scheme = ConnectionStringScheme.MongoDB;
+                settings.SrvServiceName = "customname";
+            });
+
             void AssertException(Action<MongoClientSettings> setAction)
             {
                 var settings = new MongoClientSettings();
@@ -1582,6 +1588,23 @@ namespace MongoDB.Driver.Tests
             result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
 #pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
+        }
+
+        [Fact]
+        public void TestSrvServiceName()
+        {
+            var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+            subject.SrvServiceName.Should().Be(MongoInternalDefaults.MongoClientSettings.SrvServiceName);
+
+            var srvServicName = "customname";
+            subject.SrvServiceName = srvServicName;
+            subject.SrvServiceName.Should().Be(srvServicName);
+
+            subject.Freeze();
+            subject.SrvServiceName.Should().Be(srvServicName);
+
+            var exception = Record.Exception(() => subject.SrvServiceName = srvServicName);
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Theory]

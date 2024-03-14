@@ -453,6 +453,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestSrvServiceName()
+        {
+            var built = new MongoUrlBuilder { Scheme = ConnectionStringScheme.MongoDBPlusSrv, SrvServiceName = "customname" };
+            var connectionString = "mongodb+srv://test22.test.build.10gen.cc/test?srvServiceName=customname";
+
+            foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
+            {
+                url.SrvServiceName.Should().Be("customname");
+            }
+        }
+
+        [Fact]
         public void TestSrvMaxHosts()
         {
             var connectionString = "mongodb+srv://test5.test.build.10gen.cc/test?srvMaxHosts=2";

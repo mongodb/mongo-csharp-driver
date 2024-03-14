@@ -511,6 +511,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+                Assert.Equal(MongoInternalDefaults.MongoClientSettings.SrvServiceName, builder.SrvServiceName);
                 Assert.Equal(null, builder.Username);
 #pragma warning disable 618
                 Assert.Equal(false, builder.UseSsl);
@@ -1315,6 +1316,33 @@ namespace MongoDB.Driver.Tests
             builder.SocketTimeout = TimeSpan.FromSeconds(1);
         }
 
+        [Fact]
+        public void TestSrvServiceName()
+        {
+            var srvServiceName = "customname";
+            var canonicalConnectionString = $"mongodb+srv://localhost/?srvServiceName={srvServiceName}";
+
+            var built = new MongoUrlBuilder { UseTls = true, Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+
+            Assert.Throws<ArgumentException>(() => built.SrvServiceName = "");
+
+            built.SrvServiceName = srvServiceName;
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
+            {
+                Assert.Equal(srvServiceName, builder.SrvServiceName);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Fact]
+        public void TestSrvServiceName_WithNonSRVScheme()
+        {
+            Assert.Throws<MongoConfigurationException>(() =>
+            {
+                _ = new MongoUrlBuilder("mongodb://localhost/?srvServiceName=customname");
+            });
+        }
+
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(false, "mongodb://localhost/?tls={0}", new[] { "false", "False" })]
@@ -1498,6 +1526,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://localhost/?ssl=false", "mongodb+srv://localhost/?tls=false")]
         [InlineData("mongodb+srv://localhost/?ssl=true", "mongodb+srv://localhost")]
         [InlineData("mongodb+srv://localhost/?srvMaxHosts=2", "mongodb+srv://localhost/?srvMaxHosts=2")]
+        [InlineData("mongodb+srv://localhost/?srvServiceName=customname", "mongodb+srv://localhost/?srvServiceName=customname")]
         public void ToString_should_return_expected_result_for_scheme_port_and_ssl(string connectionString, string expectedResult)
         {
             var subject = new MongoUrlBuilder(connectionString);

@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     var dnsEndPoint = (DnsEndPoint)Settings.EndPoints.Single();
                     var lookupDomainName = dnsEndPoint.Host;
-                    var dnsMonitor = _dnsMonitorFactory.CreateDnsMonitor(this, lookupDomainName, _monitorServersCancellationTokenSource.Token);
+                    var dnsMonitor = _dnsMonitorFactory.CreateDnsMonitor(this, Settings.SrvServiceName, lookupDomainName, _monitorServersCancellationTokenSource.Token);
                     _dnsMonitorThread = dnsMonitor.Start(); // store the Thread for use as evidence when testing that the DnsMonitor was started
                 }
             }

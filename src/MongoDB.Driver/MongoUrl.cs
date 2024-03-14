@@ -78,6 +78,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly int? _srvMaxHosts;
+        private readonly string _srvServiceName;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -153,6 +154,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
             _srvMaxHosts = builder.SrvMaxHosts;
+            _srvServiceName = builder.SrvServiceName;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
             _username = builder.Username;
             _useTls = builder.UseTls;
@@ -526,6 +528,15 @@ namespace MongoDB.Driver
         /// that may be added during SRV polling.
         /// </summary>
         public int? SrvMaxHosts => _srvMaxHosts;
+
+        /// <summary>
+        /// Gets the SRV service name which modifies the srv URI to look like:
+        /// <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code>
+        /// </summary>
+        public string SrvServiceName
+        {
+            get { return _srvServiceName; }
+        }
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.

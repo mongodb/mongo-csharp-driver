@@ -1230,6 +1230,27 @@ namespace MongoDB.Driver.Core.Configuration
             exception.Should().BeOfType<MongoConfigurationException>();
         }
 
+        [Fact]
+        public void When_srvServiceName_is_specified_with_a_srv_scheme()
+        {
+            var connectionString = "mongodb+srv://test22.test.build.10gen.cc/?srvServiceName=customname";
+
+            var subject = new ConnectionString(connectionString);
+
+            subject.SrvServiceName.Should().Be("customname");
+        }
+
+        [Fact]
+        public void When_srvServiceName_is_specified_without_a_srv_scheme()
+        {
+            var connectionString = "mongodb://example.com/?srvServiceName=customname";
+
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("srvServiceName");
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
@@ -1237,6 +1258,15 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString($"mongodb+srv://cluster0.10gen.cc/?srvMaxHosts={srvMaxHosts}");
 
             subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+        }
+
+        [Fact]
+        public void Invalid_srvServiceName_configuration_should_throw()
+        {
+            var exception = Record.Exception(() => new ConnectionString("mongodb://example.com/?srvServiceName= "));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("SrvServiceName");
         }
 
         [Theory]

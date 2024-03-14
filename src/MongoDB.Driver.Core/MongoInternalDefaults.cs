@@ -26,5 +26,10 @@ namespace MongoDB.Driver
         {
             public const int MaxConnecting = 2;
         }
+
+        public static class MongoClientSettings
+        {
+            public const string SrvServiceName = "mongodb";
+        }
     }
 }

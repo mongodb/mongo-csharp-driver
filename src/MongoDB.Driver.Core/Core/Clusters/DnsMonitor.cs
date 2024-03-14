@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
         // constructors
         public DnsMonitor(IDnsMonitoringCluster cluster,
             IDnsResolver dnsResolver,
+            string srvServiceName,
             string lookupDomainName,
             IEventSubscriber eventSubscriber,
             ILogger<LogCategories.SDAM> logger,
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Core.Clusters
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
             _lookupDomainName = EnsureLookupDomainNameIsValid(lookupDomainName);
             _cancellationToken = cancellationToken;
-            _service = "_mongodb._tcp." + _lookupDomainName;
+            _service = $"_{srvServiceName}._tcp." + _lookupDomainName;
             _state = DnsMonitorState.Created;
 
             _eventLogger = logger.ToEventLogger(eventSubscriber);
