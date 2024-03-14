@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
             var underlyingSerializer = field.Serializer;
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
+            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField, LinqProvider.V3);
 
             return new RenderedFieldDefinition<TField>(field.Path, fieldSerializer, valueSerializer, underlyingSerializer);
         }

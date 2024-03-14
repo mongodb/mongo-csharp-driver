@@ -422,7 +422,7 @@ namespace MongoDB.Driver
             }
             else if (underlyingSerializer != null)
             {
-                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
+                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField, linqProvider);
             }
             else
             {
