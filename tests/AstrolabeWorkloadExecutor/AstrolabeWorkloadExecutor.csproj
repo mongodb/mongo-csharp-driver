@@ -2,10 +2,6 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-    <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TargetFrameworks Condition="'$(IsOSX)'!='true'">$(TargetFrameworks);net8.0</TargetFrameworks>
   </PropertyGroup>
 
