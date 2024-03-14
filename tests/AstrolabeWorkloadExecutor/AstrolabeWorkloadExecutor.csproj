@@ -2,9 +2,9 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworks);net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsOSX)'!='true'">$(TargetFrameworks);net8.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>workload-executor</AssemblyName>
