@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-
-using System.Collections.Generic;
-using System.Linq;
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
@@ -44,7 +41,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>

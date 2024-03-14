@@ -485,6 +485,18 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadEndDocument();
                 return result;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is AggregateResultDeserializer other &&
+                    object.Equals(_resultSerializer, other._resultSerializer);
+            }
+
+            public override int GetHashCode() => 0;
         }
 
         private class CursorDeserializer : SerializerBase<AggregateResult>
@@ -536,6 +548,18 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadEndDocument();
                 return result;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is CursorDeserializer other &&
+                    object.Equals(_resultSerializer, other._resultSerializer);
+            }
+
+            public override int GetHashCode() => 0;
         }
     }
 }

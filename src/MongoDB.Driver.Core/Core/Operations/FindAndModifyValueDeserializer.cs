@@ -43,5 +43,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             return _resultSerializer.Deserialize(context);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is FindAndModifyValueDeserializer<TResult> other &&
+                object.Equals(_resultSerializer, other._resultSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
     }
 }

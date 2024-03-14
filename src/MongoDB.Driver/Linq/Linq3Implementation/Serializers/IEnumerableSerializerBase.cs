@@ -47,6 +47,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             return CreateDeserializedValue(items);
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is IEnumerableSerializerBase<TEnumerable, TItem> other &&
+                object.Equals(_itemSerializer, other._itemSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnumerable value)
         {
             var writer = context.Writer;

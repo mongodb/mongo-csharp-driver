@@ -13,17 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFindProjectionTranslators
+namespace MongoDB.Shared
 {
-    internal static class ExpressionToFindProjectionTranslator
+    internal static class SequenceComparer
     {
-        public static AstFindProjection<TProjection> Translate<TProjection>(TranslationContext context, Expression expression)
+        public static bool Equals<TValue>(IEnumerable<TValue> x, IEnumerable<TValue> y)
         {
-            throw new NotImplementedException();
+            if (object.ReferenceEquals(x, y))
+            {
+                return true;
+            }
+
+            if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null))
+            {
+                return false;
+            }
+
+            return x.SequenceEqual(y);
         }
     }
 }

@@ -77,6 +77,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is StandardDiscriminatorConvention other &&
+                object.Equals(_elementName, other._elementName);
+        }
+
         /// <summary>
         /// Gets the actual type of an object by reading the discriminator from a BsonReader.
         /// </summary>
@@ -123,5 +134,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         public abstract BsonValue GetDiscriminator(Type nominalType, Type actualType);
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
     }
 }

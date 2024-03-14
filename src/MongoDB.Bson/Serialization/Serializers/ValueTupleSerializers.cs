@@ -145,6 +145,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
         {
             return itemNumber switch
@@ -260,6 +274,21 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2>(item1, item2);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -394,6 +423,22 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3>(item1, item2, item3);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -545,6 +590,23 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3, T4>(item1, item2, item3, item4);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3, T4> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem4Serializer.Value, other._lazyItem4Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -713,6 +775,24 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3, T4, T5>(item1, item2, item3, item4, item5);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3, T4, T5> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem4Serializer.Value, other._lazyItem4Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem5Serializer.Value, other._lazyItem5Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -898,6 +978,25 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3, T4, T5, T6>(item1, item2, item3, item4, item5, item6);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3, T4, T5, T6> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem4Serializer.Value, other._lazyItem4Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem5Serializer.Value, other._lazyItem5Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem6Serializer.Value, other._lazyItem6Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -1100,6 +1199,26 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3, T4, T5, T6, T7>(item1, item2, item3, item4, item5, item6, item7);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem4Serializer.Value, other._lazyItem4Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem5Serializer.Value, other._lazyItem5Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem6Serializer.Value, other._lazyItem6Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem7Serializer.Value, other._lazyItem7Serializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)
@@ -1320,6 +1439,27 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return new ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, rest);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> other &&
+                object.ReferenceEquals(_lazyItem1Serializer.Value, other._lazyItem1Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem2Serializer.Value, other._lazyItem2Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem3Serializer.Value, other._lazyItem3Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem4Serializer.Value, other._lazyItem4Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem5Serializer.Value, other._lazyItem5Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem6Serializer.Value, other._lazyItem6Serializer.Value) &&
+                object.ReferenceEquals(_lazyItem7Serializer.Value, other._lazyItem7Serializer.Value) &&
+                object.ReferenceEquals(_lazyRestSerializer.Value, other._lazyRestSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public IBsonSerializer GetItemSerializer(int itemNumber)

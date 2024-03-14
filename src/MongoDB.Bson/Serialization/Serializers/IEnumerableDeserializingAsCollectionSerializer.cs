@@ -120,6 +120,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is IEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection> other &&
+                object.Equals(_lazyItemSerializer.Value, other._lazyItemSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TIEnumerable value)
         {
             var writer = context.Writer;

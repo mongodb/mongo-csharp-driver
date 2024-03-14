@@ -79,6 +79,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ThreeDimensionalArraySerializer<TItem> other &&
+                object.Equals(_lazyItemSerializer.Value, other._lazyItemSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>

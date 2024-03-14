@@ -65,6 +65,20 @@ namespace MongoDB.Driver
             return base.Deserialize(context, args);
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ChangeStreamDocumentSerializer<TDocument> other &&
+                object.Equals(_documentSerializer, other._documentSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         // protected methods
         /// <inheritdoc />
         protected override ChangeStreamDocument<TDocument> CreateInstance(BsonDocument backingDocument)

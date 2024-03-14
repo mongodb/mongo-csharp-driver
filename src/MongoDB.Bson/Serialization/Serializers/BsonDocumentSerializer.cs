@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.IdGenerators;
 
@@ -47,7 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>

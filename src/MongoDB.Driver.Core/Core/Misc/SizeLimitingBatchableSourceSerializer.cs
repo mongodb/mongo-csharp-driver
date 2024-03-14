@@ -57,6 +57,24 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is SizeLimitingBatchableSourceSerializer<TItem> other &&
+                object.Equals(_itemElementNameValidator, other._itemElementNameValidator) &&
+                object.Equals(_itemSerializer, other._itemSerializer) &&
+                _maxBatchCount.Equals(other._maxBatchCount) &&
+                _maxBatchSize.Equals(other._maxBatchSize) &&
+                _maxItemSize.Equals(other._maxItemSize);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BatchableSource<TItem> value)
         {

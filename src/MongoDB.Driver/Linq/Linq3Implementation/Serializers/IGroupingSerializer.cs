@@ -63,6 +63,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             return new Grouping<TKey, TElement>(key, elements);
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is IGroupingSerializer<TKey, TElement> other &&
+                object.Equals(_elementSerializer, other._elementSerializer) &&
+                object.Equals(_keySerializer, other._keySerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IGrouping<TKey, TElement> value)
         {
             var writer = context.Writer;

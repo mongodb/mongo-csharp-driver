@@ -29,6 +29,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _polygonCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
 
+        // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is GeoJsonMultiPolygonCoordinatesSerializer<TCoordinates> other &&
+                object.Equals(_polygonCoordinatesSerializer, other._polygonCoordinatesSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         // protected methods
         /// <summary>
         /// Deserializes a value.

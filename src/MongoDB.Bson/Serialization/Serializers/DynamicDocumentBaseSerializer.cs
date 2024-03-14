@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : class, IDynamicMetaObjectProvider
     {
         // private static fields
-        private static readonly IBsonSerializer<object> _objectSerializer = BsonSerializer.LookupSerializer<object>();
+        private static readonly IBsonSerializer<object> __objectSerializer = BsonSerializer.LookupSerializer<object>();
 
         // constructors
         /// <summary>
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var name = bsonReader.ReadName();
-                        var value = _objectSerializer.Deserialize(dynamicContext);
+                        var value = __objectSerializer.Deserialize(dynamicContext);
                         SetValueForMember(document, name, value);
                     }
                     bsonReader.ReadEndDocument();
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (TryGetValueForMember(value, memberName, out memberValue))
                 {
                     bsonWriter.WriteName(memberName);
-                    _objectSerializer.Serialize(dynamicContext, memberValue);
+                    __objectSerializer.Serialize(dynamicContext, memberValue);
                 }
             }
             bsonWriter.WriteEndDocument();

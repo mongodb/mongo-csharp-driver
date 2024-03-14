@@ -200,5 +200,17 @@ namespace MongoDB.Driver
         {
             return (TSortBy)Convert.ChangeType(value, typeof(TSortBy));
         }
+
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ValueRangeWindowBoundaryConvertingValueSerializer<TValue, TSortBy> other &&
+                object.Equals(_sortBySerializer, other._sortBySerializer);
+        }
+
+        public override int GetHashCode() => 0;
     }
 }

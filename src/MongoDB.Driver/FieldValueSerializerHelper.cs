@@ -206,6 +206,19 @@ namespace MongoDB.Driver
                 _serializerRegistry = serializerRegistry;
             }
 
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is ConvertIfPossibleSerializer<TFrom, TTo> other &&
+                    object.Equals(_serializer, other._serializer) &&
+                    object.ReferenceEquals(_serializerRegistry, other._serializerRegistry);
+            }
+
+            public override int GetHashCode() => 0;
+
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
             {
                 TTo convertedValue;
@@ -273,6 +286,18 @@ namespace MongoDB.Driver
                 _serializer = serializer;
             }
 
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is EnumConvertingSerializer<TFrom, TTo> other &&
+                    object.Equals(_serializer, other._serializer);
+            }
+
+            public override int GetHashCode() => 0;
+
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TFrom value)
             {
                 TTo convertedValue;
@@ -296,6 +321,18 @@ namespace MongoDB.Driver
             {
                 _itemSerializer = itemSerializer;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is IEnumerableSerializer<TItem> other &&
+                    object.Equals(_itemSerializer, other._itemSerializer);
+            }
+
+            public override int GetHashCode() => 0;
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<TItem> value)
             {
@@ -324,6 +361,18 @@ namespace MongoDB.Driver
             {
                 _nonNullableEnumSerializer = nonNullableEnumSerializer;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is NullableEnumConvertingSerializer<TFrom, TTo> other &&
+                    object.Equals(_nonNullableEnumSerializer, other._nonNullableEnumSerializer);
+            }
+
+            public override int GetHashCode() => 0;
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Nullable<TFrom> value)
             {

@@ -15,10 +15,6 @@
 
 using System;
 using System.Globalization;
-using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -132,6 +128,20 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return value;
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is SByteSerializer other &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Serializes a value.

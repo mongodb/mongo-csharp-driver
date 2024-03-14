@@ -127,6 +127,23 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is BsonSerializationInfo other &&
+                object.Equals(_elementName, other._elementName) &&
+                object.Equals(_elementPath, other._elementPath) &&
+                object.Equals(_nominalType, other._nominalType) &&
+                object.Equals(_serializer, other._serializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Merges the new BsonSerializationInfo by taking its properties and concatenating its ElementName.
         /// </summary>

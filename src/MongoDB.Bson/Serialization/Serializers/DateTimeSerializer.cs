@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Globalization;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -53,7 +49,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly bool _dateOnly;
         private readonly SerializerHelper _helper;
-        private readonly Int64Serializer _int64Serializer = new Int64Serializer();
         private readonly DateTimeKind _kind;
         private readonly BsonType _representation;
 
@@ -219,7 +214,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                            case Flags.Ticks: value = new DateTime(_int64Serializer.Deserialize(context), DateTimeKind.Utc); break;
+                            case Flags.Ticks: value = new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc); break;
                         }
                     });
                     break;
@@ -267,6 +262,22 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return value;
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is DateTimeSerializer other &&
+                _dateOnly.Equals(other._dateOnly) &&
+                _kind.Equals(other._kind) &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Serializes a value.

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Globalization;
 using MongoDB.Bson.IO;
 
@@ -32,7 +31,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private fields
-        private readonly BooleanSerializer _booleanSerializer = new BooleanSerializer();
         private readonly SerializerHelper _helper;
 
         // constructors
@@ -48,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             );
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -70,7 +68,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.Name: name = bsonReader.ReadString(); break;
-                            case Flags.UseUserOverride: useUserOverride = _booleanSerializer.Deserialize(context); break;
+                            case Flags.UseUserOverride: useUserOverride = BooleanSerializer.Instance.Deserialize(context); break;
                         }
                     });
                     return new CultureInfo(name, useUserOverride);
