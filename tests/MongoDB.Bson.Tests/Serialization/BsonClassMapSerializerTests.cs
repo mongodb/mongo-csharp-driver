@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<BsonSerializationException>()
-                .Subject.Message.Should().Be($"No matching creator found for class {typeof(ModelWithCtor).FullName}");
+                .Subject.Message.Should().Be($"No matching creator found for class {typeof(ModelWithCtor).FullName}.");
         }
 
         // nested classes
