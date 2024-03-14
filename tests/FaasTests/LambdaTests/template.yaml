@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  C# Driver Lambda Function Test
+
+Parameters:
+  MongoDbUri:
+    Type: String
+    Description: The MongoDB connection string.
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  MongoDBFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: MongoDB.Driver.LambdaTest/
+      Handler: MongoDB.Driver.LambdaTest::MongoDB.Driver.LambdaTest.LambdaFunction::LambdaFunctionHandlerAsync
+      Runtime: dotnet6
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          MONGODB_URI: !Ref MongoDbUri
+      Events:
+        LambdaTest:
+          Type: Api
+          Properties:
+            Path: /mongodb
+            Method: get
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  LambdaTestApi:
+    Description: API Gateway endpoint URL for Prod stage for C# Driver Lambda Test function
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/mongodb/"
+  MongoDBFunction:
+    Description: C# Driver Lambda Function ARN
+    Value: !GetAtt MongoDBFunction.Arn
+  MongoDBFunctionIamRole:
+    Description: Implicit IAM Role created for C# Driver Lambda Test function
+    Value: !GetAtt MongoDBFunctionRole.Arn
