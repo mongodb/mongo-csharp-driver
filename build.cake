@@ -257,6 +257,13 @@ Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
 Task("TestGssapiNet60").IsDependentOn("TestGssapi");
 
+Task("TestMongoDbOidc")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+            RunTests(buildConfig, testProject, filter: "Category=\"MongoDbOidc\""));
+
 Task("TestServerless")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -692,7 +699,7 @@ public class BuildConfig
 string[] CreateLoggers(string projectName)
 {
     var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{projectName}-{target.ToLowerInvariant()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.xml");
-    
+
     // Evergreen CI server requires JUnit output format to display test results
     var junitLogger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
     var consoleLogger = "console;verbosity=detailed";

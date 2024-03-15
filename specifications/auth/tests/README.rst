@@ -1,10 +1,18 @@
-﻿==========
+==========
 Auth Tests
 ==========
 
-The YAML and JSON files in this directory tree are platform-independent tests
-that drivers can use to prove their conformance to the Auth Spec at least with
-respect to connection string URI input.
+Introduction
+============
+
+This document describes the format of the driver spec tests included in the
+JSON and YAML files included in the ``legacy`` sub-directory. Tests in the
+``unified`` directory are written using the `Unified Test Format
+<../../unified-test-format/unified-test-format.rst>`_.
+
+The YAML and JSON files in the ``legacy`` directory tree are
+platform-independent tests that drivers can use to prove their conformance to
+the Auth Spec at least with respect to connection string URI input.
 
 Drivers should do additional unit testing if there are alternate ways of
 configuring credentials on a client.
@@ -12,7 +20,7 @@ configuring credentials on a client.
 Driver must also conduct the prose tests in the Auth Spec test plan section.
 
 Format
-------
+======
 
 Each YAML file contains an object with a single ``tests`` key. This key is an
 array of test case objects, each of which have the following keys:

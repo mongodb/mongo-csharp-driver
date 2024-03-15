@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -88,7 +90,11 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             // methods
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public ISaslStep Initialize(
+                IConnection connection,
+                SaslConversation conversation,
+                ConnectionDescription description,
+                CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));
@@ -100,6 +106,13 @@ namespace MongoDB.Driver.Core.Authentication
                 var bytes = Utf8Encodings.Strict.GetBytes(dataString);
                 return new CompletedStep(bytes);
             }
+
+            public Task<ISaslStep> InitializeAsync(
+                IConnection connection,
+                SaslConversation conversation,
+                ConnectionDescription description,
+                CancellationToken cancellationToken)
+                => Task.FromResult(Initialize(connection, conversation, description, cancellationToken));
         }
     }
 }

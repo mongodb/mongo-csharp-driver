@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using System.Buffers.Binary;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ICompressorSource _compressorSource;
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
+        private ConnectionInitializerContext _connectionInitializerContext;
         private EndPoint _endPoint;
         private ConnectionDescription _description;
         private readonly Dropbox _dropbox = new Dropbox();
@@ -261,21 +263,23 @@ namespace MongoDB.Driver.Core.Connections
         private void OpenHelper(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
-
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                var connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
-                _description = connectionInitializerContext.Description;
-                _description = _connectionInitializer.Authenticate(this, connectionInitializerContext, cancellationToken);
+                _connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
+                handshakeDescription = _connectionInitializerContext.Description;
+                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+                _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
@@ -285,24 +289,48 @@ namespace MongoDB.Driver.Core.Connections
         private async Task OpenHelperAsync(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
-
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                var connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
-                _description = connectionInitializerContext.Description;
-                _description = await _connectionInitializer.AuthenticateAsync(this, connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = _connectionInitializerContext.Description;
+                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
-
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
+            }
+        }
+
+        public void Reauthenticate(CancellationToken cancellationToken)
+        {
+            InvalidateAuthenticators();
+            _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+        }
+
+        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
+        {
+            InvalidateAuthenticators();
+            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        private void InvalidateAuthenticators()
+        {
+            foreach (var authenticator in _connectionInitializerContext.Authenticators)
+            {
+                if (authenticator is MongoOidcAuthenticator oidcAuthenticator)
+                {
+                    oidcAuthenticator.ClearCredentialsCache();
+                }
             }
         }
 
