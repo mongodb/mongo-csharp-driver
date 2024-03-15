@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(argumentExpression, argumentTranslation);
                 var ast = AstExpression.Ceil(argumentTranslation.Ast);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
                 return new AggregationExpression(expression, ast, serializer);
