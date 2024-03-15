@@ -25,7 +25,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object.</param>
         /// <param name="bsonValue">The BsonValue.</param>
-        /// <returns>True if the mapping was successfull.</returns>
+        /// <returns>True if the mapping was successful.</returns>
         bool TryMapToBsonValue(object value, out BsonValue bsonValue);
     }
 }

@@ -21,6 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the symbol table of BsonSymbols.
     /// </summary>
+    [Obsolete("Bson Symbol type has been deprecated.")]
     public static class BsonSymbolTable
     {
         // private static fields

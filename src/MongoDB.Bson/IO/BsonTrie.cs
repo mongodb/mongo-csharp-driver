@@ -21,6 +21,7 @@ namespace MongoDB.Bson.IO
     /// Represents a mapping from a set of UTF8 encoded strings to a set of elementName/value pairs, implemented as a trie.
     /// </summary>
     /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class BsonTrie<TValue>
     {
         // private fields
