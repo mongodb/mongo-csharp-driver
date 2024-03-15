@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -80,6 +79,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+            }
+
+            if (IsArithmeticExpression(expression))
+            {
+                SerializationHelper.EnsureRepresentationIsNumeric(leftExpression, leftTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(rightExpression, rightTranslation);
             }
 
             var ast = expression.NodeType switch
@@ -184,7 +189,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static bool IsArithmeticExpression(BinaryExpression expression)
         {
-            return expression.Type.IsNumeric() && IsArithmeticOperator(expression.NodeType);
+            return expression.Type.IsNumericOrNullableNumeric() && IsArithmeticOperator(expression.NodeType);
         }
 
         private static bool IsArithmeticOperator(ExpressionType nodeType)
@@ -304,31 +309,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
 
+                AggregationExpression enumTranslation, operandTranslation;
                 if (IsEnumOrConvertEnumToUnderlyingType(leftExpression))
                 {
-                    serializer = leftTranslation.Serializer;
+                    enumTranslation = leftTranslation;
+                    operandTranslation = rightTranslation;
                 }
                 else
                 {
-                    serializer = rightTranslation.Serializer;
+                    enumTranslation = rightTranslation;
+                    operandTranslation = leftTranslation;
                 }
 
-                var representation = BsonType.Int32; // assume an integer representation unless we can determine otherwise
-                var valueSerializer = serializer;
-                if (valueSerializer is INullableSerializer nullableSerializer)
-                {
-                    valueSerializer = nullableSerializer.ValueSerializer;
-                }
-                if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer &&
-                    enumUnderlyingTypeSerializer.EnumSerializer is IHasRepresentationSerializer withRepresentationSerializer)
-                {
-                    representation = withRepresentationSerializer.Representation;
-                }
-
-                if (representation != BsonType.Int32 && representation != BsonType.Int64)
+                if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(enumTranslation))
                 {
                     throw new ExpressionNotSupportedException(expression, because: "arithmetic on enums is only allowed when the enum is represented as an integer");
                 }
+
+                if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(operandTranslation))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "the value being added to or subtracted from an enum must be represented as an integer");
+                }
+
+                serializer = enumTranslation.Serializer;
             }
             else
             {

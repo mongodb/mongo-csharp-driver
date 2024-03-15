@@ -83,8 +83,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var valueTranslation = TranslateValue();
-                var startIndexTranslation = startIndexExpression == null ? null : ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
-                var countTranslation = countExpression == null ? null : ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
+                AggregationExpression startIndexTranslation = null;
+                if (startIndexExpression != null)
+                {
+                    startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
+                    SerializationHelper.EnsureRepresentationIsNumeric(startIndexExpression, startIndexTranslation);
+                }
+                AggregationExpression countTranslation = null;
+                if (countExpression != null)
+                {
+                    countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
+                    SerializationHelper.EnsureRepresentationIsNumeric(countExpression, countTranslation);
+                }
                 var ordinal = GetOrdinalFromComparisonType();
 
                 var endAst = CreateEndAst(startIndexTranslation?.Ast, countTranslation?.Ast);

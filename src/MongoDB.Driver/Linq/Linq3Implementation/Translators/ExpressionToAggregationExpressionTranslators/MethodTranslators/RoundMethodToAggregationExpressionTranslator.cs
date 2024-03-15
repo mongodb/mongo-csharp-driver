@@ -46,12 +46,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(argumentExpression, argumentTranslation);
 
                 AstExpression ast;
                 if (method.IsOneOf(__roundWithPlaceMethods))
                 {
                     var placeExpression = arguments[1];
                     var placeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, placeExpression);
+                    SerializationHelper.EnsureRepresentationIsNumeric(placeExpression, placeTranslation);
                     ast = AstExpression.Round(argumentTranslation.Ast, placeTranslation.Ast);
                 }
                 else

@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(argumentExpression, argumentTranslation);
                 AstExpression ast;
                 if (method.Is(MathMethod.LogWithNewBase))
                 {

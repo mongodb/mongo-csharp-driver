@@ -72,6 +72,21 @@ namespace MongoDB.Driver.Support
                 type == typeof(Decimal128);
         }
 
+        public static bool IsNumericOrNullableNumeric(this Type type)
+        {
+            if (type.IsConstructedGenericType &&
+                type.GetGenericTypeDefinition() is var genericTypeDefinition &&
+                genericTypeDefinition == typeof(Nullable<>))
+            {
+                var valueType = type.GetGenericArguments()[0];
+                return IsNumeric(valueType);
+            }
+            else
+            {
+                return IsNumeric(type);
+            }
+        }
+
         public static bool IsConvertibleToEnum(this Type type)
         {
             return
