@@ -112,9 +112,17 @@ namespace MongoDB.Driver.Core.Misc
         /// Wire version 23.
         /// </summary>
         public const int Server72 = 23;
+        /// <summary>
+        /// Wire version 24.
+        /// </summary>
+        public const int Server73 = 24;
+        /// <summary>
+        /// Wire version 25.
+        /// </summary>
+        public const int Server80 = 25;
 
         #region static
-        private static List<WireVersionInfo> __knownWireVersions = new()
+        private static readonly List<WireVersionInfo> __knownWireVersions = new()
         {
             // 1. Make sure that wireVersion value matches to the item index.
             // 2. The below list contains all wire versions ever existed.
@@ -144,10 +152,12 @@ namespace MongoDB.Driver.Core.Misc
             new WireVersionInfo(wireVersion: 20, major: 6, minor: 3),
             new WireVersionInfo(wireVersion: 21, major: 7, minor: 0),
             new WireVersionInfo(wireVersion: 22, major: 7, minor: 1),
-            new WireVersionInfo(wireVersion: 23, major: 7, minor: 2)
+            new WireVersionInfo(wireVersion: 23, major: 7, minor: 2),
+            new WireVersionInfo(wireVersion: 24, major: 7, minor: 3),
+            new WireVersionInfo(wireVersion: 25, major: 8, minor: 0),
         };
 
-        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 23);
+        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 24);
 
         private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
         {

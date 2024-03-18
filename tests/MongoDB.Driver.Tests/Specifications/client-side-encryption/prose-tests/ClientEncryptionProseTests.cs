@@ -2040,7 +2040,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
 
-            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            RequireServer.Check()
+                .Supports(Feature.Csfle2QEv2RangePreviewAlgorithm)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
             if (rangeType == "DecimalNoPrecision")
             {
                 // Tests for ``DecimalNoPrecision`` must only run against a replica set.

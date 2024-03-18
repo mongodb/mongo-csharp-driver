@@ -284,7 +284,8 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(new[] { 21, 22 }, true)]
         [InlineData(new[] { 22, 23 }, true)]
         [InlineData(new[] { 23, 24 }, true)]
-        [InlineData(new[] { 24, 25 }, false)]
+        [InlineData(new[] { 24, 25 }, true)]
+        [InlineData(new[] { 25, 26 }, false)]
         public void IsCompatibleWithDriver_should_return_expected_result(int[] minMaxWireVersions, bool expectedResult)
         {
             var clusterId = new ClusterId(1);
