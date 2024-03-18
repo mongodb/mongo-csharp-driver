@@ -133,6 +133,17 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
+        public void CreateEnvDocument_should_return_expected_result()
+        {
+            using (new DisposableEnvironmentVariable("VERCEL"))
+            using (new DisposableEnvironmentVariable("KUBERNETES_SERVICE_HOST"))
+            {
+                var result = ClientDocumentHelper.CreateEnvDocument();
+                result.Should().Be($"{{ name : 'vercel', container : {{ orchestrator : 'kubernetes' }} }}");
+            }
+        }
+
+        [Fact]
         public void CreateOSDocument_should_return_expected_result()
         {
             var result = ClientDocumentHelper.CreateOSDocument();

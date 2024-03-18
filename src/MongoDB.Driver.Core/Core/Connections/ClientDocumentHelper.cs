@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -107,13 +108,15 @@ namespace MongoDB.Driver.Core.Connections
                 var timeout = GetTimeoutSec(name);
                 var memoryDb = GetMemoryMb(name);
                 var region = GetRegion(name);
+                var container = GetContainerDocument();
 
                 return new BsonDocument
                 {
                     { "name", name },
                     { "timeout_sec", timeout, timeout.HasValue },
                     { "memory_mb", memoryDb, memoryDb.HasValue },
-                    { "region", region, region != null }
+                    { "region", region, region != null },
+                    { "container", container, container != null }
                 };
             }
             else
@@ -175,6 +178,23 @@ namespace MongoDB.Driver.Core.Connections
                     gcpFuncName => GetIntValue("FUNCTION_TIMEOUT_SEC"),
                     _ => null,
                 };
+
+            BsonDocument GetContainerDocument()
+            {
+                var isExecutionContainerDocker = File.Exists("/.dockerenv");
+                var isOrchestratorKubernetes = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST") != null;
+
+                if (isExecutionContainerDocker || isOrchestratorKubernetes)
+                {
+                    return new BsonDocument
+                    {
+                        { "runtime", "docker", isExecutionContainerDocker },
+                        { "orchestrator", "kubernetes", isOrchestratorKubernetes }
+                    };
+                }
+
+                return null;
+            }
 
             int? GetIntValue(string environmentVariable) =>
                 int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
