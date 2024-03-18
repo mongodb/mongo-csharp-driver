@@ -96,6 +96,15 @@ namespace MongoDB.Driver
 
             return new JsonSortDefinition<TDocument>(json);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var serializer = serializerRegistry.GetSerializer<TDocument>();
+            var rendered = Render(serializer, serializerRegistry);
+            return rendered.ToString();
+        }
     }
 
     /// <summary>
