@@ -1572,7 +1572,7 @@ namespace MongoDB.Driver
 
             if (_filter != null)
             {
-                var renderedFilter = _filter.Render(renderArgs.WithSerializer((IBsonSerializer<TItem>)itemSerializer));
+                var renderedFilter = _filter.Render(renderArgs.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
                 return new BsonDocument("$pull", new BsonDocument(renderedField.FieldName, renderedFilter));
             }
             else
@@ -1684,7 +1684,7 @@ namespace MongoDB.Driver
 
             if (_sort != null)
             {
-                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render(renderArgs.WithSerializer((IBsonSerializer<TItem>)itemSerializer));
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render(renderArgs.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
             }
 
             return document;

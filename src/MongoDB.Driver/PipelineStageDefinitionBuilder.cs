@@ -528,7 +528,7 @@ namespace MongoDB.Driver
                 operatorName,
                 renderArgs =>
                 {
-                    var renderedDocuments = documents.Render(renderArgs.WithSerializer(NoPipelineInputSerializer.Instance));
+                    var renderedDocuments = documents.Render(renderArgs.WithNewDocumentType(NoPipelineInputSerializer.Instance));
                     return new RenderedPipelineStageDefinition<TDocument>(
                         operatorName,
                         new BsonDocument(operatorName, renderedDocuments),
@@ -674,13 +674,13 @@ namespace MongoDB.Driver
                     var inputSerializer = renderArgs.DocumentSerializer;
                     var outputSerializer = options?.OutputSerializer ?? renderArgs.SerializerRegistry.GetSerializer<TOutput>();
                     var fromSerializer = options?.FromSerializer ?? renderArgs.SerializerRegistry.GetSerializer<TFrom>();
-                    var fromRenderArgs = renderArgs.WithSerializer(fromSerializer);
+                    var fromRenderArgs = renderArgs.WithNewDocumentType(fromSerializer);
                     var asElementSerializer = options?.AsElementSerializer ?? renderArgs.SerializerRegistry.GetSerializer<TAsElement>();
                     var renderedConnectFromField = connectFromField.Render(fromRenderArgs);
                     var renderedConnectToField = connectToField.Render(fromRenderArgs);
                     var renderedStartWith = startWith.Render(renderArgs);
-                    var renderedAs = @as.Render(renderArgs.WithSerializer(outputSerializer));
-                    var renderedDepthField = depthField?.Render(renderArgs.WithSerializer(asElementSerializer));
+                    var renderedAs = @as.Render(renderArgs.WithNewDocumentType(outputSerializer));
+                    var renderedDepthField = depthField?.Render(renderArgs.WithNewDocumentType(asElementSerializer));
                     var renderedRestrictSearchWithMatch = options?.RestrictSearchWithMatch?.Render(fromRenderArgs);
                     var document = new BsonDocument
                     {
@@ -949,8 +949,8 @@ namespace MongoDB.Driver
                         {
                             { "from", foreignCollection.CollectionNamespace.CollectionName },
                             { "localField", localField.Render(renderArgs).FieldName },
-                            { "foreignField", foreignField.Render(renderArgs.WithSerializer(foreignSerializer)).FieldName },
-                            { "as", @as.Render(renderArgs.WithSerializer(outputSerializer)).FieldName }
+                            { "foreignField", foreignField.Render(renderArgs.WithNewDocumentType(foreignSerializer)).FieldName },
+                            { "as", @as.Render(renderArgs.WithNewDocumentType(outputSerializer)).FieldName }
                         }),
                         outputSerializer);
                 });
@@ -1022,14 +1022,14 @@ namespace MongoDB.Driver
                 {
                     var foreignSerializer = options.ForeignSerializer ?? renderArgs.GetSerializer<TForeignDocument>();
                     var outputSerializer = options.ResultSerializer ?? renderArgs.GetSerializer<TOutput>();
-                    var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(renderArgs.WithSerializer(foreignSerializer)).Documents);
+                    var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(renderArgs.WithNewDocumentType(foreignSerializer)).Documents);
 
                     var lookupBody = new BsonDocument
                     {
                         { "from", foreignCollection.CollectionNamespace.CollectionName },
                         { "let", let, let != null },
                         { "pipeline", lookupPipelineDocuments },
-                        { "as", @as.Render(renderArgs.WithSerializer(outputSerializer)).FieldName }
+                        { "as", @as.Render(renderArgs.WithNewDocumentType(outputSerializer)).FieldName }
                     };
 
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, lookupBody), outputSerializer);
@@ -1172,7 +1172,7 @@ namespace MongoDB.Driver
                         var whenMatched = mergeOptions.WhenMatched.Value;
                         if (whenMatched == MergeStageWhenMatched.Pipeline)
                         {
-                            var renderedPipeline = mergeOptions.WhenMatchedPipeline.Render(renderArgs.WithSerializer(outputSerializer));
+                            var renderedPipeline = mergeOptions.WhenMatchedPipeline.Render(renderArgs.WithNewDocumentType(outputSerializer));
                             renderedWhenMatched = new BsonArray(renderedPipeline.Documents);
                         }
                         else
@@ -1572,7 +1572,7 @@ namespace MongoDB.Driver
                     {
                         { "$setWindowFields", new BsonDocument
                             {
-                                { "output", output.Render(renderArgs.WithSerializer(partitionSerializer)) }
+                                { "output", output.Render(renderArgs.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
@@ -1610,7 +1610,7 @@ namespace MongoDB.Driver
                         { "$setWindowFields", new BsonDocument
                             {
                                 { "partitionBy", partitionBy.Render(renderArgs) },
-                                { "output", output.Render(renderArgs.WithSerializer(partitionSerializer)) }
+                                { "output", output.Render(renderArgs.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
@@ -1652,7 +1652,7 @@ namespace MongoDB.Driver
                             {
                                 { "partitionBy", partitionBy.Render(renderArgs) },
                                 { "sortBy", sortBy.Render(renderArgs) },
-                                { "output", output.Render(renderArgs.WithSerializer(partitionSerializer)) }
+                                { "output", output.Render(renderArgs.WithNewDocumentType(partitionSerializer)) }
                             }
                         }
                     };
@@ -1824,7 +1824,7 @@ namespace MongoDB.Driver
                     if (withPipeline != null)
                     {
                         var withSerializer = withCollection.DocumentSerializer ?? renderArgs.GetSerializer<TWith>();
-                        withPipelineDocuments = new BsonArray(withPipeline.Render(renderArgs.WithSerializer(withSerializer)).Documents);
+                        withPipelineDocuments = new BsonArray(withPipeline.Render(renderArgs.WithNewDocumentType(withSerializer)).Documents);
                     }
                     else
                     {
@@ -1869,7 +1869,7 @@ namespace MongoDB.Driver
                     string includeArrayIndexFieldName = null;
                     if (options.IncludeArrayIndex != null)
                     {
-                        includeArrayIndexFieldName = options.IncludeArrayIndex.Render(renderArgs.WithSerializer(outputSerializer)).FieldName;
+                        includeArrayIndexFieldName = options.IncludeArrayIndex.Render(renderArgs.WithNewDocumentType(outputSerializer)).FieldName;
                     }
 
                     BsonValue value = fieldName;

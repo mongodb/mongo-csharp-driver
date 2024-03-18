@@ -439,7 +439,7 @@ namespace MongoDB.Driver
                     var combinedFilter = Builders<BsonDocument>.Filter.And(
                         (BsonDocument)firstStage.Value,
                         (BsonDocument)secondStage.Value);
-                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(renderArgs.WithSerializer(BsonDocumentSerializer.Instance)));
+                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(renderArgs.WithNewDocumentType(BsonDocumentSerializer.Instance)));
 
                     rendered.Documents[0] = combinedStage;
                     rendered.Documents.RemoveAt(1);

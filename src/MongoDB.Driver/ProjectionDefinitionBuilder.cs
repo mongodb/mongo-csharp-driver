@@ -848,7 +848,7 @@ namespace MongoDB.Driver
                 itemSerializer = renderArgs.SerializerRegistry.GetSerializer<TItem>();
             }
 
-            var renderedFilter = _filter.Render(renderArgs.WithSerializer(itemSerializer));
+            var renderedFilter = _filter.Render(renderArgs.WithNewDocumentType(itemSerializer));
 
             return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
         }

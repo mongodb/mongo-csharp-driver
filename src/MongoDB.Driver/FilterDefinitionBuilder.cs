@@ -1874,7 +1874,7 @@ namespace MongoDB.Driver
                 itemSerializer = renderArgs.SerializerRegistry.GetSerializer<TItem>();
             }
 
-            var renderedFilter = _filter.Render(renderArgs.WithSerializer(itemSerializer));
+            var renderedFilter = _filter.Render(renderArgs.WithNewDocumentType(itemSerializer));
 
             return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
         }
@@ -2160,7 +2160,7 @@ namespace MongoDB.Driver
                 return renderedOfTypeFilter;
             }
 
-            var derivedDocumentRenderArgs = renderArgs.WithSerializer(renderArgs.SerializerRegistry.GetSerializer<TDerived>());
+            var derivedDocumentRenderArgs = renderArgs.WithNewDocumentType(renderArgs.SerializerRegistry.GetSerializer<TDerived>());
             var renderedDerivedDocumentFilter = _derivedDocumentFilter.Render(derivedDocumentRenderArgs);
             var combinedFilter = Builders<TDerived>.Filter.And(
                 new BsonDocumentFilterDefinition<TDerived>(renderedOfTypeFilter),
@@ -2200,7 +2200,7 @@ namespace MongoDB.Driver
                 return renderedDiscriminatorFilter;
             }
 
-            var derivedDocumentRenderArgs = renderArgs.WithSerializer(renderArgs.SerializerRegistry.GetSerializer<TDerived>());
+            var derivedDocumentRenderArgs = renderArgs.WithNewDocumentType(renderArgs.SerializerRegistry.GetSerializer<TDerived>());
             var unprefixedRenderedDerivedFilter = _derivedFieldFilter.Render(derivedDocumentRenderArgs);
             var renderedDerivedFilter = new BsonDocument(
                 unprefixedRenderedDerivedFilter.Select(e => new BsonElement(renderedField.FieldName + "." + e.Name, e.Value)));
