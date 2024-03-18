@@ -80,7 +80,7 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider));
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider));
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -150,7 +150,7 @@ namespace MongoDB.Driver
         public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider));
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
         public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry, _linqProvider));
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -664,7 +664,7 @@ namespace MongoDB.Driver
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry);
-            var validator = options.Validator?.Render(documentSerializer, serializerRegistry, _linqProvider);
+            var validator = options.Validator?.Render(new(documentSerializer, serializerRegistry, _linqProvider));
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
@@ -703,7 +703,7 @@ namespace MongoDB.Driver
         {
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(documentSerializer, serializerRegistry, _linqProvider).Documents;
+            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, _linqProvider)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
@@ -783,7 +783,7 @@ namespace MongoDB.Driver
             {
                 AuthorizedCollections = options?.AuthorizedCollections,
                 Comment = options?.Comment,
-                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider),
+                Filter = options?.Filter?.Render(new(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider)),
                 NameOnly = true,
                 RetryRequested = _client.Settings.RetryReads
             };
@@ -796,7 +796,7 @@ namespace MongoDB.Driver
             {
                 BatchSize = options?.BatchSize,
                 Comment = options?.Comment,
-                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider),
+                Filter = options?.Filter?.Render(new(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider)),
                 RetryRequested = _client.Settings.RetryReads
             };
         }

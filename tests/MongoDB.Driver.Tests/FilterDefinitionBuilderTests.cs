@@ -20,9 +20,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -1045,7 +1045,7 @@ namespace MongoDB.Driver.Tests
         private void Assert<TDocument>(FilterDefinition<TDocument> filter, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedFilter = filter.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedFilter = filter.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedFilter.Should().Be(expected);
         }
@@ -1345,7 +1345,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<DocumentWithUInt32Field>();
-            return filter.Render(documentSerializer, serializerRegistry);
+            return filter.Render(new(documentSerializer, serializerRegistry));
         }
 
         // nested types
@@ -1566,7 +1566,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<DocumentWithUInt64Field>();
-            return filter.Render(documentSerializer, serializerRegistry);
+            return filter.Render(new(documentSerializer, serializerRegistry));
         }
 
         // nested types

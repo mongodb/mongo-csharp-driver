@@ -218,11 +218,11 @@ namespace MongoDB.Driver.Search
             _default = @default;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> renderArgs) =>
            new()
            {
                 { "type", "date" },
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(renderArgs) },
                 { "boundaries", new BsonArray(_boundaries) },
                 { "default", _default, _default != null }
            };
@@ -242,11 +242,11 @@ namespace MongoDB.Driver.Search
             _default = @default;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> renderArgs) =>
             new()
             {
                 { "type", "number" },
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(renderArgs) },
                 { "boundaries", new BsonArray(_boundaries) },
                 { "default", _default, _default != null }
             };
@@ -264,11 +264,11 @@ namespace MongoDB.Driver.Search
             _numBuckets = Ensure.IsNullOrBetween(numBuckets, 1, 1000, nameof(numBuckets));
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> renderArgs) =>
             new()
             {
                 { "type", "string" },
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(renderArgs) },
                 { "numBuckets", _numBuckets, _numBuckets != null }
             };
     }

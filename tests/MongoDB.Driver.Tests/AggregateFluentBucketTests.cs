@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Bucket(groupBy, boundaries, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Bucket(groupBy, boundaries, output, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 

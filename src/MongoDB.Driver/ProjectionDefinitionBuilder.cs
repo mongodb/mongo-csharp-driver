@@ -20,7 +20,6 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -792,14 +791,9 @@ namespace MongoDB.Driver
             _projections = Ensure.IsNotNull(projections, nameof(projections)).ToList();
         }
 
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TSource> renderArgs)
         {
-            return Render(projection => projection.Render(sourceSerializer, serializerRegistry, linqProvider));
-        }
-
-        internal override BsonDocument RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render(projection => projection.RenderForFind(sourceSerializer, serializerRegistry, linqProvider));
+            return Render(projection => projection.Render(renderArgs));
         }
 
         private BsonDocument Render(Func<ProjectionDefinition<TSource>, BsonDocument> renderer)
@@ -833,9 +827,9 @@ namespace MongoDB.Driver
             _filter = filter;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TSource> renderArgs)
         {
-            var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(renderArgs);
 
             IBsonSerializer<TItem> itemSerializer;
             if (renderedField.FieldSerializer != null)
@@ -851,10 +845,10 @@ namespace MongoDB.Driver
             }
             else
             {
-                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+                itemSerializer = renderArgs.SerializerRegistry.GetSerializer<TItem>();
             }
 
-            var renderedFilter = _filter.Render(itemSerializer, serializerRegistry, linqProvider);
+            var renderedFilter = _filter.Render(renderArgs.WithNewDocumentType(itemSerializer));
 
             return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
         }
@@ -869,9 +863,9 @@ namespace MongoDB.Driver
             _field = Ensure.IsNotNull(field, nameof(field));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TSource> renderArgs)
         {
-            var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(renderArgs);
             return new BsonDocument(renderedField.FieldName + ".$", 1);
         }
     }
@@ -887,9 +881,9 @@ namespace MongoDB.Driver
             _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TSource> renderArgs)
         {
-            var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
+            var renderedField = _field.Render(renderArgs);
             return new BsonDocument(renderedField.FieldName, _value);
         }
     }
@@ -913,20 +907,10 @@ namespace MongoDB.Driver
             _limit = Ensure.IsNotNull(limit, nameof(limit));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TSource> renderArgs)
         {
-            return Render(sourceSerializer, serializerRegistry, linqProvider, RenderArgs);
-        }
-
-        internal override BsonDocument RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render(sourceSerializer, serializerRegistry, linqProvider, RenderArgsForFind);
-        }
-
-        private BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider, Func<string, BsonValue> argsRenderer)
-        {
-            var renderedField = _field.Render(sourceSerializer, serializerRegistry, linqProvider);
-            var sliceArgs = argsRenderer(renderedField.FieldName);
+            var renderedField = _field.Render(renderArgs);
+            var sliceArgs = renderArgs.IsAggregateMode ? RenderArgs(renderedField.FieldName) : RenderArgsForFind(renderedField.FieldName);
             return new BsonDocument(renderedField.FieldName, new BsonDocument("$slice", sliceArgs));
         }
 

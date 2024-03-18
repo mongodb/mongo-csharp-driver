@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(SearchSpanDefinition<TDocument> span, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedSpan = span.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
+            var renderedSpan = span.Render(new RenderArgs<TDocument>(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedSpan.Should().BeEquivalentTo(expected);
         }

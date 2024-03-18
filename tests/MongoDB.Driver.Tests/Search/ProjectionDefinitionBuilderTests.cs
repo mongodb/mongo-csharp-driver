@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(ProjectionDefinition<TDocument> projection, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedProjection.Should().BeEquivalentTo(expected);
         }

@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Search
             _analyzerName = Ensure.IsNotNull(analyzerName, nameof(analyzerName));
         }
 
-        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonValue Render(RenderArgs<TDocument> renderArgs) =>
             new BsonDocument()
             {
-                {  "value", RenderField(_field, renderContext) },
+                {  "value", RenderField(_field, renderArgs) },
                 {  "multi", _analyzerName }
             };
     }
@@ -129,8 +129,8 @@ namespace MongoDB.Driver.Search
             _fields = Ensure.IsNotNull(fields, nameof(fields)).ToArray();
         }
 
-        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new BsonArray(_fields.Select(field => RenderField(field, renderContext)));
+        public override BsonValue Render(RenderArgs<TDocument> renderArgs) =>
+            new BsonArray(_fields.Select(field => RenderField(field, renderArgs)));
     }
 
     internal sealed class SingleSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
@@ -142,8 +142,8 @@ namespace MongoDB.Driver.Search
             _field = Ensure.IsNotNull(field, nameof(field));
         }
 
-        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            RenderField(_field, renderContext);
+        public override BsonValue Render(RenderArgs<TDocument> renderArgs) =>
+            RenderField(_field, renderArgs);
     }
 
     internal sealed class WildcardSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Search
             _query = Ensure.IsNotNull(query, nameof(query));
         }
 
-        public override BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonValue Render(RenderArgs<TDocument> renderArgs) =>
             new BsonDocument("wildcard", _query);
     }
 }

@@ -1573,10 +1573,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _pipeline.Stages.Concat(new[] { _stage });
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> renderArgs)
         {
-            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
-            var renderedStage = _stage.Render(renderedPipeline.OutputSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = _pipeline.Render(renderArgs);
+            var renderedStage = _stage.Render(new(renderedPipeline.OutputSerializer, renderArgs.SerializerRegistry, renderArgs.LinqProvider));
             var documents = renderedPipeline.Documents.Concat(renderedStage.Documents);
             var outputSerializer = _outputSerializer ?? renderedStage.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1607,10 +1607,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => Enumerable.Empty<IPipelineStageDefinition>();
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TInput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TInput> Render(RenderArgs<TInput> renderArgs)
         {
             var documents = Enumerable.Empty<BsonDocument>();
-            return new RenderedPipelineDefinition<TInput>(documents, _inputSerializer ?? inputSerializer);
+            return new RenderedPipelineDefinition<TInput>(documents, _inputSerializer ?? renderArgs.DocumentSerializer);
         }
     }
 
@@ -1649,10 +1649,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => new[] { _stage }.Concat(_pipeline.Stages);
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> renderArgs)
         {
-            var renderedStage = _stage.Render(inputSerializer, serializerRegistry, linqProvider);
-            var renderedPipeline = _pipeline.Render(renderedStage.OutputSerializer, serializerRegistry, linqProvider);
+            var renderedStage = _stage.Render(renderArgs);
+            var renderedPipeline = _pipeline.Render(new(renderedStage.OutputSerializer, renderArgs.SerializerRegistry, renderArgs.LinqProvider));
             var documents = renderedStage.Documents.Concat(renderedPipeline.Documents);
             var outputSerializer = _outputSerializer ?? renderedPipeline.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1691,10 +1691,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _pipeline.Stages;
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> renderArgs)
         {
-            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
-            var outputSerializer = _outputSerializer ?? serializerRegistry.GetSerializer<TOutput>();
+            var renderedPipeline = _pipeline.Render(renderArgs);
+            var outputSerializer = _outputSerializer ?? renderArgs.SerializerRegistry.GetSerializer<TOutput>();
             return new RenderedPipelineDefinition<TOutput>(renderedPipeline.Documents, outputSerializer);
         }
     }
