@@ -101,7 +101,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          sh ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -229,7 +229,7 @@ functions:
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
           SKIP_LEGACY_SHELL=${SKIP_LEGACY_SHELL} \
-            sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
+            bash ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
       params:
@@ -245,7 +245,7 @@ functions:
           AUTH=${AUTH} \
           SSL=${SSL} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
-            sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
+            bash ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     - command: expansions.update
       params:
         file: mo-expansion.yml
