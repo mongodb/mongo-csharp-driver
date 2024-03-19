@@ -47,7 +47,7 @@ functions:
           fi
 
           if [ "${BUILD_TARGET}" = "release" ]; then
-            PACKAGE_VERSION=$(sh ./evergreen/get-version.sh)
+            PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
           fi
 
           export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
