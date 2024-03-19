@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -31,6 +32,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests;
 using Moq;
 using Xunit;
@@ -440,6 +442,37 @@ namespace MongoDB.Driver
             }
 
             exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task BulkWrite_should_enumerate_requests_once([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var document = new BsonDocument("_id", 1).Add("a", 1);
+            var requests = new WriteModel<BsonDocument>[]
+            {
+                new InsertOneModel<BsonDocument>(document)
+            };
+            var processedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 1,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 1,
+                modifiedCount: 0,
+                processedRequests: new[] { processedRequest },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+            var wrappedRequests = new Mock<IEnumerable<WriteModel<BsonDocument>>>();
+            wrappedRequests.Setup(e => e.GetEnumerator()).Returns(((IEnumerable<WriteModel<BsonDocument>>)requests).GetEnumerator());
+
+            var result = async ? await subject.BulkWriteAsync(wrappedRequests.Object) : subject.BulkWrite(wrappedRequests.Object);
+
+            wrappedRequests.Verify(e => e.GetEnumerator(), Times.Once);
+            result.Should().NotBeNull();
+            result.RequestCount.Should().Be(1);
+            result.ProcessedRequests.ShouldBeEquivalentTo(requests);
         }
 
         [Theory]

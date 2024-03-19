@@ -104,10 +104,10 @@ namespace MongoDB.Driver
         /// <param name="processedRequests">The processed requests.</param>
         protected BulkWriteResult(
             int requestCount,
-            IEnumerable<WriteModel<TDocument>> processedRequests)
+            IReadOnlyList<WriteModel<TDocument>> processedRequests)
             : base(requestCount)
         {
-            _processedRequests = processedRequests.ToList();
+            _processedRequests = processedRequests;
         }
 
         // public properties
@@ -130,16 +130,16 @@ namespace MongoDB.Driver
                     result.DeletedCount,
                     result.InsertedCount,
                     result.IsModifiedCountAvailable ? (long?)result.ModifiedCount : null,
-                    result.ProcessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)),
-                    result.Upserts.Select(u => BulkWriteUpsert.FromCore(u)));
+                    result.ProcessedRequests.Select(WriteModel<TDocument>.FromCore).ToArray(),
+                    result.Upserts.Select(BulkWriteUpsert.FromCore));
             }
 
             return new Unacknowledged(
                 result.RequestCount,
-                result.ProcessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)));
+                result.ProcessedRequests.Select(WriteModel<TDocument>.FromCore).ToArray());
         }
 
-        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result, IEnumerable<WriteModel<TDocument>> requests)
+        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result, IReadOnlyList<WriteModel<TDocument>> requests)
         {
             if (result.IsAcknowledged)
             {
@@ -150,7 +150,7 @@ namespace MongoDB.Driver
                     result.InsertedCount,
                     result.IsModifiedCountAvailable ? (long?)result.ModifiedCount : null,
                     requests,
-                    result.Upserts.Select(u => BulkWriteUpsert.FromCore(u)));
+                    result.Upserts.Select(BulkWriteUpsert.FromCore));
             }
 
             return new Unacknowledged(
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
 
             // constructors
             /// <summary>
-            /// Initializes a new instance of the <see cref="Acknowledged" /> class.
+            /// Initializes a new instance of the <see cref="BulkWriteResult{TDocument}.Acknowledged" /> class.
             /// </summary>
             /// <param name="requestCount">The request count.</param>
             /// <param name="matchedCount">The matched count.</param>
@@ -189,7 +189,7 @@ namespace MongoDB.Driver
                 long deletedCount,
                 long insertedCount,
                 long? modifiedCount,
-                IEnumerable<WriteModel<TDocument>> processedRequests,
+                IReadOnlyList<WriteModel<TDocument>> processedRequests,
                 IEnumerable<BulkWriteUpsert> upserts)
                 : base(requestCount, processedRequests)
             {
@@ -259,13 +259,13 @@ namespace MongoDB.Driver
         {
             // constructors
             /// <summary>
-            /// Initializes a new instance of the <see cref="Unacknowledged"/> class.
+            /// Initializes a new instance of the <see cref="BulkWriteResult{TDocument}.Unacknowledged"/> class.
             /// </summary>
             /// <param name="requestCount">The request count.</param>
             /// <param name="processedRequests">The processed requests.</param>
             public Unacknowledged(
                 int requestCount,
-                IEnumerable<WriteModel<TDocument>> processedRequests)
+                IReadOnlyList<WriteModel<TDocument>> processedRequests)
                 : base(requestCount, processedRequests)
             {
             }
