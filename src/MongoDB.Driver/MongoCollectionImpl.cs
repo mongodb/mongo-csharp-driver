@@ -218,27 +218,30 @@ namespace MongoDB.Driver
         public override BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(requests, nameof(requests));
-            if (!requests.Any())
+            Ensure.IsNotNull((object)requests, nameof(requests));
+
+            var requestList = requests.ToList();
+            if (requestList.Count == 0)
             {
-                throw new ArgumentException("Must contain at least 1 request.", "requests");
+                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
             }
-            foreach (var request in requests)
+
+            foreach (var request in requestList)
             {
                 request.ThrowIfNotValid();
             }
 
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(session, requests, options);
+            var operation = CreateBulkWriteOperation(session, requestList, options);
             try
             {
                 var result = ExecuteWriteOperation(session, operation, cancellationToken);
-                return BulkWriteResult<TDocument>.FromCore(result, requests);
+                return BulkWriteResult<TDocument>.FromCore(result, requestList);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestList);
             }
         }
 
@@ -250,27 +253,30 @@ namespace MongoDB.Driver
         public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(requests, nameof(requests));
-            if (!requests.Any())
+            Ensure.IsNotNull((object)requests, nameof(requests));
+
+            var requestList = requests.ToList();
+            if (requestList.Count == 0)
             {
-                throw new ArgumentException("Must contain at least 1 request.", "requests");
+                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
             }
-            foreach (var request in requests)
+
+            foreach (var request in requestList)
             {
                 request.ThrowIfNotValid();
             }
 
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(session, requests, options);
+            var operation = CreateBulkWriteOperation(session, requestList, options);
             try
             {
                 var result = await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
-                return BulkWriteResult<TDocument>.FromCore(result, requests);
+                return BulkWriteResult<TDocument>.FromCore(result, requestList);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestList);
             }
         }
 
