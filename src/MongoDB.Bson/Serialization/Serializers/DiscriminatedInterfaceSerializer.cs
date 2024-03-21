@@ -56,7 +56,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Type _interfaceType;
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly IBsonSerializer<TInterface> _interfaceSerializer;
-        private readonly IBsonSerializer<object> _objectSerializer;
 
         // constructors
         /// <summary>
@@ -96,18 +95,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface));
-            _objectSerializer = BsonSerializer.LookupSerializer<object>();
-            if (_objectSerializer is ObjectSerializer standardObjectSerializer)
-            {
-                _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);
-            }
-            else
-            {
-                if (discriminatorConvention != null)
-                {
-                    throw new BsonSerializationException("Can't set discriminator convention on custom object serializer.");
-                }
-            }
 
             _interfaceSerializer = interfaceSerializer;
         }
@@ -164,12 +151,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (value == null)
             {
                 bsonWriter.WriteNull();
+                return;
             }
-            else
-            {
-                args.NominalType = typeof(object);
-                _objectSerializer.Serialize(context, args, value);
-            }
+
+            args.DiscriminatorConvention = _discriminatorConvention;
+            var serializer = BsonSerializer.LookupSerializer(value.GetType());
+            serializer.Serialize(context, args, value);
         }
 
         /// <inheritdoc/>
