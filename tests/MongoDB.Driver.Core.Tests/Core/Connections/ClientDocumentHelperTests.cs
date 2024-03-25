@@ -19,7 +19,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
@@ -130,6 +132,44 @@ namespace MongoDB.Driver.Core.Connections
             var result = ClientDocumentHelper.CreateDriverDocument(driverVersion);
 
             result.Should().Be($"{{ name : 'mongo-csharp-driver', version : '{driverVersion}' }}");
+        }
+
+        [Theory]
+        [InlineData(true, true, "{ name : 'vercel', container : { \"runtime\" : \"docker\", \"orchestrator\" : \"kubernetes\" }}")]
+        [InlineData(false, true, "{ name : 'vercel', container : { \"orchestrator\" : \"kubernetes\" }}")]
+        [InlineData(true, false, "{ name : 'vercel', container : { \"runtime\" : \"docker\" }}")]
+        [InlineData(false, false, "{ name : 'vercel' }")]
+        public void CreateEnvDocument_should_return_expected_result(bool isDockerToBeDetected, bool isKubernetesToBeDetected, string expected)
+        {
+            var fileSystemProviderMock  = new Mock<IFileSystemProvider>();
+            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
+
+            if (isKubernetesToBeDetected)
+            {
+                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns("dummy");
+            }
+            else
+            {
+                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(null as string);
+            }
+
+            if (isDockerToBeDetected)
+            {
+                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(true);
+            }
+            else
+            {
+                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(false);
+
+            }
+
+            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
+            ClientDocumentHelper.SetFileSystemProvider(fileSystemProviderMock.Object);
+            using (new DisposableEnvironmentVariable("VERCEL"))
+            {
+                var result = ClientDocumentHelper.CreateEnvDocument();
+                result.Should().Be(expected);
+            }
         }
 
         [Fact]
