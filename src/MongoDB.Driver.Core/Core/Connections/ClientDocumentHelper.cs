@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Connections
         private static Lazy<BsonDocument> __osDocument;
         private static Lazy<string> __platformString;
         private static Lazy<IEnvironmentVariableProvider> __environmentVariableProvider;
-        private static Lazy<IFileSystemProvider> __filesystem;
+        private static Lazy<IFileSystemProvider> __fileSystemProvider;
 
         private static void Initialize()
         {
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
             __osDocument = new Lazy<BsonDocument>(CreateOSDocument);
             __platformString = new Lazy<string>(GetPlatformString);
             __environmentVariableProvider = new Lazy<IEnvironmentVariableProvider>(() => new EnvironmentVariableProvider());
-            __filesystem = new Lazy<IFileSystemProvider>(() => new FileSystemProvider());
+            __fileSystemProvider = new Lazy<IFileSystemProvider>(() => new FileSystemProvider());
         }
 
         static ClientDocumentHelper() => Initialize();
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static void SetFileSystemProvider(IFileSystemProvider fileSystemProvider)
         {
-            __filesystem = new Lazy<IFileSystemProvider>(() => fileSystemProvider);
+            __fileSystemProvider = new Lazy<IFileSystemProvider>(() => fileSystemProvider);
         }
 
         // private static methods
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Connections
 
             BsonDocument GetContainerDocument()
             {
-                var isExecutionContainerDocker = __filesystem.Value.File.Exists("/.dockerenv");
+                var isExecutionContainerDocker = __fileSystemProvider.Value.File.Exists("/.dockerenv");
                 var isOrchestratorKubernetes = __environmentVariableProvider.Value.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST") != null;
 
                 if (isExecutionContainerDocker || isOrchestratorKubernetes)
