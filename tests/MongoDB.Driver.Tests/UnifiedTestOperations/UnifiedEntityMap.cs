@@ -281,6 +281,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // public methods
+        public void AdjustSessionsClusterTime(BsonDocument clusterTime)
+        {
+            foreach (var session in _sessions.Values)
+            {
+                session.WrappedCoreSession.AdvanceClusterTime(clusterTime);
+            }
+        }
+
         public void Dispose()
         {
             if (!_disposed)
