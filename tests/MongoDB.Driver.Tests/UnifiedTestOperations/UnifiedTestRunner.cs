@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (initialData != null)
             {
-                AddInitialData(DriverTestConfiguration.Client, initialData);
+                AddInitialData(DriverTestConfiguration.Client, initialData, _entityMap);
             }
 
             foreach (var operation in operations)
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private void AddInitialData(IMongoClient client, BsonArray initialData)
+        private void AddInitialData(IMongoClient client, BsonArray initialData, UnifiedEntityMap entityMap)
         {
             var mongoCollectionSettings = new MongoCollectionSettings();
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -195,6 +195,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
+            BsonDocument serverTime = null;
             foreach (var dataItem in initialData)
             {
                 var collectionName = dataItem["collectionName"].AsString;
@@ -209,15 +210,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _logger.LogDebug("Dropping {0}", collectionName);
 
                 database.DropCollection(collectionName);
+                var session = client.StartSession();
                 if (documents.Any())
                 {
-                    collection.InsertMany(documents);
+                    collection.InsertMany(session, documents);
                 }
                 else
                 {
-                    database.WithWriteConcern(WriteConcern.WMajority).CreateCollection(collectionName);
+                    database.WithWriteConcern(WriteConcern.WMajority).CreateCollection(session, collectionName);
                 }
+
+                serverTime = session.ClusterTime;
             }
+
+            entityMap.AdjustSessionsClusterTime(serverTime);
         }
 
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
