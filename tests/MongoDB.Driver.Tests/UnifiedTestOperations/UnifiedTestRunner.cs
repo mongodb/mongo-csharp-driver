@@ -131,10 +131,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async);
             _entityMap.AddRange(entities);
+            var serverTime = AddInitialData(DriverTestConfiguration.Client, initialData);
 
-            if (initialData != null)
+            if (serverTime != null)
             {
-                AddInitialData(DriverTestConfiguration.Client, initialData);
+                _entityMap.AdjustSessionsClusterTime(serverTime);
             }
 
             foreach (var operation in operations)
@@ -185,8 +186,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private void AddInitialData(IMongoClient client, BsonArray initialData)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
         {
+            if (initialData == null)
+            {
+                return null;
+            }
+
             var mongoCollectionSettings = new MongoCollectionSettings();
 #pragma warning disable CS0618 // Type or member is obsolete
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -195,6 +201,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
+            BsonDocument serverTime = null;
             foreach (var dataItem in initialData)
             {
                 var collectionName = dataItem["collectionName"].AsString;
@@ -209,15 +216,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _logger.LogDebug("Dropping {0}", collectionName);
 
                 database.DropCollection(collectionName);
+                var session = client.StartSession();
                 if (documents.Any())
                 {
-                    collection.InsertMany(documents);
+                    collection.InsertMany(session, documents);
                 }
                 else
                 {
-                    database.WithWriteConcern(WriteConcern.WMajority).CreateCollection(collectionName);
+                    database.WithWriteConcern(WriteConcern.WMajority).CreateCollection(session, collectionName);
                 }
+
+                serverTime = session.ClusterTime;
             }
+
+            return serverTime;
         }
 
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
