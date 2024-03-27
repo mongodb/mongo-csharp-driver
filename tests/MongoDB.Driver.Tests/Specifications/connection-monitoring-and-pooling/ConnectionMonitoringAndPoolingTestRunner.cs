@@ -648,7 +648,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 var async = test.GetValue(Schema.async).ToBoolean();
                 cluster = CoreTestConfiguration.CreateCluster(b => b
                     .ConfigureServer(s => s.With(
-                        heartbeatInterval: TimeSpan.FromMinutes(10)))
+                        heartbeatInterval: TimeSpan.FromMinutes(10), serverMonitoringMode: ServerMonitoringMode.Poll))
                     .ConfigureConnectionPool(c => c.With(
                         maxConnecting: connectionPoolSettings.MaxConnecting,
                         maxConnections: connectionPoolSettings.MaxConnections,
