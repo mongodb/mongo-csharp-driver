@@ -29,7 +29,9 @@ namespace MongoDB.Driver
 
             if (session.IsInTransaction)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var transactionReadPreference = session.WrappedCoreSession.CurrentTransaction.TransactionOptions.ReadPreference;
+#pragma warning restore CS0618 // Type or member is obsolete
                 if (transactionReadPreference != null)
                 {
                     return transactionReadPreference;

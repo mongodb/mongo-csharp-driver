@@ -20,7 +20,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Compression
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class SnappyCompressor : ICompressor
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         public CompressorType Type => CompressorType.Snappy;
 

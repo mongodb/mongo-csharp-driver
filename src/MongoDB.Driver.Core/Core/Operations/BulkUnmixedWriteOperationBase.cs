@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal abstract class BulkUnmixedWriteOperationBase<TWriteRequest> : IWriteOperation<BulkWriteOperationResult>, IExecutableInRetryableWriteContext<BulkWriteOperationResult>
         where TWriteRequest : WriteRequest
     {
@@ -300,4 +301,5 @@ namespace MongoDB.Driver.Core.Operations
             public BulkWriteBatchResult Result;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

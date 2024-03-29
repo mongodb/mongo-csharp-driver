@@ -142,10 +142,12 @@ namespace MongoDB.Driver
             AggregateBucketAutoOptions options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
+#pragma warning disable CS0618 // Type or member is obsolete
             if (aggregate.Database.Client.Settings.LinqProvider != LinqProvider.V2)
             {
                 throw new InvalidOperationException("The BucketAutoForLinq2 method can only be used with LINQ2.");
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.BucketAutoForLinq2(groupBy, buckets, output, options));
         }

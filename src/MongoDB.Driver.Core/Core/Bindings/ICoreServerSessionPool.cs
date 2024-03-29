@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A server session pool.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     internal interface ICoreServerSessionPool
     {
         // methods

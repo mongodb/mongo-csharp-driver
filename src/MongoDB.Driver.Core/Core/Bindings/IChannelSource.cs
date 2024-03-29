@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a channel source.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IChannelSource : IDisposable
     {
         /// <summary>
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a channel source.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IChannelSourceHandle : IChannelSource
     {
         /// <summary>

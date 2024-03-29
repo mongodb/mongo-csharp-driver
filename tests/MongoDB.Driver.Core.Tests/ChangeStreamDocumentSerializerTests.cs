@@ -279,7 +279,7 @@ namespace MongoDB.Driver
         }
     }
 
-    public static class ChangeStreamDocumentSerializerReflector
+    internal static class ChangeStreamDocumentSerializerReflector
     {
         public static IBsonSerializer<BsonDocument> _documentSerializer(this ChangeStreamDocumentSerializer<BsonDocument> obj) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_documentSerializer));
     }

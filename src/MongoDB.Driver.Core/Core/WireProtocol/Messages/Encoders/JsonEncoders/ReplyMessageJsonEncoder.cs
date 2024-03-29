@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// Represents a JSON encoder for a Reply message.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class ReplyMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder
     {
         // fields

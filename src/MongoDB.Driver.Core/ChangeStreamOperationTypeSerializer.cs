@@ -22,6 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// A serializer for ChangeStreamOperationType values.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ChangeStreamOperationTypeSerializer : StructSerializerBase<ChangeStreamOperationType>
     {
         #region static

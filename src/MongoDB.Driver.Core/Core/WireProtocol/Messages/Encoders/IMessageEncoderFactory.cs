@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
@@ -20,6 +21,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// <summary>
     /// Represents a message encoder factory.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IMessageEncoderFactory
     {
         /// <summary>

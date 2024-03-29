@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a context for retryable reads.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
+    [Obsolete("This class will be removed in later release.")]
     public sealed class RetryableReadContext : IDisposable
     {
         #region static

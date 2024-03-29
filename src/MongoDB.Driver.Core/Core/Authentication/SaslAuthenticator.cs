@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Base class for a SASL authenticator.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class SaslAuthenticator : IAuthenticator
     {
         /// <summary>

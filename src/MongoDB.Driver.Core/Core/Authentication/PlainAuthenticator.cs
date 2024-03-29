@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// A PLAIN SASL authenticator.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class PlainAuthenticator : SaslAuthenticator
     {
         // static properties

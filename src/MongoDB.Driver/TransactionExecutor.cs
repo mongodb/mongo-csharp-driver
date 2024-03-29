@@ -234,7 +234,9 @@ namespace MongoDB.Driver
 
         private static bool IsTransactionInStartingOrInProgressState(IClientSessionHandle clientSession)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var currentTransaction = clientSession.WrappedCoreSession.CurrentTransaction;
+#pragma warning restore CS0618 // Type or member is obsolete
             if (currentTransaction == null)
             {
                 return false;

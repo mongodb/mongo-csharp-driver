@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
         public ClusterDescription ClusterDescription { get; }
         public long? OperationId { get; }
         public string OperationName { get; }
+        [Obsolete("This property will be removed in later release.")]
         public IServerSelector ServerSelector { get; }
         public TimeSpan RemainingTimeout { get; }
         public DateTime Timestamp { get; }
@@ -34,6 +35,7 @@ namespace MongoDB.Driver.Core.Events
         public ClusterId ClusterId => ClusterDescription.ClusterId;
         EventType IEvent.Type => EventType.ClusterEnteredSelectionWaitQueue;
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public ClusterEnteredSelectionQueueEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, long? operationId, string operationName, TimeSpan remainingTimeout)
         {
             ClusterDescription = clusterDescription;
@@ -43,5 +45,6 @@ namespace MongoDB.Driver.Core.Events
             RemainingTimeout = remainingTimeout;
             Timestamp = DateTime.UtcNow;
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

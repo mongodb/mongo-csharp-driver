@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a read command operation.
     /// </summary>
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
         // private fields

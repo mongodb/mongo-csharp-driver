@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
     /// <summary>
     /// Represents a base class for response messages.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class ResponseMessage : MongoDBMessage
     {
         // fields

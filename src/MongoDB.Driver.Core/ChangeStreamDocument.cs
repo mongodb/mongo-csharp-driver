@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     /// An output document from a $changeStream pipeline stage.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+#pragma warning disable CS0618 // Type or member is obsolete
     [BsonSerializer(typeof(ChangeStreamDocumentSerializer<>))]
     public sealed class ChangeStreamDocument<TDocument> : BsonDocumentBackedClass
     {
@@ -249,4 +250,5 @@ namespace MongoDB.Driver
         /// </value>
         public DateTime? WallTime => GetValue<DateTime?>(nameof(WallTime), null);
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

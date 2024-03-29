@@ -53,7 +53,9 @@ namespace MongoDB.Driver.Encryption
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             _cryptClient = CryptClientCreator.CreateCryptClient(cryptClientSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             _libMongoCryptController = new ExplicitEncryptionLibMongoCryptController(
                 _cryptClient,
@@ -442,7 +444,7 @@ namespace MongoDB.Driver.Encryption
                 throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but was {encryptedValue?.GetType()?.Name ?? "null"}.");
             }
         }
-
+#pragma warning disable CS0618 // Type or member is obsolete
         private void EnsureFeatureSupported(ICluster cluster, Feature feature, CancellationToken cancellationToken)
         {
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
@@ -464,5 +466,6 @@ namespace MongoDB.Driver.Encryption
                 feature.ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

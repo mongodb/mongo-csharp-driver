@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ChannelChannelSource : IChannelSource
     {
         // fields
@@ -89,4 +90,5 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

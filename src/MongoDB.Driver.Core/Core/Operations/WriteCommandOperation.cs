@@ -18,7 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -30,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a write command operation.
     /// </summary>
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         private ReadPreference _readPreference = ReadPreference.Primary;

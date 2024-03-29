@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an estimated document count operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class EstimatedDocumentCountOperation : IReadOperation<long>
     {
         // private fields

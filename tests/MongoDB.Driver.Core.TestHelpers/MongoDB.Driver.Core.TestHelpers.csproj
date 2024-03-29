@@ -23,4 +23,9 @@
     <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <NoWarn>
+      CS0618;CS0612; <!--Temporary disable obosolete warnings-->
+    </NoWarn>
+  </PropertyGroup>
 </Project>

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a stream factory.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IStreamFactory
     {
         /// <summary>

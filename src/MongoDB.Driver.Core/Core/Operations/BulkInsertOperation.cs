@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class BulkInsertOperation : BulkUnmixedWriteOperationBase<InsertRequest>
     {
         // constructors
@@ -68,4 +69,5 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsoletee
 }

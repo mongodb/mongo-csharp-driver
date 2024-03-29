@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// Represents a Json encoder for a CompressedMessage.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CompressedMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         private readonly MessageEncoderSettings _encoderSettings;

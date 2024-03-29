@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     /// <summary>
     /// Represents a connection pool.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IConnectionPool : IDisposable
     {
         // properties

@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Servers
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ServerMonitor : IServerMonitor
     {
         private readonly ServerDescription _baseDescription;
@@ -544,4 +545,5 @@ namespace MongoDB.Driver.Core.Servers
             public const int Disposed = 2;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

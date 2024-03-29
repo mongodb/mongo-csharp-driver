@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Clusters
     /// A cluster clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Clusters.IClusterClock" />
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class ClusterClock : IClusterClock
     {
         #region static
@@ -81,4 +82,5 @@ namespace MongoDB.Driver.Core.Clusters
         {
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

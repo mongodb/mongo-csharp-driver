@@ -123,7 +123,9 @@ namespace MongoDB.Driver.GridFS
             var wrappedFilter = WrapFilter(filter);
             var wrappedOptions = WrapFindOptions(options);
             var cursor = base.Find(wrappedFilter, wrappedOptions, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
             return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <inheritdoc />
@@ -133,7 +135,9 @@ namespace MongoDB.Driver.GridFS
             var wrappedFilter = WrapFilter(filter);
             var wrappedOptions = WrapFindOptions(options);
             var cursor = await base.FindAsync(wrappedFilter, wrappedOptions, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS0618 // Type or member is obsolete
             return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>

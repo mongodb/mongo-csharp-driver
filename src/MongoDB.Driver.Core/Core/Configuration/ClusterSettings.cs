@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents settings for a cluster.
     /// </summary>
@@ -34,10 +35,8 @@ namespace MongoDB.Driver.Core.Configuration
         #endregion
 
         // fields
-#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _connectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool? _directConnection;
         private readonly IReadOnlyList<EndPoint> _endPoints;
@@ -74,10 +73,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
         public ClusterSettings(
-#pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<ConnectionModeSwitch> connectionModeSwitch = default,
-#pragma warning restore CS0618 // Type or member is obsolete
             Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
@@ -93,10 +90,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> srvMaxHosts = default,
             Optional<string> srvServiceName = default(Optional<string>))
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _connectionModeSwitch = connectionModeSwitch.WithDefault(ConnectionModeSwitch.NotSet);
-#pragma warning restore CS0618 // Type or member is obsolete
             _cryptClientSettings = cryptClientSettings.WithDefault(null);
             _directConnection = directConnection.WithDefault(null);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
@@ -160,9 +155,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
@@ -313,10 +306,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
-#pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<ConnectionModeSwitch> connectionModeSwitch = default,
-#pragma warning restore CS0618 // Type or member is obsolete
             Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
@@ -359,9 +350,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return ClusterType.LoadBalanced;
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618 // Type or member is obsolete
             {
                 if (_directConnection.GetValueOrDefault())
                 {
@@ -381,7 +370,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
             else
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 switch (_connectionMode)
                 {
                     case ClusterConnectionMode.ReplicaSet:
@@ -393,8 +381,8 @@ namespace MongoDB.Driver.Core.Configuration
                     default:
                         return ClusterType.Unknown;
                 }
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -25,7 +25,9 @@ using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class AutoEncryptionLibMongoCryptController : LibMongoCryptControllerBase, IBinaryDocumentFieldDecryptor, IBinaryCommandFieldEncryptor
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         #region static
         public static AutoEncryptionLibMongoCryptController Create(IMongoClient client, CryptClient cryptClient, AutoEncryptionOptions autoEncryptionOptions)

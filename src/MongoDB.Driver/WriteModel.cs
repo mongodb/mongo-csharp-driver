@@ -39,6 +39,8 @@ namespace MongoDB.Driver
 
         // NOTE: we need to consider that these static methods
         // can be potentially called from outside of the Legacy code
+
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static WriteModel<TDocument> FromCore(WriteRequest request)
         {
             switch (request.RequestType)
@@ -120,6 +122,7 @@ namespace MongoDB.Driver
                 IsUpsert = request.IsUpsert
             };
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private static bool IsReplaceOneUpdate(BsonValue update)
         {

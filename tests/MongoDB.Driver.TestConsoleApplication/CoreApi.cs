@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.TestConsoleApplication
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     public class CoreApi
     {
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -85,6 +86,7 @@ namespace MongoDB.Driver.TestConsoleApplication
             Task.WaitAll(tasks.ToArray());
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private async Task ClearData(ICluster cluster)
         {
             using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
@@ -205,5 +207,6 @@ namespace MongoDB.Driver.TestConsoleApplication
                 await updateOp.ExecuteAsync(binding, linked.Token);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Misc
     /// A serializer for BatchableSource that serializes as much of the BatchableSource as fits in the max batch count and size.
     /// </summary>
     /// <typeparam name="TItem">The type of the items.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class SizeLimitingBatchableSourceSerializer<TItem> : SerializerBase<BatchableSource<TItem>>
     {
         // private fields

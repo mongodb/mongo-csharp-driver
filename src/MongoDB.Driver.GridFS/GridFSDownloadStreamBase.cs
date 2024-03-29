@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.GridFS
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal abstract class GridFSDownloadStreamBase<TFileId> : GridFSDownloadStream<TFileId>
     {
         // private fields
@@ -208,4 +209,5 @@ namespace MongoDB.Driver.GridFS
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

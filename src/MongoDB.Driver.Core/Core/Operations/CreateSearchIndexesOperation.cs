@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create search indexes operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     internal sealed class CreateSearchIndexesOperation : IWriteOperation<BsonDocument>
     {
         // fields

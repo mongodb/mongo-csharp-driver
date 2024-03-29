@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Represents a compressor source.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface ICompressorSource
     {
         /// <summary>
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Compression
         ICompressor Get(CompressorType compressorType);
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CompressorSource : ICompressorSource
     {
         #region static
@@ -103,4 +105,5 @@ namespace MongoDB.Driver.Core.Compression
             return CreateCompressor(compressorConfiguration);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
     /// <summary>
     /// Represents the changes that can be made to a message after it has been encoded.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IMessageEncoderPostProcessor
     {
         /// <summary>

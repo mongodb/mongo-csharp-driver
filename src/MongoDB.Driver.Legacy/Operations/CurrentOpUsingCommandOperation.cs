@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CurrentOpUsingCommandOperation : IReadOperation<BsonDocument>
     {
         // private fields
@@ -69,4 +70,5 @@ namespace MongoDB.Driver.Operations
             };
         }
     }
+
 }

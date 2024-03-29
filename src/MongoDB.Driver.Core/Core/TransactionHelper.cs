@@ -20,7 +20,9 @@ namespace MongoDB.Driver.Core
 {
     internal static class TransactionHelper
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static void UnpinServerIfNeededOnCommandException(ICoreSession session, Exception exception)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (session.IsInTransaction && ShouldUnpinServerOnCommandException(exception))
             {
@@ -28,7 +30,9 @@ namespace MongoDB.Driver.Core
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static void UnpinServerIfNeededOnRetryableCommitException(CoreTransaction transaction, Exception exception)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (ShouldUnpinServerOnRetryableCommitException(exception))
             {

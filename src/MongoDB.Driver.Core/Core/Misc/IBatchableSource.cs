@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Misc
     /// Represents a batch of items that can be split if not all items can be processed at once.
     /// </summary>
     /// <typeparam name="T">The type of the items.</typeparam>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IBatchableSource<out T>
     {
         // properties

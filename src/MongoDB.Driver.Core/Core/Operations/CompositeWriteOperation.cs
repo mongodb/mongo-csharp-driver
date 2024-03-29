@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class CompositeWriteOperation<TResult> : IWriteOperation<TResult>
     {
         private readonly (IWriteOperation<TResult> Operation, bool IsMainOperation)[] _operations;
@@ -63,3 +64,4 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete

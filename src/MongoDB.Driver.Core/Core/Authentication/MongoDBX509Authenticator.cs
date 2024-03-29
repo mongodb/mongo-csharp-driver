@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// A MongoDB-X509 authenticator.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class MongoDBX509Authenticator : IAuthenticator
     {
         // static properties

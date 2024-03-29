@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
@@ -20,6 +21,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// <summary>
     /// Represents a message encoder selector for compressed messages.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CompressedMessageEncoderSelector : IMessageEncoderSelector
     {
         private readonly IMessageEncoderSelector _originalEncoderSelector;

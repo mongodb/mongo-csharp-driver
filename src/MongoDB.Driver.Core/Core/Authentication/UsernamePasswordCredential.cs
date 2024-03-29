@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Represents a username/password credential.
     /// </summary>
+    [Obsolete("This methods be removed in later release.")]
     public sealed class UsernamePasswordCredential
     {
         // fields

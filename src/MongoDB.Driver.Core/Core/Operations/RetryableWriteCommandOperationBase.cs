@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a base class for a delete, insert or update command operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class RetryableWriteCommandOperationBase : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         // private fields

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Misc
     /// A serializer for BatchableSource that serializes a fixed count of items.
     /// </summary>
     /// <typeparam name="TItem">The type of the items.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class FixedCountBatchableSourceSerializer<TItem> : SerializerBase<BatchableSource<TItem>>
     {
         // private fields

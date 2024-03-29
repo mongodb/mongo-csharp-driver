@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a Find command operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, IExplainableOperation
     {
         #region static

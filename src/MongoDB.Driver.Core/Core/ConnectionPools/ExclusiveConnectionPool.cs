@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed partial class ExclusiveConnectionPool : IConnectionPool
     {
         // fields
@@ -140,13 +141,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal ListConnectionHolder ConnectionHolder => _connectionHolder;
 
         // public methods
+#pragma warning disable CS0618 // Type or member is obsolete
         public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             using var helper = new AcquireConnectionHelper(this);
             return helper.AcquireConnection(cancellationToken);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             using var helper = new AcquireConnectionHelper(this);
             return await helper.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -295,4 +300,5 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

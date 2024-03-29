@@ -47,6 +47,7 @@ namespace MongoDB.Driver
         public bool Snapshot { get; set;}
 
         // internal methods
+        [Obsolete("This method will be removed in later release.")]
         internal CoreSessionOptions ToCore(bool isImplicit = false)
         {
             var isCausallyConsistent = CausalConsistency ?? !Snapshot;

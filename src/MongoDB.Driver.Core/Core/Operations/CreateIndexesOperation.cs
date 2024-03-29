@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create indexes operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CreateIndexesOperation : IWriteOperation<BsonDocument>
     {
         // fields

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// The Mongo AWS authenticator.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class MongoAWSAuthenticator : SaslAuthenticator
     {
         // constants

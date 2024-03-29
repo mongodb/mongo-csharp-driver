@@ -92,7 +92,9 @@ namespace MongoDB.Benchmarks
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
             // Create libmongocrypt binding that will be used for decryption
+#pragma warning disable CS0618 // Type or member is obsolete
             _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
+#pragma warning restore CS0618 // Type or member is obsolete
             _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
         }
 

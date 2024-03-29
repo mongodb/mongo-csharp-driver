@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class InsertOpcodeOperationEmulator<TDocument> : IExecutableInRetryableWriteContext<WriteConcernResult>
     {
         // fields
@@ -202,4 +203,5 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

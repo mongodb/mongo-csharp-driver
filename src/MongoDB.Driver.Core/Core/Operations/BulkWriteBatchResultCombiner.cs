@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class BulkWriteBatchResultCombiner
     {
         // fields
@@ -169,4 +170,5 @@ namespace MongoDB.Driver.Core.Operations
             return CreateBulkWriteResult(remainingRequests.Count);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

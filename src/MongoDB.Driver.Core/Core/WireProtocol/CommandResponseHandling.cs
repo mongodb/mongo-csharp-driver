@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     /// <summary>
     /// Instructions for handling the response from a command.
     /// </summary>
+    [Obsolete("This enum will be removed in later release.")]
     public enum CommandResponseHandling
     {
         /// <summary>

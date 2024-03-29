@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CoreServerSessionPool : ICoreServerSessionPool
     {
         // private fields
@@ -55,8 +56,9 @@ namespace MongoDB.Driver
 
                 _pool.Clear(); // they're all about to expire
             }
-
+#pragma warning disable CS0612 // Type or member is obsolete
             return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         /// <inheritdoc />
@@ -145,4 +147,5 @@ namespace MongoDB.Driver
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// <summary>
     /// Represents the names of different encoder settings.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public static class MessageEncoderSettingsName
     {
         // encoder settings used by the binary encoders
@@ -118,6 +119,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// <summary>
     /// Represents settings for message encoders.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class MessageEncoderSettings : IEnumerable<KeyValuePair<string, object>>
     {
         // fields

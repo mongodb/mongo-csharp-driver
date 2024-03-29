@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create view operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CreateViewOperation : IWriteOperation<BsonDocument>
     {
         // private fields

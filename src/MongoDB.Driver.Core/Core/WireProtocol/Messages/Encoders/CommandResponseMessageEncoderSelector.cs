@@ -13,14 +13,17 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
     /// <summary>
     /// Represents a message encoder selector for CommandResponseMessages.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CommandResponseMessageEncoderSelector : IMessageEncoderSelector
     {
-        // public methods        
+        // public methods
         /// <inheritdoc />
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {

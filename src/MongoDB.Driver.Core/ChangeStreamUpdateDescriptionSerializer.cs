@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// A serialize for ChangeStreamUpdateDescription values.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ChangeStreamUpdateDescriptionSerializer : SealedClassSerializerBase<ChangeStreamUpdateDescription>
     {
         #region static

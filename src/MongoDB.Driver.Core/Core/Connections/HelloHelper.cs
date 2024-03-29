@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal static class HelloHelper
     {
         internal static BsonDocument AddClientDocumentToCommand(BsonDocument command, BsonDocument clientDocument)
@@ -119,4 +120,5 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a write binding to a writable server.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class WritableServerBinding : IReadWriteBinding
     {
         // fields

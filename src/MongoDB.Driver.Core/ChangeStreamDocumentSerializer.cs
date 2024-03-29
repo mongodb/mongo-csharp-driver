@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -20,12 +21,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-
     /// <summary>
     /// A serializer for ChangeStreamDocument instances.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class ChangeStreamDocumentSerializer<TDocument> : BsonDocumentBackedClassSerializer<ChangeStreamDocument<TDocument>>
+    [Obsolete("This class will be removed in later release.")]
+    internal class ChangeStreamDocumentSerializer<TDocument> : BsonDocumentBackedClassSerializer<ChangeStreamDocument<TDocument>>
     {
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;

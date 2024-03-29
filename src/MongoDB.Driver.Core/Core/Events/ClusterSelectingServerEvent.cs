@@ -27,7 +27,9 @@ namespace MongoDB.Driver.Core.Events
         private readonly ClusterDescription _clusterDescription;
         private readonly long? _operationId;
         private readonly string _operationName;
+#pragma warning disable CS0618 // Use auto property
         private readonly IServerSelector _serverSelector;
+#pragma warning restore CS0618 // Use auto property
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -37,7 +39,9 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverSelector">The server selector.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="operationName">The operation name.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public ClusterSelectingServerEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, long? operationId, string operationName)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
@@ -81,6 +85,7 @@ namespace MongoDB.Driver.Core.Events
         /// <summary>
         /// Gets the server selector.
         /// </summary>
+        [Obsolete("This property will be removed in later release.")]
         public IServerSelector ServerSelector
         {
             get { return _serverSelector; }

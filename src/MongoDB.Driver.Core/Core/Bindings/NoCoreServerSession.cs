@@ -18,6 +18,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class NoCoreServerSession : ICoreServerSession
     {
         #region static
@@ -51,4 +52,5 @@ namespace MongoDB.Driver.Core.Bindings
         {
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

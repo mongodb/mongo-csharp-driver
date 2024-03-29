@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a delete operation using the delete opcode.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class DeleteOpcodeOperation : IWriteOperation<WriteConcernResult>, IExecutableInRetryableWriteContext<WriteConcernResult>
     {
         // fields

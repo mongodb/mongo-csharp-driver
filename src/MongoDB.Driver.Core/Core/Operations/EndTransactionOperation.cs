@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Abstract base class for AbortTransactionOperation and CommitTransactionOperation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class EndTransactionOperation : IReadOperation<BsonDocument>
     {
         // private fields
@@ -143,6 +144,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// The abort transaction operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class AbortTransactionOperation : EndTransactionOperation
     {
         // public constructors
@@ -173,6 +175,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// The commit transaction operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class CommitTransactionOperation : EndTransactionOperation
     {
         // private fields
