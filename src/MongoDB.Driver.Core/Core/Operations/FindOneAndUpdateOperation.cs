@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a find one and update operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class FindOneAndUpdateOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields

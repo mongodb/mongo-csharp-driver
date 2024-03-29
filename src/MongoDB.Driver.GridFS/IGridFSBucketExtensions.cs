@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.GridFS
             return new CollectionNamespace(databaseNamespace, collectionName);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static MessageEncoderSettings GetMessageEncoderSettings<TFileId>(this IGridFSBucket<TFileId> bucket)
         {
             var databaseSettings = bucket.Database.Settings;
@@ -43,13 +44,12 @@ namespace MongoDB.Driver.GridFS
                 { MessageEncoderSettingsName.ReadEncoding,  databaseSettings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding,  databaseSettings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-#pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
                 messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, databaseSettings.GuidRepresentation);
             }
-#pragma warning restore 618
             return messageEncoderSettings;
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

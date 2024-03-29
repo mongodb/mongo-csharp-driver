@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ChannelChannelSource : IChannelSource
     {
         // fields
@@ -89,4 +90,5 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

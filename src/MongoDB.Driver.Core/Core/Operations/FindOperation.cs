@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a Find command operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, IExplainableOperation
     {
         #region static

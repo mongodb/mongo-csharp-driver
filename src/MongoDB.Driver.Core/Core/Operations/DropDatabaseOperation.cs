@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a drop database operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class DropDatabaseOperation : IWriteOperation<BsonDocument>
     {
         // fields

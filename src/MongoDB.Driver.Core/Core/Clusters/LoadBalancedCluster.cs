@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents the cluster that uses load balanced mode.
     /// </summary>
@@ -75,13 +76,11 @@ namespace MongoDB.Driver.Core.Clusters
             ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             Ensure.That(settings.ConnectionModeSwitch != ConnectionModeSwitch.UseConnectionMode, $"{nameof(ConnectionModeSwitch.UseConnectionMode)} must not be used for a {nameof(LoadBalancedCluster)}.");
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
                 Ensure.That(!settings.DirectConnection.GetValueOrDefault(), $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             }
-#pragma warning restore CS0618 // Type or member is obsolete
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
 
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, nameof(settings.EndPoints.Count));
@@ -104,10 +103,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             _description = ClusterDescription.CreateInitial(
                 _clusterId,
-#pragma warning disable CS0618 // Type or member is obsolete
                 ClusterConnectionMode.Automatic,
                 ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
                 null);
 
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
@@ -353,4 +350,5 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Disposed = 2;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

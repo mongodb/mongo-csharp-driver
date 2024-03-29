@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// A change stream operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public interface IChangeStreamOperation<TResult> : IReadOperation<IChangeStreamCursor<TResult>>
     {
         // properties
@@ -88,6 +89,7 @@ namespace MongoDB.Driver.Core.Operations
     /// A change stream operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result values.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
     {
         // private fields

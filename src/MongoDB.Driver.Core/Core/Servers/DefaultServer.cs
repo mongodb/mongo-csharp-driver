@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class DefaultServer : Server
     {
         #region static
@@ -50,10 +51,8 @@ namespace MongoDB.Driver.Core.Servers
         public DefaultServer(
             ClusterId clusterId,
             IClusterClock clusterClock,
-#pragma warning disable CS0618 // Type or member is obsolete
             ClusterConnectionMode clusterConnectionMode,
             ConnectionModeSwitch connectionModeSwitch,
-#pragma warning restore CS0618 // Type or member is obsolete
             bool? directConnection,
             ServerSettings settings,
             EndPoint endPoint,
@@ -305,4 +304,5 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

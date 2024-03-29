@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed partial class ExclusiveConnectionPool
     {
         // private methods
@@ -1045,4 +1046,5 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

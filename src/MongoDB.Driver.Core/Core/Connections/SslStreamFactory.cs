@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class SslStreamFactory : IStreamFactory
     {
         // fields
@@ -114,4 +115,5 @@ namespace MongoDB.Driver.Core.Connections
             return endPoint.ToString();
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

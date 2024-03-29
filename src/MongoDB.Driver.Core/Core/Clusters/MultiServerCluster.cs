@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a multi server cluster.
     /// </summary>
@@ -54,7 +55,6 @@ namespace MongoDB.Driver.Core.Clusters
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, "settings.EndPoints.Count");
 
-#pragma warning disable CS0618 // Type or member is obsolete
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
                 Ensure.That(!settings.DirectConnection.GetValueOrDefault(), "DirectConnection is not supported for a MultiServerCluster.");
@@ -64,7 +64,6 @@ namespace MongoDB.Driver.Core.Clusters
                 Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Standalone, $"{nameof(ClusterConnectionMode.Standalone)} is not supported for a {nameof(MultiServerCluster)}.");
                 Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Direct, $"{nameof(ClusterConnectionMode.Direct)} is not supported for a {nameof(MultiServerCluster)}.");
             }
-#pragma warning restore CS0618 // Type or member is obsolete
 
             _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber, loggerFactory);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
@@ -171,7 +170,6 @@ namespace MongoDB.Driver.Core.Clusters
                     return serverType == ServerType.ShardRouter;
 
                 case ClusterType.Unknown:
-#pragma warning disable CS0618 // Type or member is obsolete
                     if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
                     {
                         return true;
@@ -191,7 +189,6 @@ namespace MongoDB.Driver.Core.Clusters
                                 throw new MongoInternalException("Unexpected connection mode.");
                         }
                     }
-#pragma warning restore CS0618 // Type or member is obsolete
 
                 default:
                     throw new MongoInternalException("Unexpected cluster type.");
@@ -731,4 +728,5 @@ namespace MongoDB.Driver.Core.Clusters
                 (left ?? int.MinValue) >= (right ?? int.MinValue); // null is considered less than non null value
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

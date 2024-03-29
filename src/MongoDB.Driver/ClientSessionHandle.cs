@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,9 @@ namespace MongoDB.Driver
         // private fields
         private readonly IMongoClient _client;
         private readonly IClock _clock;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ICoreSessionHandle _coreSession;
+#pragma warning restore CS0618 // Type or member is obsolete
         private bool _disposed;
         private readonly ClientSessionOptions _options;
         private IServerSession _serverSession;
@@ -43,11 +45,13 @@ namespace MongoDB.Driver
         /// <param name="client">The client.</param>
         /// <param name="options">The options.</param>
         /// <param name="coreSession">The wrapped session.</param>
+        [Obsolete]
         public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
             : this(client, options, coreSession, SystemClock.Instance)
         {
         }
 
+        [Obsolete]
         internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock)
         {
             _client = client;
@@ -90,6 +94,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        [Obsolete("This property will be removed in later release.")]
         public ICoreSessionHandle WrappedCoreSession => _coreSession;
 
         // public methods
@@ -143,7 +148,9 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public IClientSessionHandle Fork()
         {
+#pragma warning disable CS0612 // Type or member is obsolete
             return new ClientSessionHandle(_client, _options, _coreSession.Fork());
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         /// <inheritdoc />

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
             result.Should().Be(0);
         }
 
-        public class DerivedFromChangeStreamDocumentSerializer<TDocument> : ChangeStreamDocumentSerializer<TDocument>
+        internal class DerivedFromChangeStreamDocumentSerializer<TDocument> : ChangeStreamDocumentSerializer<TDocument>
         {
             public DerivedFromChangeStreamDocumentSerializer(IBsonSerializer<TDocument> documentSerializer) : base(documentSerializer)
             {
@@ -279,7 +279,7 @@ namespace MongoDB.Driver
         }
     }
 
-    public static class ChangeStreamDocumentSerializerReflector
+    internal static class ChangeStreamDocumentSerializerReflector
     {
         public static IBsonSerializer<BsonDocument> _documentSerializer(this ChangeStreamDocumentSerializer<BsonDocument> obj) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_documentSerializer));
     }

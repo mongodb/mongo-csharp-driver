@@ -19,6 +19,7 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal interface IWireProtocol
     {
         bool MoreToCome { get; }
@@ -32,4 +33,5 @@ namespace MongoDB.Driver.Core.WireProtocol
         TResult Execute(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
         Task<TResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

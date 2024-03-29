@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -520,6 +520,7 @@ namespace MongoDB.Driver.GridFS
             return IndexExists(indexes, key);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private bool ChunksCollectionIndexesExist(IReadBindingHandle binding, CancellationToken cancellationToken)
         {
             var indexes = ListIndexes(binding, this.GetChunksCollectionNamespace(), cancellationToken);
@@ -726,7 +727,6 @@ namespace MongoDB.Driver.GridFS
 
         private GridFSUploadStream<TFileId> CreateUploadStream(IReadWriteBindingHandle binding, TFileId id, string filename, GridFSUploadOptions options)
         {
-#pragma warning disable 618
             var chunkSizeBytes = options.ChunkSizeBytes ?? _options.ChunkSizeBytes;
             var batchSize = options.BatchSize ?? (16 * 1024 * 1024 / chunkSizeBytes);
 
@@ -741,7 +741,6 @@ namespace MongoDB.Driver.GridFS
                 chunkSizeBytes,
                 batchSize,
                 options.DisableMD5);
-#pragma warning restore
         }
 
         private byte[] DownloadAsBytesHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
@@ -1033,4 +1032,5 @@ namespace MongoDB.Driver.GridFS
             return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

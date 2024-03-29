@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq
         /// but you can still select the V2 provider by configuring it in MongoClientSettings. The V2 LINQ provider is no
         /// longer being actively maintained and will eventually be removed.
         /// </summary>
+        [Obsolete("LINQ V2 provider will be removed, please use V3 provider instead.")]
         V2 = 2,
 
         /// <summary>
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.Linq
 
     internal static class LinqProviderExtensions
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static LinqProviderAdapter GetAdapter(this LinqProvider linqProvider) =>
             linqProvider switch
             {
@@ -44,5 +46,6 @@ namespace MongoDB.Driver.Linq
                 LinqProvider.V3 => LinqProviderAdapter.V3,
                 _ => throw new ArgumentException($"Unknown LINQ provider: {linqProvider}.", nameof(linqProvider))
             };
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

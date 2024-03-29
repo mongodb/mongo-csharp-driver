@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a channel source that is bound to a server.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class ServerChannelSource : IChannelSource
     {
         // fields

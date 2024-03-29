@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ConnectionInitializerContext
     {
         public ConnectionInitializerContext(ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators)
@@ -40,4 +41,5 @@ namespace MongoDB.Driver.Core.Connections
         ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken);
         Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

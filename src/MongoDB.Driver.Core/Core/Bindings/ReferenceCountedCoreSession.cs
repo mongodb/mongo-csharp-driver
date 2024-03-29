@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,13 +13,17 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Bindings
 {
     /// <summary>
     /// A reference counted core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.WrappingCoreSession" />
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ReferenceCountedCoreSession : WrappingCoreSession
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // private fields
         private readonly object _lock = new object();
@@ -30,7 +34,9 @@ namespace MongoDB.Driver.Core.Bindings
         /// Initializes a new instance of the <see cref="ReferenceCountedCoreSession"/> class.
         /// </summary>
         /// <param name="wrapped">The wrapped.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public ReferenceCountedCoreSession(ICoreSession wrapped)
+#pragma warning restore CS0618 // Type or member is obsolete
             : base(wrapped, ownsWrapped: true)
         {
             _referenceCount = 1;

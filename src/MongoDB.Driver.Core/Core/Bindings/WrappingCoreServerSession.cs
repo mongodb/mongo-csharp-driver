@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    [Obsolete("This class will be removed in later release.")]
     internal abstract class WrappingCoreServerSession : ICoreServerSession
     {
         // private fields

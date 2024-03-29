@@ -23,7 +23,9 @@ namespace MongoDB.Driver.Core.Servers
 {
     internal class ServerMonitorFactory : IServerMonitorFactory
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IConnectionFactory _connectionFactory;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ServerMonitorSettings _serverMonitorSettings;
@@ -31,7 +33,9 @@ namespace MongoDB.Driver.Core.Servers
 
         public ServerMonitorFactory(
             ServerMonitorSettings serverMonitorSettings,
+#pragma warning disable CS0618 // Type or member is obsolete
             IConnectionFactory connectionFactory,
+#pragma warning restore CS0618 // Type or member is obsolete
             IEventSubscriber eventSubscriber,
             ServerApi serverApi,
             ILoggerFactory loggerFactory)

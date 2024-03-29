@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -372,7 +372,9 @@ namespace MongoDB.Driver
                         { "startAtOperationTime", options.StartAtOperationTime, options.StartAtOperationTime != null }
                     };
                     var document = new BsonDocument(operatorName, renderedOptions);
+#pragma warning disable CS0618 // Type or member is obsolete
                     var outputSerializer = new ChangeStreamDocumentSerializer<TInput>(s);
+#pragma warning restore CS0618 // Type or member is obsolete
                     return new RenderedPipelineStageDefinition<ChangeStreamDocument<TInput>>(
                         operatorName,
                         document,
@@ -2065,10 +2067,12 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (linqProvider != LinqProvider.V2)
             {
                 throw new InvalidOperationException("ExpressionBucketOutputProjection can only be used with LINQ2.");
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return linqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
@@ -2104,10 +2108,12 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (linqProvider != LinqProvider.V2)
             {
                 throw new InvalidOperationException("The GroupExpressionProjection class can only be used with LINQ2.");
             }
+#pragma warning restore CS0618 // Type or member is obsolete
             return linqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
 

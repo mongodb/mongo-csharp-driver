@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a compressed message.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private readonly ICompressorSource _compressorSource;

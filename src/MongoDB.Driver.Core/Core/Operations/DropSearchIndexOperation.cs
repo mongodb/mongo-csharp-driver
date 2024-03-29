@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a drop index operation.
     /// </summary>
@@ -112,4 +113,5 @@ namespace MongoDB.Driver.Core.Operations
             ex?.Code == (int)ServerErrorCode.NamespaceNotFound ||
             ex?.ErrorMessage == "ns not found";
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

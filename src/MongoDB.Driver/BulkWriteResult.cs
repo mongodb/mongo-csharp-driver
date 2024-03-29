@@ -120,6 +120,7 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result)
         {
             if (result.IsAcknowledged)
@@ -157,7 +158,7 @@ namespace MongoDB.Driver
                 result.RequestCount,
                 requests);
         }
-
+#pragma warning restore CS0618 // Type or member is obsolete
         // nested classes
         /// <summary>
         /// Result from an acknowledged write concern.

@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// <summary>
     /// Represents an encodable message.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IEncodableMessage
     {
         // methods

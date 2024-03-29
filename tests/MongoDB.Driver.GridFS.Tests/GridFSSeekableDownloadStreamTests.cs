@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -132,10 +132,8 @@ namespace MongoDB.Driver.GridFS.Tests
             buffer.Last().Should().Be(0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Read_should_throw_when_buffer_is_null(
-            [Values(false, true)] bool async)
+        [Fact]
+        public void Read_should_throw_when_buffer_is_null()
         {
             var subject = CreateSubject();
 

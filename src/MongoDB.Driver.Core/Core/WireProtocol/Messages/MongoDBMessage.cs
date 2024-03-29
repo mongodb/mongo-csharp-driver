@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a base class for messages.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class MongoDBMessage : IEncodableMessage
     {
         // properties

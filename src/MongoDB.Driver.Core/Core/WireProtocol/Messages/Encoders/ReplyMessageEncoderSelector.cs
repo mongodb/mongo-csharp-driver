@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// Represents a message encoder selector for ReplyMessages.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class ReplyMessageEncoderSelector<TDocument> : IMessageEncoderSelector
     {
         // fields
@@ -37,7 +39,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
-        // methods        
+        // methods
         /// <inheritdoc />
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {

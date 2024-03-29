@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
@@ -18,6 +18,8 @@
   <PropertyGroup>
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
+      CS0618;CS0612; <!--Temporary disable obosolete warnings-->
+      xUnit1000; <!--A class containing test methods is not public (https://xunit.github.io/xunit.analyzers/rules/xUnit1000.html)-->
       xUnit1010; <!--The value is not convertible to the method parameter type (https://xunit.github.io/xunit.analyzers/rules/xUnit1010.html)-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
       xUnit1014; <!--MemberData should use nameof operator for member name (https://xunit.github.io/xunit.analyzers/rules/xUnit1014.html)-->

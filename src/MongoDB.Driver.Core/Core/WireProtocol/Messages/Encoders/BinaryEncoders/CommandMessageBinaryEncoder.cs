@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.MessageBinaryEncoderBase" />
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors

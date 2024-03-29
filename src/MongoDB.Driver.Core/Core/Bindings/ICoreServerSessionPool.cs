@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A server session pool.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     internal interface ICoreServerSessionPool
     {
         // methods

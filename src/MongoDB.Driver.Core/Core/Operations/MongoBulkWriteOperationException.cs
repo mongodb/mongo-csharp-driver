@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a bulk write operation exception.
     /// </summary>
@@ -156,4 +157,6 @@ namespace MongoDB.Driver.Core.Operations
             return sb.ToString();
         }
     }
+
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal static class ReadConcernHelper
     {
         public static BsonDocument GetReadConcernForCommand(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
@@ -74,4 +75,5 @@ namespace MongoDB.Driver.Core.Operations
         private static bool AreSessionsSupported(ConnectionDescription connectionDescription) =>
             connectionDescription?.HelloResult.LogicalSessionTimeout != null || connectionDescription?.ServiceId != null;
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

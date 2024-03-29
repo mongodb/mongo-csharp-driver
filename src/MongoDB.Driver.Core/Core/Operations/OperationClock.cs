@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -69,6 +70,7 @@ namespace MongoDB.Driver.Core.Operations
     /// An object that represents no operation clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Operations.IOperationClock" />
+    [Obsolete("This methods be removed in later release.")]
     public sealed class NoOperationClock : IOperationClock
     {
         /// <inheritdoc />

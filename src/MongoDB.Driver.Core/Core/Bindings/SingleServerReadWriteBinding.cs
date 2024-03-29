@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a read/write binding to a single server.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class SingleServerReadWriteBinding : IReadWriteBinding
     {
         // fields

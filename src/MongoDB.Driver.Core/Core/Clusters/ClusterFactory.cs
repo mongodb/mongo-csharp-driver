@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class ClusterFactory : IClusterFactory
     {
         // fields
@@ -55,7 +56,6 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             bool createSingleServerCluster;
-#pragma warning disable CS0618 // Type or member is obsolete
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
                 createSingleServerCluster = settings.DirectConnection.GetValueOrDefault();
@@ -81,7 +81,6 @@ namespace MongoDB.Driver.Core.Clusters
                         settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv
                     );
             }
-#pragma warning restore CS0618 // Type or member is obsolete
 
             if (createSingleServerCluster)
             {
@@ -143,4 +142,5 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// Represents a Json encoder for a CommandResponseMessage.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandResponseMessageJsonEncoder : IMessageEncoder
     {
         // private fields

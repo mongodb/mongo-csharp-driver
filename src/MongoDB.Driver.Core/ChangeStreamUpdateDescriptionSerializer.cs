@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// A serialize for ChangeStreamUpdateDescription values.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ChangeStreamUpdateDescriptionSerializer : SealedClassSerializerBase<ChangeStreamUpdateDescription>
     {
         #region static

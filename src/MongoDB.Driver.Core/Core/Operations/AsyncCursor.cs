@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an async cursor.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents.</typeparam>
+    [Obsolete("This class will be removed in later release, use IAsyncCursor instead.")]
     public class AsyncCursor<TDocument> : IAsyncCursor<TDocument>, ICursorBatchInfo
     {
         #region static

@@ -14,11 +14,14 @@
 */
 
 
+using System;
+
 namespace MongoDB.Driver.Core.Clusters
 {
     /// <summary>
     /// Represents a cluster factory.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IClusterFactory
     {
         // methods

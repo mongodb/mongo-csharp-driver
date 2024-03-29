@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
     /// <summary>
     /// Represents an event subscriber that records certain events to Windows performance counters.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class PerformanceCounterEventSubscriber : IEventSubscriber
     {
         //static 
