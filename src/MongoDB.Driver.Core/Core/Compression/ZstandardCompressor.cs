@@ -19,7 +19,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Compression
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class ZstandardCompressor : ICompressor
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // private constants
         private const int _defaultCompressionLevel = 6;

@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.MessageBinaryEncoderBase" />
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors

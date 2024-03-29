@@ -24,13 +24,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class ServerFactory : IClusterableServerFactory
     {
         // fields
-#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConnectionPoolFactory _connectionPoolFactory;
         private readonly bool? _directConnection;
         private readonly IServerMonitorFactory _serverMonitorFactory;
@@ -41,10 +40,8 @@ namespace MongoDB.Driver.Core.Servers
 
         // constructors
         public ServerFactory(
-#pragma warning disable CS0618 // Type or member is obsolete
             ClusterConnectionMode clusterConnectionMode,
             ConnectionModeSwitch connectionModeSwitch,
-#pragma warning restore CS0618 // Type or member is obsolete
             bool? directConnection,
             ServerSettings settings,
             IConnectionPoolFactory connectionPoolFactory,
@@ -96,4 +93,5 @@ namespace MongoDB.Driver.Core.Servers
                         _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber))
             };
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

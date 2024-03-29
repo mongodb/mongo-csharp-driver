@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.TestConsoleApplication
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     public class CoreApiSync
     {
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -206,4 +207,5 @@ namespace MongoDB.Driver.TestConsoleApplication
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -19,17 +19,21 @@ namespace MongoDB.Driver.Core.Bindings
     /// A handle to a core session that should not be disposed when the handle is disposed.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSessionHandle" />
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class NonDisposingCoreSessionHandle : WrappingCoreSession, ICoreSessionHandle
     {
         // private fields
         private readonly ICoreSession _wrapped;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="NonDisposingCoreSessionHandle" /> class.
         /// </summary>
         /// <param name="wrapped">The wrapped session.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public NonDisposingCoreSessionHandle(ICoreSession wrapped)
+#pragma warning restore CS0618 // Type or member is obsolete
             : base(wrapped, ownsWrapped: false)
         {
             _wrapped = wrapped;
@@ -37,7 +41,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         // public methods
         /// <inheritdoc />
+#pragma warning disable CS0618 // Type or member is obsolete
         public ICoreSessionHandle Fork()
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             ThrowIfDisposed();
             return new NonDisposingCoreSessionHandle(_wrapped);

@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CommandMessageFieldEncryptor
     {
         // private fields
@@ -178,4 +179,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             encoder.WriteMessage(unencryptedRequestMessage);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
+
 }

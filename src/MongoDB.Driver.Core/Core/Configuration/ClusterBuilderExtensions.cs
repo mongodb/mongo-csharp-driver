@@ -23,7 +23,6 @@ using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -159,7 +158,9 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var authenticatorFactory = new AuthenticatorFactory(() => CreateAuthenticator(connectionString, serverApi));
+#pragma warning restore CS0618 // Type or member is obsolete
                 builder = builder.ConfigureConnection(s => s.With(authenticatorFactories: new[] { authenticatorFactory }));
             }
             if (connectionString.ApplicationName != null)
@@ -265,26 +266,30 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             if (connectionString.AuthMechanism != null && connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
             {
                 return connectionString.AuthSource ?? defaultSource;
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource;
         }
 
         private static string GetDefaultAuthSource(ConnectionString connectionString)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (connectionString.AuthMechanism != null && (
                 connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
                 connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName))
             {
                 return "$external";
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return "admin";
         }
-
+#pragma warning disable CS0618 // Type or member is obsolete
         private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, ServerApi serverApi)
         {
             if (connectionString.Password != null)
@@ -298,11 +303,9 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new DefaultAuthenticator(credential, serverApi);
                 }
-#pragma warning disable 618
                 else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential, serverApi);
-#pragma warning restore 618
                 }
                 else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
                 {
@@ -343,6 +346,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             throw new NotSupportedException("Unable to create an authenticator.");
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #if NET472
         /// <summary>
@@ -352,6 +356,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="applicationName">The name of the application.</param>
         /// <param name="install">if set to <c>true</c> install the performance counters first.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("This methods be removed in later release.")]
         public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder builder, string applicationName, bool install = false)
         {
             Ensure.IsNotNull(builder, nameof(builder));
@@ -372,6 +377,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="builder">The builder.</param>
         /// <param name="traceSource">The trace source.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("This methods be removed in later release.")]
         public static ClusterBuilder TraceWith(this ClusterBuilder builder, TraceSource traceSource)
         {
             Ensure.IsNotNull(builder, nameof(builder));
@@ -386,6 +392,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="builder">The builder.</param>
         /// <param name="traceSource">The trace source.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("This methods be removed in later release.")]
         public static ClusterBuilder TraceCommandsWith(this ClusterBuilder builder, TraceSource traceSource)
         {
             Ensure.IsNotNull(builder, nameof(builder));

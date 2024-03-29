@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a base class for request messages.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class RequestMessage : MongoDBMessage
     {
         #region static

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core
     /// <summary>
     /// Connection pinning helper.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public static class ChannelPinningHelper
     {
         /// <summary>

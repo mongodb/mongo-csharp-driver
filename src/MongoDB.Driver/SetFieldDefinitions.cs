@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes an instances ListSetFieldDefinitions.
         /// </summary>
-        /// <param name="setFieldDefinitions">The set field defintions.</param>
+        /// <param name="setFieldDefinitions">The set field definitions.</param>
         public ListSetFieldDefinitions(IEnumerable<SetFieldDefinition<TDocument>> setFieldDefinitions)
         {
             _list = Ensure.IsNotNull(setFieldDefinitions, nameof(setFieldDefinitions)).ToList();

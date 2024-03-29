@@ -18,6 +18,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class CommandMessageDisposer : IDisposable
     {
         // private fields
@@ -66,4 +67,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

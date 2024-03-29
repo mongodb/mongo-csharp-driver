@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a compressed message.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CompressedMessage : MongoDBMessage
     {
         private readonly CompressorType _compressorType;

@@ -52,9 +52,9 @@ namespace MongoDB.Driver
         private readonly Dictionary<ClusterKey, ICluster> _registry = new Dictionary<ClusterKey, ICluster>();
 
         // methods
+#pragma warning disable CS0618 // Type or member is obsolete
         private ICluster CreateCluster(ClusterKey clusterKey)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var builder = new ClusterBuilder()
                 .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
                 .ConfigureServer(settings => ConfigureServer(settings, clusterKey))
@@ -63,7 +63,6 @@ namespace MongoDB.Driver
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)
             {
@@ -83,7 +82,6 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
             var connectionModeSwitch = clusterKey.ConnectionModeSwitch;
             Optional<ClusterConnectionMode> connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? clusterKey.ConnectionMode.ToCore() : default;
@@ -101,8 +99,8 @@ namespace MongoDB.Driver
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
                 scheme: clusterKey.Scheme);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)
         {
@@ -115,6 +113,7 @@ namespace MongoDB.Driver
                 waitQueueTimeout: clusterKey.WaitQueueTimeout);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
             var authenticatorFactories = clusterKey.Credentials.Select(c => new AuthenticatorFactory(() => c.ToAuthenticator(clusterKey.ServerApi)));
@@ -128,12 +127,11 @@ namespace MongoDB.Driver
                 applicationName: clusterKey.ApplicationName);
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings ConfigureSdamLogging(SdamLoggingSettings settings, ClusterKey clusterKey)
-#pragma warning restore CS0618 // Type or member is obsolete
         {
             return settings.With(logFilename: clusterKey.SdamLogFilename);
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private ServerSettings ConfigureServer(ServerSettings settings, ClusterKey clusterKey)
         {

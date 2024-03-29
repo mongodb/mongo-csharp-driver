@@ -197,7 +197,9 @@ namespace MongoDB.Driver.Tests
         private static MongoClient CreateLinq2Client()
         {
             var linq2ClientSettings = GetClientSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
             linq2ClientSettings.LinqProvider = LinqProvider.V2;
+#pragma warning restore CS0618 // Type or member is obsolete
             return new MongoClient(linq2ClientSettings);
         }
 
@@ -227,7 +229,9 @@ namespace MongoDB.Driver.Tests
 
         public static MongoClient GetLinqClient(LinqProvider linqProvider)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             return linqProvider == LinqProvider.V2 ? Linq2Client : Linq3Client;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public static bool IsReplicaSet(IMongoClient client)

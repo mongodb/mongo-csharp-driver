@@ -396,6 +396,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
+#pragma warning disable CS0618 // Type or member is obsolete
         internal IAuthenticator ToAuthenticator(ServerApi serverApi)
         {
             var passwordEvidence = _evidence as PasswordEvidence;
@@ -411,11 +412,9 @@ namespace MongoDB.Driver
                 {
                     return new DefaultAuthenticator(credential, serverApi);
                 }
-#pragma warning disable 618
                 if (_mechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential, serverApi);
-#pragma warning restore 618
                 }
                 if (_mechanism == ScramSha1Authenticator.MechanismName)
                 {
@@ -468,6 +467,7 @@ namespace MongoDB.Driver
 
             throw new NotSupportedException("Unable to create an authenticator.");
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         // internal static methods
         internal static MongoCredential FromComponents(string mechanism, string source, string username, string password)

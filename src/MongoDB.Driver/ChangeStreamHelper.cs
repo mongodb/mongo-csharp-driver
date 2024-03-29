@@ -22,6 +22,7 @@ using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal static class ChangeStreamHelper
     {
         // public static methods
@@ -160,4 +161,5 @@ namespace MongoDB.Driver
             operation.StartAtOperationTime = options.StartAtOperationTime;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

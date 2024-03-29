@@ -28,7 +28,9 @@ namespace MongoDB.Driver.Core.Events
         private readonly Exception _exception;
         private readonly long? _operationId;
         private readonly string _operationName;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IServerSelector _serverSelector;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -39,7 +41,9 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
         /// <param name="operationName">The operation name.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public ClusterSelectingServerFailedEvent(ClusterDescription clusterDescription, IServerSelector serverSelector, Exception exception, long? operationId, string operationName)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
@@ -92,6 +96,7 @@ namespace MongoDB.Driver.Core.Events
         /// <summary>
         /// Gets the server selector.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public IServerSelector ServerSelector
         {
             get { return _serverSelector; }

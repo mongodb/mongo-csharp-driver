@@ -20,7 +20,9 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class WriteConcernHelper
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static BsonDocument GetEffectiveWriteConcern(ICoreSession session, WriteConcern writeConcern)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (!session.IsInTransaction && writeConcern != null && !writeConcern.IsServerDefault)
             {

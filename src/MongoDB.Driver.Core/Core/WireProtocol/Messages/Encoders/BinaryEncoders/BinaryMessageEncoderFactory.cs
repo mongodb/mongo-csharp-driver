@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a factory for binary message encoders.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class BinaryMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields

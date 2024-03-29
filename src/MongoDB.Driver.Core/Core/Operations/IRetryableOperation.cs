@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an operation (that may or may not be retryable) that can be executed in a retryable read context.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IExecutableInRetryableReadContext<TResult>
     {
         /// <summary>
@@ -45,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an operation (that may or may not be retryable) that can be executed in a retryable write context.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IExecutableInRetryableWriteContext<TResult>
     {
         /// <summary>
@@ -68,6 +71,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a retryable read operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IRetryableReadOperation<TResult> : IExecutableInRetryableReadContext<TResult>
     {
         /// <summary>
@@ -95,6 +99,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a retryable write operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IRetryableWriteOperation<TResult> : IExecutableInRetryableWriteContext<TResult>
     {
         /// <summary>

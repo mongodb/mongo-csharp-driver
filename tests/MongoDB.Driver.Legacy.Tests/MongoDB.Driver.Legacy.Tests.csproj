@@ -17,6 +17,7 @@
 
   <PropertyGroup>
     <NoWarn>
+      CS0618;CS0612; <!--Temporary disable obosolete warnings-->
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
       xUnit1024; <!--Test methods cannot have overloads (https://xunit.github.io/xunit.analyzers/rules/xUnit1024.html)-->

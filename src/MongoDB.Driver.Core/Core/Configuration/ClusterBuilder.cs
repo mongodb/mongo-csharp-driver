@@ -48,7 +48,9 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning restore CS0618 // Type or member is obsolete
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
+#pragma warning disable CS0618 // Type or member is obsolete
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
+#pragma warning restore CS0618 // Type or member is obsolete
         private TcpStreamSettings _tcpStreamSettings;
 
         // constructors
@@ -196,6 +198,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="wrapper">The stream factory wrapper.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("This method will be removed in later release.")]
         public ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
         {
             Ensure.IsNotNull(wrapper, nameof(wrapper));
@@ -232,7 +235,9 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
         private IClusterFactory CreateClusterFactory()
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var serverFactory = CreateServerFactory();
 
@@ -243,7 +248,9 @@ namespace MongoDB.Driver.Core.Configuration
                 _loggingSettings?.ToInternalLoggerFactory());
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private IConnectionPoolFactory CreateConnectionPoolFactory()
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var streamFactory = CreateTcpStreamFactory(_tcpStreamSettings);
 
@@ -288,8 +295,10 @@ namespace MongoDB.Driver.Core.Configuration
 
         private IServerMonitorFactory CreateServerMonitorFactory()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var serverMonitorConnectionSettings = _connectionSettings
                 .With(authenticatorFactories: new IAuthenticatorFactory[] { });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var heartbeatConnectTimeout = _tcpStreamSettings.ConnectTimeout;
             if (heartbeatConnectTimeout == TimeSpan.Zero || heartbeatConnectTimeout == Timeout.InfiniteTimeSpan)
@@ -328,7 +337,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _clusterSettings.ServerApi,
                 _loggingSettings.ToInternalLoggerFactory());
         }
-
+#pragma warning disable CS0618 // Type or member is obsolete
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)
         {
             var streamFactory = (IStreamFactory)new TcpStreamFactory(tcpStreamSettings);
@@ -339,5 +348,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             return _streamFactoryWrapper(streamFactory);
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

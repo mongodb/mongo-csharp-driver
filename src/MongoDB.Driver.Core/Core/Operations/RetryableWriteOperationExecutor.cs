@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
@@ -180,4 +181,5 @@ namespace MongoDB.Driver.Core.Operations
             retryException == null ||
             retryException is MongoException && !(retryException is MongoConnectionException || retryException is MongoConnectionPoolPausedException);
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

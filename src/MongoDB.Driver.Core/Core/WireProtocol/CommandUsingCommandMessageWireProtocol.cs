@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CommandUsingCommandMessageWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
         private readonly ICoreSession _session;
-        // streamable fields
+                              // streamable fields
         private bool _moreToCome = false; // MoreToCome from the previous response
         private int _previousRequestId; // RequestId from the previous response
 
@@ -374,13 +375,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 AddIfNotAlreadyAdded("$clusterTime", _session.ClusterTime);
             }
-#pragma warning disable 618
             Action<BsonWriterSettings> writerSettingsConfigurator = null;
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
                 writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
             }
-#pragma warning restore 618
 
             _session.AboutToSendCommand();
             if (_session.IsInTransaction)
@@ -470,12 +469,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (_messageEncoderSettings != null)
                 {
                     binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-#pragma warning disable 618
                     if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                     {
                         binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
                     }
-#pragma warning restore 618
                 };
 
                 BsonValue clusterTime;
@@ -600,4 +597,5 @@ namespace MongoDB.Driver.Core.WireProtocol
                 innerException: exception);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

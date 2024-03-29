@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -69,6 +70,7 @@ namespace MongoDB.Driver.Core.Operations
     /// An object that represents no operation clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Operations.IOperationClock" />
+    [Obsolete("This methods be removed in later release.")]
     public sealed class NoOperationClock : IOperationClock
     {
         /// <inheritdoc />

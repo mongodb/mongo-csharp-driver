@@ -45,7 +45,9 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static BulkWriteError FromCore(Core.Operations.BulkWriteOperationError error)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             return new BulkWriteError(error.Index, error.Category, error.Code, error.Message, error.Details);
         }

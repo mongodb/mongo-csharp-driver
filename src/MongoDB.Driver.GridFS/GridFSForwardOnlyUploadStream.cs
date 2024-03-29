@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.GridFS
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class GridFSForwardOnlyUploadStream<TFileId> : GridFSUploadStream<TFileId>
     {
         #region static
@@ -297,6 +298,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private BulkMixedWriteOperation CreateAbortOperation()
         {
             var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
@@ -309,7 +311,7 @@ namespace MongoDB.Driver.GridFS
                 WriteConcern = _bucket.Options.WriteConcern
             };
         }
-
+#pragma warning restore CS0618 // Type or member is obsolete
         private BsonDocument CreateFilesCollectionDocument()
         {
             var uploadDateTime = DateTime.UtcNow;
@@ -552,4 +554,5 @@ namespace MongoDB.Driver.GridFS
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

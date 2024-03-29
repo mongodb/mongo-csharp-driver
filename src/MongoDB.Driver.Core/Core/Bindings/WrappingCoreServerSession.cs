@@ -19,6 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    [Obsolete("This class will be removed in later release.")]
     internal abstract class WrappingCoreServerSession : ICoreServerSession
     {
         // private fields

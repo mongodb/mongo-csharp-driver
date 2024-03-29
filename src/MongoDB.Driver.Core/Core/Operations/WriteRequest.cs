@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a request to write something to the database.
     /// </summary>
     [Serializable]
+    [Obsolete("This class will be removed in later release.")]
     public abstract class WriteRequest
     {
         // fields

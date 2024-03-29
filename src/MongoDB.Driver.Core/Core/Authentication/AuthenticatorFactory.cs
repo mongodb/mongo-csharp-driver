@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Represents an authenticator factory.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public class AuthenticatorFactory : IAuthenticatorFactory
     {
         private readonly Func<IAuthenticator> _authenticatorFactoryFunc;

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents a command request message.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandRequestMessage : RequestMessage
     {
         // private fields

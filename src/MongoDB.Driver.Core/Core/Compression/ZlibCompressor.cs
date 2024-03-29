@@ -25,7 +25,9 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Compressor according to the zlib algorithm.
     /// </summary> 
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ZlibCompressor : ICompressor
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         private readonly CompressionLevel _compressionLevel;
 

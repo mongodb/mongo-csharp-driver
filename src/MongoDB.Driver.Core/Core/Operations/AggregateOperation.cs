@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an aggregate operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result values.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>, IExecutableInRetryableReadContext<IAsyncCursor<TResult>>
     {
         // fields

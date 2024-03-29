@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a request to insert a document.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class InsertRequest : WriteRequest
     {
         // fields

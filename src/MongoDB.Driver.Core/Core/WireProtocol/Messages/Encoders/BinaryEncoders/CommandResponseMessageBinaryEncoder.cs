@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// Represents a binary encoder for a CommandResponseMessage.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandResponseMessageBinaryEncoder : IMessageEncoder
     {
         // private fields

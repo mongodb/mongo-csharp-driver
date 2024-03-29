@@ -19,6 +19,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Encryption
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class NoopBinaryDocumentFieldCryptor : IBinaryDocumentFieldDecryptor, IBinaryCommandFieldEncryptor
     {
         public byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken)
@@ -41,4 +42,5 @@ namespace MongoDB.Driver.Encryption
             return Task.FromResult(unencryptedCommandBytes);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

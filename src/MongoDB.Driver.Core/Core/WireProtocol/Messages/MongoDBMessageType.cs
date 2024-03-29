@@ -14,11 +14,14 @@
 */
 
 
+using System;
+
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
     /// <summary>
     /// Represents the type of message.
     /// </summary>
+    [Obsolete("This enum will be removed in later release.")]
     public enum MongoDBMessageType
     {
         /// <summary>

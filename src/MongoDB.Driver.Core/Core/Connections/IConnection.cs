@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IConnection : IDisposable
     {
         // properties
@@ -143,6 +144,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a handle to a connection.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IConnectionHandle : IConnection
     {
         // methods

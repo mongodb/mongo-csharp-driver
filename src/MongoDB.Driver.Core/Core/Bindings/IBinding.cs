@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// Represents a read or write binding associated with a session.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
+    [Obsolete("This interface will be removed in later release.")]
     public interface IBinding : IDisposable
     {
         /// <summary>
@@ -38,6 +39,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a binding that determines which channel source gets used for read operations.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IReadBinding : IBinding
     {
         /// <summary>
@@ -66,6 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a binding that determines which channel source gets used for write operations.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IWriteBinding : IBinding
     {
         /// <summary>
@@ -102,6 +105,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a binding that can be used for both read and write operations.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IReadWriteBinding : IReadBinding, IWriteBinding
     {
     }
@@ -109,6 +113,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a read binding.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IReadBindingHandle : IReadBinding
     {
         /// <summary>
@@ -121,6 +126,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a write binding.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IWriteBindingHandle : IWriteBinding
     {
         /// <summary>
@@ -133,6 +139,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a read-write binding.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IReadWriteBindingHandle : IReadWriteBinding, IReadBindingHandle, IWriteBindingHandle
     {
         /// <summary>
@@ -145,6 +152,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents the criteria for using a secondary for operations that may use a secondary.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IMayUseSecondaryCriteria
     {
         /// <summary>

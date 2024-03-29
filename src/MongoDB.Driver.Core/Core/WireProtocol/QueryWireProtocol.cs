@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class QueryWireProtocol<TDocument> : IWireProtocol<CursorBatch<TDocument>>
     {
         // fields
@@ -59,7 +60,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
-#pragma warning disable 618
             : this(
                   collectionNamespace,
                   query,
@@ -75,7 +75,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                   awaitData,
                   serializer,
                   messageEncoderSettings)
-#pragma warning restore 618
         {
         }
 
@@ -118,7 +117,6 @@ namespace MongoDB.Driver.Core.WireProtocol
         // methods
         private QueryMessage CreateMessage()
         {
-#pragma warning disable 618
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
                 _collectionNamespace,
@@ -133,7 +131,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _oplogReplay,
                 _tailableCursor,
                 _awaitData);
-#pragma warning restore 618
         }
 
         public CursorBatch<TDocument> Execute(IConnection connection, CancellationToken cancellationToken)
@@ -179,4 +176,5 @@ namespace MongoDB.Driver.Core.WireProtocol
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

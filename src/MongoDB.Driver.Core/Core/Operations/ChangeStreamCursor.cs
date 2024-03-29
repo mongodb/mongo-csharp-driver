@@ -33,8 +33,10 @@ namespace MongoDB.Driver.Core.Operations
     internal sealed class ChangeStreamCursor<TDocument> : IChangeStreamCursor<TDocument>
     {
         // private fields
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IReadBinding _binding;
         private readonly IChangeStreamOperation<TDocument> _changeStreamOperation;
+#pragma warning restore CS0618 // Type or member is obsolete
         private IEnumerable<TDocument> _current;
         private IAsyncCursor<RawBsonDocument> _cursor;
         private bool _disposed;
@@ -68,8 +70,10 @@ namespace MongoDB.Driver.Core.Operations
         public ChangeStreamCursor(
             IAsyncCursor<RawBsonDocument> cursor,
             IBsonSerializer<TDocument> documentSerializer,
+#pragma warning disable CS0618 // Type or member is obsolete
             IReadBinding binding,
             IChangeStreamOperation<TDocument> changeStreamOperation,
+#pragma warning restore CS0618 // Type or member is obsolete
             BsonDocument aggregatePostBatchResumeToken,
             BsonTimestamp initialOperationTime,
             BsonDocument initialStartAfter,

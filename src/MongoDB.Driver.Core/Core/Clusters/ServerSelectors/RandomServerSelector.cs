@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Misc;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects a random server.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class RandomServerSelector : IServerSelector
     {
         // constructors

@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ExclusiveConnectionPoolFactory : IConnectionPoolFactory
     {
         // fields
@@ -48,4 +49,5 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, connectionExceptionHandler, _loggerFactory.CreateEventLogger<LogCategories.Connection>(_eventSubscriber));
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

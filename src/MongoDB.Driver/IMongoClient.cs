@@ -244,7 +244,7 @@ namespace MongoDB.Driver
         /// Lists the databases on the server.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="options">The options.</param>        
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A Task whose result is a cursor.

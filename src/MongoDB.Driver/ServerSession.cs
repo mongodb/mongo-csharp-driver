@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     internal sealed class ServerSession : IServerSession
     {
         // private fields
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ICoreServerSession _coreServerSession;
 
         // constructors
@@ -33,6 +34,7 @@ namespace MongoDB.Driver
         {
             _coreServerSession = Ensure.IsNotNull(coreServerSession, nameof(coreServerSession));
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         // public properties
         /// <inheritdoc />

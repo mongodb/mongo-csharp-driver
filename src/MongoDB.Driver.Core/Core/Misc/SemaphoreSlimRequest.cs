@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Misc
     /// <summary>
     /// Represents a tentative request to acquire a SemaphoreSlim.
     /// </summary>
+    [Obsolete("This methods be removed in later release.")]
     public sealed class SemaphoreSlimRequest : IDisposable
     {
         // private fields

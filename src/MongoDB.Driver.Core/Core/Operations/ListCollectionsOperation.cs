@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a list collections operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields

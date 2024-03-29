@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     /// <summary>
     /// Represents an element name validator that will validate element names for either an update or a replacement based on whether the first element name starts with a "$".
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class UpdateOrReplacementElementNameValidator : IElementNameValidator
     {
         // private fields

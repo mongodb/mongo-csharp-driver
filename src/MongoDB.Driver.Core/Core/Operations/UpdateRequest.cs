@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a request to update one or more documents.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class UpdateRequest : WriteRequest
     {
         // fields

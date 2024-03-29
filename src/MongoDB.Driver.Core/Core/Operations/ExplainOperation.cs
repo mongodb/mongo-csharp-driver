@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an explainable operation.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IExplainableOperation
     {
         /// <summary>
@@ -42,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an explain operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class ExplainOperation : IReadOperation<BsonDocument>, IWriteOperation<BsonDocument>
     {
         // fields

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a group operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class GroupOperation<TResult> : IReadOperation<IEnumerable<TResult>>
     {
         // fields

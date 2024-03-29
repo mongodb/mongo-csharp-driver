@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an aggregate operation that writes the results to an output collection.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields

@@ -14,6 +14,7 @@
   <PropertyGroup>
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
+      CS0618;CS0612; <!--Temporary disable obosolete warnings-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
       xUnit1024; <!--Test methods cannot have overloads (https://xunit.github.io/xunit.analyzers/rules/xUnit1024.html)-->
       xUnit1025; <!--InlineData should be unique within the Theory it belongs to (https://xunit.github.io/xunit.analyzers/rules/xUnit1025.html)-->

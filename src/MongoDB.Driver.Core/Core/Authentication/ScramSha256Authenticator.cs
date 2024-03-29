@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// A SCRAM-SHA256 SASL authenticator.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class ScramSha256Authenticator : ScramShaAuthenticator
     {
         // static properties

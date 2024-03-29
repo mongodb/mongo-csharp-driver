@@ -38,7 +38,9 @@ namespace MongoDB.Driver.TestConsoleApplication
         private static void ConfigureCluster(ClusterBuilder cb)
         {
 #if NET472
+#pragma warning disable CS0618 // Type or member is obsolete
             cb.UsePerformanceCounters("test", true);
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif
         }
     }

@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// This class contains extension methods for ICluster used for server selection with sharded transactions.
     /// </summary>
@@ -87,4 +88,5 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

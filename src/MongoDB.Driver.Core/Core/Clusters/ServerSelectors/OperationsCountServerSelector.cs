@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class OperationsCountServerSelector : IServerSelector
     {
         private readonly IEnumerable<IClusterableServer> _clusterableServers;
@@ -62,4 +63,5 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         public override string ToString() =>
             nameof(OperationsCountServerSelector);
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

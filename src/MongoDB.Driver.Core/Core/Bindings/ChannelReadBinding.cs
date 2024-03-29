@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a read binding that is bound to a channel.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class ChannelReadBinding : IReadBinding
     {
         // fields

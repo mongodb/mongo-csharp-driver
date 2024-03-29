@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// Acquires a core server session.
         /// </summary>
         /// <returns>A core server session.</returns>
+        [Obsolete("This method will be removed in later release.")]
         ICoreServerSession AcquireServerSession();
 
         /// <summary>
@@ -72,12 +73,14 @@ namespace MongoDB.Driver.Core.Clusters
         /// </summary>
         /// <returns>A crypt client.</returns>
 #pragma warning disable CS3003
+        [Obsolete("This property will be removed in later release.")]
         CryptClient CryptClient { get; }
 #pragma warning restore
 
         /// <summary>
         /// Initializes the cluster.
         /// </summary>
+        [Obsolete("This method will be removed in later release.")]
         void Initialize();
 
         /// <summary>
@@ -86,6 +89,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The selected server.</returns>
+        [Obsolete("This method will be removed in later release.")]
         IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
 
         /// <summary>
@@ -94,6 +98,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
+        [Obsolete("This method will be removed in later release.")]
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
 
         /// <summary>
@@ -103,6 +108,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <returns>
         /// A session.
         /// </returns>
+        [Obsolete("This method will be removed in later release.")]
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }
 }

@@ -41,7 +41,9 @@ namespace MongoDB.Driver.GridFS
         // constructors
         public GridFSSeekableDownloadStream(
             GridFSBucket<TFileId> bucket,
+#pragma warning disable CS0618 // Type or member is obsolete
             IReadBinding binding,
+#pragma warning restore CS0618 // Type or member is obsolete
             GridFSFileInfo<TFileId> fileInfo)
             : base(bucket, binding, fileInfo)
         {
@@ -147,17 +149,16 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<BsonDocument> CreateGetChunkOperation(long n)
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
-#pragma warning disable 618
             var filter = new BsonDocument
             {
                 { "files_id", _idAsBsonValue },
                 { "n", n }
             };
-#pragma warning restore
 
             return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,
@@ -170,7 +171,7 @@ namespace MongoDB.Driver.GridFS
             };
 
         }
-
+#pragma warning restore CS0618 // Type or member is obsolete
         private void GetChunk(long n, CancellationToken cancellationToken)
         {
             var operation = CreateGetChunkOperation(n);

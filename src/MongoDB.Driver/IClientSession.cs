@@ -89,6 +89,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The wrapped core session.
         /// </value>
+        [Obsolete("This property will be removed in later release.")]
         ICoreSessionHandle WrappedCoreSession { get; }
 
         // methods
@@ -167,6 +168,7 @@ namespace MongoDB.Driver
         /// Forks this instance.
         /// </summary>
         /// <returns>A session.</returns>
+        [Obsolete("This method will be removed in later release.")]
         IClientSessionHandle Fork();
     }
 }

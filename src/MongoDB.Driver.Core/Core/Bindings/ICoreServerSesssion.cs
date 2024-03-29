@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The interface for a core server session.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface ICoreServerSession : IDisposable
     {
         // properties

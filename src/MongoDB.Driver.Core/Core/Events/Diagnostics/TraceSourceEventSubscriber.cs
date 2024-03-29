@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
     /// <summary>
     /// An event subscriber that writes to a trace source.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class TraceSourceEventSubscriber : IEventSubscriber
     {
         private readonly TraceSource _traceSource;

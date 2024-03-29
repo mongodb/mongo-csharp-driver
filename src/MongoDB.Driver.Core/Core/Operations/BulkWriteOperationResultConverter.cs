@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsoletes
     internal class BulkWriteOperationResultConverter
     {
         // constructors
@@ -122,4 +123,5 @@ namespace MongoDB.Driver.Core.Operations
             return new WriteConcernResult(getLastErrorResponse);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Logging
                 ClusterCommonParams(PreviousDescription, NewDescription),
                 (e, _) => GetParams(e.ClusterId, "Topology description changed", e.OldDescription, e.NewDescription));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             AddTemplateProvider<ClusterSelectingServerEvent>(
               LogLevel.Debug,
               ServerSelectionCommonParams(),
@@ -93,6 +94,7 @@ namespace MongoDB.Driver.Core.Logging
                     e.ClusterDescription.ToString(),
                     "Server selection failed",
                     FormatException(e.Exception, s)));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             AddTemplateProvider<ClusterClosingEvent>(
                 LogLevel.Debug,

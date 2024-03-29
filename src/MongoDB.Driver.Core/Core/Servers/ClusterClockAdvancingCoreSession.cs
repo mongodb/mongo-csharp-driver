@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ClusterClockAdvancingCoreSession : WrappingCoreSession
     {
         private readonly IClusterClock _clusterClock;
@@ -38,4 +39,5 @@ namespace MongoDB.Driver.Core.Servers
             _clusterClock.AdvanceClusterTime(newClusterTime);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }
