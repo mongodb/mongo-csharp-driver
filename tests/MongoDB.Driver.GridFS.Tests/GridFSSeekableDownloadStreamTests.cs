@@ -132,10 +132,8 @@ namespace MongoDB.Driver.GridFS.Tests
             buffer.Last().Should().Be(0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Read_should_throw_when_buffer_is_null(
-            [Values(false, true)] bool async)
+        [Fact]
+        public void Read_should_throw_when_buffer_is_null()
         {
             var subject = CreateSubject();
 
