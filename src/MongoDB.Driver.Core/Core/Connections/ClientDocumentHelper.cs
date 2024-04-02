@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -30,6 +31,8 @@ namespace MongoDB.Driver.Core.Connections
         private static Lazy<BsonDocument> __envDocument;
         private static Lazy<BsonDocument> __osDocument;
         private static Lazy<string> __platformString;
+        private static IEnvironmentVariableProvider __environmentVariableProvider;
+        private static IFileSystemProvider __fileSystemProvider;
 
         private static void Initialize()
         {
@@ -37,9 +40,21 @@ namespace MongoDB.Driver.Core.Connections
             __envDocument = new Lazy<BsonDocument>(CreateEnvDocument);
             __osDocument = new Lazy<BsonDocument>(CreateOSDocument);
             __platformString = new Lazy<string>(GetPlatformString);
+            __environmentVariableProvider = EnvironmentVariableProvider.Instance;
+            __fileSystemProvider = FileSystemProvider.Instance;
         }
 
         static ClientDocumentHelper() => Initialize();
+
+        internal static void SetEnvironmentVariableProvider(IEnvironmentVariableProvider environmentVariableProvider)
+        {
+            __environmentVariableProvider = environmentVariableProvider;
+        }
+
+        internal static void SetFileSystemProvider(IFileSystemProvider fileSystemProvider)
+        {
+            __fileSystemProvider = fileSystemProvider;
+        }
 
         // private static methods
         internal static BsonDocument CreateClientDocument(string applicationName, LibraryInfo libraryInfo)
@@ -107,13 +122,15 @@ namespace MongoDB.Driver.Core.Connections
                 var timeout = GetTimeoutSec(name);
                 var memoryDb = GetMemoryMb(name);
                 var region = GetRegion(name);
+                var container = GetContainerDocument();
 
                 return new BsonDocument
                 {
                     { "name", name },
                     { "timeout_sec", timeout, timeout.HasValue },
                     { "memory_mb", memoryDb, memoryDb.HasValue },
-                    { "region", region, region != null }
+                    { "region", region, region != null },
+                    { "container", container, container != null }
                 };
             }
             else
@@ -175,6 +192,23 @@ namespace MongoDB.Driver.Core.Connections
                     gcpFuncName => GetIntValue("FUNCTION_TIMEOUT_SEC"),
                     _ => null,
                 };
+
+            BsonDocument GetContainerDocument()
+            {
+                var isExecutionContainerDocker = __fileSystemProvider.File.Exists("/.dockerenv");
+                var isOrchestratorKubernetes = __environmentVariableProvider.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST") != null;
+
+                if (isExecutionContainerDocker || isOrchestratorKubernetes)
+                {
+                    return new()
+                    {
+                        { "runtime", "docker", isExecutionContainerDocker },
+                        { "orchestrator", "kubernetes", isOrchestratorKubernetes }
+                    };
+                }
+
+                return null;
+            }
 
             int? GetIntValue(string environmentVariable) =>
                 int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
