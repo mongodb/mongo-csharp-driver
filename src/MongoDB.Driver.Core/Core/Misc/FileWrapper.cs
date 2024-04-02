@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Misc
         bool Exists(string name);
     }
 
-    internal class FileWrapper : IFile
+    internal sealed class FileWrapper : IFile
     {
         public bool Exists(string name)
         {

@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (isExecutionContainerDocker || isOrchestratorKubernetes)
                 {
-                    return new BsonDocument
+                    return new()
                     {
                         { "runtime", "docker", isExecutionContainerDocker },
                         { "orchestrator", "kubernetes", isOrchestratorKubernetes }

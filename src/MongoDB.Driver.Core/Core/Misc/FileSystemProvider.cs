@@ -25,9 +25,7 @@ namespace MongoDB.Driver.Core.Misc
 
     internal class FileSystemProvider : IFileSystemProvider
     {
-        private static readonly IFileSystemProvider __instance = new FileSystemProvider();
-        public static IFileSystemProvider Instance => __instance;
-
+        public static IFileSystemProvider Instance { get; } = new FileSystemProvider();
         public IFile File { get; } = new FileWrapper();
     }
 }
