@@ -1,0 +1,155 @@
+/* Copyright 2021-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+using System.Linq;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
+{
+    public class RetryWriteOnOtherMongos : LoggableTestClass
+    {
+        public RetryWriteOnOtherMongos(ITestOutputHelper output) : base(output, includeAllCategories: true)
+        {
+        }
+
+        [Fact]
+        public void Sharded_cluster_retryable_writes_are_retried_on_different_mongos_if_available()
+        {
+            RequireServer.Check()
+                .Supports(Feature.FailPointsFailCommandForSharded)
+                .ClusterTypes(ClusterType.Sharded)
+                .MultipleMongoses(true);
+
+            var failPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: { times: 1 },
+                    data:
+                    {
+                        failCommands: [""insert""],
+                        errorCode: 6,
+                        errorLabels: [""RetryableWriteError""]
+                    }
+                }");
+
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandFailedEvent>();
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(
+                s =>
+                {
+                    s.RetryWrites = true;
+                    s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+                }
+                , LoggingSettings, true);
+
+            var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
+            var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
+
+            using var failPoint1 = FailPoint.Configure(failPointServer1, NoCoreSession.NewHandle(), failPointCommand);
+            using var failPoint2 = FailPoint.Configure(failPointServer2, NoCoreSession.NewHandle(), failPointCommand);
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            Assert.Throws<MongoCommandException>(() =>
+            {
+                collection.InsertOne(new BsonDocument("x", 1));
+            });
+
+            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(2);
+
+            var event1 = eventCapturer.Events[0].As<CommandFailedEvent>();
+            var event2 = eventCapturer.Events[1].As<CommandFailedEvent>();
+            event1.CommandName.Should().Be(event2.CommandName).And.Be("insert");
+            event1.ConnectionId.ServerId().Should().NotBe(event2.ConnectionId.ServerId());
+
+            // Assert the deprioritization debug message was emitted for deprioritized server.
+            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(1);
+        }
+
+        [Fact]
+        public void Sharded_cluster_retryable_writes_are_retried_on_same_mongo_if_no_other_is_available()
+        {
+            RequireServer.Check()
+                .Supports(Feature.FailPointsFailCommandForSharded)
+                .ClusterTypes(ClusterType.Sharded);
+
+            var failPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: { times: 1 },
+                    data:
+                    {
+                        failCommands: [""insert""],
+                        errorCode: 6,
+                        errorLabels: [""RetryableWriteError""]
+                    }
+                }");
+
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandFailedEvent>()
+                .Capture<CommandSucceededEvent>();
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(
+                s =>
+                {
+                    s.RetryWrites = true;
+                    s.DirectConnection = false;
+                    s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+                }
+                , LoggingSettings, true);
+
+            var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
+
+            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            // clear command succeeded events captured from initial hello
+            eventCapturer.Clear();
+
+            collection.InsertOne(new BsonDocument("x", 1));
+
+            eventCapturer.Events.Count.Should().Be(2);
+            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(1);
+            eventCapturer.Events.OfType<CommandSucceededEvent>().Count().Should().Be(1);
+
+            var event1 = eventCapturer.Events[0].As<CommandFailedEvent>();
+            var event2 = eventCapturer.Events[1].As<CommandSucceededEvent>();
+            event1.CommandName.Should().Be(event2.CommandName).And.Be("insert");
+            event1.ConnectionId.ServerId().Should().Be(event2.ConnectionId.ServerId());
+
+            // Assert the deprioritization debug messages were emitted
+            // one for deprioritizing the failpointServer and another for
+            // reverting the deprioritization since we have no other suitable servers in this test
+            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(2);
+        }
+    }
+}
