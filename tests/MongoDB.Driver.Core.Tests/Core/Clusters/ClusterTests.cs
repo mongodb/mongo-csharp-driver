@@ -413,6 +413,101 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void SelectServer_should_ignore_deprioritized_servers_if_cluster_is_sharded(
+            [Values(false, true)]
+            bool async)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var subject = CreateSubject(ClusterConnectionMode.Sharded);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            subject.Initialize();
+
+            var endPoint1 = new DnsEndPoint("localhost", 27017);
+            var endPoint2 = new DnsEndPoint("localhost", 27018);
+            var endPoint3 = new DnsEndPoint("localhost", 27019);
+            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint1);
+            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint2);
+            var connected3 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint3);
+            subject.SetServerDescriptions(connected1, connected2, connected3);
+
+            var selector = new DelegateServerSelector((c, s) => s);
+
+            var deprioritizedServers = new List<ServerDescription> { connected1 };
+
+            for (int i = 0; i < 15; i++)
+            {
+                _capturedEvents.Clear();
+
+                IServer result;
+                if (async)
+                {
+                    result = subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
+                }
+
+                result.Should().NotBeNull();
+
+                var deprioritizedServersEndpoints = deprioritizedServers.Select(description => description.EndPoint);
+                deprioritizedServersEndpoints.Should().NotContain(result.Description.EndPoint);
+
+                _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+                _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+                _capturedEvents.Any().Should().BeFalse();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void SelectServer_should_return_deprioritized_servers_if_no_other_servers_exist_or_cluster_not_sharded(
+            [Values(false, true)] bool async,
+            [Values(false, true)] bool IsSharded)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            StubCluster subject = IsSharded ? CreateSubject(ClusterConnectionMode.Sharded) : CreateSubject();
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            subject.Initialize();
+
+            var endPoint1 = new DnsEndPoint("localhost", 27017);
+            var endPoint2 = new DnsEndPoint("localhost", 27018);
+            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint1);
+            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint2);
+            subject.SetServerDescriptions(connected1, connected2);
+
+            var selector = new DelegateServerSelector((c, s) => s);
+
+            var deprioritizedServers = new List<ServerDescription> { connected1, connected2 };
+
+            for (int i = 0; i < 15; i++)
+            {
+                _capturedEvents.Clear();
+                IServer result;
+                if (async)
+                {
+                    result = subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
+                }
+
+                result.Should().NotBeNull();
+
+                var deprioritizedServersEndpoints = deprioritizedServers.Select(description => description.EndPoint);
+                deprioritizedServersEndpoints.Should().Contain(result.Description.EndPoint);
+
+                _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+                _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+                _capturedEvents.Any().Should().BeFalse();
+            }
+        }
+
         [Fact]
         public void StartSession_should_return_expected_result()
         {
@@ -591,6 +686,7 @@ namespace MongoDB.Driver.Core.Clusters
             public override void Initialize()
             {
                 base.Initialize();
+                UpdateClusterDescription(Description.WithType(Settings.GetInitialClusterType()));
             }
 
             public void RemoveServer(EndPoint endPoint)
