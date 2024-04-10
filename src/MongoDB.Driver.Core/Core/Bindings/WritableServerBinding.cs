@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
@@ -62,51 +63,86 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc/>
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
-
-            return CreateServerChannelSource(server);
+            return GetReadChannelSource(null, cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
+            return await GetReadChannelSourceAsync(null, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, deprioritizedServers, cancellationToken);
+            return CreateServerChannelSource(server);
+        }
+
+        /// <inheritdoc />
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
         /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
+            return GetWriteChannelSource(deprioritizedServers: null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, deprioritizedServers, cancellationToken);
             return CreateServerChannelSource(server);
         }
 
         /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
+            return GetWriteChannelSource(null, mayUseSecondary, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
             if (IsSessionPinnedToServer())
             {
                 throw new InvalidOperationException($"This overload of {nameof(GetWriteChannelSource)} cannot be called when pinned to a server.");
             }
 
             var selector = new WritableServerSelector(mayUseSecondary);
-            var server = _cluster.SelectServer(selector, cancellationToken);
+            var server = _cluster.SelectServer(selector, deprioritizedServers, cancellationToken);
             return CreateServerChannelSource(server);
         }
 
         /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
+            return await GetWriteChannelSourceAsync(deprioritizedServers: null, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
         /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
+            return await GetWriteChannelSourceAsync(null, mayUseSecondary, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             if (IsSessionPinnedToServer())
             {
@@ -114,7 +150,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             var selector = new WritableServerSelector(mayUseSecondary);
-            var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(selector, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 

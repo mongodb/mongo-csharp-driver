@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -81,6 +82,18 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(GetChannelSourceHelper());
         }
 
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSource(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSourceAsync(cancellationToken);
+        }
+
         /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
@@ -88,10 +101,22 @@ namespace MongoDB.Driver.Core.Bindings
             return GetChannelSourceHelper();
         }
 
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetWriteChannelSource(cancellationToken);
+        }
+
         /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             return GetWriteChannelSource(cancellationToken); // ignore mayUseSecondary
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
+            return GetWriteChannelSource(mayUseSecondary, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -101,10 +126,22 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(GetChannelSourceHelper());
         }
 
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetWriteChannelSourceAsync(cancellationToken);
+        }
+
         /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             return GetWriteChannelSourceAsync(cancellationToken); // ignore mayUseSecondary
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
+            return GetWriteChannelSourceAsync(mayUseSecondary, cancellationToken);
         }
 
         private IChannelSourceHandle GetChannelSourceHelper()

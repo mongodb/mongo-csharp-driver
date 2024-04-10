@@ -14,10 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Bindings
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
-        // properties        
+        // properties
         /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
@@ -88,6 +87,18 @@ namespace MongoDB.Driver.Core.Bindings
         {
             ThrowIfDisposed();
             return Task.FromResult<IChannelSourceHandle>(GetReadChannelSourceHelper());
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSource(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSourceAsync(cancellationToken);
         }
 
         private IChannelSourceHandle GetReadChannelSourceHelper()

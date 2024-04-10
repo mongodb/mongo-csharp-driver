@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -75,6 +76,18 @@ namespace MongoDB.Driver.Core.Bindings
         {
             ThrowIfDisposed();
             return Task.FromResult(GetChannelSourceHelper());
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSource(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            return GetReadChannelSourceAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

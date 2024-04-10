@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -30,6 +31,7 @@ namespace MongoDB.Driver.Core.Clusters
             this ICluster cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
+            IReadOnlyCollection<ServerDescription> deprioritizedServers,
             CancellationToken cancellationToken)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
@@ -40,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, cancellationToken);
+            var server = cluster.SelectServer(selector, deprioritizedServers, cancellationToken);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
@@ -49,6 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
             this ICluster cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
+            IReadOnlyCollection<ServerDescription> deprioritizedServers,
             CancellationToken cancellationToken)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
@@ -59,7 +62,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(selector, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;
