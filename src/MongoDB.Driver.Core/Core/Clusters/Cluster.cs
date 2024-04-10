@@ -282,6 +282,16 @@ namespace MongoDB.Driver.Core.Clusters
 
         public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
         {
+            return SelectServer(selector, null, cancellationToken);
+        }
+
+        public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+        {
+            return SelectServerAsync(selector, null, cancellationToken);
+        }
+
+        public IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
 
@@ -291,7 +301,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer();
+                        var server = helper.SelectServer(deprioritizedServers);
                         if (server != null)
                         {
                             return server;
@@ -309,7 +319,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
@@ -320,7 +330,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer();
+                        var server = helper.SelectServer(deprioritizedServers);
                         if (server != null)
                         {
                             return server;
@@ -483,7 +493,7 @@ namespace MongoDB.Driver.Core.Clusters
                     EventContext.OperationName));
             }
 
-            public IServer SelectServer()
+            public IServer SelectServer(IReadOnlyCollection<ServerDescription> deprioritizedServers)
             {
                 lock (_cluster._descriptionLock)
                 {
@@ -506,13 +516,41 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectedServers.Clear();
                 _connectedServerDescriptions.Clear();
 
+                var excludingDeprioritizedServers = deprioritizedServers != null && _cluster.Description.Type == ClusterType.Sharded;
+
                 foreach (var description in _description.Servers)
                 {
-                    if (description.State == ServerState.Connected &&
-                        _cluster.TryGetServer(description.EndPoint, out var server))
+                    if (!excludingDeprioritizedServers || !deprioritizedServers.Contains(description))
                     {
-                        _connectedServers.Add(server);
-                        _connectedServerDescriptions.Add(description);
+                        if (description.State == ServerState.Connected &&
+                            _cluster.TryGetServer(description.EndPoint, out var server))
+                        {
+                            _connectedServers.Add(server);
+                            _connectedServerDescriptions.Add(description);
+                        }
+                    }
+                    else
+                    {
+                        _cluster._serverSelectionEventLogger.Logger.LogDebug(_cluster._clusterId,
+                            $"Deprioritization: removed server {description.ServerId}");
+                    }
+                }
+
+                // if we didn't get any connected servers from the previous look through candidates above
+                // and we are currently excluding deprioritized servers then it possible that all the
+                // candidates were part of the deprioritized collection. In this case, we just try to
+                // use the deprioritized servers.
+                if (excludingDeprioritizedServers && _connectedServers.Count == 0)
+                {
+                    _cluster._serverSelectionEventLogger.Logger.LogDebug(_cluster._clusterId, "Deprioritization: reverting due to no other suitable servers");
+                    foreach (var description in deprioritizedServers)
+                    {
+                        if (description.State == ServerState.Connected &&
+                            _cluster.TryGetServer(description.EndPoint, out var server))
+                        {
+                            _connectedServers.Add(server);
+                            _connectedServerDescriptions.Add(description);
+                        }
                     }
                 }
 
