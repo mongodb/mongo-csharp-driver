@@ -15,6 +15,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Xunit.Sdk;
@@ -39,6 +40,20 @@ namespace MongoDB.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because environment variable '{name}' {(actualIsDefined ? "is" : "is not")} defined.");
+        }
+
+        public RequireEnvironment EnvironmentVariable(string name, params string[] matchValues)
+        {
+            var actualValue = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrEmpty(actualValue))
+            {
+                throw new SkipException($"Test skipped because environment variable '{name}' is not defined.");
+            }
+            if (matchValues.Contains(actualValue))
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because environment variable '{name}'={actualValue} does not satisfy expected values.");
         }
 
         public RequireEnvironment ProcessStarted(string processName)

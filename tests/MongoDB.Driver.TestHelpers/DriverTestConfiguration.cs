@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
@@ -160,6 +161,11 @@ namespace MongoDB.Driver.Tests
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
             clientSettingsConfigurator?.Invoke(clientSettings);
+
+            if (clientSettings.Credential.Mechanism == MongoOidcAuthenticator.MechanismName)
+            {
+                OidcCallbackAdapterCachingFactory.Instance.Reset();
+            }
 
             return new MongoClient(clientSettings);
         }

@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 // We must call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
+                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } }, default);
             }
             else
             {

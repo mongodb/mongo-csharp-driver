@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 
-using System.Linq;
-using MongoDB.Driver;
+using FluentAssertions;
+using MongoDB.Driver.Core.Authentication.Oidc;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -48,6 +49,34 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("MONGODB-X509", credential.Mechanism);
             Assert.Equal(null, credential.Username);
             Assert.IsType<ExternalEvidence>(credential.Evidence);
+        }
+
+        [Fact]
+        public void CreateOidcCredential_should_initialize_all_required_properties_with_callback()
+        {
+            const string principalName = "principalName";
+            var oidcTokenProvider = new Mock<IOidcCallback>();
+
+            var credential = MongoCredential.CreateOidcCredential(oidcTokenProvider.Object, principalName);
+
+            credential.Mechanism.Should().Be("MONGODB-OIDC");
+            credential.Username.Should().Be(principalName);
+            credential.Evidence.Should().BeOfType<ExternalEvidence>();
+            credential.GetMechanismProperty<IOidcCallback>("OIDC_CALLBACK", null)
+                .Should().Be(oidcTokenProvider.Object);
+        }
+
+        [Fact]
+        public void CreateOidcCredential_should_initialize_all_required_properties_with_environment()
+        {
+            const string environment = "env";
+
+            var credential = MongoCredential.CreateOidcCredential(environment);
+
+            credential.Mechanism.Should().Be("MONGODB-OIDC");
+            credential.Username.Should().BeNull();
+            credential.Evidence.Should().BeOfType<ExternalEvidence>();
+            credential.GetMechanismProperty<string>("ENVIRONMENT", defaultValue: null).Should().Be(environment);
         }
 
         [Fact]

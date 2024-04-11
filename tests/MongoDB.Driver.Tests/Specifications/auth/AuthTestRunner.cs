@@ -1,4 +1,4 @@
-/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
+using Xunit.Sdk;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {
+    [Category("Authentication")]
     public class AuthTestRunner
     {
         [Theory]
@@ -37,9 +43,21 @@ namespace MongoDB.Driver.Tests.Specifications.auth
 
             MongoCredential mongoCredential = null;
             Exception parseException = null;
+
+            var connectionString = (string)definition["uri"];
+            if (connectionString.Contains("CANONICALIZE_HOST_NAME"))
+            {
+                // have to skip CANONICALIZE_HOST_NAME tests. Not implemented yet. See: https://jira.mongodb.org/browse/CSHARP-3796
+                throw new SkipException("Test skipped because CANONICALIZE_HOST_NAME is not supported.");
+            }
+
+            if (connectionString.Contains("ENVIRONMENT:gcp"))
+            {
+                throw new SkipException("Test skipped because ENVIRONMENT:gcp is not supported.");
+            }
+
             try
             {
-                var connectionString = (string)definition["uri"];
                 mongoCredential = MongoClientSettings.FromConnectionString(connectionString).Credential;
             }
             catch (Exception ex)
@@ -47,9 +65,18 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 parseException = ex;
             }
 
+            IAuthenticator authenticator = null;
+            if (parseException == null && !SkipActualAuthenticatorCreating(testCase.Name))
+            {
+                var dummyEndpoint = new DnsEndPoint("localhost", 27017);
+                var environmentVariablesProviderMock = new Mock<IEnvironmentVariableProvider>();
+                environmentVariablesProviderMock
+                    .Setup(p => p.GetEnvironmentVariable("OIDC_TOKEN_FILE")).Returns("dummy_file_path");
+                parseException = Record.Exception(() => authenticator = mongoCredential?.ToAuthenticator(new[] { dummyEndpoint }, serverApi: null, environmentVariableProvider: environmentVariablesProviderMock.Object));
+            }
             if (parseException == null)
             {
-                AssertValid(mongoCredential, definition);
+                AssertValid(authenticator, mongoCredential, definition);
             }
             else
             {
@@ -57,7 +84,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             }
         }
 
-        private void AssertValid(MongoCredential mongoCredential, BsonDocument definition)
+        private void AssertValid(IAuthenticator authenticator, MongoCredential mongoCredential, BsonDocument definition)
         {
             if (!definition["valid"].ToBoolean())
             {
@@ -80,49 +107,77 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 mongoCredential.Mechanism.Should().Be(ValueToString(expectedCredential["mechanism"]));
 
                 var expectedMechanismProperties = expectedCredential["mechanism_properties"];
-                if (mongoCredential.Mechanism == GssapiAuthenticator.MechanismName)
+                switch (mongoCredential.Mechanism)
                 {
-                    var gssapiAuthenticator = (GssapiAuthenticator)mongoCredential.ToAuthenticator(serverApi: null);
-                    if (expectedMechanismProperties.IsBsonNull)
-                    {
-                        var serviceName = gssapiAuthenticator._mechanism_serviceName();
-                        serviceName.Should().Be("mongodb"); // The default is "mongodb".
-                        var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
-                        canonicalizeHostName.Should().BeFalse(); // The default is "false".
-                    }
-                    else
-                    {
-                        foreach (var expectedMechanismProperty in expectedMechanismProperties.AsBsonDocument)
+                    case GssapiAuthenticator.MechanismName:
                         {
-                            var mechanismName = expectedMechanismProperty.Name;
-                            switch (mechanismName)
+                            var gssapiAuthenticator = (GssapiAuthenticator)authenticator;
+                            if (expectedMechanismProperties.IsBsonNull)
                             {
-                                case "SERVICE_NAME":
-                                    var serviceName = gssapiAuthenticator._mechanism_serviceName();
-                                    serviceName.Should().Be(ValueToString(expectedMechanismProperty.Value));
-                                    break;
-                                case "CANONICALIZE_HOST_NAME":
-                                    var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
-                                    canonicalizeHostName.Should().Be(expectedMechanismProperty.Value.ToBoolean());
-                                    break;
-                                default:
-                                    throw new Exception($"Invalid mechanism property '{mechanismName}'.");
+                                var serviceName = gssapiAuthenticator._mechanism_serviceName();
+                                serviceName.Should().Be("mongodb"); // The default is "mongodb".
+                                var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
+                                canonicalizeHostName.Should().BeFalse(); // The default is "false".
+                            }
+                            else
+                            {
+                                foreach (var expectedMechanismProperty in expectedMechanismProperties.AsBsonDocument)
+                                {
+                                    var mechanismName = expectedMechanismProperty.Name;
+                                    switch (mechanismName)
+                                    {
+                                        case "SERVICE_NAME":
+                                            var serviceName = gssapiAuthenticator._mechanism_serviceName();
+                                            serviceName.Should().Be(ValueToString(expectedMechanismProperty.Value));
+                                            break;
+                                        case "CANONICALIZE_HOST_NAME":
+                                            var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
+                                            canonicalizeHostName.Should().Be(expectedMechanismProperty.Value.ToBoolean());
+                                            break;
+                                        default:
+                                            throw new Exception($"Invalid mechanism property '{mechanismName}'.");
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    case MongoOidcAuthenticator.MechanismName:
+                        {
+                            var oidcAuthenticator = (MongoOidcAuthenticator)authenticator;
+                            foreach (var expectedMechanismProperty in expectedMechanismProperties.AsBsonDocument)
+                            {
+                                var mechanismName = expectedMechanismProperty.Name;
+                                switch (mechanismName)
+                                {
+                                    case OidcConfiguration.EnvironmentMechanismPropertyName:
+                                        var environment = oidcAuthenticator.Configuration.Environment;
+                                        environment.Should().Be(expectedMechanismProperty.Value.ToString());
+                                        break;
+                                    case OidcConfiguration.TokenResourceMechanismPropertyName:
+                                        var resourceToken = oidcAuthenticator.Configuration.TokenResource;
+                                        resourceToken.Should().Be(expectedMechanismProperty.Value.ToString());
+                                        break;
+                                    default:
+                                        throw new Exception($"Invalid mechanism property '{mechanismName}'.");
+                                }
                             }
                         }
-                    }
-                }
-                else
-                {
-                    var actualMechanismProperties = mongoCredential._mechanismProperties();
-                    if (expectedMechanismProperties.IsBsonNull)
-                    {
-                        actualMechanismProperties.Should().BeEmpty();
-                    }
-                    else
-                    {
-                        var authMechanismProperties = new BsonDocument(actualMechanismProperties.Select(kv => new BsonElement(kv.Key, BsonValue.Create(kv.Value))));
-                        authMechanismProperties.Should().BeEquivalentTo(expectedMechanismProperties.AsBsonDocument);
-                    }
+                        break;
+                    default:
+                        {
+                            var actualMechanismProperties = mongoCredential._mechanismProperties();
+                            if (expectedMechanismProperties.IsBsonNull)
+                            {
+                                actualMechanismProperties.Should().BeEmpty();
+                            }
+                            else
+                            {
+                                var authMechanismProperties = new BsonDocument(actualMechanismProperties.Select(kv => new BsonElement(kv.Key, BsonValue.Create(kv.Value))));
+                                authMechanismProperties.Should().BeEquivalentTo(expectedMechanismProperties.AsBsonDocument);
+                            }
+
+                            break;
+                        }
                 }
             }
         }
@@ -135,6 +190,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             }
         }
 
+        private bool SkipActualAuthenticatorCreating(string testCaseName) =>
+            // should be addressed in https://jira.mongodb.org/browse/CSHARP-4503
+            testCaseName.Contains("MONGODB-AWS");
+
         private string ValueToString(BsonValue value)
         {
             return value == BsonNull.Value ? null : value.ToString();
@@ -143,7 +202,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.auth.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.auth.tests.legacy";
         }
     }
 

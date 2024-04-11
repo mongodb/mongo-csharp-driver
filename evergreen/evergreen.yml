@@ -101,7 +101,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          OS=${OS} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -452,6 +452,11 @@ functions:
       params:
         file: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json
 
+  assume-ec2-role:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${aws_test_secrets_role}
+
   add-aws-auth-variables-to-file:
     - command: ec2.assume_role
       params:
@@ -706,6 +711,19 @@ functions:
             -p 8100 \
             -v \
             --fault revoked
+
+  run-mongodb-oidc-tests:
+    - command: subprocess.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "DRIVERS_TOOLS"
+          - "OS"
+          - "FRAMEWORK"
+        args:
+          - evergreen/run-mongodb-oidc-tests.sh
 
   run-serverless-tests:
     - command: shell.exec
@@ -1236,6 +1254,27 @@ tasks:
     - name: atlas-search-index-helpers-test
       commands:
         - func: run-atlas-search-index-helpers-test
+
+    - name: test-oidc-auth
+      commands:
+        - func: run-mongodb-oidc-tests
+
+    - name: test-oidc-azure
+      commands:
+        - command: shell.exec
+          params:
+            shell: bash
+            working_dir: mongo-csharp-driver
+            script: |-
+              set -o errexit
+              ${PREPARE_SHELL}
+
+              dotnet build ./tests/MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj
+              tar czf /tmp/mongo-csharp-driver.tgz ./tests/MongoDB.Driver.Tests/bin/Debug/net6.0 ./evergreen/run-mongodb-oidc-azure-tests.sh
+
+              export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
+              export AZUREOIDC_TEST_CMD="./evergreen/run-mongodb-oidc-azure-tests.sh"
+              bash $DRIVERS_TOOLS/.evergreen/auth_oidc/azure/run-driver-test.sh
 
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2101,6 +2140,61 @@ task_groups:
     tasks:
       - test-aws-lambda-deployed
 
+  - name: oidc-auth-test-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: init-test-results
+      - func: make-files-executable
+      - func: assume-ec2-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/setup.sh
+    teardown_group:
+      - func: upload-test-results
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/teardown.sh
+    tasks:
+      - test-oidc-auth
+
+  - name: oidc-auth-azure-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+      - command: subprocess.exec
+        params:
+          binary: bash
+          env:
+            AZUREOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/azure/create-and-setup-vm.sh
+    teardown_group:
+      - func: upload-test-results
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/azure/delete-vm.sh
+    tasks:
+      - test-oidc-azure
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2217,6 +2311,20 @@ buildvariants:
   display_name: "PLAIN (LDAP) Auth Tests ${os}"
   tasks:
     - name: plain-auth-tests
+
+- matrix_name: mongodb-oidc-test-tests
+  matrix_spec: { os: [ "ubuntu-2004", "macos-1100" ] }
+  display_name: "MongoDB-OIDC Auth (test) - ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: oidc-auth-test-task-group
+
+- matrix_name: mongodb-oidc-azure-tests
+  matrix_spec: { os: [ "ubuntu-2004" ] }
+  display_name: "MongoDB-OIDC Auth (azure) - ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: oidc-auth-azure-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }

@@ -99,6 +99,19 @@ namespace MongoDB.Driver.Core.Connections
         Task OpenAsync(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Reauthenticate the connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void Reauthenticate(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Reauthenticate the connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
+        Task ReauthenticateAsync(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Receives a message.
         /// </summary>
         /// <param name="responseTo">The id of the sent message for which a response is to be received.</param>
