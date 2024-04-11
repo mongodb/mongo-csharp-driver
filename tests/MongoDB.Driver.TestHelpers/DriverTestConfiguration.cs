@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
             clientSettingsConfigurator?.Invoke(clientSettings);
 
-            if (clientSettings.Credential.Mechanism == MongoOidcAuthenticator.MechanismName)
+            if (clientSettings.Credential?.Mechanism == MongoOidcAuthenticator.MechanismName)
             {
                 OidcCallbackAdapterCachingFactory.Instance.Reset();
             }
