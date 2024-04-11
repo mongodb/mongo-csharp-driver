@@ -142,24 +142,24 @@ namespace MongoDB.Driver.Core.Connections
             {
                 string result = null;
 
-                if ((Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
-                    Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null)
+                if ((__environmentVariableProvider.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
+                    __environmentVariableProvider.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null)
                 {
                     result = awsLambdaName;
                 }
-                if (Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null)
+                if (__environmentVariableProvider.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null)
                 {
                     if (result != null) return null;
 
                     result = azureFuncName;
                 }
-                if (Environment.GetEnvironmentVariable("K_SERVICE") != null || Environment.GetEnvironmentVariable("FUNCTION_NAME") != null)
+                if (__environmentVariableProvider.GetEnvironmentVariable("K_SERVICE") != null || Environment.GetEnvironmentVariable("FUNCTION_NAME") != null)
                 {
                     if (result != null) return null;
 
                     result = gcpFuncName;
                 }
-                if (Environment.GetEnvironmentVariable("VERCEL") != null)
+                if (__environmentVariableProvider.GetEnvironmentVariable("VERCEL") != null)
                 {
                     if (result != null && result != awsLambdaName) return null;
 
@@ -172,9 +172,9 @@ namespace MongoDB.Driver.Core.Connections
             string GetRegion(string name) =>
                 name switch
                 {
-                    awsLambdaName => Environment.GetEnvironmentVariable("AWS_REGION"),
-                    gcpFuncName => Environment.GetEnvironmentVariable("FUNCTION_REGION"),
-                    vercelName => Environment.GetEnvironmentVariable("VERCEL_REGION"),
+                    awsLambdaName => __environmentVariableProvider.GetEnvironmentVariable("AWS_REGION"),
+                    gcpFuncName => __environmentVariableProvider.GetEnvironmentVariable("FUNCTION_REGION"),
+                    vercelName => __environmentVariableProvider.GetEnvironmentVariable("VERCEL_REGION"),
                     _ => null
                 };
 
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             int? GetIntValue(string environmentVariable) =>
-                int.TryParse(Environment.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
+                int.TryParse(__environmentVariableProvider.GetEnvironmentVariable(environmentVariable), out var value) ? value : null;
         }
 
         internal static BsonDocument CreateOSDocument()
