@@ -119,19 +119,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), null, CancellationToken.None)).Returns(Task.FromResult(selectedServer));
 
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), null, CancellationToken.None), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), null, CancellationToken.None)).Returns(selectedServer);
 
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), null, CancellationToken.None), Times.Once);
             }
         }
 
@@ -146,8 +146,8 @@ namespace MongoDB.Driver.Core.Bindings
             var cancellationToken = cancellationTokenSource.Token;
 
             var selectedServer = new Mock<IServer>().Object;
-            _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), cancellationToken)).Returns(selectedServer);
-            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), cancellationToken)).Returns(Task.FromResult(selectedServer));
+            _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), null, cancellationToken)).Returns(selectedServer);
+            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), null, cancellationToken)).Returns(Task.FromResult(selectedServer));
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 

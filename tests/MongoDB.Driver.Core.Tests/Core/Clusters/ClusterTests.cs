@@ -526,6 +526,10 @@ namespace MongoDB.Driver.Core.Clusters
             int count = 0;
             var subject = CreateSubject();
             subject.Initialize();
+
+            // clear the ClusterDescriptionChanged event from initializing the StubCluster
+            _capturedEvents.Clear();
+
             subject.DescriptionChanged += (o, e) => count++;
 
             subject.SetServerDescriptions(ServerDescriptionHelper.Connected(subject.Description.ClusterId));
