@@ -738,9 +738,6 @@ functions:
           - "FLE_AZURE_CLIENT_SECRET"
           - "FLE_GCP_EMAIL"
           - "FLE_GCP_PRIVATE_KEY"
-          - "SERVERLESS_ATLAS_USER"
-          - "SERVERLESS_ATLAS_PASSWORD"
-          - "SERVERLESS_URI"
         script: |
           ${PREPARE_SHELL}
           AUTH=${AUTH} \
@@ -768,47 +765,6 @@ functions:
           TARGET="SmokeTests" \
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
-
-  create-serverless-instance:
-    - command: shell.exec
-      params:
-        shell: bash
-        include_expansions_in_env:
-          - "SERVERLESS_API_PUBLIC_KEY"
-          - "SERVERLESS_API_PRIVATE_KEY"
-        script: |
-          ${PREPARE_SHELL}
-          if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
-            SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
-          else
-            SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
-          fi
-          SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
-          LOADBALANCED=ON \
-            bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
-    - command: expansions.update
-      params:
-        file: serverless-expansion.yml
-
-  delete-serverless-instance-if-configured:
-    - command: shell.exec
-      params:
-        shell: bash
-        include_expansions_in_env:
-          - "SERVERLESS_API_PUBLIC_KEY"
-          - "SERVERLESS_API_PRIVATE_KEY"
-        script: |
-          if [ "" != "${SERVERLESS}" ]; then
-            ${PREPARE_SHELL}
-            if [ "Terminating" = "${SERVERLESS_PROXY_TYPE}" ]; then
-              SERVERLESS_GROUP="${TERMINATING_PROXY_SERVERLESS_DRIVERS_GROUP}"
-            else
-              SERVERLESS_GROUP="${SERVERLESS_DRIVERS_GROUP}"
-            fi
-            SERVERLESS_DRIVERS_GROUP="$SERVERLESS_GROUP" \
-            SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
-              bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
-          fi
 
   start-kms-mock-servers:
     - command: shell.exec
@@ -1059,9 +1015,6 @@ pre:
   - func: make-files-executable
 
 post:
-  # Removed, causing timeouts
-  # - func: upload-working-dir
-  - func: delete-serverless-instance-if-configured
   - func: upload-mo-artifacts
   - func: upload-test-results
   - func: cleanup
@@ -1279,7 +1232,6 @@ tasks:
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
-        - func: create-serverless-instance
         - func: run-serverless-tests
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
@@ -1949,17 +1901,17 @@ axes:
         variables:
           FRAMEWORK: netstandard21
 
-  - id: serverless_proxy_type
-    display_name: Serverless Proxy Type
+  - id: serverless
+    display_name: Serverless
     values:
       - id: "Passthrough"
         display_name: "Serverless Passthrough Proxy"
         variables:
-          SERVERLESS_PROXY_TYPE: Passthrough
+          VAULT_NAME: "serverless"
       - id: "Terminating"
         display_name: "Serverless Terminating Proxy"
         variables:
-          SERVERLESS_PROXY_TYPE: Terminating
+          VAULT_NAME: "serverless_next"
 
   - id: build-target
     display_name: CI build target
@@ -2194,6 +2146,35 @@ task_groups:
     tasks:
       - test-oidc-azure
 
+  - name: serverless-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: assume-ec2-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          env:
+            VAULT_NAME: ${VAULT_NAME}
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
+      - command: expansions.update
+        params:
+          file: serverless-expansion.yml
+    teardown_group:
+      - func: upload-test-results
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+    tasks:
+      - test-serverless
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2388,16 +2369,18 @@ buildvariants:
 
 # Serverless tests
 - matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: "*", serverless_proxy_type: "*" }
-  display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard20", "netstandard21"], serverless: "*" }
+  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
+  batchtime: 10080  # 7 days
   tasks:
-    - name: test-serverless
+    - name: serverless-task-group
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard20", "netstandard21"], serverless_proxy_type: "*" }
-  display_name: "${serverless_proxy_type} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard20", "netstandard21"], serverless: "*" }
+  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
+  batchtime: 10080  # 7 days
   tasks:
-    - name: test-serverless
+    - name: serverless-task-group
 
 # Performance tests
 - name: driver-performance-tests

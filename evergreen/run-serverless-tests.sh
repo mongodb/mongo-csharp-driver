@@ -7,9 +7,6 @@ set -o errexit # Exit the script with error if any of the commands fail
 #   AUTH                                Authentication flag, must be "auth"
 #   FRAMEWORK                           Used in build.cake "TestServerless" task, must be set
 #   OS                                  Operating system, must be set
-#   SERVERLESS_ATLAS_USER               Authentication user, must be set
-#   SERVERLESS_ATLAS_PASSWORD           Authentiction password, must be set
-#   SERVERLESS_URI                      Single atlas proxy serverless uri, must be set
 #   SSL                                 TLS connection flag, must be "ssl"
 #   CRYPT_SHARED_LIB_PATH               The path to crypt_shared library
 # Modified/exported environment variables:
@@ -48,6 +45,8 @@ else
     export $var=/data/tmp;
   done
 fi
+
+source ${DRIVERS_TOOLS}/.evergreen/serverless/secrets-export.sh
 
 # Assume "mongodb+srv" protocol
 export MONGODB_URI="mongodb+srv://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${SERVERLESS_URI:14}"
