@@ -147,8 +147,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     }
                 }");
 
-            var eventCapturer = new EventCapturer()
-                .Capture<CommandFailedEvent>();
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
             using var client = DriverTestConfiguration.CreateDisposableClient(
                 s =>
@@ -172,12 +171,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
             });
 
-            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(2);
+            var failedEvents = eventCapturer.Events.OfType<CommandFailedEvent>().ToArray();
+            failedEvents.Length.Should().Be(2);
 
-            var event1 = eventCapturer.Events[0].As<CommandFailedEvent>();
-            var event2 = eventCapturer.Events[1].As<CommandFailedEvent>();
-            event1.CommandName.Should().Be(event2.CommandName).And.Be("find");
-            event1.ConnectionId.ServerId().Should().NotBe(event2.ConnectionId.ServerId());
+            failedEvents[0].CommandName.Should().Be(failedEvents[1].CommandName).And.Be("find");
+            failedEvents[0].ConnectionId.ServerId().Should().NotBe(failedEvents[1].ConnectionId.ServerId());
 
             // Assert the deprioritization debug message was emitted for deprioritized server.
             Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(1);
@@ -201,9 +199,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     }
                 }");
 
-            var eventCapturer = new EventCapturer()
-                .Capture<CommandSucceededEvent>()
-                .Capture<CommandFailedEvent>();
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
             using var client = DriverTestConfiguration.CreateDisposableClient(
                 s =>
@@ -221,19 +217,16 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            // clear command succeeded events captured from initial hello
-            eventCapturer.Clear();
-
             collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
 
-            eventCapturer.Events.Count.Should().Be(2);
-            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(1);
-            eventCapturer.Events.OfType<CommandSucceededEvent>().Count().Should().Be(1);
+            var failedEvents = eventCapturer.Events.OfType<CommandFailedEvent>().ToArray();
+            var succeededEvents = eventCapturer.Events.OfType<CommandSucceededEvent>().ToArray();
 
-            var event1 = eventCapturer.Events[0].As<CommandFailedEvent>();
-            var event2 = eventCapturer.Events[1].As<CommandSucceededEvent>();
-            event1.CommandName.Should().Be(event2.CommandName).And.Be("find");
-            event1.ConnectionId.ServerId().Should().Be(event2.ConnectionId.ServerId());
+            failedEvents.Length.Should().Be(1);
+            succeededEvents.Length.Should().Be(1);
+
+            failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("find");
+            failedEvents[0].ConnectionId.ServerId().Should().Be(succeededEvents[0].ConnectionId.ServerId());
 
             // Assert the deprioritization debug messages were emitted
             // one for deprioritizing the failpointServer and another for
