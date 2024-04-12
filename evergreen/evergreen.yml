@@ -2120,7 +2120,6 @@ task_groups:
     setup_group:
       - func: fetch-source
       - func: prepare-resources
-      - func: install-dotnet
       - command: subprocess.exec
         params:
           binary: bash
