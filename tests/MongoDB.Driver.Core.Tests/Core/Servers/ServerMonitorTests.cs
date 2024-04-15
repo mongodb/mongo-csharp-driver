@@ -461,7 +461,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("VERCEL")]
         public void Should_use_polling_protocol_if_running_in_FaaS_platform(string environmentVariable)
         {
-            var environmentVariableParts = environmentVariable.Split("=");
+            var environmentVariableParts = environmentVariable.Split('=');
 
             var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
             environmentVariableProviderMock

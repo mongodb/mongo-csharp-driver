@@ -253,8 +253,8 @@ namespace MongoDB.Driver.Core.Connections
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
         {
-            var variableLeftParts = left.Split("=");
-            var variableRightParts = right.Split("=");
+            var variableLeftParts = left.Split('=');
+            var variableRightParts = right.Split('=');
 
             var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
 
