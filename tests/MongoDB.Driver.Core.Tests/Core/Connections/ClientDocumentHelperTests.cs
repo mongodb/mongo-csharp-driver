@@ -146,24 +146,24 @@ namespace MongoDB.Driver.Core.Connections
 
             if (isKubernetesToBeDetected)
             {
-                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns("dummy");
+                environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns("dummy");
             }
             else
             {
-                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(null as string);
+                environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(null as string);
             }
 
             if (isDockerToBeDetected)
             {
-                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(true);
+                fileSystemProviderMock.Setup(fileSystem => fileSystem.File.Exists("/.dockerenv")).Returns(true);
             }
             else
             {
-                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(false);
+                fileSystemProviderMock.Setup(fileSystem => fileSystem.File.Exists("/.dockerenv")).Returns(false);
 
             }
 
-            environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("VERCEL")).Returns("dummy");
+            environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("VERCEL")).Returns("dummy");
 
             ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
             ClientDocumentHelper.SetFileSystemProvider(fileSystemProviderMock.Object);
