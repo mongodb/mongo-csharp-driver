@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , LoggingSettings, true);
+                , LoggingSettings);
 
             var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
