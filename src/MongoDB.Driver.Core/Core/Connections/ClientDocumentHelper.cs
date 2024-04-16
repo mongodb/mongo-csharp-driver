@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     result = azureFuncName;
                 }
-                if (__environmentVariableProvider.GetEnvironmentVariable("K_SERVICE") != null || Environment.GetEnvironmentVariable("FUNCTION_NAME") != null)
+                if (__environmentVariableProvider.GetEnvironmentVariable("K_SERVICE") != null || __environmentVariableProvider.GetEnvironmentVariable("FUNCTION_NAME") != null)
                 {
                     if (result != null) return null;
 
