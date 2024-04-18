@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
         private static IEnvironmentVariableProvider __environmentVariableProvider;
         private static IFileSystemProvider __fileSystemProvider;
 
-        private static void Initialize()
+        internal static void Initialize()
         {
             __driverDocument = new Lazy<BsonDocument>(CreateDriverDocument);
             __envDocument = new Lazy<BsonDocument>(CreateEnvDocument);

@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateClientDocument_should_return_expected_result()
         {
+            ClientDocumentHelper.Initialize();
             var result = ClientDocumentHelper.CreateClientDocument(null, null);
 
             var names = result.Names.ToList();
@@ -100,6 +101,8 @@ namespace MongoDB.Driver.Core.Connections
             var expectedDriverName = libName == null ? "mongo-csharp-driver" : $"mongo-csharp-driver|{libName}";
 
             var libraryInfo = libName != null ? new LibraryInfo(libName, libVersion) : null;
+
+            ClientDocumentHelper.Initialize();
             var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo)["driver"];
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
