@@ -139,6 +139,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Executes a callback within a transaction, with retries if needed.
         /// </summary>
+        /// <remarks>
+        /// If a command inside the callback fails, it may cause the transaction on the server to be
+        /// aborted. This situation is normally handled transparently by the driver. However, if the
+        /// application does not return that error from the callback, the driver will not be able to
+        /// determine whether the transaction was aborted or not. The driver will then retry the
+        /// callback indefinitely. To avoid this situation, the application MUST NOT silently handle
+        /// errors within the callback. If the application needs to handle errors within the
+        /// callback, it MUST return them after doing so.
+        /// </remarks>
         /// <param name="callback">The user defined callback.</param>
         /// <param name="transactionOptions">The transaction options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -149,6 +158,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Executes a callback within a transaction, with retries if needed.
         /// </summary>
+        /// <remarks>
+        /// If a command inside the callback fails, it may cause the transaction on the server to be
+        /// aborted. This situation is normally handled transparently by the driver. However, if the
+        /// application does not return that error from the callback, the driver will not be able to
+        /// determine whether the transaction was aborted or not. The driver will then retry the
+        /// callback indefinitely. To avoid this situation, the application MUST NOT silently handle
+        /// errors within the callback. If the application needs to handle errors within the
+        /// callback, it MUST return them after doing so.
+        /// </remarks>
         /// <param name="callbackAsync">The user defined callback.</param>
         /// <param name="transactionOptions">The transaction options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
