@@ -65,8 +65,16 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                 result = session.WithTransaction(
                     (s, ct) =>
                     {
-                        collection1.InsertOne(s, new BsonDocument("abc", 1), cancellationToken: ct);
-                        collection2.InsertOne(s, new BsonDocument("xyz", 999), cancellationToken: ct);
+                        try
+                        {
+                            collection1.InsertOne(s, new BsonDocument("abc", 1), cancellationToken: ct);
+                            collection2.InsertOne(s, new BsonDocument("xyz", 999), cancellationToken: ct);
+                        }
+                        catch (MongoWriteException)
+                        {
+                            // Do something in response to the exception
+                            throw; // NOTE: You must rethrow the exception otherwise an infinite loop can occur.
+                        }
                         return "Inserted into collections in different databases";
                     },
                     transactionOptions,
