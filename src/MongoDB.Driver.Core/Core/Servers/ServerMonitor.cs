@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Servers
         private HeartbeatDelay _heartbeatDelay;
         private readonly bool _isStreamingEnabled;
         private readonly object _lock = new object();
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
         private readonly EventLogger<LogCategories.SDAM> _eventLoggerSdam;
         private readonly ILogger<IServerMonitor> _logger;
         private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
@@ -59,7 +60,8 @@ namespace MongoDB.Driver.Core.Servers
             ServerMonitorSettings serverMonitorSettings,
             IEventSubscriber eventSubscriber,
             ServerApi serverApi,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IEnvironmentVariableProvider environmentVariableProvider = null)
             : this(
                 serverId,
                 endPoint,
@@ -74,7 +76,8 @@ namespace MongoDB.Driver.Core.Servers
                     serverApi,
                     loggerFactory?.CreateLogger<RoundTripTimeMonitor>()),
                 serverApi,
-                loggerFactory)
+                loggerFactory,
+                environmentVariableProvider)
         {
         }
 
@@ -86,7 +89,8 @@ namespace MongoDB.Driver.Core.Servers
             IEventSubscriber eventSubscriber,
             IRoundTripTimeMonitor roundTripTimeMonitor,
             ServerApi serverApi,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IEnvironmentVariableProvider environmentVariableProvider = null)
         {
             _monitorCancellationTokenSource = new CancellationTokenSource();
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
@@ -106,6 +110,8 @@ namespace MongoDB.Driver.Core.Servers
 
             _logger = loggerFactory?.CreateLogger<IServerMonitor>();
             _eventLoggerSdam = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
+
+            _environmentVariableProvider = environmentVariableProvider ?? EnvironmentVariableProvider.Instance;
 
             _isStreamingEnabled = serverMonitorSettings.ServerMonitoringMode switch
             {
@@ -243,12 +249,12 @@ namespace MongoDB.Driver.Core.Servers
              * gcp.func: K_SERVICE, FUNCTION_NAME
              * vercel: VERCEL
              */
-            return (Environment.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
-                   Environment.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
-                   Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||
-                   Environment.GetEnvironmentVariable("K_SERVICE") != null ||
-                   Environment.GetEnvironmentVariable("FUNCTION_NAME") != null ||
-                   Environment.GetEnvironmentVariable("VERCEL") != null;
+            return (_environmentVariableProvider.GetEnvironmentVariable("AWS_EXECUTION_ENV")?.StartsWith("AWS_Lambda_") ?? false) ||
+                   _environmentVariableProvider.GetEnvironmentVariable("AWS_LAMBDA_RUNTIME_API") != null ||
+                   _environmentVariableProvider.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME") != null ||
+                   _environmentVariableProvider.GetEnvironmentVariable("K_SERVICE") != null ||
+                   _environmentVariableProvider.GetEnvironmentVariable("FUNCTION_NAME") != null ||
+                   _environmentVariableProvider.GetEnvironmentVariable("VERCEL") != null;
         }
 
         private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;

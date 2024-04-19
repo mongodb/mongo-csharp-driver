@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void CreateClientDocument_should_return_expected_result()
         {
+            ClientDocumentHelper.Initialize();
             var result = ClientDocumentHelper.CreateClientDocument(null, null);
 
             var names = result.Names.ToList();
@@ -100,6 +101,8 @@ namespace MongoDB.Driver.Core.Connections
             var expectedDriverName = libName == null ? "mongo-csharp-driver" : $"mongo-csharp-driver|{libName}";
 
             var libraryInfo = libName != null ? new LibraryInfo(libName, libVersion) : null;
+
+            ClientDocumentHelper.Initialize();
             var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo)["driver"];
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
@@ -144,32 +147,16 @@ namespace MongoDB.Driver.Core.Connections
             var fileSystemProviderMock  = new Mock<IFileSystemProvider>();
             var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
 
-            if (isKubernetesToBeDetected)
-            {
-                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns("dummy");
-            }
-            else
-            {
-                environmentVariableProviderMock.Setup(p => p.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(null as string);
-            }
+            environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(isKubernetesToBeDetected ? "dummy" : null);
+            environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("VERCEL")).Returns("dummy");
 
-            if (isDockerToBeDetected)
-            {
-                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(true);
-            }
-            else
-            {
-                fileSystemProviderMock.Setup(p => p.File.Exists("/.dockerenv")).Returns(false);
-
-            }
+            fileSystemProviderMock.Setup(fileSystem => fileSystem.File.Exists("/.dockerenv")).Returns(isDockerToBeDetected);
 
             ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
             ClientDocumentHelper.SetFileSystemProvider(fileSystemProviderMock.Object);
-            using (new DisposableEnvironmentVariable("VERCEL"))
-            {
-                var result = ClientDocumentHelper.CreateEnvDocument();
-                result.Should().Be(expected);
-            }
+
+            var result = ClientDocumentHelper.CreateEnvDocument();
+            result.Should().Be(expected);
         }
 
         [Fact]
@@ -253,39 +240,39 @@ namespace MongoDB.Driver.Core.Connections
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
         {
-            RequireEnvironment
-                .Check()
-                .EnvironmentVariable("AWS_EXECUTION_ENV", isDefined: false)
-                .EnvironmentVariable("AWS_LAMBDA_RUNTIME_API", isDefined: false)
-                .EnvironmentVariable("FUNCTIONS_WORKER_RUNTIME", isDefined: false)
-                .EnvironmentVariable("K_SERVICE", isDefined: false)
-                .EnvironmentVariable("FUNCTION_NAME", isDefined: false)
-                .EnvironmentVariable("VERCEL", isDefined: false);
+            var variableLeftParts = left.Split('=');
+            var variableRightParts = right.Split('=');
 
-            using (new DisposableEnvironmentVariable(left))
-            using (new DisposableEnvironmentVariable(right))
+            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
+
+            environmentVariableProviderMock
+                .Setup(env => env.GetEnvironmentVariable(variableLeftParts[0])).Returns(variableLeftParts.Length > 1 ? variableLeftParts[1] : "dummy");
+
+            environmentVariableProviderMock
+                .Setup(env => env.GetEnvironmentVariable(variableRightParts[0])).Returns(variableRightParts.Length > 1 ? variableRightParts[1] : "dummy");
+
+            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
+
+            var clientEnvDocument = ClientDocumentHelper.CreateEnvDocument();
+            if (left == right)
             {
-                var clientEnvDocument = ClientDocumentHelper.CreateEnvDocument();
-                if (left == right)
+                var expectedName = left switch
                 {
-                    var expectedName = left switch
-                    {
-                        awsEnv => awsLambdaName,
-                        azureEnv => azureFuncName,
-                        gcpEnv => gcpFuncName,
-                        vercelEnv => vercelName,
-                        _ => throw new Exception($"Unexpected env {left}."),
-                    };
-                    clientEnvDocument["name"].Should().Be(BsonValue.Create(expectedName));
-                }
-                else if ((left == awsEnv && right == vercelEnv) || (left == vercelEnv && right == awsEnv)) // exception
-                {
-                    clientEnvDocument["name"].Should().Be(BsonValue.Create(vercelName));
-                }
-                else
-                {
-                    clientEnvDocument.Should().BeNull();
-                }
+                    awsEnv => awsLambdaName,
+                    azureEnv => azureFuncName,
+                    gcpEnv => gcpFuncName,
+                    vercelEnv => vercelName,
+                    _ => throw new Exception($"Unexpected env {left}."),
+                };
+                clientEnvDocument["name"].Should().Be(BsonValue.Create(expectedName));
+            }
+            else if ((left == awsEnv && right == vercelEnv) || (left == vercelEnv && right == awsEnv)) // exception
+            {
+                clientEnvDocument["name"].Should().Be(BsonValue.Create(vercelName));
+            }
+            else
+            {
+                clientEnvDocument.Should().BeNull();
             }
         }
 

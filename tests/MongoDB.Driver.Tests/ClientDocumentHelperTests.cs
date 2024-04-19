@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -65,15 +66,17 @@ namespace MongoDB.Driver.Tests
             var descriptionElements = environmentVariableDescriptionDocument
                 .Elements
                 .ToList();
-            descriptionElements
-                // Ensure a test is not launched on actual env
-                .ForEach(e => RequireEnvironment.Check().EnvironmentVariable(e.Name, isDefined: false));
-            var bundleElements = descriptionElements.Select(e => new DisposableEnvironmentVariable(e.Name, GetValue(e.Value.ToString()))).ToList();
+
+            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
+
+            descriptionElements.ForEach(e =>
+                environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable(e.Name)).Returns(GetValue(e.Value.ToString())));
+
+            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
 
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => e.CommandName == OppressiveLanguageConstants.LegacyHelloCommandName || e.CommandName == "hello");
 
-            using (var bundle = new DisposableBundle(bundleElements))
             using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
             {
                 var database = client.GetDatabase("db");
@@ -100,22 +103,6 @@ namespace MongoDB.Driver.Tests
             }
 
             string GetValue(string input) => input == "#longA#" ? new string('a', 512) : input;
-        }
-
-        // nested type
-        private class DisposableEnvironmentVariable : IDisposable
-        {
-            private readonly string _initialValue;
-            private readonly string _name;
-
-            public DisposableEnvironmentVariable(string name, string value)
-            {
-                _name = name;
-                _initialValue = Environment.GetEnvironmentVariable(name);
-                Environment.SetEnvironmentVariable(name, value);
-            }
-
-            public void Dispose() => Environment.SetEnvironmentVariable(_name, _initialValue);
         }
     }
 
