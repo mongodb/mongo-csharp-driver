@@ -1486,7 +1486,7 @@ tasks:
           vars:
             FRAMEWORK: net80
 
-    - name: performance-tests-net60-server-v6.0
+    - name: performance-tests-net80-server-v6.0
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
@@ -2405,7 +2405,7 @@ buildvariants:
   run_on:
     - rhel90-dbx-perf-large
   tasks:
-    - name: performance-tests-net60-server-v6.0
+    - name: performance-tests-net80-server-v6.0
 
 # AWS Lambda tests
 - name: aws-lambda-tests
