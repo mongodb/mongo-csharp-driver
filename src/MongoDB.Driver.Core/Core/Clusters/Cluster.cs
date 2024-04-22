@@ -516,41 +516,19 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectedServers.Clear();
                 _connectedServerDescriptions.Clear();
 
-                var excludingDeprioritizedServers = deprioritizedServers != null && _cluster.Description.Type == ClusterType.Sharded;
+                var excludingDeprioritizedServers = deprioritizedServers?.Any() == true && _cluster.Description.Type == ClusterType.Sharded;
 
-                foreach (var description in _description.Servers)
-                {
-                    if (!excludingDeprioritizedServers || !deprioritizedServers.Contains(description))
-                    {
-                        if (description.State == ServerState.Connected &&
-                            _cluster.TryGetServer(description.EndPoint, out var server))
-                        {
-                            _connectedServers.Add(server);
-                            _connectedServerDescriptions.Add(description);
-                        }
-                    }
-                    else
-                    {
-                        _cluster._serverSelectionEventLogger.Logger.LogDebug(_cluster._clusterId,
-                            $"Deprioritization: removed server {description.ServerId}");
-                    }
-                }
+                var filteredServers = excludingDeprioritizedServers
+                    ? FilterDeprioritizedServers(deprioritizedServers)
+                    : _description.Servers;
 
-                // if we didn't get any connected servers from the previous look through candidates above
-                // and we are currently excluding deprioritized servers then it possible that all the
-                // candidates were part of the deprioritized collection. In this case, we just try to
-                // use the deprioritized servers.
-                if (excludingDeprioritizedServers && _connectedServers.Count == 0)
+                foreach (var description in filteredServers)
                 {
-                    _cluster._serverSelectionEventLogger.Logger.LogDebug(_cluster._clusterId, "Deprioritization: reverting due to no other suitable servers");
-                    foreach (var description in deprioritizedServers)
+                    if (description.State == ServerState.Connected &&
+                        _cluster.TryGetServer(description.EndPoint, out var server))
                     {
-                        if (description.State == ServerState.Connected &&
-                            _cluster.TryGetServer(description.EndPoint, out var server))
-                        {
-                            _connectedServers.Add(server);
-                            _connectedServerDescriptions.Add(description);
-                        }
+                        _connectedServers.Add(server);
+                        _connectedServerDescriptions.Add(description);
                     }
                 }
 
@@ -622,6 +600,31 @@ namespace MongoDB.Driver.Core.Clusters
 
                 return new CompositeServerSelector(allSelectors);
             }
+
+            private IReadOnlyList<ServerDescription> FilterDeprioritizedServers(IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            {
+                List<ServerDescription> filteredServers = new();
+                foreach (var description in _description.Servers)
+                {
+                    if (!deprioritizedServers.Contains(description, new ServerDescriptionComparer()))
+                    {
+                        filteredServers.Add(description);
+                    }
+                    else
+                    {
+                        _cluster._serverSelectionEventLogger.Logger?.LogDebug(_cluster._clusterId,
+                            $"Deprioritization: removed server {description.ServerId}");
+                    }
+                }
+
+                if (filteredServers.Count == 0)
+                {
+                    _cluster._serverSelectionEventLogger.Logger?.LogDebug(_cluster._clusterId, "Deprioritization: reverting due to no other suitable servers");
+                    return _description.Servers;
+                }
+
+                return filteredServers;
+            }
         }
 
         private sealed class WaitForDescriptionChangedHelper : IDisposable
@@ -682,6 +685,19 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 _descriptionChangedTask.GetAwaiter().GetResult(); // propagate exceptions
+            }
+        }
+
+        private class ServerDescriptionComparer : IEqualityComparer<ServerDescription>
+        {
+            public bool Equals(ServerDescription x, ServerDescription y)
+            {
+                return x != null && y != null && x.EndPoint == y.EndPoint;
+            }
+
+            public int GetHashCode(ServerDescription obj)
+            {
+                return obj.EndPoint.GetHashCode();
             }
         }
 
