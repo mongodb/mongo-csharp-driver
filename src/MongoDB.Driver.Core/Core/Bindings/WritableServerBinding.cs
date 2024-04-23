@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             if (IsSessionPinnedToServer())
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             if (IsSessionPinnedToServer())
