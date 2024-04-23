@@ -84,13 +84,13 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None, null), Times.Once);
             }
             else
             {
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None, null), Times.Once);
             }
         }
 
@@ -128,13 +128,13 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(CancellationToken.None, null), Times.Once);
             }
             else
             {
                 subject.GetWriteChannelSource(CancellationToken.None);
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(CancellationToken.None, null), Times.Once);
             }
         }
 

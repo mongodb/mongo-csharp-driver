@@ -233,8 +233,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockBinding = new Mock<IWriteBinding>();
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<CancellationToken>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<CancellationToken>(), null)).Returns(channelSource);
+            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<CancellationToken>(), null)).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 

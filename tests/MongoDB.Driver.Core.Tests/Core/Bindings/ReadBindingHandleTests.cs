@@ -83,13 +83,13 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None, null), Times.Once);
             }
             else
             {
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None, null), Times.Once);
             }
         }
 

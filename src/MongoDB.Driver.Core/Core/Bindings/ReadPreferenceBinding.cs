@@ -65,20 +65,8 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        /// <inheritdoc/>
-        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
-        {
-            return GetReadChannelSource(null, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
-        {
-            return await GetReadChannelSourceAsync(null, cancellationToken).ConfigureAwait(false);
-        }
-
         /// <inheritdoc />
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, deprioritizedServers, cancellationToken);
@@ -86,7 +74,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, deprioritizedServers, cancellationToken).ConfigureAwait(false);

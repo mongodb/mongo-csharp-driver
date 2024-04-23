@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(new []{ context.ChannelSource.ServerDescription }, cancellationToken));
+                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(cancellationToken, new [] { context.ChannelSource.ServerDescription }));
                 context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
             }
             catch
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(new []{ context.ChannelSource.ServerDescription }, cancellationToken).ConfigureAwait(false));
+                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(cancellationToken, new [] { context.ChannelSource.ServerDescription }).ConfigureAwait(false));
                 context.ReplaceChannel(await context.ChannelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
             }
             catch

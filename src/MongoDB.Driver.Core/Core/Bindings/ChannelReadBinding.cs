@@ -75,30 +75,18 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        /// <inheritdoc/>
-        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return GetReadChannelSourceHelper();
         }
 
-        /// <inheritdoc/>
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return Task.FromResult<IChannelSourceHandle>(GetReadChannelSourceHelper());
-        }
-
-        /// <inheritdoc />
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
-        {
-            return GetReadChannelSource(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
-        {
-            return GetReadChannelSourceAsync(cancellationToken);
         }
 
         private IChannelSourceHandle GetReadChannelSourceHelper()

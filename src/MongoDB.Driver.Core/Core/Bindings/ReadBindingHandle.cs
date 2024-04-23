@@ -59,33 +59,18 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
-        // methods
-        /// <inheritdoc/>
-        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
+            return _reference.Instance.GetReadChannelSource(cancellationToken, deprioritizedServers);
         }
 
         /// <inheritdoc />
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(deprioritizedServers, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, cancellationToken);
+            return _reference.Instance.GetReadChannelSourceAsync(cancellationToken, deprioritizedServers);
         }
 
         /// <inheritdoc/>
