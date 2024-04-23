@@ -280,17 +280,7 @@ namespace MongoDB.Driver.Core.Clusters
             DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
         }
 
-        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
-        {
-            return SelectServer(selector, null, cancellationToken);
-        }
-
-        public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
-        {
-            return SelectServerAsync(selector, null, cancellationToken);
-        }
-
-        public IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
@@ -319,7 +309,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));

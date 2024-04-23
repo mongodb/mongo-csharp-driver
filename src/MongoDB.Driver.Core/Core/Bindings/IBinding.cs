@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Bindings
         ReadPreference ReadPreference { get; }
 
         /// <summary>
-        /// Gets a channel source for read operations while deprioritizing servers in the provided collection.
+        /// Gets a channel source for read operations and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="deprioritizedServers">The deprioritized servers.</param>
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Bindings
         IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
-        /// Gets a channel source for read operations while deprioritizing servers in the provided collection.
+        /// Gets a channel source for read operations and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="deprioritizedServers">The deprioritized servers.</param>
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Bindings
     public interface IWriteBinding : IBinding
     {
         /// <summary>
-        /// Gets a channel source for write operations while deprioritizing servers in the provided collection.
+        /// Gets a channel source for write operations and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="deprioritizedServers">The deprioritized servers.</param>
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Bindings
         IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
-        /// Gets a channel source for write operations that may use a secondary and deprioritizes servers in the provided collection.
+        /// Gets a channel source for write operations that may use a secondary and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="mayUseSecondary">The may use secondary criteria.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Bindings
         IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
-        /// Gets a channel source for write operations while deprioritizing servers in the provided collection.
+        /// Gets a channel source for write operations and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="deprioritizedServers">The deprioritized servers.</param>
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Bindings
         Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
-        /// Gets a channel source for write operations that may use a secondary and deprioritizes servers in the provided collection.
+        /// Gets a channel source for write operations that may use a secondary and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="mayUseSecondary">The may use secondary criteria.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

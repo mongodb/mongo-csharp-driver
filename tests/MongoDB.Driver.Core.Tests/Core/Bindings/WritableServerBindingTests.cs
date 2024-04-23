@@ -123,19 +123,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(Task.FromResult(selectedServer));
 
                 subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None, null), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(selectedServer);
 
                 subject.GetReadChannelSource(CancellationToken.None);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None, null), Times.Once);
             }
         }
 
@@ -184,19 +184,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(Task.FromResult(selectedServer));
 
                 subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None, null), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(selectedServer);
 
                 subject.GetWriteChannelSource(CancellationToken.None);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None, null), Times.Once);
             }
         }
 
@@ -228,19 +228,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(Task.FromResult(selectedServer));
 
                 subject.GetWriteChannelSourceAsync(mayUseSecondary, CancellationToken.None).GetAwaiter().GetResult();
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), CancellationToken.None, null), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), null, CancellationToken.None)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None, null)).Returns(selectedServer);
 
                 subject.GetWriteChannelSource(mayUseSecondary, CancellationToken.None);
 
-                _mockCluster.Verify(c => c.SelectServer(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), null, CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), CancellationToken.None, null), Times.Once);
             }
         }
 

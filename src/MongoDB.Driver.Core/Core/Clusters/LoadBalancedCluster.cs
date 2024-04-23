@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
+        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
 
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
 
@@ -255,14 +255,6 @@ namespace MongoDB.Driver.Core.Clusters
             return _server ??
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
-
-        public IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken) =>
-            throw new NotImplementedException();
-
-        public Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken) =>
-            throw new NotImplementedException();
 
         public ICoreSessionHandle StartSession(CoreSessionOptions options = null)
         {

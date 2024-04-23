@@ -307,10 +307,8 @@ namespace MongoDB.Driver.Tests
             public ICoreServerSession AcquireServerSession() => throw new NotImplementedException();
             public void Dispose() => throw new NotImplementedException();
             public void Initialize() => DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(Description, Description));
-            public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
-            public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
-            public IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken) => throw new NotImplementedException();
-            public Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null) => throw new NotImplementedException();
+            public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null) => throw new NotImplementedException();
             public ICoreSessionHandle StartSession(CoreSessionOptions options = null) => throw new NotImplementedException();
         }
     }

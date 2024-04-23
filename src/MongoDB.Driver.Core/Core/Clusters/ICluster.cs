@@ -82,38 +82,22 @@ namespace MongoDB.Driver.Core.Clusters
         void Initialize();
 
         /// <summary>
-        /// Selects a server from the cluster.
+        /// Selects a server from the cluster and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The selected server.</returns>
-        IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Selects a server from the cluster.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
-        Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Selects a server from the cluster while prioritizing servers not found in the provided collection of deprioritized servers.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
         /// <param name="deprioritizedServers">The deprioritized Servers.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The selected server.</returns>
-        IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+        IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
-        /// Selects a server from the cluster while prioritizing servers not found in the provided collection of deprioritized servers.
+        /// Selects a server from the cluster and takes an optional collection of servers for deprioritization.
         /// </summary>
         /// <param name="selector">The server selector.</param>
-        /// <param name="deprioritizedServers">The deprioritized Servers.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="deprioritizedServers">The deprioritized Servers.</param>
         /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
-        Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+        Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null);
 
         /// <summary>
         /// Starts a session.
