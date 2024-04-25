@@ -1222,12 +1222,32 @@ tasks:
               set -o errexit
               ${PREPARE_SHELL}
 
-              dotnet build ./tests/MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj
-              tar czf /tmp/mongo-csharp-driver.tgz ./tests/MongoDB.Driver.Tests/bin/Debug/net6.0 ./evergreen/run-mongodb-oidc-azure-tests.sh
+              dotnet build
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
-              export AZUREOIDC_TEST_CMD="./evergreen/run-mongodb-oidc-azure-tests.sh"
+              export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
               bash $DRIVERS_TOOLS/.evergreen/auth_oidc/azure/run-driver-test.sh
+
+    - name: test-oidc-gcp
+      commands:
+        - command: shell.exec
+          params:
+            shell: bash
+            working_dir: mongo-csharp-driver
+            script: |-
+              set -o errexit
+              ${PREPARE_SHELL}
+
+              # Copy secrets-export.sh created by '${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh' script to read secrets inside the vm
+              cp $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/secrets-export.sh ./secrets-export.sh
+
+              dotnet build
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh ./secrets-export.sh
+
+              export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
+              export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
+              bash $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/run-driver-test.sh
 
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2146,6 +2166,31 @@ task_groups:
     tasks:
       - test-oidc-azure
 
+  - name: oidc-auth-gcp-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+      - command: subprocess.exec
+        params:
+          binary: bash
+          env:
+            GCPOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/teardown.sh
+    tasks:
+      - test-oidc-gcp
+
   - name: serverless-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2293,7 +2338,7 @@ buildvariants:
     - name: plain-auth-tests
 
 - matrix_name: mongodb-oidc-test-tests
-  matrix_spec: { os: [ "ubuntu-2004", "macos-1100" ] }
+  matrix_spec: { os: [ "ubuntu-2004" ] }
   display_name: "MongoDB-OIDC Auth (test) - ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2305,6 +2350,13 @@ buildvariants:
   batchtime: 20160 # 14 days
   tasks:
     - name: oidc-auth-azure-task-group
+
+- matrix_name: mongodb-oidc-gcp-tests
+  matrix_spec: { os: [ "ubuntu-2004" ] }
+  display_name: "MongoDB-OIDC Auth (gcp) - ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: oidc-auth-gcp-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }

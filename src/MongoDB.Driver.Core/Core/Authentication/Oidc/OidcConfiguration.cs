@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
         public const string EnvironmentMechanismPropertyName = "ENVIRONMENT";
         public const string TokenResourceMechanismPropertyName = "TOKEN_RESOURCE";
 
-        private static readonly ISet<string> __supportedEnvironments = new HashSet<string> { "test", "azure" };
+        private static readonly ISet<string> __supportedEnvironments = new HashSet<string> { "test", "azure", "gcp" };
         private readonly int _hashCode;
 
         public OidcConfiguration(
@@ -125,17 +125,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     EnvironmentMechanismPropertyName);
             }
 
-            if (!string.IsNullOrEmpty(TokenResource) && Environment != "azure")
+            var tokenResourceRequired = Environment == "azure" || Environment == "gcp";
+            if (!tokenResourceRequired && !string.IsNullOrEmpty(TokenResource))
             {
                 throw new ArgumentException(
-                    $"{TokenResourceMechanismPropertyName} mechanism property supported only by azure environment.",
+                    $"{TokenResourceMechanismPropertyName} mechanism property is not supported by {Environment} environment.",
                     TokenResourceMechanismPropertyName);
             }
 
-            if (Environment == "azure" && string.IsNullOrEmpty(TokenResource))
+            if (tokenResourceRequired && string.IsNullOrEmpty(TokenResource))
             {
                 throw new ArgumentException(
-                    $"{TokenResourceMechanismPropertyName} mechanism property is required by azure environment.",
+                    $"{TokenResourceMechanismPropertyName} mechanism property is required by {Environment} environment.",
                     TokenResourceMechanismPropertyName);
             }
         }

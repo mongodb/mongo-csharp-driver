@@ -809,8 +809,8 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 var parts = option.Value.Split('=');
                 var name = parts[0].Trim();
-                var value = Uri.UnescapeDataString(parts[1].Trim());
-                _allOptions.Add(name, value);
+                var value = parts[1].Trim();
+                _allOptions.Add(name, Uri.UnescapeDataString(value));
                 ParseOption(name, value);
             }
         }
@@ -980,6 +980,12 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value)
         {
+            // Should not decode authmechanismproperties before splitting by separator.
+            if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
+            {
+                value = Uri.UnescapeDataString(value);
+            }
+
             switch (name.ToLowerInvariant())
             {
                 case "appname":
@@ -1208,12 +1214,17 @@ namespace MongoDB.Driver.Core.Configuration
         {
             foreach (var property in value.Split(','))
             {
-                var parts = property.Split(':');
-                if (parts.Length != 2)
+                var unescapedProperty = Uri.UnescapeDataString(property);
+                var separatorPosition = unescapedProperty.IndexOf(':');
+                if (separatorPosition == -1)
                 {
-                    throw new MongoConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
+                    throw new MongoConfigurationException($"{name} has an invalid value of {value}.");
                 }
-                yield return new KeyValuePair<string, string>(parts[0], parts[1]);
+
+                var propertyKey = unescapedProperty.Substring(0, separatorPosition);
+                var propertyValue = unescapedProperty.Substring(separatorPosition + 1);
+
+                yield return new KeyValuePair<string, string>(propertyKey, propertyValue);
             }
         }
 

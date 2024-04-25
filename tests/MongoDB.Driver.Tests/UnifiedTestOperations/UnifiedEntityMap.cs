@@ -553,6 +553,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                                 switch (environment)
                                                 {
                                                     case "azure":
+                                                    case "gcp":
                                                         authMechanismProperties.Add(OidcConfiguration.TokenResourceMechanismPropertyName, Environment.GetEnvironmentVariable("TOKEN_RESOURCE"));
                                                         break;
                                                 }
