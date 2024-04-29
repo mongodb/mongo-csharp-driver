@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var session = CreateSession(hasSessionId, isInTransaction);
             var channelSource = CreateChannelSource(areRetryableWritesSupported);
             mockBinding.SetupGet(m => m.Session).Returns(session);
-            mockBinding.Setup(m => m.GetWriteChannelSource(CancellationToken.None, null)).Returns(channelSource);
+            mockBinding.Setup(m => m.GetWriteChannelSource(CancellationToken.None)).Returns(channelSource);
             return mockBinding.Object;
         }
 
