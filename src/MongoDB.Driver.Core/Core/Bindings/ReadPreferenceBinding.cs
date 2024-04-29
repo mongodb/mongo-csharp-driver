@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Bindings
             return GetChannelSourceHelper(server);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();

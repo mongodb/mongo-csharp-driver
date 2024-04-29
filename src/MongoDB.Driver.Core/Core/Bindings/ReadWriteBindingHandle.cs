@@ -59,42 +59,42 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetReadChannelSource(cancellationToken, deprioritizedServers);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetReadChannelSourceAsync(cancellationToken, deprioritizedServers);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSource(cancellationToken, deprioritizedServers);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSource(mayUseSecondary, cancellationToken, deprioritizedServers);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSourceAsync(cancellationToken, deprioritizedServers);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken, IReadOnlyCollection<ServerDescription> deprioritizedServers = null)
         {
             ThrowIfDisposed();
