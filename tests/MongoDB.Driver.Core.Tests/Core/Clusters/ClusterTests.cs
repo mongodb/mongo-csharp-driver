@@ -445,11 +445,11 @@ namespace MongoDB.Driver.Core.Clusters
                 IServer result;
                 if (async)
                 {
-                    result = await subject.SelectServerAsync(selector, CancellationToken.None, deprioritizedServers);
+                    result = await subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None);
                 }
                 else
                 {
-                    result = subject.SelectServer(selector, CancellationToken.None, deprioritizedServers);
+                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
                 }
 
                 result.Should().NotBeNull();
@@ -484,11 +484,11 @@ namespace MongoDB.Driver.Core.Clusters
             IServer result;
             if (async)
             {
-                result = await subject.SelectServerAsync(selector, CancellationToken.None);
+                result = await subject.SelectServerAsync(selector, null, CancellationToken.None);
             }
             else
             {
-                result = subject.SelectServer(selector, CancellationToken.None);
+                result = subject.SelectServer(selector, null, CancellationToken.None);
             }
 
             result.Should().NotBeNull();
@@ -529,11 +529,11 @@ namespace MongoDB.Driver.Core.Clusters
                 IServer result;
                 if (async)
                 {
-                    result = await subject.SelectServerAsync(selector, CancellationToken.None, deprioritizedServers);
+                    result = await subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None);
                 }
                 else
                 {
-                    result = subject.SelectServer(selector, CancellationToken.None, deprioritizedServers);
+                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
                 }
 
                 result.Should().NotBeNull();

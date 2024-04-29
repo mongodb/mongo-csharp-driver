@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             var selector = new WritableServerSelector(mayUseSecondary);
-            var server = _cluster.SelectServer(selector, cancellationToken, deprioritizedServers);
+            var server = _cluster.SelectServer(selector, deprioritizedServers, cancellationToken);
             return CreateServerChannelSource(server);
         }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             var selector = new WritableServerSelector(mayUseSecondary);
-            var server = await _cluster.SelectServerAsync(selector, cancellationToken, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(selector, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, cancellationToken, deprioritizedServers);
+            var server = cluster.SelectServer(selector, deprioritizedServers, cancellationToken);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, cancellationToken, deprioritizedServers).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(selector, deprioritizedServers, cancellationToken).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;
