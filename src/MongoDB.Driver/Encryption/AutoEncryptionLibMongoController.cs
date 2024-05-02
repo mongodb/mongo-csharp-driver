@@ -188,8 +188,9 @@ namespace MongoDB.Driver.Encryption
             }
 
             var database = _metadataClient.GetDatabase(databaseName);
-            var filterBytes = context.GetOperation().ToArray();
-            var filterDocument = new RawBsonDocument(filterBytes);
+            using var binary = context.GetOperation();
+            var filterBytes = binary.ToArray();
+            using var filterDocument = new RawBsonDocument(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var options = new ListCollectionsOptions { Filter = filter };
             var cursor = database.ListCollections(options, cancellationToken);
@@ -206,8 +207,9 @@ namespace MongoDB.Driver.Encryption
             }
 
             var database = _metadataClient.GetDatabase(databaseName);
-            var filterBytes = context.GetOperation().ToArray();
-            var filterDocument = new RawBsonDocument(filterBytes);
+            using var binary = context.GetOperation();
+            var filterBytes = binary.ToArray();
+            using var filterDocument = new RawBsonDocument(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var options = new ListCollectionsOptions { Filter = filter };
             var cursor = await database.ListCollectionsAsync(options, cancellationToken).ConfigureAwait(false);
@@ -218,8 +220,9 @@ namespace MongoDB.Driver.Encryption
         private void ProcessNeedMongoMarkingsState(CryptContext context, string databaseName, CancellationToken cancellationToken)
         {
             var database = _mongocryptdClient.Value.GetDatabase(databaseName);
-            var commandBytes = context.GetOperation().ToArray();
-            var commandDocument = new RawBsonDocument(commandBytes);
+            using var binary = context.GetOperation();
+            var commandBytes = binary.ToArray();
+            using var commandDocument = new RawBsonDocument(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
 
             BsonDocument response = null;
@@ -242,8 +245,9 @@ namespace MongoDB.Driver.Encryption
         private async Task ProcessNeedMongoMarkingsStateAsync(CryptContext context, string databaseName, CancellationToken cancellationToken)
         {
             var database = _mongocryptdClient.Value.GetDatabase(databaseName);
-            var commandBytes = context.GetOperation().ToArray();
-            var commandDocument = new RawBsonDocument(commandBytes);
+            using var binary = context.GetOperation();
+            var commandBytes = binary.ToArray();
+            using var commandDocument = new RawBsonDocument(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
 
             BsonDocument response = null;
