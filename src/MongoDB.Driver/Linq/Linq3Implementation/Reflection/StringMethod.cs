@@ -28,6 +28,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __anyStringInWithParams;
         private static readonly MethodInfo __anyStringNinWithEnumerable;
         private static readonly MethodInfo __anyStringNinWithParams;
+        private static readonly MethodInfo __concatWith1Object;
+        private static readonly MethodInfo __concatWith2Objects;
+        private static readonly MethodInfo __concatWith3Objects;
+        private static readonly MethodInfo __concatWithObjectArray;
         private static readonly MethodInfo __concatWith2Strings;
         private static readonly MethodInfo __concatWith3Strings;
         private static readonly MethodInfo __concatWith4Strings;
@@ -108,6 +112,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __anyStringInWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringIn(values));
             __anyStringNinWithEnumerable = ReflectionInfo.Method((IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values) => s.AnyStringNin(values));
             __anyStringNinWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringNin(values));
+            __concatWith1Object = ReflectionInfo.Method((object arg) => string.Concat(arg));
+            __concatWith2Objects = ReflectionInfo.Method((object arg0, object arg1) => string.Concat(arg0, arg1));
+            __concatWith3Objects = ReflectionInfo.Method((object arg0, object arg1, object arg2) => string.Concat(arg0, arg1, arg2));
+            __concatWithObjectArray = ReflectionInfo.Method((object[] args) => string.Concat(args));
             __concatWith2Strings = ReflectionInfo.Method((string str0, string str1) => string.Concat(str0, str1));
             __concatWith3Strings = ReflectionInfo.Method((string str0, string str1, string str2) => string.Concat(str0, str1, str2));
             __concatWith4Strings = ReflectionInfo.Method((string str0, string str1, string str2, string str3) => string.Concat(str0, str1, str2, str3));
@@ -168,6 +176,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo AnyStringInWithParams => __anyStringInWithParams;
         public static MethodInfo AnyStringNinWithEnumerable => __anyStringNinWithEnumerable;
         public static MethodInfo AnyStringNinWithParams => __anyStringNinWithParams;
+        public static MethodInfo ConcatWith1Object => __concatWith1Object;
+        public static MethodInfo ConcatWith2Objects => __concatWith2Objects;
+        public static MethodInfo ConcatWith3Objects => __concatWith3Objects;
+        public static MethodInfo ConcatWithObjectArray => __concatWithObjectArray;
         public static MethodInfo ConcatWith2Strings => __concatWith2Strings;
         public static MethodInfo ConcatWith3Strings => __concatWith3Strings;
         public static MethodInfo ConcatWith4Strings => __concatWith4Strings;

@@ -22,6 +22,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -30,6 +31,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
         {
+            if (StringConcatMethodToAggregationExpressionTranslator.CanTranslate(expression, out var method, out var arguments))
+            {
+                return StringConcatMethodToAggregationExpressionTranslator.Translate(context, expression, method, arguments);
+            }
+
             if (GetTypeComparisonExpressionToAggregationExpressionTranslator.CanTranslate(expression))
             {
                 return GetTypeComparisonExpressionToAggregationExpressionTranslator.Translate(context, expression);
@@ -78,9 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var ast = expression.NodeType switch
             {
-                ExpressionType.Add => IsStringConcatenationExpression(expression) ?
-                    AstExpression.Concat(leftTranslation.Ast, rightTranslation.Ast) :
-                    AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Add => AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast),
                 ExpressionType.And => expression.Type == typeof(bool) ?
                     AstExpression.And(leftTranslation.Ast, rightTranslation.Ast) :
                     AstExpression.BitAnd(leftTranslation.Ast, rightTranslation.Ast),
@@ -219,15 +223,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         static bool IsEnumOrConvertEnumToUnderlyingType(Expression expression)
         {
             return expression.Type.IsEnum || IsConvertEnumToUnderlyingType(expression);
-        }
-
-        private static bool IsStringConcatenationExpression(BinaryExpression expression)
-        {
-            return
-                expression.NodeType == ExpressionType.Add &&
-                expression.Type == typeof(string) &&
-                expression.Left.Type == typeof(string) &&
-                expression.Right.Type == typeof(string);
         }
 
         private static AstBinaryOperator ToBinaryOperator(ExpressionType nodeType)

@@ -14,9 +14,12 @@
 */
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -27,20 +30,48 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly MethodInfo[] __stringConcatMethods = new[]
         {
+            StringMethod.ConcatWith1Object,
+            StringMethod.ConcatWith2Objects,
+            StringMethod.ConcatWith3Objects,
+            StringMethod.ConcatWithObjectArray,
             StringMethod.ConcatWith2Strings,
             StringMethod.ConcatWith3Strings,
             StringMethod.ConcatWith4Strings,
             StringMethod.ConcatWithStringArray
         };
 
-        public static bool CanTranslate(MethodCallExpression expression)
-            => expression.Method.IsOneOf(__stringConcatMethods);
-
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static bool CanTranslate(BinaryExpression expression, out MethodInfo method, out ReadOnlyCollection<Expression> arguments)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
+            if (expression.NodeType == ExpressionType.Add &&
+                expression.Method != null &&
+                expression.Method.IsOneOf(StringMethod.ConcatWith2Objects, StringMethod.ConcatWith2Strings))
+            {
+                method = expression.Method;
+                arguments = new ReadOnlyCollection<Expression>(new[] { expression.Left, expression.Right });
+                return true;
+            }
 
+            method = null;
+            arguments = null;
+            return false;
+        }
+
+        public static bool CanTranslate(MethodCallExpression expression, out MethodInfo method, out ReadOnlyCollection<Expression> arguments)
+        {
+            if (expression.Method.IsOneOf(__stringConcatMethods))
+            {
+                method = expression.Method;
+                arguments = expression.Arguments;
+                return true;
+            }
+
+            method = null;
+            arguments = null;
+            return false;
+        }
+
+        public static AggregationExpression Translate(TranslationContext context, Expression expression, MethodInfo method, ReadOnlyCollection<Expression> arguments)
+        {
             IEnumerable<AstExpression> argumentsTranslations = null;
 
             if (method.IsOneOf(
@@ -52,12 +83,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     arguments.Select(a => ExpressionToAggregationExpressionTranslator.Translate(context, a).Ast);
             }
 
+            if (method.IsOneOf(
+               StringMethod.ConcatWith1Object,
+               StringMethod.ConcatWith2Objects,
+               StringMethod.ConcatWith3Objects))
+            {
+                argumentsTranslations = arguments
+                    .Select(a => ExpressionToAggregationExpressionTranslator.Translate(context, a))
+                    .Select(ExpressionToString);
+            }
+
             if (method.Is(StringMethod.ConcatWithStringArray))
             {
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments.Single());
                 if (argumentTranslation.Ast is AstComputedArrayExpression astArray)
                 {
                     argumentsTranslations = astArray.Items;
+                }
+            }
+
+            if (method.Is(StringMethod.ConcatWithObjectArray))
+            {
+                if (arguments.Single() is NewArrayExpression newArrayExpression)
+                {
+                    argumentsTranslations = newArrayExpression.Expressions
+                        .Select(a => ExpressionToAggregationExpressionTranslator.Translate(context, a))
+                        .Select(ExpressionToString);
                 }
             }
 
@@ -68,6 +119,44 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+
+            static AstExpression ExpressionToString(AggregationExpression aggregationExpression)
+            {
+                var astExpression = aggregationExpression.Ast;
+                if (aggregationExpression.Serializer.ValueType == typeof(string))
+                {
+                    return astExpression;
+                }
+                else
+                {
+                    if (astExpression is AstConstantExpression constantAstExpression)
+                    {
+                        var value = constantAstExpression.Value;
+                        var stringValue = ValueToString(aggregationExpression.Expression, value);
+                        return AstExpression.Constant(stringValue);
+                    }
+                    else
+                    {
+                        return AstExpression.ToString(astExpression);
+                    }
+                }
+            }
+
+            static string ValueToString(Expression expression, BsonValue value)
+            {
+                return value switch
+                {
+                    BsonBoolean booleanValue => JsonConvert.ToString(booleanValue.Value),
+                    BsonDateTime dateTimeValue => JsonConvert.ToString(dateTimeValue.ToUniversalTime()),
+                    BsonDecimal128 decimalValue => JsonConvert.ToString(decimalValue.Value),
+                    BsonDouble doubleValue => JsonConvert.ToString(doubleValue.Value),
+                    BsonInt32 int32Value => JsonConvert.ToString(int32Value.Value),
+                    BsonInt64 int64Value => JsonConvert.ToString(int64Value.Value),
+                    BsonObjectId objectIdValue => objectIdValue.Value.ToString(),
+                    BsonString stringValue => stringValue.Value,
+                    _ => throw new ExpressionNotSupportedException(expression, because: $"values represented as BSON type {value.BsonType} are not supported by $toString")
+                };
+            }
         }
     }
 }
