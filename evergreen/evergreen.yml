@@ -940,6 +940,20 @@ functions:
           ${PREPARE_SHELL}
           . ./evergreen/push-packages.sh
 
+  run-test-SK:
+    - command: shell.exec
+      params:
+        working_dir: mongo-csharp-driver
+        env:
+          DRIVER_VERSION: "2.25.0-8-g7c4216e73d"
+          ATLAS_SK: ${ATLAS_SK}
+        script: |
+          ${PREPARE_SHELL}
+          echo "cloning sk rep"
+          git clone https://github.com/microsoft/semantic-kernel.git
+          ./evergreen/run-sk.sh
+
+  upload-package:
   upload-packages:
     - command: s3.put
       params:
@@ -1776,6 +1790,12 @@ tasks:
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
             PACKAGES_SOURCE_KEY: ${nuget_api_key}
+
+    - name: run-test-SK
+      commands:
+        - func: make-files-executable
+        - func: install-dotnet
+        - func: run-test-SK
 
     - name: push-packages-myget
       commands:
@@ -2630,6 +2650,15 @@ buildvariants:
         - name: build-packages
           variant: ".build-packages"
         ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: test-SK
+  matrix_spec:
+    build-target: "release"
+    os: "ubuntu-2004"
+  display_name: "Test Semantic Kernel"  
+  tasks:
+    - name: run-test-SK
+      priority: 10
 
 - matrix_name: push-packages-myget
   matrix_spec:
