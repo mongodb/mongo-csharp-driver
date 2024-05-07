@@ -766,6 +766,7 @@ functions:
   run-test-SK:
     - command: shell.exec
       params:
+        shell: bash
         working_dir: mongo-csharp-driver
         env:
           ATLAS_SK: ${ATLAS_SK}
@@ -952,7 +953,6 @@ functions:
           ${PREPARE_SHELL}
           . ./evergreen/push-packages.sh
 
-  upload-package:
   upload-packages:
     - command: s3.put
       params:
@@ -1777,7 +1777,6 @@ tasks:
 
     - name: test-SK
       commands:
-        - func: make-files-executable
         - func: install-dotnet
         - func: run-test-SK
 
