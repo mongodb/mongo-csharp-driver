@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }, "azure", null },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "tr" }, "gcp", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock }, null, __callbackMock },
         };
 
@@ -90,6 +91,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure" }, "TOKEN_RESOURCE" },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = null }, "TOKEN_RESOURCE" },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "" }, "TOKEN_RESOURCE" },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp" }, "TOKEN_RESOURCE" },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = null }, "TOKEN_RESOURCE" },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "" }, "TOKEN_RESOURCE" },
         };
 
         [Theory]
@@ -160,6 +164,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 true,
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" },
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }
+            },
+            new object[]
+            {
+                false,
+                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" },
+                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "tr" }
             },
             new object[]
             {

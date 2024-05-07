@@ -15,42 +15,29 @@
 
 using System;
 using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
-    internal sealed class AzureOidcCallback : HttpRequestOidcCallback
+    internal sealed class GcpOidcCallback : HttpRequestOidcCallback
     {
         private readonly string _tokenResource;
 
-        public AzureOidcCallback(string tokenResource)
+        public GcpOidcCallback(string tokenResource)
         {
             _tokenResource = tokenResource;
         }
 
         protected override (Uri Uri, (string Key, string Value)[] headers) GetHttpRequestParams(OidcCallbackParameters parameters)
         {
-            var metadataUrl = $"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource={Uri.EscapeDataString(_tokenResource)}";
-            if (!string.IsNullOrEmpty(parameters.UserName))
-            {
-                metadataUrl += $"&client_id={Uri.EscapeDataString(parameters.UserName)}";
-            }
+            var metadataUrl = $"http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience={Uri.EscapeDataString(_tokenResource)}";
 
-            return (new Uri(metadataUrl), new [] { ("Accept", "application/json"), ("Metadata", "true") });
+            return (new Uri(metadataUrl), new[] { ("Metadata-Flavor", "Google") } );
         }
 
         protected override OidcAccessToken ProcessHttpResponse(Stream responseStream)
         {
             using var responseReader = new StreamReader(responseStream);
-            using var jsonReader = new JsonReader(responseReader);
-
-            var context = BsonDeserializationContext.CreateRoot(jsonReader);
-            var document = BsonDocumentSerializer.Instance.Deserialize(context);
-
-            var accessToken = document.GetValue("access_token");
-            return new OidcAccessToken(accessToken.AsString, null);
+            return new OidcAccessToken(responseReader.ReadToEnd(), null);
         }
     }
 }

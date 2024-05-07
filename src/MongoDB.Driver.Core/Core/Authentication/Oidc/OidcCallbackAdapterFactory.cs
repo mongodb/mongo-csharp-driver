@@ -52,8 +52,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             {
                 callback = configuration.Environment switch
                 {
-                    "test" => FileOidcCallback.CreateFromEnvironmentVariable("OIDC_TOKEN_FILE", _environmentVariableProvider),
                     "azure" => new AzureOidcCallback(configuration.TokenResource),
+                    "gcp" => new GcpOidcCallback(configuration.TokenResource),
+                    "test" => FileOidcCallback.CreateFromEnvironmentVariable("OIDC_TOKEN_FILE", _environmentVariableProvider),
                     _ => throw new NotSupportedException($"Non supported {OidcConfiguration.EnvironmentMechanismPropertyName} value: {configuration.Environment}")
                 };
             }
