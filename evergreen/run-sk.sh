@@ -21,8 +21,8 @@ cat > nuget.custom.config << EOL
 EOL
 
 # Update mongodb version
-echo Update MongoDB Driver version to "$DRIVER_VERSION"
-sed -i -e 's/PackageVersion Include="MongoDB.Driver" Version=".\+"/PackageVersion Include="MongoDB.Driver" Version="'"$DRIVER_VERSION"'"/g' Directory.Packages.props
+echo Update MongoDB Driver version to "$PACKAGE_VERSION"
+sed -i -e 's/PackageVersion Include="MongoDB.Driver" Version=".\+"/PackageVersion Include="MongoDB.Driver" Version="'"$PACKAGE_VERSION"'"/g' Directory.Packages.props
 
 echo "MongoDB Driver version updated"
 cat Directory.Packages.props
