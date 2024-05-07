@@ -2638,7 +2638,6 @@ buildvariants:
 
 - matrix_name: test-SK
   matrix_spec:
-    build-target: "release"
     os: "ubuntu-2004"
   display_name: "Semantic Kernel Connector"
   tasks:
