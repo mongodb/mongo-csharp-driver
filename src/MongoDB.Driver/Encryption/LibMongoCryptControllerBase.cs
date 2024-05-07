@@ -252,8 +252,9 @@ namespace MongoDB.Driver.Encryption
 
         private void ProcessNeedMongoKeysState(CryptContext context, CancellationToken cancellationToken)
         {
-            var filterBytes = context.GetOperation().ToArray();
-            var filterDocument = new RawBsonDocument(filterBytes);
+            using var binary = context.GetOperation();
+            var filterBytes = binary.ToArray();
+            using var filterDocument = new RawBsonDocument(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = _keyVaultCollection.Value.FindSync(filter, cancellationToken: cancellationToken);
             var results = cursor.ToList(cancellationToken);
@@ -288,8 +289,9 @@ namespace MongoDB.Driver.Encryption
 
         private async Task ProcessNeedMongoKeysStateAsync(CryptContext context, CancellationToken cancellationToken)
         {
-            var filterBytes = context.GetOperation().ToArray();
-            var filterDocument = new RawBsonDocument(filterBytes);
+            using var binary = context.GetOperation();
+            var filterBytes = binary.ToArray();
+            using var filterDocument = new RawBsonDocument(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = await _keyVaultCollection.Value.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
             var results = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -298,7 +300,8 @@ namespace MongoDB.Driver.Encryption
 
         private byte[] ProcessReadyState(CryptContext context)
         {
-            return context.FinalizeForEncryption().ToArray();
+            using var binary = context.FinalizeForEncryption();
+            return binary.ToArray();
         }
 
         private void SendKmsRequest(KmsRequest request, CancellationToken cancellation)
