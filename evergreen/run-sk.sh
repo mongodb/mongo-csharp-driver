@@ -25,7 +25,6 @@ echo Update MongoDB Driver version to "$PACKAGE_VERSION"
 sed -i -e 's/PackageVersion Include="MongoDB.Driver" Version=".\+"/PackageVersion Include="MongoDB.Driver" Version="'"$PACKAGE_VERSION"'"/g' Directory.Packages.props
 
 echo "MongoDB Driver version updated"
-cat Directory.Packages.props
 
 # Set SkipReason to null to enable integration tests
 sed -i -e 's/"MongoDB Atlas cluster is required"/null/g' ./src/IntegrationTests/Connectors/Memory/MongoDB/MongoDBMemoryStoreTests.cs
