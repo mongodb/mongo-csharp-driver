@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
-set -o errexit  # Exit the script with error if any of the commands fail
-set +o xtrace # Disable tracing.
+set -o errexit # Exit the script with error if any of the commands fail
+set +o xtrace  # Disable tracing.
+
+wait_until_package_is_available ()
+{
+  package=$1
+  version=$2
+  query_url="${PACKAGES_SOURCE%index.json}query"
+  resp=""
+  count=0
+  echo "Checking package availability: ${package}:${version} at ${query_url}"
+  while [ -z "$resp" ] && [ $count -le 40 ]; do
+    resp=$(curl -X GET -s "$query_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[] | select(.version==$jq_version) | .version')
+    if [ -z "$resp" ]; then
+      echo "sleeping for 15 seconds..."
+      sleep 15
+    fi
+  done
+
+  if [ -z "$resp" ]; then
+    echo "Timeout while waiting for package availability: ${package}"
+    exit 1
+  else
+    echo "Package ${package} is available, version: ${resp}"
+  fi
+}
 
 if [ -z "$PACKAGES_SOURCE" ]; then
   echo "PACKAGES_SOURCE variable should be set"
@@ -17,10 +41,17 @@ if [ -z "$PACKAGE_VERSION" ]; then
   exit 1
 fi
 
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Bson."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.Core."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Driver.GridFS."$PACKAGE_VERSION".nupkg
-dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/mongocsharpdriver."$PACKAGE_VERSION".nupkg
+clear_version_rx='^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'
+if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACKAGE_VERSION" =~ $clear_version_rx ]]; then
+  echo "Cannot push dev version to nuget.org: '$PACKAGE_VERSION'"
+  exit 1
+fi
 
+PACKAGES=("MongoDB.Bson" "MongoDB.Driver.Core" "MongoDB.Driver" "MongoDB.Driver.GridFS" "mongocsharpdriver")
+for package in ${PACKAGES[*]}; do
+  dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
+done
 
+for package in ${PACKAGES[*]}; do
+  wait_until_package_is_available "$package" "$PACKAGE_VERSION"
+done

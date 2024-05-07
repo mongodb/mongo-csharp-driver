@@ -46,10 +46,7 @@ functions:
             CURRENT_VERSION=latest
           fi
 
-          if [ "${BUILD_TARGET}" = "release" ]; then
-            PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
-          fi
-
+          PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
           export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
           export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
@@ -925,6 +922,7 @@ functions:
   build-packages:
     - command: shell.exec
       params:
+        shell: bash
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -933,6 +931,7 @@ functions:
   push-packages:
     - command: shell.exec
       params:
+        shell: bash
         working_dir: mongo-csharp-driver
         env:
           PACKAGES_SOURCE: ${PACKAGES_SOURCE}
@@ -941,40 +940,90 @@ functions:
           ${PREPARE_SHELL}
           . ./evergreen/push-packages.sh
 
-  upload-package:
+  upload-packages:
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/octet-stream}
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_files_include_filter:
+          - mongo-csharp-driver/artifacts/nuget/*.${PACKAGE_VERSION}.nupkg
+          - mongo-csharp-driver/artifacts/nuget/*.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/
+        preserve_path: false
         bucket: mciuploads
         permissions: public-read
         content_type: ${content_type|application/octet-stream}
 
-  download-package:
+  download-packages:
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Bson.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/${PACKAGE_ID}.${PACKAGE_VERSION}.snupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Bson.${PACKAGE_VERSION}.snupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.${PACKAGE_VERSION}.nupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.${PACKAGE_VERSION}.snupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Core.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Core.${PACKAGE_VERSION}.nupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Core.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Core.${PACKAGE_VERSION}.snupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.nupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.snupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/mongocsharpdriver.${PACKAGE_VERSION}.nupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/mongocsharpdriver.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
 
   build-apidocs:
@@ -984,10 +1033,6 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          if ! [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
-            echo "Skip api docs generating for the patch release"
-            exit 0
-          fi
           ./evergreen/build-apidocs.sh
 
   upload-apidocs:
@@ -1001,7 +1046,7 @@ functions:
         script: |
           ${PREPARE_SHELL}
           if ! [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
-            echo "Skip api docs generating for the patch release"
+            echo "Cannot upload api docs for the patch release"
             exit 0
           fi
           ./evergreen/upload-apidocs.sh
@@ -1721,50 +1766,36 @@ tasks:
       commands:
         - func: install-dotnet
         - func: build-packages
-        - func: upload-package
-          vars:
-            PACKAGE_ID: "MongoDB.Bson"
-        - func: upload-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver"
-        - func: upload-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver.Core"
-        - func: upload-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver.GridFS"
-        - func: upload-package
-          vars:
-            PACKAGE_ID: "mongocsharpdriver"
+        - func: upload-packages
 
-    - name: push-packages
+    - name: push-packages-nuget
       commands:
         - func: install-dotnet
-        - func: download-package
-          vars:
-            PACKAGE_ID: "MongoDB.Bson"
-        - func: download-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver"
-        - func: download-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver.Core"
-        - func: download-package
-          vars:
-            PACKAGE_ID: "MongoDB.Driver.GridFS"
-        - func: download-package
-          vars:
-            PACKAGE_ID: "mongocsharpdriver"
+        - func: download-packages
         - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
             PACKAGES_SOURCE_KEY: ${nuget_api_key}
+
+    - name: push-packages-myget
+      commands:
+        - func: install-dotnet
+        - func: download-packages
+        - func: push-packages
+          vars:
+            PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
+            PACKAGES_SOURCE_KEY: ${myget_api_key}
 
     - name: generate-apidocs
       commands:
         - func: install-dotnet
         - func: build-apidocs
         - func: upload-apidocs
+
+    - name: validate-apidocs
+      commands:
+        - func: install-dotnet
+        - func: build-apidocs
 
 axes:
   - id: version
@@ -1932,18 +1963,6 @@ axes:
         display_name: "Serverless Terminating Proxy"
         variables:
           VAULT_NAME: "serverless_next"
-
-  - id: build-target
-    display_name: CI build target
-    values:
-      - id: "tests"
-        display_name: "tests"
-        variables:
-          BUILD_TARGET: "tests"
-      - id: "release"
-        display_name: "release"
-        variables:
-          BUILD_TARGET: "release"
 
 task_groups:
   - name: testazurekms-task-group
@@ -2569,18 +2588,23 @@ buildvariants:
 # Package release variants
 - matrix_name: build-packages
   matrix_spec:
-    build-target: "release"
     os: "windows-64" # should produce package on Windows to make sure full framework binaries created.
-  display_name: "Package Pack"
+  display_name: "Packages Pack"
   tags: ["build-packages", "release-tag"]
   tasks:
     - name: build-packages
-      git_tag_only: true
       priority: 10
+
+- matrix_name: validate-apidocs
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "Validate API Documentation generation"
+  tags: ["build-apidocs"]
+  tasks:
+    - name: validate-apidocs
 
 - matrix_name: generate-apidocs
   matrix_spec:
-    build-target: "release"
     os: "ubuntu-2004"
   display_name: "Generate API Documentation"
   tags: ["build-apidocs", "release-tag"]
@@ -2593,16 +2617,27 @@ buildvariants:
           variant: ".build-packages"
       ## add dependency onto packages smoke test once it implemented
 
-- matrix_name: push-packages
+- matrix_name: push-packages-nuget
   matrix_spec:
-    build-target: "release"
     os: "ubuntu-2004"
-  display_name: "Package Push"
+  display_name: "Packages Push (NuGet)"
   tags: ["push-packages", "release-tag"]
   tasks:
-    - name: push-packages
+    - name: push-packages-nuget
       git_tag_only: true
       priority: 10
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
+        ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: push-packages-myget
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "Packages Push (MyGet)"
+  tags: ["push-packages-myget"]
+  tasks:
+    - name: push-packages-myget
       depends_on:
         - name: build-packages
           variant: ".build-packages"
