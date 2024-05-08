@@ -31,4 +31,6 @@ else
     exit 1
 fi
 
+sleep 60 # sleep for 1 minute to let cluster make the master election
+
 dotnet test --no-build --framework net6.0 --filter Category=MongoDbOidc -e OIDC_ENV="$OIDC_ENV" -e TOKEN_RESOURCE="$TOKEN_RESOURCE" -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll

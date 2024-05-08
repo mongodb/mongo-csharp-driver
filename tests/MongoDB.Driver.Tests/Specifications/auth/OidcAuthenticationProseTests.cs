@@ -51,7 +51,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             OidcCallbackAdapterCachingFactory.Instance.Reset();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L37
+        // 1.1 Callback is called during authentication
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L39
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_authentication_callback_called_during_authentication([Values(false, true)]bool async)
@@ -73,7 +74,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L44
+        // 1.2 Callback is called once for multiple connections
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L46
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_authentication_callback_called_once_for_multiple_connections([Values(false, true)]bool async)
@@ -98,7 +100,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             VerifyCallbackUsage(callbackMock, async, Times.Once());
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L53
+        // 2.1 Valid Callback Inputs
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L55
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_validation_valid_callback_inputs([Values(false, true)] bool async)
@@ -120,7 +123,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L60
+        // 2.2 OIDC Callback Returns Null
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L62
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_validation_callback_returns_null([Values(false, true)] bool async)
@@ -141,7 +145,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Events.Should().BeEmpty();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L66
+        // 2.3 OIDC Callback Returns Missing Data
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L68
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_validation_callback_returns_missing_data([Values(false, true)] bool async)
@@ -165,7 +170,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L73
+        // 2.4 Invalid Client Configuration with Callback
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L75
         [Theory]
         [ParameterAttributeData]
         public async Task Callback_validation_invalid_client_configuration([Values(false, true)] bool async)
@@ -188,7 +194,30 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Events.Should().BeEmpty();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L80
+        // 2.5 Invalid use of ALLOWED_HOSTS
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L81
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Invalid_Allowed_Hosts_Usage([Values(false, true)] bool async)
+        {
+            EnsureOidcIsConfigured("azure");
+
+            var credential = MongoCredential.CreateOidcCredential("azure")
+                .WithMechanismProperty(OidcConfiguration.TokenResourceMechanismPropertyName, Environment.GetEnvironmentVariable("TOKEN_RESOURCE"))
+                .WithMechanismProperty("ALLOWED_HOSTS", Array.Empty<string>());
+            var eventCapturer = new EventCapturer().CaptureCommandEvents(SaslAuthenticator.SaslStartCommand);
+            var collection = CreateMongoCollection(credential, eventCapturer);
+
+            var exception = async
+                ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
+                : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+
+            exception.Should().BeOfType<MongoConnectionException>();
+            eventCapturer.Count.Should().Be(0);
+        }
+
+        // 3.1 Authentication failure with cached tokens fetch a new token and retry auth
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L89
         [Theory]
         [ParameterAttributeData]
         public async Task Authentication_failure_with_cached_tokens_fetch_new_and_retry([Values(false, true)] bool async)
@@ -211,6 +240,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 : callbackAdapter.GetCredentials(callbackParameters, default);
 
             // configure mock with valid access token
+            callbackMock.Reset();
             ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
 
             // callbackAdapter should have cached wrong access token at this point.
@@ -229,7 +259,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             // eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L88
+        // 3.2 Authentication failures without cached tokens return an error
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L97
         [Theory]
         [ParameterAttributeData]
         public async Task Authentication_failure_without_cached_tokens_return_error([Values(false, true)] bool async)
@@ -253,7 +284,37 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L95
+        // 3.3 Unexpected error code does not clear the cache
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L104
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Unexpected_error_does_not_clear_token_cache([Values(false, true)] bool async)
+        {
+            EnsureOidcIsConfigured("test");
+
+            var callbackMock = new Mock<IOidcCallback>();
+            ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
+            var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
+            var collection = CreateMongoCollection(credential);
+
+            Exception exception;
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.IllegalOperation, "saslStart"))
+            {
+                exception = async
+                    ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
+                    : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+
+                _ = async
+                    ? await collection.FindAsync(Builders<BsonDocument>.Filter.Empty)
+                    : collection.FindSync(Builders<BsonDocument>.Filter.Empty);
+            }
+
+            exception.Should().BeOfType<MongoConnectionException>();
+            VerifyCallbackUsage(callbackMock, async, Times.Once());
+        }
+
+        // 4.1 Reauthentication Succeeds
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L132
         [Theory]
         [ParameterAttributeData]
         public async Task ReAuthentication([Values(false, true)] bool async)
@@ -280,7 +341,88 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L125
+        // 4.2 Read Commands Fail If Reauthentication Fails
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L156
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Read_commands_fail_if_reauthentication_fails([Values(false, true)] bool async)
+        {
+            EnsureOidcIsConfigured("test");
+
+            var callbackMock = new Mock<IOidcCallback>();
+            // configure mock with valid access token
+            ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
+            var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
+            var eventCapturer = new EventCapturer().CaptureCommandEvents(SaslAuthenticator.SaslStartCommand);
+            var collection = CreateMongoCollection(credential, eventCapturer);
+
+            _ = async
+                ? await collection.FindAsync(Builders<BsonDocument>.Filter.Empty)
+                : collection.FindSync(Builders<BsonDocument>.Filter.Empty);
+
+            // reconfigure mock to return invalid access token
+            ConfigureOidcCallback(callbackMock, "wrong token");
+            Exception exception;
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "find"))
+            {
+                exception = async
+                    ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
+                    : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+            }
+
+            exception.Should().BeOfType<MongoCommandException>();
+            VerifyCallbackUsage(callbackMock, async, Times.Exactly(2));
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+        }
+
+        // 4.3 Write Commands Fail If Reauthentication Fails
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L181
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Write_commands_fail_if_reauthentication_fails([Values(false, true)] bool async)
+        {
+            var dummyDocument = new BsonDocument("dummy", "value");
+            EnsureOidcIsConfigured("test");
+
+            var callbackMock = new Mock<IOidcCallback>();
+            // configure mock with valid access token
+            ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
+            var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
+            var eventCapturer = new EventCapturer().CaptureCommandEvents(SaslAuthenticator.SaslStartCommand);
+            var collection = CreateMongoCollection(credential, eventCapturer);
+
+            if (async)
+            {
+                await collection.InsertOneAsync(dummyDocument);
+            }
+            else
+            {
+                collection.InsertOne(dummyDocument);
+            }
+
+            // reconfigure mock to return invalid access token
+            ConfigureOidcCallback(callbackMock, "wrong token");
+            Exception exception;
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "insert"))
+            {
+                exception = async
+                    ? await Record.ExceptionAsync(() => collection.InsertOneAsync(dummyDocument))
+                    : Record.Exception(() => collection.InsertOne(dummyDocument));
+            }
+
+            exception.Should().BeOfType<MongoCommandException>();
+            VerifyCallbackUsage(callbackMock, async, Times.Exactly(2));
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+        }
+
+        // 5.1 Azure With No Username
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L212
         [Theory]
         [ParameterAttributeData]
         public async Task Azure_auth_no_username([Values(false, true)] bool async)
@@ -300,7 +442,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
-        // https://github.com/mongodb/specifications/blob/611b12ccbdd012dcd9ab2877a32200b3835c97af/source/auth/tests/mongodb-oidc.md?plain=1#L131
+        // 5.2 Azure with Bad Username
+        // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L218
         [Theory]
         [ParameterAttributeData]
         public async Task Azure_auth_bad_username_return_error([Values(false, true)] bool async)
@@ -320,8 +463,6 @@ namespace MongoDB.Driver.Tests.Specifications.auth
 
         private void ConfigureOidcCallback(Mock<IOidcCallback> callbackMock, string accessToken)
         {
-            callbackMock.Reset();
-
             var response = new OidcAccessToken(accessToken, null);
             callbackMock
                 .Setup(c => c.GetOidcAccessToken(It.IsAny<OidcCallbackParameters>(), It.IsAny<CancellationToken>()))
