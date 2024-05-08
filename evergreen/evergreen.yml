@@ -854,6 +854,25 @@ functions:
           . ./activate-kmstlsvenv.sh
           python bottle.py fake_azure:imds
 
+  trace-artifacts:
+    - command: papertrail.trace
+      params:
+        key_id: ${papertrail_key_id}
+        secret_key: ${papertrail_secret_key}
+        product: ${PRODUCT_NAME}
+        version: ${PACKAGE_VERSION}
+        filenames:
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Core.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Core.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.snupkg"
+
   cleanup:
     - command: shell.exec
       params:
@@ -1776,6 +1795,9 @@ tasks:
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
             PACKAGES_SOURCE_KEY: ${nuget_api_key}
+        - func: trace-artifacts
+          vars:
+            PRODUCT_NAME: "mongo-csharp-driver"
 
     - name: push-packages-myget
       commands:
