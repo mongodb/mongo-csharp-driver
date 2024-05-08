@@ -1,0 +1,82 @@
+{
+  "components": [
+    {
+      "bom-ref": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.nuget.org/api/v2/package/MongoDB.Libmongocrypt/1.8.2"
+        },
+        {
+          "type": "website",
+          "url": "https://www.nuget.org/packages/MongoDB.Libmongocrypt/1.8.2"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "name": "Other"
+          }
+        }
+      ],
+      "name": "MongoDB.Libmongocrypt",
+      "purl": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2",
+      "type": "library",
+      "version": "1.8.2"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2"
+    }
+  ],
+  "metadata": {
+    "timestamp": "2024-05-03T20:19:34.867974+00:00",
+    "tools": [
+      {
+        "externalReferences": [
+          {
+            "type": "build-system",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib/actions"
+          },
+          {
+            "type": "distribution",
+            "url": "https://pypi.org/project/cyclonedx-python-lib/"
+          },
+          {
+            "type": "documentation",
+            "url": "https://cyclonedx-python-library.readthedocs.io/"
+          },
+          {
+            "type": "issue-tracker",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib/issues"
+          },
+          {
+            "type": "license",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib/blob/main/LICENSE"
+          },
+          {
+            "type": "release-notes",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib/blob/main/CHANGELOG.md"
+          },
+          {
+            "type": "vcs",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib"
+          },
+          {
+            "type": "website",
+            "url": "https://github.com/CycloneDX/cyclonedx-python-lib/#readme"
+          }
+        ],
+        "name": "cyclonedx-python-lib",
+        "vendor": "CycloneDX",
+        "version": "6.4.4"
+      }
+    ]
+  },
+  "serialNumber": "urn:uuid:137c9f19-2c41-488a-bacb-b367694656ff",
+  "version": 1,
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5"
+}
