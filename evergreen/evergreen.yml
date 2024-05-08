@@ -1807,10 +1807,7 @@ tasks:
           vars:
             PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
             PACKAGES_SOURCE_KEY: ${myget_api_key}
-        - func: trace-artifacts
-          vars:
-            PRODUCT_NAME: "mongo-csharp-driver-dev"
-            
+
     - name: generate-apidocs
       commands:
         - func: install-dotnet
