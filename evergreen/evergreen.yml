@@ -217,6 +217,12 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
+          if [ "${OS}" = "macos-14-arm64" ]; then
+            # have to set the limit manually for macos-14-arm, can be removed once DEVPROD-7353 will be solved
+            ulimit -n 64000
+            ulimit -a
+          fi
+
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           LOAD_BALANCER=${LOAD_BALANCER} \
           MONGODB_VERSION=${VERSION} \
@@ -1867,7 +1873,6 @@ axes:
         display_name: "Windows 64-bit"
         variables:
           OS: "windows-64"
-          python3_binary: "C:/python/Python38/python.exe"
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
@@ -1875,32 +1880,28 @@ axes:
         display_name: "Ubuntu 18.04"
         variables:
           OS: "ubuntu-1804"
-          python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu1804-test
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
         variables:
           OS: "ubuntu-2004"
-          python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu2004-small
-      - id: "macos-1100"
-        display_name: "macOS 11.00"
+      - id: "macos-14"
+        display_name: "macOS 14.00"
         variables:
-          OS: "macos-1100"
-          python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+          OS: "macos-1400"
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
-        run_on: macos-1100
-      - id: "macos-1100-arm64"
-        display_name: "macOS 11.00 M1"
+        run_on: macos-14
+      - id: "macos-14-arm64"
+        display_name: "macOS 14.00 ARM"
         variables:
-          OS: "macos-1100-arm64"
-          python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+          OS: "macos-14-arm64"
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
-        run_on: macos-1100-arm64
+        run_on: macos-14-arm64
 
   - id: topology
     display_name: Topology
@@ -2283,7 +2284,7 @@ buildvariants:
     - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-1100", "macos-1100-arm64"] }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2316,7 +2317,7 @@ buildvariants:
     - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-1100", "macos-1100-arm64"] }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2349,7 +2350,7 @@ buildvariants:
     - name: test-netstandard21
 
 - matrix_name: "tests-compression-macOS"
-  matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
+  matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2421,10 +2422,8 @@ buildvariants:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-macos
-  matrix_spec: { version: ["6.0", "7.0", "rapid", "latest"], topology: "standalone", os: "macos-1100" }
+  matrix_spec: { version: ["6.0", "7.0", "rapid", "latest"], topology: "standalone", os: "macos-14" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
-  run_on:
-    - macos-1100
   tasks:
     - name: aws-auth-tests
 
@@ -2551,7 +2550,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: ["macos-1100", "macos-1100-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2598,7 +2597,7 @@ buildvariants:
     - name: test-smoke-tests-net80
 
 - matrix_name: "smoke-tests-macOS"
-  matrix_spec: { os: "macos-1100", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "macos-14", ssl: "nossl", version: ["5.0", "6.0", "7.0", "latest"], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
@@ -2606,6 +2605,7 @@ buildvariants:
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
 
 # Package release variants
 - matrix_name: build-packages
