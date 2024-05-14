@@ -29,6 +29,11 @@ namespace MongoDB.Driver.Linq
         BsonDocument[] LoggedStages { get; }
 
         /// <summary>
+        /// Gets the IMongoQueryProvider for this queryable.
+        /// </summary>
+        new IMongoQueryProvider Provider { get; }
+
+        /// <summary>
         /// Gets the execution model.
         /// </summary>
         /// <returns>

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var secondValue = secondExpression.Evaluate();
                 if (secondValue is IMongoQueryable secondQueryable)
                 {
-                    var secondProvider = (IMongoQueryProvider)secondQueryable.Provider;
+                    var secondProvider = (IMongoQueryProviderInternal)secondQueryable.Provider;
                     var secondCollectionName = secondProvider.CollectionNamespace.CollectionName;
                     var secondPipelineInputSerializer = secondProvider.PipelineInputSerializer;
                     var secondContext = TranslationContext.Create(secondQueryable.Expression, secondPipelineInputSerializer);

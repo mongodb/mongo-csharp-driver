@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Processors
                 node.Type.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
             {
                 var queryable = (IMongoQueryable)node.Value;
-                var provider = (IMongoQueryProvider)queryable.Provider;
+                var provider = (IMongoQueryProviderInternal)queryable.Provider;
                 return new CollectionExpression(
                     provider.CollectionNamespace,
                     provider.PipelineInputSerializer);

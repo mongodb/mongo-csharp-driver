@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
         {
             if (innerExpression is ConstantExpression constantExpression &&
                 constantExpression.Value is IMongoQueryable mongoQueryable &&
-                mongoQueryable.Provider is IMongoQueryProvider mongoQueryProvider &&
+                mongoQueryable.Provider is IMongoQueryProviderInternal mongoQueryProvider &&
                 mongoQueryProvider.CollectionNamespace != null)
             {
                 return (mongoQueryProvider.CollectionNamespace.CollectionName, mongoQueryProvider.PipelineInputSerializer);

@@ -29,7 +29,7 @@ using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq2Implementation
 {
-    internal sealed class MongoQueryProviderImpl<TDocument> : IMongoQueryProvider
+    internal sealed class MongoQueryProviderImpl<TDocument> : IMongoQueryProviderInternal
     {
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;

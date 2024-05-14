@@ -25,17 +25,32 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// An implementation of <see cref="IQueryProvider" /> for MongoDB.
     /// </summary>
-    internal interface IMongoQueryProvider : IQueryProvider
+    public interface IMongoQueryProvider : IQueryProvider
+    {
+        /// <summary>
+        /// Gets the most recently logged stages.
+        /// </summary>
+        BsonDocument[] LoggedStages { get; }
+
+        /// <summary>
+        /// Executes the strongly-typed query represented by a specified expression tree.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="expression">An expression tree that represents a LINQ query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The value that results from executing the specified query.</returns>
+        Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken));
+    }
+
+    /// <summary>
+    /// The internal IMongoQueryProvider interface.
+    /// </summary>
+    internal interface IMongoQueryProviderInternal : IMongoQueryProvider
     {
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
-
-        /// <summary>
-        /// Gets the most recently logged stages.
-        /// </summary>
-        BsonDocument[] LoggedStages { get; }
 
         /// <summary>
         /// Gets the pipeline input serializer (the DocumentSerializer for collection queries and NoPipelineInputSerializer for database queries).
@@ -48,14 +63,5 @@ namespace MongoDB.Driver.Linq
         /// <param name="expression">The expression.</param>
         /// <returns>The execution model.</returns>
         QueryableExecutionModel GetExecutionModel(Expression expression);
-
-        /// <summary>
-        /// Executes the strongly-typed query represented by a specified expression tree.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="expression">An expression tree that represents a LINQ query.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The value that results from executing the specified query.</returns>
-        Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

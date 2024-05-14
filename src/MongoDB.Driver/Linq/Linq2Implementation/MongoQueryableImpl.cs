@@ -26,16 +26,16 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
 {
     internal sealed class MongoQueryableImpl<TInput, TOutput> : IOrderedMongoQueryable<TOutput>
     {
-        private readonly IMongoQueryProvider _queryProvider;
+        private readonly IMongoQueryProviderInternal _queryProvider;
         private readonly Expression _expression;
 
-        public MongoQueryableImpl(IMongoQueryProvider queryProvider)
+        public MongoQueryableImpl(IMongoQueryProviderInternal queryProvider)
         {
             _queryProvider = Ensure.IsNotNull(queryProvider, nameof(queryProvider));
             _expression = Expression.Constant(this, typeof(IMongoQueryable<TOutput>));
         }
 
-        public MongoQueryableImpl(IMongoQueryProvider queryProvider, Expression expression)
+        public MongoQueryableImpl(IMongoQueryProviderInternal queryProvider, Expression expression)
         {
             _queryProvider = Ensure.IsNotNull(queryProvider, nameof(queryProvider));
             _expression = Ensure.IsNotNull(expression, nameof(expression));
@@ -53,7 +53,12 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
 
         public BsonDocument[] LoggedStages => _queryProvider.LoggedStages;
 
-        public IQueryProvider Provider
+        public IMongoQueryProvider Provider
+        {
+            get { return _queryProvider; }
+        }
+
+        IQueryProvider IQueryable.Provider
         {
             get { return _queryProvider; }
         }

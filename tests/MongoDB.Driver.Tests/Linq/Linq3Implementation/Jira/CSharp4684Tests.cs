@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
     {
         [Theory]
         [ParameterAttributeData]
-        public async Task Multiple_result_query_logged_stages_can_be_retrieved_using_LoggedStages_property(
+        public async Task Multiple_result_query_logged_stages_can_be_retrieved_using_IMongoQueryable_LoggedStages_property(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Single_result_query_logged_stages_can_be_retrieved_using_LoggedStages_property(
+        public async Task Single_result_query_logged_stages_can_be_retrieved_using_IMongoQueryable_LoggedStages_property(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -52,6 +52,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             AssertStages(
                 queryable.LoggedStages,
+                "{ $match : { X : 1 } }",
+                "{ $limit : 1 }");
+            result.Id.Should().Be(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Multiple_result_query_logged_stages_can_be_retrieved_using_IMongoQueryProvider_LoggedStages_property(
+            [Values(false, true)] bool async)
+        {
+            var collection = GetCollection();
+            var queryable = collection.AsQueryable().Where(x => x.X == 1);
+
+            var results = async ? await queryable.ToListAsync() : queryable.ToList();
+
+            AssertStages(queryable.Provider.LoggedStages, "{ $match : { X : 1 } }");
+            results.Select(x => x.Id).Should().Equal(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Single_result_query_logged_stages_can_be_retrieved_using_IMongoQueryProvider_LoggedStages_property(
+            [Values(false, true)] bool async)
+        {
+            var collection = GetCollection();
+            var queryable = collection.AsQueryable().Where(x => x.X == 1);
+
+            // cast to IQueryable so First below resolves to Queryable.First instead of IAsyncCursorSource.First
+            var result = async ? await queryable.FirstAsync() : ((IQueryable<C>)queryable).First();
+
+            AssertStages(
+                queryable.Provider.LoggedStages,
                 "{ $match : { X : 1 } }",
                 "{ $limit : 1 }");
             result.Id.Should().Be(1);

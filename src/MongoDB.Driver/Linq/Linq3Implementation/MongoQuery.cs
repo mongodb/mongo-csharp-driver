@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public BsonDocument[] LoggedStages => _provider.LoggedStages;
 
-        public MongoQueryProvider<TDocument> Provider => _provider;
+        public IMongoQueryProvider Provider => _provider;
 
         IQueryProvider IQueryable.Provider => _provider;
 

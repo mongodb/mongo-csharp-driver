@@ -26,7 +26,7 @@ using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
 {
-    internal abstract class MongoQueryProvider : IMongoQueryProvider
+    internal abstract class MongoQueryProvider : IMongoQueryProviderInternal
     {
         // protected fields
         protected readonly AggregateOptions _options;
