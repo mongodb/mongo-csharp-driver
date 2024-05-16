@@ -17,19 +17,25 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4861Tests : Linq3IntegrationTest
+    public class CSharp4861Tests : IntegrationTest<CSharp4861Tests.TestDataFixture>
     {
+        public CSharp4861Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void One_less_than_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => 1 < x.Set.Count);
@@ -46,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void One_less_than_Length_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => 1 < x.Array.Length);
@@ -63,7 +69,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Count_greater_than_one_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Set.Count > 1);
@@ -80,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Length_greater_than_one_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Array.Length > 1);
@@ -92,22 +98,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2, 3);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1, Array = new[] { 1 }, Set = new HashSet<int> { 1 } },
-                new C { Id = 2, Array = new[] { 1, 2 }, Set = new HashSet<int> { 1, 2 } },
-                new C { Id = 3, Array = new[] { 1, 2, 3 }, Set = new HashSet<int> { 1, 2, 3 } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] Array { get; set; }
             public HashSet<int> Set { get; set; }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1, Array = new[] { 1 }, Set = new HashSet<int> { 1 } },
+                    new C { Id = 2, Array = new[] { 1, 2 }, Set = new HashSet<int> { 1, 2 } },
+                    new C { Id = 3, Array = new[] { 1, 2, 3 }, Set = new HashSet<int> { 1, 2, 3 } }
+                };
         }
     }
 }

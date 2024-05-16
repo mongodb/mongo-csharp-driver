@@ -14,22 +14,29 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4803Tests : Linq3IntegrationTest
+    public class CSharp4803Tests : IntegrationTest<CSharp4803Tests.TestDataFixture>
     {
+        public CSharp4803Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Find_filter_with_nonnullable_date_fields_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.Date >= fromDate;
 
@@ -44,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Find_filter_with_nullable_date_fields_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.NullableDate >= fromDate;
 
@@ -54,17 +61,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             renderedFilter.Should().Be("{ NullableDate : { $gte : ISODate('2023-09-27T00:00:00Z') } }");
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime Date { get; set; }
             public DateTime? NullableDate { get; set; }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => null;
         }
     }
 }

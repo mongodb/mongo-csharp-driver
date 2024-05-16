@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -21,13 +22,19 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4757Tests : Linq3IntegrationTest
+    public class CSharp4757Tests : IntegrationTest<CSharp4757Tests.TestDataFixture>
     {
+        public CSharp4757Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Deserialize_should_ungroup_members()
         {
@@ -55,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_grouped_member_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.OrderId);
@@ -80,7 +87,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_ungrouped_member_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Quantity);
@@ -104,7 +111,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_grouped_member_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.OrderId == 1);
@@ -129,7 +136,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_ungrouped_member_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Quantity == 3);
@@ -141,18 +148,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.OrderId.Should().Be(1);
         }
 
-        private IMongoCollection<OrderItem> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<OrderItem>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new OrderItem { OrderId = 1, ProductId = 2, Quantity = 3 },
-                new OrderItem { OrderId = 4, ProductId = 5, Quantity = 6 });
-            return collection;
-        }
-
         [BsonSerializer(typeof(OrderItemsSerializer))]
-        private class OrderItem
+        public class OrderItem
         {
             public int OrderId { get; set; }
             public int ProductId { get; set; }
@@ -236,6 +233,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 writer.WriteInt32(value.Quantity);
                 writer.WriteEndDocument();
             }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<OrderItem>
+        {
+            protected override IEnumerable<OrderItem> GetInitialData()
+                => new[]
+                {
+                    new OrderItem { OrderId = 1, ProductId = 2, Quantity = 3 },
+                    new OrderItem { OrderId = 4, ProductId = 5, Quantity = 6 }
+                };
         }
     }
 }

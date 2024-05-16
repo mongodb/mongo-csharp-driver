@@ -18,19 +18,25 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp702Tests : Linq3IntegrationTest
+    public class CSharp702Tests : IntegrationTest<CSharp702Tests.TestDataFixture>
     {
+        public CSharp702Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Query1_using_list_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection<Model>(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -48,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query2_using_list_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection<Model>(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -73,7 +79,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query1_using_hashset_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection<Model>(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -91,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query2_using_hashset_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection<Model>(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -111,27 +117,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        private IMongoCollection<Model> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Model>("test", linqProvider);
-            var documentsCollection = GetCollection<BsonDocument>("test");
-            CreateCollection(
-                documentsCollection,
-                BsonDocument.Parse("{ _id : 1 }"),
-                BsonDocument.Parse("{ _id : 2, List : null, HashSet : null }"),
-                BsonDocument.Parse("{ _id : 3, List : [], HashSet : [] }"),
-                BsonDocument.Parse("{ _id : 4, List : ['value1'], HashSet : ['value1'] }"),
-                BsonDocument.Parse("{ _id : 5, List : ['value1', 'value2'], HashSet : ['value1', 'value2'] }"),
-                BsonDocument.Parse("{ _id : 6, List : ['value3'], HashSet : ['value3'] }"),
-                BsonDocument.Parse("{ _id : 7, List : ['value3', 'value4'], HashSet : ['value3', 'value4'] }"));
-            return collection;
-        }
-
         private class Model
         {
             public int Id { get; set; }
             public List<string> List { get; set; }
             public HashSet<string> HashSet { get; set; }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> GetInitialData()
+                => new[]
+                {
+                    BsonDocument.Parse("{ _id : 1 }"),
+                    BsonDocument.Parse("{ _id : 2, List : null, HashSet : null }"),
+                    BsonDocument.Parse("{ _id : 3, List : [], HashSet : [] }"),
+                    BsonDocument.Parse("{ _id : 4, List : ['value1'], HashSet : ['value1'] }"),
+                    BsonDocument.Parse("{ _id : 5, List : ['value1', 'value2'], HashSet : ['value1', 'value2'] }"),
+                    BsonDocument.Parse("{ _id : 6, List : ['value3'], HashSet : ['value3'] }"),
+                    BsonDocument.Parse("{ _id : 7, List : ['value3', 'value4'], HashSet : ['value3', 'value4'] }")
+                };
         }
     }
 }

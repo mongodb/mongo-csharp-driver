@@ -21,19 +21,25 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4813Tests : Linq3IntegrationTest
+    public class CSharp4813Tests : IntegrationTest<CSharp4813Tests.TestDataFixture>
     {
+        public CSharp4813Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Where_BitArray_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.BitArray.Count == 1);
@@ -58,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Count == 1);
@@ -75,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_Dictionary_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Dictionary.Count == 1);
@@ -100,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_DictionaryAsArrayOfArrays_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryAsArrayOfArrays.Count == 1);
@@ -117,7 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_DictionaryAsArrayOfDocuments_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryAsArrayOfDocuments.Count == 1);
@@ -134,7 +140,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_DictionaryInterface_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterface.Count == 1);
@@ -159,7 +165,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_DictionaryInterfaceArrayOfArrays_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterfaceAsArrayOfArrays.Count == 1);
@@ -176,7 +182,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_DictionaryInterfaceArrayOfDocuments_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterfaceAsArrayOfDocuments.Count == 1);
@@ -193,7 +199,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_List_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.List.Count == 1);
@@ -210,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_ListInterface_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.ListInterface.Count == 1);
@@ -227,7 +233,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_BitArray_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.BitArray.Count);
@@ -253,7 +259,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Count);
@@ -277,7 +283,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_Dictionary_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Dictionary.Count);
@@ -303,7 +309,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryAsArrayOfArrays_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryAsArrayOfArrays.Count);
@@ -328,7 +334,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryAsArrayOfDocuments_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryAsArrayOfDocuments.Count);
@@ -353,7 +359,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryInterface_Count_should_throw(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryInterface.Count);
@@ -379,7 +385,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryInterfaceAsArrayOfArrays_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryInterfaceAsArrayOfArrays.Count);
@@ -403,7 +409,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryInterfaceAsArrayOfDocuments_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryInterfaceAsArrayOfDocuments.Count);
@@ -427,7 +433,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_List_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.List.Count);
@@ -451,7 +457,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_ListInterface_Count_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.ListInterface.Count);
@@ -470,43 +476,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C
-                {
-                    Id = 1,
-                    BitArray = new BitArray(length: 1),
-                    Count = 1,
-                    Dictionary = new() { { "A", 1 } },
-                    DictionaryAsArrayOfArrays = new() { { "A", 1 } },
-                    DictionaryAsArrayOfDocuments = new() { { "A", 1 } },
-                    DictionaryInterface = new Dictionary<string, int> { { "A", 1 } },
-                    DictionaryInterfaceAsArrayOfArrays = new Dictionary<string, int> { { "A", 1 } },
-                    DictionaryInterfaceAsArrayOfDocuments = new Dictionary<string, int> { { "A", 1 } },
-                    List = new() { 1 },
-                    ListInterface = new List<int>() { 1 }
-                },
-                new C
-                {
-                    Id = 2,
-                    BitArray = new BitArray(length: 2),
-                    Count = 2,
-                    Dictionary = new() { { "A", 1 }, { "B", 2 } },
-                    DictionaryAsArrayOfArrays = new() { { "A", 1 }, { "B", 2 } },
-                    DictionaryAsArrayOfDocuments = new() { { "A", 1 }, { "B", 2 } },
-                    DictionaryInterface = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
-                    DictionaryInterfaceAsArrayOfArrays = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
-                    DictionaryInterfaceAsArrayOfDocuments = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
-                    List = new() { 1, 2 },
-                    ListInterface = new List<int> { 1, 2 }
-                }); ;
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public BitArray BitArray { get; set; }
@@ -519,6 +489,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfDocuments { get; set; }
             public List<int> List { get; set; }
             public IList<int> ListInterface { get; set; }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C
+                    {
+                        Id = 1,
+                        BitArray = new BitArray(length: 1),
+                        Count = 1,
+                        Dictionary = new() { { "A", 1 } },
+                        DictionaryAsArrayOfArrays = new() { { "A", 1 } },
+                        DictionaryAsArrayOfDocuments = new() { { "A", 1 } },
+                        DictionaryInterface = new Dictionary<string, int> { { "A", 1 } },
+                        DictionaryInterfaceAsArrayOfArrays = new Dictionary<string, int> { { "A", 1 } },
+                        DictionaryInterfaceAsArrayOfDocuments = new Dictionary<string, int> { { "A", 1 } },
+                        List = new() { 1 },
+                        ListInterface = new List<int>() { 1 }
+                    },
+                    new C
+                    {
+                        Id = 2,
+                        BitArray = new BitArray(length: 2),
+                        Count = 2,
+                        Dictionary = new() { { "A", 1 }, { "B", 2 } },
+                        DictionaryAsArrayOfArrays = new() { { "A", 1 }, { "B", 2 } },
+                        DictionaryAsArrayOfDocuments = new() { { "A", 1 }, { "B", 2 } },
+                        DictionaryInterface = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
+                        DictionaryInterfaceAsArrayOfArrays = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
+                        DictionaryInterfaceAsArrayOfDocuments = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
+                        List = new() { 1, 2 },
+                        ListInterface = new List<int> { 1, 2 }
+                    }
+                };
         }
     }
 }

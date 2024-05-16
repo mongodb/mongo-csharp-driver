@@ -13,22 +13,29 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4804Tests : Linq3IntegrationTest
+    public class CSharp4804Tests : IntegrationTest<CSharp4804Tests.TestDataFixture>
     {
+        public CSharp4804Tests(TestDataFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Find_Slice_with_field_name_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Find_Slice_with_field_expression_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -62,7 +69,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Find_Slice_with_field_name_and_skip_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -79,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Find_Slice_with_field_expression_and_skip_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -96,7 +103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Aggregate_Slice_with_field_name_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var aggregate = collection.Aggregate()
@@ -114,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Aggregate_Slice_with_field_expression_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var aggregate = collection.Aggregate()
@@ -132,7 +139,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void AggregateSlice_with_field_name_and_skip_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -150,7 +157,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Aggregate_Slice_with_field_expression_and_skip_and_limit_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -163,19 +170,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = new[] { 1, 2, 3, 4, 5 } });
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
+        }
+
+        public class TestDataFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1, A = new[] { 1, 2, 3, 4, 5 } }
+                };
         }
     }
 }
