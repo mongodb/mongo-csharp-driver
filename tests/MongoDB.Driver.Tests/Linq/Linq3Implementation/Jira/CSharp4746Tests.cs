@@ -19,7 +19,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4746Tests : Linq3IntegrationTest
+    public class CSharp4746Tests
     {
         [Fact]
         public void UpdateDefinitionBuilder_Combine_should_throw_when_PipelineUpdateDefinition_is_combined_with_another_update()

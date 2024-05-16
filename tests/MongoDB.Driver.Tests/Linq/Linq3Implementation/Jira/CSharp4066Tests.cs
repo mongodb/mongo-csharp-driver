@@ -17,16 +17,21 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4066Tests : Linq3IntegrationTest
+    public class CSharp4066Tests : IntegrationTest<MongoDatabaseFixture>
     {
+        public CSharp4066Tests(ITestOutputHelper testOutputHelper, MongoDatabaseFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void String_comparison_in_filter_should_use_custom_serializer()
         {
-            var collection = GetCollection<C>();
-            collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
+            var collection = Fixture.GetCollection<C>();
 
             var id = "0102030405060708090a0b0c";
             collection.InsertMany(

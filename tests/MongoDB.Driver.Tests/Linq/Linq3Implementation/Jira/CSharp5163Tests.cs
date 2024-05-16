@@ -13,19 +13,26 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
-public class CSharp5163Tests : Linq3IntegrationTest
+public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.TestDataFixture>
 {
+    public CSharp5163Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+        : base(testOutputHelper, fixture)
+    {
+    }
+
     [Fact]
     public void Select_muliply_int_long_should_work()
     {
-        var collection = GetCollection();
+        var collection = Fixture.GetCollection<MyModel>();
 
         var queryable = collection.AsQueryable()
             .Select(x => x.Int * 36000000000L);
@@ -40,7 +47,7 @@ public class CSharp5163Tests : Linq3IntegrationTest
     [Fact]
     public void Select_muliply_byte_short_should_work()
     {
-        var collection = GetCollection();
+        var collection = Fixture.GetCollection<MyModel>();
 
         var queryable = collection.AsQueryable()
             .Select(x => x.Byte * (short)256);
@@ -52,18 +59,15 @@ public class CSharp5163Tests : Linq3IntegrationTest
         result[0].Should().Be(256);
     }
 
-    private IMongoCollection<C> GetCollection()
-    {
-        var collection = GetCollection<C>("test");
-        CreateCollection(
-            collection,
-            new C { Int = 1, Byte = 1});
-        return collection;
-    }
-
-    private class C
+    public class MyModel
     {
         public int Int { get; set; }
         public byte Byte { get; set; }
+    }
+
+    public class TestDataFixture : MongoCollectionFixture<MyModel>
+    {
+        protected override IEnumerable<MyModel> InitialData
+            => [ new MyModel { Int = 1, Byte = 1 } ];
     }
 }

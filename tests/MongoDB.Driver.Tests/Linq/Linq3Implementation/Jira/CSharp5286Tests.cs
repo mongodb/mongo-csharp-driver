@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -21,11 +22,13 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5286Tests : Linq3IntegrationTest
+    public class CSharp5286Tests : LinqIntegrationTest<CSharp5286Tests.TestDataFixture>
     {
         static CSharp5286Tests()
         {
@@ -47,10 +50,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
+        public CSharp5286Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void OfType_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<Animal>();
 
             var queryable = collection.AsQueryable()
                 .OfType<Mammal>();
@@ -66,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Dog_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<Animal>();
 
             var queryable = collection.AsQueryable()
                 .OfType<Dog>();
@@ -82,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<Animal>();
 
             var queryable = collection.AsQueryable()
                 .OfType<Snake>();
@@ -94,40 +102,40 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(3);
             results.Select(x => x.GetType().Name).Should().Equal("Snake");
         }
-        private IMongoCollection<Animal> GetCollection()
-        {
-            var collection = GetCollection<Animal>("test");
-            CreateCollection(
-                collection,
-                new Cat { Id = 1 },
-                new Dog { Id = 2 },
-                new Snake { Id = 3 });
-            return collection;
-        }
 
-        private abstract class Animal
+        public abstract class Animal
         {
             public int Id { get; set; }
         }
 
-        private abstract class Mammal : Animal
+        public abstract class Mammal : Animal
         {
         }
 
-        private class Cat : Mammal
+        public class Cat : Mammal
         {
         }
 
-        private class Dog : Mammal
+        public class Dog : Mammal
         {
         }
 
-        private class Reptile : Animal
+        public class Reptile : Animal
         {
         }
 
-        private class Snake : Reptile
+        public class Snake : Reptile
         {
+        }
+
+        public sealed class TestDataFixture : MongoCollectionFixture<Animal>
+        {
+            protected override IEnumerable<Animal> InitialData =>
+            [
+                new Cat { Id = 1 },
+                new Dog { Id = 2 },
+                new Snake { Id = 3 }
+            ];
         }
 
         private class AnimalDiscriminatorConvention : IScalarDiscriminatorConvention

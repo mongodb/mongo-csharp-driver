@@ -13,20 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5190Tests : Linq3IntegrationTest
+    public class CSharp5190Tests : LinqIntegrationTest<CSharp5190Tests.TestDataFixture>
     {
+        public CSharp5190Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void Select_new_BsonDocument_with_computed_value_and_empty_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", x.A) { });
@@ -41,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_computed_value_and_no_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", x.A));
@@ -56,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_computed_value_and_one_initializer_with_computed_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", x.A) { { "b", x.B } });
@@ -71,7 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_computed_value_and_one_initializer_with_constant_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", x.A) { { "b", 5 } });
@@ -86,7 +93,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_constant_value_and_empty_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", 4) { }); // new BsonDocument is evaluated by the PartialEvaluator
@@ -101,7 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_constant_value_and_no_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", 4)); // new BsonDocument is evaluated by the PartialEvaluator
@@ -116,7 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_constant_value_and_one_initializer_with_computed_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", 4) { { "b", x.B } });
@@ -131,7 +138,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_constant_value_and_one_initializer_with_constant_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument("a", 4) { { "b", 5 } }); // new BsonDocument is evaluated by the PartialEvaluator
@@ -146,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_empty_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument() { }); // new BsonDocument is evaluated by the PartialEvaluator
@@ -161,7 +168,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_no_initializers_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument()); // new BsonDocument is evaluated by the PartialEvaluator
@@ -176,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_one_initializer_with_computed_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", x.A } });
@@ -191,7 +198,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_one_initializer_with_constant_value_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", 4 } }); // new BsonDocument is evaluated by the PartialEvaluator
@@ -206,7 +213,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_two_initializers_with_computed_and_computed_values_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", x.A }, { "b", x.B } });
@@ -221,7 +228,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_two_initializers_with_conmputed_and_constant_values_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", x.A }, { "b", 5 } });
@@ -236,7 +243,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_two_initializers_with_constant_and_computed_values_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", 4 }, { "b", x.B } });
@@ -251,7 +258,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_BsonDocument_with_no_arguments_and_two_initializers_with_constant_and_constant_values_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BsonDocument { { "a", 4 }, { "b", 5 } });
@@ -263,20 +270,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be("{ a : 4, b : 5 }");
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = 2, B = 3 });
-            return collection;
-        }
-
-        private class C
+        public class MyModel
         {
             public int Id { get; set; }
             public int A { get; set; }
             public int B { get; set; }
+        }
+
+        public sealed class TestDataFixture : MongoCollectionFixture<MyModel>
+        {
+            protected override IEnumerable<MyModel> InitialData =>
+            [
+                new MyModel { Id = 1, A = 2, B = 3 }
+            ];
         }
     }
 }

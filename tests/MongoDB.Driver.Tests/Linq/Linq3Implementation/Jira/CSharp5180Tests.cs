@@ -13,23 +13,30 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5180Tests : Linq3IntegrationTest
+    public class CSharp5180Tests : LinqIntegrationTest<CSharp5180Tests.TestDataFixture>
     {
+        public CSharp5180Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void Cast_Decimal_to_decimal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.Decimal);
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.Decimal);
@@ -61,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.Decimal);
@@ -77,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.Decimal);
@@ -92,7 +99,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Decimal_to_nullable_decimal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.Decimal);
@@ -108,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.Decimal);
@@ -124,7 +131,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.Decimal);
@@ -140,7 +147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.Decimal);
@@ -156,7 +163,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.Double);
@@ -171,7 +178,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Double_to_double_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.Double);
@@ -187,7 +194,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.Double);
@@ -203,7 +210,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.Double);
@@ -219,7 +226,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.Double);
@@ -234,7 +241,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Double_to_nullable_double_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.Double);
@@ -250,7 +257,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.Double);
@@ -266,7 +273,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.Double);
@@ -282,7 +289,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.Int);
@@ -298,7 +305,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.Int);
@@ -313,7 +320,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Int_to_int_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.Int);
@@ -329,7 +336,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.Int);
@@ -345,7 +352,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.Int);
@@ -361,7 +368,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.Int);
@@ -376,7 +383,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Int_to_nullable_int_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.Int);
@@ -392,7 +399,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.Int);
@@ -408,7 +415,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.Long);
@@ -424,7 +431,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.Long);
@@ -440,7 +447,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.Long);
@@ -455,7 +462,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Long_to_long_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.Long);
@@ -471,7 +478,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.Long);
@@ -487,7 +494,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.Long);
@@ -503,7 +510,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.Long);
@@ -518,7 +525,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_Long_to_nullable_long_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.Long);
@@ -533,7 +540,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableDecimal_to_decimal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.NullableDecimal);
@@ -549,7 +556,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.NullableDecimal);
@@ -565,7 +572,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.NullableDecimal);
@@ -581,7 +588,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.NullableDecimal);
@@ -596,7 +603,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableDecimal_to_nullable_decimal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.NullableDecimal);
@@ -612,7 +619,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.NullableDecimal);
@@ -628,7 +635,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.NullableDecimal);
@@ -644,7 +651,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.NullableDecimal);
@@ -660,7 +667,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.NullableDouble);
@@ -675,7 +682,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableDouble_to_double_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.NullableDouble);
@@ -691,7 +698,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.NullableDouble);
@@ -707,7 +714,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.NullableDouble);
@@ -723,7 +730,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.NullableDouble);
@@ -738,7 +745,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableDouble_to_nullable_double_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.NullableDouble);
@@ -754,7 +761,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.NullableDouble);
@@ -770,7 +777,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.NullableDouble);
@@ -786,7 +793,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.NullableInt);
@@ -802,7 +809,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.NullableInt);
@@ -817,7 +824,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableInt_to_int_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.NullableInt);
@@ -833,7 +840,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.NullableInt);
@@ -849,7 +856,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.NullableInt);
@@ -865,7 +872,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.NullableInt);
@@ -880,7 +887,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableInt_to_nullable_int_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.NullableInt);
@@ -896,7 +903,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_long_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.NullableInt);
@@ -912,7 +919,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal)x.NullableLong);
@@ -928,7 +935,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double)x.NullableLong);
@@ -944,7 +951,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int)x.NullableLong);
@@ -959,7 +966,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableLong_to_long_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long)x.NullableLong);
@@ -975,7 +982,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_decimal_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (decimal?)x.NullableLong);
@@ -991,7 +998,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_double_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (double?)x.NullableLong);
@@ -1007,7 +1014,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_int_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (int?)x.NullableLong);
@@ -1022,7 +1029,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Cast_NullableLong_to_nullable_long_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (long?)x.NullableLong);
@@ -1034,27 +1041,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(1);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C
-                {
-                    Id = 1,
-                    Decimal = 1.0M,
-                    Double = 1.0,
-                    Int = 1,
-                    Long = 1L,
-                    NullableDecimal = 1.0M,
-                    NullableDouble = 1.0,
-                    NullableInt = 1,
-                    NullableLong = 1L
-                });
-            return collection;
-        }
-
-        private class C
+        public class MyModel
         {
             public int Id { get; set; }
             [BsonRepresentation(BsonType.Decimal128)] public decimal Decimal { get; set; }
@@ -1065,6 +1052,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public double? NullableDouble { get; set; }
             public int? NullableInt { get; set; }
             public long? NullableLong { get; set; }
+        }
+
+        public sealed class TestDataFixture : MongoCollectionFixture<MyModel>
+        {
+            protected override IEnumerable<MyModel> InitialData =>
+            [
+                new MyModel
+                {
+                    Id = 1,
+                    Decimal = 1.0M,
+                    Double = 1.0,
+                    Int = 1,
+                    Long = 1L,
+                    NullableDecimal = 1.0M,
+                    NullableDouble = 1.0,
+                    NullableInt = 1,
+                    NullableLong = 1L
+                }
+            ];
         }
     }
 }
