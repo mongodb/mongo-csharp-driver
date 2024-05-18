@@ -289,15 +289,16 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             var failpointServer = DriverTestConfiguration.Client.Cluster.SelectServer(new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)), default);
             using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
 
-            eventCapturer.WaitForOrThrowIfTimeout(new[]
-                {
-                    typeof(ServerHeartbeatFailedEvent),
-                    typeof(ConnectionPoolClearedEvent),
-                    typeof(ServerHeartbeatSucceededEvent),
-                    typeof(ConnectionPoolReadyEvent),
-                    typeof(ServerHeartbeatSucceededEvent),
-                },
-                eventsWaitTimeout);
+            eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);
+            // event capturer could have some HeartbeatSucceeded have to skip all of them
+            eventCapturer.RemoveWhile(e => e.GetType() == typeof(ServerHeartbeatSucceededEvent));
+            eventCapturer.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
+            eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
+            // it could be another ServerHeartbeatFailedEvent, because of the failPoint configuration, should just ignore it.
+            eventCapturer.RemoveWhile(e => e.GetType() == typeof(ServerHeartbeatFailedEvent));
+
+            eventCapturer.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
+            eventCapturer.Next().Should().BeOfType<ConnectionPoolReadyEvent>();
         }
 
         // private methods
@@ -306,6 +307,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
             clonedClientSettings.ApplicationName = applicationName;
             clonedClientSettings.HeartbeatInterval = heartbeatInterval;
+            clonedClientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
             clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
 
             return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
