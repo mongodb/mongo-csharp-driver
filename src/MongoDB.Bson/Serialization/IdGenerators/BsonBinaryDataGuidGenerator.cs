@@ -78,9 +78,18 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         }
 
         /// <summary>
-        /// Gets an instance of BsonBinaryDataGuidGenerator for Unspecifed GuidRepresentation.
+        /// Gets an instance of BsonBinaryDataGuidGenerator for Unspecified GuidRepresentation.
         /// </summary>
+        [Obsolete("This method will be removed in later release. Please use UnspecifiedInstance instead")]
         public static BsonBinaryDataGuidGenerator UnspecifedInstance
+        {
+            get { return __unspecifiedInstance; }
+        }
+
+        /// <summary>
+        /// Gets an instance of BsonBinaryDataGuidGenerator for Unspecified GuidRepresentation.
+        /// </summary>
+        public static BsonBinaryDataGuidGenerator UnspecifiedInstance
         {
             get { return __unspecifiedInstance; }
         }

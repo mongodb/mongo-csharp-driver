@@ -21,6 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON symbol value.
     /// </summary>
+    [Obsolete("Bson Symbol type has been deprecated.")]
     public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol>
     {
         // private fields

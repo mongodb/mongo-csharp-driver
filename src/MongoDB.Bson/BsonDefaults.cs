@@ -22,6 +22,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// A static helper class containing BSON defaults.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public static class BsonDefaults
     {
         // private static fields

@@ -23,6 +23,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Provides serializers for BsonValue and its derivations.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class BsonObjectModelSerializationProvider : BsonSerializationProviderBase
     {
         private static readonly Dictionary<Type, IBsonSerializer> __serializers;

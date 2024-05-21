@@ -14,11 +14,14 @@
 */
 
 
+using System;
+
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonSymbols.
     /// </summary>
+    [Obsolete("Bson Symbol type has been deprecated.")]
     public class BsonSymbolSerializer : BsonValueSerializerBase<BsonSymbol>
     {
         // private static fields
