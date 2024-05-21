@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             events.ElementAt(1).Should().BeOfType<ServerHeartbeatSucceededEvent>();
 
             // it could be another ServerHeartbeatFailedEvent, because of the failPoint configuration, should just ignore it.
-            events = events.SkipWhile(e => e.Type == EventType.ServerHeartbeatSucceeded);
+            events = events.SkipWhile(e => e.Type == EventType.ServerHeartbeatFailed);
 
             events.ElementAt(0).Should().BeOfType<ServerHeartbeatSucceededEvent>();
             events.ElementAt(1).Should().BeOfType<ConnectionPoolReadyEvent>();
