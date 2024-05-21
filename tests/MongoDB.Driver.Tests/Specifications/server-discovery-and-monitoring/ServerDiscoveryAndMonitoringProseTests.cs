@@ -241,10 +241,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
 
             const string appName = "SDAMPoolManagementTest";
-            // Using a 100ms heartbeatInterval can result in sporadic failures of this test if the RTT thread
-            // consumes both of the configured failpoints before the monitoring thread can run.
-            // Increasing the heartbeatInterval to 200ms avoids this race condition.
-            var heartbeatInterval = TimeSpan.FromMilliseconds(200);
+            var heartbeatInterval = TimeSpan.FromMilliseconds(100);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
 
             var failPointCommand = BsonDocument.Parse(
@@ -289,15 +286,20 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             var failpointServer = DriverTestConfiguration.Client.Cluster.SelectServer(new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)), default);
             using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
 
-            eventCapturer.WaitForOrThrowIfTimeout(new[]
-                {
-                    typeof(ServerHeartbeatFailedEvent),
-                    typeof(ConnectionPoolClearedEvent),
-                    typeof(ServerHeartbeatSucceededEvent),
-                    typeof(ConnectionPoolReadyEvent),
-                    typeof(ServerHeartbeatSucceededEvent),
-                },
-                eventsWaitTimeout);
+            eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);
+            var events = eventCapturer.Events
+                .OfType<IEvent>()
+                // event capturer could have some HeartbeatSucceeded have to skip all of them
+                .SkipWhile(e => e.Type == EventType.ServerHeartbeatSucceeded);
+
+            events.ElementAt(0).Should().BeOfType<ServerHeartbeatFailedEvent>();
+            events.ElementAt(1).Should().BeOfType<ConnectionPoolClearedEvent>();
+
+            // it could be another ServerHeartbeatFailedEvent, because of the failPoint configuration, should just ignore it.
+            events = events.Skip(2).SkipWhile(e => e.Type == EventType.ServerHeartbeatFailed);
+
+            events.ElementAt(0).Should().BeOfType<ServerHeartbeatSucceededEvent>();
+            events.ElementAt(1).Should().BeOfType<ConnectionPoolReadyEvent>();
         }
 
         // private methods
@@ -306,6 +308,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
             clonedClientSettings.ApplicationName = applicationName;
             clonedClientSettings.HeartbeatInterval = heartbeatInterval;
+            clonedClientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
             clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
 
             return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
