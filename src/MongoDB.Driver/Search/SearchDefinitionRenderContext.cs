@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using System;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -7,15 +8,16 @@ namespace MongoDB.Driver.Search
     /// Encapsulates classes needed for rendering Search definitions.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class SearchDefinitionRenderContext<TDocument>
+    [Obsolete("Use Render overloads with RenderArgs<TSource> instead.")]
+    public sealed class SearchDefinitionRenderArgs<TDocument>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SearchDefinitionRenderContext{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="SearchDefinitionRenderArgs{TDocument}"/> class.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="pathPrefix">The path prefix.</param>
-        public SearchDefinitionRenderContext(
+        public SearchDefinitionRenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             string pathPrefix = null)

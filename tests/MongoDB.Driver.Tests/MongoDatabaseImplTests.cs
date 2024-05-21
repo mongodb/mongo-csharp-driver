@@ -1517,11 +1517,11 @@ namespace MongoDB.Driver
                 operationExecutor ?? _operationExecutor);
         }
 
-        private RenderedPipelineDefinition<TOutput> RenderPipeline<TOutput>(IMongoDatabase dataabse, PipelineDefinition<NoPipelineInput, TOutput> pipeline)
+        private RenderedPipelineDefinition<TOutput> RenderPipeline<TOutput>(IMongoDatabase database, PipelineDefinition<NoPipelineInput, TOutput> pipeline)
         {
             var inputSerializer = NoPipelineInputSerializer.Instance;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(inputSerializer, serializerRegistry);
+            return pipeline.Render(new(inputSerializer, serializerRegistry));
         }
 
         private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.ReadCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)

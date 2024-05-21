@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         internal BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return new BsonDocument {
-                { "key", _key.Render(documentSerializer, serializerRegistry) },
+                { "key", _key.Render(new(documentSerializer, serializerRegistry)) },
                 { "unique", _unique },
                 { "name", _name, _name != null }
             };

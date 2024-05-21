@@ -649,7 +649,7 @@ namespace MongoDB.Driver.Tests
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
             var pipeline = new PipelineStagePipelineDefinition<Person, TDocument>(fluent.Stages);
-            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+            var renderedPipeline = pipeline.Render(new(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
 
             var last = renderedPipeline.Documents.Last();
             Assert.Equal(expectedLast, last);

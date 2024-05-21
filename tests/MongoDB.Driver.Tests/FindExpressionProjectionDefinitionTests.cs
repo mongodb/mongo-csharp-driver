@@ -41,9 +41,7 @@ namespace MongoDB.Driver.Tests
         {
             var projection = new FindExpressionProjectionDefinition<Document, TProjection>(expression);
 
-            var renderedProjection = projection.Render(
-                BsonSerializer.LookupSerializer<Document>(),
-                BsonSerializer.SerializerRegistry);
+            var renderedProjection = projection.Render(new(BsonSerializer.LookupSerializer<Document>(), BsonSerializer.SerializerRegistry));
 
             renderedProjection.Document.Should().BeEquivalentTo(expectedProjection);
         }

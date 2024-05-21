@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests.Search
         private void AssertRendered<TDocument>(SearchPathDefinition<TDocument> path, BsonValue expected, string pathPrefix = null)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedPath = path.Render(new(documentSerializer, BsonSerializer.SerializerRegistry, pathPrefix));
+            var renderedPath = path.Render(new RenderArgs<TDocument>(documentSerializer, BsonSerializer.SerializerRegistry, pathRenderArgs: new(PathPrefix: pathPrefix)));
 
             renderedPath.Should().Be(expected);
         }
