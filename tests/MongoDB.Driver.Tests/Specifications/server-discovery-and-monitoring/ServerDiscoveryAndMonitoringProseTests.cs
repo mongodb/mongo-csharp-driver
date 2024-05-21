@@ -290,15 +290,19 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
 
             eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);
-            // event capturer could have some HeartbeatSucceeded have to skip all of them
-            eventCapturer.RemoveWhile(e => e.GetType() == typeof(ServerHeartbeatSucceededEvent));
-            eventCapturer.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
-            // it could be another ServerHeartbeatFailedEvent, because of the failPoint configuration, should just ignore it.
-            eventCapturer.RemoveWhile(e => e.GetType() == typeof(ServerHeartbeatFailedEvent));
+            var events = eventCapturer.Events
+                .OfType<IEvent>()
+                // event capturer could have some HeartbeatSucceeded have to skip all of them
+                .SkipWhile(e => e.Type == EventType.ServerHeartbeatSucceeded);
 
-            eventCapturer.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
-            eventCapturer.Next().Should().BeOfType<ConnectionPoolReadyEvent>();
+            events.ElementAt(0).Should().BeOfType<ServerHeartbeatFailedEvent>();
+            events.ElementAt(1).Should().BeOfType<ServerHeartbeatSucceededEvent>();
+
+            // it could be another ServerHeartbeatFailedEvent, because of the failPoint configuration, should just ignore it.
+            events = events.SkipWhile(e => e.Type == EventType.ServerHeartbeatSucceeded);
+
+            events.ElementAt(0).Should().BeOfType<ServerHeartbeatSucceededEvent>();
+            events.ElementAt(1).Should().BeOfType<ConnectionPoolReadyEvent>();
         }
 
         // private methods

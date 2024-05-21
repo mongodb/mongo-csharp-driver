@@ -116,32 +116,6 @@ namespace MongoDB.Driver.Core
             }
         }
 
-        public int RemoveWhile(Func<object,bool> predicate)
-        {
-            lock (_lock)
-            {
-                if (_capturedEvents.Count == 0)
-                {
-                    return 0;
-                }
-
-                var removed = 0;
-                while (true)
-                {
-                    var current = _capturedEvents.Peek();
-                    if (predicate(current))
-                    {
-                        _capturedEvents.Dequeue();
-                        removed++;
-                    }
-                    else
-                    {
-                        return removed;
-                    }
-                }
-            }
-        }
-
         public bool Any()
         {
             lock (_lock)
