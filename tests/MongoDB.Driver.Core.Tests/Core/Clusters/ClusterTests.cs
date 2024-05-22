@@ -425,17 +425,15 @@ namespace MongoDB.Driver.Core.Clusters
 
             subject.Initialize();
 
-            var endPoint1 = new DnsEndPoint("localhost", 27017);
-            var endPoint2 = new DnsEndPoint("localhost", 27018);
-            var endPoint3 = new DnsEndPoint("localhost", 27019);
-            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint1);
-            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint2);
-            var connected3 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint3);
+            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27017));
+            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27018));
+            var connected3 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27019));
+
             subject.SetServerDescriptions(connected1, connected2, connected3);
 
-            var selector = new DelegateServerSelector((c, s) => s);
-
             var deprioritizedServers = new List<ServerDescription> { connected1 };
+
+            var selector = new PriorityServerSelector(deprioritizedServers);
 
             for (int i = 0; i < 15; i++)
             {
@@ -444,11 +442,11 @@ namespace MongoDB.Driver.Core.Clusters
                 IServer result;
                 if (async)
                 {
-                    result = subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None).GetAwaiter().GetResult();
+                    result = subject.SelectServerAsync(selector, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
+                    result = subject.SelectServer(selector, CancellationToken.None);
                 }
 
                 result.Should().NotBeNull();
@@ -474,15 +472,14 @@ namespace MongoDB.Driver.Core.Clusters
 
             subject.Initialize();
 
-            var endPoint1 = new DnsEndPoint("localhost", 27017);
-            var endPoint2 = new DnsEndPoint("localhost", 27018);
-            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint1);
-            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, endPoint2);
+            var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27017));
+            var connected2 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27018));
+
             subject.SetServerDescriptions(connected1, connected2);
 
-            var selector = new DelegateServerSelector((c, s) => s);
-
             var deprioritizedServers = new List<ServerDescription> { connected1, connected2 };
+
+            var selector = new PriorityServerSelector(deprioritizedServers);
 
             for (int i = 0; i < 15; i++)
             {
@@ -490,11 +487,11 @@ namespace MongoDB.Driver.Core.Clusters
                 IServer result;
                 if (async)
                 {
-                    result = subject.SelectServerAsync(selector, deprioritizedServers, CancellationToken.None).GetAwaiter().GetResult();
+                    result = subject.SelectServerAsync(selector, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    result = subject.SelectServer(selector, deprioritizedServers, CancellationToken.None);
+                    result = subject.SelectServer(selector, CancellationToken.None);
                 }
 
                 result.Should().NotBeNull();

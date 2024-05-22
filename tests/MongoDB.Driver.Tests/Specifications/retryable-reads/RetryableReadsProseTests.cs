@@ -176,9 +176,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             failedEvents[0].CommandName.Should().Be(failedEvents[1].CommandName).And.Be("find");
             failedEvents[0].ConnectionId.ServerId().Should().NotBe(failedEvents[1].ConnectionId.ServerId());
-
-            // Assert the deprioritization debug message was emitted for deprioritized server.
-            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(1);
         }
 
         [Fact]
@@ -227,11 +224,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("find");
             failedEvents[0].ConnectionId.ServerId().Should().Be(succeededEvents[0].ConnectionId.ServerId());
-
-            // Assert the deprioritization debug messages were emitted
-            // one for deprioritizing the failpointServer and another for
-            // reverting the deprioritization since we have no other suitable servers in this test
-            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(2);
         }
 
         // private methods

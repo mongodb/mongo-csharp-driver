@@ -40,9 +40,13 @@ namespace MongoDB.Driver.Core.Clusters
                 return pinnedServer;
             }
 
+            selector = deprioritizedServers != null
+                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
+                : selector;
+
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, deprioritizedServers, cancellationToken);
+            var server = cluster.SelectServer(selector, cancellationToken);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
@@ -60,9 +64,13 @@ namespace MongoDB.Driver.Core.Clusters
                 return pinnedServer;
             }
 
+            selector = deprioritizedServers != null
+                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
+                : selector;
+
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, deprioritizedServers, cancellationToken).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;

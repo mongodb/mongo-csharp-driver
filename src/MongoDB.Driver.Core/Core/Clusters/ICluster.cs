@@ -98,24 +98,6 @@ namespace MongoDB.Driver.Core.Clusters
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Selects a server from the cluster while prioritizing servers not found in the provided collection of deprioritized servers.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
-        /// <param name="deprioritizedServers">The deprioritized Servers.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The selected server.</returns>
-        IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Selects a server from the cluster while prioritizing servers not found in the provided collection of deprioritized servers.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
-        /// <param name="deprioritizedServers">The deprioritized Servers.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
-        Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Starts a session.
         /// </summary>
         /// <param name="options">The options.</param>

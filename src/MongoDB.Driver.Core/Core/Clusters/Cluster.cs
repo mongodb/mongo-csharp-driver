@@ -282,16 +282,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
         {
-            return SelectServer(selector, null, cancellationToken);
-        }
-
-        public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
-        {
-            return SelectServerAsync(selector, null, cancellationToken);
-        }
-
-        public IServer SelectServer(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
-        {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
 
@@ -301,7 +291,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer(deprioritizedServers);
+                        var server = helper.SelectServer();
                         if (server != null)
                         {
                             return server;
@@ -319,7 +309,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
@@ -330,7 +320,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer(deprioritizedServers);
+                        var server = helper.SelectServer();
                         if (server != null)
                         {
                             return server;
@@ -493,7 +483,7 @@ namespace MongoDB.Driver.Core.Clusters
                     EventContext.OperationName));
             }
 
-            public IServer SelectServer(IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            public IServer SelectServer()
             {
                 lock (_cluster._descriptionLock)
                 {
@@ -516,13 +506,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectedServers.Clear();
                 _connectedServerDescriptions.Clear();
 
-                var excludingDeprioritizedServers = deprioritizedServers?.Any() == true && _cluster.Description.Type == ClusterType.Sharded;
-
-                var filteredServers = excludingDeprioritizedServers
-                    ? FilterDeprioritizedServers(deprioritizedServers)
-                    : _description.Servers;
-
-                foreach (var description in filteredServers)
+                foreach (var description in _description.Servers)
                 {
                     if (description.State == ServerState.Connected &&
                         _cluster.TryGetServer(description.EndPoint, out var server))
@@ -600,31 +584,6 @@ namespace MongoDB.Driver.Core.Clusters
 
                 return new CompositeServerSelector(allSelectors);
             }
-
-            private IReadOnlyList<ServerDescription> FilterDeprioritizedServers(IReadOnlyCollection<ServerDescription> deprioritizedServers)
-            {
-                List<ServerDescription> filteredServers = new();
-                foreach (var description in _description.Servers)
-                {
-                    if (!deprioritizedServers.Contains(description, new ServerDescriptionComparer()))
-                    {
-                        filteredServers.Add(description);
-                    }
-                    else
-                    {
-                        _cluster._serverSelectionEventLogger.Logger?.LogDebug(_cluster._clusterId,
-                            $"Deprioritization: removed server {description.ServerId}");
-                    }
-                }
-
-                if (filteredServers.Count == 0)
-                {
-                    _cluster._serverSelectionEventLogger.Logger?.LogDebug(_cluster._clusterId, "Deprioritization: reverting due to no other suitable servers");
-                    return _description.Servers;
-                }
-
-                return filteredServers;
-            }
         }
 
         private sealed class WaitForDescriptionChangedHelper : IDisposable
@@ -685,19 +644,6 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 _descriptionChangedTask.GetAwaiter().GetResult(); // propagate exceptions
-            }
-        }
-
-        private class ServerDescriptionComparer : IEqualityComparer<ServerDescription>
-        {
-            public bool Equals(ServerDescription x, ServerDescription y)
-            {
-                return x != null && y != null && x.EndPoint == y.EndPoint;
-            }
-
-            public int GetHashCode(ServerDescription obj)
-            {
-                return obj.EndPoint.GetHashCode();
             }
         }
 
