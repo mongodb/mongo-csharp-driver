@@ -217,12 +217,6 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          if [ "${OS}" = "macos-14-arm64" ]; then
-            # have to set the limit manually for macos-14-arm, can be removed once DEVPROD-7353 will be solved
-            ulimit -n 64000
-            ulimit -a
-          fi
-
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           LOAD_BALANCER=${LOAD_BALANCER} \
           MONGODB_VERSION=${VERSION} \
