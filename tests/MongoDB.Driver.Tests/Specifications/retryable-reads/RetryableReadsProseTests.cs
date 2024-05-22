@@ -27,22 +27,16 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
-    public class RetryableReadsProseTests : LoggableTestClass
+    public class RetryableReadsProseTests
     {
-        public RetryableReadsProseTests(ITestOutputHelper output) : base(output, includeAllCategories: true)
-        {
-        }
-
         [Theory]
         [ParameterAttributeData]
         public async Task PoolClearedError_read_retryablity_test([Values(true, false)] bool async)
@@ -155,7 +149,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.RetryReads = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , LoggingSettings, true);
+                , null, true);
 
             var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -205,7 +199,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , LoggingSettings);
+                , null);
 
             var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 

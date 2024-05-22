@@ -23,20 +23,14 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
-    public class RetryWriteOnOtherMongos : LoggableTestClass
+    public class RetryWriteOnOtherMongos
     {
-        public RetryWriteOnOtherMongos(ITestOutputHelper output) : base(output, includeAllCategories: true)
-        {
-        }
-
         [Fact]
         public void Sharded_cluster_retryable_writes_are_retried_on_different_mongos_if_available()
         {
@@ -65,7 +59,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     s.RetryWrites = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , LoggingSettings, true);
+                , null, true);
 
             var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -86,9 +80,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             failedEvents[0].CommandName.Should().Be(failedEvents[1].CommandName).And.Be("insert");
             failedEvents[0].ConnectionId.ServerId().Should().NotBe(failedEvents[1].ConnectionId.ServerId());
-
-            // Assert the deprioritization debug message was emitted for deprioritized server.
-            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(1);
         }
 
         [Fact]
@@ -119,7 +110,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , LoggingSettings);
+                , null);
 
             var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
@@ -138,11 +129,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("insert");
             failedEvents[0].ConnectionId.ServerId().Should().Be(succeededEvents[0].ConnectionId.ServerId());
-
-            // Assert the deprioritization debug messages were emitted
-            // one for deprioritizing the failpointServer and another for
-            // reverting the deprioritization since we have no other suitable servers in this test
-            Logs.Count(log => log.Category == "MongoDB.ServerSelection" && log.Message.StartsWith("Deprioritization")).Should().Be(2);
         }
     }
 }

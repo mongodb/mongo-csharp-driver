@@ -451,8 +451,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 result.Should().NotBeNull();
 
-                var deprioritizedServersEndpoints = deprioritizedServers.Select(description => description.EndPoint);
-                deprioritizedServersEndpoints.Should().NotContain(result.Description.EndPoint);
+                deprioritizedServers.Should().NotContain(d => d.EndPoint == result.Description.EndPoint);
 
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
@@ -496,8 +495,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 result.Should().NotBeNull();
 
-                var deprioritizedServersEndpoints = deprioritizedServers.Select(description => description.EndPoint);
-                deprioritizedServersEndpoints.Should().Contain(result.Description.EndPoint);
+                deprioritizedServers.Should().Contain(d => d.EndPoint == result.Description.EndPoint);
 
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
