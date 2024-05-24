@@ -1,37 +1,30 @@
 {
   "components": [
     {
-      "bom-ref": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2",
+      "bom-ref": "pkg:nuget/MongoDB.Libmongocrypt@1.9.0",
       "externalReferences": [
         {
           "type": "distribution",
-          "url": "https://www.nuget.org/api/v2/package/MongoDB.Libmongocrypt/1.8.2"
+          "url": "https://www.nuget.org/api/v2/package/MongoDB.Libmongocrypt/1.9.0"
         },
         {
           "type": "website",
-          "url": "https://www.nuget.org/packages/MongoDB.Libmongocrypt/1.8.2"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Other"
-          }
+          "url": "https://www.nuget.org/packages/MongoDB.Libmongocrypt/1.9.0"
         }
       ],
       "name": "MongoDB.Libmongocrypt",
-      "purl": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2",
+      "purl": "pkg:nuget/MongoDB.Libmongocrypt@1.9.0",
       "type": "library",
-      "version": "1.8.2"
+      "version": "1.9.0"
     }
   ],
   "dependencies": [
     {
-      "ref": "pkg:nuget/MongoDB.Libmongocrypt@1.8.2"
+      "ref": "pkg:nuget/MongoDB.Libmongocrypt@1.9.0"
     }
   ],
   "metadata": {
-    "timestamp": "2024-05-03T20:19:34.867974+00:00",
+    "timestamp": "2024-05-23T20:46:09.160033+00:00",
     "tools": [
       {
         "externalReferences": [
@@ -74,7 +67,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:137c9f19-2c41-488a-bacb-b367694656ff",
+  "serialNumber": "urn:uuid:77687498-fcba-4e54-880d-67b3b53d41af",
   "version": 1,
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
