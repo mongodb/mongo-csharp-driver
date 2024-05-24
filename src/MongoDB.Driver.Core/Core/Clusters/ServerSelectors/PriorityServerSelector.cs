@@ -18,42 +18,39 @@ using System.Linq;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Clusters.ServerSelectors;
-
-/// <summary>
-/// Represents a server selector that selects servers based on a collection of servers to deprioritize.
-/// </summary>
-public class PriorityServerSelector : IServerSelector
+namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    private readonly IReadOnlyCollection<ServerDescription> _deprioritizedServers;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="PriorityServerSelector"/> class.
+    /// Represents a server selector that selects servers based on a collection of servers to deprioritize.
     /// </summary>
-    /// <param name="deprioritizedServers">The collection of servers to deprioritize.</param>
-    public PriorityServerSelector(IReadOnlyCollection<ServerDescription> deprioritizedServers)
+    public sealed class PriorityServerSelector : IServerSelector
     {
-        _deprioritizedServers = Ensure.IsNotNull(deprioritizedServers, nameof(deprioritizedServers));
-    }
+        private readonly IReadOnlyCollection<ServerDescription> _deprioritizedServers;
 
-    /// <inheritdoc />
-    public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
-    {
-        // according to spec, we only do deprioritization in a sharded cluster.
-        if (cluster.Type != ClusterType.Sharded)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PriorityServerSelector"/> class.
+        /// </summary>
+        /// <param name="deprioritizedServers">The collection of servers to deprioritize.</param>
+        public PriorityServerSelector(IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            return servers;
+            _deprioritizedServers = Ensure.IsNotNull(deprioritizedServers, nameof(deprioritizedServers));
         }
 
-        var serversList = servers.ToList();
-        var filteredServers = serversList.Where(description => _deprioritizedServers.All(d => d.EndPoint != description.EndPoint)).ToList();
+        /// <inheritdoc />
+        public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
+        {
+            // according to spec, we only do deprioritization in a sharded cluster.
+            if (cluster.Type != ClusterType.Sharded)
+            {
+                return servers;
+            }
 
-        return filteredServers.Any() ? filteredServers : serversList;
-    }
+            var filteredServers = servers.Where(description => _deprioritizedServers.All(d => d.EndPoint != description.EndPoint)).ToList();
 
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-        return "PriorityServerSelector";
+            return filteredServers.Any() ? filteredServers : servers;
+        }
+
+        /// <inheritdoc/>
+        public override string ToString() => "PriorityServerSelector";
     }
 }

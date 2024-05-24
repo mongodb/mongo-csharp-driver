@@ -29,7 +29,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -149,7 +148,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.RetryReads = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , null, true);
+                , null, useMultipleShardRouters: true);
 
             var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -169,11 +168,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             failedEvents.Length.Should().Be(2);
 
             failedEvents[0].CommandName.Should().Be(failedEvents[1].CommandName).And.Be("find");
-            failedEvents[0].ConnectionId.ServerId().Should().NotBe(failedEvents[1].ConnectionId.ServerId());
+            failedEvents[0].ConnectionId.ServerId.Should().NotBe(failedEvents[1].ConnectionId.ServerId);
         }
 
         [Fact]
-        public void Sharded_cluster_retryable_reads_are_retried_on_same_mongo_if_no_other_is_available()
+        public void Sharded_cluster_retryable_reads_are_retried_on_same_mongos_if_no_other_is_available()
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsFailCommandForSharded)
@@ -199,7 +198,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , null);
+                , null, useMultipleShardRouters: false);
 
             var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
@@ -217,7 +216,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             succeededEvents.Length.Should().Be(1);
 
             failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("find");
-            failedEvents[0].ConnectionId.ServerId().Should().Be(succeededEvents[0].ConnectionId.ServerId());
+            failedEvents[0].ConnectionId.ServerId.Should().Be(succeededEvents[0].ConnectionId.ServerId);
         }
 
         // private methods

@@ -415,7 +415,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void SelectServer_should_ignore_deprioritized_servers_if_cluster_is_sharded(
+        public async void SelectServer_should_ignore_deprioritized_servers_if_cluster_is_sharded(
             [Values(false, true)]
             bool async)
         {
@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Core.Clusters
                 IServer result;
                 if (async)
                 {
-                    result = subject.SelectServerAsync(selector, CancellationToken.None).GetAwaiter().GetResult();
+                    result = await subject.SelectServerAsync(selector, CancellationToken.None);
                 }
                 else
                 {
@@ -461,12 +461,12 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void SelectServer_should_return_deprioritized_servers_if_no_other_servers_exist_or_cluster_not_sharded(
+        public async void SelectServer_should_return_deprioritized_servers_if_no_other_servers_exist_or_cluster_not_sharded(
             [Values(false, true)] bool async,
-            [Values(false, true)] bool IsSharded)
+            [Values(false, true)] bool isSharded)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            StubCluster subject = IsSharded ? CreateSubject(ClusterConnectionMode.Sharded) : CreateSubject();
+            StubCluster subject = isSharded ? CreateSubject(ClusterConnectionMode.Sharded) : CreateSubject();
 #pragma warning restore CS0618 // Type or member is obsolete
 
             subject.Initialize();
@@ -480,27 +480,24 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new PriorityServerSelector(deprioritizedServers);
 
-            for (int i = 0; i < 15; i++)
+            _capturedEvents.Clear();
+            IServer result;
+            if (async)
             {
-                _capturedEvents.Clear();
-                IServer result;
-                if (async)
-                {
-                    result = subject.SelectServerAsync(selector, CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    result = subject.SelectServer(selector, CancellationToken.None);
-                }
-
-                result.Should().NotBeNull();
-
-                deprioritizedServers.Should().Contain(d => d.EndPoint == result.Description.EndPoint);
-
-                _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
-                _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
-                _capturedEvents.Any().Should().BeFalse();
+                result =  await subject.SelectServerAsync(selector, CancellationToken.None);
             }
+            else
+            {
+                result = subject.SelectServer(selector, CancellationToken.None);
+            }
+
+            result.Should().NotBeNull();
+
+            deprioritizedServers.Should().Contain(d => d.EndPoint == result.Description.EndPoint);
+
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Fact]

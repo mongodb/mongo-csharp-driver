@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     s.RetryWrites = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , null, true);
+                , null, useMultipleShardRouters: true);
 
             var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -79,7 +78,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             failedEvents.Length.Should().Be(2);
 
             failedEvents[0].CommandName.Should().Be(failedEvents[1].CommandName).And.Be("insert");
-            failedEvents[0].ConnectionId.ServerId().Should().NotBe(failedEvents[1].ConnectionId.ServerId());
+            failedEvents[0].ConnectionId.ServerId.Should().NotBe(failedEvents[1].ConnectionId.ServerId);
         }
 
         [Fact]
@@ -110,7 +109,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 }
-                , null);
+                , null, useMultipleShardRouters: false);
 
             var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
@@ -128,7 +127,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             succeededEvents.Length.Should().Be(1);
 
             failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("insert");
-            failedEvents[0].ConnectionId.ServerId().Should().Be(succeededEvents[0].ConnectionId.ServerId());
+            failedEvents[0].ConnectionId.ServerId.Should().Be(succeededEvents[0].ConnectionId.ServerId);
         }
     }
 }

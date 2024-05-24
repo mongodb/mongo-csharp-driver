@@ -156,8 +156,8 @@ namespace MongoDB.Driver.Core.Bindings
 
             var writableServerSelector = new WritableServerSelector(mayUseSecondary);
 
-            var selector = deprioritizedServers != null
-                ? (IServerSelector)new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
+            IServerSelector selector = deprioritizedServers != null
+                ? new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
                 : writableServerSelector;
 
             var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);

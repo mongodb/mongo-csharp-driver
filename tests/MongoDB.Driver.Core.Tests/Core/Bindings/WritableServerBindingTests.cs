@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetWriteChannelSource_should_use_a_composite_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
+        public async void GetWriteChannelSource_should_use_a_composite_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
             [Values(false, true)]
             bool async)
         {
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _mockCluster.Setup(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
 
-                subject.GetWriteChannelSourceAsync(deprioritizedServers, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetWriteChannelSourceAsync(deprioritizedServers, CancellationToken.None);
 
                 _mockCluster.Verify(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), CancellationToken.None), Times.Once);
             }
