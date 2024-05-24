@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = ProcessStates(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken);
 
-                    using var wrappedKeyDocument = new RawBsonDocument(wrappedKeyBytes);
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     _keyVaultCollection.Value.InsertOne(wrappedKeyDocument, cancellationToken: cancellationToken);
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = await ProcessStatesAsync(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken).ConfigureAwait(false);
 
-                    using var wrappedKeyDocument = new RawBsonDocument(wrappedKeyBytes);
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     await _keyVaultCollection.Value.InsertOneAsync(wrappedKeyDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -556,7 +556,7 @@ namespace MongoDB.Driver.Encryption
             return filter.Render(serializer, registry);
         }
 
-        private Guid UnwrapKeyId(RawBsonDocument wrappedKeyDocument)
+        private Guid UnwrapKeyId(BsonDocument wrappedKeyDocument)
         {
             var keyId = wrappedKeyDocument["_id"].AsBsonBinaryData;
             if (keyId.SubType != BsonBinarySubType.UuidStandard)
