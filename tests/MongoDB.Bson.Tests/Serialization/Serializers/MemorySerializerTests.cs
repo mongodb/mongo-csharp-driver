@@ -65,6 +65,12 @@ namespace MongoDB.Bson.Tests.Serialization
             public T[] Items { get; set; }
         }
 
+        public class ArrayHolderDecimal
+        {
+            [BsonRepresentation(BsonType.Decimal128)]
+            public decimal[] Items { get; set; }
+        }
+
         public class MultiHolder
         {
             public Memory<byte> ItemsBytes { get; set; }
@@ -120,10 +126,9 @@ namespace MongoDB.Bson.Tests.Serialization
         public void Memory_should_roundtrip_equivalent_to_array<T>(T[] array)
         {
             var memoryHolder = new MemoryHolder<T>() { Items = array };
-            var arrayHolder = new ArrayHolder<T>() { Items = array };
-
             var memoryBson = memoryHolder.ToBson();
-            var arrayBson = arrayHolder.ToBson();
+            var arrayBson = GetArrayHolderBson(array);
+
             memoryBson.ShouldAllBeEquivalentTo(arrayBson);
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
@@ -135,10 +140,9 @@ namespace MongoDB.Bson.Tests.Serialization
         public void ReadonlyMemory_should_roundtrip_equivalent_to_array<T>(T[] array)
         {
             var memoryHolder = new ReadonlyMemoryHolder<T>() { Items = array };
-            var arrayHolder = new ArrayHolder<T>() { Items = array };
-
             var memoryBson = memoryHolder.ToBson();
-            var arrayBson = arrayHolder.ToBson();
+            var arrayBson = GetArrayHolderBson(array);
+
             memoryBson.ShouldAllBeEquivalentTo(arrayBson);
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<ReadonlyMemoryHolder<T>>(memoryBson);
@@ -150,7 +154,6 @@ namespace MongoDB.Bson.Tests.Serialization
         public void Memory_should_roundtrip_special_values<T>(T[] array)
         {
             var memoryHolder = new MemoryHolder<T>() { Items = array };
-
             var memoryBson = memoryHolder.ToBson();
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
@@ -162,7 +165,6 @@ namespace MongoDB.Bson.Tests.Serialization
         public void ReadonlyMemory_should_roundtrip_special_values<T>(T[] array)
         {
             var memoryHolder = new ReadonlyMemoryHolder<T>() { Items = array };
-
             var memoryBson = memoryHolder.ToBson();
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
@@ -174,11 +176,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void Memory_should_roundtrip_special_values_correctly<T>(T[] array)
         {
             var memoryHolder = new MemoryHolder<T>() { Items = array };
-            var arrayHolder = new ArrayHolder<T>() { Items = array };
-
             var memoryBson = memoryHolder.ToBson();
-            var arrayBson = arrayHolder.ToBson();
-            memoryBson.ShouldAllBeEquivalentTo(arrayBson);
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
             memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
@@ -286,16 +284,19 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public readonly static IEnumerable<object[]> TestData =
         [
+            [ GetArray(i => (bool)( i % 2 == 0)) ],
             [ GetArray(i => (sbyte)i) ],
             [ GetArray(i => (byte)i) ],
             [ GetArray(i => (short)i) ],
             [ GetArray(i => (ushort)i) ],
+            [ GetArray(i => (char)i) ],
             [ GetArray(i => (int)i) ],
             [ GetArray(i => (uint)i) ],
             [ GetArray(i => (long)i) ],
             [ GetArray(i => (ulong)i) ],
             [ GetArray(i => (float)i) ],
-            [ GetArray(i => (double)i) ]
+            [ GetArray(i => (double)i) ],
+            [ GetArray(i => (decimal)i) ]
         ];
 
         public static readonly IEnumerable<object[]> TestDataSpecialValues =
@@ -304,12 +305,14 @@ namespace MongoDB.Bson.Tests.Serialization
             [ new[] { byte.MaxValue, byte.MinValue } ],
             [ new[] { short.MaxValue, short.MinValue } ],
             [ new[] { ushort.MaxValue, ushort.MinValue } ],
+            [ new[] { char.MaxValue, char.MinValue } ],
             [ new[] { int.MaxValue, int.MinValue } ],
             [ new[] { uint.MaxValue, uint.MinValue } ],
             [ new[] { long.MaxValue, long.MinValue } ],
             [ new[] { ulong.MaxValue, ulong.MinValue } ],
             [ new[] { float.MaxValue, float.MinValue, float.Epsilon, float.NegativeInfinity, float.PositiveInfinity, float.NaN } ],
-            [ new[] { double.MaxValue, double.MinValue, double.Epsilon, double.NegativeInfinity, double.PositiveInfinity, double.NaN } ]
+            [ new[] { double.MaxValue, double.MinValue, double.Epsilon, double.NegativeInfinity, double.PositiveInfinity, double.NaN } ],
+            [ new[] { decimal.MaxValue, decimal.MinValue, decimal.One, decimal.Zero, decimal.MinusOne }]
         ];
 
         public static readonly IEnumerable<object[]> NonSupportedTestData =
@@ -332,5 +335,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
         private static T[] GetArray<T>(Func<int, T> converter) =>
             Enumerable.Range(0, 16).Select(converter).ToArray();
+
+        private static byte[] GetArrayHolderBson<T>(T[] array) => typeof(T) switch
+        {
+            var t when t == typeof(decimal) => (new ArrayHolderDecimal() { Items = array as decimal[] }).ToBson(),
+            _ => (new ArrayHolder<T>() { Items = array }).ToBson(),
+        };
     }
 }

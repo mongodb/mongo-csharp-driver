@@ -9,17 +9,23 @@ namespace MongoDB.Bson.Serialization.Serializers
     {
         private enum ConversionType
         {
+            BoolToBool,
             DoubleToSingle,
             DoubleToDouble,
+            Decimal128ToDecimal128,
             Int32ToInt8,
             Int32ToUInt8,
             Int32ToInt16,
             Int32ToUInt16,
+            Int32ToChar,
             Int32ToInt32,
             Int32ToUInt32,
             Int64ToInt64,
             Int64ToUInt64
         }
+
+        public static bool[] ReadBool(IBsonReader bsonReader) =>
+            ReadBsonArray<bool>(bsonReader, ConversionType.BoolToBool);
 
         public static byte[] ReadInt8(IBsonReader bsonReader) =>
             ReadBsonArray<byte>(bsonReader, ConversionType.Int32ToInt8);
@@ -33,6 +39,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static ushort[] ReadUInt16(IBsonReader bsonReader) =>
             ReadBsonArray<ushort>(bsonReader, ConversionType.Int32ToUInt16);
 
+        public static char[] ReadChar(IBsonReader bsonReader) =>
+            ReadBsonArray<char>(bsonReader, ConversionType.Int32ToChar);
+
         public static int[] ReadInt32(IBsonReader bsonReader) =>
             ReadBsonArray<int>(bsonReader, ConversionType.Int32ToInt32);
 
@@ -44,6 +53,9 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         public static double[] ReadDoubles(IBsonReader bsonReader) =>
             ReadBsonArray<double>(bsonReader, ConversionType.DoubleToDouble);
+
+        public static decimal[] ReadDecimal128(IBsonReader bsonReader) =>
+            ReadBsonArray<decimal>(bsonReader, ConversionType.Decimal128ToDecimal128);
 
         public static long[] ReadInt64(IBsonReader bsonReader) =>
             ReadBsonArray<long>(bsonReader, ConversionType.Int64ToInt64);
@@ -83,16 +95,31 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case ConversionType.DoubleToSingle:
                         {
-                            var from = BitConverter.ToDouble(bytes, index);
-                            var to = (float)from;
+                            var v = (float)BitConverter.ToDouble(bytes, index);
 
-                            value = Unsafe.As<float, T>(ref to);
+                            value = Unsafe.As<float, T>(ref v);
                             break;
                         }
                     case ConversionType.DoubleToDouble:
                         {
                             var v = BitConverter.ToDouble(bytes, index);
                             value = Unsafe.As<double, T>(ref v);
+                            break;
+                        }
+                    case ConversionType.Decimal128ToDecimal128:
+                        {
+                            var lowBits = (ulong)BitConverter.ToInt64(bytes, index);
+                            var highBits = (ulong)BitConverter.ToInt64(bytes, index + 8);
+                            var v = Decimal128.ToDecimal(Decimal128.FromIEEEBits(highBits, lowBits));
+
+                            value = Unsafe.As<decimal, T>(ref v);
+                            break;
+                        }
+                    case ConversionType.BoolToBool:
+                        {
+                            var v = bytes[index] != 0;
+
+                            value = Unsafe.As<bool, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToInt8:
@@ -118,6 +145,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             var v = (ushort)BitConverter.ToInt32(bytes, index);
                             value = Unsafe.As<ushort, T>(ref v);
+                            break;
+                        }
+                    case ConversionType.Int32ToChar:
+                        {
+                            var v = BitConverter.ToChar(bytes, index);
+                            value = Unsafe.As<char, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToInt32:
@@ -169,6 +202,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         private static (BsonType, int) GetBsonDataTypeAndSize(ConversionType conversionType) =>
             conversionType switch
             {
+                ConversionType.BoolToBool => (BsonType.Boolean, 1),
+
                 ConversionType.DoubleToSingle or
                 ConversionType.DoubleToDouble => (BsonType.Double, 8),
 
@@ -177,10 +212,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                 ConversionType.Int32ToUInt16 or
                 ConversionType.Int32ToInt16 or
                 ConversionType.Int32ToInt32 or
+                ConversionType.Int32ToChar or
                 ConversionType.Int32ToUInt32 => (BsonType.Int32, 4),
 
                 ConversionType.Int64ToInt64 or
                 ConversionType.Int64ToUInt64 => (BsonType.Int64, 8),
+
+                ConversionType.Decimal128ToDecimal128 => (BsonType.Decimal128, 16),
 
                 _ => throw new NotSupportedException()
             };

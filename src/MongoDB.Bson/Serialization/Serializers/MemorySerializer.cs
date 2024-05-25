@@ -127,6 +127,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             switch (typeof(TItem))
             {
+                case var t when t == typeof(bool):
+                    __readItems = reader => PrimitivesArrayReader.ReadBool(reader) as TItem[];
+                    __writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<bool>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteBool(writer, span);
+                    };
+                    break;
                 case var t when t == typeof(sbyte):
                     __readItems = reader => PrimitivesArrayReader.ReadInt8(reader) as TItem[];
                     __writeItems = (writer, memory) =>
@@ -142,6 +150,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         var span = Unsafe.As<Memory<TItem>, Memory<byte>>(ref memory).Span;
                         PrimitivesArrayWriter.WriteUInt8(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(char):
+                    __readItems = reader => PrimitivesArrayReader.ReadChar(reader) as TItem[];
+                    __writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<char>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteChar(writer, span);
                     };
                     break;
                 case var t when t == typeof(short):
@@ -199,7 +215,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                         var span = Unsafe.As<Memory<TItem>, Memory<float>>(ref memory).Span;
                         PrimitivesArrayWriter.WriteSingles(writer, span);
                     };
-
                     break;
                 case var t when t == typeof(double):
                     __readItems = reader => PrimitivesArrayReader.ReadDoubles(reader) as TItem[];
@@ -207,6 +222,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         var span = Unsafe.As<Memory<TItem>, Memory<double>>(ref memory).Span;
                         PrimitivesArrayWriter.WriteDoubles(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(decimal):
+                    __readItems = reader => PrimitivesArrayReader.ReadDecimal128(reader) as TItem[];
+                    __writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<decimal>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteDecimal128(writer, span);
                     };
                     break;
                 default:

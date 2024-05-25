@@ -5,6 +5,16 @@ namespace MongoDB.Bson.Serialization.Serializers
 {
     internal static class PrimitivesArrayWriter
     {
+        public static void WriteBool(IBsonWriter bsonWriter, Span<bool> span)
+        {
+            bsonWriter.WriteStartArray();
+            for (int i = 0; i < span.Length; i++)
+            {
+                bsonWriter.WriteBoolean(span[i]);
+            }
+            bsonWriter.WriteEndArray();
+        }
+
         public static void WriteInt8(IBsonWriter bsonWriter, Span<sbyte> span)
         {
             bsonWriter.WriteStartArray();
@@ -36,6 +46,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         public static void WriteUInt16(IBsonWriter bsonWriter, Span<ushort> span)
+        {
+            bsonWriter.WriteStartArray();
+            for (int i = 0; i < span.Length; i++)
+            {
+                bsonWriter.WriteInt32(span[i]);
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        public static void WriteChar(IBsonWriter bsonWriter, Span<char> span)
         {
             bsonWriter.WriteStartArray();
             for (int i = 0; i < span.Length; i++)
@@ -101,6 +121,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             for (int i = 0; i < span.Length; i++)
             {
                 bsonWriter.WriteDouble(span[i]);
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        public static void WriteDecimal128(IBsonWriter bsonWriter, Span<decimal> span)
+        {
+            bsonWriter.WriteStartArray();
+            for (int i = 0; i < span.Length; i++)
+            {
+                bsonWriter.WriteDecimal128(span[i]);
             }
             bsonWriter.WriteEndArray();
         }
