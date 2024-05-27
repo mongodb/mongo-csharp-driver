@@ -789,7 +789,18 @@ namespace MongoDB.Driver
 
         public CombinedProjectionDefinition(IEnumerable<ProjectionDefinition<TSource>> projections)
         {
-            _projections = Ensure.IsNotNull(projections, nameof(projections)).ToList();
+            // Unwind CombinedProjectionDefinitions to avoid deep recursion on Render
+            _projections = Ensure.IsNotNull(projections, nameof(projections))
+                .Aggregate(new List<ProjectionDefinition<TSource>>(), (current, projection) =>
+                {
+                    if (projection is CombinedProjectionDefinition<TSource> combinedProjection)
+                    {
+                        current.AddRange(combinedProjection._projections);
+                    } else
+                        current.Add(projection);
+                    return current;
+                })
+                .ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
