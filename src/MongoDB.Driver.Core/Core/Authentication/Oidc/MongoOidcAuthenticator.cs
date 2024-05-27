@@ -98,17 +98,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
                 catch (Exception ex)
                 {
-                    ClearCredentialsCache();
+                    if (IsAuthenticationError(ex))
+                    {
+                        ClearCredentialsCache();
+                        if (retryOnFailure)
+                        {
+                            Thread.Sleep(100);
+                            TryAuthenticate(false);
+                            return;
+                        }
+                    }
 
-                    if (retryOnFailure && ShouldReauthenticateIfSaslError(ex, connection))
-                    {
-                        Thread.Sleep(100);
-                        TryAuthenticate(false);
-                    }
-                    else
-                    {
-                        throw UnwrapMongoAuthenticationException(ex);
-                    }
+                    throw UnwrapMongoAuthenticationException(ex);
                 }
             }
         }
@@ -129,17 +130,18 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                 }
                 catch (Exception ex)
                 {
-                    ClearCredentialsCache();
+                    if (IsAuthenticationError(ex))
+                    {
+                        ClearCredentialsCache();
+                        if (retryOnFailure)
+                        {
+                            await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                            await TryAuthenticateAsync(false).ConfigureAwait(false);
+                            return;
+                        }
+                    }
 
-                    if (retryOnFailure && ShouldReauthenticateIfSaslError(ex, connection))
-                    {
-                        await Task.Delay(100).ConfigureAwait(false);
-                        await TryAuthenticateAsync(false).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        throw UnwrapMongoAuthenticationException(ex);
-                    }
+                    throw UnwrapMongoAuthenticationException(ex);
                 }
             }
         }
@@ -160,12 +162,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         public void ClearCredentialsCache() => OidcMechanism.ClearCache();
 
-        private static bool ShouldReauthenticateIfSaslError(Exception ex, IConnection connection)
+        private static bool IsAuthenticationError(Exception ex)
         {
             return ex is MongoAuthenticationException authenticationException &&
                    authenticationException.InnerException is MongoCommandException mongoCommandException &&
-                   mongoCommandException.Code == (int)ServerErrorCode.AuthenticationFailed &&
-                   !connection.Description.IsInitialized();
+                   mongoCommandException.Code == (int)ServerErrorCode.AuthenticationFailed;
         }
 
         private static Exception UnwrapMongoAuthenticationException(Exception ex)

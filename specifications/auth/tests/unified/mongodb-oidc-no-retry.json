@@ -5,7 +5,8 @@
     {
       "minServerVersion": "7.0",
       "auth": true,
-      "authMechanism": "MONGODB-OIDC"
+      "authMechanism": "MONGODB-OIDC",
+      "serverless": "forbid"
     }
   ],
   "createEntities": [
@@ -52,9 +53,7 @@
     {
       "collectionName": "collName",
       "databaseName": "test",
-      "documents": [
-
-      ]
+      "documents": []
     }
   ],
   "tests": [
@@ -65,12 +64,9 @@
           "name": "find",
           "object": "collection0",
           "arguments": {
-            "filter": {
-            }
+            "filter": {}
           },
-          "expectResult": [
-
-          ]
+          "expectResult": []
         }
       ],
       "expectEvents": [
@@ -81,8 +77,7 @@
               "commandStartedEvent": {
                 "command": {
                   "find": "collName",
-                  "filter": {
-                  }
+                  "filter": {}
                 }
               }
             },
@@ -161,12 +156,9 @@
           "name": "find",
           "object": "collection0",
           "arguments": {
-            "filter": {
-            }
+            "filter": {}
           },
-          "expectResult": [
-
-          ]
+          "expectResult": []
         }
       ],
       "expectEvents": [
@@ -177,8 +169,7 @@
               "commandStartedEvent": {
                 "command": {
                   "find": "collName",
-                  "filter": {
-                  }
+                  "filter": {}
                 }
               }
             },
@@ -191,8 +182,7 @@
               "commandStartedEvent": {
                 "command": {
                   "find": "collName",
-                  "filter": {
-                  }
+                  "filter": {}
                 }
               }
             },
@@ -324,12 +314,14 @@
             "client": "failPointClient",
             "failPoint": {
               "configureFailPoint": "failCommand",
-              "mode": "alwaysOn",
+              "mode": {
+                "times": 1
+              },
               "data": {
                 "failCommands": [
                   "saslStart"
                 ],
-                "errorCode": 20
+                "errorCode": 18
               }
             }
           }
@@ -399,12 +391,14 @@
             "client": "failPointClient",
             "failPoint": {
               "configureFailPoint": "failCommand",
-              "mode": "alwaysOn",
+              "mode": {
+                "times": 1
+              },
               "data": {
                 "failCommands": [
                   "saslStart"
                 ],
-                "errorCode": 20
+                "errorCode": 18
               }
             }
           }
@@ -419,181 +413,8 @@
             }
           },
           "expectError": {
-            "errorCode": 20
+            "errorCode": 18
           }
-        }
-      ]
-    },
-    {
-      "description": "Read commands should fail if reauthentication fails",
-      "operations": [
-        {
-          "name": "find",
-          "object": "collection0",
-          "arguments": {
-            "filter": {
-            }
-          },
-          "expectResult": [
-
-          ]
-        },
-        {
-          "name": "failPoint",
-          "object": "testRunner",
-          "arguments": {
-            "client": "failPointClient",
-            "failPoint": {
-              "configureFailPoint": "failCommand",
-              "mode": {
-                "times": 2
-              },
-              "data": {
-                "failCommands": [
-                  "find",
-                  "saslStart"
-                ],
-                "errorCode": 391
-              }
-            }
-          }
-        },
-        {
-          "name": "find",
-          "object": "collection0",
-          "arguments": {
-            "filter": {
-            }
-          },
-          "expectError": {
-            "errorCode": 391
-          }
-        }
-      ],
-      "expectEvents": [
-        {
-          "client": "client0",
-          "events": [
-            {
-              "commandStartedEvent": {
-                "command": {
-                  "find": "collName",
-                  "filter": {
-                  }
-                }
-              }
-            },
-            {
-              "commandSucceededEvent": {
-                "commandName": "find"
-              }
-            },
-            {
-              "commandStartedEvent": {
-                "command": {
-                  "find": "collName",
-                  "filter": {
-                  }
-                }
-              }
-            },
-            {
-              "commandFailedEvent": {
-                "commandName": "find"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "description": "Write commands should fail if reauthentication fails",
-      "operations": [
-        {
-          "name": "insertOne",
-          "object": "collection0",
-          "arguments": {
-            "document": {
-              "_id": 1,
-              "x": 1
-            }
-          }
-        },
-        {
-          "name": "failPoint",
-          "object": "testRunner",
-          "arguments": {
-            "client": "failPointClient",
-            "failPoint": {
-              "configureFailPoint": "failCommand",
-              "mode": {
-                "times": 2
-              },
-              "data": {
-                "failCommands": [
-                  "insert",
-                  "saslStart"
-                ],
-                "errorCode": 391
-              }
-            }
-          }
-        },
-        {
-          "name": "insertOne",
-          "object": "collection0",
-          "arguments": {
-            "document": {
-              "_id": 2,
-              "x": 2
-            }
-          },
-          "expectError": {
-            "errorCode": 391
-          }
-        }
-      ],
-      "expectEvents": [
-        {
-          "client": "client0",
-          "events": [
-            {
-              "commandStartedEvent": {
-                "command": {
-                  "insert": "collName",
-                  "documents": [
-                    {
-                      "_id": 1,
-                      "x": 1
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "commandSucceededEvent": {
-                "commandName": "insert"
-              }
-            },
-            {
-              "commandStartedEvent": {
-                "command": {
-                  "insert": "collName",
-                  "documents": [
-                    {
-                      "_id": 2,
-                      "x": 2
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "commandFailedEvent": {
-                "commandName": "insert"
-              }
-            }
-          ]
         }
       ]
     }

@@ -837,7 +837,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 string collectionName = null;
                 IMongoDatabase database = null;
-                MongoCollectionSettings settings = null;
+                var settings = new MongoCollectionSettings
+                {
+                    ReadPreference = ReadPreference.Primary
+                };
 
                 foreach (var element in entity)
                 {
@@ -854,7 +857,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             collectionName = entity["collectionName"].AsString;
                             break;
                         case "collectionOptions":
-                            settings = new MongoCollectionSettings();
                             foreach (var option in element.Value.AsBsonDocument)
                             {
                                 switch (option.Name)

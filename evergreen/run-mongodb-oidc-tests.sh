@@ -30,9 +30,13 @@ if [ $OIDC_ENV == "test" ]; then
   fi
 
   source ${DRIVERS_TOOLS}/.evergreen/auth_oidc/secrets-export.sh
-  if [[ ! $OS =~ ubuntu.* ]]; then
-    # Ubuntu uses local server with already build admin credentials in connection string
-    MONGODB_URI="mongodb+srv://${OIDC_ADMIN_USER}:${OIDC_ADMIN_PWD}@${MONGODB_URI:14}?authSource=admin"
+  if [[ "$MONGODB_URI" =~ ^mongodb:.* ]]; then
+    MONGODB_URI="mongodb://${OIDC_ADMIN_USER}:${OIDC_ADMIN_PWD}@${MONGODB_URI:10}&authSource=admin"
+  elif [[ "$MONGODB_URI" =~ ^mongodb\+srv:.* ]]; then
+    MONGODB_URI="mongodb+srv://${OIDC_ADMIN_USER}:${OIDC_ADMIN_PWD}@${MONGODB_URI:14}&authSource=admin"
+  else
+      echo "Unexpected MONGODB_URI format: $MONGODB_URI"
+      exit 1
   fi
 elif [ $OIDC_ENV == "azure" ]; then
   source ./env.sh
