@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -86,18 +87,12 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryHolder = new MemoryHolder<T>() { Items = notSupportedData };
 
             var exception = Record.Exception(() => memoryHolder.ToBson());
-            var e = exception.Should().BeOfType<BsonSerializationException>().Subject;
+            var e = exception.Should()
+                .BeOfType<BsonSerializationException>().Subject.InnerException.Should()
+                .BeOfType<TargetInvocationException>().Subject.InnerException.Should()
+                .BeOfType<NotSupportedException>().Subject;
 
-            if (typeof(T).IsClass)
-            {
-                var inner = e.InnerException.Should().BeOfType<ArgumentException>().Subject;
-                inner.Message.Should().Contain("violates the constraint of type 'TItem'");
-            }
-            else
-            {
-                var inner = e.InnerException.Should().BeOfType<TypeInitializationException>().Subject.InnerException;
-                inner.Message.Should().StartWith("Not supported memory type");
-            }
+            e.Message.Should().StartWith("Not supported memory type");
         }
 
         [Theory]
@@ -107,18 +102,12 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryHolder = new ReadonlyMemoryHolder<T>() { Items = notSupportedData };
 
             var exception = Record.Exception(() => memoryHolder.ToBson());
-            var e = exception.Should().BeOfType<BsonSerializationException>().Subject;
+            var e = exception.Should()
+                .BeOfType<BsonSerializationException>().Subject.InnerException.Should()
+                .BeOfType<TargetInvocationException>().Subject.InnerException.Should()
+                .BeOfType<NotSupportedException>().Subject;
 
-            if (typeof(T).IsClass)
-            {
-                var inner = e.InnerException.Should().BeOfType<ArgumentException>().Subject;
-                inner.Message.Should().Contain("violates the constraint of type 'TItem'");
-            }
-            else
-            {
-                var inner = e.InnerException.Should().BeOfType<TypeInitializationException>().Subject.InnerException;
-                inner.Message.Should().StartWith("Not supported memory type");
-            }
+            e.Message.Should().StartWith("Not supported memory type");
         }
 
         [Theory]

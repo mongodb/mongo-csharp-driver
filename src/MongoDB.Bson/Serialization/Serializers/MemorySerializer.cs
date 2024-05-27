@@ -25,7 +25,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TItem">The type of the item. Only primitive numeric types are supported.</typeparam>
     public sealed class ReadonlyMemorySerializer<TItem> : MemorySerializerBase<TItem, ReadOnlyMemory<TItem>>
-        where TItem : struct
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadonlyMemorySerializer{TItem}" /> class.
@@ -70,7 +69,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TItem">The type of the item. Only primitive numeric types are supported.</typeparam>
     public sealed class MemorySerializer<TItem> : MemorySerializerBase<TItem, Memory<TItem>>
-        where TItem : struct
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MemorySerializer{TItem}" /> class.
@@ -117,125 +115,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TMemory">The type of the memory struct.</typeparam>
     public abstract class MemorySerializerBase<TItem, TMemory> : StructSerializerBase<TMemory>, IRepresentationConfigurable<MemorySerializerBase<TItem, TMemory>>
         where TMemory : struct
-        where TItem : struct
     {
-        private static readonly bool __isByte;
-        private static readonly Func<IBsonReader, TItem[]> __readItems;
-        private static readonly Action<IBsonWriter, Memory<TItem>> __writeItems;
+        private static readonly bool __isByte = (typeof(TItem) == typeof(byte));
 
-        static MemorySerializerBase()
-        {
-            switch (typeof(TItem))
-            {
-                case var t when t == typeof(bool):
-                    __readItems = reader => PrimitivesArrayReader.ReadBool(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<bool>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteBool(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(sbyte):
-                    __readItems = reader => PrimitivesArrayReader.ReadInt8(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<sbyte>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteInt8(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(byte):
-                    __isByte = true;
-                    __readItems = reader => PrimitivesArrayReader.ReadUInt8(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<byte>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteUInt8(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(char):
-                    __readItems = reader => PrimitivesArrayReader.ReadChar(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<char>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteChar(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(short):
-                    __readItems = reader => PrimitivesArrayReader.ReadInt16(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<short>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteInt16(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(ushort):
-                    __readItems = reader => PrimitivesArrayReader.ReadUInt16(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<ushort>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteUInt16(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(int):
-                    __readItems = reader => PrimitivesArrayReader.ReadInt32(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<int>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteInt32(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(uint):
-                    __readItems = reader => PrimitivesArrayReader.ReadUInt32(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<uint>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteUInt32(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(long):
-                    __readItems = reader => PrimitivesArrayReader.ReadInt64(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<long>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteInt64(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(ulong):
-                    __readItems = reader => PrimitivesArrayReader.ReadUInt64(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<ulong>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteUInt64(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(float):
-                    __readItems = reader => PrimitivesArrayReader.ReadSingles(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<float>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteSingles(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(double):
-                    __readItems = reader => PrimitivesArrayReader.ReadDoubles(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<double>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteDoubles(writer, span);
-                    };
-                    break;
-                case var t when t == typeof(decimal):
-                    __readItems = reader => PrimitivesArrayReader.ReadDecimal128(reader) as TItem[];
-                    __writeItems = (writer, memory) =>
-                    {
-                        var span = Unsafe.As<Memory<TItem>, Memory<decimal>>(ref memory).Span;
-                        PrimitivesArrayWriter.WriteDecimal128(writer, span);
-                    };
-                    break;
-                default:
-                    throw new NotSupportedException($"Not supported memory type {typeof(TItem)}. Only primitive numeric types are supported.");
-            };
-        }
+        private readonly Func<IBsonReader, TItem[]> _readItems;
+        private readonly Action<IBsonWriter, Memory<TItem>> _writeItems;
 
         /// <inheritdoc/>
         public BsonType Representation { get; }
@@ -252,6 +136,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentOutOfRangeException(nameof(representation));
             }
 
+            (_readItems, _writeItems) = GetReaderAndWriter();
             Representation = representation;
         }
 
@@ -273,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Array:
-                    var items = __readItems(reader);
+                    var items = _readItems(reader);
 
                     return CreateMemory(items);
                 case BsonType.Binary:
@@ -296,10 +181,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (Representation)
             {
                 case BsonType.Array:
-                    __writeItems(context.Writer, memory);
+                    _writeItems(context.Writer, memory);
                     break;
                 case BsonType.Binary:
-                    var bytes = MemoryMarshal.AsBytes(memory.Span);
+                    var bytesMemory = Unsafe.As<Memory<TItem>, Memory<byte>>(ref memory);
+                    var bytes = MemoryMarshal.AsBytes(bytesMemory.Span);
                     context.Writer.WriteBytes(bytes.ToArray());
                     break;
                 default:
@@ -326,5 +212,123 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <returns>The Memory{TITem} structure.</returns>
         protected abstract Memory<TItem> GetMemory(TMemory memory);
+
+        private static (Func<IBsonReader, TItem[]> reader, Action<IBsonWriter, Memory<TItem>> writer) GetReaderAndWriter()
+        {
+            Func<IBsonReader, TItem[]> readItems;
+            Action<IBsonWriter, Memory<TItem>> writeItems;
+
+            switch (typeof(TItem))
+            {
+                case var t when t == typeof(bool):
+                    readItems = reader => PrimitivesArrayReader.ReadBool(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<bool>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteBool(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(sbyte):
+                    readItems = reader => PrimitivesArrayReader.ReadInt8(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<sbyte>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteInt8(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(byte):
+                    readItems = reader => PrimitivesArrayReader.ReadUInt8(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<byte>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteUInt8(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(char):
+                    readItems = reader => PrimitivesArrayReader.ReadChar(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<char>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteChar(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(short):
+                    readItems = reader => PrimitivesArrayReader.ReadInt16(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<short>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteInt16(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(ushort):
+                    readItems = reader => PrimitivesArrayReader.ReadUInt16(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<ushort>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteUInt16(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(int):
+                    readItems = reader => PrimitivesArrayReader.ReadInt32(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<int>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteInt32(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(uint):
+                    readItems = reader => PrimitivesArrayReader.ReadUInt32(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<uint>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteUInt32(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(long):
+                    readItems = reader => PrimitivesArrayReader.ReadInt64(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<long>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteInt64(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(ulong):
+                    readItems = reader => PrimitivesArrayReader.ReadUInt64(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<ulong>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteUInt64(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(float):
+                    readItems = reader => PrimitivesArrayReader.ReadSingles(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<float>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteSingles(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(double):
+                    readItems = reader => PrimitivesArrayReader.ReadDoubles(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<double>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteDoubles(writer, span);
+                    };
+                    break;
+                case var t when t == typeof(decimal):
+                    readItems = reader => PrimitivesArrayReader.ReadDecimal128(reader) as TItem[];
+                    writeItems = (writer, memory) =>
+                    {
+                        var span = Unsafe.As<Memory<TItem>, Memory<decimal>>(ref memory).Span;
+                        PrimitivesArrayWriter.WriteDecimal128(writer, span);
+                    };
+                    break;
+                default:
+                    throw new NotSupportedException($"Not supported memory type {typeof(TItem)}. Only primitive numeric types are supported.");
+            };
+
+            return (readItems, writeItems);
+        }
     }
 }
