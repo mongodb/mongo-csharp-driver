@@ -72,9 +72,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc/>
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
-            return await GetReadChannelSourceAsync(null, cancellationToken).ConfigureAwait(false);
+            return GetReadChannelSourceAsync(null, cancellationToken);
         }
 
         /// <inheritdoc />

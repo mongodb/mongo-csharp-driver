@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc/>
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
-            return await GetReadChannelSourceAsync(null, cancellationToken).ConfigureAwait(false);
+            return GetReadChannelSourceAsync(null, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -127,9 +127,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc/>
-        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
-            return await GetWriteChannelSourceAsync(deprioritizedServers: null, cancellationToken).ConfigureAwait(false);
+            return GetWriteChannelSourceAsync(deprioritizedServers: null, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -141,9 +141,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc/>
-        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
-            return await GetWriteChannelSourceAsync(null, mayUseSecondary, cancellationToken).ConfigureAwait(false);
+            return GetWriteChannelSourceAsync(null, mayUseSecondary, cancellationToken);
         }
 
         /// <inheritdoc />
