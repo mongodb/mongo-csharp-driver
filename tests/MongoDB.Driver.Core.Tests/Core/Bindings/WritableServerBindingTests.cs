@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public async void GetWriteChannelSource_should_use_a_composite_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
+        public async Task GetWriteChannelSource_should_use_a_composite_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
             [Values(false, true)]
             bool async)
         {

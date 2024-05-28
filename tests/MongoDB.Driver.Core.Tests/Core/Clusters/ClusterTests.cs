@@ -415,7 +415,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public async void SelectServer_should_ignore_deprioritized_servers_if_cluster_is_sharded(
+        public async Task SelectServer_should_ignore_deprioritized_servers_if_cluster_is_sharded(
             [Values(false, true)]
             bool async)
         {
@@ -461,7 +461,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public async void SelectServer_should_return_deprioritized_servers_if_no_other_servers_exist_or_cluster_not_sharded(
+        public async Task SelectServer_should_return_deprioritized_servers_if_no_other_servers_exist_or_cluster_not_sharded(
             [Values(false, true)] bool async,
             [Values(false, true)] bool isSharded)
         {
