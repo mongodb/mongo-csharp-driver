@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <param name="deprioritizedServers">The collection of servers to deprioritize.</param>
         public PriorityServerSelector(IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            _deprioritizedServers = Ensure.IsNotNull(deprioritizedServers, nameof(deprioritizedServers));
+            _deprioritizedServers = Ensure.IsNotNullOrEmpty(deprioritizedServers, nameof(deprioritizedServers)) as IReadOnlyCollection<ServerDescription>;
         }
 
         /// <inheritdoc />
