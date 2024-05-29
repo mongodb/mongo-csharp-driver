@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = ProcessStates(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken);
 
-                    var wrappedKeyDocument = new RawBsonDocument(wrappedKeyBytes);
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     _keyVaultCollection.Value.InsertOne(wrappedKeyDocument, cancellationToken: cancellationToken);
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = await ProcessStatesAsync(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken).ConfigureAwait(false);
 
-                    var wrappedKeyDocument = new RawBsonDocument(wrappedKeyBytes);
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     await _keyVaultCollection.Value.InsertOneAsync(wrappedKeyDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -556,7 +556,7 @@ namespace MongoDB.Driver.Encryption
             return filter.Render(serializer, registry);
         }
 
-        private Guid UnwrapKeyId(RawBsonDocument wrappedKeyDocument)
+        private Guid UnwrapKeyId(BsonDocument wrappedKeyDocument)
         {
             var keyId = wrappedKeyDocument["_id"].AsBsonBinaryData;
             if (keyId.SubType != BsonBinarySubType.UuidStandard)
@@ -568,8 +568,8 @@ namespace MongoDB.Driver.Encryption
 
         private BsonValue UnwrapValue(byte[] encryptedWrappedBytes)
         {
-            var rawDocument = new RawBsonDocument(encryptedWrappedBytes);
-            return rawDocument["v"];
+            var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(encryptedWrappedBytes);
+            return bsonDocument["v"];
         }
     }
 }
