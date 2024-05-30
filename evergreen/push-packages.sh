@@ -2,16 +2,18 @@
 set -o errexit # Exit the script with error if any of the commands fail
 set +o xtrace  # Disable tracing.
 
+# querying nuget source to find search base url
+packages_search_url=$(curl -X GET -s "${PACKAGES_SOURCE}" | jq -r 'first(.resources[] | select(."@type"=="SearchQueryService") | ."@id")')
+
 wait_until_package_is_available ()
 {
   package=$1
   version=$2
-  query_url="${PACKAGES_SOURCE%index.json}query"
   resp=""
   count=0
-  echo "Checking package availability: ${package}:${version} at ${query_url}"
+  echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
   while [ -z "$resp" ] && [ $count -le 40 ]; do
-    resp=$(curl -X GET -s "$query_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[] | select(.version==$jq_version) | .version')
+    resp=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[] | select(.version==$jq_version) | .version')
     if [ -z "$resp" ]; then
       echo "sleeping for 15 seconds..."
       sleep 15
