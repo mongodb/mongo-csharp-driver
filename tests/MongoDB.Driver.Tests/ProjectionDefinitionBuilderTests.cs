@@ -14,6 +14,7 @@
 */
 
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -59,6 +60,24 @@ namespace MongoDB.Driver.Tests
             var projection = subject.Include(x => x.FirstName).Exclude("LastName").Include("fn");
 
             Assert(projection, "{LastName: 0, fn: 1}");
+        }
+
+        [Fact]
+        public void Combine_many_fields_should_not_overflow_stack_on_Render()
+        {
+            var subject = CreateSubject<Person>();
+
+            var projection = subject.Include(x => x.FirstName);
+            var expectedProjection = new StringBuilder("{fn: 1");
+            for (int i = 0; i < 10000; i++)
+            {
+                var field = $"Field{i}";
+                projection = projection.Include(field);
+                expectedProjection.Append($", {field}: 1");
+            }
+            expectedProjection.Append("}");
+
+            Assert(projection, expectedProjection.ToString());
         }
 
         [Fact]
