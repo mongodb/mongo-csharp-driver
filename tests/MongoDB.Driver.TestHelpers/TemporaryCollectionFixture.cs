@@ -21,57 +21,67 @@ using MongoDB.Driver.Tests;
 
 namespace MongoDB.Driver.TestHelpers
 {
-    public abstract class TemporaryCollectionFixture<TModel> : TemporaryDatabaseFixture
+    public abstract class TemporaryCollectionFixture<TDocument> : IDisposable
     {
-        private readonly Lazy<string> _collectionName;
-        private readonly Lazy<bool> _initCollection;
+        private readonly TemporaryDatabaseFixture _temporaryDatabaseFixture;
+        private readonly string _collectionName;
+        private readonly Lazy<bool> _collectionInitializer;
 
-        protected TemporaryCollectionFixture()
+        protected TemporaryCollectionFixture(string collectionName = null)
         {
-            _initCollection = new Lazy<bool>(InitCollection, LazyThreadSafetyMode.ExecutionAndPublication);
-            _collectionName = new Lazy<string>(GetDeclaringTypeName);
-        }
-
-        protected abstract IEnumerable<TModel> GetInitialData();
-
-        protected virtual string CollectionName => _collectionName.Value;
-
-        public IMongoCollection<TModel> GetCollection(LinqProvider provider = LinqProvider.V3)
-        {
-            // should always call this to ensure the collection is being initialized with the data
-            _ = _initCollection.Value;
-            return GetCollection<TModel>(CollectionName, provider);
-        }
-
-        public IMongoCollection<T> GetCollection<T>(LinqProvider provider = LinqProvider.V3)
-        {
-            // should always call this to ensure the collection is being initialized with the data
-            _ = _initCollection.Value;
-            return GetCollection<T>(CollectionName, provider);
-        }
-
-        private string GetDeclaringTypeName()
-        {
-            var currentType = GetType();
-            return currentType.DeclaringType?.Name;
-        }
-
-        private bool InitCollection()
-        {
-            if (string.IsNullOrEmpty(CollectionName))
+            _temporaryDatabaseFixture = new TemporaryDatabaseFixture();
+            _collectionInitializer = new Lazy<bool>(() =>
             {
-                throw new InvalidOperationException("Cannot resolve the collection name. Try to override the CollectionName property and return the name explicitly");
+                InitializeCollection();
+                return true;
+            }, LazyThreadSafetyMode.ExecutionAndPublication);
+            _collectionName = collectionName ?? GetCollectionName();
+            if (string.IsNullOrEmpty(_collectionName))
+            {
+                throw new ArgumentNullException(nameof(collectionName) , "Cannot resolve the collection name. Try to specify the parameter explicitly");
             }
+        }
 
-            GetDatabase().DropCollection(CollectionName);
-            var collection = GetCollection<TModel>(CollectionName);
+        public void Dispose()
+        {
+            _temporaryDatabaseFixture.Dispose();
+        }
+
+        public string CollectionName => _collectionName;
+
+        public IMongoClient GetClient(LinqProvider provider)
+            => _temporaryDatabaseFixture.GetClient(provider);
+
+        public IMongoCollection<TDocument> GetCollection(LinqProvider provider = LinqProvider.V3)
+        {
+            EnsureCollectionInitialized();
+            return GetDatabase(provider).GetCollection<TDocument>(CollectionName);
+        }
+
+        public IMongoDatabase GetDatabase(LinqProvider provider = LinqProvider.V3)
+            => _temporaryDatabaseFixture.GetDatabase(provider);
+
+        protected abstract IEnumerable<TDocument> GetInitialData();
+
+        protected virtual void InitializeCollection()
+        {
             var initialData = GetInitialData();
             if (initialData != null)
             {
+                var collection = _temporaryDatabaseFixture.GetCollection<TDocument>(CollectionName);
                 collection.InsertMany(initialData);
             }
+        }
 
-            return true;
+        private void EnsureCollectionInitialized()
+        {
+            _ = _collectionInitializer.Value;
+        }
+
+        private string GetCollectionName()
+        {
+            var currentType = GetType();
+            return currentType.DeclaringType?.Name;
         }
     }
 }

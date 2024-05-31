@@ -24,9 +24,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4993Tests : IntegrationTest<CSharp4993Tests.TestDataFixture>
+    public class CSharp4993Tests : IntegrationTest<CSharp4993Tests.CollectionFixture>
     {
-        public CSharp4993Tests(TestDataFixture fixture)
+        public CSharp4993Tests(CollectionFixture fixture)
             : base(fixture)
         {
         }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.Decimal128)] public decimal D { get; set; }
         }
 
-        public class TestDataFixture : TemporaryCollectionFixture<C>
+        public class CollectionFixture : TemporaryCollectionFixture<C>
         {
             protected override IEnumerable<C> GetInitialData()
                 => new[]

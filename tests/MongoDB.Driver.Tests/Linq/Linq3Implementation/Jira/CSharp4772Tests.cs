@@ -24,9 +24,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4772Tests : IntegrationTest<CSharp4772Tests.TestDataFixture>
+    public class CSharp4772Tests : IntegrationTest<CSharp4772Tests.CollectionFixture>
     {
-        public CSharp4772Tests(TestDataFixture fixture)
+        public CSharp4772Tests(CollectionFixture fixture)
             : base(fixture)
         {
         }
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public List<int> OrganizationIdsList { get; set; }
         }
 
-        public class TestDataFixture : TemporaryCollectionFixture<Account>
+        public class CollectionFixture : TemporaryCollectionFixture<Account>
         {
             protected override IEnumerable<Account> GetInitialData()
                 => new[]

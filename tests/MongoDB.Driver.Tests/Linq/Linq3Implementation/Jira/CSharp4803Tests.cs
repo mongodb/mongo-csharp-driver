@@ -24,9 +24,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4803Tests : IntegrationTest<CSharp4803Tests.TestDataFixture>
+    public class CSharp4803Tests : IntegrationTest<CSharp4803Tests.CollectionFixture>
     {
-        public CSharp4803Tests(TestDataFixture fixture)
+        public CSharp4803Tests(CollectionFixture fixture)
             : base(fixture)
         {
         }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public DateTime? NullableDate { get; set; }
         }
 
-        public class TestDataFixture : TemporaryCollectionFixture<C>
+        public class CollectionFixture : TemporaryCollectionFixture<C>
         {
             protected override IEnumerable<C> GetInitialData()
                 => null;

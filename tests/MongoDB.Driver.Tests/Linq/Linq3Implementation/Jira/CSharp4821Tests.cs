@@ -25,9 +25,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4821Tests : IntegrationTest<CSharp4821Tests.TestDataFixture>
+    public class CSharp4821Tests : IntegrationTest<CSharp4821Tests.CollectionFixture>
     {
-        public CSharp4821Tests(TestDataFixture fixture)
+        public CSharp4821Tests(CollectionFixture fixture)
             : base(fixture)
         {
         }
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public enum Status { Closed, Open };
 #pragma warning restore CA1717 // Only FlagsAttribute enums should have plural names
 
-        public class TestDataFixture : TemporaryCollectionFixture<C>
+        public class CollectionFixture : TemporaryCollectionFixture<C>
         {
             protected override IEnumerable<C> GetInitialData()
                 => new[]

@@ -24,9 +24,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp702Tests : IntegrationTest<CSharp702Tests.TestDataFixture>
+    public class CSharp4702Tests : IntegrationTest<CSharp4702Tests.CollectionFixture>
     {
-        public CSharp702Tests(TestDataFixture fixture)
+        public CSharp4702Tests(CollectionFixture fixture)
             : base(fixture)
         {
         }
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query1_using_list_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = Fixture.GetCollection<Model>(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query2_using_list_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = Fixture.GetCollection<Model>(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query1_using_hashset_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = Fixture.GetCollection<Model>(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Query2_using_hashset_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = Fixture.GetCollection<Model>(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -117,17 +117,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        private class Model
+        public class MyModel
         {
             public int Id { get; set; }
             public List<string> List { get; set; }
             public HashSet<string> HashSet { get; set; }
         }
 
-        public class TestDataFixture : TemporaryCollectionFixture<BsonDocument>
+        public class CollectionFixture : TemporaryCollectionFixture<MyModel>
         {
-            protected override IEnumerable<BsonDocument> GetInitialData()
-                => new[]
+            protected override IEnumerable<MyModel> GetInitialData()
+                => null;
+
+            protected override void InitializeCollection()
+            {
+                var collection = GetDatabase().GetCollection<BsonDocument>(CollectionName);
+                collection.InsertMany(new[]
                 {
                     BsonDocument.Parse("{ _id : 1 }"),
                     BsonDocument.Parse("{ _id : 2, List : null, HashSet : null }"),
@@ -136,7 +141,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     BsonDocument.Parse("{ _id : 5, List : ['value1', 'value2'], HashSet : ['value1', 'value2'] }"),
                     BsonDocument.Parse("{ _id : 6, List : ['value3'], HashSet : ['value3'] }"),
                     BsonDocument.Parse("{ _id : 7, List : ['value3', 'value4'], HashSet : ['value3', 'value4'] }")
-                };
+                });
+            }
         }
     }
 }

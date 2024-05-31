@@ -21,13 +21,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [Trait("Category", "Integration")]
+    [IntegrationTest]
     public abstract class IntegrationTest<TFixture> : IClassFixture<TFixture>
-        where TFixture : TemporaryDatabaseFixture
+        where TFixture : class
     {
         protected IntegrationTest(TFixture fixture)
         {
