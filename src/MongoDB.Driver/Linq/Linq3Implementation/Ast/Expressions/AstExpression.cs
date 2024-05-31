@@ -575,6 +575,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNullaryWindowExpression(@operator, window);
         }
 
+        public static AstExpression ObjectToArray(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.ObjectToArray, arg);
+        }
+
         public static AstExpression Or(params AstExpression[] args)
         {
             Ensure.IsNotNull(args, nameof(args));

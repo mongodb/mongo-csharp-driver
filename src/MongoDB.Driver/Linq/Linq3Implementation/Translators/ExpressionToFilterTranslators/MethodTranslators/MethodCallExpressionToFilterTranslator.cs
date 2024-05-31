@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
                 case "ContainsKey": return ContainsKeyMethodToFilterTranslator.Translate(context, expression);
+                case "ContainsValue": return ContainsValueMethodToFilterTranslator.Translate(context, expression);
                 case "EndsWith": return EndsWithMethodToFilterTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
                 case "Exists": return ExistsMethodToFilterTranslator.Translate(context, expression);
