@@ -23,37 +23,38 @@ namespace MongoDB.Driver.Tests
     {
         private static readonly string __timeStamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
 
-        protected readonly string _databaseName;
-        private readonly ConcurrentBag<string> _createdCollections = new();
-
-        protected TemporaryDatabaseFixture()
-        {
-            _databaseName = $"CsharpDriver-{__timeStamp}";
-        }
+        private readonly string _databaseName = $"CsharpDriver-{__timeStamp}";
+        private readonly ConcurrentBag<string> _createdCollectionNames = new();
 
         public virtual void Dispose()
         {
-            var database = MongoDbClient.GetDatabase(_databaseName);
-            foreach (var collection in _createdCollections)
+            var database = GetDatabase();
+            foreach (var collection in _createdCollectionNames)
             {
                 database.DropCollection(collection);
             }
         }
 
-        public IMongoClient MongoDbClient => DriverTestConfiguration.Client;
-
         public IMongoClient GetClient(LinqProvider provider)
             => DriverTestConfiguration.GetLinqClient(provider);
 
         public IMongoDatabase GetDatabase(LinqProvider provider = LinqProvider.V3)
-            => GetClient(provider)
-                .GetDatabase(_databaseName);
+            => GetClient(provider).GetDatabase(_databaseName);
 
-        public IMongoCollection<T> GetCollection<T>(string collectionName, LinqProvider provider = LinqProvider.V3)
+        public IMongoCollection<T> GetCollection<T>(string collectionName = null, LinqProvider provider = LinqProvider.V3)
         {
-            _createdCollections.Add(collectionName);
-            return GetDatabase(provider)
-                .GetCollection<T>(collectionName);
+            if (string.IsNullOrEmpty(collectionName))
+            {
+                var stack = new System.Diagnostics.StackTrace();
+                var frame = stack.GetFrame(1); // skip 1 frame to get the calling method info
+                var method = frame.GetMethod();
+                collectionName = $"{method.DeclaringType.Name}.{method.Name}";
+            }
+
+            var db = GetDatabase(provider);
+            db.DropCollection(collectionName);
+            _createdCollectionNames.Add(collectionName);
+            return db.GetCollection<T>(collectionName);
         }
     }
 }
