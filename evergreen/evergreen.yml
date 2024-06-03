@@ -237,6 +237,32 @@ functions:
       params:
         file: mo-expansion.yml
 
+  generate-ssdlc-report:
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        env:
+          PRODUCT_NAME: "mongo-csharp-driver"
+          github_commit: ${github_commit}
+        script: |
+          ${PREPARE_SHELL}
+          ./evergreen/generate-ssdlc-report.sh
+    - command: ec2.assume_role
+      params:
+        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
+    - command: s3.put
+      params:
+        aws_key: ${AWS_ACCESS_KEY_ID}
+        aws_secret: ${AWS_SECRET_ACCESS_KEY}
+        aws_session_token: ${AWS_SESSION_TOKEN}
+        local_file: ./mongo-csharp-driver/artifacts/ssdlc/ssdlc_compliance_report.md
+        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/ssdlc_compliance_report.md
+        bucket: csharp-driver-release-assets
+        region: us-west-2
+        permissions: private
+        content_type: text/markdown
+        display_name: ssdlc_compliance_report.md
+
   ocsp-bootstrap-mongo-orchestration:
     - command: shell.exec
       params:
@@ -1824,6 +1850,10 @@ tasks:
         - func: install-dotnet
         - func: build-apidocs
 
+    - name: generate-ssdlc-report
+      commands:
+        - func: generate-ssdlc-report
+
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2663,3 +2693,10 @@ buildvariants:
         - name: build-packages
           variant: ".build-packages"
         ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: ssdlc-report
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "SSDLC"
+  tasks:
+    - name: generate-ssdlc-report
