@@ -53,6 +53,7 @@ functions:
           if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
             # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
             export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
+            export DOTNET_SDK_PATH=$(cygpath -m $DOTNET_SDK_PATH)
           else
             # non windows OSs don't have dotnet in the PATH
             export PATH=$PATH:/usr/share/dotnet
@@ -72,6 +73,7 @@ functions:
           PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
           PACKAGE_VERSION: "$PACKAGE_VERSION"
           DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
+          TEST_RESULTS_PATH: "./mongo-csharp-driver/build/test-results/TEST-*.xml"
           PREPARE_SHELL: |
             set -o errexit
             set -o xtrace
@@ -146,6 +148,21 @@ functions:
           ${PREPARE_SHELL}
           ${PROJECT_DIRECTORY}/${file}
 
+  run-external-script:
+    - command: subprocess.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "OS"
+          - "GIT_REPO"
+          - "GIT_BRANCH"
+          - "LOCAL_PATH"
+          - "SCRIPT"
+        args:
+          - evergreen/run-external-script.sh
+
   upload-mo-artifacts:
     - command: shell.exec
       params:
@@ -210,7 +227,7 @@ functions:
   upload-test-results:
     - command: attach.xunit_results
       params:
-        file: ./mongo-csharp-driver/build/test-results/TEST-*.xml
+        file: ${TEST_RESULTS_PATH}
 
   bootstrap-mongo-orchestration:
     - command: shell.exec
@@ -1871,6 +1888,23 @@ tasks:
         - func: install-dotnet
         - func: build-apidocs
 
+    - name: test-odata
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - command: expansions.update
+          params:
+            updates:
+              - key: TEST_RESULTS_PATH
+                value: "./odata/build/test-results/TEST-*.xml"
+        - func: run-external-script
+          vars:
+            GIT_REPO: "https://github.com/mongodb/mongo-aspnetcore-odata.git"
+            LOCAL_PATH: ${workdir}/odata
+            SCRIPT: |
+              ${PREPARE_SHELL}
+              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
+
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2732,3 +2766,19 @@ buildvariants:
       depends_on:
       - name: push-packages-nuget
         variant: ".push-packages"
+
+- matrix_name: odata-tests
+  batchtime: 720 # 12 hours
+  matrix_spec:
+    os: ["ubuntu-2004", "windows-64"]
+    version: ["4.2", "7.0", "latest"]
+  exclude_spec:
+    # We do not have MongoDB 4.2 binaries for Ubuntu 2004
+    - os: "ubuntu-2004"
+      version: "4.2"
+  display_name: "OData tests on ${os} with MongoDB ${version}"
+  tasks:
+    - name: test-odata
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
