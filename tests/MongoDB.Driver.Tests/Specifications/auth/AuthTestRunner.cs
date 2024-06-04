@@ -51,11 +51,6 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 throw new SkipException("Test skipped because CANONICALIZE_HOST_NAME is not supported.");
             }
 
-            if (connectionString.Contains("ENVIRONMENT:gcp"))
-            {
-                throw new SkipException("Test skipped because ENVIRONMENT:gcp is not supported.");
-            }
-
             try
             {
                 mongoCredential = MongoClientSettings.FromConnectionString(connectionString).Credential;
