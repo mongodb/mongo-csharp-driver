@@ -1853,10 +1853,6 @@ tasks:
         - func: install-dotnet
         - func: build-apidocs
 
-    - name: generate-ssdlc-report
-      commands:
-        - func: generate-ssdlc-report
-
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2704,6 +2700,7 @@ buildvariants:
   tags: ["release-tag"]
   tasks:
     - name: generate-ssdlc-reports
+      git_tag_only: true
       depends_on:
       - name: push-packages-nuget
-        variant: ".push-packages-nuget"
+        variant: ".push-packages"
