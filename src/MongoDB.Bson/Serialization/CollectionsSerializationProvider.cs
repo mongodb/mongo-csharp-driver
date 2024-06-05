@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -43,6 +42,8 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) },
+                { typeof(Memory<>), typeof(MemorySerializer<>) },
+                { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) }
             };
         }
 
