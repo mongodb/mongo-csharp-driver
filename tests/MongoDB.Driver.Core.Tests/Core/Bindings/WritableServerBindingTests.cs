@@ -211,17 +211,18 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
+            var server = new ServerDescription(new ServerId(clusterId, endPoint), endPoint);
 #pragma warning disable CS0618 // Type or member is obsolete
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
                 ClusterConnectionMode.Sharded,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
+                new[] { server });
 #pragma warning restore CS0618 // Type or member is obsolete
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Sharded);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
-            var deprioritizedServers = new ServerDescription[] { };
+            var deprioritizedServers = new ServerDescription[] { server };
 
             if (async)
             {
