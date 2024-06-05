@@ -237,6 +237,32 @@ functions:
       params:
         file: mo-expansion.yml
 
+  generate-ssdlc-report:
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        env:
+          PRODUCT_NAME: "mongo-csharp-driver"
+          github_commit: ${github_commit}
+        script: |
+          ${PREPARE_SHELL}
+          ./evergreen/generate-ssdlc-report.sh
+    - command: ec2.assume_role
+      params:
+        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
+    - command: s3.put
+      params:
+        aws_key: ${AWS_ACCESS_KEY_ID}
+        aws_secret: ${AWS_SECRET_ACCESS_KEY}
+        aws_session_token: ${AWS_SESSION_TOKEN}
+        local_file: ./mongo-csharp-driver/artifacts/ssdlc/ssdlc_compliance_report.md
+        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/ssdlc_compliance_report.md
+        bucket: csharp-driver-release-assets
+        region: us-west-2
+        permissions: private
+        content_type: text/markdown
+        display_name: ssdlc_compliance_report.md
+
   ocsp-bootstrap-mongo-orchestration:
     - command: shell.exec
       params:
@@ -877,7 +903,7 @@ functions:
       params:
         key_id: ${papertrail_key_id}
         secret_key: ${papertrail_secret_key}
-        product: ${PRODUCT_NAME}
+        product: "mongo-csharp-driver"
         version: ${PACKAGE_VERSION}
         filenames:
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.nupkg"
@@ -1818,9 +1844,6 @@ tasks:
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
             PACKAGES_SOURCE_KEY: ${nuget_api_key}
-        - func: trace-artifacts
-          vars:
-            PRODUCT_NAME: "mongo-csharp-driver"
 
     - name: push-packages-myget
       commands:
@@ -1836,6 +1859,12 @@ tasks:
         - func: install-dotnet
         - func: build-apidocs
         - func: upload-apidocs
+
+    - name: generate-ssdlc-reports
+      commands:
+        - func: download-packages
+        - func: trace-artifacts
+        - func: generate-ssdlc-report
 
     - name: validate-apidocs
       commands:
@@ -2691,3 +2720,15 @@ buildvariants:
         - name: build-packages
           variant: ".build-packages"
         ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: ssdlc-reports
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "SSDLC Reports"
+  tags: ["release-tag"]
+  tasks:
+    - name: generate-ssdlc-reports
+      git_tag_only: true
+      depends_on:
+      - name: push-packages-nuget
+        variant: ".push-packages"
