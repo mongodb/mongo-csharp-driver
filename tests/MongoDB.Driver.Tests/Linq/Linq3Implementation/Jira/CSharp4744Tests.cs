@@ -26,7 +26,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4744Tests : IntegrationTest<CSharp4744Tests.CollectionFixture>
+    public class CSharp4744Tests : LinqIntegrationTest<CSharp4744Tests.CollectionFixture>
     {
         public CSharp4744Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
             : base(testOutputHelper, fixture)
