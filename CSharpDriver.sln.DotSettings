@@ -119,13 +119,14 @@ namespace $NAMESPACE$
 using System.Collections.Generic;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace $NAMESPACE$
 {
     public class $CLASS$ : IntegrationTest&lt;$CLASS2$.CollectionFixture&gt;
     {
-    	public $CLASS$(CollectionFixture fixture)
-	    	: base(fixture)
+    	public $CLASS$(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
 	    {
 	    }
 

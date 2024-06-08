@@ -18,19 +18,22 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
     [IntegrationTest]
-    public abstract class IntegrationTest<TFixture> : IClassFixture<TFixture>
+    public abstract class IntegrationTest<TFixture> : LoggableTestClass, IClassFixture<TFixture>
         where TFixture : class
     {
-        protected IntegrationTest(TFixture fixture)
+        protected IntegrationTest(ITestOutputHelper testOutputHelper, TFixture fixture)
+            : base(testOutputHelper)
         {
             Fixture = fixture;
         }
@@ -179,14 +182,6 @@ namespace MongoDB.Driver.Tests
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var renderedProjection = projection.RenderForFind(documentSerializer, serializerRegistry, linqProvider);
             return renderedProjection.Document;
-        }
-    }
-
-    public abstract class IntegrationTest : IntegrationTest<TemporaryDatabaseFixture>
-    {
-        protected IntegrationTest(TemporaryDatabaseFixture fixture)
-            : base(fixture)
-        {
         }
     }
 }

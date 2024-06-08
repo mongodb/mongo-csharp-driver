@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
@@ -25,6 +27,8 @@ namespace MongoDB.Driver.Tests
 
         private readonly string _databaseName = $"CsharpDriver-{__timeStamp}";
         private readonly ConcurrentBag<string> _createdCollectionNames = new();
+        private readonly Lazy<DisposableMongoClient> _linq2Client = new(() => CreateMongoClient(LinqProvider.V2), LazyThreadSafetyMode.ExecutionAndPublication);
+        private readonly Lazy<DisposableMongoClient> _linq3Client = new(() => CreateMongoClient(LinqProvider.V3), LazyThreadSafetyMode.ExecutionAndPublication);
 
         public virtual void Dispose()
         {
@@ -33,10 +37,25 @@ namespace MongoDB.Driver.Tests
             {
                 database.DropCollection(collection);
             }
+
+            if (_linq2Client.IsValueCreated)
+            {
+                _linq2Client.Value.Dispose();
+            }
+
+            if (_linq3Client.IsValueCreated)
+            {
+                _linq3Client.Value.Dispose();
+            }
         }
 
         public IMongoClient GetClient(LinqProvider provider)
-            => DriverTestConfiguration.GetLinqClient(provider);
+            => provider switch
+            {
+                LinqProvider.V2 => _linq2Client.Value,
+                LinqProvider.V3 => _linq3Client.Value,
+                _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
+            };
 
         public IMongoDatabase GetDatabase(LinqProvider provider = LinqProvider.V3)
             => GetClient(provider).GetDatabase(_databaseName);
@@ -55,6 +74,13 @@ namespace MongoDB.Driver.Tests
             db.DropCollection(collectionName);
             _createdCollectionNames.Add(collectionName);
             return db.GetCollection<T>(collectionName);
+        }
+
+        private static DisposableMongoClient CreateMongoClient(LinqProvider provider)
+        {
+            var clientSettings = DriverTestConfiguration.GetClientSettings();
+            clientSettings.LinqProvider = provider;
+            return DriverTestConfiguration.CreateDisposableClient(clientSettings);
         }
     }
 }

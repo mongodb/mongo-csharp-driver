@@ -24,6 +24,7 @@ using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
@@ -44,8 +45,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             });
         }
 
-        public CSharp4748Tests(CollectionFixture fixture)
-            : base(fixture)
+        public CSharp4748Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
         {
         }
 
