@@ -20,7 +20,6 @@ namespace MongoDB.TestHelpers.XunitExtensions
         public IntegrationTestAttribute()
             : base("Integration")
         {
-
         }
     }
 }

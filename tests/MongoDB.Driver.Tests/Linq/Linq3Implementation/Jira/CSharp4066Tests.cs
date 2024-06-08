@@ -17,13 +17,14 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4066Tests : IntegrationTest
+    public class CSharp4066Tests : IntegrationTest<TemporaryDatabaseFixture>
     {
-        public CSharp4066Tests(TemporaryDatabaseFixture fixture)
-            : base(fixture)
+        public CSharp4066Tests(ITestOutputHelper testOutputHelper, TemporaryDatabaseFixture fixture)
+            : base(testOutputHelper, fixture)
         {
         }
 
