@@ -50,7 +50,7 @@ Our third party report is available <a href="https://us-west-2.console.aws.amazo
 
 ## Static analysis findings
 
-Coverity static analysis report is available <a href="https://coverity.corp.mongodb.com/login">here</a>, under mongodb-csharp-driver project.
+Coverity static analysis report is available <a href="https://us-west-2.console.aws.amazon.com/s3/object/csharp-driver-release-assets?region=us-west-2&bucketType=general&prefix=${PRODUCT_NAME}/${PACKAGE_VERSION}/static_code_analysis.csv">here</a>.
 
 ## Signature information
 
