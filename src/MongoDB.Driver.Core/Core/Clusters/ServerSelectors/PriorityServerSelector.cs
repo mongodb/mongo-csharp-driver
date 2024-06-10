@@ -51,6 +51,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
 
         /// <inheritdoc/>
-        public override string ToString() => "PriorityServerSelector";
+        public override string ToString() => $"PriorityServerSelector{{{{ Deprioritized servers: {string.Join(", ", _deprioritizedServers.Select(s => s.EndPoint))} }}}}";
     }
 }
