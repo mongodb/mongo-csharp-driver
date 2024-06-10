@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Environment variables used as input:
+# SILK_CLIENT_ID
+# SILK_CLIENT_SECRET
+
 cat << EOF > silkbomb.env
 SILK_CLIENT_ID=${SILK_CLIENT_ID}
 SILK_CLIENT_SECRET=${SILK_CLIENT_SECRET}
