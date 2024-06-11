@@ -1,10 +1,11 @@
 {
   "description": "unacknowledged-write",
-  "schemaVersion": "1.13",
+  "schemaVersion": "1.16",
   "createEntities": [
     {
       "client": {
         "id": "client",
+        "useMultipleMongoses": false,
         "observeLogMessages": {
           "command": "debug"
         }
@@ -53,11 +54,27 @@
               "_id": 2
             }
           }
+        },
+        {
+          "name": "find",
+          "object": "collection",
+          "arguments": {
+            "filter": {}
+          },
+          "expectResult": [
+            {
+              "_id": 1
+            },
+            {
+              "_id": 2
+            }
+          ]
         }
       ],
       "expectLogMessages": [
         {
           "client": "client",
+          "ignoreExtraMessages": true,
           "messages": [
             {
               "level": "debug",
