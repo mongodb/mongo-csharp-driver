@@ -1008,6 +1008,22 @@ functions:
           ${PREPARE_SHELL}
           . ./evergreen/build-packages.sh
 
+  sign-packages:
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-driver
+        env:
+          ARTIFACTORY_PASSWORD: ${ARTIFACTORY_PASSWORD}
+          ARTIFACTORY_USERNAME: ${ARTIFACTORY_USERNAME}
+          AZURE_NUGET_SIGN_TENANT_ID: ${AZURE_NUGET_SIGN_TENANT_ID}
+          AZURE_NUGET_SIGN_CLIENT_ID: ${AZURE_NUGET_SIGN_CLIENT_ID}
+          AZURE_NUGET_SIGN_CLIENT_SECRET: ${AZURE_NUGET_SIGN_CLIENT_SECRET}
+          PACKAGE_VERSION: "$PACKAGE_VERSION"
+        script: |
+          ${PREPARE_SHELL}
+          . ./evergreen/sign-packages.sh
+
   push-packages:
     - command: shell.exec
       params:
@@ -1857,6 +1873,7 @@ tasks:
       commands:
         - func: install-dotnet
         - func: download-packages
+        - func: sign-packages
         - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
@@ -1866,6 +1883,7 @@ tasks:
       commands:
         - func: install-dotnet
         - func: download-packages
+        - func: sign-packages
         - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
@@ -2690,7 +2708,7 @@ buildvariants:
 # Package release variants
 - matrix_name: build-packages
   matrix_spec:
-    os: "windows-64" # should produce package on Windows to make sure full framework binaries created.
+    os: "windows-64" # should produce package on Windows to build .NET framework (net472) packages.
   display_name: "Packages Pack"
   tags: ["build-packages", "release-tag"]
   tasks:
