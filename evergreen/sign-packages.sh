@@ -13,7 +13,7 @@ echo "${ARTIFACTORY_PASSWORD}" | docker login --password-stdin --username "${ART
 
 docker run --platform="linux/amd64" --rm -v $(pwd):/workdir -w /workdir \
   artifactory.corp.mongodb.com/release-tools-container-registry-local/azure-keyvault-nuget \
-  NuGetKeyVaultSignTool sign "artifacts/nuget/*"."$PACKAGE_VERSION".nupkg \
+  NuGetKeyVaultSignTool sign "artifacts/nuget/*.$PACKAGE_VERSION.nupkg" \
     --force \
     --file-digest=sha256 \
     --timestamp-rfc3161=http://timestamp.digicert.com \
