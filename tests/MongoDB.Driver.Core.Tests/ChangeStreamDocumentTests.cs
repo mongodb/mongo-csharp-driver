@@ -323,10 +323,12 @@ namespace MongoDB.Driver
             secondElement.Value.Should().Be(2);
         }
 
-        [Fact]
-        public void FullDocument_should_return_null_when_not_present()
+        [Theory]
+        [InlineData("{ other : 1 }")]
+        [InlineData("{ other : 1, fullDocument : null }")]
+        public void FullDocument_should_return_null_when_not_present(string changeDocument)
         {
-            var backingDocument = new BsonDocument { { "other", 1 } };
+            var backingDocument = BsonDocument.Parse(changeDocument);
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.FullDocument;
