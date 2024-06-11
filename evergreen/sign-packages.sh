@@ -11,7 +11,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 
 echo "${ARTIFACTORY_PASSWORD}" | docker login --password-stdin --username "${ARTIFACTORY_USERNAME}" artifactory.corp.mongodb.com
 
-docker run --platform="linux/amd64" --rm -v $(pwd):$(pwd) -w $(pwd) \
+docker run --platform="linux/amd64" --rm -v $(pwd):/workdir -w /workdir \
   artifactory.corp.mongodb.com/release-tools-container-registry-local/azure-keyvault-nuget \
   NuGetKeyVaultSignTool sign "artifacts/nuget/*"."$PACKAGE_VERSION".nupkg \
     --force \

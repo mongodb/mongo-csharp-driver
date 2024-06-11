@@ -1030,6 +1030,7 @@ functions:
         shell: bash
         working_dir: mongo-csharp-driver
         env:
+          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PACKAGES_SOURCE: ${PACKAGES_SOURCE}
           PACKAGES_SOURCE_KEY: ${PACKAGES_SOURCE_KEY}
         script: |

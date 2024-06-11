@@ -2,6 +2,12 @@
 set -o errexit # Exit the script with error if any of the commands fail
 set +o xtrace  # Disable tracing.
 
+# Environment variables used as inpu
+# NUGET_SIGN_CERTIFICATE_FINGERPRINT
+# PACKAGES_SOURCE
+# PACKAGES_SOURCE_KEY
+# PACKAGE_VERSION
+
 # querying nuget source to find search base url
 packages_search_url=$(curl -X GET -s "${PACKAGES_SOURCE}" | jq -r 'first(.resources[] | select(."@type"=="SearchQueryService") | ."@id")')
 
@@ -50,6 +56,11 @@ if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACK
 fi
 
 PACKAGES=("MongoDB.Bson" "MongoDB.Driver.Core" "MongoDB.Driver" "MongoDB.Driver.GridFS" "mongocsharpdriver")
+
+for package in ${PACKAGES[*]}; do
+  dotnet nuget verify ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"
+done
+
 for package in ${PACKAGES[*]}; do
   dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
 done
