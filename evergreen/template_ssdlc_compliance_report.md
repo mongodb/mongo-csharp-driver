@@ -1,7 +1,7 @@
 # ${PRODUCT_NAME} SSDLC compliance report
 
 This report is available
-<a href=https://us-west-2.console.aws.amazon.com/s3/object/csharp-driver-release-assets?region=us-west-2&bucketType=general&prefix=${PRODUCT_NAME}/${PACKAGE_VERSION}/ssdlc_compliance_report.md>here</a>.
+<a href="https://us-west-2.console.aws.amazon.com/s3/object/csharp-driver-release-assets?region=us-west-2&bucketType=general&prefix=${PRODUCT_NAME}/${PACKAGE_VERSION}/ssdlc_compliance_report.md">here</a>.
 
 <table>
   <tr>
@@ -46,13 +46,11 @@ The MongoDB SSDLC policy is available at
 
 ## Third-darty dependency information
 
-There are no dependencies to report vulnerabilities of.
-Our [SBOM](https://docs.devprod.prod.corp.mongodb.com/mms/python/src/sbom/silkbomb/docs/CYCLONEDX/) lite
-is <https://github.com/mongodb/mongo-csharp-driver/blob/v${PACKAGE_VERSION}/sbom.json>.
+Our third party report is available <a href="https://us-west-2.console.aws.amazon.com/s3/object/csharp-driver-release-assets?region=us-west-2&bucketType=general&prefix=${PRODUCT_NAME}/${PACKAGE_VERSION}/augmented-sbom.json">here</a>.
 
 ## Static analysis findings
 
-Coverity static analysis report is available <a href="https://coverity.corp.mongodb.com/login">here</a>, under mongodb-csharp-driver project.
+Coverity static analysis report is available <a href="https://us-west-2.console.aws.amazon.com/s3/object/csharp-driver-release-assets?region=us-west-2&bucketType=general&prefix=${PRODUCT_NAME}/${PACKAGE_VERSION}/static_code_analysis.csv">here</a>.
 
 ## Signature information
 
