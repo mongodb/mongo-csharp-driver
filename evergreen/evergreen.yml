@@ -259,6 +259,7 @@ functions:
       params:
         working_dir: "mongo-csharp-driver"
         env:
+          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PRODUCT_NAME: "mongo-csharp-driver"
           github_commit: ${github_commit}
         script: |
@@ -2781,9 +2782,9 @@ buildvariants:
   tags: ["release-tag"]
   tasks:
     - name: generate-ssdlc-reports
-      git_tag_only: true
+      #git_tag_only: true
       depends_on:
-      - name: push-packages-nuget
+      - name: push-packages-myget
         variant: ".push-packages"
 
 - matrix_name: odata-tests
