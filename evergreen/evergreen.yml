@@ -2782,9 +2782,9 @@ buildvariants:
   tags: ["release-tag"]
   tasks:
     - name: generate-ssdlc-reports
-      #git_tag_only: true
+      git_tag_only: true
       depends_on:
-      - name: push-packages-myget
+      - name: push-packages-nuget
         variant: ".push-packages"
 
 - matrix_name: odata-tests
