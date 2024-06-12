@@ -282,6 +282,7 @@ functions:
       params:
         working_dir: "mongo-csharp-driver"
         env:
+          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PRODUCT_NAME: "mongo-csharp-driver"
           github_commit: ${github_commit}
         script: |

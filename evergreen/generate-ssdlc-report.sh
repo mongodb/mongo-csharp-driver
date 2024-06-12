@@ -2,6 +2,7 @@
 set -o errexit # Exit the script with error if any of the commands fail
 
 # Environment variables used as input:
+# NUGET_SIGN_CERTIFICATE_FINGERPRINT
 # PRODUCT_NAME
 # PACKAGE_VERSION
 # github_commit
@@ -31,5 +32,6 @@ sed "${SED_EDIT_IN_PLACE_OPTION[@]}" \
     -e "s/\${PACKAGE_VERSION}/$PACKAGE_VERSION/g" \
     -e "s/\${github_commit}/$github_commit/g" \
     -e "s/\${REPORT_DATE_UTC}/$(date -u +%Y-%m-%d)/g" \
+    -e "s/\${NUGET_SIGN_CERTIFICATE_FINGERPRINT}/${NUGET_SIGN_CERTIFICATE_FINGERPRINT}/g" \
     "${SSDLC_REPORT_PATH}"
 ls "${SSDLC_REPORT_PATH}"

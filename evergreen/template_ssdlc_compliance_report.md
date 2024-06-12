@@ -41,8 +41,7 @@ This information is available in multiple ways:
 
 Blocked on <https://jira.mongodb.org/browse/CSHARP-5047>.
 
-The MongoDB SSDLC policy is available at
-<https://docs.google.com/document/d/1u0m4Kj2Ny30zU74KoEFCN4L6D_FbEYCaJ3CQdCYXTMc>.
+The MongoDB SSDLC policy is available <a href="https://docs.google.com/document/d/1u0m4Kj2Ny30zU74KoEFCN4L6D_FbEYCaJ3CQdCYXTMc">here</a>.
 
 ## Third-darty dependency information
 
@@ -54,4 +53,10 @@ Coverity static analysis report is available <a href="https://us-west-2.console.
 
 ## Signature information
 
-Blocked on <https://jira.mongodb.org/browse/CSHARP-3050>.
+Packages are signed with certificate with fingerprint: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}.
+Signature can be validated by running ```dotnet nuget verify``` command.
+
+For example signature of ```Mongodb.Driver.${PACKAGE_VERSION}.nupkg``` package can be verified by running:
+```
+dotnet nuget verify MongoDB.Driver.${PACKAGE_VERSION}.nupkg --certificate-fingerprint ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
+```
