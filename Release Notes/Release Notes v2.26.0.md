@@ -4,8 +4,8 @@ This is the general availability release for the 2.26.0 version of the driver.
 
 The main new features in 2.26.0 include:
 
-+ Support SelectMany inside Project/Select - [CSHARP-2509](https://jira.mongodb.org/browse/CSHARP-2509)
-+ Support Dictionary.ContainsValue in LINQ queries - [CSHARP-5081](https://jira.mongodb.org/browse/CSHARP-5081)
++ Support SelectMany inside Project/Select - [CSHARP-5081](https://jira.mongodb.org/browse/CSHARP-5081)
++ Support Dictionary.ContainsValue in LINQ queries - [CSHARP-2509](https://jira.mongodb.org/browse/CSHARP-2509)
 + Support string concatenation of mixed types - [CSHARP-5071](https://jira.mongodb.org/browse/CSHARP-5071)
 + Support serialization of Memory and ReadOnlyMemory structs - [CSHARP-4807](https://jira.mongodb.org/browse/CSHARP-4807)
 + OIDC: support for GCP Identity Provider - [CSHARP-4610](https://jira.mongodb.org/browse/CSHARP-4610)
