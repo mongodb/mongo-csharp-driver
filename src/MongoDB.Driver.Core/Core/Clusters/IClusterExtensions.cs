@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -30,6 +31,7 @@ namespace MongoDB.Driver.Core.Clusters
             this ICluster cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
+            IReadOnlyCollection<ServerDescription> deprioritizedServers,
             CancellationToken cancellationToken)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
@@ -37,6 +39,10 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 return pinnedServer;
             }
+
+            selector = deprioritizedServers != null
+                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
+                : selector;
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.
@@ -49,6 +55,7 @@ namespace MongoDB.Driver.Core.Clusters
             this ICluster cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
+            IReadOnlyCollection<ServerDescription> deprioritizedServers,
             CancellationToken cancellationToken)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
@@ -56,6 +63,10 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 return pinnedServer;
             }
+
+            selector = deprioritizedServers != null
+                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
+                : selector;
 
             // Server selection also updates the cluster type, allowing us to to determine if the server
             // should be pinned.

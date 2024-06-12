@@ -15,13 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -77,11 +74,32 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc />
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetReadChannelSource(deprioritizedServers, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSource(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -91,6 +109,13 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetWriteChannelSource(mayUseSecondary, cancellationToken);
         }
 
+        /// <inheritdoc />
+        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, mayUseSecondary, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
@@ -98,11 +123,25 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetWriteChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSourceAsync(mayUseSecondary, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, mayUseSecondary, cancellationToken);
         }
 
         /// <inheritdoc/>

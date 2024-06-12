@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(cancellationToken));
+                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(new[] { context.ChannelSource.ServerDescription }, cancellationToken));
                 context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
             }
             catch
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(cancellationToken));
+                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(new[] { context.ChannelSource.ServerDescription }, cancellationToken));
                 context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
             }
             catch

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Servers;
@@ -61,6 +62,22 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A channel source.</returns>
         Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a channel source for read operations while deprioritizing servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a channel source for read operations while deprioritizing servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -76,12 +93,29 @@ namespace MongoDB.Driver.Core.Bindings
         IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets a channel source for write operations while deprioritizing servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets a channel source for write operations that may use a secondary.
         /// </summary>
         /// <param name="mayUseSecondary">The may use secondary criteria.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A channel source.</returns>
         IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a channel source for write operations that may use a secondary and deprioritizes servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="mayUseSecondary">The may use secondary criteria.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets a channel source for write operations.
@@ -91,12 +125,29 @@ namespace MongoDB.Driver.Core.Bindings
         Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets a channel source for write operations while deprioritizing servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets a channel source for write operations that may use a secondary.
         /// </summary>
         /// <param name="mayUseSecondary">The may use secondary criteria.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A channel source.</returns>
         Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a channel source for write operations that may use a secondary and deprioritizes servers in the provided collection.
+        /// </summary>
+        /// <param name="deprioritizedServers">The deprioritized servers.</param>
+        /// <param name="mayUseSecondary">The may use secondary criteria.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
     }
 
     /// <summary>
