@@ -108,12 +108,7 @@ functions:
         script: |
           ${PREPARE_SHELL}
           rm -rf $DRIVERS_TOOLS
-          if [ "${project}" = "drivers-tools" ]; then
-            # If this was a patch build, doing a fresh clone would not actually test the patch
-            cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
-          else
-            git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
-          fi
+          git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
   # Upload build artifacts that other tasks may depend on
@@ -442,22 +437,10 @@ functions:
     - command: shell.exec
       type: test
       params:
-        silent: true
+        shell: "bash"
         working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "ATLAS_FREE"
-          - "ATLAS_FREE_SRV"
-          - "ATLAS_REPLICA"
-          - "ATLAS_REPLICA_SRV"
-          - "ATLAS_SHARDED"
-          - "ATLAS_SHARDED_SRV"
-          - "ATLAS_TLS11"
-          - "ATLAS_TLS11_SRV"
-          - "ATLAS_TLS12"
-          - "ATLAS_TLS12_SRV"
-          - "ATLAS_SERVERLESS"
-          - "ATLAS_SERVERLESS_SRV"
         script: |
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
           . evergreen/run-atlas-connectivity-tests.sh
 
   run-gssapi-auth-tests:
@@ -1261,6 +1244,7 @@ tasks:
 
     - name: atlas-connectivity-tests
       commands:
+        - func: assume-ec2-role
         - func: run-atlas-connectivity-tests
 
     - name: test-gssapi
