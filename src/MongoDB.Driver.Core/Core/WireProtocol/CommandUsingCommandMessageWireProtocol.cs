@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
             }
 
-            var snapshotReadConcernDocument = ReadConcernHelper.GetReadConcernForSnapshotSesssion(_session, connectionDescription);
+            var snapshotReadConcernDocument = ReadConcernHelper.GetReadConcernForSnapshotSession(_session, connectionDescription);
             if (snapshotReadConcernDocument != null)
             {
                 extraElements.Add(new BsonElement("readConcern", snapshotReadConcernDocument));

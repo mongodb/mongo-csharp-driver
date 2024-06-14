@@ -1825,12 +1825,12 @@ namespace MongoDB.Driver
 
             public IAsyncCursor<BsonDocument> List(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
             {
-                return _collection.Aggregate(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+                return _collection.WithReadConcern(ReadConcern.Default).Aggregate(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
             }
 
             public Task<IAsyncCursor<BsonDocument>> ListAsync(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
             {
-                return _collection.AggregateAsync(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+                return _collection.WithReadConcern(ReadConcern.Default).AggregateAsync(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
             }
 
             public void Update(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)

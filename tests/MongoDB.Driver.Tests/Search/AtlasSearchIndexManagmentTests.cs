@@ -121,6 +121,22 @@ namespace MongoDB.Driver.Tests.Search
             await collection.SearchIndexes.DropOneAsync("non_existing_index");
         }
 
+        [Fact(Timeout = Timeout)]
+        public async Task Case6_driver_can_create_and_list_search_indexes_with_non_default_read_write_concern()
+        {
+            const string indexName = "test-search-index-case6";
+
+            var collection = _collection
+                .WithReadConcern(ReadConcern.Majority)
+                .WithWriteConcern(WriteConcern.WMajority);
+
+            var indexNameCreated = await collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName);
+            indexNameCreated.Should().Be(indexName);
+
+            var indexes = await GetIndexes(indexName);
+            indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
+        }
+
         private async Task<BsonDocument> CreateIndexAndValidate(string indexName)
         {
             var indexNameActual = await _collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName);

@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
             return ToBsonDocument(session, connectionDescription, readConcern);
         }
 
-        public static BsonDocument GetReadConcernForSnapshotSesssion(ICoreSession session, ConnectionDescription connectionDescription)
+        public static BsonDocument GetReadConcernForSnapshotSession(ICoreSession session, ConnectionDescription connectionDescription)
         {
             if (AreSessionsSupported(connectionDescription) && session.IsSnapshot)
             {
