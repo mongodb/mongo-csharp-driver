@@ -19,7 +19,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://www.mongodb.com/docs/drivers/csharp/</PackageProjectUrl>
     <PackageTags>mongodb;mongo;nosql</PackageTags>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageLanguage>en-US</PackageLanguage>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -49,7 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="$(PackageLicenseFile)" />
     <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
