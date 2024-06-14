@@ -158,6 +158,42 @@ namespace MongoDB.Driver.Tests
             stages[0].Should().Be("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(15)]
+        public void Sample_should_add_expected_stage(long size)
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.Sample(size);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("{ $sample: { size: " + size + " } }");
+        }
+
+        [Fact]
+        public void Sample_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            var exception = Record.Exception(() => pipeline.Sample(15));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void Sample_should_throw_when_size_is_negative()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var exception = Record.Exception(() => pipeline.Sample(-1));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Which.ParamName.Should().Be("size");
+        }
+
         [Fact]
         public void Search_should_add_expected_stage()
         {
@@ -350,18 +386,6 @@ namespace MongoDB.Driver.Tests
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Which.ParamName.Should().Be("searchDefinition");
-        }
-
-        [Fact]
-        public void Sample_should_add_expected_stage()
-        {
-            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
-
-            var result = pipeline.Sample(15);
-
-            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $sample: { size: 15 } }");
         }
 
         [Fact]

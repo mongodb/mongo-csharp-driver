@@ -1098,6 +1098,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $sample stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="size">The sample size.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Sample<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            long size)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Sample<TOutput>(size));
+        }
+
+        /// <summary>
         /// Appends a $search stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1355,25 +1373,6 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.Sort(sort));
-        }
-
-
-        /// <summary>
-        /// Appends a $sample stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="size">The sample size.</param>
-        /// <returns>
-        /// A new pipeline with an additional stage.
-        /// </returns>
-        public static PipelineDefinition<TInput, TOutput> Sample<TInput, TOutput>(
-            this PipelineDefinition<TInput, TOutput> pipeline,
-            int size)
-        {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Sample<TOutput>(size));
         }
 
         /// <summary>

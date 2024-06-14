@@ -1764,7 +1764,7 @@ namespace MongoDB.Driver
         /// <param name="size">The size.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Sample<TInput>(
-            int size)
+            long size)
         {
             Ensure.IsGreaterThanOrEqualToZero(size, nameof(size));
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$sample", new BsonDocument("size", size)));

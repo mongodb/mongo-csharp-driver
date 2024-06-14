@@ -238,6 +238,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Sample(long size) => throw new NotImplementedException();
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TResult> Search(
             SearchDefinition<TResult> searchDefinition,
             SearchHighlightOptions<TResult> highlight = null,
@@ -298,9 +301,6 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
-
-        /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Sample(int size);
 
         /// <inheritdoc />
         public virtual IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id)
