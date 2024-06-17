@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 { "$map", new BsonDocument
                     {
                         { "input", _input.Render() },
-                        { "as", _as.Name, _as != null },
+                        { "as", _as?.Name, _as != null },
                         { "in", _in.Render() }
                     }
                 }
