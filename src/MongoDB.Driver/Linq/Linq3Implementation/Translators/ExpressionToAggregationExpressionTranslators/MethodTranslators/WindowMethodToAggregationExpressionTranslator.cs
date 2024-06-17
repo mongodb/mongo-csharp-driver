@@ -292,6 +292,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__unaryMethods))
                 {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var @operator = GetUnaryWindowOperator(method);
                     var ast = AstExpression.UnaryWindowExpression(@operator, selectorTranslation.Ast, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
@@ -313,6 +314,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__derivativeOrIntegralMethods))
                 {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     WindowTimeUnit? unit = default;
                     if (HasArgument<Expression>(parameters, "unit", arguments, out var unitExpression))
                     {
@@ -327,6 +329,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__exponentialMovingAverageMethods))
                 {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var weightingExpression = arguments[2];
                     var weighting = weightingExpression.GetConstantValue<ExponentialMovingAverageWeighting>(expression);
 
@@ -337,6 +340,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__shiftMethods))
                 {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var byExpression = arguments[2];
                     var by = byExpression.GetConstantValue<int>(expression);
 
@@ -433,6 +437,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             argument = null;
             return false;
+        }
+
+        private static void ThrowIfSelectorTranslationIsNull(AggregationExpression selectTranslation)
+        {
+            if (selectTranslation == null)
+            {
+                throw new Exception("selectorTranslation is unexpectedly null.");
+            }
         }
 
         private static AggregationExpression TranslateSelector(TranslationContext context, LambdaExpression selectorLambda, IBsonSerializer inputSerializer)
