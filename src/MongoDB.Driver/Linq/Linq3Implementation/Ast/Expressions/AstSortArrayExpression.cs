@@ -67,12 +67,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 return this;
             }
 
-            if (fields != null && order != null)
+            return (fields, order) switch
             {
-                throw new ArgumentException("fields and order arguments are mutually exclusive.");
-            }
-
-            return order == null ? new AstSortArrayExpression(input, fields) : new AstSortArrayExpression(input, order);
+                (null, null) => throw new ArgumentException("fields and order arguments cannot both be null."),
+                (_, null) => new AstSortArrayExpression(input, fields),
+                (null, _) => new AstSortArrayExpression(input, order),
+                (_, _) => throw new ArgumentException("fields and order arguments are mutually exclusive.")
+            };
         }
     }
 }
