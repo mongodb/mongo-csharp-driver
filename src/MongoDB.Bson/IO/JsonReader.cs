@@ -1961,13 +1961,13 @@ namespace MongoDB.Bson.IO
             VerifyToken(",");
             int increment;
             var incrementToken = PopToken();
-            if (secondsSinceEpochToken.IsNumber)
+            if (incrementToken.IsNumber)
             {
                 increment = incrementToken.Int32Value;
             }
             else
             {
-                var message = string.Format("JSON reader expected a number but found '{0}'.", secondsSinceEpochToken.Lexeme);
+                var message = string.Format("JSON reader expected a number but found '{0}'.", incrementToken.Lexeme);
                 throw new FormatException(message);
             }
             VerifyToken(")");
