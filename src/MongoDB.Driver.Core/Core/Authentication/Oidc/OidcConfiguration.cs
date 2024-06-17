@@ -136,6 +136,11 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
                     $"{TokenResourceMechanismPropertyName} mechanism property is required by {Environment} environment.",
                     TokenResourceMechanismPropertyName);
             }
+
+            if (Environment == "test" && !string.IsNullOrEmpty(PrincipalName))
+            {
+                throw new ArgumentException($"{nameof(PrincipalName)} is not supported by {Environment} environment.", nameof(PrincipalName));
+            }
         }
     }
 }

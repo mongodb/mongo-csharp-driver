@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }, "azure", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "tr" }, "gcp", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock }, null, __callbackMock },
@@ -138,20 +137,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[]
             {
                 true,
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018)}, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
                 true,
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018)}, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
-            },
-            new object[]
-            {
-                true,
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017)}, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017)}, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
@@ -176,6 +169,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 false,
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr1" },
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr2" }
+            },
+            new object[]
+            {
+                false,
+                new[] { new DnsEndPoint("localhost", 27017) }, "name1", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" },
+                new[] { new DnsEndPoint("localhost", 27017) }, "name2", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }
             },
             new object[]
             {
@@ -206,12 +205,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 false,
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock },
                 new[] { new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock }
-            },
-            new object[]
-            {
-                false,
-                new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
