@@ -88,13 +88,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
                 return null;
             }
 
-            var newNode = Visit(node) as TNode;
+            var newNode = Visit(node);
+            var convertedNewNode = newNode as TNode;
             if (newNode == null)
+            {
+                throw new InvalidOperationException($"Expected newNode to be a {typeof(TNode)}, not null.");
+            }
+            if (convertedNewNode == null)
             {
                 throw new InvalidOperationException($"Expected newNode to be a {typeof(TNode)}, not a {newNode.GetType()}.");
             }
 
-            return newNode;
+            return convertedNewNode;
         }
 
         public IReadOnlyList<TNode> VisitAndConvert<TNode>(IReadOnlyList<TNode> nodes)
