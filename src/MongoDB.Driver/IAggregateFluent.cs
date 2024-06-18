@@ -382,6 +382,13 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> ReplaceWith<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot);
 
         /// <summary>
+        /// Appends a sample stage to the pipeline.
+        /// </summary>
+        /// <param name="size">The sample size.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Sample(long size);
+
+        /// <summary>
         /// Appends a $set stage to the pipeline.
         /// </summary>
         /// <param name="fields">The fields to set.</param>

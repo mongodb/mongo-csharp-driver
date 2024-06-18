@@ -238,6 +238,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Sample(long size) => throw new NotImplementedException();
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TResult> Search(
             SearchDefinition<TResult> searchDefinition,
             SearchHighlightOptions<TResult> highlight = null,
