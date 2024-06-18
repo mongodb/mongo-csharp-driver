@@ -648,7 +648,10 @@ namespace MongoDB.Driver
         /// </summary>
         public static void ClearCache()
         {
-            __cache.Clear();
+            lock (__staticLock)
+            {
+                __cache.Clear();
+            }
         }
 
         /// <summary>
