@@ -274,7 +274,7 @@ namespace MongoDB.Driver.GridFS
 
             if (previousBatch != null)
             {
-                _batchPosition += previousBatch.Count * FileInfo.ChunkSizeBytes; ;
+                _batchPosition += (long)previousBatch.Count * FileInfo.ChunkSizeBytes;
             }
 
             var lastChunkInBatch = _batch.Last();
