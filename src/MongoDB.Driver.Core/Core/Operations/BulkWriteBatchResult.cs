@@ -196,38 +196,6 @@ namespace MongoDB.Driver.Core.Operations
             return null;
         }
 
-        private static BulkWriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
-        {
-            var code = getLastErrorResponse.GetValue("code", 64).ToInt32(); // default = WriteConcernFailed
-            var codeName = (string)getLastErrorResponse.GetValue("codeName", null);
-
-            string message = null;
-            BsonValue value;
-            if (getLastErrorResponse.TryGetValue("err", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-            else if (getLastErrorResponse.TryGetValue("jnote", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-            else if (getLastErrorResponse.TryGetValue("wnote", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-
-            var details = new BsonDocument(getLastErrorResponse.Where(e => !new[] { "ok", "code", "err" }.Contains(e.Name)));
-
-            return new BulkWriteConcernError(code, codeName, message, details);
-        }
-
-        private static BulkWriteOperationError CreateWriteErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
-        {
-            var code = getLastErrorResponse.GetValue("code", 8).ToInt32(); // default = UnknownError
-            var message = (string)getLastErrorResponse.GetValue("err", null);
-            return new BulkWriteOperationError(0, code, message, null);
-        }
-
         private static IReadOnlyList<BulkWriteOperationError> CreateWriteErrors(BsonDocument writeCommandResponse)
         {
             var writeErrors = new List<BulkWriteOperationError>();
@@ -248,10 +216,6 @@ namespace MongoDB.Driver.Core.Operations
             return writeErrors;
         }
 
-        private static bool IsGetLasterrorResponseAWriteConcernError(BsonDocument getLastErrorResponse)
-        {
-            return new[] { "wtimeout", "jnote", "wnote" }.Any(n => getLastErrorResponse.Contains(n));
-        }
         #endregion
 
         // fields
