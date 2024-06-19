@@ -13,16 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The leve of the read concern.
+    /// The level of the read concern.
     /// </summary>
     public enum ReadConcernLevel
     {
