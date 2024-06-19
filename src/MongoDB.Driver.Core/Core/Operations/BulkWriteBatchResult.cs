@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Core.Operations
                 var codeName = (string)value.GetValue("codeName", null);
                 var message = value["errmsg"].AsString;
                 var details = (BsonDocument)value.GetValue("errInfo", null);
-                var errorLabels = writeConcernException.ErrorLabels;
+                var errorLabels = writeConcernException?.ErrorLabels ?? new string[0];
 
                 return new BulkWriteConcernError(code, codeName, message, details, errorLabels);
             }
