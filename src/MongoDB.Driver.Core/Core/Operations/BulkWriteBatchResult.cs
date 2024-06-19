@@ -133,91 +133,6 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        public static BulkWriteBatchResult Create(
-            WriteRequest request,
-            WriteConcernResult writeConcernResult,
-            MongoWriteConcernException writeConcernException,
-            IndexMap indexMap)
-        {
-            var processedRequests = new[] { request };
-            var unprocessedRequests = __noWriteRequests;
-            BsonValue upsertId = null;
-            var documentsAffected = 0L;
-
-            if (writeConcernResult != null)
-            {
-                upsertId = writeConcernResult.Upserted;
-                documentsAffected = writeConcernResult.DocumentsAffected;
-                var updateRequest = request as UpdateRequest;
-
-                if (upsertId == null &&
-                    documentsAffected == 1 &&
-                    updateRequest != null &&
-                    updateRequest.IsUpsert &&
-                    !writeConcernResult.UpdatedExisting)
-                {
-                    // Get the _id field first from the Update document
-                    // and then from the Query document.
-                    upsertId =
-                        updateRequest.Update.ToBsonDocument().GetValue("_id", null) ??
-                        updateRequest.Filter.ToBsonDocument().GetValue("_id", null);
-                }
-            }
-
-            var upserts = (upsertId == null) ? __noUpserts : new[] { new BulkWriteOperationUpsert(0, upsertId) };
-            var writeErrors = __noWriteErrors;
-            BulkWriteConcernError writeConcernError = null;
-
-            if (writeConcernException != null)
-            {
-                var getLastErrorResponse = writeConcernResult.Response;
-                if (IsGetLasterrorResponseAWriteConcernError(getLastErrorResponse))
-                {
-                    writeConcernError = CreateWriteConcernErrorFromGetLastErrorResponse(getLastErrorResponse);
-                }
-                else
-                {
-                    writeErrors = new[] { CreateWriteErrorFromGetLastErrorResponse(getLastErrorResponse) };
-                }
-            }
-
-            if (request.RequestType == WriteRequestType.Insert && writeErrors.Count == 0)
-            {
-                documentsAffected = 1; // note: DocumentsAffected is 0 for inserts
-            }
-
-            var matchedCount = 0L;
-            var deletedCount = 0L;
-            var insertedCount = 0L;
-            long? modifiedCount = 0L;
-            switch (request.RequestType)
-            {
-                case WriteRequestType.Delete:
-                    deletedCount = documentsAffected;
-                    break;
-                case WriteRequestType.Insert:
-                    insertedCount = documentsAffected;
-                    break;
-                case WriteRequestType.Update:
-                    matchedCount = documentsAffected - upserts.Count();
-                    modifiedCount = null; // getLasterror does not report this value
-                    break;
-            }
-
-            return new BulkWriteBatchResult(
-                1, // batchCount
-                processedRequests,
-                unprocessedRequests,
-                matchedCount,
-                deletedCount,
-                insertedCount,
-                modifiedCount,
-                upserts,
-                writeErrors,
-                writeConcernError,
-                indexMap);
-        }
-
         private static IReadOnlyList<WriteRequest> CreateProcessedRequests(IReadOnlyList<WriteRequest> requests, IReadOnlyList<BulkWriteOperationError> writeErrors, bool isOrdered)
         {
             if (!isOrdered || writeErrors.Count == 0)
@@ -281,38 +196,6 @@ namespace MongoDB.Driver.Core.Operations
             return null;
         }
 
-        private static BulkWriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
-        {
-            var code = getLastErrorResponse.GetValue("code", 64).ToInt32(); // default = WriteConcernFailed
-            var codeName = (string)getLastErrorResponse.GetValue("codeName", null);
-
-            string message = null;
-            BsonValue value;
-            if (getLastErrorResponse.TryGetValue("err", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-            else if (getLastErrorResponse.TryGetValue("jnote", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-            else if (getLastErrorResponse.TryGetValue("wnote", out value) && value.BsonType == BsonType.String)
-            {
-                message = value.AsString;
-            }
-
-            var details = new BsonDocument(getLastErrorResponse.Where(e => !new[] { "ok", "code", "err" }.Contains(e.Name)));
-
-            return new BulkWriteConcernError(code, codeName, message, details);
-        }
-
-        private static BulkWriteOperationError CreateWriteErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
-        {
-            var code = getLastErrorResponse.GetValue("code", 8).ToInt32(); // default = UnknownError
-            var message = (string)getLastErrorResponse.GetValue("err", null);
-            return new BulkWriteOperationError(0, code, message, null);
-        }
-
         private static IReadOnlyList<BulkWriteOperationError> CreateWriteErrors(BsonDocument writeCommandResponse)
         {
             var writeErrors = new List<BulkWriteOperationError>();
@@ -333,10 +216,6 @@ namespace MongoDB.Driver.Core.Operations
             return writeErrors;
         }
 
-        private static bool IsGetLasterrorResponseAWriteConcernError(BsonDocument getLastErrorResponse)
-        {
-            return new[] { "wtimeout", "jnote", "wnote" }.Any(n => getLastErrorResponse.Contains(n));
-        }
         #endregion
 
         // fields
