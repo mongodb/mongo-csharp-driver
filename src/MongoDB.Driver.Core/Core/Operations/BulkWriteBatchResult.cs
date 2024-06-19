@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -188,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
                 var codeName = (string)value.GetValue("codeName", null);
                 var message = value["errmsg"].AsString;
                 var details = (BsonDocument)value.GetValue("errInfo", null);
-                var errorLabels = writeConcernException.ErrorLabels;
+                var errorLabels = writeConcernException?.ErrorLabels ?? Array.Empty<string>();
 
                 return new BulkWriteConcernError(code, codeName, message, details, errorLabels);
             }
