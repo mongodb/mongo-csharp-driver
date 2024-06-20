@@ -436,6 +436,12 @@ namespace MongoDB.Bson.Serialization
                 var value = keyValuePair.Value;
 
                 var memberMap = _classMap.GetMemberMapForElement(elementName);
+
+                if (memberMap == null)
+                {
+                    throw new FormatException($"Element '{elementName}' does not match any field or property of class {_classMap.ClassType.FullName}");
+                }
+
                 if (!memberMap.IsReadOnly)
                 {
                     memberMap.Setter.Invoke(document, value);
