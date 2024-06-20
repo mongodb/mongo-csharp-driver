@@ -74,6 +74,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected IServer _failPointServer = null;
 
+        protected BsonDocument LastKnownClusterTime { get; set; }
+
         // public constructors
         public MongoClientJsonDrivenTestRunnerBase(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
@@ -218,8 +220,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         {
             Logger.LogDebug("Creating collection {0} in {1} db", databaseName, collectionName);
 
+            var session = client.StartSession();
             var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.CreateCollection(collectionName);
+            database.CreateCollection(session, collectionName);
+
+            LastKnownClusterTime = session.ClusterTime;
         }
 
         protected virtual MongoClient CreateClientForTestSetup()
@@ -288,13 +293,21 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
             if (shared.Contains(DataKey))
             {
+                BsonDocument lastServerTime = null;
                 var documents = shared[DataKey].AsBsonArray.Cast<BsonDocument>().ToList();
+
                 if (documents.Count > 0)
                 {
+                    var session = client.StartSession();
+
                     var database = client.GetDatabase(databaseName);
                     var collection = database.GetCollection<BsonDocument>(collectionName).WithWriteConcern(WriteConcern.WMajority);
-                    collection.InsertMany(documents);
+                    collection.InsertMany(session, documents);
+
+                    lastServerTime = session.ClusterTime;
                 }
+
+                LastKnownClusterTime = lastServerTime ?? LastKnownClusterTime;
             }
         }
 

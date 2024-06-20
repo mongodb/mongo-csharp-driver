@@ -103,7 +103,12 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         protected IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)
         {
             var options = ParseSessionOptions(test, sessionKey);
-            return client.StartSession(options);
+            var session = client.StartSession(options);
+            if (LastKnownClusterTime != null)
+            {
+                session.WrappedCoreSession.AdvanceClusterTime(LastKnownClusterTime);
+            }
+            return session;
         }
 
         // private methods
