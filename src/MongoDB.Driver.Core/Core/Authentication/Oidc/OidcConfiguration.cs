@@ -39,27 +39,24 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             EndPoints = Ensure.IsNotNullOrEmpty(endPoints, nameof(endPoints));
             Ensure.IsNotNull(authMechanismProperties, nameof(authMechanismProperties));
             PrincipalName = principalName;
-
-            if (authMechanismProperties != null)
+            
+            foreach (var authorizationProperty in authMechanismProperties)
             {
-                foreach (var authorizationProperty in authMechanismProperties)
+                switch (authorizationProperty.Key)
                 {
-                    switch (authorizationProperty.Key)
-                    {
-                        case CallbackMechanismPropertyName:
-                            Callback = GetProperty<IOidcCallback>(authorizationProperty);
-                            break;
-                        case EnvironmentMechanismPropertyName:
-                            Environment = GetProperty<string>(authorizationProperty);
-                            break;
-                        case TokenResourceMechanismPropertyName:
-                            TokenResource = GetProperty<string>(authorizationProperty);
-                            break;
-                        default:
-                            throw new ArgumentException(
-                                $"Unknown OIDC property '{authorizationProperty.Key}'.",
-                                authorizationProperty.Key);
-                    }
+                    case CallbackMechanismPropertyName:
+                        Callback = GetProperty<IOidcCallback>(authorizationProperty);
+                        break;
+                    case EnvironmentMechanismPropertyName:
+                        Environment = GetProperty<string>(authorizationProperty);
+                        break;
+                    case TokenResourceMechanismPropertyName:
+                        TokenResource = GetProperty<string>(authorizationProperty);
+                        break;
+                    default:
+                        throw new ArgumentException(
+                            $"Unknown OIDC property '{authorizationProperty.Key}'.",
+                            authorizationProperty.Key);
                 }
             }
 

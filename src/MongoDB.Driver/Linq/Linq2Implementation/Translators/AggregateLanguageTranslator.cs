@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Translators
 
             return new BsonDocument("$dateFromParts", new BsonDocument
             {
-                { "year", year, year != null },
+                { "year", year },
                 { "month", month, month != null },
                 { "day", day, day != null },
                 { "hour", hour, hour != null },
