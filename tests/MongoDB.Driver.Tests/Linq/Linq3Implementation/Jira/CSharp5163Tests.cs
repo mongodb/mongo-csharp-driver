@@ -27,10 +27,13 @@ public class CSharp5163Tests : Linq3IntegrationTest
         var collection = GetCollection();
 
         var queryable = collection.AsQueryable()
-            .Select(x => x.Int * 36000000000);
+            .Select(x => x.Int * 36000000000L);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $multiply : ['$Int', NumberLong('36000000000')] }, _id : 0 } }");
 
         var result = queryable.ToList();
-        result[0].Should().Be(36000000000);
+        result[0].Should().Be(36000000000L);
     }
 
     [Fact]
@@ -40,6 +43,9 @@ public class CSharp5163Tests : Linq3IntegrationTest
 
         var queryable = collection.AsQueryable()
             .Select(x => x.Byte * 256);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $multiply : ['$Byte', 256] }, _id : 0 } }");
 
         var result = queryable.ToList();
         result[0].Should().Be(256);

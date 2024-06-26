@@ -155,6 +155,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
+        private static IBsonSerializer GetConstantSerializer(BinaryExpression containingExpression, IBsonSerializer otherSerializer, Type constantType)
+        {
+            if (
+                IsArithmeticExpression(containingExpression) &&
+                otherSerializer.ValueType != constantType &&
+                ConvertHelper.IsWideningConvert(otherSerializer.ValueType, constantType) &&
+                otherSerializer is IRepresentationConfigurable otherRepresentationConfigurableSerializer &&
+                SerializationHelper.IsNumericRepresentation(otherRepresentationConfigurableSerializer.Representation))
+            {
+                return ConvertHelper.CreateWiderSerializer(otherSerializer.ValueType, constantType);
+            }
+            else
+            {
+                return otherSerializer;
+            }
+        }
+
         private static bool IsAddOrSubtractExpression(Expression expression)
         {
             return expression.NodeType switch
@@ -242,9 +259,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static AggregationExpression TranslateConstant(BinaryExpression containingExpression, ConstantExpression constantExpression, IBsonSerializer otherSerializer)
         {
-            var serializedValue = SerializationHelper.SerializeValue(otherSerializer, constantExpression, containingExpression);
+            var constantSerializer = GetConstantSerializer(containingExpression, otherSerializer, constantExpression.Type);
+            var serializedValue = SerializationHelper.SerializeValue(constantSerializer, constantExpression, containingExpression);
             var ast = AstExpression.Constant(serializedValue);
-            return new AggregationExpression(constantExpression, ast, otherSerializer);
+            return new AggregationExpression(constantExpression, ast, constantSerializer);
         }
 
         private static AggregationExpression TranslateEnumExpression(TranslationContext context, BinaryExpression expression)
