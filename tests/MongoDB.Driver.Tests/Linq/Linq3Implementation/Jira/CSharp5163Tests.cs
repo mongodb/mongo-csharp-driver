@@ -42,7 +42,7 @@ public class CSharp5163Tests : Linq3IntegrationTest
         var collection = GetCollection();
 
         var queryable = collection.AsQueryable()
-            .Select(x => x.Byte * 256);
+            .Select(x => x.Byte * (short)256);
 
         var stages = Translate(collection, queryable);
         AssertStages(stages, "{ $project : { _v : { $multiply : ['$Byte', 256] }, _id : 0 } }");
