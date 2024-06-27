@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             typeof(DateTimeExtensions),
             typeof(LinqExtensions),
             typeof(MongoEnumerable),
+            typeof(Mql),
             typeof(StringExtensions)
         };
 

@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -22,6 +23,20 @@ namespace MongoDB.Driver
     /// </summary>
     public static class Mql
     {
+        /// <summary>
+        /// Gets the value of a field in a document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="document">The document.</param>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>The value of the field.</returns>
+        public static TField Field<TDocument, TField>(TDocument document, string fieldName, IBsonSerializer<TField> serializer)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+        }
+
         /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>
