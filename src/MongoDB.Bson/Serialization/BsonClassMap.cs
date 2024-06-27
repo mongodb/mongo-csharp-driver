@@ -19,10 +19,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -541,6 +541,35 @@ namespace MongoDB.Bson.Serialization
             var creator = GetCreator();
             return creator.Invoke();
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is BsonClassMap other &&
+                _frozen.Equals(true) &&  other._frozen.Equals(true) && // BsonClassMaps should only be equal if they are frozen
+                object.Equals(_baseClassMap, other._baseClassMap) &&
+                object.Equals(_classType, other._classType) &&
+                object.Equals(_creator, other._creator) &&
+                SequenceComparer.Equals(_creatorMaps, other._creatorMaps) &&
+                SequenceComparer.Equals(_declaredMemberMaps, other._declaredMemberMaps) &&
+                object.Equals(_discriminator, other._discriminator) &&
+                _discriminatorIsRequired.Equals(other._discriminatorIsRequired) &&
+                _extraElementsMemberIndex.Equals(other._extraElementsMemberIndex) &&
+                object.Equals(_extraElementsMemberMap, other._extraElementsMemberMap) &&
+                _hasRootClass.Equals(other._hasRootClass) &&
+                object.Equals(_idMemberMap, other._idMemberMap) &&
+                _ignoreExtraElements.Equals(other._ignoreExtraElements) &&
+                _ignoreExtraElementsIsInherited.Equals(other._ignoreExtraElementsIsInherited) &&
+                _isRootClass.Equals(other._isRootClass) &&
+                SequenceComparer.Equals(_knownTypes, other._knownTypes);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Freezes the class map.

@@ -13,11 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -72,5 +67,19 @@ namespace MongoDB.Driver.Core.Operations
 
             return value;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ElementDeserializer<TValue> other &&
+                _deserializeNull.Equals(other._deserializeNull) &&
+                object.Equals(_elementName, other._elementName) &&
+                object.Equals(_valueSerializer, other._valueSerializer);
+        }
+
+        public override int GetHashCode() => 0;
     }
 }

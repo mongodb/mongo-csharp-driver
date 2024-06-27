@@ -39,7 +39,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 if (secondValue is IMongoQueryable secondQueryable)
                 {
                     var secondProvider = (IMongoQueryProviderInternal)secondQueryable.Provider;
-                    var secondCollectionName = secondProvider.CollectionNamespace.CollectionName;
+                    var secondCollectionNamespace = secondProvider.CollectionNamespace;
+                    if (secondCollectionNamespace == null)
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: "second argument must be an IMongoQueryable against a collection");
+                    }
+
+                    var secondCollectionName = secondCollectionNamespace.CollectionName;
                     var secondPipelineInputSerializer = secondProvider.PipelineInputSerializer;
                     var secondContext = TranslationContext.Create(secondQueryable.Expression, secondPipelineInputSerializer);
                     var secondPipeline = ExpressionToPipelineTranslator.Translate(secondContext, secondQueryable.Expression);

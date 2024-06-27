@@ -295,6 +295,20 @@ namespace MongoDB.Bson.Serialization
             return CreateInstanceUsingCreator(values);
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is BsonClassMapSerializer<TClass> other &&
+                object.Equals(_classMap, other._classMap);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Gets the document Id.
         /// </summary>

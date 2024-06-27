@@ -117,6 +117,22 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public methods        
         /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is DictionarySerializerBase<TDictionary> other &&
+                _dictionaryRepresentation.Equals(other._dictionaryRepresentation) &&
+                object.Equals(_keySerializer, other._keySerializer) &&
+                object.Equals(_valueSerializer, other._valueSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        /// <inheritdoc/>
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
             if (_dictionaryRepresentation != DictionaryRepresentation.Document)
@@ -464,6 +480,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is DictionarySerializerBase<TDictionary, TKey, TValue> other &&
+                _dictionaryRepresentation.Equals(other._dictionaryRepresentation) &&
+                object.Equals(_lazyKeySerializer.Value, other._lazyKeySerializer.Value) &&
+                object.Equals(_lazyValueSerializer.Value, other._lazyValueSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <inheritdoc/>
         public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {

@@ -20,7 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Hasher.cs" />
+    <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />
+    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />
+    <Compile Include="..\MongoDB.Shared\SequenceComparer.cs" Link="Shared\SequenceComparer.cs" />
   </ItemGroup>
 
 </Project>

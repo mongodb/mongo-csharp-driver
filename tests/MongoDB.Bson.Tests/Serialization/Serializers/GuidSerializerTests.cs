@@ -601,5 +601,91 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Representation.Should().Be(BsonType.String);
             result.GuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new GuidSerializer();
+            var y = new DerivedFromGuidSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new GuidSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new GuidSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new GuidSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new GuidSerializer();
+            var y = new GuidSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("guidRepresentation")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var x = new GuidSerializer();
+            var y = notEqualFieldName switch
+            {
+                "guidRepresentation" => new GuidSerializer(GuidRepresentation.JavaLegacy),
+                "representation" => new GuidSerializer(BsonType.String),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new GuidSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromGuidSerializer : GuidSerializer
+        {
+            public DerivedFromGuidSerializer() : base() { }
+        }
     }
 }

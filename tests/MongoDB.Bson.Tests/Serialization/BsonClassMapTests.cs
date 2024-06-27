@@ -17,9 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MongoDB.Bson;
+using System.Runtime.Serialization;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -442,5 +444,292 @@ namespace MongoDB.Bson.Tests.Serialization
 
         private class InheritedTestClass : TestClass
         { }
+    }
+
+    public class BsonClassMapEqualsTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+            var y = CreateDerivedFromBsonClassMap(typeof(C));
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+            var y = Clone(x);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("baseClassMap")]
+        [InlineData("classType")]
+        [InlineData("creator")]
+        [InlineData("creatorMaps")]
+        [InlineData("declaredMemberMaps")]
+        [InlineData("discriminator")]
+        [InlineData("discriminatorIsRequired")]
+        [InlineData("extraElementsMemberIndex")]
+        [InlineData("extraElementsMemberMap")]
+        [InlineData("frozen")]
+        [InlineData("hasRootClass")]
+        [InlineData("idMemberMap")]
+        [InlineData("ignoreExtraElements")]
+        [InlineData("ignoreExtraElementsIsInherited")]
+        [InlineData("isRootClass")]
+        [InlineData("knownTypes")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var x = CreateBsonClassMap(typeof(C));
+            var y = notEqualFieldName switch
+            {
+                "baseClassMap" => WithBaseClassMap(x, null),
+                "classType" => WithClassType(x, typeof(D)),
+                "creator" => WithCreator(x, () => null),
+                "creatorMaps" => WithCreatorMaps(x, null),
+                "declaredMemberMaps" => WithDeclaredMemberMaps(x, null),
+                "discriminator" => WithDiscriminator(x, null),
+                "discriminatorIsRequired" => WithDiscriminatorIsRequired(x, false),
+                "extraElementsMemberIndex" => WithExtraElementsMemberIndex(x, 1),
+                "extraElementsMemberMap" => WithExtraElementsMemberMap(x, null),
+                "frozen" => WithFrozen(x, false),
+                "hasRootClass" => WithHasRootClass(x, false),
+                "idMemberMap" => WithIdMemberMap(x, null),
+                "ignoreExtraElements" => WithIgnoreExtraElements(x, false),
+                "ignoreExtraElementsIsInherited" => WithIgnoreExtraElementsIsInherited(x, false),
+                "isRootClass" => WithIsRootClass(x, false),
+                "knownTypes" => WithKnownTypes(x, null),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = CreateBsonClassMap(typeof(C));
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        private BsonClassMap CreateBsonClassMap(Type classType)
+        {
+            var classMap = new BsonClassMap(classType);
+            classMap.AutoMap();
+            classMap.SetCreator(() => new BsonClassMap(classType));
+            classMap.Freeze();
+            return classMap;
+        }
+
+        private BsonClassMap WithBaseClassMap(BsonClassMap classMap, BsonClassMap value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_baseClassMap", value);
+            return clone;
+        }
+
+        private BsonClassMap WithClassType(BsonClassMap classMap, Type value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_classType", value);
+            return clone;
+        }
+
+        private BsonClassMap WithCreator(BsonClassMap classMap, Func<object> value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_creator", value);
+            return clone;
+        }
+
+        private BsonClassMap WithCreatorMaps(BsonClassMap classMap, List<BsonCreatorMap> value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_creatorMaps", value);
+            return clone;
+        }
+
+        private BsonClassMap WithDeclaredMemberMaps(BsonClassMap classMap, List<BsonMemberMap> value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_declaredMemberMaps", value);
+            return clone;
+        }
+
+        private BsonClassMap WithDiscriminator(BsonClassMap classMap, string value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_discriminator", value);
+            return clone;
+        }
+
+        private BsonClassMap WithDiscriminatorIsRequired(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_discriminatorIsRequired", value);
+            return clone;
+        }
+
+        private BsonClassMap WithExtraElementsMemberIndex(BsonClassMap classMap, int value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_extraElementsMemberIndex", value);
+            return clone;
+        }
+
+        private BsonClassMap WithExtraElementsMemberMap(BsonClassMap classMap, BsonMemberMap value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_extraElementsMemberMap", value);
+            return clone;
+        }
+
+        private BsonClassMap WithFrozen(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_frozen", value);
+            return clone;
+        }
+
+        private BsonClassMap WithHasRootClass(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_hasRootClass", value);
+            return clone;
+        }
+
+        private BsonClassMap WithIdMemberMap(BsonClassMap classMap, BsonMemberMap value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_idMemberMap", value);
+            return clone;
+        }
+
+        private BsonClassMap WithIgnoreExtraElements(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_ignoreExtraElements", value);
+            return clone;
+        }
+
+        private BsonClassMap WithIgnoreExtraElementsIsInherited(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_ignoreExtraElementsIsInherited", value);
+            return clone;
+        }
+
+        private BsonClassMap WithIsRootClass(BsonClassMap classMap, bool value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_isRootClass", value);
+            return clone;
+        }
+
+        private BsonClassMap WithKnownTypes(BsonClassMap classMap, List<Type> value)
+        {
+            var clone = Clone(classMap);
+            Reflector.SetFieldValue(classMap, "_knownTypes", value);
+            return clone;
+        }
+
+        private BsonClassMap Clone(BsonClassMap classMap)
+        {
+            var clone = (BsonClassMap)FormatterServices.GetUninitializedObject(classMap.GetType());
+            Reflector.SetFieldValue(clone, "_baseClassMap", Reflector.GetFieldValue(classMap, "_baseClassMap"));
+            Reflector.SetFieldValue(clone, "_classType", Reflector.GetFieldValue(classMap, "_classType"));
+            Reflector.SetFieldValue(clone, "_creator", Reflector.GetFieldValue(classMap, "_creator"));
+            Reflector.SetFieldValue(clone, "_creatorMaps", Reflector.GetFieldValue(classMap, "_creatorMaps"));
+            Reflector.SetFieldValue(clone, "_declaredMemberMaps", Reflector.GetFieldValue(classMap, "_declaredMemberMaps"));
+            Reflector.SetFieldValue(clone, "_discriminator", Reflector.GetFieldValue(classMap, "_discriminator"));
+            Reflector.SetFieldValue(clone, "_discriminatorIsRequired", Reflector.GetFieldValue(classMap, "_discriminatorIsRequired"));
+            Reflector.SetFieldValue(clone, "_extraElementsMemberIndex", Reflector.GetFieldValue(classMap, "_extraElementsMemberIndex"));
+            Reflector.SetFieldValue(clone, "_extraElementsMemberMap", Reflector.GetFieldValue(classMap, "_extraElementsMemberMap"));
+            Reflector.SetFieldValue(clone, "_frozen", Reflector.GetFieldValue(classMap, "_frozen"));
+            Reflector.SetFieldValue(clone, "_hasRootClass", Reflector.GetFieldValue(classMap, "_hasRootClass"));
+            Reflector.SetFieldValue(clone, "_idMemberMap", Reflector.GetFieldValue(classMap, "_idMemberMap"));
+            Reflector.SetFieldValue(clone, "_ignoreExtraElements", Reflector.GetFieldValue(classMap, "_ignoreExtraElements"));
+            Reflector.SetFieldValue(clone, "_ignoreExtraElementsIsInherited", Reflector.GetFieldValue(classMap, "_ignoreExtraElementsIsInherited"));
+            Reflector.SetFieldValue(clone, "_isRootClass", Reflector.GetFieldValue(classMap, "_isRootClass"));
+            Reflector.SetFieldValue(clone, "_knownTypes", Reflector.GetFieldValue(classMap, "_knownTypes"));
+            return clone;
+        }
+
+        private BsonClassMap CreateDerivedFromBsonClassMap(Type classType)
+        {
+            var classMap = new DerivedFromBsonClassMap(classType);
+            classMap.AutoMap();
+            classMap.Freeze();
+            return classMap;
+        }
+
+        private class DerivedFromBsonClassMap : BsonClassMap
+        {
+            public DerivedFromBsonClassMap(Type classType) : base(classType)
+            {
+            }
+        }
+
+        [BsonDiscriminator(Required = true, RootClass = true)]
+        [BsonIgnoreExtraElements(Inherited = true)]
+        private class C
+        {
+            [BsonConstructor]
+            public C() { }
+            public int Id { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
+            [BsonExtraElements]
+            BsonDocument ExtraElements { get; set; }
+        }
+
+        private class D : C
+        {
+        }
     }
 }

@@ -31,6 +31,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class ElementAppendingSerializerTests
     {
+        public class C { public int X { get; set;  } }
+        public class CSerializer1 : SerializerBase<C> { }
+        public class CSerializer2 : SerializerBase<C> { }
+
+        private static readonly IBsonSerializer<C> __documentSerializer1 = new CSerializer1();
+        private static readonly IBsonSerializer<C> __documentSerializer2 = new CSerializer2();
+        private static readonly List<BsonElement> __elements1 = new List<BsonElement> { new BsonElement("x", 1) };
+        private static readonly List<BsonElement> __elements2 = new List<BsonElement> { new BsonElement("x", 2) };
+        private static readonly Action<BsonWriterSettings> __writerSettingsConfigurator1 = s => { };
+        private static readonly Action<BsonWriterSettings> __writerSettingsConfigurator2 = s => { };
+
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -281,6 +292,100 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 Times.Once);
 
             capturedIsDynamicType.Should().Be(isDynamicType);
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+            var y = new DerivedFromElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+            var y = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("documentSerializer")]
+        [InlineData("elements")]
+        [InlineData("writerSettingsConfigurator")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+            var y = notEqualFieldName switch
+            {
+                "documentSerializer" => new ElementAppendingSerializer<C>(__documentSerializer2, __elements1, __writerSettingsConfigurator1),
+                "elements" => new ElementAppendingSerializer<C>(__documentSerializer1, __elements2, __writerSettingsConfigurator1),
+                "writerSettingsConfigurator" => new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromElementAppendingSerializer<TDocument> : ElementAppendingSerializer<TDocument>
+        {
+            public DerivedFromElementAppendingSerializer(
+                IBsonSerializer<TDocument> documentSerializer,
+                IEnumerable<BsonElement> elements,
+                Action<BsonWriterSettings> writerSettingsConfigurator)
+                    : base(documentSerializer, elements, writerSettingsConfigurator)
+            {
+            }
         }
 
         // private methods

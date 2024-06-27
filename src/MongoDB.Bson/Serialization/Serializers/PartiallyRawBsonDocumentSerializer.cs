@@ -73,6 +73,21 @@ namespace MongoDB.Bson.Serialization.Serializers
             return document;
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is PartiallyRawBsonDocumentSerializer other &&
+                object.Equals(_name, other._name) &&
+                object.Equals(_rawSerializer, other._rawSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         private IBsonSerializer ChooseSerializer(string name)
         {
             if (name == _name)

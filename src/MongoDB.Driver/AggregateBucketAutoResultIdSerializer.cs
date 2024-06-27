@@ -55,6 +55,22 @@ namespace MongoDB.Driver
             _valueSerializer = Ensure.IsNotNull(valueSerializer, nameof(valueSerializer));
         }
 
+        // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is AggregateBucketAutoResultIdSerializer<TValue> other &&
+                object.Equals(_valueSerializer, other._valueSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
+        // protected methods
         /// <inheritdoc/>
         protected override AggregateBucketAutoResultId<TValue> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {

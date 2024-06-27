@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private class AggregateResult
+        internal class AggregateResult
         {
             public BsonTimestamp AtClusterTime;
             public long? CursorId;
@@ -449,7 +449,7 @@ namespace MongoDB.Driver.Core.Operations
             public TResult[] Results;
         }
 
-        private class AggregateResultDeserializer : SerializerBase<AggregateResult>
+        internal class AggregateResultDeserializer : SerializerBase<AggregateResult>
         {
             private readonly IBsonSerializer<TResult> _resultSerializer;
 
@@ -485,9 +485,21 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadEndDocument();
                 return result;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is AggregateResultDeserializer other &&
+                    object.Equals(_resultSerializer, other._resultSerializer);
+            }
+
+            public override int GetHashCode() => 0;
         }
 
-        private class CursorDeserializer : SerializerBase<AggregateResult>
+        internal class CursorDeserializer : SerializerBase<AggregateResult>
         {
             private readonly IBsonSerializer<TResult> _resultSerializer;
 
@@ -536,6 +548,18 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadEndDocument();
                 return result;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (object.ReferenceEquals(obj, null)) { return false; }
+                if (object.ReferenceEquals(this, obj)) { return true; }
+                return
+                    base.Equals(obj) &&
+                    obj is CursorDeserializer other &&
+                    object.Equals(_resultSerializer, other._resultSerializer);
+            }
+
+            public override int GetHashCode() => 0;
         }
     }
 }

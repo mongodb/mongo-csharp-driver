@@ -97,6 +97,94 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result["b"]["f"].Should().BeOfType<BsonDocument>();
         }
 
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+            var y = new DerivedFromPartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+            var y = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("name")]
+        [InlineData("rawSerializer")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var rawSerializer1 = new RawBsonArraySerializer();
+            var rawSerializer2 = new RawBsonDocumentSerializer();
+            var x = new PartiallyRawBsonDocumentSerializer("name1", rawSerializer1);
+            var y = notEqualFieldName switch
+            {
+                "name" => new PartiallyRawBsonDocumentSerializer("name2", rawSerializer1),
+                "rawSerializer" => new PartiallyRawBsonDocumentSerializer("name1", rawSerializer2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new PartiallyRawBsonDocumentSerializer("name", BsonValueSerializer.Instance);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromPartiallyRawBsonDocumentSerializer : PartiallyRawBsonDocumentSerializer
+        {
+            public DerivedFromPartiallyRawBsonDocumentSerializer(string name, IBsonSerializer rawSerializer) : base(name, rawSerializer) { }
+        }
+
         // private methods
         private BsonDocument Deserialize(byte[] bson, PartiallyRawBsonDocumentSerializer serializer)
         {

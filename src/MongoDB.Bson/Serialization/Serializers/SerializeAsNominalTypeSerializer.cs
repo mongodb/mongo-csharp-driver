@@ -65,6 +65,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is SerializeAsNominalTypeSerializer<TActualType, TNominalType> other &&
+                object.Equals(_lazyNominalTypeSerializer.Value, other._lazyNominalTypeSerializer.Value);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
+
         /// <summary>
         /// Serializes a value.
         /// </summary>

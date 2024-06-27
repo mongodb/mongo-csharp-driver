@@ -119,10 +119,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         private static readonly bool __isByte = (typeof(TItem) == typeof(byte));
 
         private readonly Func<IBsonReader, TItem[]> _readItems;
+        private readonly BsonType _representation;
         private readonly Action<IBsonWriter, Memory<TItem>> _writeItems;
 
         /// <inheritdoc/>
-        public BsonType Representation { get; }
+        public BsonType Representation => _representation;
 
         // constructors
         /// <summary>
@@ -137,7 +138,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             (_readItems, _writeItems) = GetReaderAndWriter();
-            Representation = representation;
+            _representation = representation;
         }
 
         /// <summary>
@@ -172,6 +173,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is MemorySerializerBase<TItem, TMemory> other &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TMemory value)

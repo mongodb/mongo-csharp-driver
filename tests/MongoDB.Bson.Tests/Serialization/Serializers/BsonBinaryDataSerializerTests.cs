@@ -68,6 +68,73 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().BeSameAs(binaryData);
         }
 
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new BsonBinaryDataSerializer();
+            var y = new DerivedFromBsonBinaryDataSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new BsonBinaryDataSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new BsonBinaryDataSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new BsonBinaryDataSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new BsonBinaryDataSerializer();
+            var y = new BsonBinaryDataSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new BsonBinaryDataSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromBsonBinaryDataSerializer : BsonBinaryDataSerializer
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         [ResetGuidModeAfterTest]

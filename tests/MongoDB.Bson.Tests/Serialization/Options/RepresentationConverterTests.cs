@@ -14,7 +14,7 @@
 */
 
 using System;
-using MongoDB.Bson;
+using FluentAssertions;
 using MongoDB.Bson.Serialization.Options;
 using Xunit;
 
@@ -262,6 +262,95 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal((ushort)1, converter.ToUInt16((double)1.5));
             Assert.Equal((uint)1, converter.ToUInt32((double)1.5));
             Assert.Equal((ulong)1, converter.ToUInt64((double)1.5));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new RepresentationConverter(false, false);
+            var y = new DerivedFromRepresentationConverter(false, false);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new RepresentationConverter(false, false);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new RepresentationConverter(false, false);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new RepresentationConverter(false, false);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new RepresentationConverter(false, false);
+            var y = new RepresentationConverter(false, false);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("allowOverflow")]
+        [InlineData("allowTruncation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var x = new RepresentationConverter(false, false);
+            var y = notEqualFieldName switch
+            {
+                "allowOverflow" => new RepresentationConverter(true, false),
+                "allowTruncation" => new RepresentationConverter(false, true),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new RepresentationConverter(false, false);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromRepresentationConverter : RepresentationConverter
+        {
+            public DerivedFromRepresentationConverter(bool allowOverflow, bool allowTruncation)
+                : base(allowOverflow, allowTruncation)
+            {
+            }
         }
     }
 }

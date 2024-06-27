@@ -248,20 +248,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
-        public override bool Equals(object obj) =>
-            obj is ObjectSerializer other &&
-            GetType() == other.GetType() &&
-            _allowedDeserializationTypes.Equals(other._allowedDeserializationTypes) &&
-            _allowedSerializationTypes.Equals(other._allowedSerializationTypes) &&
-            _discriminatorConvention.Equals(other._discriminatorConvention) &&
-            _guidRepresentation == other._guidRepresentation;
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is ObjectSerializer other &&
+                object.Equals(_allowedDeserializationTypes, other._allowedDeserializationTypes) &&
+                object.Equals(_allowedSerializationTypes, other._allowedSerializationTypes) &&
+                object.Equals(_discriminatorConvention, other._discriminatorConvention) &&
+                _guidRepresentation.Equals(other._guidRepresentation);
+        }
 
         /// <inheritdoc/>
-        public override int GetHashCode() =>
-            new Hasher()
-            .Hash(_discriminatorConvention)
-            .Hash(_guidRepresentation)
-            .GetHashCode();
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Serializes a value.

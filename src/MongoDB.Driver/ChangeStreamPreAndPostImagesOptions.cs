@@ -74,7 +74,7 @@ namespace MongoDB.Driver
             RegisterMember("Enabled", "enabled", new BooleanSerializer());
         }
 
-        // methods
+        // protected methods
         protected override ChangeStreamPreAndPostImagesOptions CreateInstance(BsonDocument backingDocument) =>
             new ChangeStreamPreAndPostImagesOptions(backingDocument);
     }

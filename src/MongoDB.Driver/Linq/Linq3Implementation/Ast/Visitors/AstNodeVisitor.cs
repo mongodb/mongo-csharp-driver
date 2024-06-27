@@ -354,11 +354,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
-        public virtual AstNode VisitFindProjection<TProjection>(AstFindProjection<TProjection> node)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual AstNode VisitFunctionExpression(AstFunctionExpression node)
         {
             return node.Update(VisitAndConvert(node.Args));

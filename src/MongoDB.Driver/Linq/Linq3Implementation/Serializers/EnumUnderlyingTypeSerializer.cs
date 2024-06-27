@@ -14,11 +14,9 @@
 */
 
 using System;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
@@ -60,9 +58,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
             return
+                base.Equals(obj) &&
                 obj is EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> other &&
-                _enumSerializer.Equals(other._enumSerializer);
+                object.Equals(_enumSerializer, other._enumSerializer);
         }
 
         /// <inheritdoc/>

@@ -18,10 +18,13 @@ using System.Collections;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -181,6 +184,88 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.False(rehydrated.B[7]);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+            var y = new DerivedFromBitArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+            var y = new BitArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+            var y = new BitArraySerializer(BsonType.String);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new BitArraySerializer(BsonType.Binary);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromBitArraySerializer : BitArraySerializer
+        {
+            public DerivedFromBitArraySerializer(BsonType representation)
+                : base(representation)
+            {
+            }
+        }
     }
 
     public class ByteArraySerializerTests
@@ -270,6 +355,88 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsType<C>(rehydrated);
             Assert.True(c.B.SequenceEqual(rehydrated.B));
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+            var y = new DerivedFromByteArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+            var y = new ByteArraySerializer(BsonType.Binary);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+            var y = new ByteArraySerializer(BsonType.String);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ByteArraySerializer(BsonType.Binary);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromByteArraySerializer : ByteArraySerializer
+        {
+            public DerivedFromByteArraySerializer(BsonType representation)
+                : base(representation)
+            {
+            }
         }
     }
 
@@ -361,6 +528,88 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+            var y = new DerivedFromByteSerializer(BsonType.Int32);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+            var y = new ByteSerializer(BsonType.Int32);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+            var y = new ByteSerializer(BsonType.String);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ByteSerializer(BsonType.Int32);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromByteSerializer : ByteSerializer
+        {
+            public DerivedFromByteSerializer(BsonType representation)
+                : base(representation)
+            {
+            }
         }
     }
 
@@ -457,6 +706,88 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+            var y = new DerivedFromCharSerializer(BsonType.Int32);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+            var y = new CharSerializer(BsonType.Int32);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+            var y = new CharSerializer(BsonType.String);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new CharSerializer(BsonType.Int32);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromCharSerializer : CharSerializer
+        {
+            public DerivedFromCharSerializer(BsonType representation)
+                : base(representation)
+            {
+            }
+        }
     }
 
     public class CultureInfoSerializerTests
@@ -533,6 +864,76 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 #endif
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new CultureInfoSerializer();
+            var y = new DerivedFromCultureInfoSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new CultureInfoSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new CultureInfoSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new CultureInfoSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new CultureInfoSerializer();
+            var y = new CultureInfoSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new CultureInfoSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromCultureInfoSerializer : CultureInfoSerializer
+        {
+            public DerivedFromCultureInfoSerializer()
+            {
+            }
+        }
     }
 
     public class DateTimeOffsetSerializerTests
@@ -575,6 +976,88 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+            var y = new DerivedFromDateTimeOffsetSerializer(BsonType.Array);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+            var y = new DateTimeOffsetSerializer(BsonType.Array);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+            var y = new DateTimeOffsetSerializer(BsonType.DateTime);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new DateTimeOffsetSerializer(BsonType.Array);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromDateTimeOffsetSerializer : DateTimeOffsetSerializer
+        {
+            public DerivedFromDateTimeOffsetSerializer(BsonType representation)
+                : base(representation)
+            {
+            }
         }
     }
 
@@ -762,6 +1245,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new DecimalSerializer();
+            var y = new DerivedFromDecimalSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new DecimalSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new DecimalSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new DecimalSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new DecimalSerializer();
+            var y = new DecimalSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.String;
+            var representation2 = BsonType.Decimal128;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new DecimalSerializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new DecimalSerializer(representation2, converter1),
+                "converter" => new DecimalSerializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new DecimalSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromDecimalSerializer : DecimalSerializer
+        {
+        }
     }
 
     public class Int16SerializerTests
@@ -879,6 +1451,279 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new Int16Serializer();
+            var y = new DerivedFromInt16Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new Int16Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new Int16Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new Int16Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new Int16Serializer();
+            var y = new Int16Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new Int16Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new Int16Serializer(representation2, converter1),
+                "converter" => new Int16Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new Int16Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromInt16Serializer : Int16Serializer
+        {
+        }
+    }
+
+    public class Int32SerializerTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new Int32Serializer();
+            var y = new DerivedFromInt32Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new Int32Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new Int32Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new Int32Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new Int32Serializer();
+            var y = new Int32Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new Int32Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new Int32Serializer(representation2, converter1),
+                "converter" => new Int32Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new Int32Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromInt32Serializer : Int32Serializer
+        {
+        }
+    }
+
+    public class Int64SerializerTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new Int64Serializer();
+            var y = new DerivedFromInt64Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new Int64Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new Int64Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new Int64Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new Int64Serializer();
+            var y = new Int64Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new Int64Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new Int64Serializer(representation2, converter1),
+                "converter" => new Int64Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new Int64Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromInt64Serializer : Int64Serializer
+        {
+        }
     }
 
     public class IPAddressSerializerTests
@@ -935,6 +1780,73 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new IPAddressSerializer();
+            var y = new DerivedFromIPAddressSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new IPAddressSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new IPAddressSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new IPAddressSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new IPAddressSerializer();
+            var y = new IPAddressSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new IPAddressSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromIPAddressSerializer : IPAddressSerializer
+        {
+        }
     }
 
     public class IPEndPointSerializerTests
@@ -990,6 +1902,73 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new IPEndPointSerializer();
+            var y = new DerivedFromIPEndPointSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new IPEndPointSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new IPEndPointSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new IPEndPointSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new IPEndPointSerializer();
+            var y = new IPEndPointSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new IPEndPointSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromIPEndPointSerializer : IPEndPointSerializer
+        {
         }
     }
 
@@ -1100,6 +2079,84 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new SByteSerializer();
+            var y = new DerivedFromSByteSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new SByteSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new SByteSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new SByteSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new SByteSerializer();
+            var y = new SByteSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new SByteSerializer(BsonType.Int32);
+            var y = new SByteSerializer(BsonType.String);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new SByteSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromSByteSerializer : SByteSerializer
+        {
         }
     }
 
@@ -1302,6 +2359,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new SingleSerializer();
+            var y = new DerivedFromSingleSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new SingleSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new SingleSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new SingleSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new SingleSerializer();
+            var y = new SingleSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Double;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new SingleSerializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new SingleSerializer(representation2, converter1),
+                "converter" => new SingleSerializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new SingleSerializer(BsonType.Double);
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromSingleSerializer : SingleSerializer
+        {
+        }
     }
 
     public class TimeSpanSerializerTests
@@ -1442,6 +2588,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new TimeSpanSerializer();
+            var y = new DerivedFromTimeSpanSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new TimeSpanSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new TimeSpanSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new TimeSpanSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new TimeSpanSerializer();
+            var y = new TimeSpanSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("representation")]
+        [InlineData("units")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.String;
+            var representation2 = BsonType.Int64;
+            var units1 = TimeSpanUnits.Ticks;
+            var units2 = TimeSpanUnits.Microseconds;
+            var x = new TimeSpanSerializer(representation1, units1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new TimeSpanSerializer(representation2, units1),
+                "units" => new TimeSpanSerializer(representation1, units2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new TimeSpanSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromTimeSpanSerializer : TimeSpanSerializer
+        {
+        }
     }
 
     public class UInt16SerializerTests
@@ -1538,6 +2773,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new UInt16Serializer();
+            var y = new DerivedFromUInt16Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new UInt16Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new UInt16Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new UInt16Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new UInt16Serializer();
+            var y = new UInt16Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new UInt16Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new UInt16Serializer(representation2, converter1),
+                "converter" => new UInt16Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new UInt16Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromUInt16Serializer : UInt16Serializer
+        {
         }
     }
 
@@ -1636,6 +2960,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new UInt32Serializer();
+            var y = new DerivedFromUInt32Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new UInt32Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new UInt32Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new UInt32Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new UInt32Serializer();
+            var y = new UInt32Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new UInt32Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new UInt32Serializer(representation2, converter1),
+                "converter" => new UInt32Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new UInt32Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromUInt32Serializer : UInt32Serializer
+        {
+        }
     }
 
     public class UInt64SerializerTests
@@ -1733,6 +3146,95 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new UInt64Serializer();
+            var y = new DerivedFromUInt64Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new UInt64Serializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new UInt64Serializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new UInt64Serializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new UInt64Serializer();
+            var y = new UInt64Serializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Theory]
+        [InlineData("converter")]
+        [InlineData("representation")]
+        public void Equals_with_not_equal_field_should_return_false(string notEqualFieldName)
+        {
+            var representation1 = BsonType.Int32;
+            var representation2 = BsonType.String;
+            var converter1 = new RepresentationConverter(false, false);
+            var converter2 = new RepresentationConverter(true, true);
+            var x = new UInt64Serializer(representation1, converter1);
+            var y = notEqualFieldName switch
+            {
+                "representation" => new UInt64Serializer(representation2, converter1),
+                "converter" => new UInt64Serializer(representation1, converter2),
+                _ => throw new Exception()
+            };
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new UInt64Serializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromUInt64Serializer : UInt64Serializer
+        {
+        }
     }
 
     public class UriSerializerTests
@@ -1804,6 +3306,73 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new UriSerializer();
+            var y = new DerivedFromUriSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new UriSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new UriSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new UriSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new UriSerializer();
+            var y = new UriSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new UriSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromUriSerializer : UriSerializer
+        {
         }
     }
 

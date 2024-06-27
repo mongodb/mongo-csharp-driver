@@ -26,7 +26,7 @@ This information is available in multiple ways:
   <tr>
     <th>Evergreen</th>
     <td>
-        See the "Submitted by" field in <a href="https://spruce.mongodb.com/version/dot_net_driver_v${PACKAGE_VERSION}_${github_commit}">Evergreen release patch</a>.
+        See the "Submitted by" field in <a href="https://spruce.mongodb.com/task/${task_id}">Evergreen release task</a>.
     </td>
   </tr>
    <tr>

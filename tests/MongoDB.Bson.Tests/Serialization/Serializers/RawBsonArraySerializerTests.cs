@@ -15,8 +15,9 @@
 
 using System;
 using System.Linq;
-using MongoDB.Bson;
+using FluentAssertions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -58,6 +59,73 @@ namespace MongoDB.Bson.Tests.Serialization
             {
                 Assert.Equal(json, c.ToJson());
             }
+        }
+
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new RawBsonArraySerializer();
+            var y = new DerivedFromRawBsonArraySerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new RawBsonArraySerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new RawBsonArraySerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new RawBsonArraySerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new RawBsonArraySerializer();
+            var y = new RawBsonArraySerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new RawBsonArraySerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromRawBsonArraySerializer : RawBsonArraySerializer
+        {
         }
     }
 }

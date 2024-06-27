@@ -33,8 +33,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // private fields
         private readonly SerializerHelper _helper;
-        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
-        private readonly Int64Serializer _int64Serializer = new Int64Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -105,8 +103,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    ticks = _int64Serializer.Deserialize(context);
-                    offset = TimeSpan.FromMinutes(_int32Serializer.Deserialize(context));
+                    ticks = Int64Serializer.Instance.Deserialize(context);
+                    offset = TimeSpan.FromMinutes(Int32Serializer.Instance.Deserialize(context));
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
 
@@ -122,8 +120,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value
-                            case Flags.Ticks: ticks = _int64Serializer.Deserialize(context); break;
-                            case Flags.Offset: offset = TimeSpan.FromMinutes(_int32Serializer.Deserialize(context)); break;
+                            case Flags.Ticks: ticks = Int64Serializer.Instance.Deserialize(context); break;
+                            case Flags.Offset: offset = TimeSpan.FromMinutes(Int32Serializer.Instance.Deserialize(context)); break;
                         }
                     });
                     return new DateTimeOffset(ticks, offset);
@@ -135,6 +133,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is DateTimeOffsetSerializer other &&
+                _representation.Equals(other._representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Serializes a value.

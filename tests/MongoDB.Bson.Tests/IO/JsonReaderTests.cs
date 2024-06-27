@@ -1397,6 +1397,26 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Theory]
+        // truncated input
+        [InlineData("Timestamp(")]
+        [InlineData("Timestamp()")]
+        [InlineData("Timestamp(1")]
+        [InlineData("Timestamp(1,")]
+        [InlineData("Timestamp(1, 2")]
+        // valid JSON but not a valid extended JSON BsonTimestamp
+        [InlineData("Timestamp('abc', 2)")]
+        [InlineData("Timestamp(2, 'abc')")]
+        public void TestTimestampConstructorWhenInvalid(string json)
+        {
+            using (_bsonReader = new JsonReader(json))
+            {
+                var exception = Record.Exception(() => _bsonReader.ReadBsonType());
+
+                exception.Should().BeOfType<FormatException>();
+            }
+        }
+
+        [Theory]
         [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2 } }")]
         [InlineData("{ \"$timestamp\" : { \"i\" : 2, \"t\" : 1 } }")]
         public void TestTimestampExtendedJsonNewRepresentation(string json)

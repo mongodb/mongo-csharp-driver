@@ -35,27 +35,28 @@ namespace MongoDB.Driver.Core.Misc
         /// </returns>
         public static Exception Map(ConnectionId connectionId, BsonDocument response)
         {
-            BsonValue code;
-            if (response.TryGetValue("code", out code) && code.IsNumeric)
+            if (response != null)
             {
-                switch (code.ToInt32())
+                if (response.TryGetValue("code", out var code) && code.IsNumeric)
                 {
-                    case 50:
-                    case 13475:
-                    case 16986:
-                    case 16712:
-                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.", response);
+                    switch (code.ToInt32())
+                    {
+                        case 50:
+                        case 13475:
+                        case 16986:
+                        case 16712:
+                            return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.", response);
+                    }
                 }
-            }
 
-            // the server sometimes sends a response that is missing the "code" field but does have an "errmsg" field
-            BsonValue errmsg;
-            if (response.TryGetValue("errmsg", out errmsg) && errmsg.IsString)
-            {
-                if (errmsg.AsString.Contains("exceeded time limit") ||
-                    errmsg.AsString.Contains("execution terminated"))
+                // the server sometimes sends a response that is missing the "code" field but does have an "errmsg" field
+                if (response.TryGetValue("errmsg", out var errmsg) && errmsg.IsString)
                 {
-                    return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
+                    if (errmsg.AsString.Contains("exceeded time limit") ||
+                        errmsg.AsString.Contains("execution terminated"))
+                    {
+                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
+                    }
                 }
             }
 
@@ -72,38 +73,40 @@ namespace MongoDB.Driver.Core.Misc
         /// </returns>
         public static Exception Map(ConnectionId connectionId, WriteConcernResult writeConcernResult)
         {
-            var code = GetCode(writeConcernResult.Response);
-            if (code.HasValue)
+            if (writeConcernResult != null)
             {
-                switch (code.Value)
+                var code = GetCode(writeConcernResult.Response);
+                if (code.HasValue)
                 {
-                    case 11000:
-                    case 11001:
-                    case 12582:
-                        var errorMessage = string.Format(
-                            "WriteConcern detected an error '{0}'. (Response was {1}).",
-                            writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                        return new MongoDuplicateKeyException(connectionId, errorMessage, writeConcernResult);
+                    switch (code.Value)
+                    {
+                        case 11000:
+                        case 11001:
+                        case 12582:
+                            var errorMessage = string.Format(
+                                "WriteConcern detected an error '{0}'. (Response was {1}).",
+                                writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
+                            return new MongoDuplicateKeyException(connectionId, errorMessage, writeConcernResult);
+                    }
                 }
-            }
 
-            bool ok = writeConcernResult.Response.GetValue("ok", false).ToBoolean();
+                var ok = writeConcernResult.Response.GetValue("ok", false).ToBoolean();
+                if (!ok)
+                {
+                    var errorMessage = string.Format(
+                        "WriteConcern detected an error '{0}'. (Response was {1}).",
+                        writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
+                    return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
+                }
 
-            if (!ok)
-            {
-                var errorMessage = string.Format(
-                    "WriteConcern detected an error '{0}'. (Response was {1}).",
-                    writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
-            }
-
-            if (writeConcernResult.HasLastErrorMessage)
-            {
-                var errorMessage = string.Format(
-                    "WriteConcern detected an error '{0}'. (Response was {1}).",
-                    writeConcernResult.LastErrorMessage,
-                    writeConcernResult.Response.ToJson());
-                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
+                if (writeConcernResult.HasLastErrorMessage)
+                {
+                    var errorMessage = string.Format(
+                        "WriteConcern detected an error '{0}'. (Response was {1}).",
+                        writeConcernResult.LastErrorMessage,
+                        writeConcernResult.Response.ToJson());
+                    return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
+                }
             }
 
             return null;

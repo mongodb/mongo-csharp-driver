@@ -5,11 +5,10 @@ set -o errexit # Exit the script with error if any of the commands fail
 # NUGET_SIGN_CERTIFICATE_FINGERPRINT
 # PRODUCT_NAME
 # PACKAGE_VERSION
-# github_commit
+# task_id
 
 echo "$PRODUCT_NAME"
 echo "$PACKAGE_VERSION"
-echo "$github_commit"
 
 echo "Creating SSDLC reports"
 
@@ -30,7 +29,7 @@ fi
 sed "${SED_EDIT_IN_PLACE_OPTION[@]}" \
     -e "s/\${PRODUCT_NAME}/${PRODUCT_NAME}/g" \
     -e "s/\${PACKAGE_VERSION}/$PACKAGE_VERSION/g" \
-    -e "s/\${github_commit}/$github_commit/g" \
+    -e "s/\${task_id}/$task_id/g" \
     -e "s/\${REPORT_DATE_UTC}/$(date -u +%Y-%m-%d)/g" \
     -e "s/\${NUGET_SIGN_CERTIFICATE_FINGERPRINT}/${NUGET_SIGN_CERTIFICATE_FINGERPRINT}/g" \
     "${SSDLC_REPORT_PATH}"

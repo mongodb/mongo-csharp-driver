@@ -21,6 +21,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" />
     <PackageReference Include="DnsClient" Version="1.6.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
@@ -38,10 +42,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Core\Misc\Hasher.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -331,4 +331,228 @@ namespace MongoDB.Bson.Tests.Serialization
             _ => (new ArrayHolder<T>() { Items = array }).ToBson(),
         };
     }
+
+    public class ReadOnlyMemorySerializerEqualsTests
+    {
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ReadonlyMemorySerializer<byte>();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ReadonlyMemorySerializer<byte>();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ReadonlyMemorySerializer<byte>();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ReadonlyMemorySerializer<byte>();
+            var y = new ReadonlyMemorySerializer<byte>();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new ReadonlyMemorySerializer<byte>(BsonType.Binary);
+            var y = new ReadonlyMemorySerializer<byte>(BsonType.Array);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ReadonlyMemorySerializer<byte>();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+    }
+
+    public class MemorySerializerEqualsTests
+    {
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new MemorySerializer<byte>();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new MemorySerializer<byte>();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new MemorySerializer<byte>();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new MemorySerializer<byte>();
+            var y = new MemorySerializer<byte>();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new MemorySerializer<byte>(BsonType.Binary);
+            var y = new MemorySerializer<byte>(BsonType.Array);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new MemorySerializer<byte>();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+    }
+
+    public class MemorySerializerBaseEqualsTests
+    {
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+            var y = new DerivedFromConcreteMemorySerializerBase<byte, Memory<byte>>();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+            var y = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_not_equal_field_should_return_false()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>(BsonType.Binary);
+            var y = new ConcreteMemorySerializerBase<byte, Memory<byte>>(BsonType.Array);
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ConcreteMemorySerializerBase<byte, Memory<byte>>();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class ConcreteMemorySerializerBase<TItem, TMemory> : MemorySerializerBase<TItem, TMemory>
+            where TMemory : struct
+        {
+            public ConcreteMemorySerializerBase() : base() { }
+            public ConcreteMemorySerializerBase(BsonType representation) : base(representation) { }
+            public override MemorySerializerBase<TItem, TMemory> WithRepresentation(BsonType representation) => throw new NotImplementedException();
+            protected override TMemory CreateMemory(TItem[] items) => throw new NotImplementedException();
+            protected override Memory<TItem> GetMemory(TMemory memory) => throw new NotImplementedException();
+        }
+
+        public class DerivedFromConcreteMemorySerializerBase<TItem, TMemory> : ConcreteMemorySerializerBase<TItem, TMemory>
+            where TMemory : struct
+        {
+        }
+    }
 }

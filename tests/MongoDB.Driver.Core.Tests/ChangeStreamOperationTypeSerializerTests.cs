@@ -123,6 +123,73 @@ namespace MongoDB.Driver
             argumentException.ParamName.Should().Be("value");
         }
 
+        [Fact]
+        public void Equals_derived_should_return_false()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+            var y = new DerivedFromChangeStreamOperationTypeSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_null_should_return_false()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+
+            var result = x.Equals(null);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_object_should_return_false()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+            var y = new object();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(false);
+        }
+
+        [Fact]
+        public void Equals_self_should_return_true()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+
+            var result = x.Equals(x);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void Equals_with_equal_fields_should_return_true()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+            var y = new ChangeStreamOperationTypeSerializer();
+
+            var result = x.Equals(y);
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void GetHashCode_should_return_zero()
+        {
+            var x = new ChangeStreamOperationTypeSerializer();
+
+            var result = x.GetHashCode();
+
+            result.Should().Be(0);
+        }
+
+        public class DerivedFromChangeStreamOperationTypeSerializer : ChangeStreamOperationTypeSerializer
+        {
+        }
+
         // private methods
         private ChangeStreamOperationTypeSerializer CreateSubject()
         {
