@@ -14,4 +14,4 @@ The main new features in 2.27.0 include:
 
 The full list of issues resolved in this release is available at [CSHARP JIRA project](https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.27.0%20ORDER%20BY%20key%20ASC).
 
-Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.26.0}/).
+Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.27.0}/).
