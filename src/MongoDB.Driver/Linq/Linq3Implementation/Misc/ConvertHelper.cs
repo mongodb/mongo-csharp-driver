@@ -16,6 +16,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -75,6 +79,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             (typeof(float), typeof(decimal)),
             (typeof(double), typeof(decimal))
         };
+
+        public static IBsonSerializer CreateWiderSerializer(Type narrowerType, Type widerType)
+        {
+            if (IsWideningConvert(narrowerType, widerType))
+            {
+                return widerType switch
+                {
+                    _ when widerType == typeof(int) => new Int32Serializer(BsonType.Int32),
+                    _ when widerType == typeof(long) => new Int64Serializer(BsonType.Int64),
+                    _ when widerType == typeof(decimal) => new DecimalSerializer(BsonType.Decimal128),
+                    _ when widerType == typeof(double) => new DoubleSerializer(BsonType.Double),
+                    _ => throw new ArgumentException($"Cannot create a wider serializer of type {widerType}.", nameof(widerType))
+                };
+            }
+
+            throw new ArgumentException($"{widerType} is not a wider type for {narrowerType}", nameof(widerType));
+        }
+
+        public static bool IsWideningConvert(Type sourceType, Type targetType)
+        {
+            return __wideningConverts.Contains((sourceType, targetType));
+        }
 
         public static Expression RemoveConvertToMongoQueryable(Expression expression)
         {
@@ -154,11 +180,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return expression;
-
-            static bool IsWideningConvert(Type sourceType, Type targetType)
-            {
-                return __wideningConverts.Contains((sourceType, targetType));
-            }
         }
     }
 }

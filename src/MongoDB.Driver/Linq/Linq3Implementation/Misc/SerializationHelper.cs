@@ -42,15 +42,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             {
                 throw new ExpressionNotSupportedException(expression, because: $"serializer for type {serializer.ValueType} uses a non-numeric representation: {representation}");
             }
-
-            static bool IsNumericRepresentation(BsonType representation)
-            {
-                return representation switch
-                {
-                    BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
-                    _ => false
-                };
-            }
         }
 
         public static BsonType GetRepresentation(IBsonSerializer serializer)
@@ -104,6 +95,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return BsonType.Undefined;
+        }
+
+        public static bool IsNumericRepresentation(BsonType representation)
+        {
+            return representation switch
+            {
+                BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
+                _ => false
+            };
         }
 
         public static bool IsRepresentedAsDocument(IBsonSerializer serializer)
