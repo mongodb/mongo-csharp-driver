@@ -144,12 +144,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         {
                             throw new ExpressionNotSupportedException(valueExpression, expression);
                         }
-                        var representation = timeSpanSerializer.Representation;
+                        SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, timeSpanSerializer);
+
                         var serializerUnits = timeSpanSerializer.Units;
-                        if (representation != BsonType.Int32 && representation != BsonType.Int64 && representation != BsonType.Double)
-                        {
-                            throw new ExpressionNotSupportedException(valueExpression, expression);
-                        }
                         (unit, amount) = serializerUnits switch
                         {
                             TimeSpanUnits.Ticks => ("millisecond", AstExpression.Divide(valueTranslation.Ast, (double)TimeSpan.TicksPerMillisecond)),
@@ -174,6 +171,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else
                 {
                     var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, valueTranslation);
+
                     (unit, amount) = method.Name switch
                     {
                         "AddTicks" => ("millisecond", AstExpression.Divide(valueTranslation.Ast, (double)TimeSpan.TicksPerMillisecond)),

@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var valueExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, valueTranslation);
                 var ast = AstExpression.Abs(valueTranslation.Ast);
                 return new AggregationExpression(expression, ast, valueTranslation.Serializer);
             }

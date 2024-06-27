@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -35,21 +36,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
+        public static void EnsureRepresentationIsNumeric(Expression expression, AggregationExpression translation)
+        {
+            EnsureRepresentationIsNumeric(expression, translation.Serializer);
+        }
+
         public static void EnsureRepresentationIsNumeric(Expression expression, IBsonSerializer serializer)
         {
             var representation = GetRepresentation(serializer);
             if (!IsNumericRepresentation(representation))
             {
                 throw new ExpressionNotSupportedException(expression, because: $"serializer for type {serializer.ValueType} uses a non-numeric representation: {representation}");
-            }
-
-            static bool IsNumericRepresentation(BsonType representation)
-            {
-                return representation switch
-                {
-                    BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
-                    _ => false
-                };
             }
         }
 
@@ -63,6 +60,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             if (serializer is IDowncastingSerializer downcastingSerializer)
             {
                 return GetRepresentation(downcastingSerializer.DerivedSerializer);
+            }
+
+            if (serializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+            {
+                return GetRepresentation(enumUnderlyingTypeSerializer.EnumSerializer);
             }
 
             if (serializer is IImpliedImplementationInterfaceSerializer impliedImplementationSerializer)
@@ -91,6 +93,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return keyValuePairSerializer.Representation;
             }
 
+            if (serializer is INullableSerializer nullableSerializer)
+            {
+                return GetRepresentation(nullableSerializer.ValueSerializer);
+            }
+
             // for backward compatibility assume that any remaining implementers of IBsonDocumentSerializer are represented as documents
             if (serializer is IBsonDocumentSerializer)
             {
@@ -106,9 +113,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return BsonType.Undefined;
         }
 
+        public static bool IsIntegerRepresentation(BsonType representation)
+        {
+            return representation switch
+            {
+                BsonType.Int32 or BsonType.Int64 => true,
+                _ => false
+            };
+        }
+
+        public static bool IsNumericRepresentation(BsonType representation)
+        {
+            return representation switch
+            {
+                BsonType.Decimal128 or BsonType.Double or BsonType.Int32 or BsonType.Int64 => true,
+                _ => false
+            };
+        }
+
         public static bool IsRepresentedAsDocument(IBsonSerializer serializer)
         {
             return SerializationHelper.GetRepresentation(serializer) == BsonType.Document;
+        }
+
+        public static bool IsRepresentedAsInteger(IBsonSerializer serializer)
+        {
+            var representation = GetRepresentation(serializer);
+            return IsIntegerRepresentation(representation);
+        }
+
+        public static bool IsRepresentedAsIntegerOrNullableInteger(AggregationExpression translation)
+        {
+            return IsRepresentedAsIntegerOrNullableInteger(translation.Serializer);
+        }
+
+        public static bool IsRepresentedAsIntegerOrNullableInteger(IBsonSerializer serializer)
+        {
+            if (serializer is INullableSerializer nullableSerializer)
+            {
+                return IsRepresentedAsInteger(nullableSerializer.ValueSerializer);
+            }
+            else
+            {
+                return IsRepresentedAsInteger(serializer);
+            }
         }
 
         public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
