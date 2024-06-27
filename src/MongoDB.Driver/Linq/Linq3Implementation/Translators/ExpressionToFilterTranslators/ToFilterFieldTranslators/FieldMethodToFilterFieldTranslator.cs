@@ -14,24 +14,32 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    internal static class MethodCallExpressionToFilterFieldTranslator
+    internal static class FieldMethodToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(MqlMethod.Field))
             {
-                case "AllElements": return AllElementsMethodToFilterFieldTranslator.Translate(context, expression);
-                case "AllMatchingElements": return AllMatchingElementsMethodToFilterFieldTranslator.Translate(context, expression);
-                case "ElementAt": return ElementAtMethodToFilterFieldTranslator.Translate(context, expression);
-                case "Field": return FieldMethodToFilterFieldTranslator.Translate(context, expression);
-                case "First": return FirstMethodToFilterFieldTranslator.Translate(context, expression);
-                case "FirstMatchingElement": return FirstMatchingElementMethodToFilterFieldTranslator.Translate(context, expression);
-                case "get_Item": return GetItemMethodToFilterFieldTranslator.Translate(context, expression);
-                case "Select": return SelectMethodToFilterFieldTranslator.Translate(context, expression);
+                var documentExpression = arguments[0];
+                var fieldNameExpression = arguments[1];
+                var fieldSerializerExpression = arguments[2];
+
+                var documentField = ExpressionToFilterFieldTranslator.Translate(context, documentExpression);
+                var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
+                var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
+
+                return documentField.SubField(fieldName, fieldSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

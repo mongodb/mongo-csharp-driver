@@ -14,8 +14,8 @@
 */
 
 using System;
-using System.Runtime.CompilerServices;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -88,6 +88,20 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <returns><c>true</c> if the field exists.</returns>
         public static bool Exists<TField>(TField field)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Gets the value of a field in a document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="document">The document.</param>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fieldSerializer">The field serializer.</param>
+        /// <returns>The value of the field.</returns>
+        public static TField Field<TDocument, TField>(TDocument document, string fieldName, IBsonSerializer<TField> fieldSerializer)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
