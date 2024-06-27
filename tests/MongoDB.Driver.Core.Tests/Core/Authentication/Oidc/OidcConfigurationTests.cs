@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "test", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }, "azure", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "tr" }, "gcp", null },
             new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock }, null, __callbackMock },
@@ -62,38 +61,37 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             IReadOnlyList<EndPoint> endPoints,
             string principalName,
             IReadOnlyDictionary<string, object> mechanismProperties,
-            string paramName)
+            Type exceptionType)
         {
             var exception = Record.Exception(() =>
                 new OidcConfiguration(endPoints, principalName, mechanismProperties));
 
-            exception.Should().BeAssignableTo<ArgumentException>()
-                .Subject.ParamName.Should().Be(paramName);
+            exception.Should().BeOfType(exceptionType);
         }
 
         public static IEnumerable<object[]> InvalidConfigurationTestCases = new[]
         {
-            new object[] { null, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "endPoints" },
-            new object[] { Array.Empty<EndPoint>(), null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, "endPoints" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, null, "authMechanismProperties" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", null, "authMechanismProperties" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object>(), null },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object>(), null },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["unknown_property"] = 42 }, "unknown_property" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = null }, "ENVIRONMENT" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "" }, "ENVIRONMENT" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = 1 }, "ENVIRONMENT" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "unknown provider" }, "ENVIRONMENT" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = null }, "OIDC_CALLBACK" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = "invalid type" }, "OIDC_CALLBACK" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock, ["ENVIRONMENT"] = "test" }, null },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test", ["TOKEN_RESOURCE"] = "tr" }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure" }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = null }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "" }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp" }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = null }, "TOKEN_RESOURCE" },
-            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "" }, "TOKEN_RESOURCE" },
+            new object[] { null, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, typeof(ArgumentNullException) },
+            new object[] { Array.Empty<EndPoint>(), null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }, typeof(ArgumentException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, null, typeof(ArgumentNullException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", null, typeof(ArgumentNullException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object>(), typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object>(), typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["unknown_property"] = 42 }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = null }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = 1 }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "unknown provider" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = null }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = "invalid type" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock, ["ENVIRONMENT"] = "test" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test", ["TOKEN_RESOURCE"] = "tr" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = null }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp" }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = null }, typeof(MongoConfigurationException) },
+            new object[] { new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "gcp", ["TOKEN_RESOURCE"] = "" }, typeof(MongoConfigurationException) },
         };
 
         [Theory]
@@ -138,20 +136,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
             new object[]
             {
                 true,
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018)}, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
                 true,
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018)}, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
-            },
-            new object[]
-            {
-                true,
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017)}, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("other-host", 27017)}, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
@@ -176,6 +168,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 false,
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr1" },
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr2" }
+            },
+            new object[]
+            {
+                false,
+                new[] { new DnsEndPoint("localhost", 27017) }, "name1", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" },
+                new[] { new DnsEndPoint("localhost", 27017) }, "name2", new Dictionary<string, object> { ["ENVIRONMENT"] = "azure", ["TOKEN_RESOURCE"] = "tr" }
             },
             new object[]
             {
@@ -206,12 +204,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Oidc
                 false,
                 new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock },
                 new[] { new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27017) }, "name", new Dictionary<string, object> { ["OIDC_CALLBACK"] = __callbackMock }
-            },
-            new object[]
-            {
-                false,
-                new[] { new DnsEndPoint("localhost", 27017) }, null, new Dictionary<string, object> { ["ENVIRONMENT"] = "test" },
-                new[] { new DnsEndPoint("localhost", 27017) }, "name", new Dictionary<string, object> { ["ENVIRONMENT"] = "test" }
             },
             new object[]
             {
