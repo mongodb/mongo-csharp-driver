@@ -94,6 +94,11 @@ namespace MongoDB.Driver.Core.Connections
                 driverName = $"{driverName}|legacy";
             }
 
+            if (TryGetType("MongoDB.AspNetCore.OData.MongoEnableQueryAttribute, MongoDB.AspNetCore.OData", out _))
+            {
+                driverName = $"{driverName}|odata";
+            }
+
             if (TryGetType("MongoDB.EntityFrameworkCore.Query.MongoQueryContext, MongoDB.EntityFrameworkCore", out var queryContextType))
             {
                 var efVersion = GetAssemblyVersion(queryContextType.Assembly);
