@@ -375,7 +375,7 @@ tests:
   valid: false
   credential:
 - description: should throw an exception if username is specified for test (MONGODB-OIDC)
-  uri: mongodb://principalName@localhost/?authMechanism=MONGODB-OIDC&ENVIRONMENT:test
+  uri: mongodb://principalName@localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=ENVIRONMENT:test
   valid: false
   credential:
 - description: should throw an exception if specified environment is not supported (MONGODB-OIDC)
@@ -435,7 +435,7 @@ tests:
       ENVIRONMENT: azure
       TOKEN_RESOURCE: 'mongodb://test-cluster'
 - description: should handle a complicated url-encoded TOKEN_RESOURCE (MONGODB-OIDC)
-  uri: mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=ENVIRONMENT:azure,TOKEN_RESOURCE:abc%2Cd%25ef%3Ag%26hi
+  uri: mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=ENVIRONMENT:azure,TOKEN_RESOURCE:abcd%25ef%3Ag%26hi
   valid: true
   credential:
     username: user
@@ -444,7 +444,7 @@ tests:
     mechanism: MONGODB-OIDC
     mechanism_properties:
       ENVIRONMENT: azure
-      TOKEN_RESOURCE: 'abc,d%ef:g&hi'
+      TOKEN_RESOURCE: 'abcd%ef:g&hi'
 - description: should url-encode a TOKEN_RESOURCE (MONGODB-OIDC)
   uri: mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=ENVIRONMENT:azure,TOKEN_RESOURCE:a$b
   valid: true
