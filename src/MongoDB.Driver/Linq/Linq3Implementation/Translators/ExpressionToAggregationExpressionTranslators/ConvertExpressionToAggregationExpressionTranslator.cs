@@ -54,6 +54,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return TranslateConvertUnderlyingTypeToEnum(expression, operandTranslation);
                 }
 
+                if (IsConvertEnumToEnum(expression))
+                {
+                    return TranslateConvertEnumToEnum(expression, operandTranslation);
+                }
+
                 if (IsConvertToBaseType(sourceType: operandExpression.Type, targetType: expressionType))
                 {
                     return TranslateConvertToBaseType(expression, operandTranslation);
@@ -109,6 +114,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsConvertEnumToEnum(UnaryExpression expression)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            return
+                sourceType.IsEnumOrNullableEnum(out _, out _) &&
+                targetType.IsEnumOrNullableEnum(out _, out _);
         }
 
         private static bool IsConvertEnumToUnderlyingType(UnaryExpression expression)
@@ -171,6 +186,46 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operand);
 
             return new AggregationExpression(expression, operandTranslation.Ast, BsonValueSerializer.Instance);
+        }
+
+        private static AggregationExpression TranslateConvertEnumToEnum(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            if (!sourceType.IsEnumOrNullableEnum(out var sourceEnumType, out _))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "source type is not an enum or nullable enum");
+            }
+            if (!targetType.IsEnumOrNullableEnum(out var targetEnumType, out _))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "target type is not an enum or nullable enum");
+            }
+
+            var sourceSerializer = operandTranslation.Serializer;
+            IBsonSerializer targetEnumSerializer;
+            if (targetEnumType == sourceEnumType) 
+            {
+                targetEnumSerializer = sourceSerializer is INullableSerializer sourceNullableSerializer ?
+                    sourceNullableSerializer.ValueSerializer :
+                    sourceSerializer;
+            }
+            else
+            {
+                if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
+                    !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
+                }
+
+                targetEnumSerializer = EnumSerializer.Create(targetEnumType);
+            }
+
+            var targetSerializer = targetType.IsNullable() ?
+                NullableSerializer.Create(targetEnumSerializer) :
+                targetEnumSerializer;
+
+            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
         }
 
         private static AggregationExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, AggregationExpression operandTranslation)
