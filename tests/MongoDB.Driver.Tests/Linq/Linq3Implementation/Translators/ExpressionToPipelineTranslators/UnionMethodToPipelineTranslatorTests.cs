@@ -131,6 +131,29 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Select(x => x.Number).Should().BeEquivalentTo(new[] { 2, 4, 5 });
         }
 
+        [Fact]
+        public void Union_should_be_usable_in_another_pipeline_step()
+        {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
+            var queryable = _firstCollection
+                .AsQueryable()
+                .Where(c => c.Name.StartsWith("second"))
+                .Union(_secondCollection.AsQueryable()
+                    .Where(c => c.Name.StartsWith("another")))
+                .Where(x => x.Id == 2);
+
+            var stages = Translate(_firstCollection, queryable);
+            AssertStages(stages,
+                "{ $match : { Name : /^second/s } }",
+                "{ $unionWith : { coll : 'partners', pipeline : [{ $match : { Name : /^another/s } }] } }",
+                "{ $match : { Id : 2 } }"
+            );
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 2 });
+        }
+
         private IMongoCollection<Company> CreateCollection(string collectionName, params Company[] data)
         {
             var collection = GetCollection<Company>(collectionName);

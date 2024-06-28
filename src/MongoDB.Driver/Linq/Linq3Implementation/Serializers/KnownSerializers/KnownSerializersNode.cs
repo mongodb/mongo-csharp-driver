@@ -48,6 +48,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             foreach (var type in child.KnownSerializers.Keys)
             foreach (var serializer in child.KnownSerializers[type])
             {
+                if (_knownSerializers.TryGetValue(type, out var set))
+                {
+                    if (set.Any(x => x.GetHashCode() == serializer.GetHashCode()))
+                    {
+                        continue;
+                    }
+                }
+
                 AddKnownSerializer(type, serializer);
             }
         }
