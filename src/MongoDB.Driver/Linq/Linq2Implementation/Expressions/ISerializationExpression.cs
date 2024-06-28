@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Expressions
         {
             Ensure.IsNotNull(field, nameof(field));
 
-            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, valueType, value);
+            var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, valueType, value, LinqProvider.V2);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Expressions
             Ensure.IsNotNull(itemType, nameof(itemType));
             Ensure.IsNotNull(values, nameof(values));
 
-            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, itemType);
+            var itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(field.Serializer, BsonSerializer.SerializerRegistry, itemType, LinqProvider.V2);
 
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
