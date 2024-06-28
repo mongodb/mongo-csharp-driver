@@ -52,6 +52,23 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Combine two collections
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source1" /> and <paramref name="source1" />.</typeparam>
+        /// <param name="source1">A sequence to being merged.</param>
+        /// <param name="source2">A sequence to being merged.</param>
+        /// <returns>
+        /// cobined collection.
+        /// </returns>
+        public static IMongoQueryable<TSource> Union<TSource>(this IMongoQueryable<TSource> source1, IEnumerable<TSource> source2)
+        {
+            Ensure.IsNotNull(source1, nameof(source1));
+            Ensure.IsNotNull(source2, nameof(source2));
+
+            return (IMongoQueryable<TSource>)Queryable.Union(source1, source2);
+        }
+
+        /// <summary>
         /// Determines whether any element of a sequence satisfies a condition.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -794,8 +811,8 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">An <see cref="IMongoQueryable{TSource}" /> whose elements to group.</param>
         /// <param name="keySelector">A function to extract the key for each element.</param>
         /// <returns>
-        /// An <see cref="IMongoQueryable{T}" /> that has a type argument of <see cref="IGrouping{TKey, TSource}"/> 
-        /// and where each <see cref="IGrouping{TKey, TSource}"/> object contains a sequence of objects 
+        /// An <see cref="IMongoQueryable{T}" /> that has a type argument of <see cref="IGrouping{TKey, TSource}"/>
+        /// and where each <see cref="IGrouping{TKey, TSource}"/> object contains a sequence of objects
         /// and a key.
         /// </returns>
         public static IMongoQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
@@ -1151,7 +1168,7 @@ namespace MongoDB.Driver.Linq
         /// </param>
         /// <param name="scoreDetails">
         /// Flag that specifies whether to return a detailed breakdown
-        /// of the score for each document in the result. 
+        /// of the score for each document in the result.
         /// </param>
         /// <returns>The queryable with a new stage appended.</returns>
         public static IMongoQueryable<TSource> Search<TSource>(
@@ -1252,8 +1269,8 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Projects each element of a sequence to an <see cref="IEnumerable{TCollection}" /> and 
-        /// invokes a result selector function on each element therein. The resulting values from 
+        /// Projects each element of a sequence to an <see cref="IEnumerable{TCollection}" /> and
+        /// invokes a result selector function on each element therein. The resulting values from
         /// each intermediate sequence are combined into a single, one-dimensional sequence and returned.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
