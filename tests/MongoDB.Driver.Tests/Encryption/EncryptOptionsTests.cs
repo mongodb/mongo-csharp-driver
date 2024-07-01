@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", contentionFactor: 1, keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("ContentionFactor only applies for Indexed or RangePreview algorithm.");
+            e.Message.Should().Be("ContentionFactor only applies for Indexed or Range algorithm.");
         }
 
         [Fact]
@@ -58,15 +58,23 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: "equality", keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("QueryType only applies for Indexed or RangePreview algorithm.");
+            e.Message.Should().Be("QueryType only applies for Indexed or Range algorithm.");
         }
 
         [Fact]
-        public void Constructor_should_fail_when_rangeOptions_and_algorithm_is_not_rangePreview()
+        public void Constructor_should_fail_when_rangePreview_is_used()
         {
-            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", keyId: Guid.NewGuid(), rangeOptions: new RangeOptions(0)));
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "RangePreview"));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("RangeOptions only applies for RangePreview algorithm.");
+            e.Message.Should().Be("RangePreview algorithm is not supported, please use Range algorithm instead.");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_rangeOptions_and_algorithm_is_not_range()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", keyId: Guid.NewGuid(), rangeOptions: new RangeOptions()));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().Be("RangeOptions only applies for Range algorithm.");
         }
 
         [Theory]
@@ -89,16 +97,16 @@ namespace MongoDB.Driver.Tests.Encryption
         [InlineData(EncryptionAlgorithm.Unindexed, "Unindexed")]
         [InlineData("Unindexed", "Unindexed")]
         // range preview algorithm
-        [InlineData(EncryptionAlgorithm.RangePreview, "RangePreview")]
-        [InlineData("RangePreview", "RangePreview")]
+        [InlineData(EncryptionAlgorithm.Range, "Range")]
+        [InlineData("Range", "Range")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
 
             EncryptOptions subject;
-            if (algorithm is EncryptionAlgorithm enumedAlgorithm)
+            if (algorithm is EncryptionAlgorithm algorithmEnum)
             {
-                subject = new EncryptOptions(enumedAlgorithm, alternateKeyName: alternateKeyName);
+                subject = new EncryptOptions(algorithmEnum, alternateKeyName: alternateKeyName);
             }
             else
             {
@@ -151,10 +159,10 @@ namespace MongoDB.Driver.Tests.Encryption
             subject = subject.With(queryType: newQueryType);
             AssertValues(subject, expectedAlgorithm: newAlgorithm, expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
 
-            newQueryType = "rangePreview";
-            newAlgorithm = EncryptionAlgorithm.RangePreview.ToString();
+            newQueryType = "range";
+            newAlgorithm = EncryptionAlgorithm.Range.ToString();
             subject = CreateConfiguredSubject(state: fle2State);
-            subject = subject.With(algorithm: EncryptionAlgorithm.RangePreview.ToString(), queryType: newQueryType);
+            subject = subject.With(algorithm: EncryptionAlgorithm.Range.ToString(), queryType: newQueryType);
             AssertValues(subject, expectedAlgorithm: newAlgorithm, expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
 
             static void AssertValues(EncryptOptions subject, string expectedAlgorithm, Guid? expectedKeyId = null, string expectedAlternateKeyName = null, string expectedQueryType = null, long? expectedContentionFactor = null)

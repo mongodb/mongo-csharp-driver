@@ -2041,7 +2041,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
 
             RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2RangePreviewAlgorithm)
+                .Supports(Feature.Csfle2QEv2RangeAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             if (rangeType == "DecimalNoPrecision")
@@ -2063,7 +2063,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var value201 = GetValue(201, rangeType);
 
             var explicitEncryption = CollectionNamespace.FromFullName("db.explicit_encryption");
-            var encryptOptions = WithRangeOptions(rangeType, new EncryptOptions(EncryptionAlgorithm.RangePreview, contentionFactor: 0, keyId: key1Id));
+            var encryptOptions = WithRangeOptions(rangeType, new EncryptOptions(EncryptionAlgorithm.Range, contentionFactor: 0, keyId: key1Id));
 
             using (var keyVaultClient = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitEncryption, encryptedFields: encryptedFields))
             {
@@ -2106,28 +2106,33 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var rangeOptions = rangeType switch
                 {
-                    "DecimalNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DecimalNoPrecision" => new RangeOptions(sparsity: 1, trimFactor: 1),
                     "DecimalPrecision" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         precision: 2,
                         min: new BsonDecimal128(0),
                         max: new BsonDecimal128(200)),
-                    "DoubleNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DoubleNoPrecision" => new RangeOptions(sparsity: 1, trimFactor: 1),
                     "DoublePrecision" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonDouble(0),
                         max: new BsonDouble(200),
                         precision: 2),
                     "Date" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonDateTime(0),
                         max: new BsonDateTime(200)),
                     "Int" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonInt32(0),
                         max: new BsonInt32(200)),
                     "Long" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonInt64(0),
                         max: new BsonInt64(200)),
                     _ => throw new Exception($"Unsupported rangeSupportedType {rangeType}.")
@@ -2152,7 +2157,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
@@ -2175,7 +2180,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
@@ -2197,7 +2202,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
@@ -2217,7 +2222,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                clientEncryption,
-                               encryptOptions.With(queryType: "rangePreview"),
+                               encryptOptions.With(queryType: "range"),
                                expression: BsonDocument.Parse(@$"
                                {{
                                     ""$and"" :
@@ -2272,7 +2277,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var exception = Record.Exception(() =>
                                 ExplicitEncrypt(
                                     clientEncryption,
-                                    encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
+                                    encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, trimFactor: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
                                     value6,
                                     async));
                             AssertInnerEncryptionException<CryptException>(exception, "expected 'precision' to be set with double or decimal128 index, but got: INT32 min");

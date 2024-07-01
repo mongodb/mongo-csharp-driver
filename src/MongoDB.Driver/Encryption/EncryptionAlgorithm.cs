@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
@@ -40,6 +42,12 @@ namespace MongoDB.Driver.Encryption
         /// Unindexed algorithm.
         /// </summary>
         Unindexed,
+
+        /// <summary>
+        /// Range algorithm.
+        /// </summary>
+        Range,
+
         /// <summary>
         /// RangePreview algorithm.
         /// </summary>
@@ -48,6 +56,7 @@ namespace MongoDB.Driver.Encryption
         /// To insert or query with an "Indexed" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
         /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
         /// </remarks>
+        [Obsolete("Please use Range algorithm instead")]
         RangePreview
     }
 }

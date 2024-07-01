@@ -1,27 +1,32 @@
 {
-    "fields": [
-      {
-        "keyId": {
-          "$binary": {
-            "base64": "EjRWeBI0mHYSNBI0VniQEg==",
-            "subType": "04"
-          }
+  "fields": [
+    {
+      "keyId": {
+        "$binary": {
+          "base64": "EjRWeBI0mHYSNBI0VniQEg==",
+          "subType": "04"
+        }
+      },
+      "path": "encryptedInt",
+      "bsonType": "int",
+      "queries": {
+        "queryType": "range",
+        "contention": {
+          "$numberLong": "0"
         },
-        "path": "encryptedInt",
-        "bsonType": "int",
-        "queries": {
-          "queryType": "rangePreview",
-          "sparsity": {
-            "$numberLong": "1"
-          },
-          "min": {
-            "$numberInt": "0"
-          },
-          "max": {
-            "$numberInt": "200"
-          }
+        "trimFactor": {
+          "$numberInt": "1"
+        },
+        "sparsity": {
+          "$numberLong": "1"
+        },
+        "min": {
+          "$numberInt": "0"
+        },
+        "max": {
+          "$numberInt": "200"
         }
       }
-    ]
-  }
-  
+    }
+  ]
+}
