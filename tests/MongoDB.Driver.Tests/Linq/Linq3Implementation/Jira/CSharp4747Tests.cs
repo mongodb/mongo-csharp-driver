@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -21,20 +22,27 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4747Tests : Linq3IntegrationTest
+    public class CSharp4747Tests : LinqIntegrationTest<CSharp4747Tests.CollectionFixture>
     {
+        public CSharp4747Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Builder_Set_with_one_int_field_name_and_constant_with_int_representation_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("X", 2);
 
@@ -54,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("Y", 2);
 
@@ -74,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("E", E.B);
 
@@ -94,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("F", E.B);
 
@@ -114,7 +122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
                 .Set("Y", 3)
@@ -138,7 +146,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("E", E.B)
                 .Set("F", E.B)
@@ -162,7 +170,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
                 .Set("X", 3); // last one wins
@@ -183,7 +191,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2);
 
@@ -203,7 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.Y, 2);
 
@@ -223,7 +231,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B);
 
@@ -243,7 +251,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.F, E.B);
 
@@ -263,7 +271,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
                 .Set(x => x.Y, 3)
@@ -287,7 +295,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B)
                 .Set(x => x.F, E.B)
@@ -311,7 +319,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
                 .Set(x => x.X, 3); // last one wins
@@ -332,7 +340,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new { });
@@ -358,7 +366,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new { X = 2, E = E.B, F = x.F, G = E.B, Z = 4 });
@@ -388,7 +396,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C());
@@ -414,7 +422,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C { });
@@ -440,7 +448,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C { X = 2, E = E.B, F = x.F });
@@ -468,7 +476,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x));
@@ -494,7 +502,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x) { });
@@ -520,7 +528,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x) { X = 2, E = E.B, F = x.F });
@@ -548,7 +556,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S());
@@ -574,7 +582,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S { });
@@ -600,7 +608,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S { X = 2 });
@@ -620,16 +628,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1, Y = 1, E = E.A, F = E.A });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public C()
             {
@@ -649,7 +648,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public E F { get; set; }
         }
 
-        private struct S
+        public struct S
         {
             // struct has an implicit default constructor
 
@@ -663,6 +662,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int X { get; set; }
         }
 
-        private enum E { A = 1, B = 2 };
+        public enum E { A = 1, B = 2 };
+
+        public class CollectionFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1, X = 1, Y = 1, E = E.A, F = E.A }
+                };
+        }
     }
 }

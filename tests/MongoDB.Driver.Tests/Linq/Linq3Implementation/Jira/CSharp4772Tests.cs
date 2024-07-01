@@ -18,19 +18,26 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4772Tests : Linq3IntegrationTest
+    public class CSharp4772Tests : LinqIntegrationTest<CSharp4772Tests.CollectionFixture>
     {
+        public CSharp4772Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Select_with_Any_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -57,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_Array_Exists_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -85,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_List_Exists_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -113,7 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_Any_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -141,7 +148,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_Array_Exists_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -169,7 +176,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_List_Exists_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -192,49 +199,49 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Account> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Account>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new Account
-                {
-                    Id = 1,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 1 } } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 1 } } }
-                },
-                new Account
-                {
-                    Id = 2,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 2 } } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 2 } } }
-                },
-                new Account
-                {
-                    Id = 3,
-                    ProfilesArray = new Profile[0],
-                    ProfilesList = new List<Profile>()
-                },
-                new Account
-                {
-                    Id = 4,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[0] } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int>() } }
-                });
-            return collection;
-        }
-
-        private class Account
+        public class Account
         {
             public int Id { get; set; }
-            public Profile[] ProfilesArray { get; set; }
-            public List<Profile> ProfilesList { get; set; }
+            public ProfileModel[] ProfilesArray { get; set; }
+            public List<ProfileModel> ProfilesList { get; set; }
         }
 
-        private class Profile
+        public class ProfileModel
         {
             public int[] OrganizationIdsArray { get; set; }
             public List<int> OrganizationIdsList { get; set; }
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<Account>
+        {
+            protected override IEnumerable<Account> GetInitialData()
+                => new[]
+                {
+                    new Account
+                    {
+                        Id = 1,
+                        ProfilesArray = new ProfileModel[] { new ProfileModel { OrganizationIdsArray = new int[] { 1 } } },
+                        ProfilesList = new List<ProfileModel> { new ProfileModel { OrganizationIdsList = new List<int> { 1 } } }
+                    },
+                    new Account
+                    {
+                        Id = 2,
+                        ProfilesArray = new ProfileModel[] { new ProfileModel { OrganizationIdsArray = new int[] { 2 } } },
+                        ProfilesList = new List<ProfileModel> { new ProfileModel { OrganizationIdsList = new List<int> { 2 } } }
+                    },
+                    new Account
+                    {
+                        Id = 3,
+                        ProfilesArray = new ProfileModel[0],
+                        ProfilesList = new List<ProfileModel>()
+                    },
+                    new Account
+                    {
+                        Id = 4,
+                        ProfilesArray = new ProfileModel[] { new ProfileModel { OrganizationIdsArray = new int[0] } },
+                        ProfilesList = new List<ProfileModel> { new ProfileModel { OrganizationIdsList = new List<int>() } }
+                    }
+                };
         }
     }
 }

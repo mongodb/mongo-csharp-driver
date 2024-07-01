@@ -14,16 +14,24 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4781Tests : Linq3IntegrationTest
+    public class CSharp4781Tests : LinqIntegrationTest<CSharp4781Tests.CollectionFixture>
     {
+        public CSharp4781Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void Enumerable_DefaultIfEmpty_should_return_default_int()
         {
@@ -49,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_DefaultIfEmpty_should_return_default_int(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.IntArray.DefaultIfEmpty());
@@ -76,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_DefaultIfEmpty_should_return_default_string(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.StringArray.DefaultIfEmpty());
@@ -98,21 +106,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1, IntArray = new int[] { 1 }, StringArray = new string[] { "abc" } },
-                new C { Id = 2, IntArray = new int[] { }, StringArray = new string[] { } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] IntArray { get; set; }
             public string[] StringArray { get; set; } // note that string is suitable for this test since it does not have a default constructor
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1, IntArray = new int[] { 1 }, StringArray = new string[] { "abc" } },
+                    new C { Id = 2, IntArray = new int[] { }, StringArray = new string[] { } }
+                };
         }
     }
 }
