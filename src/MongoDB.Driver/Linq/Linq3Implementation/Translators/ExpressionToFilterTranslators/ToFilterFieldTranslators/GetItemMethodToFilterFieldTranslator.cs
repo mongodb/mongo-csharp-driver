@@ -53,9 +53,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return TranslateIListGetItemWithInt(context, expression, fieldExpression, arguments[0]);
             }
 
-            if (IDictionaryMethod.IsGetItemWithStringMethod(method))
+            if (DictionaryMethod.IsGetItemWithStringMethod(method))
             {
-                return TranslateIDictionaryGetItemWithString(context, expression, fieldExpression, arguments[0]);
+                return TranslateDictionaryGetItemWithString(context, expression, fieldExpression, arguments[0]);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, expression, fieldExpression, indexExpression);
         }
 
-        private static AstFilterField TranslateIDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
+        private static AstFilterField TranslateDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var key = keyExpression.GetConstantValue<string>(containingExpression: expression);

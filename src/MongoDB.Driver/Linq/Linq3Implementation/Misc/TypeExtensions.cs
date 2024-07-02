@@ -46,6 +46,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             typeof(ValueTuple<,,,,,,,>)
         };
 
+        private static readonly Type[] __dictionaryInterfaces =
+        {
+            typeof(IDictionary<,>),
+            typeof(IReadOnlyDictionary<,>)
+        };
+
         public static Type GetIEnumerableGenericInterface(this Type enumerableType)
         {
             if (enumerableType.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
@@ -84,9 +90,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-        public static bool ImplementsIDictionary(this Type type, out Type keyType, out Type valueType)
+        public static bool ImplementsDictionary(this Type type, out Type keyType, out Type valueType)
         {
-            if (TryGetIDictionaryGenericInterface(type, out var idictionaryType))
+            if (TryGetGenericInterface(type, __dictionaryInterfaces, out var idictionaryType))
             {
                 var genericArguments = idictionaryType.GetGenericArguments();
                 keyType = genericArguments[0];
@@ -255,28 +261,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 type.IsConstructedGenericType &&
                 type.GetGenericTypeDefinition() is var typeDefinition &&
                 __valueTupleTypeDefinitions.Contains(typeDefinition);
-
         }
 
-        public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
+        public static bool TryGetGenericInterface(this Type type, Type[] interfacesToGet, out Type genericInterface)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-            {
-                idictionaryGenericInterface = type;
-                return true;
-            }
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-                {
-                    idictionaryGenericInterface = interfaceType;
-                    return true;
-                }
-            }
-
-            idictionaryGenericInterface = null;
-            return false;
+            genericInterface = type.IsGenericType && interfacesToGet.Contains(type.GetGenericTypeDefinition())
+                ? type
+                : type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && interfacesToGet.Contains(i.GetGenericTypeDefinition()));
+            return genericInterface != null;
         }
 
         public static bool TryGetIEnumerableGenericInterface(this Type type, out Type ienumerableGenericInterface)
