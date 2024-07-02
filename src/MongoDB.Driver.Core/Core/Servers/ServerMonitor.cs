@@ -369,11 +369,8 @@ namespace MongoDB.Driver.Core.Servers
                 ServerDescription newDescription;
                 if (heartbeatHelloResult != null)
                 {
-                    var averageRoundTripTime = _roundTripTimeMonitor.Average;
-                    var averageRoundTripTimeRounded = TimeSpan.FromMilliseconds(Math.Round(averageRoundTripTime.TotalMilliseconds));
-
                     newDescription = _baseDescription.With(
-                        averageRoundTripTime: averageRoundTripTimeRounded,
+                        averageRoundTripTime: _roundTripTimeMonitor.Average,
                         canonicalEndPoint: heartbeatHelloResult.Me,
                         electionId: heartbeatHelloResult.ElectionId,
                         helloOk: heartbeatHelloResult.HelloOk,
