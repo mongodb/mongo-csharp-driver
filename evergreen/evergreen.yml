@@ -1933,6 +1933,22 @@ tasks:
               DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
+    - name: test-analyzer
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: TEST_RESULTS_PATH
+                value: "./analyzer/build/test-results/TEST-*.xml"
+        - func: run-external-script
+          vars:
+            GIT_REPO: "https://github.com/mongodb/mongo-csharp-analyzer.git"
+            LOCAL_PATH: ${workdir}/analyzer
+            SCRIPT: |
+              ${PREPARE_SHELL}
+              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
+
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2807,6 +2823,17 @@ buildvariants:
   display_name: "OData tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-odata
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+
+- matrix_name: analyzer-tests
+  batchtime: 720 # 12 hours
+  matrix_spec:
+    os: ["ubuntu-2004", "windows-64"]  
+  display_name: "Analyzer tests on ${os}"
+  tasks:
+    - name: test-analyzer
       depends_on:
         - name: push-packages-myget
           variant: ".push-packages-myget"
