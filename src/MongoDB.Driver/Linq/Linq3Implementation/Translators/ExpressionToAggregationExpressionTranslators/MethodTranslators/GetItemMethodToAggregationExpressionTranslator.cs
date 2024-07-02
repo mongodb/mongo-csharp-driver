@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateIListGetItemWithInt(context, expression, sourceExpression, arguments[0]);
             }
 
-            if (IDictionaryMethod.IsGetItemWithStringMethod(method))
+            if (DictionaryMethod.IsGetItemWithStringMethod(method))
             {
                 return TranslateIDictionaryGetItemWithString(context, expression, sourceExpression, arguments[0]);
             }

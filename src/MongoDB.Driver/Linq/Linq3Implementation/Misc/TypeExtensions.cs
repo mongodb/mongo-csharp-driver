@@ -1,17 +1,17 @@
 ﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class TypeExtensions
     {
+        private static readonly Type[] __dictionaryInterfaces =
+        {
+            typeof(IDictionary<,>),
+            typeof(IReadOnlyDictionary<,>)
+        };
+
         private static Type[] __tupleTypeDefinitions =
         {
             typeof(Tuple<>),
@@ -84,11 +90,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-        public static bool ImplementsIDictionary(this Type type, out Type keyType, out Type valueType)
+        public static bool ImplementsDictionaryInterface(this Type type, out Type keyType, out Type valueType)
         {
-            if (TryGetIDictionaryGenericInterface(type, out var idictionaryType))
+            if (TryGetGenericInterface(type, __dictionaryInterfaces, out var dictionaryInterface))
             {
-                var genericArguments = idictionaryType.GetGenericArguments();
+                var genericArguments = dictionaryInterface.GetGenericArguments();
                 keyType = genericArguments[0];
                 valueType = genericArguments[1];
                 return true;
@@ -255,28 +261,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 type.IsConstructedGenericType &&
                 type.GetGenericTypeDefinition() is var typeDefinition &&
                 __valueTupleTypeDefinitions.Contains(typeDefinition);
-
         }
 
-        public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
+        public static bool TryGetGenericInterface(this Type type, Type[] interfaceDefinitions, out Type genericInterface)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-            {
-                idictionaryGenericInterface = type;
-                return true;
-            }
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-                {
-                    idictionaryGenericInterface = interfaceType;
-                    return true;
-                }
-            }
-
-            idictionaryGenericInterface = null;
-            return false;
+            genericInterface = type.IsConstructedGenericType && interfaceDefinitions.Contains(type.GetGenericTypeDefinition())
+                ? type
+                : type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && interfaceDefinitions.Contains(i.GetGenericTypeDefinition()));
+            return genericInterface != null;
         }
 
         public static bool TryGetIEnumerableGenericInterface(this Type type, out Type ienumerableGenericInterface)

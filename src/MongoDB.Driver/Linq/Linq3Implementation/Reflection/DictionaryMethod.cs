@@ -18,7 +18,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
-    internal static class IDictionaryMethod
+    internal static class DictionaryMethod
     {
         // public static methods
         public static bool IsGetItemWithStringMethod(MethodInfo method)
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 method.GetParameters() is var parameters &&
                 parameters.Length == 1 &&
                 parameters[0].ParameterType == typeof(string) &&
-                method.DeclaringType.ImplementsIDictionary(out var keyType, out var valueType) &&
+                method.DeclaringType.ImplementsDictionaryInterface(out var keyType, out var valueType) &&
                 keyType == typeof(string) &&
                 method.ReturnType == valueType;
         }
