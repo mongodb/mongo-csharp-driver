@@ -1942,7 +1942,7 @@ tasks:
                 value: "./analyzer/build/test-results/TEST-*.xml"
         - func: run-external-script
           vars:
-            GIT_REPO: "https://github.com/BorisDog/mongo-csharp-analyzer.git"
+            GIT_REPO: "https://github.com/mongodb/mongo-csharp-analyzer.git"
             LOCAL_PATH: ${workdir}/analyzer
             SCRIPT: |
               ${PREPARE_SHELL}
