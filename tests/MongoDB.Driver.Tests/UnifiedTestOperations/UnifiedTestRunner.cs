@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -195,6 +196,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
+            var writeConcern = WriteConcern.WMajority;
+            if (client.Cluster.Description.Type == ClusterType.ReplicaSet)
+            {
+                // Makes server to wait for ack from all data nodes to make sure the test data availability before running the test itself.
+                // It's limited to replica set only because there is no simple way to calculate proper w for sharded cluster.
+                var dataBearingServersCount = client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
+                writeConcern = WriteConcern.Acknowledged.With(w: dataBearingServersCount, journal:true);
+            }
+
             BsonDocument serverTime = null;
             foreach (var dataItem in initialData)
             {
@@ -202,22 +212,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var databaseName = dataItem["databaseName"].AsString;
                 var documents = dataItem["documents"].AsBsonArray.Cast<BsonDocument>().ToList();
 
-                var database = client.GetDatabase(databaseName);
-                var collection = database
-                    .GetCollection<BsonDocument>(collectionName, mongoCollectionSettings)
-                    .WithWriteConcern(WriteConcern.WMajority);
+                var database = client.GetDatabase(databaseName).WithWriteConcern(writeConcern);
+                var collection = database.GetCollection<BsonDocument>(collectionName, mongoCollectionSettings);
 
                 _logger.LogDebug("Dropping {0}", collectionName);
-
-                database.DropCollection(collectionName);
                 var session = client.StartSession();
+                database.DropCollection(session, collectionName);
                 if (documents.Any())
                 {
                     collection.InsertMany(session, documents);
                 }
                 else
                 {
-                    database.WithWriteConcern(WriteConcern.WMajority).CreateCollection(session, collectionName);
+                    database.CreateCollection(session, collectionName);
                 }
 
                 serverTime = session.ClusterTime;
