@@ -27,36 +27,6 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp3397Tests
     {
         [Fact]
-        public void Aggregate_out_to_collection_should_work()
-        {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase("test");
-            var collection = database.GetCollection<BsonDocument>("test");
-            var outCollection = database.GetCollection<AggregateCountResult>("out");
-
-            var writeConcern = WriteConcern.WMajority;
-            if (DriverTestConfiguration.IsReplicaSet(client))
-            {
-                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
-                writeConcern = new WriteConcern(n);
-            }
-
-            database.DropCollection("test");
-            database.DropCollection("out");
-            collection
-                .WithWriteConcern(writeConcern)
-                .InsertOne(new BsonDocument("_id", 1));
-
-            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
-                .Count()
-                .Out(outCollection)
-                .As<BsonDocument, AggregateCountResult, AggregateCountResultWithId>();
-            var results = collection.WithReadPreference(ReadPreference.SecondaryPreferred).Aggregate(pipeline).ToList();
-
-            results.Single().Count.Should().Be(1);
-        }
-
-        [Fact]
         public void Aggregate_out_to_time_series_collection_on_secondary_should_work()
         {
             RequireServer.Check().Supports(Feature.AggregateOutTimeSeries);

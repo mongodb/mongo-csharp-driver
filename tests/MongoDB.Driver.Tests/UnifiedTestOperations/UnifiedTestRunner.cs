@@ -197,11 +197,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 #pragma warning restore CS0618 // Type or member is obsolete
 
             var writeConcern = WriteConcern.WMajority;
-            if (client.Cluster.Description.Type == ClusterType.ReplicaSet)
+            if (DriverTestConfiguration.IsReplicaSet(client))
             {
                 // Makes server to wait for ack from all data nodes to make sure the test data availability before running the test itself.
                 // It's limited to replica set only because there is no simple way to calculate proper w for sharded cluster.
-                var dataBearingServersCount = client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
+                var dataBearingServersCount = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
                 writeConcern = WriteConcern.Acknowledged.With(w: dataBearingServersCount, journal:true);
             }
 
