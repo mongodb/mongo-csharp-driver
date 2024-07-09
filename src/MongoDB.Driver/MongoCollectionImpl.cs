@@ -33,7 +33,9 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class MongoCollectionImpl<TDocument> : MongoCollectionBase<TDocument>
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // fields
         private readonly ICluster _cluster;

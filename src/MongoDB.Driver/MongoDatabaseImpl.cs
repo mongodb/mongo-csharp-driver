@@ -33,7 +33,9 @@ using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class MongoDatabaseImpl : MongoDatabaseBase
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // private fields
         private readonly IMongoClient _client;
