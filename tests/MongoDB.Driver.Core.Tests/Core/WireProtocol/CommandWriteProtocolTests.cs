@@ -352,11 +352,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             using (var memoryStream = new MemoryStream())
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, BsonBinaryWriterSettings.Defaults))
                 {
                     var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, doc);
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 return new RawBsonDocument(memoryStream.ToArray());
             }

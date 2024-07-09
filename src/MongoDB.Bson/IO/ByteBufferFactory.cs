@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     /// Represents a factory for IBsonBuffers.
     /// </summary>
     /// ByteBufferFactory
-    [Obsolete("This class will be removed in later release.")]
+    [Obsolete("This class will be removed from public API in later release.")]
     public static class ByteBufferFactory
     {
         /// <summary>

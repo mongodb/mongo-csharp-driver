@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// An abstract base class for an Expression visitor.
     /// </summary>
-    [Obsolete("This class will be removed in later release.")]
+    [Obsolete("This class will be removed from public API in later release.")]
     public abstract class ExpressionVisitor
     {
         // constructors

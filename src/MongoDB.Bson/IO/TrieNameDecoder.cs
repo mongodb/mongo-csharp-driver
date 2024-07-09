@@ -22,7 +22,7 @@ namespace MongoDB.Bson.IO
     /// Represents a Trie-based name decoder that also provides a value.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    [Obsolete("This class will be removed in later release.")]
+    [Obsolete("This class will be removed from public API in later release.")]
     public class TrieNameDecoder<TValue> : INameDecoder
     {
         // private fields

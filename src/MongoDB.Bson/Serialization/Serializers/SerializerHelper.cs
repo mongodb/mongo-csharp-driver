@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a helper for serializers.
     /// </summary>
-    [Obsolete("This class will be removed in later release.")]
+    [Obsolete("This class will be removed from public API in later release.")]
     public class SerializerHelper
     {
         // private fields
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Represents information about a member.
         /// </summary>
-        [Obsolete("This class will be removed in later release.")]
+        [Obsolete("This class will be removed from public API in later release.")]
         public class Member
         {
             // private static fields

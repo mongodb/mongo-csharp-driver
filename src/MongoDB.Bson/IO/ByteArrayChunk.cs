@@ -20,7 +20,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a chunk backed by a byte array.
     /// </summary>
-    [Obsolete("This class will be removed in later release.")]
+    [Obsolete("This class will be removed from public API in later release.")]
     public class ByteArrayChunk : IBsonChunk
     {
         #region static
