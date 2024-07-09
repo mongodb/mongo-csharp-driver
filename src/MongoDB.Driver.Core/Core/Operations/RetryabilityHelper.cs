@@ -92,11 +92,13 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.FailedToSatisfyReadPreference
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             __saslCommands = new HashSet<string>
             {
                 SaslAuthenticator.SaslStartCommand,
                 SaslAuthenticator.SaslContinueCommand
             };
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         // public static methods

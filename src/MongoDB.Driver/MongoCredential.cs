@@ -418,6 +418,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
+#pragma warning disable CS0618 // Type or member is obsolete
         internal IAuthenticator ToAuthenticator(IReadOnlyList<EndPoint> endPoints, ServerApi serverApi, IEnvironmentVariableProvider environmentVariableProvider = null)
         {
             var passwordEvidence = _evidence as PasswordEvidence;

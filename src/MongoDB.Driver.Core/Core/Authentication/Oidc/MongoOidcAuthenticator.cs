@@ -24,7 +24,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class MongoOidcAuthenticator : SaslAuthenticator
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         #region static
         public const string MechanismName = "MONGODB-OIDC";
@@ -82,7 +84,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
 
         private OidcSaslMechanism OidcMechanism { get; }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public override void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             // Capture the cache state to decide if we want retry on auth error or not.
             // Not the best solution, but let us not to introduce the retry logic into SaslAuthenticator to reduce affected areas for now.
@@ -114,7 +118,9 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public override Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             // Capture the cache state to decide if we want retry on auth error or not.
             // Not the best solution, but let us not to introduce the retry logic into SaslAuthenticator to reduce affected areas for now.

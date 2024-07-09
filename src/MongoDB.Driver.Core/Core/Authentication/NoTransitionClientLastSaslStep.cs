@@ -22,7 +22,9 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Represents a last SASL step.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class NoTransitionClientLastSaslStep : SaslAuthenticator.ISaslStep
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         private readonly byte[] _bytesToSendToServer;
 
@@ -41,6 +43,7 @@ namespace MongoDB.Driver.Core.Authentication
         public bool IsComplete => false;
 
         /// <inheritdoc/>
+#pragma warning disable CS0618 // Type or member is obsolete
         public SaslAuthenticator.ISaslStep Transition(SaslAuthenticator.SaslConversation conversation, byte[] bytesReceivedFromServer)
         {
             if (bytesReceivedFromServer?.Length > 0)
@@ -55,4 +58,5 @@ namespace MongoDB.Driver.Core.Authentication
         public Task<SaslAuthenticator.ISaslStep> TransitionAsync(SaslAuthenticator.SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             => Task.FromResult(Transition(conversation, bytesReceivedFromServer));
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

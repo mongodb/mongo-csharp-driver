@@ -251,7 +251,7 @@ namespace MongoDB.Driver
             result.Should().Be(0);
         }
 
-        public class DerivedFromChangeStreamDocumentSerializer<TDocument> : ChangeStreamDocumentSerializer<TDocument>
+        internal class DerivedFromChangeStreamDocumentSerializer<TDocument> : ChangeStreamDocumentSerializer<TDocument>
         {
             public DerivedFromChangeStreamDocumentSerializer(IBsonSerializer<TDocument> documentSerializer) : base(documentSerializer)
             {

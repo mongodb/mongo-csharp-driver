@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Configuration
         private static string GetAuthSource(ConnectionString connectionString)
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
-
+#pragma warning disable CS0618 // Type or member is obsolete
             if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
                 connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
             {
