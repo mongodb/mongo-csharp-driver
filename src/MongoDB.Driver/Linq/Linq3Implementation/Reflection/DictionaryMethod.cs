@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 method.GetParameters() is var parameters &&
                 parameters.Length == 1 &&
                 parameters[0].ParameterType == typeof(string) &&
-                method.DeclaringType.ImplementsDictionary(out var keyType, out var valueType) &&
+                method.DeclaringType.ImplementsDictionaryInterface(out var keyType, out var valueType) &&
                 keyType == typeof(string) &&
                 method.ReturnType == valueType;
         }
