@@ -1,17 +1,17 @@
 ﻿/* Copyright 2010-present MongoDB Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 using System;
 using System.Collections.Generic;
@@ -265,9 +265,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetGenericInterface(this Type type, Type[] interfaceDefinitions, out Type genericInterface)
         {
-            genericInterface = type.IsConstructedGenericType && interfaceDefinitions.Contains(type.GetGenericTypeDefinition())
-                ? type
-                : type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && interfaceDefinitions.Contains(i.GetGenericTypeDefinition()));
+            genericInterface =
+                type.IsConstructedGenericType && interfaceDefinitions.Contains(type.GetGenericTypeDefinition()) ?
+                    type :
+                    type.GetInterfaces().FirstOrDefault(i => i.IsConstructedGenericType && interfaceDefinitions.Contains(i.GetGenericTypeDefinition()));
             return genericInterface != null;
         }
 
