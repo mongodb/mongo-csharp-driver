@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     {
         private readonly IMongoCollection<Company> _firstCollection;
         private readonly IMongoCollection<Company> _secondCollection;
+        private readonly IMongoCollection<Partner> _thirdCollection;
 
         public UnionMethodToPipelineTranslatorTests()
         {
@@ -36,6 +37,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             _secondCollection = CreateCollection("partners",
                 new Company { Id = 4, Name = "partner" },
                 new Company { Id = 5, Name = "another partner" });
+
+            _thirdCollection = CreateCollection("specialpartners",
+                new Partner { Id = 4, PartnerName = "second special partner" },
+                new Partner { Id = 5, PartnerName = "third special partner" });
+
         }
 
         [Fact]
@@ -132,31 +138,56 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Union_should_be_usable_in_another_pipeline_step()
+        public void Union_should_be_usable_in_a_join()
         {
             RequireServer.Check().Supports(Feature.AggregateUnionWith);
 
-            var queryable = _firstCollection
+            var q1 = _firstCollection
                 .AsQueryable()
                 .Where(c => c.Name.StartsWith("second"))
+                .Select(x => new { x.Id, x.Name })
                 .Union(_secondCollection.AsQueryable()
-                    .Where(c => c.Name.StartsWith("another")))
-                .Where(x => x.Id == 2);
+                    .Select(x => new { x.Id, Name = x.Name }));
+
+            var q2 = _thirdCollection
+                .AsQueryable();
+
+            var queryable = q1.Join(q2,
+                    c => c.Id,
+                    p => p.Id,
+                    (c, p) => new { CID = c.Id, Cname = c.Name, Pname = p.PartnerName })
+                .Where(x => x.Cname == "another partner" && x.Pname == "third special partner");
 
             var stages = Translate(_firstCollection, queryable);
+
             AssertStages(stages,
                 "{ $match : { Name : /^second/s } }",
-                "{ $unionWith : { coll : 'partners', pipeline : [{ $match : { Name : /^another/s } }] } }",
-                "{ $match : { Id : 2 } }"
+                "{ $project : { _id : '$_id', Name : '$Name' } }",
+                "{ $unionWith : { coll : 'partners', pipeline : [{ '$project' : { _id : '$_id', Name : '$Name' } }] } }",
+                "{ $project : { '_outer' : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'specialpartners', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $unwind : '$_inner'}",
+                "{ $project : { CID : '$_outer._id', Cname : '$_outer.Name', Pname : '$_inner.PartnerName', _id : 0 } }",
+                "{ $match : { Cname : 'another partner', Pname : 'third special partner' } }"
             );
 
             var results = queryable.ToList();
-            results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 2 });
+            results.Count().Should().Be(1);
+            results.Select(x => x.CID).Should().BeEquivalentTo(5);
+            results.Select(x => x.Pname).Should().BeEquivalentTo("third special partner");
         }
 
         private IMongoCollection<Company> CreateCollection(string collectionName, params Company[] data)
         {
             var collection = GetCollection<Company>(collectionName);
+            CreateCollection(collection, data);
+
+            return collection;
+        }
+
+        private IMongoCollection<Partner> CreateCollection(string collectionName, params Partner[] data)
+        {
+            var collection = GetCollection<Partner>(collectionName);
             CreateCollection(collection, data);
 
             return collection;
@@ -171,6 +202,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public class ProjectedCompany
         {
             public int Number { get; set; }
+        }
+
+        public class Partner
+        {
+            public int Id { get; set; }
+            public string PartnerName { get; set; }
         }
     }
 }

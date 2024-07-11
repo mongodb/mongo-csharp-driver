@@ -52,23 +52,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Combine two collections
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements of <paramref name="source1" /> and <paramref name="source1" />.</typeparam>
-        /// <param name="source1">A sequence to being merged.</param>
-        /// <param name="source2">A sequence to being merged.</param>
-        /// <returns>
-        /// cobined collection.
-        /// </returns>
-        public static IMongoQueryable<TSource> Union<TSource>(this IMongoQueryable<TSource> source1, IEnumerable<TSource> source2)
-        {
-            Ensure.IsNotNull(source1, nameof(source1));
-            Ensure.IsNotNull(source2, nameof(source2));
-
-            return (IMongoQueryable<TSource>)Queryable.Union(source1, source2);
-        }
-
-        /// <summary>
         /// Determines whether any element of a sequence satisfies a condition.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
