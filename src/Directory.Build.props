@@ -16,6 +16,8 @@
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Authors>MongoDB Inc.</Authors>
     <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-driver/releases/tag/v$(Version)</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://www.mongodb.com/docs/drivers/csharp/</PackageProjectUrl>
     <PackageTags>mongodb;mongo;nosql</PackageTags>
@@ -50,5 +52,6 @@
 
   <ItemGroup>
     <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>
