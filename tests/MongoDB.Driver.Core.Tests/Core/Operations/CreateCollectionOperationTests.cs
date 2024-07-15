@@ -610,33 +610,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_create_collection_when_AutoIndexId_is_set(
-            [Values(false, true)]
-            bool autoIndexId,
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().VersionLessThan("3.7.0");
-            DropCollection();
-#pragma warning disable 618
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                AutoIndexId = autoIndexId
-            };
-#pragma warning restore
-
-            BsonDocument info;
-            using (var binding = CreateReadWriteBinding())
-            {
-                ExecuteOperation(subject, binding, async);
-                info = GetCollectionInfo(binding);
-            }
-
-            info["options"]["autoIndexId"].ToBoolean().Should().Be(autoIndexId);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Execute_should_create_collection_when_Capped_is_set(
             [Values(false, true)]
             bool capped,

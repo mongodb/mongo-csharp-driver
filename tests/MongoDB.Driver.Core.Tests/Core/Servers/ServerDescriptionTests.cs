@@ -263,12 +263,12 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(new[] { 0, 0 }, false)]
         [InlineData(new[] { 0, 1 }, false)]
         [InlineData(new[] { 0, 2 }, false)]
-        [InlineData(new[] { 0, 6 }, true)]
+        [InlineData(new[] { 0, 6 }, false)]
         [InlineData(new[] { 0, 7 }, true)]
         [InlineData(new[] { 2, 2 }, false)]
-        [InlineData(new[] { 2, 6 }, true)]
+        [InlineData(new[] { 2, 6 }, false)]
         [InlineData(new[] { 2, 7 }, true)]
-        [InlineData(new[] { 6, 6 }, true)]
+        [InlineData(new[] { 6, 6 }, false)]
         [InlineData(new[] { 6, 7 }, true)]
         [InlineData(new[] { 7, 7 }, true)]
         [InlineData(new[] { 7, 8 }, true)]
@@ -285,7 +285,8 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(new[] { 22, 23 }, true)]
         [InlineData(new[] { 23, 24 }, true)]
         [InlineData(new[] { 24, 25 }, true)]
-        [InlineData(new[] { 25, 26 }, false)]
+        [InlineData(new[] { 25, 26 }, true)]
+        [InlineData(new[] { 26, 27 }, false)]
         public void IsCompatibleWithDriver_should_return_expected_result(int[] minMaxWireVersions, bool expectedResult)
         {
             var clusterId = new ClusterId(1);

@@ -654,7 +654,6 @@ namespace MongoDB.Driver.Core.Connections
                 case "getnonce":
                 case "createuser":
                 case "updateuser":
-                case "copydbgetnonce":
                 case "copydbsaslstart":
                 case "copydb":
                     return true;

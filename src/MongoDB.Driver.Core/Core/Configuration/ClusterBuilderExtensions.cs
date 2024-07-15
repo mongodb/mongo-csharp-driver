@@ -301,12 +301,6 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new DefaultAuthenticator(credential, serverApi);
                 }
-#pragma warning disable 618
-                else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
-                {
-                    return new MongoDBCRAuthenticator(credential, serverApi);
-#pragma warning restore 618
-                }
                 else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
                 {
                     return new ScramSha1Authenticator(credential, serverApi);

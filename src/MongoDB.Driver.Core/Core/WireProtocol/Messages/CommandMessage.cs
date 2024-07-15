@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             "createUser",
             "updateUser",
             "copydbsaslstart",
-            "copydbgetnonce",
             "copydb"
         };
 
