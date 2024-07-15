@@ -1813,7 +1813,7 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem));
+                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem), linqProvider);
             }
             else
             {
@@ -2445,7 +2445,7 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem));
+                itemSerializer = FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem), linqProvider);
             }
             else
             {
@@ -2494,7 +2494,7 @@ namespace MongoDB.Driver
                     var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = (IBsonSerializer<TItem>)FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem));
+                itemSerializer = (IBsonSerializer<TItem>)FieldValueSerializerHelper.GetSerializerForValueType(itemSerializationInfo.Serializer, serializerRegistry, typeof(TItem), linqProvider);
             }
             else
             {
