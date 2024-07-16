@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -24,14 +27,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression)
         {
             var items = new List<AstExpression>();
+            IBsonSerializer itemSerializer = null;
             foreach (var itemExpression in expression.Expressions)
             {
                 var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression);
                 items.Add(itemTranslation.Ast);
+                itemSerializer ??= itemTranslation.Serializer;
+
+                // make sure all items are serialized using the same serializer
+                if (!itemTranslation.Serializer.Equals(itemSerializer))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "all items in the array must be serialized using the same serializer");
+                }
             }
+
             var ast = AstExpression.ComputedArray(items);
-            var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
-            return new AggregationExpression(expression, ast, serializer);
+
+            var arrayType = expression.Type;
+            var itemType = arrayType.GetElementType();
+            itemSerializer ??= BsonSerializer.LookupSerializer(itemType); // if the array is empty itemSerializer will be null
+            var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
+            var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
+
+            return new AggregationExpression(expression, ast, arraySerializer);
         }
     }
 }
