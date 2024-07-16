@@ -27,11 +27,13 @@ namespace MongoDB.Driver.Core.Helpers
         {
             using (var memoryStream = new MemoryStream())
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, BsonBinaryWriterSettings.Defaults))
                 {
                     var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, document);
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
                 return new RawBsonDocument(memoryStream.ToArray());
             }
         }

@@ -15,20 +15,6 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <NoWarn>
-      1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
-      xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
-      xUnit1024; <!--Test methods cannot have overloads (https://xunit.github.io/xunit.analyzers/rules/xUnit1024.html)-->
-      xUnit2003; <!--Do not use equality check to test for null value (https://xunit.github.io/xunit.analyzers/rules/xUnit2003.html-->
-      xUnit2004; <!--Do not use equality check to test for boolean conditions (https://xunit.github.io/xunit.analyzers/rules/xUnit2004.html)-->
-      xUnit2009; <!--Do not use boolean check to check for substrings (https://xunit.github.io/xunit.analyzers/rules/xUnit2009.html)-->
-      xUnit2013; <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
-      xUnit2015; <!--Do not use typeof expression to check the exception type (https://xunit.github.io/xunit.analyzers/rules/xUnit2015.html)-->
-      xUnit2017 <!--Do not use Contains() to check if a value exists in a collection (https://xunit.github.io/xunit.analyzers/rules/xUnit2017.html)-->
-    </NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />

@@ -17,7 +17,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>NU5100</NoWarn>
+    <NoWarn>
+      NU5100;
+      CS0618 <!--Temporary disable obsolete warnings due the massive volume of warnings-->
+    </NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

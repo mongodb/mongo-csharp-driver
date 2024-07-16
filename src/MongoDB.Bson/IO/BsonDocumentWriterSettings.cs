@@ -48,6 +48,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets or sets the default BsonDocumentWriter settings.
         /// </summary>
+        [Obsolete("This property will be removed in later release.")]
         public static BsonDocumentWriterSettings Defaults
         {
             get
