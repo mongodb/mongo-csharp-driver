@@ -30,110 +30,121 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
             {
-                var expressionType = expression.Type;
-                if (expressionType == typeof(BsonValue))
+                var sourceExpression = expression.Operand;
+                var sourceType = sourceExpression.Type;
+                var targetType = expression.Type;
+
+                // handle double conversions like `(BsonValue)(object)x`
+                if (targetType == typeof(BsonValue) &&
+                    sourceExpression is UnaryExpression unarySourceExpression &&
+                    unarySourceExpression.NodeType == ExpressionType.Convert &&
+                    unarySourceExpression.Type == typeof(object))
                 {
-                    return TranslateConvertToBsonValue(context, expression, expression.Operand);
+                    sourceExpression = unarySourceExpression.Operand;
                 }
 
-                var operandExpression = expression.Operand;
-                var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
-
-                if (expressionType == operandExpression.Type)
-                {
-                    return operandTranslation;
-                }
-
-                if (IsConvertEnumToUnderlyingType(expression))
-                {
-                    return TranslateConvertEnumToUnderlyingType(expression, operandTranslation);
-                }
-
-                if (IsConvertUnderlyingTypeToEnum(expression))
-                {
-                    return TranslateConvertUnderlyingTypeToEnum(expression, operandTranslation);
-                }
-
-                if (IsConvertEnumToEnum(expression))
-                {
-                    return TranslateConvertEnumToEnum(expression, operandTranslation);
-                }
-
-                if (IsConvertToBaseType(sourceType: operandExpression.Type, targetType: expressionType))
-                {
-                    return TranslateConvertToBaseType(expression, operandTranslation);
-                }
-
-                if (IsConvertToDerivedType(sourceType: operandExpression.Type, targetType: expressionType))
-                {
-                    return TranslateConvertToDerivedType(expression, operandTranslation);
-                }
-
-                if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    var valueType = expressionType.GetGenericArguments()[0];
-                    if (operandExpression.Type == valueType)
-                    {
-                        // use the same AST but with a new nullable serializer
-                        var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(valueType);
-                        var valueSerializerType = typeof(IBsonSerializer<>).MakeGenericType(valueType);
-                        var constructorInfo = nullableSerializerType.GetConstructor(new[] { valueSerializerType });
-                        var nullableSerializer = (IBsonSerializer)constructorInfo.Invoke(new[] { operandTranslation.Serializer });
-                        return new AggregationExpression(expression, operandTranslation.Ast, nullableSerializer);
-                    }
-                }
-
-                var ast = operandTranslation.Ast;
-                IBsonSerializer serializer;
-                if (expressionType.IsInterface)
-                {
-                    // when an expression is cast to an interface it's a no-op as far as we're concerned
-                    // and we can just use the serializer for the concrete type and members not defined in the interface will just be ignored
-                    serializer = operandTranslation.Serializer;
-                }
-                else
-                {
-                    AstExpression to;
-                    switch (expressionType.FullName)
-                    {
-                        case "MongoDB.Bson.ObjectId": to = "objectId"; serializer = ObjectIdSerializer.Instance; break;
-                        case "System.Boolean": to = "bool"; serializer = BooleanSerializer.Instance; break;
-                        case "System.DateTime": to = "date"; serializer = DateTimeSerializer.Instance; break;
-                        case "System.Decimal": to = "decimal"; serializer = DecimalSerializer.Decimal128Instance; break; // not the default representation
-                        case "System.Double": to = "double"; serializer = DoubleSerializer.Instance; break;
-                        case "System.Int32": to = "int"; serializer = Int32Serializer.Instance; break;
-                        case "System.Int64": to = "long"; serializer = Int64Serializer.Instance; break;
-                        case "System.String": to = "string"; serializer = StringSerializer.Instance; break;
-                        default: throw new ExpressionNotSupportedException(expression, because: $"conversion to {expressionType} is not supported");
-                    }
-
-                    ast = AstExpression.Convert(ast, to);
-                }
-
-                return new AggregationExpression(expression, ast, serializer);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                return Translate(expression, sourceType, targetType, sourceTranslation);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsConvertEnumToEnum(UnaryExpression expression)
+        private static AggregationExpression Translate(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
         {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
+            if (targetType == sourceType)
+            {
+                return sourceTranslation;
+            }
 
-            return
-                sourceType.IsEnumOrNullableEnum(out _, out _) &&
-                targetType.IsEnumOrNullableEnum(out _, out _);
+            // from Nullable<T> must be handled before to Nullable<T>
+            if (IsConvertFromNullableType(sourceType))
+            {
+                return TranslateConvertFromNullableType(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            if (IsConvertToNullableType(targetType))
+            {
+                return TranslateConvertToNullableType(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            // from here on we know there are no longer any Nullable<T> types involved
+
+            if (targetType == typeof(BsonValue))
+            {
+                return TranslateConvertToBsonValue(expression, sourceTranslation);
+            }
+
+            if (IsConvertEnumToUnderlyingType(sourceType, targetType))
+            {
+                return TranslateConvertEnumToUnderlyingType(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            if (IsConvertUnderlyingTypeToEnum(sourceType, targetType))
+            {
+                return TranslateConvertUnderlyingTypeToEnum(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            if (IsConvertEnumToEnum(sourceType, targetType))
+            {
+                return TranslateConvertEnumToEnum(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            if (IsConvertToBaseType(sourceType, targetType))
+            {
+                return TranslateConvertToBaseType(expression, sourceType, targetType, sourceTranslation);
+            }
+
+            if (IsConvertToDerivedType(sourceType, targetType))
+            {
+                return TranslateConvertToDerivedType(expression, targetType, sourceTranslation);
+            }
+
+            var ast = sourceTranslation.Ast;
+            IBsonSerializer serializer;
+            if (targetType.IsInterface)
+            {
+                // when an expression is cast to an interface it's a no-op as far as we're concerned
+                // and we can just use the serializer for the concrete type and members not defined in the interface will just be ignored
+                serializer = sourceTranslation.Serializer;
+            }
+            else
+            {
+                AstExpression to;
+                switch (targetType.FullName)
+                {
+                    case "MongoDB.Bson.ObjectId": to = "objectId"; serializer = ObjectIdSerializer.Instance; break;
+                    case "System.Boolean": to = "bool"; serializer = BooleanSerializer.Instance; break;
+                    case "System.DateTime": to = "date"; serializer = DateTimeSerializer.Instance; break;
+                    case "System.Decimal": to = "decimal"; serializer = DecimalSerializer.Decimal128Instance; break; // not the default representation
+                    case "System.Double": to = "double"; serializer = DoubleSerializer.Instance; break;
+                    case "System.Int32": to = "int"; serializer = Int32Serializer.Instance; break;
+                    case "System.Int64": to = "long"; serializer = Int64Serializer.Instance; break;
+                    case "System.String": to = "string"; serializer = StringSerializer.Instance; break;
+                    default: throw new ExpressionNotSupportedException(expression, because: $"conversion to {targetType} is not supported");
+                }
+
+                ast = AstExpression.Convert(ast, to);
+            }
+
+            return new AggregationExpression(expression, ast, serializer);
         }
 
-        private static bool IsConvertEnumToUnderlyingType(UnaryExpression expression)
+        private static bool IsConvertEnumToEnum(Type sourceType, Type targetType)
         {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
+            return sourceType.IsEnum && targetType.IsEnum;
+        }
 
+        private static bool IsConvertEnumToUnderlyingType(Type sourceType, Type targetType)
+        {
             return
-                sourceType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                targetType.IsSameAsOrNullableOf(underlyingType);
+                sourceType.IsEnum(out var underlyingType) &&
+                targetType == underlyingType;
+        }
+
+        private static bool IsConvertFromNullableType(Type sourceType)
+        {
+            return sourceType.IsNullable();
         }
 
         private static bool IsConvertToBaseType(Type sourceType, Type targetType)
@@ -146,127 +157,112 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return targetType.IsSubclassOf(sourceType);
         }
 
-        private static bool IsConvertUnderlyingTypeToEnum(UnaryExpression expression)
+        private static bool IsConvertToNullableType(Type targetType)
         {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
+            return targetType.IsNullable();
+        }
 
+        private static bool IsConvertUnderlyingTypeToEnum(Type sourceType, Type targetType)
+        {
             return
-                targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                sourceType.IsSameAsOrNullableOf(underlyingType);
+                targetType.IsEnum(out var underlyingType) &&
+                sourceType == underlyingType;
         }
 
-        private static AggregationExpression TranslateConvertToBaseType(UnaryExpression expression, AggregationExpression operandTranslation)
+        private static AggregationExpression TranslateConvertToBaseType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
         {
-            var baseType = expression.Type;
-            var derivedType = expression.Operand.Type;
-            var derivedTypeSerializer = operandTranslation.Serializer;
-            var downcastingSerializer = DowncastingSerializer.Create(baseType, derivedType, derivedTypeSerializer);
+            var derivedTypeSerializer = sourceTranslation.Serializer;
+            var downcastingSerializer = DowncastingSerializer.Create(targetType, sourceType, derivedTypeSerializer);
 
-            return new AggregationExpression(expression, operandTranslation.Ast, downcastingSerializer);
+            return new AggregationExpression(expression, sourceTranslation.Ast, downcastingSerializer);
         }
 
-        private static AggregationExpression TranslateConvertToDerivedType(UnaryExpression expression, AggregationExpression operandTranslation)
+        private static AggregationExpression TranslateConvertToDerivedType(UnaryExpression expression, Type targetType, AggregationExpression sourceTranslation)
         {
-            var serializer = BsonSerializer.LookupSerializer(expression.Type);
+            var serializer = BsonSerializer.LookupSerializer(targetType);
 
-            return new AggregationExpression(expression, operandTranslation.Ast, serializer);
+            return new AggregationExpression(expression, sourceTranslation.Ast, serializer);
         }
 
-        private static AggregationExpression TranslateConvertToBsonValue(TranslationContext context, UnaryExpression expression, Expression operand)
+        private static AggregationExpression TranslateConvertToBsonValue(UnaryExpression expression, AggregationExpression sourceTranslation)
         {
-            // handle double conversions like `(BsonValue)(object)x.Anything`
-            if (operand is UnaryExpression unaryExpression &&
-                unaryExpression.NodeType == ExpressionType.Convert &&
-                unaryExpression.Type == typeof(object))
-            {
-                operand = unaryExpression.Operand;
-            }
-
-            var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operand);
-
-            return new AggregationExpression(expression, operandTranslation.Ast, BsonValueSerializer.Instance);
+            return new AggregationExpression(expression, sourceTranslation.Ast, BsonValueSerializer.Instance);
         }
 
-        private static AggregationExpression TranslateConvertEnumToEnum(UnaryExpression expression, AggregationExpression operandTranslation)
+        private static AggregationExpression TranslateConvertEnumToEnum(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
         {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
-
-            if (!sourceType.IsEnumOrNullableEnum(out var sourceEnumType, out _))
+            if (!sourceType.IsEnum)
             {
-                throw new ExpressionNotSupportedException(expression, because: "source type is not an enum or nullable enum");
+                throw new ExpressionNotSupportedException(expression, because: "source type is not an enum");
             }
-            if (!targetType.IsEnumOrNullableEnum(out var targetEnumType, out _))
+            if (!targetType.IsEnum)
             {
-                throw new ExpressionNotSupportedException(expression, because: "target type is not an enum or nullable enum");
+                throw new ExpressionNotSupportedException(expression, because: "target type is not an enum");
             }
 
-            var sourceSerializer = operandTranslation.Serializer;
-            IBsonSerializer targetEnumSerializer;
-            if (targetEnumType == sourceEnumType) 
+            var sourceSerializer = sourceTranslation.Serializer;
+            if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
+                !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
             {
-                targetEnumSerializer = sourceSerializer is INullableSerializer sourceNullableSerializer ?
-                    sourceNullableSerializer.ValueSerializer :
-                    sourceSerializer;
-            }
-            else
-            {
-                if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
-                    !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
-                }
-
-                targetEnumSerializer = EnumSerializer.Create(targetEnumType);
+                throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
             }
 
-            var targetSerializer = targetType.IsNullable() ?
-                NullableSerializer.Create(targetEnumSerializer) :
-                targetEnumSerializer;
-
-            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
+            var targetSerializer = EnumSerializer.Create(targetType);
+            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
-        private static AggregationExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, AggregationExpression operandTranslation)
+        private static AggregationExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
         {
-            var sourceType = expression.Operand.Type;
-            var targetType = expression.Type;
+            var enumSerializer = sourceTranslation.Serializer;
+            var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
+        }
 
-            IBsonSerializer enumSerializer;
+        private static AggregationExpression TranslateConvertFromNullableType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        {
+            if (sourceType.IsNullable(out var sourceValueType))
+            {
+                var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
+                var sourceNullableSerializer = (INullableSerializer)sourceTranslation.Serializer;
+                var sourceValueSerializer = sourceNullableSerializer.ValueSerializer;
+                var sourceValueAggregationExpression = new AggregationExpression(expression.Operand, sourceAst, sourceValueSerializer);
+                var convertTranslation = Translate(expression, sourceValueType, targetType, sourceValueAggregationExpression);
+
+                // note: we would have liked to throw a query execution error here if the value is null and the target type is not nullable but there is no way to do that in MQL
+                // so we just return null instead and the user must check for null themselves if they want to define what happens when the value is null
+                // but see SERVER-78092 and the proposed $error operator
+
+                var ast = AstExpression.Let(
+                    sourceVarBinding,
+                    AstExpression.Cond(AstExpression.Eq(sourceAst, BsonNull.Value), BsonNull.Value, convertTranslation.Ast));
+
+                return new AggregationExpression(expression, ast, convertTranslation.Serializer);
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: "sourceType is not nullable");
+        }
+
+        private static AggregationExpression TranslateConvertToNullableType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        {
             if (sourceType.IsNullable())
             {
-                var nullableSerializer = (INullableSerializer)operandTranslation.Serializer;
-                enumSerializer = nullableSerializer.ValueSerializer;
-            }
-            else
-            {
-                enumSerializer = operandTranslation.Serializer;
+                // ConvertFromNullableType should have been called first
+                throw new ExpressionNotSupportedException(expression, because: "sourceType is nullable");
             }
 
-            IBsonSerializer targetSerializer;
-            var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
-            if (targetType.IsNullable())
+            if (targetType.IsNullable(out var targetValueType))
             {
-                targetSerializer = NullableSerializer.Create(enumUnderlyingTypeSerializer);
-            }
-            else
-            {
-                targetSerializer = enumUnderlyingTypeSerializer;
+                var convertTranslation = Translate(expression, sourceType, targetValueType, sourceTranslation);
+                var nullableSerializer = NullableSerializer.Create(convertTranslation.Serializer);
+                return new AggregationExpression(expression, convertTranslation.Ast, nullableSerializer);
             }
 
-            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
+            throw new ExpressionNotSupportedException(expression, because: "targetType is not nullable");
         }
 
-        private static AggregationExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, AggregationExpression operandTranslation)
+        private static AggregationExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
         {
-            var targetType = expression.Type;
-
-            var valueSerializer = operandTranslation.Serializer;
-            if (valueSerializer is INullableSerializer nullableSerializer)
-            {
-                valueSerializer = nullableSerializer.ValueSerializer;
-            }
+            var valueSerializer = sourceTranslation.Serializer;
 
             IBsonSerializer targetSerializer;
             if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
@@ -275,21 +271,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
             else
             {
-                var enumType = targetType;
-                if (targetType.IsNullable(out var wrappedType))
-                {
-                    enumType = wrappedType;
-                }
-
-                targetSerializer = EnumSerializer.Create(enumType);
+                targetSerializer = EnumSerializer.Create(targetType);
             }
 
-            if (targetType.IsNullableEnum())
-            {
-                targetSerializer = NullableSerializer.Create(targetSerializer);
-            }
-
-            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
+            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
     }
 }

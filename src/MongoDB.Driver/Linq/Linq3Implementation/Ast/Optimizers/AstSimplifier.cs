@@ -16,7 +16,6 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
@@ -36,6 +35,48 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             return (TNode)Simplify(node);
         }
         #endregion
+
+        public override AstNode VisitCondExpression(AstCondExpression node)
+        {
+            // { $cond : [{ $eq : [expr1, null] }, null, expr2] }
+            if (node.If is AstBinaryExpression binaryIfpression &&
+                binaryIfpression.Operator == AstBinaryOperator.Eq &&
+                binaryIfpression.Arg1 is AstExpression expr1 &&
+                binaryIfpression.Arg2 is AstConstantExpression constantComparandExpression &&
+                constantComparandExpression.Value == BsonNull.Value &&
+                node.Then is AstConstantExpression constantThenExpression &&
+                constantThenExpression.Value == BsonNull.Value &&
+                node.Else is AstExpression expr2)
+            {
+                // { $cond : [{ $eq : [expr, null] }, null, expr] } => expr
+                if (expr1 == expr2)
+                {
+                    return Visit(expr2);
+                }
+
+                // { $cond : [{ $eq : [expr, null] }, null, { $toT : expr }] } => { $toT : expr } for operators that map null to null
+                if (expr2 is AstUnaryExpression unaryElseExpression &&
+                    OperatorMapsNullToNull(unaryElseExpression.Operator) &&
+                    unaryElseExpression.Arg == expr1)
+                {
+                    return Visit(expr2);
+                }
+            }
+
+            return base.VisitCondExpression(node);
+
+            static bool OperatorMapsNullToNull(AstUnaryOperator @operator)
+            {
+                return @operator switch
+                { 
+                    AstUnaryOperator.ToDecimal => true,
+                    AstUnaryOperator.ToDouble => true,
+                    AstUnaryOperator.ToInt => true,
+                    AstUnaryOperator.ToLong => true,
+                    _ => false
+                };
+            }
+        }
 
         public override AstNode VisitFieldOperationFilter(AstFieldOperationFilter node)
         {
@@ -279,6 +320,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 simplified = null;
                 return false;
             }
+        }
+
+        public override AstNode VisitLetExpression(AstLetExpression node)
+        {
+            node = (AstLetExpression)base.VisitLetExpression(node);
+
+            // { $let : { vars : { var : expr }, in : "$$var" } } => expr
+            if (node.Vars.Count == 1 &&
+                node.Vars[0].Var.Name is string varName &&
+                node.In is AstVarExpression varExpression &&
+                varExpression.Name == varName)
+            {
+                return node.Vars[0].Value;
+            }
+
+            return node;
         }
 
         public override AstNode VisitMapExpression(AstMapExpression node)

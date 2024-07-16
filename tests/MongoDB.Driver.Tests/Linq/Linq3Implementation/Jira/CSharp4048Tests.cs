@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { a : { $reduce : { input : '$_elements', initialValue : 0, in : { $add : ['$$value', '$$this.X'] } } } }, in : '$$a' } } } }",
+                "{ $project : { _id : '$_id', Result : { $reduce : { input : '$_elements', initialValue : 0, in : { $add : ['$$value', '$$this.X'] } } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { a : { $reduce : { input : '$_elements', initialValue : 0, in : { $add : ['$$value', '$$this'] } } } }, in : '$$a' } } } }",
+                "{ $project : { _id : '$_id', Result : { $reduce : { input : '$_elements', initialValue : 0, in : { $add : ['$$value', '$$this'] } } } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
