@@ -16,6 +16,8 @@
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -53,6 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -77,6 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -101,6 +105,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -149,6 +154,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -173,6 +179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -197,6 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Decimal_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -221,6 +229,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -269,6 +278,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -293,6 +303,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -317,6 +328,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -365,6 +377,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -389,6 +402,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Double_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -413,6 +427,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -437,6 +452,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -485,6 +501,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -509,6 +526,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -533,6 +551,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -581,6 +600,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Int_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -605,6 +625,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -629,6 +650,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -653,6 +675,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -701,6 +724,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -725,6 +749,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -749,6 +774,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_Long_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -821,6 +847,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -845,6 +872,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -869,6 +897,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -917,6 +946,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -941,6 +971,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -965,6 +996,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDecimal_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -989,6 +1021,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1037,6 +1070,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1061,6 +1095,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1085,6 +1120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1133,6 +1169,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1157,6 +1194,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableDouble_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1181,6 +1219,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1205,6 +1244,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1253,6 +1293,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1277,6 +1318,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1301,6 +1343,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1349,6 +1392,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableInt_to_nullable_long_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1373,6 +1417,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1397,6 +1442,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1421,6 +1467,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1469,6 +1516,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_decimal_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1493,6 +1541,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_double_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
@@ -1517,6 +1566,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Cast_NullableLong_to_nullable_int_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
