@@ -32,11 +32,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var fluentFind = collection.Find(a => a.Id == "1").Project(a => a.Id);
 
-            var documentSerializer = collection.DocumentSerializer;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedProjection = fluentFind.Options.Projection.Render(documentSerializer, serializerRegistry, linqProvider);
-
-            renderedProjection.Document.Should().Be("{ _id : 1 }");
+            var renderedProjection = TranslateFindProjection(collection, fluentFind);
+            renderedProjection.Should().Be("{ _id : 1 }");
 
             var result = fluentFind.Single();
             result.Should().Be("1");
