@@ -2106,10 +2106,6 @@ axes:
         display_name: "Serverless Passthrough Proxy"
         variables:
           VAULT_NAME: "serverless"
-      - id: "Terminating"
-        display_name: "Serverless Terminating Proxy"
-        variables:
-          VAULT_NAME: "serverless_next"
 
 task_groups:
   - name: testazurekms-task-group
@@ -2830,7 +2826,7 @@ buildvariants:
 - matrix_name: analyzer-tests
   batchtime: 720 # 12 hours
   matrix_spec:
-    os: ["ubuntu-2004", "windows-64"]  
+    os: ["ubuntu-2004", "windows-64"]
   display_name: "Analyzer tests on ${os}"
   tasks:
     - name: test-analyzer
