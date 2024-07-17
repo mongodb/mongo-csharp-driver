@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (linqProvider == LinqProvider.V2)
             {
                 var linq2Stage = PipelineStageDefinitionBuilder.Bucket(
@@ -112,6 +113,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             {
                 return base.Render(inputSerializer, serializerRegistry, linqProvider);
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         protected override AstStage RenderGroupingStage(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
@@ -193,6 +195,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (linqProvider == LinqProvider.V2)
             {
                 var linq2Stage = PipelineStageDefinitionBuilder.Group(new GroupExpressionProjection<TInput, TValue, TOutput>(_groupBy, _output, _translationOptions));
@@ -202,6 +205,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             {
                 return base.Render(inputSerializer, serializerRegistry, linqProvider);
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         protected override AstStage RenderGroupingStage(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)

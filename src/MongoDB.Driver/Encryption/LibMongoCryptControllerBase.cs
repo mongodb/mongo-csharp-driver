@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,7 +42,9 @@ namespace MongoDB.Driver.Encryption
 
         // private fields
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IStreamFactory _networkStreamFactory;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
 
         // constructors
@@ -349,7 +351,9 @@ namespace MongoDB.Driver.Encryption
         }
 
         // nested type
+#pragma warning disable CS0618 // Type or member is obsolete
         private class NetworkStreamFactory : IStreamFactory
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
             {

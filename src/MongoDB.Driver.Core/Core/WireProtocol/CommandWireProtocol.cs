@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
+
         private readonly ICoreSession _session;
 
         // constructors
@@ -213,4 +215,5 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

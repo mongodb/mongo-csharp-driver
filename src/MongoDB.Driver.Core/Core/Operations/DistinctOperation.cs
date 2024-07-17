@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a distinct operation.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
     {
         // fields

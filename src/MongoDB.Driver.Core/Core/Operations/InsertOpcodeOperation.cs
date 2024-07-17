@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an insert operation using the insert opcode.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
         // fields

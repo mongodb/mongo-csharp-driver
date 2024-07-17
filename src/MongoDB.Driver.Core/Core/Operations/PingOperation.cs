@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a ping operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class PingOperation : IReadOperation<BsonDocument>
     {
         // fields

@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class GridFSForwardOnlyDownloadStream<TFileId> : GridFSDownloadStreamBase<TFileId>
     {
         // private fields
@@ -200,13 +201,12 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<BsonDocument> CreateFirstBatchOperation()
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
-#pragma warning disable 618
             var filter = new BsonDocument("files_id", _idAsBsonValue);
-#pragma warning restore
             var sort = new BsonDocument("n", 1);
 
             return new FindOperation<BsonDocument>(
@@ -219,6 +219,7 @@ namespace MongoDB.Driver.GridFS
                 RetryRequested = _retryReads
             };
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private void GetFirstBatch(CancellationToken cancellationToken)
         {
@@ -353,4 +354,5 @@ namespace MongoDB.Driver.GridFS
             return new ArraySegment<byte>(bytes, segmentOffset, segmentCount);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

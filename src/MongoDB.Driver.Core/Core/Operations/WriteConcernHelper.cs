@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class WriteConcernHelper
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static BsonDocument GetEffectiveWriteConcern(ICoreSession session, WriteConcern writeConcern)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (!session.IsInTransaction && writeConcern != null && !writeConcern.IsServerDefault)
             {

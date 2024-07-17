@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an insert command operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase where TDocument : class
     {
         // private fields

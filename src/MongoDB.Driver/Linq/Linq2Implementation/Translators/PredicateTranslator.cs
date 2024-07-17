@@ -55,8 +55,10 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Translators
         {
             var translator = new PredicateTranslator(serializerRegistry);
             node = FieldExpressionFlattener.FlattenFields(node);
+#pragma warning disable CS0618 // Type or member is obsolete
             return translator.Translate(node)
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry, LinqProvider.V2);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
         #endregion
 

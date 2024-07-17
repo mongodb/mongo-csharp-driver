@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+/* Copyright 2017-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Clusters
     /// A cluster clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Clusters.IClusterClock" />
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class ClusterClock : IClusterClock
     {
         #region static
@@ -81,4 +82,5 @@ namespace MongoDB.Driver.Core.Clusters
         {
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

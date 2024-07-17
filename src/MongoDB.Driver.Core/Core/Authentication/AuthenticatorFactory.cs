@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Represents an authenticator factory.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public class AuthenticatorFactory : IAuthenticatorFactory
     {
         private readonly Func<IAuthenticator> _authenticatorFactoryFunc;

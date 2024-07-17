@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Servers
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ServerMonitor : IServerMonitor
     {
         private readonly ServerDescription _baseDescription;
@@ -544,4 +545,5 @@ namespace MongoDB.Driver.Core.Servers
             public const int Disposed = 2;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

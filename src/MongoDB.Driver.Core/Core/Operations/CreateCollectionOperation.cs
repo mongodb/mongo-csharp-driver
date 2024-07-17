@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create collection operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CreateCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static

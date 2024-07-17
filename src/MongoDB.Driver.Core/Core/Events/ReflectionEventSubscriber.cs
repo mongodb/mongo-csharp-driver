@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     /// Subscribes methods with a single argument to events 
     /// of that single argument's type.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class ReflectionEventSubscriber : IEventSubscriber
     {
         private readonly Dictionary<Type, Delegate> _handlers;

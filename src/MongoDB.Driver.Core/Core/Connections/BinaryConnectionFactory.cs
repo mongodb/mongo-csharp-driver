@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a factory of BinaryConnections.
     /// </summary>
@@ -60,4 +61,5 @@ namespace MongoDB.Driver.Core.Connections
             return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber, _loggerFactory);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

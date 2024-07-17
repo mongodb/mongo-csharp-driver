@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class OidcSaslMechanism : SaslAuthenticator.ISaslMechanism
     {
         private readonly IOidcCallbackAdapter _oidcCallback;
@@ -81,4 +82,5 @@ namespace MongoDB.Driver.Core.Authentication.Oidc
             return new NoTransitionClientLastSaslStep(new BsonDocument("jwt", oidcCredentials.AccessToken).ToBson());
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

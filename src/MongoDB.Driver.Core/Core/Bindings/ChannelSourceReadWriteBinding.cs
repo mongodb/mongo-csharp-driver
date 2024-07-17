@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a read-write binding to a channel source.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public sealed class ChannelSourceReadWriteBinding : IReadWriteBinding
     {
         // fields

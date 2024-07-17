@@ -39,14 +39,13 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server in a MongoDB cluster.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
     internal abstract class Server : IClusterableServer, IConnectionExceptionHandler
     {
         // fields
         private readonly IClusterClock _clusterClock;
-#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConnectionPool _connectionPool;
         private readonly bool? _directConnection;
         private readonly EndPoint _endPoint;
@@ -62,10 +61,8 @@ namespace MongoDB.Driver.Core.Servers
         public Server(
             ClusterId clusterId,
             IClusterClock clusterClock,
-#pragma warning disable CS0618 // Type or member is obsolete
             ClusterConnectionMode clusterConnectionMode,
             ConnectionModeSwitch connectionModeSwitch,
-#pragma warning restore CS0618 // Type or member is obsolete
             bool? directConnection,
             ServerSettings settings,
             EndPoint endPoint,
@@ -204,7 +201,6 @@ namespace MongoDB.Driver.Core.Servers
 
         protected bool IsDirectConnection()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
                 return _directConnection.GetValueOrDefault();
@@ -213,7 +209,6 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return _clusterConnectionMode == ClusterConnectionMode.Direct;
             }
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
@@ -426,7 +421,6 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-#pragma warning disable 618
                 return Query(
                     collectionNamespace,
                     query,
@@ -443,7 +437,6 @@ namespace MongoDB.Driver.Core.Servers
                     serializer,
                     messageEncoderSettings,
                     cancellationToken);
-#pragma warning restore 618
             }
 
             [Obsolete("Use the newest overload instead.")]
@@ -465,7 +458,6 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -481,7 +473,6 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
-#pragma warning restore 618
 
                 return ExecuteProtocol(protocol, cancellationToken);
             }
@@ -502,7 +493,6 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-#pragma warning disable 618
                 return QueryAsync(
                     collectionNamespace,
                     query,
@@ -519,7 +509,6 @@ namespace MongoDB.Driver.Core.Servers
                     serializer,
                     messageEncoderSettings,
                     cancellationToken);
-#pragma warning restore 618
             }
 
             [Obsolete("Use the newest overload instead.")]
@@ -541,7 +530,6 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -557,7 +545,6 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
-#pragma warning restore 618
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }

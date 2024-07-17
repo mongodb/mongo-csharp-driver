@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Servers
         void Start();
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class RoundTripTimeMonitor : IRoundTripTimeMonitor
     {
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
@@ -204,4 +205,5 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

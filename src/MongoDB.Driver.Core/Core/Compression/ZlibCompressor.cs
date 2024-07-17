@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Compressor according to the zlib algorithm.
     /// </summary> 
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class ZlibCompressor : ICompressor
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         private readonly CompressionLevel _compressionLevel;
 

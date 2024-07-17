@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a standalone cluster.
     /// </summary>
@@ -128,9 +129,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             bool IsStandaloneServerValidForCluster()
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     return clusterSettings.DirectConnection.GetValueOrDefault();
                 }
@@ -142,7 +141,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             bool IsUnknownServerValidForCluster()
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
                 {
                     return clusterSettings.DirectConnection.GetValueOrDefault();
@@ -154,7 +152,6 @@ namespace MongoDB.Driver.Core.Clusters
                         connectionMode == ClusterConnectionMode.Automatic ||
                         connectionMode == ClusterConnectionMode.Direct;
                 }
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -233,4 +230,5 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Disposed = 2;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

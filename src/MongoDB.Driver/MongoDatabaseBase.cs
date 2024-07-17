@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for implementors of <see cref="IMongoDatabase" />.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public abstract class MongoDatabaseBase : IMongoDatabase
     {
         // public properties

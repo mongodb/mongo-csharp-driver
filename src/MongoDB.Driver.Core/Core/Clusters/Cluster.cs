@@ -32,6 +32,7 @@ using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a cluster.
     /// </summary>
@@ -106,12 +107,10 @@ namespace MongoDB.Driver.Core.Clusters
 
             ClusterDescription CreateInitialDescription()
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _settings.ConnectionModeSwitch;
                 var clusterConnectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _settings.ConnectionMode : default;
                 var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _settings.DirectConnection : default;
                 return ClusterDescription.CreateInitial(_clusterId, clusterConnectionMode, _settings.ConnectionModeSwitch, directConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -168,7 +167,6 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposing");
 
-#pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _description.ConnectionModeSwitch;
                 var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _description.ConnectionMode : default;
                 var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _description.DirectConnection : default;
@@ -181,7 +179,6 @@ namespace MongoDB.Driver.Core.Clusters
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
-#pragma warning restore CS0618 // Type or member is obsolete
 
                 UpdateClusterDescription(newClusterDescription);
 
@@ -344,7 +341,6 @@ namespace MongoDB.Driver.Core.Clusters
             var session = new CoreSession(this, _serverSessionPool, options);
             return new CoreSessionHandle(session);
         }
-
         protected abstract bool TryGetServer(EndPoint endPoint, out IClusterableServer server);
 
         protected void UpdateClusterDescription(ClusterDescription newClusterDescription, bool shouldClusterDescriptionChangedEventBePublished = true)
@@ -660,4 +656,5 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Running = 1;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

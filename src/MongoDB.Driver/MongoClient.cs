@@ -64,8 +64,10 @@ namespace MongoDB.Driver
             {
                 _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(
                     this,
+#pragma warning disable CS0618 // Type or member is obsolete
                     _cluster.CryptClient,
                     settings.AutoEncryptionOptions);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -113,6 +115,7 @@ namespace MongoDB.Driver
         internal IOperationExecutor OperationExecutor => _operationExecutor;
 
         // internal methods
+#pragma warning disable CS0618 // Type or member is obsolete
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
         {
             var autoEncryptionOptions = _settings.AutoEncryptionOptions;
@@ -144,6 +147,7 @@ namespace MongoDB.Driver
             };
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <inheritdoc/>
         public sealed override Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
@@ -156,10 +160,12 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             var messageEncoderSettings = GetMessageEncoderSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
             var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
             {
                 WriteConcern = _settings.WriteConcern
             };
+#pragma warning restore CS0618 // Type or member is obsolete
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
@@ -419,6 +425,7 @@ namespace MongoDB.Driver
         }
 
         // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
         {
             return new BatchTransformingAsyncCursor<BsonDocument, string>(
@@ -523,26 +530,25 @@ namespace MongoDB.Driver
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-#pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
                 messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
             }
-#pragma warning restore 618
 
             ConfigureAutoEncryptionMessageEncoderSettings(messageEncoderSettings);
 
             return messageEncoderSettings;
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete
+
         private IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
 
             ICoreSessionHandle coreSession;
-#pragma warning disable 618
             var areMultipleUsersAuthenticated = _settings.Credentials.Count() > 1;
-#pragma warning restore
+
             if (!areMultipleUsersAuthenticated)
             {
                 coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
@@ -563,10 +569,13 @@ namespace MongoDB.Driver
             }
 
             options = options ?? new ClientSessionOptions();
-            var coreSession = _cluster.StartSession(options.ToCore());
 
+            var coreSession = _cluster.StartSession(options.ToCore());
             return new ClientSessionHandle(this, options, coreSession);
+
         }
+#pragma warning restore CS0612
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)
         {

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     /// <summary>
     /// Represents an element name validator for update operations.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class UpdateElementNameValidator : IElementNameValidator
     {
         // private static fields

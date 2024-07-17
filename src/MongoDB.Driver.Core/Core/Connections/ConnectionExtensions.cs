@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents internal IConnection extension methods (used to easily access the IConnectionInternal methods).
     /// </summary>
@@ -44,4 +45,5 @@ namespace MongoDB.Driver.Core.Connections
             return connection.SendMessagesAsync(new[] { message }, messageEncoderSettings, cancellationToken);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

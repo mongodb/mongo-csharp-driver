@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// A helper class for deserializing documents in a cursor batch.
     /// </summary>
@@ -44,12 +45,10 @@ namespace MongoDB.Driver.Core.Operations
             if (messageEncoderSettings != null)
             {
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-#pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {
                     readerSettings.GuidRepresentation = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
                 }
-#pragma warning restore 618
             };
 
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))
@@ -70,4 +69,5 @@ namespace MongoDB.Driver.Core.Operations
             return documents;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -33,14 +33,18 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class MongoCollectionImpl<TDocument> : MongoCollectionBase<TDocument>
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // fields
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IMongoDatabase _database;
         private readonly LinqProvider _linqProvider;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly MessageEncoderSettings _messageEncoderSettings;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
@@ -117,12 +121,14 @@ namespace MongoDB.Driver
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
                 var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
+#pragma warning disable CS0618 // Type or member is obsolete
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
                     ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
                     ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
                 return deferredCursor;
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             else
             {
@@ -152,12 +158,14 @@ namespace MongoDB.Driver
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
                 var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
+#pragma warning disable CS0618 // Type or member is obsolete
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
                     ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
                     ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
                 return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             else
             {
@@ -732,6 +740,7 @@ namespace MongoDB.Driver
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private WriteRequest ConvertWriteModelToWriteRequest(WriteModel<TDocument> model, int index)
         {
             switch (model.ModelType)
@@ -809,8 +818,11 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Unknown type of WriteModel provided.");
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private AggregateOperation<TResult> CreateAggregateOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
+#pragma warning disable CS0618 // Type or member is obsolete
         {
             return new AggregateOperation<TResult>(
                 _collectionNamespace,
@@ -834,8 +846,10 @@ namespace MongoDB.Driver
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<TResult> CreateAggregateToCollectionFindOperation<TResult>(BsonDocument outStage, IBsonSerializer<TResult> resultSerializer, AggregateOptions options)
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             CollectionNamespace outputCollectionNamespace;
             var stageName = outStage.GetElement(0).Name;
             switch (stageName)
@@ -895,7 +909,7 @@ namespace MongoDB.Driver
                 default:
                     throw new ArgumentException($"Unexpected stage name: {stageName}.");
             }
-
+#pragma warning disable CS0618 // Type or member is obsolete
             return new FindOperation<TResult>(
                 outputCollectionNamespace,
                 resultSerializer,
@@ -907,8 +921,10 @@ namespace MongoDB.Driver
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads
             };
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private AggregateToCollectionOperation CreateAggregateToCollectionOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
         {
             return new AggregateToCollectionOperation(
@@ -1120,7 +1136,9 @@ namespace MongoDB.Driver
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<TProjection> CreateFindOperation<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -1130,6 +1148,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 renderedProjection.ProjectionSerializer,
                 _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 AllowDiskUse = options.AllowDiskUse,
                 AllowPartialResults = options.AllowPartialResults,
@@ -1230,7 +1249,6 @@ namespace MongoDB.Driver
 
 #pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<TResult> CreateMapReduceOutputToCollectionFindOperation<TResult>(MapReduceOptions<TDocument, TResult> options, CollectionNamespace outputCollectionNamespace, IBsonSerializer<TResult> resultSerializer)
-#pragma warning restore CS0618 // Type or member is obsolete
         {
             return new FindOperation<TResult>(
                 outputCollectionNamespace,
@@ -1266,12 +1284,10 @@ namespace MongoDB.Driver
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-#pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
                 messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
             }
-#pragma warning restore 618
 
             if (_database.Client is MongoClient mongoClient)
             {
@@ -1280,7 +1296,7 @@ namespace MongoDB.Driver
 
             return messageEncoderSettings;
         }
-
+#pragma warning restore CS0618 // Type or member is obsolete
         private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
         {
             if (renderedField.UnderlyingSerializer != null)
@@ -1327,44 +1343,56 @@ namespace MongoDB.Driver
             return serializerRegistry.GetSerializer<TItem>();
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
             return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             using (var binding = CreateReadBinding(session, readPreference))
             {
                 return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
             return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             using (var binding = CreateReadBinding(session, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             using (var binding = CreateReadWriteBinding(session))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning restore CS0618 // Type or member is obsolete
             using (var binding = CreateReadWriteBinding(session))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
@@ -1685,10 +1713,12 @@ namespace MongoDB.Driver
             }
 
             // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
             private CreateIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateIndexRequest> requests, CreateManyIndexesOptions options)
             {
                 return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
                 {
+#pragma warning restore CS0618 // Type or member is obsolete
                     Comment = options?.Comment,
                     CommitQuorum = options?.CommitQuorum,
                     MaxTime = options?.MaxTime,
@@ -1733,30 +1763,36 @@ namespace MongoDB.Driver
                 });
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             private DropIndexOperation CreateDropAllOperation(DropIndexOptions options)
             {
                 return new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings)
                 {
+#pragma warning restore CS0618 // Type or member is obsolete
                     Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
                 };
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             private DropIndexOperation CreateDropOneOperation(string name, DropIndexOptions options)
             {
                 return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings)
                 {
+#pragma warning restore CS0618 // Type or member is obsolete
                     Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
                 };
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             private ListIndexesOperation CreateListIndexesOperation(ListIndexesOptions options)
             {
                 return new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings)
                 {
+#pragma warning restore CS0618 // Type or member is obsolete
                     BatchSize = options?.BatchSize,
                     Comment = options?.Comment,
                     RetryRequested = _collection.Database.Client.Settings.RetryReads
@@ -1835,15 +1871,17 @@ namespace MongoDB.Driver
 
             public void Update(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
-
+#pragma warning restore CS0618 // Type or member is obsolete
                 _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
             }
 
             public async Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
-
+#pragma warning restore CS0618 // Type or member is obsolete
                 await _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken).ConfigureAwait(false);
             }
 
@@ -1854,12 +1892,12 @@ namespace MongoDB.Driver
                 var stage = new BsonDocument("$listSearchIndexes", nameDocument);
                 return new BsonDocumentStagePipelineDefinition<TDocument, BsonDocument>(new[] { stage });
             }
-
+#pragma warning disable CS0618 // Type or member is obsolete
             private CreateSearchIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateSearchIndexModel> models) =>
                 new(_collection._collectionNamespace,
                     models.Select(m => new CreateSearchIndexRequest(m.Name, m.Definition)),
                     _collection._messageEncoderSettings);
-
+#pragma warning restore CS0618 // Type or member is obsolete
             private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>
                 createSearchIndexesResponse["indexesCreated"]
                     .AsBsonArray

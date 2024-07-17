@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a base class for JSON message encoders.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class MessageJsonEncoderBase
     {
         // fields

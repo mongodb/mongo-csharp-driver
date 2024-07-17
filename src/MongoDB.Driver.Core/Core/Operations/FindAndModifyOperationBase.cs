@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a base class for find and modify operations.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This class will be removed in later release.")]
     public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>, IRetryableWriteOperation<TResult>
     {
         // fields

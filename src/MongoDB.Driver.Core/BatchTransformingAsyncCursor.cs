@@ -29,6 +29,7 @@ namespace MongoDB.Driver
     /// <typeparam name="TFromDocument">The type of from document.</typeparam>
     /// <typeparam name="TToDocument">The type of to document.</typeparam>
     /// <seealso cref="MongoDB.Driver.IAsyncCursor{TToDocument}" />
+    [Obsolete("This class will be removed in later release.")]
     public sealed class BatchTransformingAsyncCursor<TFromDocument, TToDocument> : IAsyncCursor<TToDocument>
     {
         private bool _disposed;

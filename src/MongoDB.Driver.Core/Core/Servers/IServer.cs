@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Core.Servers
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A channel.</returns>
+        [Obsolete("This method will be removed in later release.")]
         IChannelHandle GetChannel(CancellationToken cancellationToken);
 
         // methods
@@ -71,12 +72,14 @@ namespace MongoDB.Driver.Core.Servers
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a channel.</returns>
+        [Obsolete("This method will be removed in later release.")]
         Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }
 
     /// <summary>
     /// Represents a server that can be part of a cluster.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface IClusterableServer : IServer, IDisposable
     {
         // properties

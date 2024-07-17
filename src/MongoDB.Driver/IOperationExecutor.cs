@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -23,11 +22,12 @@ namespace MongoDB.Driver
 {
     internal interface IOperationExecutor
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
         Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
-
         TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
         Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
 
         IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken);
         Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken);

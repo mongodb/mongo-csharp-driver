@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal static class RetryableReadOperationExecutor
     {
         // public static methods
@@ -132,4 +133,5 @@ namespace MongoDB.Driver.Core.Operations
             return retryException is MongoException && !(retryException is MongoConnectionException);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -24,4 +24,10 @@
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <NoWarn>
+      CS0618;CS0612; <!--Temporary disable obosolete warnings-->
+    </NoWarn>
+  </PropertyGroup>
+
 </Project>

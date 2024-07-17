@@ -28,7 +28,9 @@ namespace MongoDB.Driver.Core.Configuration
     {
         // fields
         private readonly string _applicationName;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IReadOnlyList<IAuthenticatorFactory> _authenticatorFactories;
+#pragma warning restore CS0618 // Use auto property
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
         private readonly LibraryInfo _libraryInfo;
         private readonly bool _loadBalanced;
@@ -47,7 +49,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="maxLifeTime">The maximum life time.</param>
         /// <param name="applicationName">The application name.</param>
         public ConnectionSettings(
+#pragma warning disable CS0618 // Type or member is obsolete
             Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
+#pragma warning restore CS0618 // Type or member is obsolete
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,
@@ -55,7 +59,9 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             _authenticatorFactories = Ensure.IsNotNull(authenticatorFactories.WithDefault(Enumerable.Empty<IAuthenticatorFactory>()), nameof(authenticatorFactories)).ToList().AsReadOnly();
+#pragma warning restore CS0618 // Type or member is obsolete
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
@@ -82,11 +88,12 @@ namespace MongoDB.Driver.Core.Configuration
         /// <value>
         /// The authenticator factories.
         /// </value>
+#pragma warning disable CS0618 // Type or member is obsolete
         public IReadOnlyList<IAuthenticatorFactory> AuthenticatorFactories
         {
             get { return _authenticatorFactories; }
         }
-
+#pragma warning restore CS0618 // Type or member is obsolete
         /// <summary>
         /// Gets the compressors.
         /// </summary>
@@ -149,7 +156,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="applicationName">The application name.</param>
         /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
+#pragma warning disable CS0618 // Type or member is obsolete
             Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
+#pragma warning restore CS0618 // Type or member is obsolete
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,

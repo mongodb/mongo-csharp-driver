@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal abstract class WriteWireProtocolBase : IWireProtocol<WriteConcernResult>
     {
         // fields
@@ -73,7 +74,6 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private QueryMessage CreateGetLastErrorMessage(BsonDocument getLastErrorCommand)
         {
-#pragma warning disable 618
             return new QueryMessage(
                RequestMessage.GetNextRequestId(),
                _collectionNamespace.DatabaseNamespace.CommandCollection,
@@ -89,7 +89,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                false,
                false,
                _shouldSendGetLastError);
-#pragma warning restore 618
         }
 
         private List<RequestMessage> CreateMessages(IConnection connection, out QueryMessage getLastErrorMessage)
@@ -182,4 +181,5 @@ namespace MongoDB.Driver.Core.WireProtocol
             return writeConcernResult;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

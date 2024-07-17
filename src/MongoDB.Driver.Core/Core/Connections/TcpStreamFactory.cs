@@ -29,7 +29,9 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a factory for a binary stream over a TCP/IP connection.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class TcpStreamFactory : IStreamFactory
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         // fields
         private readonly TcpStreamSettings _settings;

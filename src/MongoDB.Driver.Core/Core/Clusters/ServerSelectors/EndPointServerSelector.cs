@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers based on an end point.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class EndPointServerSelector : IServerSelector
     {
         // fields

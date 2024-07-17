@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>
     /// Represents a connection initializer (opens and authenticates connections).
     /// </summary>
@@ -203,4 +204,5 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

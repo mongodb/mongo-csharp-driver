@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase" />
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be removed in later release.")]
     public class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         /// <summary>

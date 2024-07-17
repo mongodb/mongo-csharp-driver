@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class OperationExecutor : IOperationExecutor
     {
         private readonly MongoClient _client;
@@ -59,4 +60,5 @@ namespace MongoDB.Driver
             return _client.StartImplicitSessionAsync(cancellationToken);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

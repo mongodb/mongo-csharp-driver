@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create view operation.
     /// </summary>
+    [Obsolete("This class will be removed in later release.")]
     public class CreateViewOperation : IWriteOperation<BsonDocument>
     {
         // private fields

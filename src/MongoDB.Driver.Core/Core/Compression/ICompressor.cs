@@ -1,4 +1,4 @@
-﻿/* Copyright 2019–present MongoDB Inc.
+/* Copyright 2019–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Driver.Core.Compression
@@ -33,11 +34,11 @@ namespace MongoDB.Driver.Core.Compression
         /// </summary>
         Snappy = 1,
         /// <summary>
-        /// The content of the message is compressed using zlib. 
+        /// The content of the message is compressed using zlib.
         /// </summary>
         Zlib = 2,
         /// <summary>
-        /// The content of the message is compressed using zstandard. 
+        /// The content of the message is compressed using zstandard.
         /// </summary>
         ZStandard = 3
     }
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Represents a compressor.
     /// </summary>
+    [Obsolete("This interface will be removed in later release.")]
     public interface ICompressor
     {
         /// <summary>
