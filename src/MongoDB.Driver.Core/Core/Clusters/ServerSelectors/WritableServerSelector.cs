@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
         private bool CanUseSecondaries(ClusterDescription cluster, List<ServerDescription> servers)
         {
-            if (_mayUseSecondary?.ReadPreference == null || servers.Count == 0)
+            if (_mayUseSecondary?.ReadPreference == null)
             {
                 return false;
             }
@@ -107,6 +107,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             {
                 case ClusterType.ReplicaSet:
                 case ClusterType.Sharded:
+                    if (servers.Count == 0)
+                    {
+                        return true;
+                    }
+
                     return servers.All(s => _mayUseSecondary.CanUseSecondary(s));
 
                 case ClusterType.LoadBalanced:
