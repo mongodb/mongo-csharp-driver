@@ -145,7 +145,9 @@ namespace MongoDB.Bson.Serialization
                 if (match.Success)
                 {
                     var publicKeyToken = match.Groups["token"].Value;
-                    if (publicKeyToken == "null")
+                    if (publicKeyToken == "null" ||
+                        // MongoDB's assemblies should use "type name, assembly name" discriminator format for backward compatibility
+                        (assembly.FullName.StartsWith("MongoDB") && publicKeyToken == "94992a530f44e321"))
                     {
                         var dllName = match.Groups["dll"].Value;
                         assemblyName = dllName;
