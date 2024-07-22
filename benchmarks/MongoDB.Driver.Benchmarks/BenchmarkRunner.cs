@@ -13,48 +13,53 @@
  * limitations under the License.
  */
 
+using System.CommandLine;
+using System.Linq;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 using MongoDB.Benchmarks.Exporters;
-using NDesk.Options;
 
 namespace MongoDB.Benchmarks
 {
     public class BenchmarkRunner
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            var executingDriverBenchmarks = false;
-            var exportingToEvergreen = false;
-            var evergreenOutputFile = "evergreen-results.json"; // default output file name
+            var rootCommand = new RootCommand("CSharp Driver benchmarks runner");
+            rootCommand.TreatUnmatchedTokensAsErrors = false;
+            var evergreenOption = new Option<bool>("--evergreen", () => false);
+            rootCommand.AddOption(evergreenOption);
+            var driverBenchmarksOption = new Option<bool>("--driverBenchmarks", () => false);
+            rootCommand.AddOption(driverBenchmarksOption);
+            var evergreenOutputFileOption = new Option<string>(["--o", "--output-file"], () => "evergreen-results.json");
+            rootCommand.AddOption(evergreenOutputFileOption);
 
-            var parser = new OptionSet
+            rootCommand.SetHandler(invocationContext =>
             {
-                { "evergreen", v => exportingToEvergreen = v != null },
-                { "driverBenchmarks", v => executingDriverBenchmarks = v != null },
-                { "o|output-file=", v => evergreenOutputFile = v }
-            };
+                var evergreenValue = invocationContext.ParseResult.GetValueForOption(evergreenOption);
+                var driverBenchmarksValue = invocationContext.ParseResult.GetValueForOption(driverBenchmarksOption);
+                var evergreenOutputFileValue = invocationContext.ParseResult.GetValueForOption(evergreenOutputFileOption);
 
-            // the parser will try to parse the options defined above and will return any extra options
-            var benchmarkSwitcherArgs = parser.Parse(args).ToArray();
+                var config = DefaultConfig.Instance;
 
-            var config = DefaultConfig.Instance;
+                // use a modified config if running driver benchmarks
+                if (driverBenchmarksValue)
+                {
+                    config = config
+                        .WithOption(ConfigOptions.JoinSummary, true)
+                        .AddExporter(new LocalExporter())
+                        .HideColumns("BenchmarkDataSetSize");
+                }
 
-            // use a modified config if running driver benchmarks
-            if (executingDriverBenchmarks)
-            {
-                config = config
-                    .WithOption(ConfigOptions.JoinSummary, true)
-                    .AddExporter(new LocalExporter())
-                    .HideColumns("BenchmarkDataSetSize");
-            }
+                if (evergreenValue)
+                {
+                    config = config.AddExporter(new EvergreenExporter(evergreenOutputFileValue));
+                }
 
-            if (exportingToEvergreen)
-            {
-                config = config.AddExporter(new EvergreenExporter(evergreenOutputFile));
-            }
+                BenchmarkSwitcher.FromAssembly(typeof(BenchmarkRunner).Assembly).Run(invocationContext.ParseResult.UnmatchedTokens.ToArray(), config);
+            });
 
-            BenchmarkSwitcher.FromAssembly(typeof(BenchmarkRunner).Assembly).Run(benchmarkSwitcherArgs, config);
+            return rootCommand.Invoke(args);
         }
     }
 }

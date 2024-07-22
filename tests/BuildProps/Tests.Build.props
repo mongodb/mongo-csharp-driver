@@ -11,6 +11,8 @@
     <StandardTargetFrameworks>netstandard2.0;netstandard2.1</StandardTargetFrameworks>
     <StandardTargetFrameworks Condition="'$(IsWindows)'=='true'">$(StandardTargetFrameworks);net472</StandardTargetFrameworks>
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>

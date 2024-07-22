@@ -20,11 +20,13 @@
     <NoWarn>NU1701,CA1001</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
   <ItemGroup>
