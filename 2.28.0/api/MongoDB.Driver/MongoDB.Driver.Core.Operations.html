@@ -1,0 +1,556 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Namespace MongoDB.Driver.Core.Operations
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Namespace MongoDB.Driver.Core.Operations
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/blob/master/apidocs/namespaces/MongoDB.Driver/MongoDB.Driver.Core.Operations.md/#L2">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Core.Operations">
+
+  <h1 id="MongoDB_Driver_Core_Operations" data-uid="MongoDB.Driver.Core.Operations" class="text-break">Namespace MongoDB.Driver.Core.Operations
+</h1>
+  <div class="markdown level0 summary">
+<p>The MongoDB.Driver.Core.Operations namespace contains classes related to operations.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+
+    <h3 id="classes">
+Classes
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AbortTransactionOperation.html">AbortTransactionOperation</a></dt>
+      <dd><p>The abort transaction operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateExplainOperation.html">AggregateExplainOperation</a></dt>
+      <dd><p>Represents an aggregate explain operations.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateOperation-1.html">AggregateOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents an aggregate operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AggregateToCollectionOperation.html">AggregateToCollectionOperation</a></dt>
+      <dd><p>Represents an aggregate operation that writes the results to an output collection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.AsyncCursor-1.html">AsyncCursor&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents an async cursor.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkMixedWriteOperation.html">BulkMixedWriteOperation</a></dt>
+      <dd><p>Represents a mixed write bulk operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteConcernError.html">BulkWriteConcernError</a></dt>
+      <dd><p>Represents the details of a write concern error.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationError.html">BulkWriteOperationError</a></dt>
+      <dd><p>Represents the details of a write error for a particular request.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationResult.html">BulkWriteOperationResult</a></dt>
+      <dd><p>Represents the result of a bulk write operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationResult.Acknowledged.html">BulkWriteOperationResult.Acknowledged</a></dt>
+      <dd><p>Represents the result of an acknowledged bulk write operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationResult.Unacknowledged.html">BulkWriteOperationResult.Unacknowledged</a></dt>
+      <dd><p>Represents the result of an unacknowledged BulkWrite operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.BulkWriteOperationUpsert.html">BulkWriteOperationUpsert</a></dt>
+      <dd><p>Represents the information about one Upsert.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ChangeStreamOperation-1.html">ChangeStreamOperation&lt;TResult&gt;</a></dt>
+      <dd><p>A change stream operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CommandOperationBase-1.html">CommandOperationBase&lt;TCommandResult&gt;</a></dt>
+      <dd><p>Represents the base class for a command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CommitTransactionOperation.html">CommitTransactionOperation</a></dt>
+      <dd><p>The commit transaction operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CountDocumentsOperation.html">CountDocumentsOperation</a></dt>
+      <dd><p>Represents a count documents operation.
+For a fast estimate of the total documents in a collection see <a class="xref" href="MongoDB.Driver.Core.Operations.CountOperation.html">CountOperation</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CountOperation.html">CountOperation</a></dt>
+      <dd><p>Represents a count operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CreateCollectionOperation.html">CreateCollectionOperation</a></dt>
+      <dd><p>Represents a create collection operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CreateIndexRequest.html">CreateIndexRequest</a></dt>
+      <dd><p>Represents a create index request.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CreateIndexesOperation.html">CreateIndexesOperation</a></dt>
+      <dd><p>Represents a create indexes operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CreateSearchIndexRequest.html">CreateSearchIndexRequest</a></dt>
+      <dd><p>Represents a create search index request.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CreateViewOperation.html">CreateViewOperation</a></dt>
+      <dd><p>Represents a create view operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DatabaseExistsOperation.html">DatabaseExistsOperation</a></dt>
+      <dd><p>Represents a database exists operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DeleteOpcodeOperation.html">DeleteOpcodeOperation</a></dt>
+      <dd><p>Represents a delete operation using the delete opcode.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DeleteRequest.html">DeleteRequest</a></dt>
+      <dd><p>Represents a request to delete one or more documents.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DistinctOperation-1.html">DistinctOperation&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a distinct operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DropCollectionOperation.html">DropCollectionOperation</a></dt>
+      <dd><p>Represents a drop collection operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DropDatabaseOperation.html">DropDatabaseOperation</a></dt>
+      <dd><p>Represents a drop database operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.DropIndexOperation.html">DropIndexOperation</a></dt>
+      <dd><p>Represents a drop index operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.EndTransactionOperation.html">EndTransactionOperation</a></dt>
+      <dd><p>Abstract base class for AbortTransactionOperation and CommitTransactionOperation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.EstimatedDocumentCountOperation.html">EstimatedDocumentCountOperation</a></dt>
+      <dd><p>Represents an estimated document count operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.EvalOperation.html">EvalOperation</a></dt>
+      <dd><p>Represents an eval operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ExplainOperation.html">ExplainOperation</a></dt>
+      <dd><p>Represents an explain operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindAndModifyOperationBase-1.html">FindAndModifyOperationBase&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a base class for find and modify operations.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindAndModifyValueDeserializer-1.html">FindAndModifyValueDeserializer&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a deserializer for find and modify result values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindOneAndDeleteOperation-1.html">FindOneAndDeleteOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a find one and delete operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindOneAndReplaceOperation-1.html">FindOneAndReplaceOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a find one and replace operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindOneAndUpdateOperation-1.html">FindOneAndUpdateOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a find one and update operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.FindOperation-1.html">FindOperation&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents a Find command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.GeoNearOperation-1.html">GeoNearOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents the geoNear command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.GeoSearchOperation-1.html">GeoSearchOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents the geoSearch command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.GroupOperation-1.html">GroupOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a group operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IndexNameHelper.html">IndexNameHelper</a></dt>
+      <dd><p>Represents helper methods for index names.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.InsertOpcodeOperation-1.html">InsertOpcodeOperation&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents an insert operation using the insert opcode.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.InsertRequest.html">InsertRequest</a></dt>
+      <dd><p>Represents a request to insert a document.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ListCollectionsOperation.html">ListCollectionsOperation</a></dt>
+      <dd><p>Represents a list collections operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ListDatabasesOperation.html">ListDatabasesOperation</a></dt>
+      <dd><p>Represents the listDatabases command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ListIndexesOperation.html">ListIndexesOperation</a></dt>
+      <dd><p>Represents a list indexes operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ListIndexesUsingCommandOperation.html">ListIndexesUsingCommandOperation</a></dt>
+      <dd><p>Represents a list indexes operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MapReduceLegacyOperation.html">MapReduceLegacyOperation</a></dt>
+      <dd><p>Represents a map-reduce operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MapReduceOperationBase.html">MapReduceOperationBase</a></dt>
+      <dd><p>Represents a base class for map-reduce operations.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MapReduceOperation-1.html">MapReduceOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a map-reduce operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MapReduceOutputToCollectionOperation.html">MapReduceOutputToCollectionOperation</a></dt>
+      <dd><p>Represents a map-reduce operation that outputs its results to a collection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MongoBulkWriteOperationException.html">MongoBulkWriteOperationException</a></dt>
+      <dd><p>Represents a bulk write operation exception.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.NoOperationClock.html">NoOperationClock</a></dt>
+      <dd><p>An object that represents no operation clock.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.OperationExtensionMethods.html">OperationExtensionMethods</a></dt>
+      <dd><p>Represents extension methods for operations.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ParallelScanOperation-1.html">ParallelScanOperation&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents a parallel scan operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.PingOperation.html">PingOperation</a></dt>
+      <dd><p>Represents a ping operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ReIndexOperation.html">ReIndexOperation</a></dt>
+      <dd><p>Represents a reindex operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ReadCommandOperation-1.html">ReadCommandOperation&lt;TCommandResult&gt;</a></dt>
+      <dd><p>Represents a read command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RenameCollectionOperation.html">RenameCollectionOperation</a></dt>
+      <dd><p>Represents a rename collection operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableDeleteCommandOperation.html">RetryableDeleteCommandOperation</a></dt>
+      <dd><p>Represents a delete command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableInsertCommandOperation-1.html">RetryableInsertCommandOperation&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents an insert command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableReadContext.html">RetryableReadContext</a></dt>
+      <dd><p>Represents a context for retryable reads.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableUpdateCommandOperation.html">RetryableUpdateCommandOperation</a></dt>
+      <dd><p>Represents an update command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableWriteCommandOperationBase.html">RetryableWriteCommandOperationBase</a></dt>
+      <dd><p>Represents a base class for a delete, insert or update command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.RetryableWriteContext.html">RetryableWriteContext</a></dt>
+      <dd><p>Represents a context for retryable writes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.UpdateOpcodeOperation.html">UpdateOpcodeOperation</a></dt>
+      <dd><p>Represents an update operation using the update opcode.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.UpdateRequest.html">UpdateRequest</a></dt>
+      <dd><p>Represents a request to update one or more documents.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteCommandOperation-1.html">WriteCommandOperation&lt;TCommandResult&gt;</a></dt>
+      <dd><p>Represents a write command operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequest.html">WriteRequest</a></dt>
+      <dd><p>Represents a request to write something to the database.</p>
+</dd>
+    </dl>
+    <h3 id="interfaces">
+Interfaces
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IChangeStreamOperation-1.html">IChangeStreamOperation&lt;TResult&gt;</a></dt>
+      <dd><p>A change stream operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IExecutableInRetryableReadContext-1.html">IExecutableInRetryableReadContext&lt;TResult&gt;</a></dt>
+      <dd><p>Represents an operation (that may or may not be retryable) that can be executed in a retryable read context.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IExecutableInRetryableWriteContext-1.html">IExecutableInRetryableWriteContext&lt;TResult&gt;</a></dt>
+      <dd><p>Represents an operation (that may or may not be retryable) that can be executed in a retryable write context.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IExplainableOperation.html">IExplainableOperation</a></dt>
+      <dd><p>Represents an explainable operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IOperationClock.html">IOperationClock</a></dt>
+      <dd><p>An operation clock.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IReadOperation-1.html">IReadOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a database read operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IRetryableReadOperation-1.html">IRetryableReadOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a retryable read operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IRetryableWriteOperation-1.html">IRetryableWriteOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a retryable write operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.IWriteOperation-1.html">IWriteOperation&lt;TResult&gt;</a></dt>
+      <dd><p>Represents a database write operation.</p>
+</dd>
+    </dl>
+    <h3 id="enums">
+Enums
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.CursorType.html">CursorType</a></dt>
+      <dd><p>The cursor type.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ExplainVerbosity.html">ExplainVerbosity</a></dt>
+      <dd><p>The verbosity of an explanation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.MapReduceOutputMode.html">MapReduceOutputMode</a></dt>
+      <dd><p>Represents the map-reduce output mode.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.ReturnDocument.html">ReturnDocument</a></dt>
+      <dd><p>The document to return when executing a FindAndModify command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.UpdateType.html">UpdateType</a></dt>
+      <dd><p>Represents the update type.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Core.Operations.WriteRequestType.html">WriteRequestType</a></dt>
+      <dd><p>Represents the type of a write request.</p>
+</dd>
+    </dl>
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
