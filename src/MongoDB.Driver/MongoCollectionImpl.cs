@@ -1382,7 +1382,7 @@ namespace MongoDB.Driver
             var renderedArrayFilters = new List<BsonDocument>();
             foreach (var arrayFilter in arrayFilters)
             {
-                var renderedArrayFilter = arrayFilter.Render(_args.DocumentSerializer, _args.SerializerRegistry, _args.LinqProvider);
+                var renderedArrayFilter = arrayFilter.Render(null, _args.SerializerRegistry, _args.LinqProvider);
                 renderedArrayFilters.Add(renderedArrayFilter);
             }
 
