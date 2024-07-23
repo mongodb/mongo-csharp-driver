@@ -2,6 +2,8 @@
 
 This is the general availability release for the 2.28.0 version of the driver.
 
+NOTICE: MongoDB 3.6 reached end-of-life in April 2021. The .NET/C# Driver will be removing support for MongoDB 3.6 in an upcoming release.
+
 The main new features in 2.28.0 include:
 
 + Provide Strong-Named Assemblies - [CSHARP-1276](https://jira.mongodb.org/browse/CSHARP-1276)
@@ -17,4 +19,4 @@ The main new features in 2.28.0 include:
 
 The full list of issues resolved in this release is available at [CSHARP JIRA project](https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.28.0%20ORDER%20BY%20key%20ASC).
 
-Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.28}/).
+Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.28/).
