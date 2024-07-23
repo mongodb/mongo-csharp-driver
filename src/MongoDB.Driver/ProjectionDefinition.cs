@@ -325,22 +325,16 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedProjectionDefinition<TProjection> Render(RenderArgs<TSource> args)
         {
-            if (linqProvider == LinqProvider.V2)
+            if (args.LinqProvider == LinqProvider.V2 || args.RenderForFind)
             {
                 // this is slightly wrong because we're not actually rendering for a Find
                 // but this is required to avoid a regression with LINQ2
-                return RenderForFind(sourceSerializer, serializerRegistry, linqProvider);
+                return args.LinqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry);
             }
             else
             {
-                return linqProvider.GetAdapter().TranslateExpressionToProjection(_expression, sourceSerializer, serializerRegistry, translationOptions: null);
+                return args.LinqProvider.GetAdapter().TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, translationOptions: null);
             }
-        }
-
-        /// <inheritdoc />
-        internal override RenderedProjectionDefinition<TProjection> RenderForFind(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return linqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
         }
     }
 
