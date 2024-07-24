@@ -504,7 +504,7 @@ namespace MongoDB.Driver.Tests
         // private methods
         private IList<BsonDocument> RenderStages<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer)
         {
-            var renderedPipeline = pipeline.Render(inputSerializer, BsonSerializer.SerializerRegistry);
+            var renderedPipeline = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry));
             return renderedPipeline.Documents;
         }
     }

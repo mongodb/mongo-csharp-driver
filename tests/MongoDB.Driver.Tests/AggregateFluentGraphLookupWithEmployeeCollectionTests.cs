@@ -22,8 +22,8 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.GraphLookup(__employeesCollection, connectFromField, connectToField, startWith, @as);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.GraphLookup(__employeesCollection, connectFromField, connectToField, startWith, @as, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
                 @as: (EmployeeWithReportingHierarchy x) => x.ReportingHierarchy);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {
@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.GraphLookup(__employeesCollection, "reportsTo", "name", "$reportsTo", "reportingHierarchy");
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {

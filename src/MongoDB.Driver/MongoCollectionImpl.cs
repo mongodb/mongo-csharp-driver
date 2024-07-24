@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -44,6 +43,7 @@ namespace MongoDB.Driver
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
+        private readonly RenderArgs<TDocument> _args;
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
@@ -62,6 +62,7 @@ namespace MongoDB.Driver
 
             _linqProvider = _database.Client.Settings.LinqProvider;
             _messageEncoderSettings = GetMessageEncoderSettings();
+            _args = new(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
         }
 
         // properties
@@ -104,7 +105,7 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_args);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -139,7 +140,7 @@ namespace MongoDB.Driver
         public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_args);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -174,7 +175,7 @@ namespace MongoDB.Driver
         public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_args);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -196,7 +197,7 @@ namespace MongoDB.Driver
         public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_args);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -645,7 +646,7 @@ namespace MongoDB.Driver
             var derivedDocumentCollection = new MongoCollectionImpl<TDerivedDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, ofTypeSerializer);
 
             var rootOfTypeFilter = Builders<TDocument>.Filter.OfType<TDerivedDocument>();
-            var renderedOfTypeFilter = rootOfTypeFilter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedOfTypeFilter = rootOfTypeFilter.Render(_args);
             var ofTypeFilter = new BsonDocumentFilterDefinition<TDerivedDocument>(renderedOfTypeFilter);
 
             return new OfTypeMongoCollection<TDocument, TDerivedDocument>(this, derivedDocumentCollection, ofTypeFilter);
@@ -748,7 +749,7 @@ namespace MongoDB.Driver
                     };
                 case WriteModelType.DeleteMany:
                     var deleteManyModel = (DeleteManyModel<TDocument>)model;
-                    return new DeleteRequest(deleteManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider))
+                    return new DeleteRequest(deleteManyModel.Filter.Render(_args))
                     {
                         CorrelationId = index,
                         Collation = deleteManyModel.Collation,
@@ -757,7 +758,7 @@ namespace MongoDB.Driver
                     };
                 case WriteModelType.DeleteOne:
                     var deleteOneModel = (DeleteOneModel<TDocument>)model;
-                    return new DeleteRequest(deleteOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider))
+                    return new DeleteRequest(deleteOneModel.Filter.Render(_args))
                     {
                         CorrelationId = index,
                         Collation = deleteOneModel.Collation,
@@ -768,7 +769,7 @@ namespace MongoDB.Driver
                     var replaceOneModel = (ReplaceOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Replacement,
-                        replaceOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                        replaceOneModel.Filter.Render(_args),
                         new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer))
                     {
                         Collation = replaceOneModel.Collation,
@@ -781,8 +782,8 @@ namespace MongoDB.Driver
                     var updateManyModel = (UpdateManyModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        updateManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
-                        updateManyModel.Update.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider))
+                        updateManyModel.Filter.Render(_args),
+                        updateManyModel.Update.Render(_args))
                     {
                         ArrayFilters = RenderArrayFilters(updateManyModel.ArrayFilters),
                         Collation = updateManyModel.Collation,
@@ -795,8 +796,8 @@ namespace MongoDB.Driver
                     var updateOneModel = (UpdateOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        updateOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
-                        updateOneModel.Update.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider))
+                        updateOneModel.Filter.Render(_args),
+                        updateOneModel.Update.Render(_args))
                     {
                         ArrayFilters = RenderArrayFilters(updateOneModel.ArrayFilters),
                         Collation = updateOneModel.Collation,
@@ -967,7 +968,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Comment = options.Comment,
-                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = filter.Render(_args),
                 Hint = options.Hint,
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
@@ -983,7 +984,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Comment = options.Comment,
-                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = filter.Render(_args),
                 Hint = options.Hint,
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
@@ -995,7 +996,7 @@ namespace MongoDB.Driver
 
         private DistinctOperation<TField> CreateDistinctOperation<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options)
         {
-            var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedField = field.Render(_args);
             var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializerRegistry);
 
             return new DistinctOperation<TField>(
@@ -1006,7 +1007,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Comment = options.Comment,
-                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = filter.Render(_args),
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
@@ -1015,7 +1016,7 @@ namespace MongoDB.Driver
 
         private DistinctOperation<TItem> CreateDistinctManyOperation<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options)
         {
-            var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedField = field.Render(_args);
             var itemSerializer = GetItemSerializerForDistinctMany(renderedField, _settings.SerializerRegistry);
 
             return new DistinctOperation<TItem>(
@@ -1026,7 +1027,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Comment = options.Comment,
-                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = filter.Render(_args),
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
@@ -1046,11 +1047,11 @@ namespace MongoDB.Driver
         private FindOneAndDeleteOperation<TProjection> CreateFindOneAndDeleteOperation<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.Render(_args with { RenderForFind = true });
 
             return new FindOneAndDeleteOperation<TProjection>(
                 _collectionNamespace,
-                filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                filter.Render(_args),
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
@@ -1060,7 +1061,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Sort = options.Sort?.Render(_args),
                 WriteConcern = _settings.WriteConcern,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
@@ -1069,11 +1070,11 @@ namespace MongoDB.Driver
         private FindOneAndReplaceOperation<TProjection> CreateFindOneAndReplaceOperation<TProjection>(FilterDefinition<TDocument> filter, object replacementObject, FindOneAndReplaceOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.Render(_args with { RenderForFind = true });
 
             return new FindOneAndReplaceOperation<TProjection>(
                 _collectionNamespace,
-                filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                filter.Render(_args),
                 new BsonDocumentWrapper(replacementObject, _documentSerializer),
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
@@ -1087,7 +1088,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Sort = options.Sort?.Render(_args),
                 WriteConcern = _settings.WriteConcern,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
@@ -1096,12 +1097,12 @@ namespace MongoDB.Driver
         private FindOneAndUpdateOperation<TProjection> CreateFindOneAndUpdateOperation<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.Render(_args with { RenderForFind = true });
 
             return new FindOneAndUpdateOperation<TProjection>(
                 _collectionNamespace,
-                filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
-                update.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                filter.Render(_args),
+                update.Render(_args),
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
@@ -1115,7 +1116,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Sort = options.Sort?.Render(_args),
                 WriteConcern = _settings.WriteConcern,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
@@ -1124,7 +1125,7 @@ namespace MongoDB.Driver
         private FindOperation<TProjection> CreateFindOperation<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
-            var renderedProjection = projection.RenderForFind(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            var renderedProjection = projection.Render(_args with { RenderForFind = true });
 
             return new FindOperation<TProjection>(
                 _collectionNamespace,
@@ -1137,7 +1138,7 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Comment = options.Comment,
                 CursorType = options.CursorType.ToCore(),
-                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = filter.Render(_args),
                 Hint = options.Hint,
                 Let = options.Let,
                 Limit = options.Limit,
@@ -1158,7 +1159,7 @@ namespace MongoDB.Driver
                 ReturnKey = options.ReturnKey,
                 ShowRecordId = options.ShowRecordId,
                 Skip = options.Skip,
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider)
+                Sort = options.Sort?.Render(_args)
             };
         }
 
@@ -1174,7 +1175,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 Collation = options.Collation,
-                Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = options.Filter?.Render(_args),
                 FinalizeFunction = options.Finalize,
 #pragma warning disable 618
                 JavaScriptMode = options.JavaScriptMode,
@@ -1183,7 +1184,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 Scope = options.Scope,
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Sort = options.Sort?.Render(_args),
                 Verbose = options.Verbose
             };
         }
@@ -1207,7 +1208,7 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
-                Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Filter = options.Filter?.Render(_args),
                 FinalizeFunction = options.Finalize,
 #pragma warning disable 618
                 JavaScriptMode = options.JavaScriptMode,
@@ -1222,7 +1223,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
                 ShardedOutput = collectionOutputOptions.Sharded,
 #pragma warning restore 618
-                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
+                Sort = options.Sort?.Render(_args),
                 Verbose = options.Verbose,
                 WriteConcern = _settings.WriteConcern
             };
@@ -1381,7 +1382,7 @@ namespace MongoDB.Driver
             var renderedArrayFilters = new List<BsonDocument>();
             foreach (var arrayFilter in arrayFilters)
             {
-                var renderedArrayFilter = arrayFilter.Render(null, _settings.SerializerRegistry, _linqProvider);
+                var renderedArrayFilter = arrayFilter.Render(null, _args.SerializerRegistry, _args.LinqProvider);
                 renderedArrayFilters.Add(renderedArrayFilter);
             }
 
@@ -1701,9 +1702,9 @@ namespace MongoDB.Driver
                 return models.Select(m =>
                 {
                     var options = m.Options ?? new CreateIndexOptions<TDocument>();
-                    var keysDocument = m.Keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry, _collection._linqProvider);
-                    var renderedPartialFilterExpression = options.PartialFilterExpression == null ? null : options.PartialFilterExpression.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry, _collection._linqProvider);
-                    var renderedWildcardProjection = options.WildcardProjection?.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry, _collection._linqProvider);
+                    var keysDocument = m.Keys.Render(_collection._args);
+                    var renderedPartialFilterExpression = options.PartialFilterExpression == null ? null : options.PartialFilterExpression.Render(_collection._args);
+                    var renderedWildcardProjection = options.WildcardProjection?.Render(_collection._args);
 
                     return new CreateIndexRequest(keysDocument)
                     {

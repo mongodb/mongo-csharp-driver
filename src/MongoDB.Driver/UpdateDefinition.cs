@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -34,9 +33,10 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
+        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
         public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V3);
+            return Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
         }
 
         /// <summary>
@@ -46,7 +46,18 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
-        public abstract BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
+        public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the update to a <see cref="BsonValue"/>.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public abstract BsonValue Render(RenderArgs<TDocument> args);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="UpdateDefinition{TDocument}"/>.
@@ -120,16 +131,10 @@ namespace MongoDB.Driver
         /// </summary>
         public PipelineDefinition<TDocument, TDocument> Pipeline => _pipeline;
 
-        /// <summary>
-        /// Renders the update to a <see cref="BsonValue"/> that represents <see cref="BsonArray"/>.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>A <see cref="BsonValue"/>.</returns>
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        /// <inheritdoc />
+        public override BsonValue Render(RenderArgs<TDocument> args)
         {
-            var renderedPipeline = _pipeline.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = _pipeline.Render(args);
             return new BsonArray(renderedPipeline.Documents);
         }
 
@@ -165,7 +170,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TDocument> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedPipeline = Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = Render(new(inputSerializer, serializerRegistry, linqProvider));
             return renderedPipeline.ToJson();
         }
     }
@@ -196,7 +201,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonValue Render(RenderArgs<TDocument> args)
         {
             return _document;
         }
@@ -228,7 +233,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonValue Render(RenderArgs<TDocument> args)
         {
             return BsonDocument.Parse(_json);
         }
@@ -260,9 +265,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonValue Render(RenderArgs<TDocument> args)
         {
-            var serializer = serializerRegistry.GetSerializer(_obj.GetType());
+            var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
             return new BsonDocumentWrapper(_obj, serializer);
         }
     }

@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Search
             _operands = Ensure.IsNotNull(operands, nameof(operands)).ToArray();
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new(_operatorName, new BsonArray(_operands.Select(o => o.Render(renderContext))));
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
+            new(_operatorName, new BsonArray(_operands.Select(o => o.Render(args))));
     }
 
     internal sealed class ConstantSearchScoreFunction<TDocument> : SearchScoreFunction<TDocument>
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Search
             _value = value;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("constant", _value);
     }
 
@@ -218,10 +218,10 @@ namespace MongoDB.Driver.Search
             _offset = offset;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("gauss", new BsonDocument()
             {
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(args) },
                 { "origin", _origin },
                 { "scale", _scale },
                 { "decay", _decay, _decay != 0.5 },
@@ -240,9 +240,9 @@ namespace MongoDB.Driver.Search
             _undefined = undefined;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedPath = _path.Render(renderContext);
+            var renderedPath = _path.Render(args);
             var pathDocument = _undefined == 0 ? renderedPath : new BsonDocument()
                 {
                     { "value", renderedPath },
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Search
 
     internal sealed class RelevanceSearchScoreFunction<TDocument> : SearchScoreFunction<TDocument>
     {
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("score", "relevance");
     }
 
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Search
             _operand = Ensure.IsNotNull(operand, nameof(operand));
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new(_operatorName, _operand.Render(renderContext));
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
+            new(_operatorName, _operand.Render(args));
     }
 }

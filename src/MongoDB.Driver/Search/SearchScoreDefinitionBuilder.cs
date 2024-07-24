@@ -100,10 +100,10 @@ namespace MongoDB.Driver.Search
             _undefined = undefined;
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("boost", new BsonDocument
             {
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(args) },
                 { "undefined", _undefined, _undefined != 0 }
             });
     }
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("boost",  new BsonDocument("value", _value));
     }
 
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
             new("constant", new BsonDocument("value", _value));
     }
 
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Search
             _function = Ensure.IsNotNull(function, nameof(function));
         }
 
-        public override BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new("function", _function.Render(renderContext));
+        public override BsonDocument Render(RenderArgs<TDocument> args) =>
+            new("function", _function.Render(args));
     }
 }

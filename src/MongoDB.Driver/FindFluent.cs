@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -197,7 +196,7 @@ namespace MongoDB.Driver
 
             if (_options.Projection != null)
             {
-                var renderedProjection = Render(_options.Projection.RenderForFind);
+                var renderedProjection = Render(_options.Projection.Render, renderForFind: true);
                 if (renderedProjection.Document != null)
                 {
                     sb.Append(", " + renderedProjection.Document.ToString());
@@ -298,10 +297,15 @@ namespace MongoDB.Driver
             };
         }
 
-        private TRendered Render<TRendered>(Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, LinqProvider, TRendered> renderer)
+        private TRendered Render<TRendered>(Func<RenderArgs<TDocument>, TRendered> renderer, bool renderForFind = false)
         {
-            var linqProvider = _collection.Database.Client.Settings.LinqProvider;
-            return renderer(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry, linqProvider);
+            var args = new RenderArgs<TDocument>(
+                _collection.DocumentSerializer,
+                _collection.Settings.SerializerRegistry,
+                _collection.Database.Client.Settings.LinqProvider,
+                renderForFind: renderForFind);
+
+            return renderer(args);
         }
     }
 }

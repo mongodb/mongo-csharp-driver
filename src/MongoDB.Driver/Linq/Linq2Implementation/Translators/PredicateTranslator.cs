@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Translators
             var translator = new PredicateTranslator(serializerRegistry);
             node = FieldExpressionFlattener.FlattenFields(node);
             return translator.Translate(node)
-                .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry, LinqProvider.V2);
+                .Render(new(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry, LinqProvider.V2));
         }
         #endregion
 

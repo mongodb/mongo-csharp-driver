@@ -75,9 +75,7 @@ namespace MongoDB.Driver.Tests
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Document>();
 
-            var renderedProjection = renderForFind ?
-                projection.RenderForFind(documentSerializer, serializerRegistry, linqProvider) :
-                projection.Render(documentSerializer, serializerRegistry, linqProvider);
+            var renderedProjection = projection.Render(new RenderArgs<Document>(documentSerializer, serializerRegistry, linqProvider, renderForFind: renderForFind));
 
             renderedProjection.Document.Should().BeEquivalentTo(expectedRenderedProjection);
         }

@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
-            return pipeline.Render(inputSerializer, serializerRegistry);
+            return pipeline.Render(new(inputSerializer, serializerRegistry));
         }
     }
 }

@@ -22,8 +22,7 @@ namespace MongoDB.Driver.Tests
 {
     public class FilterDefinitionBuilderIntArrayComparedToEnumerableIntTests
     {
-        private static IBsonSerializerRegistry __registry = BsonSerializer.SerializerRegistry;
-        private static IBsonSerializer<C> __serializer = BsonSerializer.SerializerRegistry.GetSerializer<C>();
+        private static RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
         private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public class C
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Eq("A", values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Eq(x => x.A, values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Ne("A", values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Ne(x => x.A, values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.A == values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -82,7 +81,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.A != values);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
     }
 }

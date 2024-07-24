@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Search
             _endPositionLte = endPositionLte;
         }
 
-        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        private protected override BsonDocument RenderClause(RenderArgs<TDocument> args) =>
           new()
           {
-              { "operator", _operator.Render(renderContext) },
+              { "operator", _operator.Render(args) },
               { "endPositionLte", _endPositionLte }
           };
     }
@@ -134,10 +134,10 @@ namespace MongoDB.Driver.Search
             _inOrder = inOrder;
         }
 
-        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        private protected override BsonDocument RenderClause(RenderArgs<TDocument> args) =>
             new()
             {
-                { "clauses", new BsonArray(_clauses.Select(clause => clause.Render(renderContext))) },
+                { "clauses", new BsonArray(_clauses.Select(clause => clause.Render(args))) },
                 { "slop", _slop },
                 { "inOrder", _inOrder },
             };
@@ -153,8 +153,8 @@ namespace MongoDB.Driver.Search
             _clauses = Ensure.IsNotNull(clauses, nameof(clauses)).ToList();
         }
 
-        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new("clauses", new BsonArray(_clauses.Select(clause => clause.Render(renderContext))));
+        private protected override BsonDocument RenderClause(RenderArgs<TDocument> args) =>
+            new("clauses", new BsonArray(_clauses.Select(clause => clause.Render(args))));
     }
 
     internal sealed class SubtractSearchSpanDefinition<TDocument> : SearchSpanDefinition<TDocument>
@@ -169,11 +169,11 @@ namespace MongoDB.Driver.Search
             _exclude = Ensure.IsNotNull(exclude, nameof(exclude));
         }
 
-        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        private protected override BsonDocument RenderClause(RenderArgs<TDocument> args) =>
             new()
             {
-                { "include", _include.Render(renderContext) },
-                { "exclude", _exclude.Render(renderContext) },
+                { "include", _include.Render(args) },
+                { "exclude", _exclude.Render(args) },
             };
     }
 
@@ -189,11 +189,11 @@ namespace MongoDB.Driver.Search
             _path = Ensure.IsNotNull(path, nameof(path));
         }
 
-        private protected override BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) =>
+        private protected override BsonDocument RenderClause(RenderArgs<TDocument> args) =>
             new()
             {
                 { "query", _query.Render() },
-                { "path", _path.Render(renderContext) },
+                { "path", _path.Render(args) },
             };
     }
 }

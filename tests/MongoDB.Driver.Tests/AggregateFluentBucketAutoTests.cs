@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$_id\", buckets : 4, granularity : 'POWERSOF2' } }");
         }
 
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets, output);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4, output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V3);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 

@@ -541,7 +541,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var field = directionalSortBy.Field;
-            var renderedField = field.Render(documentSerializer, serializerRegistry);
+            var renderedField = field.Render(new(documentSerializer, serializerRegistry));
 
             return renderedField.FieldSerializer;
         }

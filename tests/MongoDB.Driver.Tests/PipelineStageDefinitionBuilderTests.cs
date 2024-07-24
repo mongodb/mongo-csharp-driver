@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -538,19 +537,19 @@ namespace MongoDB.Driver.Tests
 
         private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<BsonDocument, ChangeStreamDocument<BsonDocument>> stage)
         {
-            return stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+            return stage.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry));
         }
 
         private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> stage)
         {
-            return stage.Render(new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance), BsonSerializer.SerializerRegistry);
+            return stage.Render(new(new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance), BsonSerializer.SerializerRegistry));
         }
 
         private RenderedPipelineStageDefinition<TOutput> RenderStage<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage)
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<TInput>();
-            return stage.Render(serializer, registry);
+            return stage.Render(new(serializer, registry));
         }
 
         // nested types

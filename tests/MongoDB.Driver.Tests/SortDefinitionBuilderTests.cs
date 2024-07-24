@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests
         private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedSort = sort.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedSort = sort.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedSort.Should().Be(expectedJson);
         }

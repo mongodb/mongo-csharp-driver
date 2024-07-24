@@ -37,7 +37,18 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="linqProvider">The linq provider.</param>
         /// <returns>The rendered set field definitions.</returns>
-        public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
+        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
+        public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+        }
+
+        /// <summary>
+        /// Renders the set field definitions.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>The rendered set field definitions.</returns>
+        public abstract BsonDocument Render(RenderArgs<TDocument> args);
     }
 
     /// <summary>
@@ -51,7 +62,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes an instances ListSetFieldDefinitions.
         /// </summary>
-        /// <param name="setFieldDefinitions">The set field defintions.</param>
+        /// <param name="setFieldDefinitions">The set field definitions.</param>
         public ListSetFieldDefinitions(IEnumerable<SetFieldDefinition<TDocument>> setFieldDefinitions)
         {
             _list = Ensure.IsNotNull(setFieldDefinitions, nameof(setFieldDefinitions)).ToList();
@@ -63,12 +74,12 @@ namespace MongoDB.Driver
         public IReadOnlyList<SetFieldDefinition<TDocument>> List => _list;
 
         /// <inheritdoc/>
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             var document = new BsonDocument();
             foreach (var setFieldDefinition in _list)
             {
-                var renderedSetFieldDefinition = setFieldDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+                var renderedSetFieldDefinition = setFieldDefinition.Render(args);
                 document[renderedSetFieldDefinition.Name] = renderedSetFieldDefinition.Value; // if same element name is set more than once last one wins
             }
             return document;
@@ -94,9 +105,10 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var stage = linqProvider.GetAdapter().TranslateExpressionToSetStage(_expression, documentSerializer, serializerRegistry);
+            var linqAdapter = args.LinqProvider.GetAdapter();
+            var stage = linqAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry);
             return stage["$set"].AsBsonDocument;
         }
     }

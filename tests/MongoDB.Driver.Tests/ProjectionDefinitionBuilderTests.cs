@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Tests
         private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson, LinqProvider linqProvider = LinqProvider.V3)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
 
             renderedProjection.Should().Be(expectedJson);
         }

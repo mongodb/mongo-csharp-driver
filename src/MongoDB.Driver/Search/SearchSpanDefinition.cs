@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Search
@@ -48,9 +49,18 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="renderContext">The render context.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            new(_clauseType.ToCamelCase(), RenderClause(renderContext));
+        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
+        public virtual BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
+            Render(new RenderArgs<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathRenderArgs: new PathRenderArgs(renderContext.PathPrefix)));
 
-        private protected virtual BsonDocument RenderClause(SearchDefinitionRenderContext<TDocument> renderContext) => new();
+        /// <summary>
+        /// Renders the span clause to a <see cref="BsonDocument"/>.
+        /// </summary>
+        /// <param name="args">The render arguments.</param>
+        /// <returns>A <see cref="BsonDocument"/>.</returns>
+        public virtual BsonDocument Render(RenderArgs<TDocument> args) =>
+               new(_clauseType.ToCamelCase(), RenderClause(args));
+
+        private protected virtual BsonDocument RenderClause(RenderArgs<TDocument> args) => new ();
     }
 }

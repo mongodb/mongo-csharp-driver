@@ -453,12 +453,12 @@ namespace MongoDB.Driver.Tests
 
         private static void AssertProjection<TResult>(IFindFluent<Person, TResult> subject, BsonDocument expectedProjection, LinqProvider linqProvider = LinqProvider.V3)
         {
-            Assert.Equal(expectedProjection, subject.Options.Projection.RenderForFind(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, linqProvider).Document);
+            Assert.Equal(expectedProjection, subject.Options.Projection.Render(new(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, linqProvider, renderForFind: true)).Document);
         }
 
         private static void AssertSort(IFindFluent<Person, Person> subject, BsonDocument expectedSort)
         {
-            Assert.Equal(expectedSort, subject.Options.Sort.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
+            Assert.Equal(expectedSort, subject.Options.Sort.Render(new(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry)));
         }
 
         private IMongoCollection<Person> CreateCollection(LinqProvider linqProvider = LinqProvider.V3)
