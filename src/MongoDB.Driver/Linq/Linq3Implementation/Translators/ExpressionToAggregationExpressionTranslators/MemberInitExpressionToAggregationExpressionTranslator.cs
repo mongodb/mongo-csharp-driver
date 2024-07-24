@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -28,7 +29,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class MemberInitExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
-            => Translate(context, expression, expression.NewExpression, expression.Bindings);
+        {
+            if (expression.Type == typeof(BsonDocument))
+            {
+                return NewBsonDocumentExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
+            return Translate(context, expression, expression.NewExpression, expression.Bindings);
+        }
 
         public static AggregationExpression Translate(
             TranslationContext context,

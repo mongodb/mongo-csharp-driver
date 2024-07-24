@@ -187,6 +187,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return expression;
             }
 
+            protected override Expression VisitListInit(ListInitExpression node)
+            {
+                // Initializers must be visited before NewExpression
+                Visit(node.Initializers, VisitElementInit);
+
+                if (_cannotBeEvaluated)
+                {
+                    // visit only the arguments if any Initializers cannot be partially evaluated
+                    Visit(node.NewExpression.Arguments);
+                }
+                else
+                {
+                    Visit(node.NewExpression);
+                }
+
+                return node;
+            }
+
             protected override Expression VisitMemberInit(MemberInitExpression node)
             {
                 // Bindings must be visited before NewExpression

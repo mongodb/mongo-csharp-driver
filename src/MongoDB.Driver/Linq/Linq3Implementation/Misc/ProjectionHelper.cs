@@ -154,6 +154,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 {
                     case BsonType.Boolean:
                     case BsonType.Decimal128:
+                    case BsonType.Document:
                     case BsonType.Double:
                     case BsonType.Int32:
                     case BsonType.Int64:

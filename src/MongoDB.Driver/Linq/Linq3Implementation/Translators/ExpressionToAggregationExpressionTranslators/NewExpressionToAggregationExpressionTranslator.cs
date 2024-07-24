@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -25,6 +26,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var expressionType = expression.Type;
 
+            if (expressionType == typeof(BsonDocument))
+            {
+                return NewBsonDocumentExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
             if (expressionType == typeof(DateTime))
             {
                 return NewDateTimeExpressionToAggregationExpressionTranslator.Translate(context, expression);
