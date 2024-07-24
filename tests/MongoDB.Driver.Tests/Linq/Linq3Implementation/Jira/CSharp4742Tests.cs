@@ -77,7 +77,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, linqProvider, renderForFind: renderForFind));
 
             renderedProjection.Document.Should().BeNull();
-            renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
+
+            if (linqProvider == LinqProvider.V2)
+            {
+                renderedProjection.ProjectionSerializer.ValueType.Should().Be(typeof(C));
+            }
+            else
+            {
+                renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
+            }
         }
 
         [Theory]
