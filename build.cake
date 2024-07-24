@@ -37,7 +37,6 @@ var srcProjectNames = new[]
     "MongoDB.Bson",
     "MongoDB.Driver.Core",
     "MongoDB.Driver",
-    "MongoDB.Driver.Legacy",
     "MongoDB.Driver.GridFS"
 };
 
@@ -93,7 +92,7 @@ Task("BuildArtifacts")
             var toDirectory = artifactsBinDirectory.Combine(targetFramework);
             CleanDirectory(toDirectory);
 
-            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver.Core", "MongoDB.Driver", "MongoDB.Driver.Legacy", "MongoDB.Driver.GridFS" };
+            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver.Core", "MongoDB.Driver", "MongoDB.Driver.GridFS" };
             foreach (var project in projects)
             {
                 var fromDirectory = srcDirectory.Combine(project).Combine("bin").Combine(configuration).Combine(targetFramework);
@@ -340,8 +339,7 @@ Task("PackageNugetPackages")
             "MongoDB.Bson",
             "MongoDB.Driver.Core",
             "MongoDB.Driver",
-            "MongoDB.Driver.GridFS",
-            "MongoDB.Driver.Legacy"
+            "MongoDB.Driver.GridFS"
         };
 
         foreach (var project in projects)
@@ -378,8 +376,7 @@ Task("PushToNuGet")
             "MongoDB.Bson",
             "MongoDB.Driver.Core",
             "MongoDB.Driver",
-            "MongoDB.Driver.GridFS",
-            "mongocsharpdriver" // the Nuget package name for MongoDB.Driver.Legacy
+            "MongoDB.Driver.GridFS"
         };
 
         foreach (var project in projects)
