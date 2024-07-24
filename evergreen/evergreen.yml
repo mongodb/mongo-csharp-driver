@@ -1112,20 +1112,6 @@ functions:
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.GridFS.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.nupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/mongocsharpdriver.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/mongocsharpdriver.${PACKAGE_VERSION}.snupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/mongocsharpdriver.${PACKAGE_VERSION}.snupkg
-        bucket: mciuploads
 
   build-apidocs:
     - command: shell.exec

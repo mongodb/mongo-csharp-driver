@@ -69,29 +69,6 @@
             "memberLayout": "separatePages",
             "EnumSortOrder": "declaringOrder",
             "allowCompilationErrors": false
-        },
-        {
-            "src": [
-                {
-                    "files": [
-                        "MongoDB.Driver.Legacy/*.csproj"
-                    ],
-                    "exclude": [
-                        "**/bin/**",
-                        "**/obj/**"
-                    ],
-                    "src": "../src"
-                }
-            ],
-            "dest": "api/MongoDB.Driver.Legacy",
-            "includePrivateMembers": false,
-            "disableGitFeatures": false,
-            "disableDefaultFilter": false,
-            "noRestore": false,
-            "namespaceLayout": "flattened",
-            "memberLayout": "separatePages",
-            "EnumSortOrder": "declaringOrder",
-            "allowCompilationErrors": false
         }
     ],
     "build": {
@@ -101,7 +78,6 @@
                     "api/MongoDB.Bson/**.yml",
                     "api/MongoDB.Driver.GridFS/**.yml",
                     "api/MongoDB.Driver/**.yml",
-                    "api/MongoDB.Driver.Legacy/**.yml",
                     "api/toc.yml",
                     "api/index.md"
                 ]
@@ -120,11 +96,6 @@
                 "files": ["MongoDB.md"],
                 "src": "api/",
                 "dest": "api/MongoDB.Driver.GridFS"
-            },
-            {
-                "files": ["MongoDB.md"],
-                "src": "api/",
-                "dest": "api/MongoDB.Driver.Legacy"
             },
             {
                 "files": [
