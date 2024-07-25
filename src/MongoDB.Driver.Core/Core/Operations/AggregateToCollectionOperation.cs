@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Core.Operations
             var lastStageName = lastStage?.GetElement(0).Name;
             if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
             {
-                throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out or $merge operator.", "pipeline");
+                throw new ArgumentException("The last stage of the pipeline for an AggregateToCollectionOperation must have a $out or $merge operator.", "pipeline");
             }
         }
 

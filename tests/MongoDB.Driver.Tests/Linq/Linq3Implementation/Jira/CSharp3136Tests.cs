@@ -76,11 +76,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("%H:%M:%S", "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', format : '%H:%M:%S', timezone : '-04:00' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_constants_should_work(string format, string timezone, string expectedProjectStage, string[] expectedResults)
         {
-            if (format == null)
-            {
-                RequireServer.Check().VersionGreaterThanOrEqualTo("4.0");
-            }
-
             var collection = CreateCollection();
 
             var queryable = collection
@@ -109,8 +104,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, true, "{ $project : { _v : { $dateToString : { date : '$D', format : '$Format', timezone : '$Timezone' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_expressions_should_work(bool withFormat, bool withTimezone, string expectedProjectStage, string[] expectedResults)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("4.0");
-
             var collection = CreateCollection();
 
             var orderby = collection
@@ -173,11 +166,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("%H:%M:%S", "-04:00", "xx", "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S', timezone : '-04:00', onNull : 'xx' } }, _id : 0 } }", new[] { "23:04:05", "xx" })]
         public void NullableDateTime_ToString_with_format_and_timezone_and_onNull_constants_should_work(string format, string timezone, string onNull, string expectedProjectStage, string[] expectedResults)
         {
-            if (format == null || onNull != null)
-            {
-                RequireServer.Check().VersionGreaterThanOrEqualTo("4.0");
-            }
-
             var collection = CreateCollection();
 
             var queryable = collection
@@ -210,8 +198,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, true, true, "{ $project : { _v : { $dateToString : { date : '$N', format : '$Format', timezone : '$Timezone', onNull : '$OnNull' } }, _id : 0 } }", new[] { "23:04:05", "missing" })]
         public void NullableDateTime_ToString_with_format_and_timezone_and_onNull_expressions_should_work(bool withFormat, bool withTimezone, bool withOnNull, string expectedProjectStage, string[] expectedResults)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("4.0");
-
             var collection = CreateCollection();
 
             var orderby = collection

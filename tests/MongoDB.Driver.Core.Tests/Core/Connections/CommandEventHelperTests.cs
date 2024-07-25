@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ gETNONCE : 1 }", true)]
         [InlineData("{ cREATEUSER : 1 }", true)]
         [InlineData("{ uPDATEUSER : 1, }", true)]
-        [InlineData("{ cOPYDBGETNONCE : 1 }", true)]
         [InlineData("{ cOPYDBSASLSTART : 1 }", true)]
         [InlineData("{ cOPYDB : 1 }", true)]
         [InlineData("{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1 }", false)]
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var eventCapturer = new EventCapturer();
             // Capture unrelated event, so events filtering is enabled.
-            eventCapturer.Capture<SdamInformationEvent>(); 
+            eventCapturer.Capture<SdamInformationEvent>();
             if (captureCommandSucceeded)
             {
                 eventCapturer.Capture<CommandSucceededEvent>(_ => true);

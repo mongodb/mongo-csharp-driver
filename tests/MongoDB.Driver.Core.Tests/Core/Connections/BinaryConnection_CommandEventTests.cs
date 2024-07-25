@@ -62,7 +62,6 @@ namespace MongoDB.Driver.Core.Connections
                 new object[] { "{ getnonce : 1 }", true },
                 new object[] { "{ createUser : 1 }", true },
                 new object[] { "{ updateUser : 1 }", true },
-                new object[] { "{ copydbgetnonce : 1 }", true },
                 new object[] { "{ copydbsaslstart : 1 }", true },
                 new object[] { "{ copydb : 1 }", true },
                 new object[] { "{ authenticate : 1 }", true },

@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (Pipeline.Any(s => { var n = s.GetElement(0).Name; return n == "$out" || n == "$merge"; }))
             {
-                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out or $merge operator. Use AggregateOutputToCollectionOperation instead.", "pipeline");
+                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out or $merge operator. Use AggregateToCollectionOperation instead.", "pipeline");
             }
         }
 
