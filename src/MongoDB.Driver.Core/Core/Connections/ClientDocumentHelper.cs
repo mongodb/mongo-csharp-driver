@@ -89,11 +89,6 @@ namespace MongoDB.Driver.Core.Connections
         internal static BsonDocument CreateDriverDocument(string driverVersion)
         {
             var driverName = "mongo-csharp-driver";
-            if (TryGetType("MongoDB.Driver.MongoServer, MongoDB.Driver.Legacy", out _))
-            {
-                driverName = $"{driverName}|legacy";
-            }
-
             if (TryGetType("MongoDB.AspNetCore.OData.MongoEnableQueryAttribute, MongoDB.AspNetCore.OData", out _))
             {
                 driverName = $"{driverName}|odata";

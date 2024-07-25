@@ -32,9 +32,6 @@
 <a href="xref:MongoDB.Driver"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.md)]
 
-<a href="xref:MongoDB.Driver.Builders"></a>
-:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Builders.md)]
-
 <a href="xref:MongoDB.Driver.Encryption"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Encryption.md)]
 
