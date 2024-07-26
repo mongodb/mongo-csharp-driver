@@ -20,7 +20,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
     {
         #region static
         // public static methods
-        public static KnownSerializersRegistry FindKnownSerializers(Expression root, IBsonDocumentSerializer rootSerializer)
+        public static KnownSerializersRegistry FindKnownSerializers(Expression root, IBsonSerializer rootSerializer)
         {
             var visitor = new KnownSerializerFinder(root, rootSerializer);
             visitor.Visit(root);
@@ -39,13 +38,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
 
         // private fields
         private KnownSerializersNode _currentKnownSerializersNode;
-        private IBsonDocumentSerializer _currentSerializer;
+        private IBsonSerializer _currentSerializer;
         private readonly KnownSerializersRegistry _registry = new();
         private readonly Expression _root;
-        private readonly IBsonDocumentSerializer _rootSerializer;
+        private readonly IBsonSerializer _rootSerializer;
 
         // constructors
-        private KnownSerializerFinder(Expression root, IBsonDocumentSerializer rootSerializer)
+        private KnownSerializerFinder(Expression root, IBsonSerializer rootSerializer)
         {
             _rootSerializer = rootSerializer;
             _root = root;

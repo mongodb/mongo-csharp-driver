@@ -30,13 +30,14 @@ namespace MongoDB.Driver
     /// Encapsulates settings needed for rendering Builder definitions.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public record struct RenderArgs<TDocument>
+    public record RenderArgs<TDocument>
     {
         private readonly IBsonSerializer<TDocument> _documentSerializer = default;
-        private readonly bool _renderForFind = false;
         private readonly LinqProvider _linqProvider = default;
         private readonly PathRenderArgs _pathRenderArgs = default;
         private readonly bool _renderDollarForm = default;
+        private readonly bool _renderForElemMatch = false;
+        private readonly bool _renderForFind = false;
         private readonly IBsonSerializerRegistry _serializerRegistry = default;
 
         /// <summary>
@@ -48,13 +49,15 @@ namespace MongoDB.Driver
         /// <param name="pathRenderArgs">The path render arguments.</param>
         /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
+        /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         public RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             LinqProvider linqProvider = LinqProvider.V3,
             PathRenderArgs pathRenderArgs = default,
             bool renderDollarForm = default,
-            bool renderForFind = false)
+            bool renderForFind = false,
+            bool renderForElemMatch = false)
         {
             DocumentSerializer = documentSerializer;
             LinqProvider = linqProvider;
@@ -62,12 +65,13 @@ namespace MongoDB.Driver
             SerializerRegistry = serializerRegistry;
             RenderDollarForm = renderDollarForm;
             _renderForFind = renderForFind;
+            _renderForElemMatch = renderForElemMatch;
         }
 
         /// <summary>
         /// Gets the document serializer.
         /// </summary>
-        public readonly IBsonSerializer<TDocument> DocumentSerializer
+        public IBsonSerializer<TDocument> DocumentSerializer
         {
             get => _documentSerializer;
             init => _documentSerializer = Ensure.IsNotNull(value, nameof(value));
@@ -76,27 +80,32 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the value indicating whether Render is being called for Find.
         /// </summary>
-        public readonly bool RenderForFind { get => _renderForFind; init => _renderForFind = value; }
+        public bool RenderForElemMatch { get => _renderForElemMatch; init => _renderForElemMatch = value; }
+
+        /// <summary>
+        /// Gets the value indicating whether Render is being called for Find.
+        /// </summary>
+        public bool RenderForFind { get => _renderForFind; init => _renderForFind = value; }
 
         /// <summary>
         /// Gets the linq provider.
         /// </summary>
-        public readonly LinqProvider LinqProvider { get => _linqProvider; init => _linqProvider = value; }
+        public LinqProvider LinqProvider { get => _linqProvider; init => _linqProvider = value; }
 
         /// <summary>
         /// Gets the path render arguments.
         /// </summary>
-        public readonly PathRenderArgs PathRenderArgs { get => _pathRenderArgs; init => _pathRenderArgs = value; }
+        public PathRenderArgs PathRenderArgs { get => _pathRenderArgs; init => _pathRenderArgs = value; }
 
         /// <summary>
         /// Gets the value indicating whether full dollar form should be rendered.
         /// </summary>
-        public readonly bool RenderDollarForm { get => _renderDollarForm; init => _renderDollarForm = value; }
+        public bool RenderDollarForm { get => _renderDollarForm; init => _renderDollarForm = value; }
 
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public readonly IBsonSerializerRegistry SerializerRegistry
+        public IBsonSerializerRegistry SerializerRegistry
         {
             get => _serializerRegistry;
             init => _serializerRegistry = Ensure.IsNotNull(value, nameof(value));
@@ -106,7 +115,7 @@ namespace MongoDB.Driver
         /// Returns <see cref="DocumentSerializer"/> if it implements <c>IBsonSerializer{T}</c>
         /// or resolves <c>IBsonSerializer{T}</c> from <see cref="SerializerRegistry"/>.
         /// </summary>
-        public readonly IBsonSerializer<T> GetSerializer<T>() =>
+        public IBsonSerializer<T> GetSerializer<T>() =>
             _documentSerializer as IBsonSerializer<T> ?? SerializerRegistry.GetSerializer<T>();
 
         /// <summary>
@@ -116,7 +125,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new RenderArgs{TNewDocument} instance.
         /// </returns>
-        public readonly RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
+        public RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
             new(serializer, SerializerRegistry, LinqProvider, PathRenderArgs);
     }
 }

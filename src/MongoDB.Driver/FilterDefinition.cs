@@ -229,7 +229,14 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            return args.LinqProvider.GetAdapter().TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializerRegistry);
+            if (args.RenderForElemMatch)
+            {
+                return args.LinqProvider.GetAdapter().TranslateExpressionToElemMatchFilter(_expression, elementSerializer: args.DocumentSerializer, args.SerializerRegistry);
+            }
+            else
+            {
+                return args.LinqProvider.GetAdapter().TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializerRegistry);
+            }
         }
     }
 

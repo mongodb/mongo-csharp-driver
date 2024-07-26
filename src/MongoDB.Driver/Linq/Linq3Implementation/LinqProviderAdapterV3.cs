@@ -125,6 +125,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return new RenderedFieldDefinition<TField>(field.Path, fieldSerializer, valueSerializer, underlyingSerializer);
         }
 
+        internal override BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
+            Expression<Func<TElement, bool>> expression,
+            IBsonSerializer<TElement> elementSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            var context = TranslationContext.Create(expression, elementSerializer);
+            var parameter = expression.Parameters.Single();
+            var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
+            context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
+            var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
+            filter = AstSimplifier.SimplifyAndConvert(filter);
+
+            return filter.Render().AsBsonDocument;
+        }
+
         internal override BsonDocument TranslateExpressionToFilter<TDocument>(
             Expression<Func<TDocument, bool>> expression,
             IBsonSerializer<TDocument> documentSerializer,
