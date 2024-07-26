@@ -120,6 +120,15 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
             return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer, valueSerializer, underlyingSerializer);
         }
 
+        internal override BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
+            Expression<Func<TElement, bool>> expression,
+            IBsonSerializer<TElement> elementSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            // LINQ2 doesn't have any special translators for $elemMatch
+            return TranslateExpressionToFilter(expression, documentSerializer: elementSerializer, serializerRegistry);
+        }
+
         internal override BsonDocument TranslateExpressionToFilter<TDocument>(
             Expression<Func<TDocument, bool>> expression,
             IBsonSerializer<TDocument> documentSerializer,

@@ -1572,7 +1572,8 @@ namespace MongoDB.Driver
 
             if (_filter != null)
             {
-                var renderedFilter = _filter.Render(args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
+                // a $pull filter is rendered in the same way as an $elemMatch filter
+                var renderedFilter = _filter.Render(args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer) with { RenderForElemMatch = true });
                 return new BsonDocument("$pull", new BsonDocument(renderedField.FieldName, renderedFilter));
             }
             else

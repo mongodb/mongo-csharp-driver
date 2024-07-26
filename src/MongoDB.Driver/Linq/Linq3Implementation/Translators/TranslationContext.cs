@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             {
                 serializer = partitionSerializer.InputSerializer; // maybe this logic belongs in KnownSerializerFinder
             }
-            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, (IBsonDocumentSerializer)serializer);
+            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, serializer);
             return new TranslationContext(symbolTable, nameGenerator, knownSerializersRegistry, data);
         }
         #endregion
