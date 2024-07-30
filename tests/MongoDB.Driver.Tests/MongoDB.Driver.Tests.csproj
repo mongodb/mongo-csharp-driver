@@ -14,7 +14,10 @@
   <PropertyGroup>
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
+      xUnit1010; <!--The value is not convertible to the method parameter type (https://xunit.github.io/xunit.analyzers/rules/xUnit1010.html)-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
+      xUnit1014; <!--MemberData should use nameof operator for member name (https://xunit.github.io/xunit.analyzers/rules/xUnit1014.html)-->
+      xUnit1016; <!--MemberData must reference a public member (https://xunit.github.io/xunit.analyzers/rules/xUnit1016.html)-->
       xUnit1024; <!--Test methods cannot have overloads (https://xunit.github.io/xunit.analyzers/rules/xUnit1024.html)-->
       xUnit1025; <!--InlineData should be unique within the Theory it belongs to (https://xunit.github.io/xunit.analyzers/rules/xUnit1025.html)-->
       xUnit1026; <!--Theory methods should use all of their parameters (https://xunit.github.io/xunit.analyzers/rules/xUnit1026.html)-->
@@ -37,10 +40,8 @@
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
-    <ProjectReference Include="..\..\src\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
     <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
     <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
-    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
