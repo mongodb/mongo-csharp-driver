@@ -43,17 +43,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var fieldExpression = arguments[0];
                 var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
-                var fieldAst = fieldTranslation.Ast;
-                if (fieldAst.NodeType != AstNodeType.GetFieldExpression)
+                if (!(fieldTranslation.Ast is AstGetFieldExpression fieldAst))
                 {
                     throw new ExpressionNotSupportedException(expression, because: $"argument to {method.Name} must be a reference to a field");
                 }
 
                 var ast = method.Name switch
                 {
-                    nameof(Mql.Exists) => AstExpression.Ne(AstExpression.Type(fieldAst), "missing"),
-                    nameof(Mql.IsMissing) => AstExpression.Eq(AstExpression.Type(fieldAst), "missing"),
-                    nameof(Mql.IsNullOrMissing) => AstExpression.In(AstExpression.Type(fieldAst), new BsonArray { "null", "missing" }),
+                    nameof(Mql.Exists) => AstExpression.IsNotMissing(fieldAst),
+                    nameof(Mql.IsMissing) => AstExpression.IsMissing(fieldAst),
+                    nameof(Mql.IsNullOrMissing) => AstExpression.IsNullOrMissing(fieldAst),
                     _ => throw new InvalidOperationException("Unexpected method."),
                 };
 

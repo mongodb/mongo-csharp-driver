@@ -46,7 +46,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
-                var ast = AstExpression.Eq(discriminatorField, discriminatorValue);
+                var ast = discriminatorValue == null ?
+                    AstExpression.IsMissing(discriminatorField) :
+                    AstExpression.Eq(discriminatorField, discriminatorValue);
                 return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
             }
 
