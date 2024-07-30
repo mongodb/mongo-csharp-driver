@@ -281,6 +281,8 @@ namespace MongoDB.Driver.Core.Operations
             [Values(typeof(DeleteRequest), typeof(UpdateRequest))] Type requestWithCollationType,
             [Values(false, true)] bool async)
         {
+            DropCollection();
+
             var collation = new Collation("en_US");
             var requests = new List<WriteRequest>
             {
