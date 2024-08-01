@@ -818,7 +818,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 }
                             }
 
-                            var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, ((kmsProviderName) => kmsProviderName == "kmip")); // configure Tls for kmip by default
+                            var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, ((kmsProviderName) => kmsProviderName.StartsWith("kmip"))); // configure Tls for kmip by default
                             options = new ClientEncryptionOptions(
                                 Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)),
                                 Ensure.IsNotNull(keyVaultCollectionNamespace, nameof(keyVaultCollectionNamespace)),

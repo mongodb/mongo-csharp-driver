@@ -1446,8 +1446,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequirePlatform
                 .Check()
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
@@ -2615,7 +2615,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
-                allowClientCertificateFunc: kmsProviderName => kmsProviderName == "kmip");
+                allowClientCertificateFunc: kmsProviderName => kmsProviderName.StartsWith("kmip"));
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
@@ -2672,7 +2672,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => (object)ki.Value));
             }
 
-            allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
+            allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName.StartsWith("kmip")); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
             var clientEncryptionOptions = new ClientEncryptionOptions(
