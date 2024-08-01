@@ -17,9 +17,9 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Tests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -152,8 +152,7 @@ namespace MongoDB.Driver.Core.Connections
 
             fileSystemProviderMock.Setup(fileSystem => fileSystem.File.Exists("/.dockerenv")).Returns(isDockerToBeDetected);
 
-            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
-            ClientDocumentHelper.SetFileSystemProvider(fileSystemProviderMock.Object);
+            using var __ = new ClientDocumentHelperProvidersSetter(environmentVariableProviderMock.Object, fileSystemProviderMock.Object);
 
             var result = ClientDocumentHelper.CreateEnvDocument();
             result.Should().Be(expected);
@@ -251,7 +250,7 @@ namespace MongoDB.Driver.Core.Connections
             environmentVariableProviderMock
                 .Setup(env => env.GetEnvironmentVariable(variableRightParts[0])).Returns(variableRightParts.Length > 1 ? variableRightParts[1] : "dummy");
 
-            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
+            using var __ = new ClientDocumentHelperProvidersSetter(environmentVariableProviderMock.Object);
 
             var clientEnvDocument = ClientDocumentHelper.CreateEnvDocument();
             if (left == right)

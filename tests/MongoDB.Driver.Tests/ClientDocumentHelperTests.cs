@@ -23,7 +23,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Tests
             string environmentVariableDescription,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Authentication(authentication: false); // speculaive authentication makes events asserting hard
+            RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
 
             ClientDocumentHelperReflector.Initialize();
 
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Tests
             descriptionElements.ForEach(e =>
                 environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable(e.Name)).Returns(GetValue(e.Value.ToString())));
 
-            ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProviderMock.Object);
+            using var __ = new ClientDocumentHelperProvidersSetter(environmentVariableProviderMock.Object);
 
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => e.CommandName == OppressiveLanguageConstants.LegacyHelloCommandName || e.CommandName == "hello");
@@ -109,5 +108,27 @@ namespace MongoDB.Driver.Tests
     internal static class ClientDocumentHelperReflector
     {
         public static void Initialize() => Reflector.InvokeStatic(typeof(ClientDocumentHelper), nameof(Initialize));
+    }
+
+    internal sealed class ClientDocumentHelperProvidersSetter : IDisposable
+    {
+        public ClientDocumentHelperProvidersSetter(IEnvironmentVariableProvider environmentVariableProvider, IFileSystemProvider fileSystemProvider = null)
+        {
+            if (environmentVariableProvider != null)
+            {
+                ClientDocumentHelper.SetEnvironmentVariableProvider(environmentVariableProvider);
+            }
+
+            if (fileSystemProvider != null)
+            {
+                ClientDocumentHelper.SetFileSystemProvider(fileSystemProvider);
+            }
+        }
+
+        public void Dispose()
+        {
+            ClientDocumentHelper.SetEnvironmentVariableProvider(EnvironmentVariableProvider.Instance);
+            ClientDocumentHelper.SetFileSystemProvider(FileSystemProvider.Instance);
+        }
     }
 }
