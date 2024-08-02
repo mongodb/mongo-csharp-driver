@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
+        protected TResult ExecuteOperationSync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async, bool useImplicitSession = false)
+        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async = false, bool useImplicitSession = false)
         {
             if (async)
             {
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                return ExecuteOperation(operation, useImplicitSession);
+                return ExecuteOperationSync(operation, useImplicitSession);
             }
         }
 

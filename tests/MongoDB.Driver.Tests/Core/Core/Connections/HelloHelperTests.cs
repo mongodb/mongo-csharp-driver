@@ -17,11 +17,12 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using Xunit;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Tests;
+using MongoDB.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -56,6 +57,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void AddClientDocumentToCommand_with_ConnectionInitializer_client_document_should_return_expected_result()
         {
+            ClientDocumentHelperReflector.Initialize();
+
             var command = HelloHelper.CreateCommand(null);
             var libraryInfo = new LibraryInfo("lib", "1.0.0");
             var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null, libraryInfo: libraryInfo);

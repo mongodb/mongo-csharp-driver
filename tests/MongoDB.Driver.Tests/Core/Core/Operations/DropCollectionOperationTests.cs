@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             DropCollection();
             var operation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            ExecuteOperation(operation, false);
+            ExecuteOperation(operation, useImplicitSession: false);
         }
     }
 }

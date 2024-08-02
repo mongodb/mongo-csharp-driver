@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -281,6 +282,8 @@ namespace MongoDB.Driver.Core.Operations
             [Values(typeof(DeleteRequest), typeof(UpdateRequest))] Type requestWithCollationType,
             [Values(false, true)] bool async)
         {
+            DropCollection();
+
             var collation = new Collation("en_US");
             var requests = new List<WriteRequest>
             {
@@ -859,8 +862,12 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
+            // This test is flaky on NetStandard20 on Windows, temporary disable it until NetStandard20 removal.
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Windows, SupportedTargetFramework.NetStandard20);
+
             RequireServer.Check();
             EnsureTestData();
+
             var smallDocument = new BsonDocument { { "_id", 7 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
             var stringSize = 16 * 1024 * 1024 - smallDocumentSize;

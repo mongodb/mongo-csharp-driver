@@ -27,8 +27,7 @@
             "src": [
                 {
                     "files": [
-                        "MongoDB.Driver/*.csproj",
-                        "MongoDB.Driver.Core/*.csproj"
+                        "MongoDB.Driver/*.csproj"
                     ],
                     "exclude": [
                         "**/bin/**",
