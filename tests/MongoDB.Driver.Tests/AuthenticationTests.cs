@@ -196,33 +196,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void Authentication_succeeds_when_user_has_multiple_credentials_and_mechanism_is_not_specified(
-            [Values(false, true)] bool async)
-        {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true).VersionLessThan("6.0.0-");
-            var client = DriverTestConfiguration.Client;
-            var source1 = "nyc-matrix";
-            var userName1 = $"ThomasAnderson{Guid.NewGuid()}";
-            var password1 = "WhatIsTheMatrix";
-            var source2 = "admin";
-            var userName2 = $"Neo{Guid.NewGuid()}";
-            var password2 = "TrinityAndZionForever";
-            CreateDatabaseUser(client, source1, userName1, password1, role: "read", mechanisms: "SCRAM-SHA-256");
-            CreateDatabaseUser(client, source2, userName2, password2, role: "root", mechanisms: "SCRAM-SHA-256");
-            var settings = client.Settings.Clone();
-#pragma warning disable 618
-            settings.Credentials = new[]
-            {
-#pragma warning restore 618
-                MongoCredential.FromComponents(mechanism: null, source: source1, username: userName1, password: password1),
-                MongoCredential.FromComponents(mechanism: null, source: source2, username: userName2, password: password2)
-            };
-
-            AssertAuthenticationSucceeds(settings, async);
-        }
-
-        [Theory]
         [InlineData("IX", "IX", "\u2168", "\u2163", false)] // "IX", "IX", Roman numeral nine, Roman numeral four
         [InlineData("IX", "IX", "\u2168", "\u2163", true)] // "IX", "IX", Roman numeral nine, Roman numeral four
         public void Authentication_succeeds_with_Ascii_username_and_Ascii_password_when_SaslPrep_equivalent_username_exists(

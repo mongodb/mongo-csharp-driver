@@ -237,15 +237,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestCredentials()
-        {
-            var settings = new MongoClientSettings();
-#pragma warning disable 618
-            Assert.Equal(0, settings.Credentials.Count());
-#pragma warning restore
-        }
-
-        [Fact]
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
@@ -258,7 +249,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
-            Assert.Equal(0, settings.Credentials.Count());
+            Assert.Null(settings.Credential);
             Assert.Equal(null, settings.DirectConnection);
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -725,7 +716,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
-            Assert.Equal(1, settings.Credentials.Count());
+            Assert.NotNull(settings.Credential);
 #pragma warning restore
             Assert.Equal(url.Username, settings.Credential.Username);
             Assert.Equal(url.AuthenticationMechanism, settings.Credential.Mechanism);
@@ -1557,7 +1548,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
 #pragma warning disable CS0618 // Type or member is obsolete
-            result.Credentials.Should().Equal(subject.Credentials);
+            result.Credential.Should().Be(subject.Credential);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.LibraryInfo.Should().Be(subject.LibraryInfo);
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);

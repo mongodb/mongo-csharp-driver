@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -119,7 +120,16 @@ namespace MongoDB.Driver
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
             var endPoints = clusterKey.Servers.Select(s => new DnsEndPoint(s.Host, s.Port)).ToArray();
-            var authenticatorFactories = clusterKey.Credentials.Select(c => new AuthenticatorFactory(() => c.ToAuthenticator(endPoints, clusterKey.ServerApi)));
+            IEnumerable<IAuthenticatorFactory> authenticatorFactories = Array.Empty<IAuthenticatorFactory>();
+
+            if (clusterKey.Credential != null)
+            {
+                authenticatorFactories = new[]
+                {
+                    new AuthenticatorFactory(() => clusterKey.Credential.ToAuthenticator(endPoints, clusterKey.ServerApi))
+                };
+            }
+
             return settings.With(
                 authenticatorFactories: Optional.Enumerable<IAuthenticatorFactory>(authenticatorFactories),
                 compressors: Optional.Enumerable(clusterKey.Compressors),

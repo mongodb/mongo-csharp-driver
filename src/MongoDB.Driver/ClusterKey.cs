@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
@@ -36,7 +35,7 @@ namespace MongoDB.Driver
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
         private readonly TimeSpan _connectTimeout;
-        private readonly IReadOnlyList<MongoCredential> _credentials;
+        private readonly MongoCredential _credential;
         private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool? _directConnection;
         private readonly int _hashCode;
@@ -80,7 +79,7 @@ namespace MongoDB.Driver
             ConnectionModeSwitch connectionModeSwitch,
 #pragma warning restore CS0618 // Type or member is obsolete
             TimeSpan connectTimeout,
-            IReadOnlyList<MongoCredential> credentials,
+            MongoCredential credential,
             CryptClientSettings cryptClientSettings,
             bool? directConnection,
             TimeSpan heartbeatInterval,
@@ -121,7 +120,7 @@ namespace MongoDB.Driver
             _connectionMode = connectionMode;
             _connectionModeSwitch = connectionModeSwitch;
             _connectTimeout = connectTimeout;
-            _credentials = credentials;
+            _credential = credential;
             _cryptClientSettings = cryptClientSettings;
             _directConnection = directConnection;
             _heartbeatInterval = heartbeatInterval;
@@ -176,7 +175,7 @@ namespace MongoDB.Driver
         [Obsolete("This property will be removed in a later release.")]
         public ConnectionModeSwitch ConnectionModeSwitch => _connectionModeSwitch;
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
-        public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
+        public MongoCredential Credential { get { return _credential; } }
         public CryptClientSettings CryptClientSettings { get { return _cryptClientSettings; } }
         public bool? DirectConnection
         {
@@ -225,7 +224,7 @@ namespace MongoDB.Driver
         {
             // keep calculation simple (leave out fields that are rarely used)
             return new Hasher()
-                .HashElements(_credentials)
+                .Hash(_credential)
                 .HashElements(_servers)
                 .GetHashCode();
         }
@@ -246,7 +245,7 @@ namespace MongoDB.Driver
                 _connectionMode == rhs._connectionMode &&
                 _connectionModeSwitch == rhs._connectionModeSwitch &&
                 _connectTimeout == rhs._connectTimeout &&
-                _credentials.SequenceEqual(rhs._credentials) &&
+                _credential == rhs._credential &&
                 object.Equals(_cryptClientSettings, rhs._cryptClientSettings) &&
                 _directConnection.Equals(rhs._directConnection) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&

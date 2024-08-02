@@ -23,13 +23,13 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal sealed class ConnectionInitializerContext
     {
-        public ConnectionInitializerContext(ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators)
+        public ConnectionInitializerContext(ConnectionDescription description, IAuthenticator authenticator)
         {
             Description = Ensure.IsNotNull(description, nameof(description));
-            Authenticators = Ensure.IsNotNull(authenticators, nameof(authenticators));
+            Authenticator = authenticator;
         }
 
-        public IReadOnlyList<IAuthenticator> Authenticators { get; }
+        public IAuthenticator Authenticator { get; }
         public ConnectionDescription Description { get; }
     }
 

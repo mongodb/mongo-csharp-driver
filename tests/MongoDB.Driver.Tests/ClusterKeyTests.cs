@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("Compressors", true)]
         [InlineData("ConnectionMode", true)]
         [InlineData("ConnectTimeout", true)]
-        [InlineData("Credentials", false)]
+        [InlineData("Credential", false)]
         [InlineData("DirectConnection", true)]
         [InlineData("libraryInfo", true)]
         [InlineData("EncryptedFieldsMap", true)]
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
             var connectTimeout = TimeSpan.FromSeconds(1);
 #pragma warning disable 618
-            var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
 #pragma warning restore 618
             bool? directConnection = null;
             var libraryInfo = new LibraryInfo("name", "1.0.0");
@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                     case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
 #pragma warning disable CS0618 // Type or member is obsolete
-                    case "Credentials": credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("different", "different", "different") }; break;
+                    case "Credential": credential = MongoCredential.CreateMongoCRCredential("different", "different", "different"); break;
                     case "DirectConnection":
                         {
                             directConnection = true;
@@ -307,7 +307,7 @@ namespace MongoDB.Driver.Tests
                 connectionMode,
                 connectionModeSwitch,
                 connectTimeout,
-                credentials,
+                credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
                 heartbeatInterval,
@@ -358,7 +358,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
             var connectTimeout = TimeSpan.FromSeconds(1);
 #pragma warning disable 618
-            var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
 #pragma warning restore 618
             bool? directConnection = null;
             var libraryInfo = new LibraryInfo("my_lib");
@@ -404,7 +404,7 @@ namespace MongoDB.Driver.Tests
                 connectionMode,
                 connectionModeSwitch,
                 connectTimeout,
-                credentials,
+                credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
                 heartbeatInterval,

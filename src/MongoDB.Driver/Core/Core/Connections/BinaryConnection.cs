@@ -325,12 +325,9 @@ namespace MongoDB.Driver.Core.Connections
 
         private void InvalidateAuthenticators()
         {
-            foreach (var authenticator in _connectionInitializerContext.Authenticators)
+            if (_connectionInitializerContext?.Authenticator is MongoOidcAuthenticator oidcAuthenticator)
             {
-                if (authenticator is MongoOidcAuthenticator oidcAuthenticator)
-                {
-                    oidcAuthenticator.ClearCredentialsCache();
-                }
+                oidcAuthenticator.ClearCredentialsCache();
             }
         }
 

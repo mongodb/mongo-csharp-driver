@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
         {
             var clusterConfigurator = new Action<ClusterBuilder>(b => { });
 #pragma warning disable 618
-            var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
 #pragma warning restore 618
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests
                 connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
 #pragma warning restore CS0618 // Type or member is obsolete
                 connectTimeout: TimeSpan.FromSeconds(1),
-                credentials: credentials,
+                credential: credential,
                 cryptClientSettings: cryptClientSettings,
                 directConnection: null,
                 libraryInfo: null,
