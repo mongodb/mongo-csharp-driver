@@ -1776,6 +1776,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Trait("Category", "CsfleAZUREKMS")]
         [Trait("Category", "CsfleGCPKMS")]
+        [Fact]
+        public void OnDemandCredentialsTestWithNamed()
+        {
+            // This test specifically verifies part of the CSFLE specification that
+            // KMS providers that include a name do not support automatic credentials.
+            
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var kmsProvider = "aws:name1";
+
+            var exception = Record.Exception(() =>
+            {
+                using var client = ConfigureClient();
+                using var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument()));
+            });
+
+            exception?.Message.Should().Contain("On-demand credentials are not supported for named KMS providers");
+        }
+
+        [Trait("Category", "CsfleAZUREKMS")]
+        [Trait("Category", "CsfleGCPKMS")]
         [Theory]
         [ParameterAttributeData]
         public void OnDemandCredentialsTest(
