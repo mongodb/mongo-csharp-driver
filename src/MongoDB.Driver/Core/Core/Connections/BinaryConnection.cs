@@ -313,17 +313,17 @@ namespace MongoDB.Driver.Core.Connections
 
         public void Reauthenticate(CancellationToken cancellationToken)
         {
-            InvalidateAuthenticators();
+            InvalidateAuthenticator();
             _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
         }
 
         public async Task ReauthenticateAsync(CancellationToken cancellationToken)
         {
-            InvalidateAuthenticators();
+            InvalidateAuthenticator();
             _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
         }
 
-        private void InvalidateAuthenticators()
+        private void InvalidateAuthenticator()
         {
             if (_connectionInitializerContext?.Authenticator is MongoOidcAuthenticator oidcAuthenticator)
             {

@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException();
             }
 
-            var authenticatorFactories = connection.Settings.AuthenticatorFactories.SingleOrDefault();
-            return authenticatorFactories?.Create();
+            var authenticatorFactory = connection.Settings.AuthenticatorFactories.SingleOrDefault();
+            return authenticatorFactory?.Create();
         }
 
         private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)

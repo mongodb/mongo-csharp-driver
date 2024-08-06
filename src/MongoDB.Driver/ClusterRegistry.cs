@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
             var endPoints = clusterKey.Servers.Select(s => new DnsEndPoint(s.Host, s.Port)).ToArray();
-            IEnumerable<IAuthenticatorFactory> authenticatorFactories = Array.Empty<IAuthenticatorFactory>();
+            var authenticatorFactories = Array.Empty<IAuthenticatorFactory>();
 
             if (clusterKey.Credential != null)
             {
