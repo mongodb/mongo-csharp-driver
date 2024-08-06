@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         private ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
         private TimeSpan _connectTimeout;
-        private MongoCredentialStore _credentials;
+        private MongoCredential _credential;
         private bool? _directConnection;
         private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
@@ -104,7 +104,6 @@ namespace MongoDB.Driver
             _connectionModeSwitch = ConnectionModeSwitch.NotSet;
 #pragma warning restore CS0618 // Type or member is obsolete
             _connectTimeout = MongoDefaults.ConnectTimeout;
-            _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _directConnection = null;
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -282,36 +281,12 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _credentials.SingleOrDefault();
+                return _credential;
             }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                if (value == null)
-                {
-                    _credentials = new MongoCredentialStore(Enumerable.Empty<MongoCredential>());
-                }
-                else
-                {
-                    _credentials = new MongoCredentialStore(new[] { value });
-                }
-            }
-        }
-        /// <summary>
-        /// Gets or sets the credentials.
-        /// </summary>
-        [Obsolete("Use Credential instead. Using multiple credentials is deprecated.")]
-        public IEnumerable<MongoCredential> Credentials
-        {
-            get { return _credentials; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _credentials = new MongoCredentialStore(value);
+                _credential = value;
             }
         }
 
@@ -1060,7 +1035,7 @@ namespace MongoDB.Driver
             clone._connectionMode = _connectionMode;
             clone._connectionModeSwitch = _connectionModeSwitch;
             clone._connectTimeout = _connectTimeout;
-            clone._credentials = _credentials;
+            clone._credential = _credential;
             clone._directConnection = _directConnection;
             clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
@@ -1132,7 +1107,7 @@ namespace MongoDB.Driver
                 _connectionMode == rhs._connectionMode &&
                 _connectionModeSwitch == rhs._connectionModeSwitch &&
                 _connectTimeout == rhs._connectTimeout &&
-                _credentials == rhs._credentials &&
+                _credential == rhs._credential &&
                 _directConnection.Equals(rhs._directConnection) &&
                 _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
@@ -1222,7 +1197,7 @@ namespace MongoDB.Driver
                 .HashElements(_compressors)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
-                .Hash(_credentials)
+                .Hash(_credential)
                 .Hash(_directConnection)
                 .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
@@ -1289,7 +1264,7 @@ namespace MongoDB.Driver
                 sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             }
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
-            sb.AppendFormat("Credentials={{{0}}};", _credentials);
+            sb.AppendFormat("Credential={{{0}}};", _credential);
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection && _directConnection.HasValue)
             {
                 sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
@@ -1367,7 +1342,7 @@ namespace MongoDB.Driver
                 _connectionMode,
                 _connectionModeSwitch,
                 _connectTimeout,
-                _credentials.ToList(),
+                _credential,
                 _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
                 _heartbeatInterval,

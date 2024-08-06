@@ -538,20 +538,7 @@ namespace MongoDB.Driver
         private IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
-
-            ICoreSessionHandle coreSession;
-#pragma warning disable 618
-            var areMultipleUsersAuthenticated = _settings.Credentials.Count() > 1;
-#pragma warning restore
-            if (!areMultipleUsersAuthenticated)
-            {
-                coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
-            }
-            else
-            {
-                coreSession = NoCoreSession.NewHandle();
-            }
-
+            ICoreSessionHandle coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
             return new ClientSessionHandle(this, options, coreSession);
         }
 

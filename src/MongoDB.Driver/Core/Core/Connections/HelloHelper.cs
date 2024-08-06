@@ -61,9 +61,11 @@ namespace MongoDB.Driver.Core.Connections
             };
         }
 
-        internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+        internal static BsonDocument CustomizeCommand(BsonDocument command, IAuthenticator authenticator, CancellationToken cancellationToken)
         {
-            return authenticators.Count == 1 ? authenticators[0].CustomizeInitialHelloCommand(command, cancellationToken) : command;
+            return authenticator != null
+                ? authenticator.CustomizeInitialHelloCommand(command, cancellationToken)
+                : command;
         }
 
         internal static CommandWireProtocol<BsonDocument> CreateProtocol(

@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });
-            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create()).ToList();
+            var authenticator = settings.AuthenticatorFactories.SingleOrDefault()?.Create();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);
@@ -68,13 +68,13 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticators, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticator, CancellationToken.None).GetAwaiter().GetResult();
 
                 mockAuthenticator.Verify(a => a.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None), Times.Once);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticators, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticator, CancellationToken.None);
 
                 mockAuthenticator.Verify(a => a.Authenticate(mockConnection.Object, description, CancellationToken.None), Times.Once);
             }
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_not_invoke_authenticators_when_connected_to_an_arbiter(
+        public void Authenticate_should_not_invoke_authenticator_when_connected_to_an_arbiter(
             [Values(false, true)]
             bool async)
         {
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });
-            var authenticators = settings.AuthenticatorFactories.Select(a => a.Create()).ToList();
+            var authenticator = settings.AuthenticatorFactories.SingleOrDefault()?.Create();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);
@@ -100,13 +100,13 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticators, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticator, CancellationToken.None).GetAwaiter().GetResult();
 
                 mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticators, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticator, CancellationToken.None);
 
                 mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
             }

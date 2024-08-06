@@ -88,12 +88,11 @@ namespace MongoDB.Driver.Core.Connections
                     new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
                     new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }));
 
-            var emptyAuthenticators = new IAuthenticator[0];
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), emptyAuthenticators)));
+                .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
             _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
-                .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), emptyAuthenticators)));
+                .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
 
             _subject = new BinaryConnection(
                 serverId: serverId,

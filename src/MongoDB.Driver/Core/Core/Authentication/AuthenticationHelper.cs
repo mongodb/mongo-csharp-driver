@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -29,35 +28,37 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static void Authenticate(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+        public static void Authenticate(IConnection connection, ConnectionDescription description, IAuthenticator authenticator, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            Ensure.IsNotNull(authenticators, nameof(authenticators));
+
+            if (authenticator == null)
+            {
+                return;
+            }
 
             // authentication is currently broken on arbiters
             if (!description.HelloResult.IsArbiter)
             {
-                foreach (var authenticator in authenticators)
-                {
-                    authenticator.Authenticate(connection, description, cancellationToken);
-                }
+                authenticator.Authenticate(connection, description, cancellationToken);
             }
         }
 
-        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, IAuthenticator authenticator, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            Ensure.IsNotNull(authenticators, nameof(authenticators));
+
+            if (authenticator == null)
+            {
+                return;
+            }
 
             // authentication is currently broken on arbiters
             if (!description.HelloResult.IsArbiter)
             {
-                foreach (var authenticator in authenticators)
-                {
                     await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
-                }
             }
         }
 

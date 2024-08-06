@@ -47,7 +47,6 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionInitializerContext _connectionInitializerContextAfterAuthentication;
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private ConnectionDescription _connectionDescription;
-        private readonly IReadOnlyList<IAuthenticator> __emptyAuthenticators = new IAuthenticator[0];
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
@@ -66,8 +65,8 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId = new ConnectionId(_serverId);
             var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", WireVersion.Server36 } });
             _connectionDescription = new ConnectionDescription(connectionId, helloResult);
-            _connectionInitializerContext = new ConnectionInitializerContext(_connectionDescription, __emptyAuthenticators);
-            _connectionInitializerContextAfterAuthentication = new ConnectionInitializerContext(_connectionDescription, __emptyAuthenticators);
+            _connectionInitializerContext = new ConnectionInitializerContext(_connectionDescription, null);
+            _connectionInitializerContextAfterAuthentication = new ConnectionInitializerContext(_connectionDescription, null);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
@@ -115,10 +114,10 @@ namespace MongoDB.Driver.Core.Connections
             var socketException = new SocketException();
             _mockConnectionInitializer
                 .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(new ConnectionInitializerContext(connectionDescription, __emptyAuthenticators));
+                .Returns(new ConnectionInitializerContext(connectionDescription, null));
             _mockConnectionInitializer
                 .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync(new ConnectionInitializerContext(connectionDescription, __emptyAuthenticators));
+                .ReturnsAsync(new ConnectionInitializerContext(connectionDescription, null));
             _mockConnectionInitializer
                 .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .Throws(socketException);
