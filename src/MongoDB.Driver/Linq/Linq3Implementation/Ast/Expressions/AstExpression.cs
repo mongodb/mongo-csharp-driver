@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Floor, arg);
         }
 
-        public static AstExpression GetField(AstExpression input, AstExpression fieldName)
+        public static AstGetFieldExpression GetField(AstExpression input, AstExpression fieldName)
         {
             return new AstGetFieldExpression(input, fieldName);
         }
@@ -444,6 +444,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression IsArray(AstExpression value)
         {
             return new AstUnaryExpression(AstUnaryOperator.IsArray, value);
+        }
+
+        public static AstExpression IsMissing(AstGetFieldExpression field)
+        {
+            return AstExpression.Eq(AstExpression.Type(field), "missing");
+        }
+
+        public static AstExpression IsNotMissing(AstGetFieldExpression field)
+        {
+            return AstExpression.Ne(AstExpression.Type(field), "missing");
+        }
+
+        public static AstExpression IsNullOrMissing(AstGetFieldExpression field)
+        {
+            return AstExpression.In(AstExpression.Type(field), new BsonArray { "null", "missing" });
         }
 
         public static AstExpression Last(AstExpression array)

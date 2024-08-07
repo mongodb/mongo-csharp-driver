@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     case DictionaryRepresentation.Document:
                         var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
-                        ast = AstExpression.Ne(AstExpression.Type(AstExpression.GetField(dictionaryTranslation.Ast, keyFieldName)), "missing");
+                        ast = AstExpression.IsNotMissing(AstExpression.GetField(dictionaryTranslation.Ast, keyFieldName));
                         break;
 
                     default:

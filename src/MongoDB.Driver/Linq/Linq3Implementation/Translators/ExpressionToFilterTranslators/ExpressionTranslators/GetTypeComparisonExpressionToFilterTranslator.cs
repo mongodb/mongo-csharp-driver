@@ -48,7 +48,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
             var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
-            if (discriminatorValue.IsBsonArray)
+            if (discriminatorValue == null)
+            {
+                return AstFilter.NotExists(discriminatorField);
+            }
+            else if (discriminatorValue.IsBsonArray)
             {
                 var discriminatorValues = discriminatorValue.AsBsonArray;
                 var filters = new AstFilter[discriminatorValues.Count + 1];
