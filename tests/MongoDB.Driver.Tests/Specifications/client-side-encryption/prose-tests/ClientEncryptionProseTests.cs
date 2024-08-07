@@ -1439,15 +1439,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Theory]
         [ParameterAttributeData]
         public void KmsTlsOptionsTest(
-            [Values("aws", "azure", "gcp", "kmip")] string kmsProvider,
+            [Values("aws", "aws:name1", "azure", "azure:name1", "gcp", "gcp:name1", "kmip", "kmip:name1")] string kmsProvider,
             [Values(CertificateType.TlsWithoutClientCert, CertificateType.TlsWithClientCert, CertificateType.Expired, CertificateType.InvalidHostName)] CertificateType certificateType,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequirePlatform
                 .Check()
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
@@ -1464,25 +1464,25 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     kmsProvider: kmsProvider,
                     customMasterKey: kmsProvider switch
                     {
-                        "aws" => new BsonDocument
+                        "aws" or "aws:name1" => new BsonDocument
                         {
                             { "region", "us-east-1" },
                             { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
                             { "endpoint", GetMockedKmsEndpoint() }
                         },
-                        "azure" => new BsonDocument
+                        "azure" or "azure:name1" => new BsonDocument
                         {
                             { "keyVaultEndpoint", "doesnotexist.local" },
                             { "keyName", "foo" }
                         },
-                        "gcp" => new BsonDocument
+                        "gcp" or "gcp:name1" => new BsonDocument
                         {
                             { "projectId", "foo" },
                             { "location", "bar" },
                             { "keyRing", "baz" },
                             { "keyName", "foo" }
                         },
-                        "kmip" => new BsonDocument(), // empty doc
+                        "kmip" or "kmip:name1" => new BsonDocument(), // empty doc
                         _ => throw new Exception($"Unexpected kmsProvider {kmsProvider}."),
                     });
 
@@ -1501,7 +1501,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
                 switch (kmsProvider)
                 {
-                    case "aws":
+                    case "aws" or "aws:name1":
                         {
                             switch (certificateType)
                             {
@@ -1542,7 +1542,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
                         }
                         break;
-                    case "azure":
+                    case "azure" or "azure:name1":
                         switch (certificateType)
                         {
                             case CertificateType.TlsWithoutClientCert:
@@ -1580,7 +1580,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
                         break;
-                    case "gcp":
+                    case "gcp" or "gcp:name1":
                         switch (certificateType)
                         {
                             case CertificateType.TlsWithoutClientCert:
@@ -1618,7 +1618,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
                         break;
-                    case "kmip":
+                    case "kmip" or "kmip:name1":
                         switch (certificateType)
                         {
                             case CertificateType.TlsWithoutClientCert:
@@ -1718,19 +1718,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                 switch (kmsProviderName)
                 {
-                    case "local":
+                    case "local" or "local:name1" or "local:name2":
                         // not related to this test, do nothing
                         break;
-                    case "aws":
+                    case "aws" or "aws:name1" or "aws:name2":
                         // do nothing since aws cannot configure endpoint on kms provider level
                         break;
-                    case "azure":
+                    case "azure" or "azure:name1":
                         kmsOptions.Add("identityPlatformEndpoint", endpoint);
                         break;
-                    case "gcp":
+                    case "gcp" or "gcp:name1":
                         kmsOptions.Add("endpoint", endpoint);
                         break;
-                    case "kmip":
+                    case "kmip" or "kmip:name1":
                         AddOrReplace(kmsOptions, "endpoint", endpoint);
                         break;
                     default:
@@ -1742,7 +1742,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 CertificateType.Expired => "127.0.0.1:8000",
                 CertificateType.InvalidHostName => "127.0.0.1:8001",
-                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => kmsProvider != "kmip" ? "127.0.0.1:8002" : "127.0.0.1:5698",
+                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => !kmsProvider.StartsWith("kmip") ? "127.0.0.1:8002" : "127.0.0.1:5698",
                 _ => throw new Exception($"Not supported client certificate type {certificateType}."),
             };
 
@@ -1772,6 +1772,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 });
                 clientEncryptionOptions._tlsOptions(tlsOptions); // avoid validation on serverCertificateValidationCallback
             }
+        }
+
+        [Trait("Category", "CsfleAZUREKMS")]
+        [Trait("Category", "CsfleGCPKMS")]
+        [Fact]
+        public void OnDemandCredentialsTestWithNamed()
+        {
+            // This test specifically verifies part of the CSFLE specification that
+            // KMS providers that include a name do not support automatic credentials.
+            
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var kmsProvider = "aws:name1";
+
+            var exception = Record.Exception(() =>
+            {
+                using var client = ConfigureClient();
+                using var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument()));
+            });
+
+            exception?.Message.Should().Contain("On-demand credentials are not supported for named KMS providers");
         }
 
         [Trait("Category", "CsfleAZUREKMS")]
@@ -2615,7 +2636,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
-                allowClientCertificateFunc: kmsProviderName => kmsProviderName == "kmip");
+                allowClientCertificateFunc: kmsProviderName => kmsProviderName.StartsWith("kmip"));
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
@@ -2672,7 +2693,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => (object)ki.Value));
             }
 
-            allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
+            allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName.StartsWith("kmip")); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
             var clientEncryptionOptions = new ClientEncryptionOptions(

@@ -47,13 +47,47 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     }
                 },
                 {
+                    "aws:name1", new Dictionary<string, object>
+                    {
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY") }
+                    }
+                },
+                {
+                    "aws:name2", new Dictionary<string, object>
+                    {
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_NAMED2_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_NAMED2_SECRET_ACCESS_KEY") }
+                    }
+                },
+                {
                     "local", new Dictionary<string, object>
                     {
                         { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
                     }
                 },
                 {
+                    "local:name1", new Dictionary<string, object>
+                    {
+                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                    }
+                },
+                {
+                    "local:name2", new Dictionary<string, object>
+                    {
+                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                    }
+                },
+                {
                     "azure", new Dictionary<string, object>
+                    {
+                        { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID") },
+                        { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID") },
+                        { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET") }
+                    }
+                },
+                {
+                    "azure:name1", new Dictionary<string, object>
                     {
                         { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID") },
                         { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID") },
@@ -68,11 +102,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     }
                 },
                 {
+                    "gcp:name1", new Dictionary<string, object>
+                    {
+                        { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                        { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY") }
+                    }
+                },
+                {
                     "kmip", new Dictionary<string, object>
                     {
                         { "endpoint", "localhost:5698" }
                     }
                 },
+                {
+                    "kmip:name1", new Dictionary<string, object>
+                    {
+                        { "endpoint", "localhost:5698" }
+                    }
+                }
             };
 
             if (Environment.GetEnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED") != null)
@@ -182,25 +229,25 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         public static BsonDocument CreateMasterKey(string kmsProvider) => kmsProvider switch
         {
-            "local" => null,
-            "aws" => new BsonDocument
+            "local" or "local:named1" or "local:named2" => null,
+            "aws" or "aws:named1" or "aws:named2" => new BsonDocument
             {
                 { "region", "us-east-1" },
                 { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
             },
-            "azure" => new BsonDocument
+            "azure" or "azure:named1" => new BsonDocument
             {
                 { "keyName", "key-name-csfle" },
                 { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
             },
-            "gcp" => new BsonDocument
+            "gcp" or "gcp:named1" => new BsonDocument
             {
                 { "projectId", "devprod-drivers" },
                 { "location", "global" },
                 { "keyRing", "key-ring-csfle" },
                 { "keyName", "key-name-csfle" }
             },
-            "kmip" => new BsonDocument(),
+            "kmip" or "kmip:named1" => new BsonDocument(),
             _ => throw new ArgumentException($"Incorrect kms provider {kmsProvider}.", nameof(kmsProvider)),
         };
 
@@ -266,7 +313,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             effectiveKmsProviderName = "aws";
                             goto default;
                         }
-                    case "local":
+                    case "local" or "local:name1" or "local:name2":
                         {
                             byte[] bytes;
                             if (kmsProvider.Value.AsBsonDocument.TryGetElement("key", out var key) && !IsPlaceholder(key.Value))
