@@ -26,13 +26,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a count documents operation.
-    /// For a fast estimate of the total documents in a collection see <see cref="CountOperation"/>.
-    /// </summary>
-    public class CountDocumentsOperation : IReadOperation<long>
+    internal sealed class CountDocumentsOperation : IReadOperation<long>
     {
-        // private fields
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -45,149 +40,76 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private long? _skip;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CountOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CountDocumentsOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        /// <value>
-        /// The filter.
-        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the index hint.
-        /// </summary>
-        /// <value>
-        /// The index hint.
-        /// </value>
         public BsonValue Hint
         {
             get { return _hint; }
             set { _hint = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a limit on the number of matching documents to count.
-        /// </summary>
-        /// <value>
-        /// A limit on the number of matching documents to count.
-        /// </value>
         public long? Limit
         {
             get { return _limit; }
             set { _limit = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time the server should spend on this operation.
-        /// </summary>
-        /// <value>
-        /// The maximum time the server should spend on this operation.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
-        /// <value>
-        /// The read concern.
-        /// </value>
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to retry.
-        /// </summary>
-        /// <value>Whether to retry.</value>
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        /// <summary>
-        /// Gets or sets the number of documents to skip before counting the remaining matching documents.
-        /// </summary>
-        /// <value>
-        /// The number of documents to skip before counting the remaining matching documents.
-        /// </value>
         public long? Skip
         {
             get { return _skip; }
             set { _skip = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public long Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -201,7 +123,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -215,7 +136,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
 
         private AggregateOperation<BsonDocument> CreateOperation()

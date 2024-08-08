@@ -37,7 +37,6 @@ namespace MongoDB.Driver
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private BsonDocument _min;
-        private BsonDocument _modifiers;
         private bool? _noCursorTimeout;
         private bool? _oplogReplay;
         private bool? _returnKey;
@@ -159,16 +158,6 @@ namespace MongoDB.Driver
         {
             get { return _min; }
             set { _min = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the modifiers.
-        /// </summary>
-        [Obsolete("Use individual properties instead.")]
-        public BsonDocument Modifiers
-        {
-            get { return _modifiers; }
-            set { _modifiers = value; }
         }
 
         /// <summary>

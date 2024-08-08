@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
     }
 
-    public static class SingleServerReadWriteBindingReflector
+    internal static class SingleServerReadWriteBindingReflector
     {
         public static bool _disposed(this SingleServerReadWriteBinding obj)
         {

@@ -26,25 +26,14 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a rename collection operation.
-    /// </summary>
-    public class RenameCollectionOperation : IWriteOperation<BsonDocument>
+    internal sealed class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
-        // fields
         private readonly CollectionNamespace _collectionNamespace;
         private bool? _dropTarget;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly CollectionNamespace _newCollectionNamespace;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RenameCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="newCollectionNamespace">The new collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RenameCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace newCollectionNamespace,
@@ -55,66 +44,34 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to drop the target collection first if it already exists.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the target collection should be dropped first if it already exists.; otherwise, <c>false</c>.
-        /// </value>
         public bool? DropTarget
         {
             get { return _dropTarget; }
             set { _dropTarget = value; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the new collection namespace.
-        /// </summary>
-        /// <value>
-        /// The new collection namespace.
-        /// </value>
         public CollectionNamespace NewCollectionNamespace
         {
             get { return _newCollectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // methods
-        internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             return new BsonDocument
@@ -126,15 +83,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("renameCollection");
-
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
-        {
-            var command = CreateCommand(session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-        }
-
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -149,7 +97,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -162,6 +109,14 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation("renameCollection");
+
+        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        {
+            var command = CreateCommand(session, connectionDescription);
+            return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

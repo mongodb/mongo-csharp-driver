@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
     }
 
     // nested types
-    public static class RetryableWriteOperationExecutorReflector
+    internal static class RetryableWriteOperationExecutorReflector
     {
         public static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
         {

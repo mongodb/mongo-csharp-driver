@@ -29,12 +29,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an aggregate operation that writes the results to an output collection.
-    /// </summary>
-    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
+    internal sealed class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
     {
-        // fields
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
@@ -50,13 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateToCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AggregateToCollectionOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
@@ -67,153 +56,74 @@ namespace MongoDB.Driver.Core.Operations
             _pipeline = SimplifyOutStageIfOutputDatabaseIsSameAsInputDatabase(_pipeline);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateToCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
             : this(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, pipeline, messageEncoderSettings)
         {
             _collectionNamespace = collectionNamespace;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether the server is allowed to use the disk.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the server is allowed to use the disk.
-        /// </value>
         public bool? AllowDiskUse
         {
             get { return _allowDiskUse; }
             set { _allowDiskUse = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether to bypass document validation.
-        /// </value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
-        /// </summary>
-        /// <value>
-        /// The hint.
-        /// </value>
         public BsonValue Hint
         {
             get { return _hint; }
             set { _hint = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the "let" definition.
-        /// </summary>
-        /// <value>
-        /// The "let" definition.
-        /// </value>
         public BsonDocument Let
         {
             get { return _let; }
             set { _let = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time the server should spend on this operation.
-        /// </summary>
-        /// <value>
-        /// The maximum time the server should spend on this operation.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the pipeline.
-        /// </summary>
-        /// <value>
-        /// The pipeline.
-        /// </value>
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
         }
 
-        /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
-        /// <value>
-        /// The read concern.
-        /// </value>
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -223,9 +133,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Gets or sets the read preference.
-        /// </summary>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
@@ -235,20 +142,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // methods
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -264,7 +163,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -280,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var readConcern = _readConcern != null
                 ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)

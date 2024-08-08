@@ -28,24 +28,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an update command operation.
-    /// </summary>
-    public class RetryableUpdateCommandOperation : RetryableWriteCommandOperationBase
+    internal sealed class RetryableUpdateCommandOperation : RetryableWriteCommandOperationBase
     {
-        // private fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _let;
         private readonly BatchableSource<UpdateRequest> _updates;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RetryableUpdateCommandOperation" /> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="updates">The updates.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RetryableUpdateCommandOperation(
             CollectionNamespace collectionNamespace,
             BatchableSource<UpdateRequest> updates,
@@ -56,51 +45,28 @@ namespace MongoDB.Driver.Core.Operations
             _updates = Ensure.IsNotNull(updates, nameof(updates));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>A value indicating whether to bypass document validation.</value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the let document.
-        /// </summary>
-        /// <value>The let document.</value>
         public BsonDocument Let
         {
             get { return _let; }
             set { _let = value; }
         }
 
-        /// <summary>
-        /// Gets the updates.
-        /// </summary>
-        /// <value>
-        /// The updates.
-        /// </value>
         public BatchableSource<UpdateRequest> Updates
         {
             get { return _updates; }
         }
 
-        // protected methods
-        /// <inheritdoc />
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             if (WriteConcern != null && !WriteConcern.IsAcknowledged)
@@ -124,7 +90,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        /// <inheritdoc />
         protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
             BatchableSource<UpdateRequest> updates;

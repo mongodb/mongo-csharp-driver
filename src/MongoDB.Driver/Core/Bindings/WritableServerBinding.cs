@@ -24,55 +24,38 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a write binding to a writable server.
-    /// </summary>
-    public sealed class WritableServerBinding : IReadWriteBinding
+    internal sealed class WritableServerBinding : IReadWriteBinding
     {
-        // fields
         private readonly ICluster _cluster;
         private bool _disposed;
         private readonly ICoreSessionHandle _session;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WritableServerBinding" /> class.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
         public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
-        // properties
-        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return ReadPreference.Primary; }
         }
 
-        /// <inheritdoc/>
         public ICoreSessionHandle Session
         {
             get { return _session; }
         }
 
-        // methods
-        /// <inheritdoc/>
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             return GetReadChannelSource(null, cancellationToken);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetReadChannelSourceAsync(null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -80,7 +63,6 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc />
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -88,13 +70,11 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
             return GetWriteChannelSource(deprioritizedServers: null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -102,13 +82,11 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc/>
         public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             return GetWriteChannelSource(null, mayUseSecondary, cancellationToken);
         }
 
-        /// <inheritdoc />
         public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             if (IsSessionPinnedToServer())
@@ -126,13 +104,11 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetWriteChannelSourceAsync(deprioritizedServers: null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -140,13 +116,11 @@ namespace MongoDB.Driver.Core.Bindings
             return CreateServerChannelSource(server);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             return GetWriteChannelSourceAsync(null, mayUseSecondary, cancellationToken);
         }
 
-        /// <inheritdoc />
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
         {
             if (IsSessionPinnedToServer())
@@ -169,7 +143,6 @@ namespace MongoDB.Driver.Core.Bindings
             return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
         }
 
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

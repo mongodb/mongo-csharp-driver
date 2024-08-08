@@ -19,17 +19,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the information about one Upsert.
-    /// </summary>
     [Serializable]
-    public class BulkWriteOperationUpsert
+    internal class BulkWriteOperationUpsert
     {
-        // fields
         private readonly BsonValue _id;
         private readonly int _index;
 
-        // constructors
         internal BulkWriteOperationUpsert(
             int index,
             BsonValue id)
@@ -38,30 +33,16 @@ namespace MongoDB.Driver.Core.Operations
             _id = id;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
         public BsonValue Id
         {
             get { return _id; }
         }
 
-        /// <summary>
-        /// Gets the index.
-        /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
         public int Index
         {
             get { return _index; }
         }
 
-        // methods
         internal BulkWriteOperationUpsert WithMappedIndex(IndexMap indexMap)
         {
             var mappedIndex = indexMap.Map(_index);

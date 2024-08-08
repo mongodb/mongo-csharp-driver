@@ -29,13 +29,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a base class for find and modify operations.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>, IRetryableWriteOperation<TResult>
+    internal abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>, IRetryableWriteOperation<TResult>
     {
-        // fields
         private Collation _collation;
         private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
@@ -44,13 +39,6 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FindAndModifyOperationBase{TResult}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
@@ -58,84 +46,45 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
-        /// <value>
-        /// The result serializer.
-        /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        /// <summary>
-        /// Gets or sets whether the operation can be retried.
-        /// </summary>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -144,7 +93,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public TResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -153,7 +101,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -162,7 +109,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -171,7 +117,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
             var binding = context.Binding;
@@ -188,7 +133,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
             var binding = context.Binding;
@@ -205,10 +149,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
-        private IDisposable BeginOperation() => EventContext.BeginOperation("findAndModify");
+        public abstract BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
 
-        internal abstract BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
+        protected abstract IElementNameValidator GetCommandValidator();
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation("findAndModify");
 
         private WriteCommandOperation<RawBsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
@@ -218,12 +163,6 @@ namespace MongoDB.Driver.Core.Operations
                 CommandValidator = GetCommandValidator()
             };
         }
-
-        /// <summary>
-        /// Gets the command validator.
-        /// </summary>
-        /// <returns>An element name validator for the command.</returns>
-        protected abstract IElementNameValidator GetCommandValidator();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)

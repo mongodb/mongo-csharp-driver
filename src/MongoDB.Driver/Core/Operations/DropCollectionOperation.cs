@@ -27,13 +27,11 @@ using static MongoDB.Driver.Encryption.EncryptedCollectionHelper;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a drop collection operation.
-    /// </summary>
-    public class DropCollectionOperation : IWriteOperation<BsonDocument>
+    internal sealed class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static
-        internal static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
+
+        public static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
@@ -63,18 +61,11 @@ namespace MongoDB.Driver.Core.Operations
         }
         #endregion
 
-        // fields
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _encryptedFields;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DropCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -83,13 +74,6 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -101,31 +85,17 @@ namespace MongoDB.Driver.Core.Operations
             private set { _encryptedFields = value; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -153,7 +123,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -181,7 +150,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);

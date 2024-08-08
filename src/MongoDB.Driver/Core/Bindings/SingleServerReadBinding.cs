@@ -22,27 +22,15 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a read binding to a single server;
-    /// </summary>
-    public sealed class SingleServerReadBinding : IReadBinding
+    internal sealed class SingleServerReadBinding : IReadBinding
     {
-        // private constants
         private const int SingleServerSelectionTimeoutMS = 1000;
 
-        // private fields
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SingleServerReadBinding" /> class.
-        /// </summary>
-        /// <param name="server">The server.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="session">The session.</param>
         public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
@@ -50,47 +38,38 @@ namespace MongoDB.Driver.Core.Bindings
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
-        // properties
-        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
         }
 
-        /// <inheritdoc/>
         public ICoreSessionHandle Session
         {
             get { return _session; }
         }
 
-        // methods
-        /// <inheritdoc/>
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return GetChannelSourceHelper();
         }
 
-        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return Task.FromResult(GetChannelSourceHelper());
         }
 
-        /// <inheritdoc />
         public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             return GetReadChannelSource(cancellationToken);
         }
 
-        /// <inheritdoc />
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             return GetReadChannelSourceAsync(cancellationToken);
         }
 
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

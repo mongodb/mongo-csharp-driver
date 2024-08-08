@@ -22,15 +22,10 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the geoNear command.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class GeoNearOperation<TResult> : IReadOperation<TResult>
+    internal sealed class GeoNearOperation<TResult> : IReadOperation<TResult>
     {
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -47,13 +42,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _spherical;
         private bool? _uniqueDocs;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GeoNearOperation{TResult}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="near">The point for which to find the closest documents.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public GeoNearOperation(CollectionNamespace collectionNamespace, BsonValue near, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
@@ -62,155 +50,87 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the distance multiplier.
-        /// </summary>
         public double? DistanceMultiplier
         {
             get { return _distanceMultiplier; }
             set { _distanceMultiplier = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
-        /// <summary>
-        /// Gets or sets whether to include the locations of the matching documents.
-        /// </summary>
         public bool? IncludeLocs
         {
             get { return _includeLocs; }
             set { _includeLocs = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the limit.
-        /// </summary>
         public int? Limit
         {
             get { return _limit; }
             set { _limit = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum distance.
-        /// </summary>
         public double? MaxDistance
         {
             get { return _maxDistance; }
             set { _maxDistance = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time.
-        /// </summary>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the point for which to find the closest documents.
-        /// </summary>
         public BsonValue Near
         {
             get { return _near; }
         }
 
-        /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
-        /// <summary>
-        /// Gets or sets whether to use spherical geometry.
-        /// </summary>
         public bool? Spherical
         {
             get { return _spherical; }
             set { _spherical = value; }
         }
 
-        /// <summary>
-        /// Gets or sets whether to return a document only once.
-        /// </summary>
         public bool? UniqueDocs
         {
             get { return _uniqueDocs; }
             set { _uniqueDocs = value; }
         }
 
-        /// <inheritdoc/>
-        public TResult Execute(IReadBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
-            {
-                var operation = CreateOperation(channel, channelBinding);
-                return operation.Execute(channelBinding, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
-            {
-                var operation = CreateOperation(channel, channelBinding);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument
@@ -228,6 +148,30 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null }
             };
+        }
+
+        public TResult Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            {
+                var operation = CreateOperation(channel, channelBinding);
+                return operation.Execute(channelBinding, cancellationToken);
+            }
+        }
+
+        public async Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            {
+                var operation = CreateOperation(channel, channelBinding);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         private ReadCommandOperation<TResult> CreateOperation(IChannel channel, IBinding binding)

@@ -26,12 +26,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a create view operation.
-    /// </summary>
-    public class CreateViewOperation : IWriteOperation<BsonDocument>
+    internal sealed class CreateViewOperation : IWriteOperation<BsonDocument>
     {
-        // private fields
         private Collation _collation;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -40,15 +36,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _viewOn;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateCollectionOperation" /> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The name of the database.</param>
-        /// <param name="viewName">The name of the view.</param>
-        /// <param name="viewOn">The name of the collection that the view is on.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateViewOperation(
             DatabaseNamespace databaseNamespace,
             string viewName,
@@ -63,88 +50,43 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets the namespace of the database.
-        /// </summary>
-        /// <value>
-        /// The namespace of the database.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the pipeline.
-        /// </summary>
-        /// <value>
-        /// The pipeline.
-        /// </value>
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
         }
 
-        /// <summary>
-        /// Gets the name of the view.
-        /// </summary>
-        /// <value>
-        /// The name of the view.
-        /// </value>
         public string ViewName
         {
             get { return _viewName; }
         }
 
-        /// <summary>
-        /// Gets the name of the collection that the view is on.
-        /// </summary>
-        /// <value>
-        /// The name of the collection that the view is on.
-        /// </value>
         public string ViewOn
         {
             get { return _viewOn; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -158,7 +100,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -172,8 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
-        internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             return new BsonDocument

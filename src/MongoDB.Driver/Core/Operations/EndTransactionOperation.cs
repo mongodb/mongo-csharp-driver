@@ -24,69 +24,33 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Abstract base class for AbortTransactionOperation and CommitTransactionOperation.
-    /// </summary>
-    public abstract class EndTransactionOperation : IReadOperation<BsonDocument>
+    internal abstract class EndTransactionOperation : IReadOperation<BsonDocument>
     {
-        // private fields
         private MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _recoveryToken;
         private readonly WriteConcern _writeConcern;
 
-        // protected constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EndTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="recoveryToken">The recovery token.</param>
-        /// <param name="writeConcern">The write concern.</param>
         protected EndTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
         {
             _recoveryToken = recoveryToken;
             _writeConcern = Ensure.IsNotNull(writeConcern, nameof(writeConcern));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EndTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="writeConcern">The write concern.</param>
         protected EndTransactionOperation(WriteConcern writeConcern)
             : this(recoveryToken: null, writeConcern)
         {
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
             set { _messageEncoderSettings = value; }
         }
 
-        /// <summary>
-        /// Gets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern => _writeConcern;
 
-        // protected properties
-        /// <summary>
-        /// Gets the name of the command.
-        /// </summary>
-        /// <value>
-        /// The name of the command.
-        /// </value>
         protected abstract string CommandName { get; }
 
-        // public methods
-        /// <inheritdoc />
         public virtual BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -100,7 +64,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc />
         public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -114,11 +77,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // protected methods
-        /// <summary>
-        /// Creates the command for the operation.
-        /// </summary>
-        /// <returns>The command.</returns>
         protected virtual BsonDocument CreateCommand()
         {
             return new BsonDocument
@@ -129,7 +87,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        // private methods
         private IReadOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
@@ -140,79 +97,43 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    /// <summary>
-    /// The abort transaction operation.
-    /// </summary>
-    public sealed class AbortTransactionOperation : EndTransactionOperation
+    internal sealed class AbortTransactionOperation : EndTransactionOperation
     {
-        // public constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="recoveryToken">The recovery token.</param>
-        /// <param name="writeConcern">The write concern.</param>
         public AbortTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
             : base(recoveryToken, writeConcern)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="writeConcern">The write concern.</param>
         public AbortTransactionOperation(WriteConcern writeConcern)
             : base(writeConcern)
         {
         }
 
-        // protected properties
-        /// <inheritdoc />
         protected override string CommandName => "abortTransaction";
     }
 
-    /// <summary>
-    /// The commit transaction operation.
-    /// </summary>
-    public sealed class CommitTransactionOperation : EndTransactionOperation
+    internal sealed class CommitTransactionOperation : EndTransactionOperation
     {
-        // private fields
         private TimeSpan? _maxCommitTime;
 
-        // public constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="writeConcern">The write concern.</param>
         public CommitTransactionOperation(WriteConcern writeConcern)
             : base(writeConcern)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
-        /// </summary>
-        /// <param name="recoveryToken">The recovery token.</param>
-        /// <param name="writeConcern">The write concern.</param>
         public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
             : base(recoveryToken, writeConcern)
         {
         }
 
-        // public properties
-        /// <summary>Gets the maximum commit time.</summary>
-        /// <value>The maximum commit time.</value>
         public TimeSpan? MaxCommitTime
         {
             get => _maxCommitTime;
             set => _maxCommitTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
-        // protected properties
-        /// <inheritdoc />
         protected override string CommandName => "commitTransaction";
 
-        // public methods
-        /// <inheritdoc />
         public override BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             try
@@ -226,7 +147,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc />
         public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             try
@@ -240,8 +160,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // protected methods
-        /// <inheritdoc />
         protected override BsonDocument CreateCommand()
         {
             var command = base.CreateCommand();
@@ -252,7 +170,6 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        // private methods
         private void ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(MongoException exception)
         {
             exception.RemoveErrorLabel("TransientTransactionError");

@@ -85,11 +85,9 @@ namespace MongoDB.Driver.Tests
             var findOptions = new FindOptions<Person>
             {
                 Collation = new Collation("en-us"),
+                Hint = hint,
                 Limit = 1,
                 MaxTime = TimeSpan.FromSeconds(2),
-#pragma warning disable 618
-                Modifiers = new BsonDocument("$hint", hint),
-#pragma warning restore 618
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -173,11 +171,9 @@ namespace MongoDB.Driver.Tests
             var findOptions = new FindOptions<Person>
             {
                 Collation = new Collation("en-us"),
+                Hint = hint,
                 Limit = 1,
                 MaxTime = TimeSpan.FromSeconds(2),
-#pragma warning disable 618
-                Modifiers = new BsonDocument("$hint", hint),
-#pragma warning restore 618
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -316,13 +312,6 @@ namespace MongoDB.Driver.Tests
             subject.Options.Hint = "x_3";
             subject.Options.Max = new BsonDocument("max", 5);
             subject.Options.MaxTime = TimeSpan.FromSeconds(2);
-#pragma warning disable 618
-            subject.Options.Modifiers = new BsonDocument
-            {
-                { "$explain", true },
-                { "$hint", "ix_1" }
-            };
-#pragma warning restore 618
             subject.Options.Min = new BsonDocument("min", 2);
             subject.Options.ReturnKey = true;
             subject.Options.ShowRecordId = true;
@@ -351,9 +340,7 @@ namespace MongoDB.Driver.Tests
                 ".min({ \"min\" : 2 })" +
                 ".returnKey(true)" +
                 ".showRecordId(true)" +
-                "._addSpecial(\"$comment\", \"awesome\")" +
-                "._addSpecial(\"$explain\", true)" +
-                "._addSpecial(\"$hint\", \"ix_1\")");
+                "._addSpecial(\"$comment\", \"awesome\")");
         }
 
         // private methods

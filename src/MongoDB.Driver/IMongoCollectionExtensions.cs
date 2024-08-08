@@ -1193,9 +1193,6 @@ namespace MongoDB.Driver
                     MaxAwaitTime = options.MaxAwaitTime,
                     MaxTime = options.MaxTime,
                     Min = options.Min,
-#pragma warning disable 618
-                    Modifiers = options.Modifiers,
-#pragma warning restore 618
                     NoCursorTimeout = options.NoCursorTimeout,
 #pragma warning disable 618
                     OplogReplay = options.OplogReplay,

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,65 +22,34 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a database exists operation.
-    /// </summary>
-    public class DatabaseExistsOperation : IReadOperation<bool>
+    internal sealed class DatabaseExistsOperation : IReadOperation<bool>
     {
-        // fields
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DatabaseExistsOperation"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DatabaseExistsOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets whether or not retry was requested.
-        /// </summary>
-        /// <value>
-        /// Whether retry was requested.
-        /// </value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public bool Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -91,7 +59,6 @@ namespace MongoDB.Driver.Core.Operations
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
-        /// <inheritdoc/>
         public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -101,7 +68,6 @@ namespace MongoDB.Driver.Core.Operations
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
-        // private methods
         private ListDatabasesOperation CreateOperation()
         {
             return new ListDatabasesOperation(_messageEncoderSettings)

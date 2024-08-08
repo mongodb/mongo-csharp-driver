@@ -28,12 +28,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a create indexes operation.
-    /// </summary>
-    public class CreateIndexesOperation : IWriteOperation<BsonDocument>
+    internal sealed class CreateIndexesOperation : IWriteOperation<BsonDocument>
     {
-        // fields
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private CreateIndexCommitQuorum _commitQuorum;
@@ -42,13 +38,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IEnumerable<CreateIndexRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="requests">The requests.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateIndexesOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<CreateIndexRequest> requests,
@@ -59,87 +48,45 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the commit quorum.
-        /// </summary>
         public CreateIndexCommitQuorum CommitQuorum
         {
             get => _commitQuorum;
             set => _commitQuorum = value;
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the create index requests.
-        /// </summary>
-        /// <value>
-        /// The create index requests.
-        /// </value>
         public IEnumerable<CreateIndexRequest> Requests
         {
             get { return _requests; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the MaxTime.
-        /// </summary>
-        /// <value> 
-        /// The maxtime.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -152,7 +99,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -165,7 +111,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;

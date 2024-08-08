@@ -24,39 +24,26 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an update search indexes operation.
-    /// </summary>
     internal sealed class UpdateSearchIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly string _indexName;
-        private readonly BsonDocument _defintion;
+        private readonly BsonDocument _definition;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexesOperation" /> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="indexName">Name of the index.</param>
-        /// <param name="defintion">The defintion.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public UpdateSearchIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
-            BsonDocument defintion,
+            BsonDocument definition,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _indexName = Ensure.IsNotNullOrEmpty(indexName , nameof(indexName));
-            _defintion = Ensure.IsNotNull(defintion, nameof(defintion));
+            _definition = Ensure.IsNotNull(definition, nameof(definition));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // public methods
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation("updateSearchIndex"))
@@ -69,7 +56,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation("updateSearchIndex"))
@@ -82,14 +68,13 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private WriteCommandOperation<BsonDocument> CreateOperation()
         {
             var command = new BsonDocument()
             {
                 { "updateSearchIndex", _collectionNamespace.CollectionName },
                 { "name", _indexName },
-                { "definition", _defintion }
+                { "definition", _definition }
             };
 
             return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);

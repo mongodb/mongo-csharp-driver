@@ -24,7 +24,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-
     public class BulkDeleteOperationTests : OperationTestBase
     {
         [Theory]

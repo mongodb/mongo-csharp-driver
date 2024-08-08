@@ -26,26 +26,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an insert command operation.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase where TDocument : class
+    internal sealed  class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase where TDocument : class
     {
-        // private fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BatchableSource<TDocument> _documents;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RetryableInsertCommandOperation{TDocument}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="documents">The documents.</param>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RetryableInsertCommandOperation(
             CollectionNamespace collectionNamespace,
             BatchableSource<TDocument> documents,
@@ -58,54 +45,27 @@ namespace MongoDB.Driver.Core.Operations
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether to bypass document validation.
-        /// </value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets the documents.
-        /// </summary>
-        /// <value>
-        /// The documents.
-        /// </value>
         public BatchableSource<TDocument> Documents
         {
             get { return _documents; }
         }
 
-        /// <summary>
-        /// Gets the document serializer.
-        /// </summary>
-        /// <value>
-        /// The document serializer.
-        /// </value>
         public IBsonSerializer<TDocument> DocumentSerializer
         {
             get { return _documentSerializer; }
         }
 
-        // protected methods
-        /// <inheritdoc />
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
@@ -120,7 +80,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        /// <inheritdoc />
         protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
             BatchableSource<TDocument> documents;

@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -22,18 +21,8 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core
 {
-    /// <summary>
-    /// Connection pinning helper.
-    /// </summary>
-    public static class ChannelPinningHelper
+    internal static class ChannelPinningHelper
     {
-        /// <summary>
-        /// Create a read binding handle.
-        /// </summary>
-        /// <param name="cluster">The cluster,</param>
-        /// <param name="session">The session.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <returns>An effective read binging.</returns>
         public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
         {
             IReadBinding readBinding;
@@ -59,12 +48,6 @@ namespace MongoDB.Driver.Core
             return new ReadBindingHandle(readBinding);
         }
 
-        /// <summary>
-        /// Create a readwrite binding handle.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
-        /// <returns>An effective read write binging.</returns>
         public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
         {
             IReadWriteBinding readWriteBinding;

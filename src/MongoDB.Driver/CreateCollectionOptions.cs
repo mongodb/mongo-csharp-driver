@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     public class CreateCollectionOptions
     {
         // fields
-        private bool? _autoIndexId;
         private bool? _capped;
         private ChangeStreamPreAndPostImagesOptions _changeStreamPreAndPostImagesOptions;
         private Collation _collation;
@@ -50,16 +49,6 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to automatically create an index on the _id.
-        /// </summary>
-        [Obsolete("AutoIndexId has been deprecated since server version 3.2.")]
-        public bool? AutoIndexId
-        {
-            get { return _autoIndexId; }
-            set { _autoIndexId = value; }
         }
 
         /// <summary>
@@ -200,7 +189,6 @@ namespace MongoDB.Driver
         internal virtual CreateCollectionOptions Clone() =>
             new CreateCollectionOptions
             {
-                _autoIndexId = _autoIndexId,
                 _capped = _capped,
                 _changeStreamPreAndPostImagesOptions = _changeStreamPreAndPostImagesOptions,
                 _collation = _collation,
@@ -241,10 +229,8 @@ namespace MongoDB.Driver
 
             if (options.GetType() == typeof(CreateCollectionOptions))
             {
-#pragma warning disable 618
                 return new CreateCollectionOptions<TDocument>
                 {
-                    AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
                     Collation = options.Collation,
                     ChangeStreamPreAndPostImagesOptions = options.ChangeStreamPreAndPostImagesOptions,
@@ -261,7 +247,6 @@ namespace MongoDB.Driver
                     ValidationAction = options.ValidationAction,
                     ValidationLevel = options.ValidationLevel
                 };
-#pragma warning restore
             }
 
             return (CreateCollectionOptions<TDocument>)options;
@@ -307,9 +292,6 @@ namespace MongoDB.Driver
         internal override CreateCollectionOptions Clone() =>
             new CreateCollectionOptions<TDocument>
             {
-    #pragma warning disable CS0618 // Type or member is obsolete
-                AutoIndexId = base.AutoIndexId,
-    #pragma warning restore CS0618 // Type or member is obsolete
                 Capped = base.Capped,
                 ChangeStreamPreAndPostImagesOptions = base.ChangeStreamPreAndPostImagesOptions,
                 Collation = base.Collation,

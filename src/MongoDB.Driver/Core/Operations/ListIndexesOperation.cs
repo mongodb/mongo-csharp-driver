@@ -24,24 +24,14 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a list indexes operation.
-    /// </summary>
-    public class ListIndexesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
+    internal sealed class ListIndexesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
-        // fields
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ListIndexesOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ListIndexesOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -50,67 +40,34 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the batch size.
-        /// </summary>
-        /// <value>
-        /// The batch size.
-        /// </value>
         public int? BatchSize
         {
             get => _batchSize;
             set => _batchSize = value;
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets whether or not retry was requested.
-        /// </summary>
-        /// <value>
-        /// Whether retry was requested.
-        /// </value>
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        // public methods
-        /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -118,12 +75,11 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                var operation = CreateOperation(context.Channel);
+                var operation = CreateOperation();
                 return operation.Execute(context, cancellationToken);
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -131,15 +87,14 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                var operation = CreateOperation(context.Channel);
+                var operation = CreateOperation();
                 return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
 
-        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
+        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation()
         {
             return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
             {

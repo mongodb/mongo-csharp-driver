@@ -25,22 +25,12 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a drop database operation.
-    /// </summary>
-    public class DropDatabaseOperation : IWriteOperation<BsonDocument>
+    internal sealed class DropDatabaseOperation : IWriteOperation<BsonDocument>
     {
-        // fields
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DropDatabaseOperation"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropDatabaseOperation(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -49,43 +39,32 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
+        public BsonDocument CreateCommand(ICoreSessionHandle session)
+        {
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            return new BsonDocument
+            {
+                { "dropDatabase", 1 },
+                { "writeConcern", writeConcern, writeConcern != null }
+            };
+        }
+
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -100,7 +79,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -113,17 +91,6 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(channelBinding.Session);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        // private methods
-        internal BsonDocument CreateCommand(ICoreSessionHandle session)
-        {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
-            return new BsonDocument
-            {
-                { "dropDatabase", 1 },
-                { "writeConcern", writeConcern, writeConcern != null }
-            };
         }
 
         private IDisposable BeginOperation() => EventContext.BeginOperation("dropDatabase");

@@ -33,22 +33,6 @@ namespace MongoDB.Driver.Core.Operations
         // test methods
         [Theory]
         [ParameterAttributeData]
-        public void AutoIndexId_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.AutoIndexId = value;
-            var result = subject.AutoIndexId;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Capped_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -84,9 +68,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
-#pragma warning disable 618
-            subject.AutoIndexId.Should().NotHaveValue();
-#pragma warning restore
             subject.Capped.Should().NotHaveValue();
             subject.ChangeStreamPreAndPostImages.Should().BeNull();
             subject.ClusteredIndex.Should().BeNull();
@@ -124,30 +105,6 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_AutoIndexId_is_set(
-            [Values(null, false, true)]
-            bool? autoIndexId)
-        {
-#pragma warning disable 618
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                AutoIndexId = autoIndexId
-            };
-#pragma warning restore
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "create", _collectionNamespace.CollectionName },
-                { "autoIndexId", () => autoIndexId.Value, autoIndexId != null }
             };
             result.Should().Be(expectedResult);
         }

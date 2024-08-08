@@ -46,16 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Constructor_should_throw_when_document_source_is_null()
-        {
-#pragma warning disable 618
-            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, (BatchableSource<BsonDocument>)null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            act.ShouldThrow<ArgumentNullException>();
-#pragma warning restore
-        }
-
-        [Fact]
         public void Constructor_should_throw_when_serializer_is_null()
         {
             Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, null, _messageEncoderSettings);

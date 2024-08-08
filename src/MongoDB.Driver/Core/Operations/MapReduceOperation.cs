@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     [Obsolete("Use Aggregation pipeline instead.")]
-    public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
+    internal sealed class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
     {
         // fields
         private ReadConcern _readConcern = ReadConcern.Default;

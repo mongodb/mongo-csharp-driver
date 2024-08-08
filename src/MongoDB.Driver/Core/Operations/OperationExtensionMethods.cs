@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -21,23 +20,8 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents extension methods for operations.
-    /// </summary>
-    public static class OperationExtensionMethods
+    internal static class OperationExtensionMethods
     {
-        /// <summary>
-        /// Executes a read operation using a channel source.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="operation">The read operation.</param>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the operation.
-        /// </returns>
         public static TResult Execute<TResult>(
             this IReadOperation<TResult> operation,
             IChannelSourceHandle channelSource,
@@ -52,17 +36,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Executes a write operation using a channel source.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="operation">The write operation.</param>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the operation.
-        /// </returns>
         public static TResult Execute<TResult>(
             this IWriteOperation<TResult> operation,
             IChannelSourceHandle channelSource,
@@ -76,18 +49,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Executes a read operation using a channel source.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="operation">The read operation.</param>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is the result of the operation.
-        /// </returns>
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IReadOperation<TResult> operation,
             IChannelSourceHandle channelSource,
@@ -102,17 +63,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Executes a write operation using a channel source.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="operation">The write operation.</param>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is the result of the operation.
-        /// </returns>
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWriteOperation<TResult> operation,
             IChannelSourceHandle channelSource,
