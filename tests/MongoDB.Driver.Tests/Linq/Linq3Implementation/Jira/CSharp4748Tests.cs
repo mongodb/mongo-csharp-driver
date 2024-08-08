@@ -21,12 +21,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4748Tests : Linq3IntegrationTest
+    public class CSharp4748Tests : LinqIntegrationTest<CSharp4748Tests.CollectionFixture>
     {
         static CSharp4748Tests()
         {
@@ -43,12 +45,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             });
         }
 
+        public CSharp4748Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Where_with_ContainsKey_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
@@ -66,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_with_ContainsKey_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
@@ -87,16 +94,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Translation> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Translation>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
-                new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } });
-            return collection;
-        }
-
         public class Translation
         {
             public int Id { get; set; }
@@ -110,6 +107,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             fr,
             de,
             pl,
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<Translation>
+        {
+            protected override IEnumerable<Translation> GetInitialData()
+                => new[]
+                {
+                    new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
+                    new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } }
+                };
         }
     }
 }

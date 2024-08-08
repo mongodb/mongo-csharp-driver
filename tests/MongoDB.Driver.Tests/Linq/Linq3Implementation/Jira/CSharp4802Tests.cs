@@ -13,21 +13,29 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4802Tests : Linq3IntegrationTest
+    public class CSharp4802Tests : LinqIntegrationTest<CSharp4802Tests.CollectionFixture>
     {
+        public CSharp4802Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Find_with_projection_of_subfield_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var find = collection.Find(d => d.Status == "a").Project(d => d.SubDocument.Id);
 
@@ -38,17 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(11);
         }
 
-        private IMongoCollection<Document> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Document>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new Document { Id = 1, Status = "a", SubDocument = new SubDocument { Id = 11 } },
-                new Document { Id = 2, Status = "b", SubDocument = new SubDocument { Id = 22 } });
-            return collection;
-        }
-
-        private class Document
+        public class Document
         {
             public int Id { get; set; }
             public string Status { get; set; }
@@ -58,6 +56,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class SubDocument
         {
             public int Id { get; set; }
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<Document>
+        {
+            protected override IEnumerable<Document> GetInitialData()
+                => new[]
+                {
+                    new Document { Id = 1, Status = "a", SubDocument = new SubDocument { Id = 11 } },
+                    new Document { Id = 2, Status = "b", SubDocument = new SubDocument { Id = 22 } },
+                };
         }
     }
 }

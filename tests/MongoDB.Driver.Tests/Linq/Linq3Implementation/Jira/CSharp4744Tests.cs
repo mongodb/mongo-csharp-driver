@@ -13,24 +13,32 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4744Tests : Linq3IntegrationTest
+    public class CSharp4744Tests : LinqIntegrationTest<CSharp4744Tests.CollectionFixture>
     {
+        public CSharp4744Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void ReplaceOne(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.FooName, (x, y) => new Summary()
@@ -55,13 +63,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Foo> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Foo>("test", linqProvider);
-            CreateCollection(collection);
-            return collection;
-        }
-
         public enum State
         {
             Started,
@@ -80,6 +81,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public string FooName;
             public int Count;
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<Foo>
+        {
+            protected override IEnumerable<Foo> GetInitialData()
+                => null;
         }
     }
 }
