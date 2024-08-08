@@ -17,7 +17,6 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -136,9 +135,6 @@ namespace MongoDB.Driver
                 MaxAwaitTime = _options.MaxAwaitTime,
                 MaxTime = _options.MaxTime,
                 Min = _options.Min,
-#pragma warning disable 618
-                Modifiers = _options.Modifiers,
-#pragma warning restore 618
                 NoCursorTimeout = _options.NoCursorTimeout,
 #pragma warning disable 618
                 OplogReplay = _options.OplogReplay,
@@ -260,25 +256,6 @@ namespace MongoDB.Driver
                 sb.Append("._addSpecial(\"$comment\", \"" + _options.Comment + "\")");
             }
 
-#pragma warning disable 618
-            if (_options.Modifiers != null)
-            {
-                foreach (var modifier in _options.Modifiers)
-#pragma warning restore 618
-                {
-                    sb.Append("._addSpecial(\"" + modifier.Name + "\", ");
-                    if (modifier.Value.BsonType == BsonType.String)
-                    {
-                        sb.Append("\"" + modifier.Value.ToString() + "\"");
-                    }
-                    else
-                    {
-                        sb.Append(modifier.Value.ToString());
-                    }
-                    sb.Append(")");
-                }
-            }
-
             return sb.ToString();
         }
 
@@ -288,9 +265,7 @@ namespace MongoDB.Driver
             return new CountOptions
             {
                 Collation = _options.Collation,
-#pragma warning disable 618
-                Hint = _options.Hint ?? _options.Modifiers?.GetValue("$hint", null),
-#pragma warning restore 618
+                Hint = _options.Hint,
                 Limit = _options.Limit,
                 MaxTime = _options.MaxTime,
                 Skip = _options.Skip
