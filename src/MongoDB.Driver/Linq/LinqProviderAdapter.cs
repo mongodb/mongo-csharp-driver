@@ -65,6 +65,11 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField);
 
+        internal abstract BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
+            Expression<Func<TElement, bool>> expression,
+            IBsonSerializer<TElement> elementSerializer,
+            IBsonSerializerRegistry serializerRegistry);
+
         internal abstract BsonDocument TranslateExpressionToFilter<TDocument>(
             Expression<Func<TDocument, bool>> expression,
             IBsonSerializer<TDocument> documentSerializer,

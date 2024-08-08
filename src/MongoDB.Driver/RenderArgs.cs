@@ -33,10 +33,11 @@ namespace MongoDB.Driver
     public record struct RenderArgs<TDocument>
     {
         private readonly IBsonSerializer<TDocument> _documentSerializer = default;
-        private readonly bool _renderForFind = false;
         private readonly LinqProvider _linqProvider = default;
         private readonly PathRenderArgs _pathRenderArgs = default;
         private readonly bool _renderDollarForm = default;
+        private readonly bool _renderForElemMatch = false;
+        private readonly bool _renderForFind = false;
         private readonly IBsonSerializerRegistry _serializerRegistry = default;
 
         /// <summary>
@@ -48,13 +49,15 @@ namespace MongoDB.Driver
         /// <param name="pathRenderArgs">The path render arguments.</param>
         /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
+        /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         public RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             LinqProvider linqProvider = LinqProvider.V3,
             PathRenderArgs pathRenderArgs = default,
             bool renderDollarForm = default,
-            bool renderForFind = false)
+            bool renderForFind = false,
+            bool renderForElemMatch = false)
         {
             DocumentSerializer = documentSerializer;
             LinqProvider = linqProvider;
@@ -62,6 +65,7 @@ namespace MongoDB.Driver
             SerializerRegistry = serializerRegistry;
             RenderDollarForm = renderDollarForm;
             _renderForFind = renderForFind;
+            _renderForElemMatch = renderForElemMatch;
         }
 
         /// <summary>
@@ -72,6 +76,11 @@ namespace MongoDB.Driver
             get => _documentSerializer;
             init => _documentSerializer = Ensure.IsNotNull(value, nameof(value));
         }
+
+        /// <summary>
+        /// Gets the value indicating whether Render is being called for ElemMatch.
+        /// </summary>
+        public readonly bool RenderForElemMatch { get => _renderForElemMatch; init => _renderForElemMatch = value; }
 
         /// <summary>
         /// Gets the value indicating whether Render is being called for Find.
