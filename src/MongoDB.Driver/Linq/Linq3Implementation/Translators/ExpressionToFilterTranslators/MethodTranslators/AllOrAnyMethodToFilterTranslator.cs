@@ -72,12 +72,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     }
                     else
                     {
+                        // { $elemMatch : { $or : [{ $eq : x }, { $eq : y }, ... ] } } => { $in : [x, y, ...] }
+                        if (filter is AstOrFilter orFilter &&
+                            orFilter.Filters.All(IsImpliedElementEqualityComparison))
+                        {
+                            var values = orFilter.Filters
+                                .Select(filter => ((AstFieldOperationFilter)filter).Operation)
+                                .Select(operation => ((AstComparisonFilterOperation)operation).Value);
+
+                            return AstFilter.In(field, values);
+                        }
+
                         return AstFilter.ElemMatch(field, filter);
                     }
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
+
+            static bool IsImpliedElementEqualityComparison(AstFilter filter)
+                =>
+                    filter is AstFieldOperationFilter fieldOperationFilter &&
+                    fieldOperationFilter.Field.Path == "@<elem>" &&
+                    fieldOperationFilter.Operation is AstComparisonFilterOperation comparisonFilterOperation &&
+                    comparisonFilterOperation.Operator == AstComparisonFilterOperator.Eq;
         }
     }
 
