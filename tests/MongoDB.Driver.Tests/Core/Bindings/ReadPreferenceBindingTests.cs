@@ -19,12 +19,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -201,7 +200,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
     }
 
-    public static class ReadPreferenceBindingReflector
+    internal static class ReadPreferenceBindingReflector
     {
         public static ICluster _cluster(this ReadPreferenceBinding obj)
         {

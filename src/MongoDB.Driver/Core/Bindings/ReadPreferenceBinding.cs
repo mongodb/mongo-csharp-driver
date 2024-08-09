@@ -24,25 +24,14 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a read binding to a cluster using a ReadPreference to select the server.
-    /// </summary>
-    public sealed class ReadPreferenceBinding : IReadBinding
+    internal sealed class ReadPreferenceBinding : IReadBinding
     {
-        // fields
         private readonly ICluster _cluster;
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReadPreferenceBinding" /> class.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="session">The session.</param>
         public ReadPreferenceBinding(ICluster cluster, ReadPreference readPreference, ICoreSessionHandle session)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
@@ -51,33 +40,26 @@ namespace MongoDB.Driver.Core.Bindings
             _serverSelector = new ReadPreferenceServerSelector(readPreference);
         }
 
-        // properties
-        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
         }
 
-        /// <inheritdoc/>
         public ICoreSessionHandle Session
         {
             get { return _session; }
         }
 
-        // methods
-        /// <inheritdoc/>
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             return GetReadChannelSource(null, cancellationToken);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetReadChannelSourceAsync(null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -85,7 +67,6 @@ namespace MongoDB.Driver.Core.Bindings
             return GetChannelSourceHelper(server);
         }
 
-        /// <inheritdoc />
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -98,7 +79,6 @@ namespace MongoDB.Driver.Core.Bindings
             return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
         }
 
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
