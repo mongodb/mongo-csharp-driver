@@ -1371,7 +1371,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var stage in stages)
             {
-                var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+                var renderedStage = stage.Render(inputSerializer, serializerRegistry);
                 renderedStages.Add(renderedStage);
                 inputSerializer = renderedStage.OutputSerializer;
             }

@@ -15,34 +15,30 @@
 
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4681Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_projection_render_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_projection_render_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var fluentFind = collection.Find(a => a.Id == "1").Project(a => a.Id);
 
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedProjection = fluentFind.Options.Projection.Render(new(documentSerializer, serializerRegistry, linqProvider));
+            var renderedProjection = fluentFind.Options.Projection.Render(new(documentSerializer, serializerRegistry));
 
             var result = fluentFind.Single();
             result.Should().Be("1");
         }
 
-        private IMongoCollection<A> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<A> GetCollection()
         {
-            var collection = GetCollection<A>("test", linqProvider);
+            var collection = GetCollection<A>("test");
             CreateCollection(
                 collection,
                 new A { Id = "1" },

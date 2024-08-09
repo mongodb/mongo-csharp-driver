@@ -20,7 +20,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Xunit;
 
@@ -89,7 +88,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = BsonDocumentSerializer.Instance;
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(documentSerializer);
-            var renderedPipeline = pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry, LinqProvider.V3));
+            var renderedPipeline = pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry));
             return renderedPipeline.Documents;
         }
     }

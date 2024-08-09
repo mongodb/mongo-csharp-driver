@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Nested_Select_should_work()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("FooBar");
             var collection = database.GetCollection<FooNest>("Foos");
 

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
@@ -27,24 +26,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Enumerable_Except_should_work(
-            [Values(false, true)] bool withNestedAsQueryableSource2,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryableSource2)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryableSource2 ?
                 collection.AsQueryable().Select(x => x.A.Except(x.B.AsQueryable())) :
                 collection.AsQueryable().Select(x => x.A.Except(x.B));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $setDifference : ['$A', '$B'] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $setDifference : ['$A', '$B'] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $setDifference : ['$A', '$B'] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(4);
@@ -57,37 +48,28 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Queryable_Except_should_work(
-            [Values(false, true)] bool withNestedAsQueryableSource2,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryableSource2)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryableSource2 ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Except(x.B.AsQueryable())) :
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Except(x.B));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidCastException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $setDifference : ['$A', '$B'] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $setDifference : ['$A', '$B'] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().HaveCount(4);
-                results[0].Should().Equal();
-                results[1].Should().Equal();
-                results[2].Should().BeEquivalentTo(1, 2);
-                results[3].Should().Equal(2);
-            }
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal();
+            results[2].Should().BeEquivalentTo(1, 2);
+            results[3].Should().Equal(2);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0], B = new int[0] },

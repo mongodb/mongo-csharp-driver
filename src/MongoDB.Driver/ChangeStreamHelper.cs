@@ -32,18 +32,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(pipeline, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
-        }
-
-        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
-            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
-            LinqProvider linqProvider,
-            ChangeStreamOptions options,
-            ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings,
-            bool retryRequested)
-        {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, linqProvider);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
 
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
@@ -65,19 +54,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(database, pipeline, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
-        }
-
-        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
-            IMongoDatabase database,
-            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
-            LinqProvider linqProvider,
-            ChangeStreamOptions options,
-            ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings,
-            bool retryRequested)
-        {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, linqProvider);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
 
             var operation = new ChangeStreamOperation<TResult>(
                 database.DatabaseNamespace,
@@ -101,20 +78,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(collection, pipeline, documentSerializer, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
-        }
-
-        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult, TDocument>(
-            IMongoCollection<TDocument> collection,
-            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
-            IBsonSerializer<TDocument> documentSerializer,
-            LinqProvider linqProvider,
-            ChangeStreamOptions options,
-            ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings,
-            bool retryRequested)
-        {
-            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, linqProvider);
+            var renderedPipeline = RenderPipeline(pipeline, documentSerializer);
 
             var operation = new ChangeStreamOperation<TResult>(
                 collection.CollectionNamespace,
@@ -132,12 +96,11 @@ namespace MongoDB.Driver
         // private static methods
         private static RenderedPipelineDefinition<TResult> RenderPipeline<TResult, TDocument>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
-            IBsonSerializer<TDocument> documentSerializer,
-            LinqProvider linqProvider)
+            IBsonSerializer<TDocument> documentSerializer)
         {
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(documentSerializer);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry, linqProvider));
+            return pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry));
         }
 
         private static void SetOperationOptions<TResult>(

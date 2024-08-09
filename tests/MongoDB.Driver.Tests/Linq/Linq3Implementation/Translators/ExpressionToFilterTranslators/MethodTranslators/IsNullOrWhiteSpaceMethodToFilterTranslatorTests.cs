@@ -13,69 +13,47 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
     public class IsNullOrWhiteSpaceMethodToFilterTranslatorTests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_using_IsNullOrWhiteSpace_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_using_IsNullOrWhiteSpace_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var find = collection.Find(x => string.IsNullOrWhiteSpace(x.S));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => TranslateFindFilter(collection, find));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var translatedFilter = TranslateFindFilter(collection, find);
-                translatedFilter.Should().Be("{ S : { $in : [null, /^\\s*$/ ] } }");
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ S : { $in : [null, /^\\s*$/ ] } }");
 
-                var results = find.ToList();
-                results.Select(x => x.Id).Should().BeEquivalentTo(1, 2, 3, 4);
-            }
+            var results = find.ToList();
+            results.Select(x => x.Id).Should().BeEquivalentTo(1, 2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_using_IsNullOrWhiteSpace_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_using_IsNullOrWhiteSpace_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => string.IsNullOrWhiteSpace(x.S));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { S : { $in : [null, /^\\s*$/ ] } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { S : { $in : [null, /^\\s*$/ ] } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().BeEquivalentTo(1, 2, 3, 4);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().BeEquivalentTo(1, 2, 3, 4);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>(linqProvider: linqProvider);
+            var collection = GetCollection<C>();
             CreateCollection(
                 collection,
                 new C { Id = 1, S = null },

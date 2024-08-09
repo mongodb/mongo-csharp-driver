@@ -14,20 +14,16 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4666Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_project_id_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_project_id_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var find = collection
                 .Find(_ => true)
@@ -40,12 +36,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_project_field_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_project_field_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var find = collection
                 .Find(_ => true)
@@ -58,9 +52,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(2);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, X = 2 });

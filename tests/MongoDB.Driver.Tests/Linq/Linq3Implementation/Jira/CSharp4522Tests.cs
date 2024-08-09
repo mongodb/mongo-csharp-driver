@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void User_provided_example_should_work()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
             AddSomeData(database);
 

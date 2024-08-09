@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -40,10 +39,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             });
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_object_property_GetType_comparison_to_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_object_property_GetType_comparison_to_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -51,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
                 var activityId = 1;
 
                 var find = collection
@@ -64,24 +61,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    // LINQ2 filter and results are both wrong
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp4691Tests+MyActivityObject, MongoDB.Driver.Tests', 'Object._id' : 1 }");
-                    results.Should().BeEmpty();
-                }
-                else
-                {
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                    results.Select(x => x.Id).Should().Equal(3, 4);
-                }
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+                results.Select(x => x.Id).Should().Equal(3, 4);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_object_property_GetType_comparison_to_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_object_property_GetType_comparison_to_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -89,7 +75,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
                 var activityId = 1;
 
                 var find = collection
@@ -102,24 +88,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    // LINQ2 filter and results are both wrong
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp4691Tests+MyActivityObjectDerived, MongoDB.Driver.Tests', 'Object._id' : 1 }");
-                    results.Should().BeEmpty();
-                }
-                else
-                {
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : { $size : 2 }, 'Object._t.0' : 'MyActivityObject', 'Object._t.1' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
-                    results.Select(x => x.Id).Should().Equal(6);
-                }
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : { $size : 2 }, 'Object._t.0' : 'MyActivityObject', 'Object._t.1' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+                results.Select(x => x.Id).Should().Equal(6);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_object_property_is_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_object_property_is_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -127,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
                 var activityId = 1;
 
                 var find = collection
@@ -140,24 +115,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    // LINQ2 filter and results are both wrong
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp4691Tests+MyActivityObject, MongoDB.Driver.Tests', 'Object._id' : 1 }");
-                    results.Should().BeEmpty();
-                }
-                else
-                {
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                    results.Select(x => x.Id).Should().Equal(3, 4, 6);
-                }
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+                results.Select(x => x.Id).Should().Equal(3, 4, 6);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_object_property_is_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_object_property_is_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -165,7 +129,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
                 var activityId = 1;
 
                 var find = collection
@@ -178,24 +142,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    // LINQ2 filter and results are both wrong
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp4691Tests+MyActivityObjectDerived, MongoDB.Driver.Tests', 'Object._id' : 1 }");
-                    results.Should().BeEmpty();
-                }
-                else
-                {
-                    filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
-                    results.Select(x => x.Id).Should().Equal(6);
-                }
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+                results.Select(x => x.Id).Should().Equal(6);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_typed_property_GetType_comparison_to_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_typed_property_GetType_comparison_to_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -203,7 +156,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
                 var activityId = 1;
 
                 var find = collection
@@ -221,10 +174,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_typed_property_GetType_comparison_to_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_typed_property_GetType_comparison_to_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -232,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
                 var activityId = 1;
 
                 var find = collection
@@ -250,10 +201,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_typed_property_is_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_typed_property_is_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -261,7 +210,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
                 var activityId = 1;
 
                 var find = collection
@@ -279,10 +228,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_typed_property_is_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_typed_property_is_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -290,7 +237,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
                 var activityId = 1;
 
                 var find = collection
@@ -308,10 +255,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_object_property_GetType_comparison_to_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_object_property_GetType_comparison_to_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -319,31 +264,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, false);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, false);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_object_property_GetType_comparison_to_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_object_property_GetType_comparison_to_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -351,31 +286,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_object_property_is_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_object_property_is_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -383,31 +308,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, true);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_object_property_is_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_object_property_is_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -415,31 +330,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection1(linqProvider);
+                var collection = GetCollection1();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_typed_property_GetType_comparison_to_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_typed_property_GetType_comparison_to_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -447,31 +352,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, false);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, false);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_typed_property_GetType_comparison_to_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_typed_property_GetType_comparison_to_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -479,31 +374,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_typed_property_is_base_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_typed_property_is_base_class_should_work()
         {
             Implementation<MyActivityObject, int>();
 
@@ -511,31 +396,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, true);
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_typed_property_is_derived_class_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_typed_property_is_derived_class_should_work()
         {
             Implementation<MyActivityObjectDerived, int>();
 
@@ -543,30 +418,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where TActivityObject : ActivityObject<TId>
                 where TId : notnull, IEquatable<TId>, new()
             {
-                var collection = GetCollection2(linqProvider);
+                var collection = GetCollection2();
 
                 var queryable = collection.AsQueryable()
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
-                if (linqProvider == LinqProvider.V2)
-                {
-                    var exception = Record.Exception(() => Translate(collection, queryable));
-                    exception.Should().BeOfType<NotSupportedException>();
-                }
-                else
-                {
-                    var stages = Translate(collection, queryable);
-                    var results = queryable.ToList();
+                var stages = Translate(collection, queryable);
+                var results = queryable.ToList();
 
-                    AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
-                    results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
-                }
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
+                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
             }
         }
 
-        private IMongoCollection<Activity1> GetCollection1(LinqProvider linqProvider)
+        private IMongoCollection<Activity1> GetCollection1()
         {
-            var collection = GetCollection<Activity1>("test", linqProvider);
+            var collection = GetCollection<Activity1>("test");
             CreateCollection(
                 collection,
                 new Activity1 { Id = 1, Object = null },
@@ -578,9 +445,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             return collection;
         }
 
-        private IMongoCollection<Activity2> GetCollection2(LinqProvider linqProvider)
+        private IMongoCollection<Activity2> GetCollection2()
         {
-            var collection = GetCollection<Activity2>("test", linqProvider);
+            var collection = GetCollection<Activity2>("test");
             CreateCollection(
                 collection,
                 new Activity2 { Id = 1, Object = null },

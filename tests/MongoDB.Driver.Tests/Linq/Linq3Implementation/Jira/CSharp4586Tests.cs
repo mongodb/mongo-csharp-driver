@@ -14,8 +14,6 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 #if NET6_0_OR_GREATER
@@ -23,12 +21,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4586Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_View1_with_constructor_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_View1_with_constructor_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -47,12 +43,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_View1_with_empty_initializer_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_View1_with_empty_initializer_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -71,12 +65,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_View2_with_constructor_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_View2_with_constructor_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -96,12 +88,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_View2_with_empty_initializer_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_View2_with_empty_initializer_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -121,12 +111,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_View2_with_initializer_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_View2_with_initializer_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -135,14 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Project(Builders<Model>.Projection.Expression(m => new View2(m.Id) { Version = 1 }));
 
             var projection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                projection.Should().Be("{ _id : 1 }"); // apparently LINQ2 handles Version = 1 client side
-            }
-            else
-            {
-                projection.Should().Be("{ _id : 1, Version : { $literal : 1 } }");
-            }
+            projection.Should().Be("{ _id : 1, Version : { $literal : 1 } }");
 
             var results = find.ToList();
             results.Should().HaveCount(1);
@@ -153,9 +134,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        private IMongoCollection<Model> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<Model> CreateCollection()
         {
-            var collection = GetCollection<Model>("test", linqProvider);
+            var collection = GetCollection<Model>("test");
             CreateCollection(collection, new Model("a"));
             return collection;
         }

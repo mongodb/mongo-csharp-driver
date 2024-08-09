@@ -13,127 +13,82 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4957Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void New_array_with_zero_items_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void New_array_with_zero_items_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new int[] { }));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : [], _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : [], _id : 0 } }");
-
-            }
+            AssertStages(stages, "{ $project : { _v : [], _id : 0 } }");
 
             var results = queryable.ToArray();
             results.Should().HaveCount(1);
             results[0].Should().Equal();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void New_array_with_one_items_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void New_array_with_one_items_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new[] { x.X }));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : ['$X'], _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : ['$X'], _id : 0 } }");
-
-            }
+            AssertStages(stages, "{ $project : { _v : ['$X'], _id : 0 } }");
 
             var results = queryable.ToArray();
             results.Should().HaveCount(1);
             results[0].Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void New_array_with_two_items_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void New_array_with_two_items_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new[] { x.X, x.X + 1 }));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : ['$X', { $add : ['$X', 1] }], _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : ['$X', { $add : ['$X', 1] }], _id : 0 } }");
-
-            }
+            AssertStages(stages, "{ $project : { _v : ['$X', { $add : ['$X', 1] }], _id : 0 } }");
 
             var results = queryable.ToArray();
             results.Should().HaveCount(1);
             results[0].Should().Equal(1, 2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void New_array_with_two_items_with_different_serializers_should_throw(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void New_array_with_two_items_with_different_serializers_should_throw()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new[] { x.X, x.Y }));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { __fld0 : ['$X', '$Y'], _id : 0 } }");
-
-                var exception = Record.Exception(() => queryable.ToArray());
-                exception.Should().BeOfType<FormatException>(); // LINQ2 doesn't fail until deserialization
-            }
-            else
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("all items in the array must be serialized using the same serializer");
-            }
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("all items in the array must be serialized using the same serializer");
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, X = 1, Y = 2 });

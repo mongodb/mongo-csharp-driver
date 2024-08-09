@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Search
 
         private IMongoQueryable<Person> CreateSubject()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             return collection.AsQueryable();

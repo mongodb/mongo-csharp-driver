@@ -14,20 +14,16 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4723Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_projection_in_findoneandupdate_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_projection_in_findoneandupdate_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var update = Builders<A>.Update.Set("Value", "updated");
             var options = new FindOneAndUpdateOptions<A>
@@ -41,12 +37,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Value.Should().Be("1");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_projection_in_findoneandreplace_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_projection_in_findoneandreplace_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var options = new FindOneAndReplaceOptions<A, A>
             {
                 Projection = Builders<A>.Projection.Expression(x => x)
@@ -58,12 +52,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Value.Should().Be("1");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_projection_in_findoneanddelete_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_projection_in_findoneanddelete_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var options = new FindOneAndDeleteOptions<A>
             {
@@ -76,9 +68,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Value.Should().Be("1");
         }
 
-        private IMongoCollection<A> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<A> GetCollection()
         {
-            var collection = GetCollection<A>("test", linqProvider);
+            var collection = GetCollection<A>("test");
             CreateCollection(
                 collection,
                 new A { Id = 1, Value = "1"});

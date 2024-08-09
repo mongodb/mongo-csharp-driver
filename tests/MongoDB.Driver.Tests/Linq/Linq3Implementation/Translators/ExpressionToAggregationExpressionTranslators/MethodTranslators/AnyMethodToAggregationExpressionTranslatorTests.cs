@@ -26,24 +26,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Any_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Any()) :
                 collection.AsQueryable().Select(x => x.A.Any());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $gt : [{ $size : '$A' }, 0]  }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$A' }, 0]  }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$A' }, 0]  }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(false, true, true, true);
@@ -52,32 +44,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Any_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Any(x => x > 2)) :
                 collection.AsQueryable().Select(x => x.A.Any(x => x > 2));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $anyElementTrue : { $map : { input : '$A', as : 'x', in : { $gt : ['$$x', 2] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : '$A', as : 'x', in : { $gt : ['$$x', 2] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : '$A', as : 'x', in : { $gt : ['$$x', 2] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(false, false, false, true);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

@@ -179,29 +179,18 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedGroup);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Group_should_generate_the_correct_document_using_expressions(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Group_should_generate_the_correct_document_using_expressions()
         {
-            var collection = GetCollection<Person>(linqProvider: linqProvider);
+            var collection = GetCollection<Person>();
             var subject = collection.Aggregate()
                 .Group(x => x.Age, g => new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
 
             var stages = Translate(collection, subject);
-            var expectedStages = linqProvider == LinqProvider.V2 ?
-                new[]
-                {
-                    "{ $group : { _id : '$Age', Name : { $first : { $concat : ['$FirstName', ' ', '$LastName'] } } } }"
-                }
-                :
-                new[]
-                {
-                    "{ $group : { _id : '$Age', __agg0 : { $first : { $concat : ['$FirstName', ' ', '$LastName'] } } } }",
-                    "{ $project : { Name : '$__agg0', _id : 0 } }"
-                };
-
-            AssertStages(stages, expectedStages);
+            AssertStages(
+                stages,
+                "{ $group : { _id : '$Age', __agg0 : { $first : { $concat : ['$FirstName', ' ', '$LastName'] } } } }",
+                "{ $project : { Name : '$__agg0', _id : 0 } }");
         }
 
         [Fact]

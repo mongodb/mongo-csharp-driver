@@ -18,7 +18,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -26,27 +25,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp4937Tests : Linq3IntegrationTest
     {
         [Theory]
-        [InlineData(2, "<" , 0, LinqProvider.V2, "{ _id : { $lt : 2 } }", new int[] { 1 })]
-        [InlineData(2, "<=", 0, LinqProvider.V2, "{ _id : { $lte : 2 } }", new int[] { 1, 2 })]
-        [InlineData(2, "==", 0, LinqProvider.V2, "{ _id : 2 }", new int[] { 2 })]
-        [InlineData(2, "!=", 0, LinqProvider.V2, "{ _id : { $ne : 2 } }", new int[] { 1, 3 })]
-        [InlineData(2, ">=", 0, LinqProvider.V2, "{ _id : { $gte : 2 } }", new int[] { 2, 3 })]
-        [InlineData(2, ">" , 0, LinqProvider.V2, "{ _id : { $gt : 2 } }", new int[] { 3 })]
-        [InlineData(2, "<" , 0, LinqProvider.V3, "{ _id : { $lt : 2 } }", new int[] { 1 })]
-        [InlineData(2, "<=", 0, LinqProvider.V3, "{ _id : { $lte : 2 } }", new int[] { 1, 2 })]
-        [InlineData(2, "==", 0, LinqProvider.V3, "{ _id : 2 }", new int[] { 2 })]
-        [InlineData(2, "!=", 0, LinqProvider.V3, "{ _id : { $ne : 2 } }", new int[] { 1, 3 })]
-        [InlineData(2, ">=", 0, LinqProvider.V3, "{ _id : { $gte : 2 } }", new int[] { 2, 3 })]
-        [InlineData(2, ">" , 0, LinqProvider.V3, "{ _id : { $gt : 2 } }", new int[] { 3 })]
+        [InlineData(2, "<" , 0, "{ _id : { $lt : 2 } }", new int[] { 1 })]
+        [InlineData(2, "<=", 0, "{ _id : { $lte : 2 } }", new int[] { 1, 2 })]
+        [InlineData(2, "==", 0, "{ _id : 2 }", new int[] { 2 })]
+        [InlineData(2, "!=", 0, "{ _id : { $ne : 2 } }", new int[] { 1, 3 })]
+        [InlineData(2, ">=", 0, "{ _id : { $gte : 2 } }", new int[] { 2, 3 })]
+        [InlineData(2, ">" , 0, "{ _id : { $gt : 2 } }", new int[] { 3 })]
         public void CompareTo_filter_should_work(
             int comparand,
             string comparisonOperator,
             int compareToResult,
-            LinqProvider linqProvider,
             string expectedFilter,
             int[] expectedIds)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             Expression<Func<C, bool>> predicate = comparisonOperator switch
             {
@@ -78,27 +70,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(2, "<", 0, LinqProvider.V2, "__fld0 : { $lt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, false })]
-        [InlineData(2, "<=", 0, LinqProvider.V2, "__fld0 : { $lte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, true, false })]
-        [InlineData(2, "==", 0, LinqProvider.V2, "__fld0 : { $eq : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, false })]
-        [InlineData(2, "!=", 0, LinqProvider.V2, "__fld0 : { $ne : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, true })]
-        [InlineData(2, ">=", 0, LinqProvider.V2, "__fld0 : { $gte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, true})]
-        [InlineData(2, ">", 0, LinqProvider.V2, "__fld0 : { $gt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, false, true })]
-        [InlineData(2, "<", 0, LinqProvider.V3, "_v : { $lt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, false })]
-        [InlineData(2, "<=", 0, LinqProvider.V3, "_v : { $lte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, true, false })]
-        [InlineData(2, "==", 0, LinqProvider.V3, "_v : { $eq : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, false })]
-        [InlineData(2, "!=", 0, LinqProvider.V3, "_v : { $ne : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, true })]
-        [InlineData(2, ">=", 0, LinqProvider.V3, "_v : { $gte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, true })]
-        [InlineData(2, ">", 0, LinqProvider.V3, "_v : { $gt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, false, true })]
+        [InlineData(2, "<", 0, "_v : { $lt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, false })]
+        [InlineData(2, "<=", 0, "_v : { $lte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, true, false })]
+        [InlineData(2, "==", 0, "_v : { $eq : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, false })]
+        [InlineData(2, "!=", 0, "_v : { $ne : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { true, false, true })]
+        [InlineData(2, ">=", 0, "_v : { $gte : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, true, true })]
+        [InlineData(2, ">", 0, "_v : { $gt : [{ $cmp : ['$_id', 2] }, 0] }", new bool[] { false, false, true })]
         public void CompareTo_expression_should_work(
             int comparand,
             string comparisonOperator,
             int compareToResult,
-            LinqProvider linqProvider,
             string expectedProjection,
             bool[] expectedResults)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             Expression<Func<C, bool>> selector = comparisonOperator switch
             {
@@ -121,18 +106,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(selector);
 
                 var stages = Translate(collection, queryable);
-                var fieldName = linqProvider == LinqProvider.V2 ? "__fld0" : "_v";
-                var expectedStage = "{ $project : { <projection>, _id : 0 } }".Replace("<projection>", expectedProjection);
-                AssertStages(stages, expectedStage);
+                AssertStages(stages, "{ $project : { <projection>, _id : 0 } }".Replace("<projection>", expectedProjection));
 
                 var results = queryable.ToList();
                 results.Should().Equal(expectedResults);
             }
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1 },

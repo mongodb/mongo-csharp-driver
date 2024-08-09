@@ -38,7 +38,6 @@ namespace MongoDB.Driver
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IMongoDatabase _database;
-        private readonly LinqProvider _linqProvider;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
@@ -60,9 +59,8 @@ namespace MongoDB.Driver
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
 
-            _linqProvider = _database.Client.Settings.LinqProvider;
             _messageEncoderSettings = GetMessageEncoderSettings();
-            _args = new(_documentSerializer, _settings.SerializerRegistry, _linqProvider);
+            _args = new(_documentSerializer, _settings.SerializerRegistry);
         }
 
         // properties
@@ -956,7 +954,6 @@ namespace MongoDB.Driver
                 this,
                 pipeline,
                 _documentSerializer,
-                _linqProvider,
                 options,
                 _settings.ReadConcern, messageEncoderSettings: _messageEncoderSettings,
                 _database.Client.Settings.RetryReads);
@@ -1382,7 +1379,7 @@ namespace MongoDB.Driver
             var renderedArrayFilters = new List<BsonDocument>();
             foreach (var arrayFilter in arrayFilters)
             {
-                var renderedArrayFilter = arrayFilter.Render(null, _args.SerializerRegistry, _args.LinqProvider);
+                var renderedArrayFilter = arrayFilter.Render(null, _args.SerializerRegistry);
                 renderedArrayFilters.Add(renderedArrayFilter);
             }
 

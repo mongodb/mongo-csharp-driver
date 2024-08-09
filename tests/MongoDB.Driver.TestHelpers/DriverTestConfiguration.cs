@@ -35,18 +35,16 @@ namespace MongoDB.Driver.Tests
     public static class DriverTestConfiguration
     {
         // private static fields
+        private static Lazy<MongoClient> __client;
         private static Lazy<MongoClient> __clientWithMultipleShardRouters;
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
         private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
-        private static Lazy<MongoClient> __linq2Client;
-        private static Lazy<MongoClient> __linq3Client;
 
         // static constructor
         static DriverTestConfiguration()
         {
-            __linq2Client = new Lazy<MongoClient>(CreateLinq2Client, isThreadSafe: true);
-            __linq3Client = new Lazy<MongoClient>(CreateLinq3Client, isThreadSafe: true);
+            __client = new Lazy<MongoClient>(CreateClient, isThreadSafe: true);
             __clientWithMultipleShardRouters = new Lazy<MongoClient>(() => CreateClient(useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
@@ -61,7 +59,7 @@ namespace MongoDB.Driver.Tests
         /// </summary>
         public static MongoClient Client
         {
-            get { return Linq3Client; }
+            get { return __client.Value; }
         }
 
         /// <summary>
@@ -100,22 +98,6 @@ namespace MongoDB.Driver.Tests
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace; }
-        }
-
-        /// <summary>
-        /// Gets the LINQ2 test client.
-        /// </summary>
-        public static MongoClient Linq2Client
-        {
-            get { return __linq2Client.Value; }
-        }
-
-        /// <summary>
-        /// Gets the LINQ3 test client.
-        /// </summary>
-        public static MongoClient Linq3Client
-        {
-            get { return __linq3Client.Value; }
         }
 
         // public static methods
@@ -200,18 +182,9 @@ namespace MongoDB.Driver.Tests
             return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
-        private static MongoClient CreateLinq2Client()
+        private static MongoClient CreateClient()
         {
-            var linq2ClientSettings = GetClientSettings();
-            linq2ClientSettings.LinqProvider = LinqProvider.V2;
-            return new MongoClient(linq2ClientSettings);
-        }
-
-        private static MongoClient CreateLinq3Client()
-        {
-            var linq3ClientSettings = GetClientSettings();
-            linq3ClientSettings.LinqProvider = LinqProvider.V3;
-            return new MongoClient(linq3ClientSettings);
+            return new MongoClient();
         }
 
         public static MongoClientSettings GetClientSettings()
@@ -229,11 +202,6 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
 
             return clientSettings;
-        }
-
-        public static MongoClient GetLinqClient(LinqProvider linqProvider)
-        {
-            return linqProvider == LinqProvider.V2 ? Linq2Client : Linq3Client;
         }
 
         public static bool IsReplicaSet(IMongoClient client)

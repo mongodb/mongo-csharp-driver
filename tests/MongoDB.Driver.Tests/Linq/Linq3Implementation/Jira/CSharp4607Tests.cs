@@ -16,20 +16,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4607Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Constant_All_Enumerable_Contains_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Constant_All_Enumerable_Contains_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             IList<int> values = new int[] { 1, 2, 3 };
 
             var filter = Builders<C>.Filter.Where(c => values.All(e => c.A.Contains(e)));
@@ -38,12 +34,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             translatedFilter.Should().Be("{ A : { $all : [1, 2, 3] } }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Constant_All_IList_Contains_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Constant_All_IList_Contains_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             IList<int> values = new int[] { 1, 2, 3 };
 
             var filter = Builders<C>.Filter.Where(c => values.All(e => c.L.Contains(e)));
@@ -52,9 +46,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             translatedFilter.Should().Be("{ L : { $all : [1, 2, 3] } }");
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             //CreateCollection(
             //    collection,
             //    new SimpleContact { Id = 1, Dict = new Dictionary<string, int> { ["test"] = 3 } },

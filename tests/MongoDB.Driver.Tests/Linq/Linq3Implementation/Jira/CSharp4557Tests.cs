@@ -13,24 +13,20 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4557Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_ContainsKey_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_ContainsKey_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection
                 .AsQueryable()
@@ -43,35 +39,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_ContainsKey_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_ContainsKey_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection
                 .AsQueryable()
                 .Select(x => x.Foo.ContainsKey("bar"));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Foo.bar' }, 'missing']  }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Foo.bar' }, 'missing']  }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(false, true);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(false, true);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("C", linqProvider);
+            var collection = GetCollection<C>("C");
 
             CreateCollection(
                 collection,

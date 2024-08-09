@@ -13,14 +13,12 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Text;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -106,20 +104,16 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("a.$"), "{'a.$': 1}");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void ElemMatch_from_filter_Typed(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void ElemMatch_from_filter_Typed()
         {
             var subject = CreateSubject<Person>();
 
-            var projection = linqProvider == LinqProvider.V2 ?
-                subject.Include(x => x.Pets.ElementAt(-1)) :
-                subject.Include(x => x.Pets.FirstMatchingElement());
-            Assert(projection, "{ 'pets.$' : 1 }", linqProvider);
+            var projection = subject.Include(x => x.Pets.FirstMatchingElement());
+            Assert(projection, "{ 'pets.$' : 1 }");
 
             projection = subject.Include("Pets.$");
-            Assert(projection, "{ 'pets.$' : 1 }", linqProvider);
+            Assert(projection, "{ 'pets.$' : 1 }");
         }
 
         [Fact]
@@ -223,10 +217,10 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("Pets", 10, 20), "{pets: {$slice: ['$pets', 10, 20]}}");
         }
 
-        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson, LinqProvider linqProvider = LinqProvider.V3)
+        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
+            var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedProjection.Should().Be(expectedJson);
         }

@@ -18,72 +18,47 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4651Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void First_custom_projection_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void First_custom_projection_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(c => c.VehicleType == VehicleType.Car)
                 .Select(ToCustomProjection_Works(VehicleType.Car));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { VehicleType : 0 } }",
-                    "{ $project : { Id : '$_id', Description : { $cond : [false, 'No description available for trucks', '$Description'] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { VehicleType : 0 } }",
-                    "{ $project : { _id : '$_id', Description : '$Description' } }");
-            }
+            AssertStages(
+                stages,
+                "{ $match : { VehicleType : 0 } }",
+                "{ $project : { _id : '$_id', Description : '$Description' } }");
 
             var results = queryable.ToList();
             var result = results.Single();
             result.Id.Should().Be("5555XXX");
-            result.Description.Should().Be($"{linqProvider} - Description for license: {result.Id}");
+            result.Description.Should().Be($"Description for license: {result.Id}");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Second_custom_projection_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Second_custom_projection_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(c => c.VehicleType == VehicleType.Truck)
                 .Select(ToCustomProjection_Fails(VehicleType.Truck));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { VehicleType : 1 } }",
-                    "{ $project : { Id : '$_id', Description : { $cond : [true, 'No description available for trucks', '$Description'] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { VehicleType : 1 } }",
-                    "{ $project : { _id : '$_id', Description : 'No description available for trucks' } }");
-            }
+            AssertStages(
+                stages,
+                "{ $match : { VehicleType : 1 } }",
+                "{ $project : { _id : '$_id', Description : 'No description available for trucks' } }");
 
             var results = queryable.ToList();
             var result = results.Single();
@@ -91,9 +66,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Description.Should().Be("No description available for trucks");
         }
 
-        private IMongoCollection<Car> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Car> GetCollection()
         {
-            var collection = GetCollection<Car>("test", linqProvider);
+            var collection = GetCollection<Car>("test");
             var carLicensePlate = "5555XXX";
             var truckLicensePlate = "6666YYY";
             CreateCollection(
@@ -101,13 +76,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new Car
                 {
                     Id = carLicensePlate,
-                    Description = $"{linqProvider} - Description for license: {carLicensePlate}",
+                    Description = $"Description for license: {carLicensePlate}",
                     VehicleType = VehicleType.Car
                 },
                 new Car
                 {
                     Id = truckLicensePlate,
-                    Description = $"{linqProvider} - Description for license: {truckLicensePlate}",
+                    Description = $"Description for license: {truckLicensePlate}",
                     VehicleType = VehicleType.Truck
                 });
             return collection;

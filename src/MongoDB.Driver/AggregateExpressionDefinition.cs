@@ -73,12 +73,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sourceSerializer">The source serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>The rendered aggregation expression.</returns>
         [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
-        public virtual BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public virtual BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new(sourceSerializer, serializerRegistry, linqProvider));
+            return Render(new(sourceSerializer, serializerRegistry));
         }
 
         /// <summary>
@@ -157,7 +156,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TSource> args)
         {
             var contextData = _contextData?.With("SerializerRegistry", args.SerializerRegistry);
-            return args.LinqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions, contextData);
+            return LinqProviderAdapter.V3.TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions, contextData);
         }
     }
 

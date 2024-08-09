@@ -14,23 +14,19 @@
 */
 
 using System.Linq;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4744Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void ReplaceOne(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void ReplaceOne()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.FooName, (x, y) => new Summary()
@@ -40,24 +36,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 });
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $group: { _id : '$FooName', Count : { $sum : { $cond : [{ $eq : ['$State', 1] }, 1, 0] } } } }"); // note: 1 instead of "Running" is an error
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $group: { _id : '$FooName', __agg0 : { $sum : { $cond : { if : { $eq : ['$State', 'Running'] }, then : 1, else : 0 } } } } }",
-                    "{ $project : { FooName : '$_id', Count : '$__agg0', _id : 0 } }");
-            }
+            AssertStages(
+                stages,
+                "{ $group: { _id : '$FooName', __agg0 : { $sum : { $cond : { if : { $eq : ['$State', 'Running'] }, then : 1, else : 0 } } } } }",
+                "{ $project : { FooName : '$_id', Count : '$__agg0', _id : 0 } }");
         }
 
-        private IMongoCollection<Foo> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Foo> GetCollection()
         {
-            var collection = GetCollection<Foo>("test", linqProvider);
+            var collection = GetCollection<Foo>("test");
             CreateCollection(collection);
             return collection;
         }

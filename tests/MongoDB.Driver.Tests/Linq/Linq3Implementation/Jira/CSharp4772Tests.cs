@@ -18,19 +18,16 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4772Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_Any_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_Any_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -39,25 +36,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(true, false, false, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_Array_Exists_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_Array_Exists_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -65,27 +53,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesArray != null &&
                     Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesArray', null] }, { $anyElementTrue : { $map : { input : '$ProfilesArray', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsArray', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesArray', null] }, { $anyElementTrue : { $map : { input : '$ProfilesArray', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsArray', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(true, false, false, false);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(true, false, false, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_List_Exists_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_List_Exists_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -93,27 +71,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesList != null &&
                     a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(true, false, false, false);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(true, false, false, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Any_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Any_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -122,26 +90,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
 
             var stages = Translate(collection, queryable);
-
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { ProfilesList : { $ne : null }, 'ProfilesList.OrganizationIdsList' : { $elemMatch : { $eq : 1 } } } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
-            }
+            AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Array_Exists_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Array_Exists_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -149,27 +107,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesArray != null &&
                     Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { ProfilesArray : { $ne : null, $elemMatch : { OrganizationIdsArray : 1 } } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ProfilesArray : { $ne : null, $elemMatch : { OrganizationIdsArray : 1 } } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(1);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_List_Exists_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_List_Exists_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -177,24 +125,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     a.ProfilesList != null &&
                     a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(1);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<Account> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Account> GetCollection()
         {
-            var collection = GetCollection<Account>("test", linqProvider);
+            var collection = GetCollection<Account>("test");
             CreateCollection(
                 collection,
                 new Account

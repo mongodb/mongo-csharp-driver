@@ -15,19 +15,16 @@
 
 using System.Linq;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4658Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_new_Model_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_new_Model_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.Name)
@@ -45,12 +42,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 "{ $project : { NotId : '', Name : '$_id', _id : 0 } }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_new_ModelAggregated_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_new_ModelAggregated_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Group(
@@ -65,26 +60,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     });
 
             var stages = Translate(collection, aggregate);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : '', Count : { $sum : 1 } } }",
-                    "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : '', __agg0 : { $sum : 1 } } }",
-                    "{ $project : { Count : '$__agg0', _id : 0 } }",
-                    "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
-            }
+            AssertStages(
+                stages,
+                "{ $group : { _id : '', __agg0 : { $sum : 1 } } }",
+                "{ $project : { Count : '$__agg0', _id : 0 } }",
+                "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
         }
 
-        private IMongoCollection<Model> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Model> GetCollection()
         {
-            var collection = GetCollection<Model>("test", linqProvider);
+            var collection = GetCollection<Model>("test");
             return collection;
         }
 

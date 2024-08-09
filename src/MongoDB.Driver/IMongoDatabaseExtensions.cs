@@ -169,9 +169,8 @@ namespace MongoDB.Driver
         // private static methods
         private static IMongoQueryable<NoPipelineInput> AsQueryableHelper(IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
-            var linqProvider = database.Client.Settings.LinqProvider;
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            return linqProvider.GetAdapter().AsQueryable(database, session, aggregateOptions);
+            return LinqProviderAdapter.V3.AsQueryable(database, session, aggregateOptions);
         }
     }
 }

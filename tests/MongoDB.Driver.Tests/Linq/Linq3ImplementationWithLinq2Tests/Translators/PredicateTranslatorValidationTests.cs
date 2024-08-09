@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
         private void Setup()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
             _collection = database.GetCollection<TestObject>("testObject");
             database.DropCollection("testObject");

@@ -56,12 +56,5 @@ namespace MongoDB.Driver.Linq
         /// Gets the pipeline input serializer (the DocumentSerializer for collection queries and NoPipelineInputSerializer for database queries).
         /// </summary>
         IBsonSerializer PipelineInputSerializer { get; }
-
-        /// <summary>
-        /// Gets the execution model.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>The execution model.</returns>
-        QueryableExecutionModel GetExecutionModel(Expression expression);
     }
 }

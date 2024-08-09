@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Entity>();
-            var renderedFilter = filter.Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
+            var renderedFilter = filter.Render(new(documentSerializer, serializerRegistry));
 
             renderedFilter.Should().Be("{ $expr : { $in : [{ $toString : '$Body.name' }, ['Test1', 'Test2']] } }");
 
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Entity>();
-            var renderedFilter = filter.Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
+            var renderedFilter = filter.Render(new(documentSerializer, serializerRegistry));
 
             renderedFilter.Should().Be("{ Caption : { $in : ['Test1', 'Test2'] } }");
 

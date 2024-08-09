@@ -53,7 +53,6 @@ namespace MongoDB.Driver
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
         private LibraryInfo _libraryInfo;
-        private LinqProvider _linqProvider;
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
         private LoggingSettings _loggingSettings;
@@ -115,7 +114,6 @@ namespace MongoDB.Driver
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
             _libraryInfo = null;
-            _linqProvider = LinqProvider.V3;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
@@ -409,13 +407,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the LINQ provider.
         /// </summary>
+        [Obsolete("LINQ3 is the only Linq provider supported now.")]
         public LinqProvider LinqProvider
         {
-            get { return _linqProvider; }
+            get { return LinqProvider.V3; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _linqProvider = value;
+                if (value != LinqProvider.V3)
+                {
+                    throw new InvalidOperationException("LINQ3 is the only Linq provider supported now.");
+                }
             }
         }
 
@@ -983,7 +984,6 @@ namespace MongoDB.Driver
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
             clientSettings.LibraryInfo = null;
-            clientSettings.LinqProvider = LinqProvider.V3;
             clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.MaxConnecting = url.MaxConnecting;
@@ -1042,7 +1042,6 @@ namespace MongoDB.Driver
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
             clone._libraryInfo = _libraryInfo;
-            clone._linqProvider = _linqProvider;
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
             clone._loggingSettings = _loggingSettings;
@@ -1114,7 +1113,6 @@ namespace MongoDB.Driver
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
                 object.Equals(_libraryInfo, rhs._libraryInfo) &&
-                _linqProvider == rhs._linqProvider &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
@@ -1277,7 +1275,6 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("libraryInfo={0};", _libraryInfo);
             }
-            sb.AppendFormat("LinqProvider={0};", _linqProvider);
             if (_loadBalanced)
             {
                 sb.AppendFormat("LoadBalanced={0};", _loadBalanced);

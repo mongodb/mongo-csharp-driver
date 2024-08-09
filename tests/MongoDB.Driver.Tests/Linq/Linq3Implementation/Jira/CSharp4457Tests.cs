@@ -18,78 +18,72 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4457Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_with_bool_field_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_with_bool_field_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var builder = Builders<C>.Filter;
             var filter = builder.Where(x => x.BoolField);
 
-            var rendered = RenderFilter(filter, linqProvider);
+            var rendered = RenderFilter(filter);
             rendered.Should().Be("{ BoolField : true }");
 
             var results = collection.FindSync(filter).ToList();
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_with_bool_property_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_with_bool_property_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var builder = Builders<C>.Filter;
             var filter = builder.Where(x => x.BoolProperty);
 
-            var rendered = RenderFilter(filter, linqProvider);
+            var rendered = RenderFilter(filter);
             rendered.Should().Be("{ BoolProperty : true }");
 
             var results = collection.FindSync(filter).ToList();
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_with_not_bool_field_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_with_not_bool_field_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var builder = Builders<C>.Filter;
             var filter = builder.Where(x => !x.BoolField);
 
-            var rendered = RenderFilter(filter, linqProvider);
+            var rendered = RenderFilter(filter);
             rendered.Should().Be("{ BoolField : { $ne : true } }");
 
             var results = collection.FindSync(filter).ToList();
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_with_not_bool_property_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_with_not_bool_property_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var builder = Builders<C>.Filter;
             var filter = builder.Where(x => !x.BoolProperty);
 
-            var rendered = RenderFilter(filter, linqProvider);
+            var rendered = RenderFilter(filter);
             rendered.Should().Be("{ BoolProperty : { $ne : true } }");
 
             var results = collection.FindSync(filter).ToList();
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_field_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_bool_field_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable =
                 collection.AsQueryable()
@@ -102,11 +96,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_property_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_bool_property_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable =
                 collection.AsQueryable()
@@ -119,11 +112,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_not_bool_field_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_not_bool_field_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable =
                 collection.AsQueryable()
@@ -136,11 +128,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_not_bool_property_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_not_bool_property_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable =
                 collection.AsQueryable()
@@ -153,9 +144,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("C", linqProvider);
+            var collection = GetCollection<C>("C");
 
             CreateCollection(
                 collection,
@@ -165,11 +156,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             return collection;
         }
 
-        private BsonDocument RenderFilter<TDocument>(FilterDefinition<TDocument> filter, LinqProvider linqProvider)
+        private BsonDocument RenderFilter<TDocument>(FilterDefinition<TDocument> filter)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<TDocument>();
-            return filter.Render(new(documentSerializer, serializerRegistry, linqProvider));
+            return filter.Render(new(documentSerializer, serializerRegistry));
         }
 
         private class C

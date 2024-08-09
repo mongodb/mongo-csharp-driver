@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -25,7 +24,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -34,7 +32,7 @@ namespace MongoDB.Driver.Tests
     {
         #region static
         // private static fields
-        private static CollectionNamespace __collectionNamespace;
+        private static string __collectionName;
         private static IMongoDatabase __database;
         private static Lazy<bool> __ensureTestData;
 
@@ -43,16 +41,16 @@ namespace MongoDB.Driver.Tests
         {
             var databaseNamespace = DriverTestConfiguration.DatabaseNamespace;
             __database = DriverTestConfiguration.Client.GetDatabase(databaseNamespace.DatabaseName);
-            __collectionNamespace = DriverTestConfiguration.CollectionNamespace;
+            __collectionName = "bucketAuto";
             __ensureTestData = new Lazy<bool>(CreateTestData);
         }
 
         // private static methods
         private static bool CreateTestData()
         {
-            __database.DropCollection(__collectionNamespace.CollectionName);
+            __database.DropCollection(__collectionName);
 
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             collection.InsertMany(new[]
                 {
                     BsonDocument.Parse("{ _id: 1, title: \"The Pillars of Society\", artist : \"Grosz\", year: 1926, tags: [ \"painting\", \"satire\", \"Expressionism\", \"caricature\" ] }"),
@@ -75,7 +73,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void BucketAuto_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var buckets = 4;
@@ -83,7 +81,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 
@@ -92,7 +90,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var buckets = 4;
@@ -110,7 +108,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void BucketAuto_with_granularity_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$_id";
             var buckets = 4;
@@ -119,7 +117,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$_id\", buckets : 4, granularity : 'POWERSOF2' } }");
         }
 
@@ -128,7 +126,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, double>)"$_id";
             var buckets = 4;
@@ -146,7 +144,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void BucketAuto_with_output_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var buckets = 4;
@@ -155,7 +153,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.BucketAuto(groupBy, buckets, output);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4, output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
@@ -164,7 +162,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var buckets = 4;
@@ -182,7 +180,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void BucketAuto_typed_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var buckets = 4;
 
@@ -191,7 +189,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 
@@ -200,7 +198,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var buckets = 4;
 
@@ -214,90 +212,55 @@ namespace MongoDB.Driver.Tests
                 new AggregateBucketAutoResult<int?>(1926, 1926, 1));
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void BucketAuto_typed_with_output_should_add_expected_stage(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void BucketAuto_typed_with_output_should_add_expected_stage()
         {
-            var collection = GetCollection<Exhibit>(linqProvider: linqProvider);
+            var collection = GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var buckets = 4;
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var result = subject.BucketAutoForLinq2(
-                    e => e.Year,
-                    buckets,
-                    g => new { _id = default(AggregateBucketAutoResultId<int?>), Years = g.Select(e => e.Year), Count = g.Count() });
+            var result = subject.BucketAuto(
+                e => (int?)e.Year,
+                buckets,
+                g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() });
 
-                var stage = result.Stages.Single();
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-                var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, linqProvider);
-                renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4, output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
-            }
-            else
-            {
-                var result = subject.BucketAuto(
+            var stage = result.Stages.Single();
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            renderedStage.Documents.Should().HaveCount(2);
+            renderedStage.Documents[0].Should().Be("{ $bucketAuto : { groupBy : '$year', buckets : 4, output : { __agg0 : { $push : '$year' }, __agg1 : { $sum : 1 } } } }");
+            renderedStage.Documents[1].Should().Be("{ $project : { Key : '$_id', Years : '$__agg0', Count : '$__agg1', _id : 0 } }");
+        }
+
+        [Fact]
+        public void BucketAuto_typed_with_output_should_return_expected_result()
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var collection = GetCollection<Exhibit>(__collectionName);
+            var buckets = 4;
+
+            var aggregate = collection.Aggregate()
+                .BucketAuto(
                     e => (int?)e.Year,
                     buckets,
                     g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() });
 
-                var stage = result.Stages.Single();
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-                var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, linqProvider);
-                renderedStage.Documents.Should().HaveCount(2);
-                renderedStage.Documents[0].Should().Be("{ $bucketAuto : { groupBy : '$year', buckets : 4, output : { __agg0 : { $push : '$year' }, __agg1 : { $sum : 1 } } } }");
-                renderedStage.Documents[1].Should().Be("{ $project : { Key : '$_id', Years : '$__agg0', Count : '$__agg1', _id : 0 } }");
-            }
-        }
+            var stages = Translate(collection, aggregate);
+            AssertStages(
+                stages,
+                "{ $bucketAuto : { groupBy : '$year', buckets : 4, output : { __agg0 : { $push : '$year' }, __agg1 : { $sum : 1 } } } }",
+                "{ $project : { Key : '$_id', Years : '$__agg0', Count : '$__agg1', _id : 0 } }");
 
-        [Theory]
-        [ParameterAttributeData]
-        public void BucketAuto_typed_with_output_should_return_expected_result(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
-        {
-            RequireServer.Check();
-            EnsureTestData();
-            var collection = GetCollection<Exhibit>(linqProvider: linqProvider);
-            var subject = collection.Aggregate();
-            var buckets = 4;
-
-            if (linqProvider == LinqProvider.V2)
-            {
-                var result = subject
-                    .BucketAutoForLinq2(
-                        e => e.Year,
-                        buckets,
-                        g => new { _id = default(AggregateBucketAutoResultId<int?>), Years = g.Select(e => e.Year), Count = g.Count() })
-                    .ToList();
-
-                result.Select(r => r._id.Min).Should().Equal(null, 1902, 1925, 1926);
-                result.Select(r => r._id.Max).Should().Equal(1902, 1925, 1926, 1926);
-                result[0].Years.Should().Equal(new int[0]);
-                result[1].Years.Should().Equal(new int[] { 1902 });
-                result[2].Years.Should().Equal(new int[] { 1925 });
-                result[3].Years.Should().Equal(new int[] { 1926 });
-                result.Select(r => r.Count).Should().Equal(1, 1, 1, 1);
-            }
-            else
-            {
-                var result = subject
-                    .BucketAuto(
-                        e => (int?)e.Year,
-                        buckets,
-                        g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() })
-                    .ToList();
-
-                result.Select(r => r.Key.Min).Should().Equal(null, 1902, 1925, 1926);
-                result.Select(r => r.Key.Max).Should().Equal(1902, 1925, 1926, 1926);
-                result[0].Years.Should().Equal(new int[0]);
-                result[1].Years.Should().Equal(new int[] { 1902 });
-                result[2].Years.Should().Equal(new int[] { 1925 });
-                result[3].Years.Should().Equal(new int[] { 1926 });
-                result.Select(r => r.Count).Should().Equal(1, 1, 1, 1);
-            }
+            var results = aggregate.ToList();
+            results.Select(r => r.Key.Min).Should().Equal(null, 1902, 1925, 1926);
+            results.Select(r => r.Key.Max).Should().Equal(1902, 1925, 1926, 1926);
+            results[0].Years.Should().Equal(new int[0]);
+            results[1].Years.Should().Equal(new int[] { 1902 });
+            results[2].Years.Should().Equal(new int[] { 1925 });
+            results[3].Years.Should().Equal(new int[] { 1926 });
+            results.Select(r => r.Count).Should().Equal(1, 1, 1, 1);
         }
 
         // nested types

@@ -77,7 +77,7 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private static Task Linq(IMongoCollection<Person> col)
         {
-            col.AsQueryable().Where(x => x.Id == "my id" && x.Name == "Jack").GetExecutionModel();
+            col.AsQueryable().Where(x => x.Id == "my id" && x.Name == "Jack").ToString();
             return Task.FromResult(true);
         }
 

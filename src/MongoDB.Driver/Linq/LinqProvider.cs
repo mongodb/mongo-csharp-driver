@@ -23,14 +23,7 @@ namespace MongoDB.Driver.Linq
     public enum LinqProvider
     {
         /// <summary>
-        /// The LINQ provider that was first shipped with version 2.0 of the driver. The V3 LINQ provider is now the default,
-        /// but you can still select the V2 provider by configuring it in MongoClientSettings. The V2 LINQ provider is no
-        /// longer being actively maintained and will eventually be removed.
-        /// </summary>
-        V2 = 2,
-
-        /// <summary>
-        /// The current LINQ provider. The V3 LINQ provider is now the default LINQ provider.
+        /// The V3 LINQ provider is now the only LINQ provider.
         /// </summary>
         V3 = 3
     }
@@ -40,7 +33,6 @@ namespace MongoDB.Driver.Linq
         public static LinqProviderAdapter GetAdapter(this LinqProvider linqProvider) =>
             linqProvider switch
             {
-                LinqProvider.V2 => LinqProviderAdapter.V2,
                 LinqProvider.V3 => LinqProviderAdapter.V3,
                 _ => throw new ArgumentException($"Unknown LINQ provider: {linqProvider}.", nameof(linqProvider))
             };

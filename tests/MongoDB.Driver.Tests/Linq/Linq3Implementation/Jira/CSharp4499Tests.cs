@@ -14,19 +14,16 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4499Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void ExpressionFieldDefinition_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void ExpressionFieldDefinition_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var fieldDefinition = new ExpressionFieldDefinition<ConcreteClass, object>(x => x.InternalId);
 
             var queryable = collection.Aggregate()
@@ -36,9 +33,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $sort : { InternalId : 1 } }");
         }
 
-        private IMongoCollection<ConcreteClass> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<ConcreteClass> CreateCollection()
         {
-            var collection = GetCollection<ConcreteClass>("C", linqProvider);
+            var collection = GetCollection<ConcreteClass>("C");
             return collection;
         }
 

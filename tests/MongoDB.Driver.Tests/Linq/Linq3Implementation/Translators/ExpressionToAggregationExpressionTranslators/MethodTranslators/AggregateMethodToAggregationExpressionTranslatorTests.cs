@@ -15,7 +15,6 @@
 
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -27,51 +26,34 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Aggregate_with_func_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate((x, y) => x * y)) :
                 collection.AsQueryable().Select(x => x.A.Aggregate((x, y) => x * y));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { seed : { $arrayElemAt : ['$A', 0] }, rest : { $slice : ['$A', 1, 2147483647] } }, in : { $cond : { if : { $eq : [{ $size : '$$rest' }, 0] }, then : '$$seed', else : { $reduce : { input : '$$rest', initialValue : '$$seed', in : { $multiply : ['$$value', '$$this'] } } } } } } }, _id : 0 } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $reduce : { input : '$A', initialValue : 0, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
-                results.Should().Equal(0, 0, 0, 0); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $let : { vars : { seed : { $arrayElemAt : ['$A', 0] }, rest : { $slice : ['$A', 1, 2147483647] } }, in : { $cond : { if : { $eq : [{ $size : '$$rest' }, 0] }, then : '$$seed', else : { $reduce : { input : '$$rest', initialValue : '$$seed', in : { $multiply : ['$$value', '$$this'] } } } } } } }, _id : 0 } }");
-                results.Should().Equal(0, 1, 2, 6); // C# throws exception on empty sequence but MQL returns 0
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 1, 2, 6); // C# throws exception on empty sequence but MQL returns 0
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Aggregate_with_seed_and_func_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate(2, (x, y) => x * y)) :
                 collection.AsQueryable().Select(x => x.A.Aggregate(2, (x, y) => x * y));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2, 2, 4, 12);
@@ -80,32 +62,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Aggregate_with_seed_func_and_result_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Aggregate(2, (x, y) => x * y, x => x * 3)) :
                 collection.AsQueryable().Select(x => x.A.Aggregate(2, (x, y) => x * y, x => x * 3));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $let : { vars : { x : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } } }, in : { $multiply : ['$$x', 3] } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v     : { $let : { vars : { x : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } } }, in : { $multiply : ['$$x', 3] } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v     : { $let : { vars : { x : { $reduce : { input : '$A', initialValue : 2, in : { $multiply : ['$$value', '$$this'] } } } }, in : { $multiply : ['$$x', 3] } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(6, 6, 12, 36);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

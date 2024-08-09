@@ -20,7 +20,6 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -253,32 +252,6 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, output, options, translationOptions));
-        }
-
-        /// <summary>
-        /// Appends a $bucketAuto stage to the pipeline (this method can only be used with LINQ2).
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="groupBy">The group by expression.</param>
-        /// <param name="buckets">The number of buckets.</param>
-        /// <param name="output">The output projection.</param>
-        /// <param name="options">The options (optional).</param>
-        /// <param name="translationOptions">The translation options.</param>
-        /// <returns>A new pipeline with an additional stage.</returns>
-        public static PipelineDefinition<TInput, TOutput> BucketAutoForLinq2<TInput, TIntermediate, TValue, TOutput>(
-            this PipelineDefinition<TInput, TIntermediate> pipeline,
-            Expression<Func<TIntermediate, TValue>> groupBy,
-            int buckets,
-            Expression<Func<IGrouping<TValue, TIntermediate>, TOutput>> output, // the IGrouping for BucketAuto has been wrong all along, only fixing it for LINQ3
-            AggregateBucketAutoOptions options = null,
-            ExpressionTranslationOptions translationOptions = null)
-        {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.BucketAutoForLinq2(groupBy, buckets, output, options, translationOptions));
         }
 
         /// <summary>
@@ -1594,7 +1567,7 @@ namespace MongoDB.Driver
         public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var renderedPipeline = _pipeline.Render(args);
-            var renderedStage = _stage.Render(new(renderedPipeline.OutputSerializer, args.SerializerRegistry, args.LinqProvider));
+            var renderedStage = _stage.Render(new(renderedPipeline.OutputSerializer, args.SerializerRegistry));
             var documents = renderedPipeline.Documents.Concat(renderedStage.Documents);
             var outputSerializer = _outputSerializer ?? renderedStage.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1670,7 +1643,7 @@ namespace MongoDB.Driver
         public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var renderedStage = _stage.Render(args);
-            var renderedPipeline = _pipeline.Render(new(renderedStage.OutputSerializer, args.SerializerRegistry, args.LinqProvider));
+            var renderedPipeline = _pipeline.Render(new(renderedStage.OutputSerializer, args.SerializerRegistry));
             var documents = renderedStage.Documents.Concat(renderedPipeline.Documents);
             var outputSerializer = _outputSerializer ?? renderedPipeline.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);

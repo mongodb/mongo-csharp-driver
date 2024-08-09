@@ -18,19 +18,16 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4821Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Status == Status.Open);
@@ -42,66 +39,45 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => new { Result = (int)x.Version });
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { Result : '$Version', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Result).Should().Equal(1, 2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_followed_by_Select_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_followed_by_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Status == Status.Open)
                 .Select(x => new { Result = (int)x.Version });
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { Status : 1 } }",
-                    "{ $project : { Result : '$Version', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $match : { Status : 1 } }",
-                    "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
-            }
+            AssertStages(
+                stages,
+                "{ $match : { Status : 1 } }",
+                "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Result).Should().Equal(1);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, Status = Status.Open, Version = 1L },

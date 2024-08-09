@@ -17,7 +17,6 @@ using System;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -28,54 +27,47 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void Projection_to_class_should_work(
-            [Values(false, true)] bool renderForFind,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool renderForFind)
         {
-            var expectedRenderedProjection = (linqProvider, renderForFind) switch
-            {
-                (LinqProvider.V2, _) => "{ A : 1, B : 1, _id : 0 }", // note: result serializer does client-side projection
-                (LinqProvider.V3, true) => "{ A : 1, X : '$B', _id : 0 }",
-                (LinqProvider.V3, false) => "{ A : '$A', X : '$B', _id : 0 }",
-                _ => throw new Exception()
+            var expectedRenderedProjection = renderForFind switch
+            { 
+                true => "{ A : 1, X : '$B', _id : 0 }",
+                false => "{ A : '$A', X : '$B', _id : 0 }"
             };
+
             AssertProjection(
                 x => new Projection { A = x.A, X = x.B },
                 renderForFind,
-                linqProvider,
                 expectedRenderedProjection);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Projection_to_anonymous_type_should_work(
-            [Values(false, true)] bool renderForFind,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool renderForFind)
         {
-            var expectedRenderedProjection = (linqProvider, renderForFind) switch
+            var expectedRenderedProjection = renderForFind switch
             {
-                (LinqProvider.V2, _) => "{ A : 1, B : 1, _id : 0 }", // note: result serializer does client-side projection
-                (LinqProvider.V3, true) => "{ A : 1, X : '$B', _id : 0 }",
-                (LinqProvider.V3, false) => "{ A : '$A', X : '$B', _id : 0 }",
-                _ => throw new Exception()
+                true => "{ A : 1, X : '$B', _id : 0 }",
+                false => "{ A : '$A', X : '$B', _id : 0 }"
             };
+
             AssertProjection(
                 x => new { x.A, X = x.B },
                 renderForFind,
-                linqProvider,
                 expectedRenderedProjection);
         }
 
         private void AssertProjection<TProjection>(
             Expression<Func<Document, TProjection>> expression,
             bool renderForFind,
-            LinqProvider linqProvider,
             string expectedRenderedProjection)
         {
             var projection = new FindExpressionProjectionDefinition<Document, TProjection>(expression);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Document>();
 
-            var renderedProjection = projection.Render(new RenderArgs<Document>(documentSerializer, serializerRegistry, linqProvider, renderForFind: renderForFind));
+            var renderedProjection = projection.Render(new RenderArgs<Document>(documentSerializer, serializerRegistry, renderForFind: renderForFind));
 
             renderedProjection.Document.Should().BeEquivalentTo(expectedRenderedProjection);
         }

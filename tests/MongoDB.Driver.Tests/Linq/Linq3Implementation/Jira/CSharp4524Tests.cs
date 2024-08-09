@@ -18,7 +18,6 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -26,27 +25,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp4524Tests : Linq3IntegrationTest
     {
         [Fact]
-        public void Find_with_projection_using_LINQ2_should_work()
-        {
-            var collection = CreateCollection(LinqProvider.V2);
-            var find = collection.Find("{}").Project(x => new SpawnData(x.StartDate, x.SpawnPeriod));
-
-            var results = find.ToList();
-            var projection = find.Options.Projection;
-
-            var renderedProjection = TranslateFindProjection(collection, projection, LinqProvider.V2);
-            renderedProjection.Should().Be("{ SpawnPeriod : 1, StartDate : 1, _id : 0 }");
-
-            results.Should().HaveCount(1);
-            results[0].Date.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));
-            results[0].Period.Should().Be(SpawnPeriod.LIVE);
-        }
-
-        [Fact]
-        public void Find_with_projection_using_LINQ3_should_work()
+        public void Find_with_projection_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection(LinqProvider.V3);
+            var collection = CreateCollection();
             var find = collection.Find("{}").Project(x => new SpawnData(x.StartDate, x.SpawnPeriod));
 
             var results = find.ToList();
@@ -54,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var projection = find.Options.Projection;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<MyData>();
-            var renderedProjection = projection.Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
+            var renderedProjection = projection.Render(new(documentSerializer, serializerRegistry));
             renderedProjection.Document.Should().Be("{ Date : '$StartDate', Period : '$SpawnPeriod', _id : 0 }");
 
             results.Should().HaveCount(1);
@@ -62,9 +44,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[0].Period.Should().Be(SpawnPeriod.LIVE);
         }
 
-        private IMongoCollection<MyData> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<MyData> CreateCollection()
         {
-            var collection = GetCollection<MyData>("data", linqProvider);
+            var collection = GetCollection<MyData>("data");
 
             CreateCollection(
                 collection,

@@ -20,39 +20,31 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5171Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Dictionary["a"]);
 
             var stages = Translate(collection, queryable);
-            var expectedStage = linqProvider == LinqProvider.V2 ?
-                "{ $project : { a : '$Dictionary.a', _id : 0 } }" :
-                "{ $project : { _v : '$Dictionary.a', _id : 0 } }";
-            AssertStages(stages, expectedStage);
+            AssertStages(stages, "{ $project : { _v : '$Dictionary.a', _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1, 0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var x = Expression.Parameter(typeof(C), "x");
             var body = Expression.Call(
                 Expression.Property(x, typeof(C).GetProperty("Dictionary")),
@@ -64,21 +56,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(selector);
 
             var stages = Translate(collection, queryable);
-            var expectedStage = linqProvider == LinqProvider.V2 ?
-                "{ $project : { a : '$Dictionary.a', _id : 0 } }" :
-                "{ $project : { _v : '$Dictionary.a', _id : 0 } }";
-            AssertStages(stages, expectedStage);
+            AssertStages(stages, "{ $project : { _v : '$Dictionary.a', _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1, 0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var x = Expression.Parameter(typeof(C), "x");
             var body = Expression.MakeIndex(
                 Expression.Property(x, typeof(C).GetProperty("Dictionary")),
@@ -89,27 +76,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var queryable = collection.AsQueryable()
                 .Select(selector);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : '$Dictionary.a', _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : '$Dictionary.a', _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(1, 0);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(1, 0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Dictionary["a"] == 1);
@@ -121,12 +98,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var x = Expression.Parameter(typeof(C), "x");
             var body = Expression.Equal(
                 Expression.Call(
@@ -146,12 +121,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var x = Expression.Parameter(typeof(C), "x");
             var body = Expression.Equal(
                 Expression.MakeIndex(
@@ -164,24 +137,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var queryable = collection.AsQueryable()
                 .Where(predicate);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { 'Dictionary.a' : 1 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { 'Dictionary.a' : 1 } }");
 
-                var results = queryable.ToList();
-                results.Select(r => r.Id).Should().Equal(1);
-            }
+            var results = queryable.ToList();
+            results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, Dictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["a"] = 1 }) },

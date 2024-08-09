@@ -16,20 +16,16 @@
 using System;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4803Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_filter_with_nonnullable_date_fields_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_filter_with_nonnullable_date_fields_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.Date >= fromDate;
 
@@ -39,12 +35,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             renderedFilter.Should().Be("{ Date : { $gte : ISODate('2023-09-27T00:00:00Z') } }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_filter_with_nullable_date_fields_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_filter_with_nullable_date_fields_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.NullableDate >= fromDate;
 
@@ -54,9 +48,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             renderedFilter.Should().Be("{ NullableDate : { $gte : ISODate('2023-09-27T00:00:00Z') } }");
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             return collection;
         }
 

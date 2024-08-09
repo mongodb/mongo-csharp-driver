@@ -67,16 +67,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return simplifiedAst.Render();
         }
 
-        internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
-            Expression<Func<TInput, TValue>> valueExpression,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions)
-        {
-            throw new InvalidOperationException("TranslateExpressionToBucketOutputProjection can only be used with LINQ2.");
-        }
-
         internal override RenderedFieldDefinition TranslateExpressionToField<TDocument>(
             LambdaExpression expression,
             IBsonSerializer<TDocument> documentSerializer,
@@ -143,16 +133,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry)
             => TranslateExpressionToProjection(expression, sourceSerializer, ProjectionHelper.CreateFindProjection, new AstFindProjectionSimplifier());
-
-        internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
-            Expression<Func<TInput, TKey>> idExpression,
-            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions)
-        {
-            throw new InvalidOperationException("This method is only valid when using LINQ2.");
-        }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,

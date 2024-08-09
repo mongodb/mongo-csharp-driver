@@ -26,28 +26,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp5071Tests : Linq3IntegrationTest
     {
         [Theory]
-        [InlineData("intconstant+stringproperty", "wrong:{ $project : { __fld0 : { $add : [1, '$B'] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty", "{ $project : { __fld0 : { $concat : ['X', '$B'] }, _id : 0 } }", "XB", LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant", "wrong:{ $project : { __fld0 : { $concat : ['$A', 2] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant", "{ $project : { __fld0 : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX", LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty", "{ $project : { __fld0 : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB", LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB", LinqProvider.V3)]
-        public void Add_with_two_terms_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB")]
+        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX")]
+        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
+        public void Add_with_two_terms_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -65,52 +58,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("intconstant+stringproperty+intconstant", "wrong:{ $project : { __fld0 : { $concat : [{ $add : [1, '$B'] }, 3] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringconstant", "wrong:{ $project : { __fld0 : { $concat : [{ $add : [1, '$B'] }, 'Z'] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringproperty", "wrong:{ $project : { __fld0 : { $concat : [{ $add : [1, '$B'] }, '$C'] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intconstant", "wrong:{ $project : { __fld0 : { $concat : ['X', '$B', 3] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { __fld0 : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ", LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { __fld0 : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC", LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant+stringproperty", "wrong:{ $project : { __fld0 : { $concat : ['$A', 2, '$C'] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { __fld0 : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC", LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intconstant", "wrong:{ $project : { __fld0 : { $concat : ['$A', '$B', 3] }, _id : 0 } }", "throws:MongoCommandException", LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { __fld0 : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ", LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { __fld0 : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC", LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC", LinqProvider.V3)]
-        public void Add_with_three_terms_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ")]
+        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC")]
+        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC")]
+        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ")]
+        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
+        public void Add_with_three_terms_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -140,18 +114,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("intproperty", "throws:ArgumentException", null, LinqProvider.V2)]
-        [InlineData("intproperty", "{ $project : { _v : { $concat : { $toString : '$I' } }, _id : 0 } }", "1", LinqProvider.V3)]
-        [InlineData("stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A", LinqProvider.V3)]
-        public void Concat_with_one_argument_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intproperty", "{ $project : { _v : { $concat : { $toString : '$I' } }, _id : 0 } }", "1")]
+        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A")]
+        public void Concat_with_one_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -164,28 +136,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("intconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty", "throws:ArgumentException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty", "throws:ArgumentException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB", LinqProvider.V3)]
-        public void Concat_with_two_arguments_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB")]
+        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX")]
+        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
+        public void Concat_with_two_arguments_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -203,52 +168,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("intconstant+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC", LinqProvider.V3)]
-        public void Concat_with_three_arguments_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ")]
+        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC")]
+        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC")]
+        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ")]
+        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
+        public void Concat_with_three_arguments_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -278,70 +224,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty", "{ $project : { _v : { $concat : { $toString : '$I' } }, _id : 0 } }", "1", LinqProvider.V3)]
-        [InlineData("stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intconstant+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringconstant", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ", LinqProvider.V3)]
-        [InlineData("intproperty+stringproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC", LinqProvider.V3)]
-        [InlineData("stringproperty+intconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+intproperty+stringproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+intproperty", "throws:InvalidOperationException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC", LinqProvider.V3)]
-        public void Concat_with_array_of_object_argument_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("intproperty", "{ $project : { _v : { $concat : { $toString : '$I' } }, _id : 0 } }", "1")]
+        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A")]
+        [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B")]
+        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB")]
+        [InlineData("stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '2'] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }] }, _id : 0 } }", "A2")]
+        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX")]
+        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
+        [InlineData("intconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['1', '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['1', '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['1', '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['1', '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("intproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '3'] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', { $toString : '$K' }] }, _id : 0 } }", "1B3")]
+        [InlineData("intproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', 'Z'] }, _id : 0 } }", "1BZ")]
+        [InlineData("intproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B', '$C'] }, _id : 0 } }", "1BC")]
+        [InlineData("stringconstant+stringproperty+intconstant", "{ $project : { _v : { $concat : ['X', '$B', '3'] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+intproperty", "{ $project : { _v : { $concat : ['X', '$B', { $toString : '$K' }] }, _id : 0 } }", "XB3")]
+        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ")]
+        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC")]
+        [InlineData("stringproperty+intconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', '2', '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+intproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', { $toString : '$J' }, '$C'] }, _id : 0 } }", "A2C")]
+        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC")]
+        [InlineData("stringproperty+stringproperty+intconstant", "{ $project : { _v : { $concat : ['$A', '$B', '3'] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+intproperty", "{ $project : { _v : { $concat : ['$A', '$B', { $toString : '$K' }] }, _id : 0 } }", "AB3")]
+        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ")]
+        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
+        public void Concat_with_array_of_object_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
             if (expectedStage.Contains("$toString"))
             {
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -380,27 +298,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ", LinqProvider.V3)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC", LinqProvider.V3)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ", LinqProvider.V3)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "throws:NotSupportedException", null, LinqProvider.V2)]
-        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC", LinqProvider.V3)]
-        public void Concat_with_array_of_string_argument_should_work(string scenario, string expectedStage, string expectedResult, LinqProvider linqProvider)
+        [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A")]
+        [InlineData("stringconstant+stringproperty", "{ $project : { _v : { $concat : ['X', '$B'] }, _id : 0 } }", "XB")]
+        [InlineData("stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', 'X'] }, _id : 0 } }", "AX")]
+        [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
+        [InlineData("stringconstant+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['X', '$B', 'Z'] }, _id : 0 } }", "XBZ")]
+        [InlineData("stringconstant+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['X', '$B', '$C'] }, _id : 0 } }", "XBC")]
+        [InlineData("stringproperty+stringconstant+stringproperty", "{ $project : { _v : { $concat : ['$A', 'Y', '$C'] }, _id : 0 } }", "AYC")]
+        [InlineData("stringproperty+stringproperty+stringconstant", "{ $project : { _v : { $concat : ['$A', '$B', 'Z'] }, _id : 0 } }", "ABZ")]
+        [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
+        public void Concat_with_array_of_string_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = scenario switch
             {
@@ -446,9 +355,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Document> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Document> GetCollection()
         {
-            var collection = GetCollection<Document>("test", linqProvider);
+            var collection = GetCollection<Document>("test");
             CreateCollection(
                 collection,
                 new Document

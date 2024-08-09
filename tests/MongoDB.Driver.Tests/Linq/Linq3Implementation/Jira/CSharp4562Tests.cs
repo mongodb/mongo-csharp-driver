@@ -14,20 +14,16 @@
 */
 
 using System.Collections.Generic;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4562Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void SortBy_using_constant_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void SortBy_using_constant_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var aggregate = GetTranslationsSortedByEnglish(collection);
 
@@ -35,12 +31,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $sort : { 'Text.en' : 1 } }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void SortBy_using_parameter_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void SortBy_using_parameter_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var language = "sp";
 
             var aggregate = GetSortedTranslations(collection, language);
@@ -49,9 +43,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $sort : { 'Text.sp' : 1 } }");
         }
 
-        private IMongoCollection<Translation> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<Translation> CreateCollection()
         {
-            var collection = GetCollection<Translation>("test", linqProvider);
+            var collection = GetCollection<Translation>("test");
             return collection;
         }
 

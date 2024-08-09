@@ -19,34 +19,30 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4809Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_by_Id_with_custom_serializer_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_by_Id_with_custom_serializer_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var id = "111111111111111111111111";
 
             var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
 
-            var renderedFilter = filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider));
+            var renderedFilter = filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry));
             renderedFilter.Should().Be("{ _id : ObjectId('111111111111111111111111' ) }");
 
             var result = collection.FindSync(filter).Single();
             result.X.Should().Be(1);
         }
 
-        private IMongoCollection<RootDocument> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<RootDocument> GetCollection()
         {
-            var collection = GetCollection<RootDocument>("test", linqProvider);
+            var collection = GetCollection<RootDocument>("test");
             CreateCollection(
                 collection,
                 new RootDocument { Id = "111111111111111111111111", X = 1 },

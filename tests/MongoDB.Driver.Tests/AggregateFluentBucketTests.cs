@@ -24,7 +24,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Tests
     {
         #region static
         // private static fields
-        private static CollectionNamespace __collectionNamespace;
+        private static string __collectionName;
         private static IMongoDatabase __database;
         private static Lazy<bool> __ensureTestData;
 
@@ -42,16 +41,16 @@ namespace MongoDB.Driver.Tests
         {
             var databaseNamespace = DriverTestConfiguration.DatabaseNamespace;
             __database = DriverTestConfiguration.Client.GetDatabase(databaseNamespace.DatabaseName);
-            __collectionNamespace = DriverTestConfiguration.CollectionNamespace;
+            __collectionName = "bucket";
             __ensureTestData = new Lazy<bool>(CreateTestData);
         }
 
         // private static methods
         private static bool CreateTestData()
         {
-            __database.DropCollection(__collectionNamespace.CollectionName);
+            __database.DropCollection(__collectionName);
 
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             collection.InsertMany(new[]
                 {
                     BsonDocument.Parse("{ _id: 1, title: \"The Pillars of Society\", artist : \"Grosz\", year: 1926, tags: [ \"painting\", \"satire\", \"Expressionism\", \"caricature\" ] }"),
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Bucket_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Bucket(groupBy, boundaries, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
@@ -92,7 +91,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
@@ -110,7 +109,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Bucket_with_output_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
@@ -120,7 +119,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Bucket(groupBy, boundaries, output, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
@@ -129,7 +128,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<BsonDocument>(__collectionName);
             var subject = collection.Aggregate();
             var groupBy = (AggregateExpressionDefinition<BsonDocument, BsonValue>)"$year";
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
@@ -147,7 +146,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Bucket_typed_should_add_expected_stage()
         {
-            var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
             var options = new AggregateBucketOptions<BsonValue> { DefaultBucket = (BsonValue)"Unknown" };
@@ -157,7 +156,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
@@ -166,7 +165,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
+            var collection = __database.GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
             var options = new AggregateBucketOptions<BsonValue> { DefaultBucket = (BsonValue)"Unknown" };
@@ -180,92 +179,52 @@ namespace MongoDB.Driver.Tests
                 new AggregateBucketResult<BsonValue>("Unknown", 1));
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Bucket_typed_with_output_should_add_expected_stage(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Bucket_typed_with_output_should_add_expected_stage()
         {
-            var collection = GetCollection<Exhibit>(linqProvider: linqProvider);
+            var collection = GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
             var options = new AggregateBucketOptions<BsonValue> { DefaultBucket = (BsonValue)"Unknown" };
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var result = subject.Bucket(
-                    e => e.Year,
-                    boundaries,
-                    g => new { _id = default(BsonValue), Years = g.Select(e => e.Year), Count = g.Count() },
-                    options);
+            var result = subject.Bucket(
+                e => e.Year,
+                boundaries,
+                g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() },
+                options);
 
-                var stage = result.Stages.Single();
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-                var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, linqProvider);
-                renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
-            }
-            else
-            {
-                var result = subject.Bucket(
-                    e => e.Year,
-                    boundaries,
-                    g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() },
-                    options);
-
-                var stage = result.Stages.Single();
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-                var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, linqProvider);
-                renderedStage.Documents.Should().HaveCount(2);
-                renderedStage.Documents[0].Should().Be("{ $bucket : { groupBy : '$year', boundaries : [ 1900, 1920, 1950 ], default : 'Unknown', output : { __agg0 : {$push : '$year' }, __agg1 : { $sum : 1 } } } }");
-                renderedStage.Documents[1].Should().Be("{ $project : { Key : '$_id', Years : '$__agg0', Count : '$__agg1', _id : 0 } }");
-            }
+            var stage = result.Stages.Single();
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            renderedStage.Documents.Should().HaveCount(2);
+            renderedStage.Documents[0].Should().Be("{ $bucket : { groupBy : '$year', boundaries : [ 1900, 1920, 1950 ], default : 'Unknown', output : { __agg0 : {$push : '$year' }, __agg1 : { $sum : 1 } } } }");
+            renderedStage.Documents[1].Should().Be("{ $project : { Key : '$_id', Years : '$__agg0', Count : '$__agg1', _id : 0 } }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Bucket_typed_with_output_should_return_expected_result(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Bucket_typed_with_output_should_return_expected_result()
         {
             RequireServer.Check();
             EnsureTestData();
-            var collection = GetCollection<Exhibit>(linqProvider: linqProvider);
+            var collection = GetCollection<Exhibit>(__collectionName);
             var subject = collection.Aggregate();
             var boundaries = new BsonValue[] { 1900, 1920, 1950 };
             var options = new AggregateBucketOptions<BsonValue> { DefaultBucket = (BsonValue)"Unknown" };
 
-            if (linqProvider== LinqProvider.V2)
-            {
-                var result = subject
-                   .Bucket(
-                       e => e.Year,
-                       boundaries,
-                       g => new { _id = default(BsonValue), Years = g.Select(e => e.Year), Count = g.Count() },
-                       options)
-                   .ToList();
+            var result = subject
+                .Bucket(
+                    e => e.Year,
+                    boundaries,
+                    g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() },
+                    options)
+                .ToList();
 
-                result.Select(b => b._id).Should().Equal(1900, 1920, "Unknown");
-                result[0].Years.Should().Equal(new[] { 1902 });
-                result[1].Years.Should().Equal(new[] { 1926, 1925 });
-                result[2].Years.Should().Equal(new int[0]);
-                result.Select(b => b.Count).Should().Equal(1, 2, 1);
-            }
-            else
-            {
-                var result = subject
-                    .Bucket(
-                        e => e.Year,
-                        boundaries,
-                        g => new { Key = g.Key, Years = g.Select(e => e.Year), Count = g.Count() },
-                        options)
-                    .ToList();
-
-                result.Select(b => b.Key).Should().Equal(1900, 1920, "Unknown");
-                result[0].Years.Should().Equal(new[] { 1902 });
-                result[1].Years.Should().Equal(new[] { 1926, 1925 });
-                result[2].Years.Should().Equal(new int[0]);
-                result.Select(b => b.Count).Should().Equal(1, 2, 1);
-            }
+            result.Select(b => b.Key).Should().Equal(1900, 1920, "Unknown");
+            result[0].Years.Should().Equal(new[] { 1902 });
+            result[1].Years.Should().Equal(new[] { 1926, 1925 });
+            result[2].Years.Should().Equal(new int[0]);
+            result.Select(b => b.Count).Should().Equal(1, 2, 1);
         }
 
         // nested types

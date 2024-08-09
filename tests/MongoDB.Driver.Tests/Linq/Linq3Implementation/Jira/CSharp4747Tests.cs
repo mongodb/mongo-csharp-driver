@@ -13,28 +13,23 @@
 * limitations under the License.
 */
 
-using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4747Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_int_field_name_and_constant_with_int_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_int_field_name_and_constant_with_int_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("X", 2);
 
@@ -48,13 +43,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_int_field_name_and_constant_with_string_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_int_field_name_and_constant_with_string_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("Y", 2);
 
@@ -68,13 +61,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Y.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_enum_field_name_and_constant_with_int_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_enum_field_name_and_constant_with_int_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("E", E.B);
 
@@ -88,13 +79,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.E.Should().Be(E.B);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_enum_field_name_and_constant_with_string_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_enum_field_name_and_constant_with_string_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("F", E.B);
 
@@ -108,13 +97,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.F.Should().Be(E.B);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_multiple_int_field_names_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_multiple_int_field_names_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
                 .Set("Y", 3)
@@ -132,13 +119,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["Z"].AsInt32.Should().Be(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_multiple_enum_field_names_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_multiple_enum_field_names_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("E", E.B)
                 .Set("F", E.B)
@@ -156,13 +141,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["G"].AsInt32.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_duplicate_int_field_names_should_work(
-           [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_duplicate_int_field_names_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
                 .Set("X", 3); // last one wins
@@ -177,13 +160,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_int_field_expression_and_constant_with_int_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_int_field_expression_and_constant_with_int_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2);
 
@@ -197,13 +178,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_int_field_expression_and_constant_with_string_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_int_field_expression_and_constant_with_string_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.Y, 2);
 
@@ -217,13 +196,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Y.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_enum_field_expression_and_constant_with_int_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_enum_field_expression_and_constant_with_int_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B);
 
@@ -237,13 +214,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.E.Should().Be(E.B);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_one_enum_field_expression_and_constant_with_string_representation_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_one_enum_field_expression_and_constant_with_string_representation_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.F, E.B);
 
@@ -257,13 +232,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.F.Should().Be(E.B);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_multiple_int_field_expressions_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_multiple_int_field_expressions_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
                 .Set(x => x.Y, 3)
@@ -281,13 +254,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["Z"].AsInt32.Should().Be(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_multiple_enum_field_expressions_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_multiple_enum_field_expressions_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B)
                 .Set(x => x.F, E.B)
@@ -305,13 +276,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["G"].AsInt32.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builder_Set_with_duplicate_int_field_expressions_should_work(
-           [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builder_Set_with_duplicate_int_field_expressions_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
                 .Set(x => x.X, 3); // last one wins
@@ -326,303 +295,193 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_anonymous_class_with_empty_members_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_anonymous_class_with_empty_members_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new { });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_anonymous_class_with_members_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_anonymous_class_with_members_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new { X = 2, E = E.B, F = x.F, G = E.B, Z = 4 });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F', G : 2, Z : 4 } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F', G : 2, Z : 4 } }");
 
-                var result = aggregate.As(BsonDocumentSerializer.Instance).Single();
-                result["X"].AsInt32.Should().Be(2);
-                result["E"].AsInt32.Should().Be(2);
-                result["F"].AsString.Should().Be("A");
-                result["G"].AsInt32.Should().Be(2);
-                result["Z"].AsInt32.Should().Be(4);
-            }
+            var result = aggregate.As(BsonDocumentSerializer.Instance).Single();
+            result["X"].AsInt32.Should().Be(2);
+            result["E"].AsInt32.Should().Be(2);
+            result["F"].AsString.Should().Be("A");
+            result["G"].AsInt32.Should().Be(2);
+            result["Z"].AsInt32.Should().Be(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_default_constructor_and_no_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_default_constructor_and_no_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_default_constructor_and_empty_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_default_constructor_and_empty_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C { });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_default_constructor_and_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_default_constructor_and_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C { X = 2, E = E.B, F = x.F });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F' } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F' } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(2);
-                result.E.Should().Be(E.B);
-                result.F.Should().Be(E.A);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(2);
+            result.E.Should().Be(E.B);
+            result.F.Should().Be(E.A);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_copy_constructor_and_no_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_copy_constructor_and_no_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_copy_constructor_and_empty_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_copy_constructor_and_empty_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x) { });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_with_new_copy_constructor_and_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_with_new_copy_constructor_and_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new C(x) { X = 2, E = E.B, F = x.F });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F' } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { X : 2, E : 2, F : '$F' } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(2);
-                result.E.Should().Be(E.B);
-                result.F.Should().Be(E.A);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(2);
+            result.E.Should().Be(E.B);
+            result.F.Should().Be(E.A);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_struct_with_new_default_constructor_and_no_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_struct_with_new_default_constructor_and_no_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_struct_with_new_default_constructor_and_empty_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_struct_with_new_default_constructor_and_empty_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S { });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(1);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Set_struct_with_new_default_constructor_and_member_initializers_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Set_struct_with_new_default_constructor_and_member_initializers_should_work()
         {
             RequireServer.Check().Supports(Feature.SetStage);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = collection.Aggregate()
                 .Set(x => new S { X = 2 });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(stages, "{ $set : { X : 2 } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(stages, "{ $set : { X : 2 } }");
 
-                var result = aggregate.Single();
-                result.X.Should().Be(2);
-            }
+            var result = aggregate.Single();
+            result.X.Should().Be(2);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, X = 1, Y = 1, E = E.A, F = E.A });

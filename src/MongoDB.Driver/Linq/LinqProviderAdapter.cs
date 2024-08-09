@@ -25,7 +25,6 @@ namespace MongoDB.Driver.Linq
     internal abstract class LinqProviderAdapter
     {
         #region static
-        public static readonly LinqProviderAdapter V2 = new Linq2Implementation.LinqProviderAdapterV2();
         public static readonly LinqProviderAdapter V3 = new Linq3Implementation.LinqProviderAdapterV3();
         #endregion
 
@@ -47,13 +46,6 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions,
             TranslationContextData contextData = null);
 
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
-            Expression<Func<TInput, TValue>> valueExpression,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
-
         internal abstract RenderedFieldDefinition TranslateExpressionToField<TDocument>(
             LambdaExpression expression,
             IBsonSerializer<TDocument> documentSerializer,
@@ -74,13 +66,6 @@ namespace MongoDB.Driver.Linq
             Expression<Func<TSource, TProjection>> expression,
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry);
-
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
-            Expression<Func<TInput, TKey>> idExpression,
-            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
 
         internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,

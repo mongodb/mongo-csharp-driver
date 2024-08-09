@@ -85,11 +85,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return GetEnumerator();
         }
 
-        public QueryableExecutionModel GetExecutionModel()
-        {
-            throw new NotSupportedException("This method is only supported in LINQ2 and will be removed in the future.");
-        }
-
         public IAsyncCursor<TOutput> ToCursor(CancellationToken cancellationToken = default)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);

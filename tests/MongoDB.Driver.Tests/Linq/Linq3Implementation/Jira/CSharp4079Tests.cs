@@ -17,7 +17,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -25,47 +24,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4079Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Positional_operator_with_negative_one_array_index_should_work_or_throw_depending_on_Linq_provider(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Positional_operator_with_negative_one_array_index_should_work_or_throw_depending_on_Linq_provider()
         {
             var collection = GetCollection<C>();
 
             var negativeOne = -1;
             var update = Builders<C>.Update.Set(x => x.A[negativeOne], 0); // using -1 constant is a compile time error
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var rendered = Render(update, linqProvider);
-                rendered.Should().Be("{ $set : { 'A.$' : 0 } }");
-            }
-            else
-            {
-                var exception = Record.Exception(() => Render(update, linqProvider));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-            }
+            var exception = Record.Exception(() => Render(update));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Positional_operator_with_negative_one_ElementAt_should_work_or_throw_depending_on_Linq_provider(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Positional_operator_with_negative_one_ElementAt_should_work_or_throw_depending_on_Linq_provider()
         {
             var collection = GetCollection<C>();
 
             var update = Builders<C>.Update.Set(x => x.A.ElementAt(-1), 0);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var rendered = Render(update, linqProvider);
-                rendered.Should().Be("{ $set : { 'A.$' : 0 } }");
-            }
-            else
-            {
-                var exception = Record.Exception(() => Render(update, linqProvider));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-            }
+            var exception = Record.Exception(() => Render(update));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
         // the following examples are from the server documentation:
@@ -76,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student1>.Update.Set(s => s.Grades.FirstMatchingElement(), 82);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $set : { 'Grades.$' : 82 } }");
         }
 
@@ -85,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student2>.Update.Set(s => s.Grades.FirstMatchingElement().Std, 6);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $set : { 'Grades.$.Std' : 6 } }");
         }
 
@@ -97,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student1>.Update.Inc(s => s.Grades.AllElements(), 10) ;
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $inc : { 'Grades.$[]' : 10 } }");
         }
 
@@ -106,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student2>.Update.Inc(s => s.Grades.AllElements().Std, -2);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $inc : { 'Grades.$[].Std' : -2 } }");
         }
 
@@ -115,7 +94,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student4>.Update.Inc(s => s.Grades.AllElements().Questions.AllMatchingElements("score"), 2);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $inc : { 'Grades.$[].Questions.$[score]' : 2 } }");
         }
 
@@ -127,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student1>.Update.Set(s => s.Grades.AllMatchingElements("element"), 100);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $set : { 'Grades.$[element]' : 100 } }");
         }
 
@@ -136,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student2>.Update.Set(s => s.Grades.AllMatchingElements("elem").Mean, 100);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $set : { 'Grades.$[elem].Mean' : 100 } }");
         }
 
@@ -145,15 +124,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var update = Builders<Student4>.Update.Inc(s => s.Grades.AllMatchingElements("t").Questions.AllMatchingElements("score"), 2);
 
-            var rendered = Render(update, LinqProvider.V3);
+            var rendered = Render(update);
             rendered.Should().Be("{ $inc : { 'Grades.$[t].Questions.$[score]' : 2 } }");
         }
 
-        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider)
+        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
         {
             var documentSerializer = BsonSerializer.LookupSerializer<TDocument>();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return update.Render(new(documentSerializer, serializerRegistry, linqProvider));
+            return update.Render(new(documentSerializer, serializerRegistry));
         }
 
         private class C

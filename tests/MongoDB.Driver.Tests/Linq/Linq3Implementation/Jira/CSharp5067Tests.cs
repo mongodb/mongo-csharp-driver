@@ -29,10 +29,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [ParameterAttributeData]
         public void Where_with_bool_field_represented_as_boolean_should_work(
-            [Values(false, true)] bool justField,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool justField)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = justField ?
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsBoolean) :
@@ -48,75 +47,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [ParameterAttributeData]
         public void Where_with_bool_field_represented_as_int32_should_work(
-            [Values(false, true)] bool justField,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool justField)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = justField ?
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsInt32) :
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsInt32 == true);
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
-
-            if (linqProvider == LinqProvider.V2 && justField)
-            {
-                AssertStages(stages, "{ $match : { BoolFieldRepresentedAsInt32 : true } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolFieldRepresentedAsInt32 : 1 } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_field_represented_as_string_should_work(
-            [Values(false, true)] bool justField,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
-        {
-            var collection = GetCollection(linqProvider);
-
-            var queryable = justField ?
-                collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsString) :
-                collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsString == true);
-
-            var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
-
-            if (linqProvider == LinqProvider.V2 && justField)
-            {
-                AssertStages(stages, "{ $match : { BoolFieldRepresentedAsString : true } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolFieldRepresentedAsString : 'true' } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_array_field_represented_as_booleans_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
-        {
-            var collection = GetCollection(linqProvider);
-
-            var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsBoolean.Any(p => p));
-
-            var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsBoolean : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is different but OK
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsBoolean : true } }");
-            }
+            AssertStages(stages, "{ $match : { BoolFieldRepresentedAsInt32 : 1 } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().Equal(2);
@@ -124,59 +64,70 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void Where_with_bool_array_field_represented_as_int32s_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        public void Where_with_bool_field_represented_as_string_should_work(
+            [Values(false, true)] bool justField)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
+
+            var queryable = justField ?
+                collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsString) :
+                collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsString == true);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { BoolFieldRepresentedAsString : 'true' } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
+        }
+
+        [Fact]
+        public void Where_with_bool_array_field_represented_as_booleans_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsBoolean.Any(p => p));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsBoolean : true } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
+        }
+
+        [Fact]
+        public void Where_with_bool_array_field_represented_as_int32s_should_work()
+        {
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsInt32.Any(p => p));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsInt32 : 1 } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsInt32 : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsInt32 : 1 } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_array_field_represented_as_strings_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_bool_array_field_represented_as_strings_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsString.Any(p => p));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsString : 'true' } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsString : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayFieldRepresentedAsString : 'true' } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Where_with_bool_property_represented_as_boolean_should_work(
-            [Values(false, true)] bool justProperty,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = justProperty ?
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsBoolean) :
@@ -192,75 +143,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [ParameterAttributeData]
         public void Where_with_bool_property_represented_as_int32_should_work(
-            [Values(false, true)] bool justProperty,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = justProperty ?
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsInt32) :
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsInt32 == true);
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
-
-            if (linqProvider == LinqProvider.V2 && justProperty)
-            {
-                AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsInt32 : true } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsInt32 : 1 } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_property_represented_as_string_should_work(
-            [Values(false, true)] bool justProperty,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
-        {
-            var collection = GetCollection(linqProvider);
-
-            var queryable = justProperty ?
-                collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsString) :
-                collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsString == true);
-
-            var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
-
-            if (linqProvider == LinqProvider.V2 && justProperty)
-            {
-                AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsString : true } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsString : 'true' } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_array_property_represented_as_booleans_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
-        {
-            var collection = GetCollection(linqProvider);
-
-            var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsBoolean.Any(p => p));
-
-            var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsBoolean : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is different but OK
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsBoolean : true } }");
-            }
+            AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsInt32 : 1 } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().Equal(2);
@@ -268,72 +160,77 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void Where_with_bool_array_property_represented_as_int32s_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        public void Where_with_bool_property_represented_as_string_should_work(
+            [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
+
+            var queryable = justProperty ?
+                collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsString) :
+                collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsString == true);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { BoolPropertyRepresentedAsString : 'true' } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
+        }
+
+        [Fact]
+        public void Where_with_bool_array_property_represented_as_booleans_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsBoolean.Any(p => p));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsBoolean : true } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
+        }
+
+        [Fact]
+        public void Where_with_bool_array_property_represented_as_int32s_should_work()
+        {
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsInt32.Any(p => p));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsInt32 : 1 } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsInt32 : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsInt32 : 1 } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_bool_array_property_represented_as_strings_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_bool_array_property_represented_as_strings_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsString.Any(p => p));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsString : 'true' } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsString : { $elemMatch : { $eq : true } } } }"); // LINQ2 query is wrong
-                results.Should().BeEmpty(); // LINQ2 results are wrong
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { BoolArrayPropertyRepresentedAsString : 'true' } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2);
         }
 
         [Theory]
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : false } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : false } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : false } } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : false } } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 }, LinqProvider.V3)]
+        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 })]
+        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : false } }", new[] { 1 })]
+        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : true } }", new[] { 2 })]
+        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 })]
+        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : false } } }", new[] { 2 })]
+        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsBoolean.0' : { $ne : true } } }", new[] { 1 })]
         public void Where_with_expression_using_bool_array_property_represented_as_booleans_should_work(
             string expression,
             string expectedStage,
-            int[] expectedResults,
-            LinqProvider linqProvider)
+            int[] expectedResults)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = expression switch
             {
@@ -354,25 +251,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : true } }", new int[0], LinqProvider.V2)] // LINQ2 query and results are wrong
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 0 } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : true } } }", new[] { 1, 2 }, LinqProvider.V2)] // LINQ2 query and results are wrong
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 0 } } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 }, LinqProvider.V3)]
+        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 })]
+        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 })]
+        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 })]
+        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 })]
+        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : 1 } }", new[] { 2 })]
+        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsInt32.0' : { $ne : 1 } } }", new[] { 1 })]
         public void Where_with_expression_using_bool_array_property_represented_as_int32s_should_work(
             string expression,
             string expectedStage,
-            int[] expectedResults,
-            LinqProvider linqProvider)
+            int[] expectedResults)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = expression switch
             {
@@ -393,25 +283,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : true } }", new int[0], LinqProvider.V2)] // LINQ2 query and results are wrong
-        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'false' } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : true } } }", new[] { 1, 2 }, LinqProvider.V2)] // LINQ2 query and results are wrong
-        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'false' } } }", new[] { 2 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 }, LinqProvider.V3)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 }, LinqProvider.V2)]
-        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 }, LinqProvider.V3)]
+        [InlineData("property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 })]
+        [InlineData("property[0] == false", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 })]
+        [InlineData("property[0] == true", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 })]
+        [InlineData("!property[0]", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 })]
+        [InlineData("!(property[0] == false)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : 'true' } }", new[] { 2 })]
+        [InlineData("!(property[0] == true)", "{ $match : { 'BoolArrayPropertyRepresentedAsString.0' : { $ne : 'true' } } }", new[] { 1 })]
         public void Where_with_expression_using_bool_array_property_represented_as_strings_should_work(
             string expression,
             string expectedStage,
-            int[] expectedResults,
-            LinqProvider linqProvider)
+            int[] expectedResults)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = expression switch
             {
@@ -431,9 +314,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(expectedResults);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C

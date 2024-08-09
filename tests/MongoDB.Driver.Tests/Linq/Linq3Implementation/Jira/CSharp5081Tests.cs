@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -25,12 +24,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5081Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void SelectMany_chained_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void SelectMany_chained_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .SelectMany(series => series.Books)
@@ -38,26 +35,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(chapter => chapter.Title);
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $unwind : '$Books' }",
-                    "{ $project : { Books : '$Books', _id : 0 } }",
-                    "{ $unwind : '$Books.Chapters' }",
-                    "{ $project : { Chapters : '$Books.Chapters', _id : 0 } }",
-                    "{ $project : { Title : '$Chapters.Title', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $project : { _v : '$Books', _id : 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _v : '$_v.Chapters', _id : 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _v : '$_v.Title', _id : 0 } }");
-            }
+            AssertStages(
+                stages,
+                "{ $project : { _v : '$Books', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.Chapters', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.Title', _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(
@@ -72,79 +56,61 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [ParameterAttributeData]
         public void SelectMany_nested_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().SelectMany(series => series.Books.AsQueryable().SelectMany(book => book.Chapters.Select(chapter => chapter.Title))) :
                 collection.AsQueryable().SelectMany(series => series.Books.SelectMany(book => book.Chapters.Select(chapter => chapter.Title)));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $project : { _v : { $reduce : { input : { $map : { input : '$Books', as : 'book', in : '$$book.Chapters.Title' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }",
-                    "{ $unwind : '$_v' }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $project : { _v : { $reduce : { input : { $map : { input : '$Books', as : 'book', in : '$$book.Chapters.Title' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(
-                    "Book 1 Chapter 1",
-                    "Book 1 Chapter 2",
-                    "Book 2 Chapter 1",
-                    "Book 2 Chapter 2",
-                    "Book 3 Chapter 1",
-                    "Book 3 Chapter 2");
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(
+                "Book 1 Chapter 1",
+                "Book 1 Chapter 2",
+                "Book 2 Chapter 1",
+                "Book 2 Chapter 2",
+                "Book 3 Chapter 1",
+                "Book 3 Chapter 2");
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Aggregate_Project_SelectMany_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var aggregate = withNestedAsQueryable ?
                 collection.Aggregate().Project(Series => Series.Books.AsQueryable().SelectMany(book => book.Chapters.Select(chapter => chapter.Title)).ToList()) :
                 collection.Aggregate().Project(Series => Series.Books.SelectMany(book => book.Chapters.Select(chapter => chapter.Title)).ToList());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, aggregate));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, aggregate);
-                AssertStages(
-                    stages,
-                    "{ $project : { _v : { $reduce : { input : { $map : { input : '$Books', as : 'book', in : '$$book.Chapters.Title' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+            var stages = Translate(collection, aggregate);
+            AssertStages(
+                stages,
+                "{ $project : { _v : { $reduce : { input : { $map : { input : '$Books', as : 'book', in : '$$book.Chapters.Title' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
-                var results = aggregate.ToList();
-                results.Should().HaveCount(2);
-                results[0].Should().Equal(
-                    "Book 1 Chapter 1",
-                    "Book 1 Chapter 2",
-                    "Book 2 Chapter 1",
-                    "Book 2 Chapter 2");
-                results[1].Should().Equal(
-                    "Book 3 Chapter 1",
-                    "Book 3 Chapter 2");
-            }
+            var results = aggregate.ToList();
+            results.Should().HaveCount(2);
+            results[0].Should().Equal(
+                "Book 1 Chapter 1",
+                "Book 1 Chapter 2",
+                "Book 2 Chapter 1",
+                "Book 2 Chapter 2");
+            results[1].Should().Equal(
+                "Book 3 Chapter 1",
+                "Book 3 Chapter 2");
         }
 
-        private IMongoCollection<Series> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Series> GetCollection()
         {
-            var collection = GetCollection<Series>("series", linqProvider);
+            var collection = GetCollection<Series>("series");
             var document1 = new Series
             {
                 Id = 1,

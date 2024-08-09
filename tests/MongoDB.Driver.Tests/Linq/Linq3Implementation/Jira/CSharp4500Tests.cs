@@ -17,18 +17,16 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4500Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var input = "B";
 
             var queryable =
@@ -42,11 +40,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_inner_not_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_inner_not_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var input = "B";
 
             var queryable =
@@ -54,26 +51,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.List.Any(xx => !xx.ToLower().Contains(input.ToLower())));
 
             var stages = Translate(collection, queryable);
-            var results = queryable.ToList();
+            AssertStages(stages, "{ $match : { List : { $elemMatch : { $not : /b/is } } } }");
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                // both the query and the results are wrong in LINQ2 but we're not going to fix it
-                AssertStages(stages, "{ $match : { List : { $not : /b/is } } }");
-                results.Select(x => x.Id).Should().Equal(2);
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { List : { $elemMatch : { $not : /b/is } } } }");
-                results.Select(x => x.Id).Should().Equal(1, 2);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_outer_not_should_work([Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_outer_not_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             var input = "B";
 
             var queryable =
@@ -87,9 +74,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("C", linqProvider);
+            var collection = GetCollection<C>("C");
 
             CreateCollection(
                 collection,

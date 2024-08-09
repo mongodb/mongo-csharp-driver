@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         private (IQueryProvider, Expression) CreateSubject()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<C>("test");
             var provider = new MongoQueryProvider<C>(collection, session: null, options: null);

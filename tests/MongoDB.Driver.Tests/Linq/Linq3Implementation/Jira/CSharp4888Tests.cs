@@ -18,19 +18,16 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4888Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void GroupBy_Select_with_int_enum_representation_in_conditional_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void GroupBy_Select_with_int_enum_representation_in_conditional_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -41,32 +38,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 });
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : 0, __agg0 : { $sum : { $cond : [{ $eq : ['$CarType', 1] }, 1, 0] } }, __agg1 : { $sum : { $cond : [{ $eq : ['$CarType', 2] }, 1, 0] } } } }",
-                    "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : 0, __agg0 : { $sum : { $cond : { if : { $eq : ['$CarType', 1] }, then : 1, else : 0 } } }, __agg1 : { $sum : { $cond : { if : { $eq : ['$CarType', 2] }, then : 1, else : 0 } } } } }",
-                    "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
-            }
+            AssertStages(
+                stages,
+                "{ $group : { _id : 0, __agg0 : { $sum : { $cond : { if : { $eq : ['$CarType', 1] }, then : 1, else : 0 } } }, __agg1 : { $sum : { $cond : { if : { $eq : ['$CarType', 2] }, then : 1, else : 0 } } } } }",
+                "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
 
             var result = queryable.Single();
             result.SportCarCount.Should().Be(1);
             result.SuvCarCount.Should().Be(0);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void GroupBy_Select_with_string_enum_representation_in_conditional_should_work(
-           [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void GroupBy_Select_with_string_enum_representation_in_conditional_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -77,35 +62,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 });
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                // LINQ2 didn't respect string representation for CarTypeString field
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : 0, __agg0 : { $sum : { $cond : [{ $eq : ['$CarTypeString', 1] }, 1, 0] } }, __agg1 : { $sum : { $cond : [{ $eq : ['$CarTypeString', 2] }, 1, 0] } } } }",
-                    "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
+            AssertStages(
+                stages,
+                "{ $group : { _id : 0, __agg0 : { $sum : { $cond : { if : { $eq : ['$CarTypeString', 'Sport'] }, then : 1, else : 0 } } }, __agg1 : { $sum : { $cond : { if : { $eq : ['$CarTypeString', 'Suv'] }, then : 1, else : 0 } } } } }",
+                "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
 
-                // LINQ2 results are wrong because the query was translated incorrectly
-                var result = queryable.Single();
-                result.SportCarCount.Should().Be(0); // should be 1
-                result.SuvCarCount.Should().Be(0);
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : 0, __agg0 : { $sum : { $cond : { if : { $eq : ['$CarTypeString', 'Sport'] }, then : 1, else : 0 } } }, __agg1 : { $sum : { $cond : { if : { $eq : ['$CarTypeString', 'Suv'] }, then : 1, else : 0 } } } } }",
-                    "{ $project : { SportCarCount : '$__agg0', SuvCarCount : '$__agg1', _id : 0 } }");
-
-                var result = queryable.Single();
-                result.SportCarCount.Should().Be(1);
-                result.SuvCarCount.Should().Be(0);
-            }
+            var result = queryable.Single();
+            result.SportCarCount.Should().Be(1);
+            result.SuvCarCount.Should().Be(0);
         }
 
-        private IMongoCollection<Car> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Car> GetCollection()
         {
-            var collection = GetCollection<Car>("test", linqProvider);
+            var collection = GetCollection<Car>("test");
             CreateCollection(
                 collection,
                 new Car { Id = 1, LicensePlate = "abcdef", CarType = CarType.Sport, CarTypeString = CarType.Sport });

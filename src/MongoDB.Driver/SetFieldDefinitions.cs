@@ -35,12 +35,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The linq provider.</param>
         /// <returns>The rendered set field definitions.</returns>
         [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+            return Render(new(documentSerializer, serializerRegistry));
         }
 
         /// <summary>
@@ -107,8 +106,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var linqAdapter = args.LinqProvider.GetAdapter();
-            var stage = linqAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry);
+            var stage = LinqProviderAdapter.V3.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry);
             return stage["$set"].AsBsonDocument;
         }
     }

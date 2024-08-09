@@ -16,31 +16,21 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     public class RangeMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Range_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Range_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Range(x.Start, x.Count));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $range : ['$Start', { $add : ['$Start', '$Count'] }] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $range : ['$Start', { $add : ['$Start', '$Count'] }] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $range : ['$Start', { $add : ['$Start', '$Count'] }] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(2);
@@ -48,9 +38,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[1].Should().Equal(3, 4, 5, 6);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, Start = 1, Count = 2 },

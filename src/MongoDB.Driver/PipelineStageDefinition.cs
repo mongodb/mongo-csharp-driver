@@ -19,7 +19,6 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -145,17 +144,7 @@ namespace MongoDB.Driver
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>An <see cref="IRenderedPipelineStageDefinition" /></returns>
-        [Obsolete("Use other Render overload instead.")]
         IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
-
-        /// <summary>
-        /// Renders the specified document serializer.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>An <see cref="IRenderedPipelineStageDefinition" /></returns>
-        IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -166,17 +155,6 @@ namespace MongoDB.Driver
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
         string ToString(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        string ToString(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
     }
 
     /// <summary>
@@ -212,22 +190,9 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
         [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public virtual RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Renders the specified document serializer.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
-        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render(new RenderArgs<TInput>(inputSerializer, serializerRegistry, linqProvider));
+            return Render(new RenderArgs<TInput>(inputSerializer, serializerRegistry));
         }
 
         /// <summary>
@@ -255,21 +220,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            var renderedStage = Render(new(inputSerializer, serializerRegistry, linqProvider));
+            var renderedStage = Render(new(inputSerializer, serializerRegistry));
             var documents = renderedStage.Documents;
             if (documents.Count == 1)
             {
@@ -284,11 +235,6 @@ namespace MongoDB.Driver
         string IPipelineStageDefinition.ToString(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return ToString((IBsonSerializer<TInput>)inputSerializer, serializerRegistry);
-        }
-
-        string IPipelineStageDefinition.ToString(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return ToString((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, linqProvider);
         }
 
         /// <summary>
@@ -328,13 +274,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, LinqProvider.V3));
-        }
-
-        /// <inheritdoc />
-        IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, linqProvider));
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry));
         }
     }
 

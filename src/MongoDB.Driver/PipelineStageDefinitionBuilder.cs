@@ -317,34 +317,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a $bucketAuto stage (this method can only be used with LINQ2).
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TValue">The type of the output documents.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="groupBy">The group by expression.</param>
-        /// <param name="buckets">The number of buckets.</param>
-        /// <param name="output">The output projection.</param>
-        /// <param name="options">The options (optional).</param>
-        /// <param name="translationOptions">The translation options.</param>
-        /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, TOutput> BucketAutoForLinq2<TInput, TValue, TOutput>(
-            Expression<Func<TInput, TValue>> groupBy,
-            int buckets,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> output, // the IGrouping for BucketAuto has been wrong all along, only fixing it for LINQ3
-            AggregateBucketAutoOptions options = null,
-            ExpressionTranslationOptions translationOptions = null)
-        {
-            Ensure.IsNotNull(groupBy, nameof(groupBy));
-            Ensure.IsNotNull(output, nameof(output));
-            return BucketAuto(
-                new ExpressionAggregateExpressionDefinition<TInput, TValue>(groupBy, translationOptions),
-                buckets,
-                new ExpressionBucketOutputProjection<TInput, TValue, TOutput>(x => default(TValue), output, translationOptions),
-                options);
-        }
-
-        /// <summary>
         /// Creates a $changeStream stage.
         /// Normally you would prefer to use the Watch method of <see cref="IMongoCollection{TDocument}" />.
         /// Only use this method if subsequent stages project away the resume token (the _id)
@@ -2035,72 +2007,6 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ExpressionBucketOutputProjection<TInput, TValue, TOutput> : ProjectionDefinition<TInput, TOutput>
-    {
-        private readonly Expression<Func<IGrouping<TValue, TInput>, TOutput>> _outputExpression;
-        private readonly ExpressionTranslationOptions _translationOptions;
-        private readonly Expression<Func<TInput, TValue>> _valueExpression;
-
-        public ExpressionBucketOutputProjection(
-            Expression<Func<TInput, TValue>> valueExpression,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
-            ExpressionTranslationOptions translationOptions)
-        {
-            _valueExpression = Ensure.IsNotNull(valueExpression, nameof(valueExpression));
-            _outputExpression = Ensure.IsNotNull(outputExpression, nameof(outputExpression));
-            _translationOptions = translationOptions; // can be null
-
-        }
-
-        public Expression<Func<IGrouping<TValue, TInput>, TOutput>> OutputExpression
-        {
-            get { return _outputExpression; }
-        }
-
-        public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args)
-        {
-            if (args.LinqProvider != LinqProvider.V2)
-            {
-                throw new InvalidOperationException("ExpressionBucketOutputProjection can only be used with LINQ2.");
-            }
-
-            return args.LinqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
-        }
-    }
-
-    internal sealed class GroupExpressionProjection<TInput, TKey, TOutput> : ProjectionDefinition<TInput, TOutput>
-    {
-        private readonly Expression<Func<TInput, TKey>> _idExpression;
-        private readonly Expression<Func<IGrouping<TKey, TInput>, TOutput>> _groupExpression;
-        private readonly ExpressionTranslationOptions _translationOptions;
-
-        public GroupExpressionProjection(Expression<Func<TInput, TKey>> idExpression, Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression, ExpressionTranslationOptions translationOptions)
-        {
-            _idExpression = Ensure.IsNotNull(idExpression, nameof(idExpression));
-            _groupExpression = Ensure.IsNotNull(groupExpression, nameof(groupExpression));
-            _translationOptions = translationOptions; // can be null
-        }
-
-        public Expression<Func<TInput, TKey>> IdExpression
-        {
-            get { return _idExpression; }
-        }
-
-        public Expression<Func<IGrouping<TKey, TInput>, TOutput>> GroupExpression
-        {
-            get { return _groupExpression; }
-        }
-
-        public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args)
-        {
-            if (args.LinqProvider != LinqProvider.V2)
-            {
-                throw new InvalidOperationException("The GroupExpressionProjection class can only be used with LINQ2.");
-            }
-            return args.LinqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
-        }
-    }
-
     internal sealed class ExpressionProjectionDefinition<TInput, TOutput> : ProjectionDefinition<TInput, TOutput>
     {
         private readonly Expression<Func<TInput, TOutput>> _expression;
@@ -2118,8 +2024,8 @@ namespace MongoDB.Driver
         }
 
         public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args) => args.RenderForFind ?
-            args.LinqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry) :
-            args.LinqProvider.GetAdapter().TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
+            LinqProviderAdapter.V3.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry) :
+            LinqProviderAdapter.V3.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, _translationOptions);
     }
 
     internal class SortPipelineStageDefinition<TInput> : PipelineStageDefinition<TInput, TInput>

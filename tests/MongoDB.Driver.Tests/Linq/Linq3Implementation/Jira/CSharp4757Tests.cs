@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -21,7 +20,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -50,86 +48,55 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             serializedOrderItem.Should().Be("{ _id : { OrderId : 1, ProductId : 2 }, Quantity : 3 }");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_grouped_member_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_grouped_member_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.OrderId);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>(); // LINQ2 doesn't understand grouped members
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : '$_id.OrderId', _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : '$_id.OrderId', _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(1, 4);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(1, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_ungrouped_member_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_ungrouped_member_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Quantity);
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { Quantity : '$Quantity', _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : '$Quantity', _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : '$Quantity', _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(3, 6);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_grouped_member_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_grouped_member_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.OrderId == 1);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>(); // LINQ2 doesn't understand grouped members
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match: { '_id.OrderId' : 1 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match: { '_id.OrderId' : 1 } }");
 
-                var result = queryable.Single();
-                result.OrderId.Should().Be(1);
-            }
+            var result = queryable.Single();
+            result.OrderId.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_ungrouped_member_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_ungrouped_member_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Quantity == 3);
@@ -141,9 +108,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.OrderId.Should().Be(1);
         }
 
-        private IMongoCollection<OrderItem> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<OrderItem> GetCollection()
         {
-            var collection = GetCollection<OrderItem>("test", linqProvider);
+            var collection = GetCollection<OrderItem>("test");
             CreateCollection(
                 collection,
                 new OrderItem { OrderId = 1, ProductId = 2, Quantity = 3 },
