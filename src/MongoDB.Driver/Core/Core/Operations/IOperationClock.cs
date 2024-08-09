@@ -17,10 +17,25 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal interface IOperationClock
+    /// <summary>
+    /// An operation clock.
+    /// </summary>
+    public interface IOperationClock
     {
+        // properties
+        /// <summary>
+        /// Gets the operation time.
+        /// </summary>
+        /// <value>
+        /// The operation time.
+        /// </value>
         BsonTimestamp OperationTime { get; }
 
+        // methods
+        /// <summary>
+        /// Advances the operation time.
+        /// </summary>
+        /// <param name="newOperationTime">The new operation time.</param>
         void AdvanceOperationTime(BsonTimestamp newOperationTime);
     }
 }
