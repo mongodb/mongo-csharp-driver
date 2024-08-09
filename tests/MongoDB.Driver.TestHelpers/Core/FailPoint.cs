@@ -141,12 +141,12 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         // constructors
         /// <summary>
-        /// Construct a new FailPoing with a specified name and custom arguments.
+        /// Construct a new FailPoint with a specified name and custom arguments.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="binding">Must be a single server binding.</param>
         /// <param name="command">The command.</param>
-        public FailPoint(IServer server, IReadWriteBinding binding, BsonDocument command)
+        internal FailPoint(IServer server, IReadWriteBinding binding, BsonDocument command)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _binding = Ensure.IsNotNull(binding, nameof(binding));
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// The binding used by the FailPoint and associated commands.
         /// </summary>
         /// <value>The binding is a single server binding.</value>
-        public IReadWriteBinding Binding => _binding;
+        internal IReadWriteBinding Binding => _binding;
 
         // public methods
         /// <summary>

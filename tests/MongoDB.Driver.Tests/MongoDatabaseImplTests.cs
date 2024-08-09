@@ -22,13 +22,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -244,9 +244,6 @@ namespace MongoDB.Driver
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            findOperation.Modifiers.Should().BeNull();
-#pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
 #pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
@@ -402,10 +399,8 @@ namespace MongoDB.Driver
             var validatorDefinition = (FilterDefinition<BsonDocument>)validatorDocument;
             var changeStreamPreAndPostImagesOptions = new ChangeStreamPreAndPostImagesOptions { Enabled = true };
 
-#pragma warning disable 618
             var options = new CreateCollectionOptions<BsonDocument>
             {
-                AutoIndexId = false,
                 Capped = true,
                 ChangeStreamPreAndPostImagesOptions = changeStreamPreAndPostImagesOptions,
                 ClusteredIndex = clustered ? new ClusteredIndexOptions<BsonDocument>() : null,
@@ -420,7 +415,6 @@ namespace MongoDB.Driver
                 ValidationLevel = DocumentValidationLevel.Off,
                 Validator = validatorDefinition
             };
-#pragma warning restore
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
@@ -452,9 +446,6 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
-#pragma warning disable 618
-            op.AutoIndexId.Should().Be(options.AutoIndexId);
-#pragma warning restore
             op.Capped.Should().Be(options.Capped);
             op.ChangeStreamPreAndPostImages.Should().Be(options.ChangeStreamPreAndPostImagesOptions.BackingDocument);
             if (clustered)
@@ -489,10 +480,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var name = "bar";
             var storageEngine = new BsonDocument("awesome", true);
-#pragma warning disable 618
             var options = new CreateCollectionOptions
             {
-                AutoIndexId = false,
                 Capped = true,
                 Collation = new Collation("en_US"),
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
@@ -504,7 +493,6 @@ namespace MongoDB.Driver
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off
             };
-#pragma warning restore
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
@@ -536,9 +524,6 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
-#pragma warning disable 618
-            op.AutoIndexId.Should().Be(options.AutoIndexId);
-#pragma warning restore
             op.Capped.Should().Be(options.Capped);
             op.ChangeStreamPreAndPostImages.Should().BeNull();
             op.ClusteredIndex.Should().BeNull();
@@ -595,9 +580,6 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
-#pragma warning disable 618
-            op.AutoIndexId.Should().NotHaveValue();
-#pragma warning restore
             op.Capped.Should().NotHaveValue();
             op.ClusteredIndex.Should().BeNull();
             op.IndexOptionDefaults.Should().BeNull();
