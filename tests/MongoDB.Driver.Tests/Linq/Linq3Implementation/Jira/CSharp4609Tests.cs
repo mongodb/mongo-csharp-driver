@@ -18,19 +18,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4609Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_dictionary_value_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_dictionary_value_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
             Expression<Func<MeasurementDetails, object>> field = x => x.CreationDate;
             var myValue = "2023-04-13T01:02:03Z";
             var filter = Builders<MeasurementDetails>.Filter.Lt(field, myValue);
@@ -44,9 +41,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<MeasurementDetails> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<MeasurementDetails> CreateCollection()
         {
-            var collection = GetCollection<MeasurementDetails>("test", linqProvider);
+            var collection = GetCollection<MeasurementDetails>("test");
             CreateCollection(
                 collection,
                 new MeasurementDetails { Id = 1, CreationDate = new DateTime(2023, 04, 13, 1, 2, 2, DateTimeKind.Utc) },

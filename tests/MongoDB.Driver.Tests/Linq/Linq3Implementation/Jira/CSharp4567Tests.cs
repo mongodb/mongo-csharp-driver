@@ -18,42 +18,31 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4567Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Projection_to_derived_type_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Projection_to_derived_type_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             Expression<Func<C, object>> projection = x => new R { X = x.Id };
 
             var find = collection.Find("{}").Project(projection);
 
             var translatedProjection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                translatedProjection.Should().Be("{ _id : 1 }");
-            }
-            else
-            {
-                translatedProjection.Should().Be("{ X : '$_id', _id : 0 }");
-            }
+            translatedProjection.Should().Be("{ X : '$_id', _id : 0 }");
 
             var result = (R)find.Single();
             result.X.Should().Be(1);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1 });

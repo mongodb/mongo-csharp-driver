@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
@@ -27,67 +26,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void ElementAt_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().ElementAt(1)) :
                 collection.AsQueryable().Select(x => x.A.ElementAt(1));
 
-            if (linqProvider == LinqProvider.V2 && withNestedAsQueryable)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                if (linqProvider == LinqProvider.V2)
-                {
-                    AssertStages(stages, "{ $project : { __fld0 : { $arrayElemAt : ['$A', 1] }, _id : 0 } }");
-                }
-                else
-                {
-                    AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', 1] }, _id : 0 } }");
-                }
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', 1] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 0, 2, 2);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 0, 2, 2);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void ElementAtOrDefault_should_work(
-          [Values(false, true)] bool withNestedAsQueryable,
-          [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+          [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().ElementAtOrDefault(1)) :
                 collection.AsQueryable().Select(x => x.A.ElementAtOrDefault(1));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().NotBeNull(); // the two cases throw different exceptions
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $gte : [1, { $size : '$A' }] }, then : 0, else : { $arrayElemAt : ['$A', 1] } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $cond : { if : { $gte : [1, { $size : '$A' }] }, then : 0, else : { $arrayElemAt : ['$A', 1] } } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 0, 2, 2);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 0, 2, 2);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

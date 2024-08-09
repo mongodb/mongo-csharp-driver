@@ -26,25 +26,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Count_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Count()) :
                 collection.AsQueryable().Select(x => x.A.Count());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $size : '$A' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $size : '$A' }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $size : '$A' }, _id : 0 } }");
 
-            }
             var results = queryable.ToList();
             results.Should().Equal(0, 1, 2, 3);
         }
@@ -52,24 +44,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Count_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Count(x => x > 2)) :
                 collection.AsQueryable().Select(x => x.A.Count(x => x > 2));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $size : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 2] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$A', as : 'x', in : { $cond : { if : { $gt : ['$$x', 2] }, then : 1, else : 0 } } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$A', as : 'x', in : { $cond : { if : { $gt : ['$$x', 2] }, then : 1, else : 0 } } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 0, 1);
@@ -78,24 +62,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void LongCount_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LongCount()) :
                 collection.AsQueryable().Select(x => x.A.LongCount());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $size : '$A' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $size : '$A' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $size : '$A' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0L, 1L, 2L, 3L);
@@ -104,32 +80,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void LongCount_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LongCount(x => x > 2)) :
                 collection.AsQueryable().Select(x => x.A.LongCount(x => x > 2));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $size : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 2] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$A', as : 'x', in : { $cond : { if : { $gt : ['$$x', 2] }, then : 1, else : 0 } } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$A', as : 'x', in : { $cond : { if : { $gt : ['$$x', 2] }, then : 1, else : 0 } } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0L, 0L, 0L, 1L);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

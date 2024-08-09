@@ -51,7 +51,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         // public methods
         public abstract IQueryable CreateQuery(Expression expression);
         public abstract IQueryable<TElement> CreateQuery<TElement>(Expression expression);
-        public abstract QueryableExecutionModel GetExecutionModel(Expression expression);
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
@@ -101,11 +100,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override IQueryable<TOutput> CreateQuery<TOutput>(Expression expression)
         {
             return new MongoQuery<TDocument, TOutput>(this, expression);
-        }
-
-        public override QueryableExecutionModel GetExecutionModel(Expression expression)
-        {
-            throw new NotSupportedException("This method is only supported in LINQ2 and will be removed in the future.");
         }
 
         public override object Execute(Expression expression)

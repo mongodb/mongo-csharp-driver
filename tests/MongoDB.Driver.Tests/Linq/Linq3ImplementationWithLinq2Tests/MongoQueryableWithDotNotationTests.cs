@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
         private MongoClient GetClient()
         {
-            return DriverTestConfiguration.Linq3Client;
+            return DriverTestConfiguration.Client;
         }
 
         private BsonDocument[] Translate<T>(IQueryable<T> queryable)

@@ -14,20 +14,16 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4802Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_projection_of_subfield_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_projection_of_subfield_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var find = collection.Find(d => d.Status == "a").Project(d => d.SubDocument.Id);
 
@@ -38,9 +34,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(11);
         }
 
-        private IMongoCollection<Document> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Document> GetCollection()
         {
-            var collection = GetCollection<Document>("test", linqProvider);
+            var collection = GetCollection<Document>("test");
             CreateCollection(
                 collection,
                 new Document { Id = 1, Status = "a", SubDocument = new SubDocument { Id = 11 } },

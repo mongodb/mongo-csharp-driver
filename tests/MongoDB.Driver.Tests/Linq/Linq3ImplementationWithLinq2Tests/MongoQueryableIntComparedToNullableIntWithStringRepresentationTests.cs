@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
         static MongoQueryableIntComparedToNullableIntWithStringRepresentationTests()
         {
-            __client = DriverTestConfiguration.Linq3Client;
+            __client = DriverTestConfiguration.Client;
             __database = __client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = __database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
         }

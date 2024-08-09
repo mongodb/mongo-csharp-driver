@@ -13,78 +13,55 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     public class DefaultIfEmptyMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Enumerable_DefaultIfEmpty_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Enumerable_DefaultIfEmpty_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.A.DefaultIfEmpty());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : [0], else : '$A' } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : [0], else : '$A' } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().HaveCount(4);
-                results[0].Should().Equal(0);
-                results[1].Should().Equal(1);
-                results[2].Should().Equal(1, 2);
-                results[3].Should().Equal(1, 2, 3);
-            }
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal(0);
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Queryable_DefaultIfEmpty_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Queryable_DefaultIfEmpty_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.A.AsQueryable().DefaultIfEmpty());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : [0], else : '$A' } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : [0], else : '$A' } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().HaveCount(4);
-                results[0].Should().Equal(0);
-                results[1].Should().Equal(1);
-                results[2].Should().Equal(1, 2);
-                results[3].Should().Equal(1, 2, 3);
-            }
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal(0);
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

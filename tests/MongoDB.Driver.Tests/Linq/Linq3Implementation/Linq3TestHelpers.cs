@@ -31,15 +31,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
         }
 
-        public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
+        public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer)
         {
-            var rendered = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider));
+            var rendered = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry));
             return rendered.Documents;
         }
 
-        public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
+        public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer)
         {
-            var rendered = stage.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider));
+            var rendered = stage.Render(new(inputSerializer, BsonSerializer.SerializerRegistry));
             return rendered.Documents;
         }
 
@@ -48,8 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var linqProvider = collection.Database.Client.Settings.LinqProvider;
-            var renderedPipeline = pipelineDefinition.Render(new(documentSerializer, serializerRegistry, linqProvider));
+            var renderedPipeline = pipelineDefinition.Render(new(documentSerializer, serializerRegistry));
             return renderedPipeline.Documents.ToList();
         }
 
@@ -61,22 +60,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         public static List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
-            var provider = queryable.Provider;
-            if (provider is MongoDB.Driver.Linq.Linq2Implementation.MongoQueryProviderImpl<TDocument> linq2Provider)
-            {
-                var executionModel = linq2Provider.GetExecutionModel(queryable.Expression);
-                var executionModelType = executionModel.GetType();
-                var stagesPropertyInfo = executionModelType.GetProperty("Stages");
-                var stages = (IEnumerable<BsonDocument>)stagesPropertyInfo.GetValue(executionModel);
-                return stages.ToList();
-            }
-            else
-            {
-                var linq3Provider = (MongoQueryProvider<TDocument>)provider;
-                var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(linq3Provider, queryable.Expression);
-                var stages = executableQuery.Pipeline.Stages;
-                return stages.Select(s => s.Render().AsBsonDocument).ToList();
-            }
+            var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
+            var stages = executableQuery.Pipeline.Stages;
+            return stages.Select(s => s.Render().AsBsonDocument).ToList();
         }
     }
 }

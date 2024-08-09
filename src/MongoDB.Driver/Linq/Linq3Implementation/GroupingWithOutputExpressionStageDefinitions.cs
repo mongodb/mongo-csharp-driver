@@ -41,11 +41,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
-            if (args.LinqProvider != LinqProvider.V3)
-            {
-                throw new InvalidOperationException($"{GetType().Name} is only intended for use with LINQ3.");
-            }
-
             var inputSerializer = args.DocumentSerializer;
             var serializerRegistry = args.SerializerRegistry;
             var groupingStage = RenderGroupingStage(inputSerializer, serializerRegistry, out var groupingSerializer);
@@ -98,23 +93,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         public override string OperatorName => "$bucket";
-
-        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
-        {
-            if (args.LinqProvider == LinqProvider.V2)
-            {
-                var linq2Stage = PipelineStageDefinitionBuilder.Bucket(
-                    new ExpressionAggregateExpressionDefinition<TInput, TValue>(_groupBy, _translationOptions),
-                    _boundaries,
-                    new ExpressionBucketOutputProjection<TInput, TValue, TOutput>(x => default(TValue), _output, _translationOptions),
-                    _options);
-                return linq2Stage.Render(args);
-            }
-            else
-            {
-                return base.Render(args);
-            }
-        }
 
         protected override AstStage RenderGroupingStage(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {
@@ -192,19 +170,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         public override string OperatorName => "$group";
-
-        public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
-        {
-            if (args.LinqProvider == LinqProvider.V2)
-            {
-                var linq2Stage = PipelineStageDefinitionBuilder.Group(new GroupExpressionProjection<TInput, TValue, TOutput>(_groupBy, _output, _translationOptions));
-                return linq2Stage.Render(args);
-            }
-            else
-            {
-                return base.Render(args);
-            }
-        }
 
         protected override AstStage RenderGroupingStage(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {

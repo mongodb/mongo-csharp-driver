@@ -543,9 +543,7 @@ namespace MongoDB.Driver
         /// </returns>
         public ProjectionDefinition<TSource, TProjection> Expression<TProjection>(Expression<Func<TSource, TProjection>> expression)
         {
-            // TODO: replace FindExpressionProjectionDefinition with ExpressionProjectionDefinition when LINQ2 is removed
-            // in the meantime we have to keep using FindExpressionProjectionDefinition here for compatibility with LINQ2
-            return new FindExpressionProjectionDefinition<TSource, TProjection>(expression);
+            return new ExpressionProjectionDefinition<TSource, TProjection>(expression, translationOptions: null);
         }
 
         /// <summary>

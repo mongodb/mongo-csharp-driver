@@ -15,7 +15,6 @@
 
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -23,12 +22,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4742Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_with_identity_projection_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_with_identity_projection_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Expression(x => x);
 
             var find = collection
@@ -43,12 +40,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Aggregate_Project_with_identity_projection_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Aggregate_Project_with_identity_projection_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Expression(x => x);
 
             var aggregate = collection
@@ -66,55 +61,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Theory]
         [ParameterAttributeData]
         public void ExpressionProjectionDefinition_with_identity_projection_Render_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider,
             [Values(true, false)] bool renderForFind)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = new ExpressionProjectionDefinition<C, C>(x => x, translationOptions: null);
             var sourceSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
 
-            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, linqProvider, renderForFind: renderForFind));
+            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
 
             renderedProjection.Document.Should().BeNull();
-
-            if (linqProvider == LinqProvider.V2)
-            {
-                renderedProjection.ProjectionSerializer.ValueType.Should().Be(typeof(C));
-            }
-            else
-            {
-                renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
-            }
+            renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void FindExpressionProjectionDefinition_with_identity_projection_Render_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider,
             [Values(true, false)] bool renderForFind)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = new FindExpressionProjectionDefinition<C, C>(x => x);
             var sourceSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
 
-            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, linqProvider, renderForFind: renderForFind));
+            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
 
             renderedProjection.Document.Should().BeNull();
-            if (linqProvider == LinqProvider.V2)
-            {
-                renderedProjection.ProjectionSerializer.ValueType.Should().Be(typeof(C));
-            }
-            else
-            {
-                renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
-            }
+            renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, X = 2 });

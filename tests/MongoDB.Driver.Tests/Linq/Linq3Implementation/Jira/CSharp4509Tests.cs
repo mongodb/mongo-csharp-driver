@@ -24,16 +24,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp4509Tests : Linq3IntegrationTest
     {
         [Theory]
-        [InlineData(JobSortColumn.DriverName, "DriverName", LinqProvider.V2)]
-        [InlineData(JobSortColumn.DriverName, "DriverName", LinqProvider.V3)]
-        [InlineData(JobSortColumn.JobNumber, "JobNumber", LinqProvider.V2)]
-        [InlineData(JobSortColumn.JobNumber, "JobNumber", LinqProvider.V3)]
+        [InlineData(JobSortColumn.DriverName, "DriverName")]
+        [InlineData(JobSortColumn.JobNumber, "JobNumber")]
         public void OrderByDescending_should_work(
             JobSortColumn sortOrder,
-            string expectedSortField,
-            LinqProvider linqProvider)
+            string expectedSortField)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             Expression<Func<DbJob, object>> selector = sortOrder switch
             {
@@ -50,9 +47,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, $"{{ $sort : {{ {expectedSortField} : -1 }} }}");
         }
 
-        private IMongoCollection<DbJob> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<DbJob> CreateCollection()
         {
-            var collection = GetCollection<DbJob>("jobs", linqProvider);
+            var collection = GetCollection<DbJob>("jobs");
             return collection;
         }
 

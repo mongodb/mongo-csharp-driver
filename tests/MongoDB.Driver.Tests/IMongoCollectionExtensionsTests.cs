@@ -21,7 +21,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq.Linq2Implementation;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -60,10 +59,9 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void AsQueryable_should_return_expected_result(
-            [Values(false, true)] bool withSession,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withSession)
         {
-            var collection = CreateMockCollection(linqProvider).Object;
+            var collection = CreateMockCollection().Object;
             var session = withSession ? Mock.Of<IClientSessionHandle>() : null;
             var options = new AggregateOptions();
 
@@ -77,22 +75,11 @@ namespace MongoDB.Driver.Tests
                 result = collection.AsQueryable(options);
             }
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var queryable = result.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryableImpl<Person, Person>>().Subject;
-                var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryProviderImpl<Person>>().Subject;
-                provider._collection().Should().BeSameAs(collection);
-                provider._options().Should().BeSameAs(options);
-                provider._session().Should().BeSameAs(session);
-            }
-            else
-            {
-                var queryable = result.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>().Subject;
-                var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>().Subject;
-                provider._collection().Should().BeSameAs(collection);
-                provider._options().Should().BeSameAs(options);
-                provider._session().Should().BeSameAs(session);
-            }
+            var queryable = result.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>().Subject;
+            var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>().Subject;
+            provider._collection().Should().BeSameAs(collection);
+            provider._options().Should().BeSameAs(options);
+            provider._session().Should().BeSameAs(session);
         }
 
         [Theory]
@@ -1384,10 +1371,10 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private Mock<IMongoCollection<Person>> CreateMockCollection(LinqProvider linqProvider = LinqProvider.V2)
+        private Mock<IMongoCollection<Person>> CreateMockCollection()
         {
             var mockClient = new Mock<IMongoClient>();
-            var clientSettings = new MongoClientSettings { LinqProvider = linqProvider };
+            var clientSettings = new MongoClientSettings();
             mockClient.SetupGet(c => c.Settings).Returns(clientSettings);
 
             var mockDatabase = new Mock<IMongoDatabase>();

@@ -20,76 +20,55 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4731Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_setting_IList_from_List_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_setting_IList_from_List_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new P { IList = x.List })
                 .Where(x => x.IList.Contains(E.A));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $project : { IList : '$List', _id : 0 } }",
-                    "{ $match : { IList : 'A' } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $project : { IList : '$List', _id : 0 } }",
+                "{ $match : { IList : 'A' } }");
 
-                var result = queryable.Single();
-                result.IList.Should().Equal(E.A, E.B);
-            }
+            var result = queryable.Single();
+            result.IList.Should().Equal(E.A, E.B);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_setting_IReadOnlyList_from_List_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_setting_IReadOnlyList_from_List_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new Q { IReadOnlyList = x.List })
                 .Where(x => x.IReadOnlyList.Contains(E.A));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $project : { IReadOnlyList : '$List', _id : 0 } }",
-                    "{ $match : { IReadOnlyList : 'A' } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $project : { IReadOnlyList : '$List', _id : 0 } }",
+                "{ $match : { IReadOnlyList : 'A' } }");
 
-                var result = queryable.Single();
-                result.IReadOnlyList.Should().Equal(E.A, E.B);
-            }
+            var result = queryable.Single();
+            result.IReadOnlyList.Should().Equal(E.A, E.B);
         }
 
-        private IMongoCollection<Test> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Test> GetCollection()
         {
-            var collection = GetCollection<Test>("test", linqProvider);
+            var collection = GetCollection<Test>("test");
             CreateCollection(
                 collection,
                 new Test { Id = 1, List = new List<E> { E.A, E.B } },

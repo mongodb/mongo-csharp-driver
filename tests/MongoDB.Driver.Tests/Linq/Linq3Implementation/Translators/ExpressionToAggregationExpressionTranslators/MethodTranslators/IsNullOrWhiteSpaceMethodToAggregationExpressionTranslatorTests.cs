@@ -13,164 +13,114 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     public class IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
+            var collection = CreateCollection();
 
             var find = collection.Find("{}")
                 .Project(x => new { R = string.IsNullOrWhiteSpace(x.S) })
                 .SortBy(x => x.Id);
 
             var projection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                projection.Should().Be("{ S : 1, _id : 0 }"); // LINQ2 will execute part of the projection client side
-            }
-            else
-            {
-                RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
-                projection.Should().Be("{ R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 }");
-            }
+            projection.Should().Be("{ R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 }");
 
             var results = find.ToList();
             results.Select(x => x.R).Should().Equal(true, true, true, true, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Project_IsNullOrWhiteSpace_using_named_class_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Project_IsNullOrWhiteSpace_using_named_class_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
+            var collection = CreateCollection();
 
             var find = collection.Find("{}")
                 .Project(x => new Result { R = string.IsNullOrWhiteSpace(x.S) })
                 .SortBy(x => x.Id);
 
             var projection = TranslateFindProjection(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                projection.Should().Be("{ S : 1, _id : 0 }"); // LINQ2 will execute part of the projection client side
-            }
-            else
-            {
-                RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
-                projection.Should().Be("{ R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 }");
-            }
+            projection.Should().Be("{ R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 }");
 
             var results = find.ToList();
             results.Select(x => x.R).Should().Equal(true, true, true, true, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_IsNullOrWhiteSpace_using_scalar_result_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_IsNullOrWhiteSpace_using_scalar_result_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            RequireServer.Check().Supports(Feature.TrimOperator);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
                 .Select(x => string.IsNullOrWhiteSpace(x.S));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                RequireServer.Check().Supports(Feature.TrimOperator);
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $sort : { _id : 1 } }",
-                    "{ $project : { _v : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $sort : { _id : 1 } }",
+                "{ $project : { _v : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(true, true, true, true, false);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(true, true, true, true, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            RequireServer.Check().Supports(Feature.TrimOperator);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
                 .Select(x => new { R = string.IsNullOrWhiteSpace(x.S) });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                RequireServer.Check().Supports(Feature.TrimOperator);
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $sort : { _id : 1 } }",
-                    "{ $project : { R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $sort : { _id : 1 } }",
+                "{ $project : { R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.R).Should().Equal(true, true, true, true, false);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.R).Should().Equal(true, true, true, true, false);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_IsNullOrWhiteSpace_using_named_class_should_return_expected_results(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_IsNullOrWhiteSpace_using_named_class_should_return_expected_results()
         {
-            var collection = CreateCollection(linqProvider);
+            RequireServer.Check().Supports(Feature.TrimOperator);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
                 .Select(x => new Result { R = string.IsNullOrWhiteSpace(x.S) });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                RequireServer.Check().Supports(Feature.TrimOperator);
-                var stages = Translate(collection, queryable);
-                AssertStages(
-                    stages,
-                    "{ $sort : { _id : 1 } }",
-                    "{ $project : { R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $sort : { _id : 1 } }",
+                "{ $project : { R : { $or : [{ $eq : ['$S', null] }, { $eq : [{ $trim : { input : '$S' } }, ''] }] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.R).Should().Equal(true, true, true, true, false);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.R).Should().Equal(true, true, true, true, false);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>(linqProvider: linqProvider);
+            var collection = GetCollection<C>();
             CreateCollection(
                 collection,
                 new C { Id = 1, S = null },

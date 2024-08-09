@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             IBsonSerializerRegistry serializerRegistry)
         {
             var stageDefinition = stageExpression.GetConstantValue<IPipelineStageDefinition>(stageExpression);
-            return stageDefinition.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+            return stageDefinition.Render(inputSerializer, serializerRegistry);
         }
     }
 }

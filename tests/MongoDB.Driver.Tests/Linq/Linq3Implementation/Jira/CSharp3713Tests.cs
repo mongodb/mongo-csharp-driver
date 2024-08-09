@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void DefaultIfEmpty_should_work()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var subject = collection.AsQueryable();
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void DefaultIfEmpty_with_explicit_default_should_work()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var subject = collection.AsQueryable();

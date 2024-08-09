@@ -14,20 +14,16 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4622Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void ReplaceOne(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void ReplaceOne()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var options = new ReplaceOptions { IsUpsert = true };
             var data = new Data { Id = 8, Text = "updated" };
 
@@ -36,9 +32,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.UpsertedId.Should().Be(8);
         }
 
-        private IMongoCollection<Data> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Data> GetCollection()
         {
-            var collection = GetCollection<Data>("test", linqProvider);
+            var collection = GetCollection<Data>("test");
             CreateCollection(collection);
             return collection;
         }

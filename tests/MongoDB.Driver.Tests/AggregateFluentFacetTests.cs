@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1, facet2);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1, facet2, facet3);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(inputSerializer, serializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {
@@ -358,7 +358,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(inputSerializer, serializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {
@@ -434,7 +434,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(inputSerializer, serializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $facet : {

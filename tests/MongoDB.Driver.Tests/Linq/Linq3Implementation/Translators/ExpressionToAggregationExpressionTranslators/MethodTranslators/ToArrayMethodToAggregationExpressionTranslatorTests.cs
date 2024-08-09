@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -28,87 +27,60 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Array_ToArray_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Array.AsQueryable().ToArray()) :
                 collection.AsQueryable().Select(x => x.Array.ToArray());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : '$Array', _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : '$Array', _id : 0 } }");
 
-                var result = queryable.Single();
-                result.Should().Equal(1, 2, 3);
-            }
+            var result = queryable.Single();
+            result.Should().Equal(1, 2, 3);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void IEnumerable_ToArray_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.IEnumerable.AsQueryable().ToArray()) :
                 collection.AsQueryable().Select(x => x.IEnumerable.ToArray());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : '$IEnumerable', _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : '$IEnumerable', _id : 0 } }");
 
-                var result = queryable.Single();
-                result.Should().Equal(1, 2, 3);
-            }
+            var result = queryable.Single();
+            result.Should().Equal(1, 2, 3);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void List_ToArray_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.List.AsQueryable().ToArray()) :
                 collection.AsQueryable().Select(x => x.List.ToArray());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : '$List', _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : '$List', _id : 0 } }");
 
-                var result = queryable.Single();
-                result.Should().Equal(1, 2, 3);
-            }
+            var result = queryable.Single();
+            result.Should().Equal(1, 2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C

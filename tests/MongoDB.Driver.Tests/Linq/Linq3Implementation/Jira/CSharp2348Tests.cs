@@ -17,90 +17,60 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2348Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Any_with_equals_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Any_with_equals_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var find = collection.Find(x => x.A.Any(v => v == 2));
 
             var renderedFilter = TranslateFindFilter(collection, find);
-            if (linqProvider == LinqProvider.V2)
-            {
-                renderedFilter.Should().Be("{ A : { $elemMatch : { $eq : 2 } } }"); // LINQ2 translation is not as simple as it could be but is correct
-            }
-            else
-            {
-                renderedFilter.Should().Be("{ A : 2 }");
-            }
+            renderedFilter.Should().Be("{ A : 2 }");
 
             var results = find.ToList().OrderBy(x => x.Id).ToList();
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Any_with_or_of_equals_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Any_with_or_of_equals_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var find = collection.Find(x => x.A.Any(v => v == 2 || v == 3));
 
             var renderedFilter = TranslateFindFilter(collection, find);
             var results = find.ToList().OrderBy(x => x.Id).ToList();
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                renderedFilter.Should().Be("{ A : { $elemMatch : { $or : [{ '' : 2 }, { '' : 3 }] } } }"); // LINQ2 translation is wrong
-                results.Should().BeEmpty(); // LINQ2 result is wrong
-            }
-            else
-            {
-                renderedFilter.Should().Be("{ A : { $in : [2, 3] } }");
-                results.Select(x => x.Id).Should().Equal(2, 3);
-            }
+            renderedFilter.Should().Be("{ A : { $in : [2, 3] } }");
+            results.Select(x => x.Id).Should().Equal(2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Any_with_or_of_equals_and_greater_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Any_with_or_of_equals_and_greater_than_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var find = collection.Find(x => x.A.Any(v => v == 2 || v > 3));
 
             var renderedFilter = TranslateFindFilter(collection, find);
             var results = find.ToList().OrderBy(x => x.Id).ToList();
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                renderedFilter.Should().Be("{ A : { $elemMatch : { $or : [{ '' : 2 }, { '' : { $gt : 3 } }] } } }"); // LINQ2 translation is wrong
-                results.Should().BeEmpty(); // LINQ2 result is wrong
-            }
-            else
-            {
-                // the ideal translation would be { Roles : { $elemMatch : { $or : [{ $eq : 2 }, { $gt : 3 }] } } }
-                // but the server does not support implied element names in combination with $or
-                // see: https://jira.mongodb.org/browse/SERVER-93020
-                renderedFilter.Should().Be("{ $expr : { $anyElementTrue : { $map : { input : '$A', as : 'v', in : { $or : [{ $eq : ['$$v', 2] }, { $gt : ['$$v', 3] }] } } } } }");
-                results.Select(x => x.Id).Should().Equal(2, 4);
-            }
+            // the ideal translation would be { Roles : { $elemMatch : { $or : [{ $eq : 2 }, { $gt : 3 }] } } }
+            // but the server does not support implied element names in combination with $or
+            // see: https://jira.mongodb.org/browse/SERVER-93020
+            renderedFilter.Should().Be("{ $expr : { $anyElementTrue : { $map : { input : '$A', as : 'v', in : { $or : [{ $eq : ['$$v', 2] }, { $gt : ['$$v', 3] }] } } } } }");
+            results.Select(x => x.Id).Should().Equal(2, 4);
         }
 
-        private IMongoCollection<User> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<User> CreateCollection()
         {
-            var collection = GetCollection<User>("test", linqProvider);
+            var collection = GetCollection<User>("test");
             CreateCollection(
                 collection,
                 new User { Id = 1, A = new[] { 1 } },

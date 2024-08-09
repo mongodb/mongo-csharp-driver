@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private IMongoCollection<Product> GetCollection()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             return database.GetCollection<Product>(DriverTestConfiguration.CollectionNamespace.CollectionName);
         }

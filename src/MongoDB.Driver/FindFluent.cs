@@ -302,7 +302,6 @@ namespace MongoDB.Driver
             var args = new RenderArgs<TDocument>(
                 _collection.DocumentSerializer,
                 _collection.Settings.SerializerRegistry,
-                _collection.Database.Client.Settings.LinqProvider,
                 renderForFind: renderForFind);
 
             return renderer(args);

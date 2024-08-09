@@ -17,7 +17,6 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -36,20 +35,7 @@ namespace MongoDB.Driver
         [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
         public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
-        }
-
-        /// <summary>
-        /// Renders the update to a <see cref="BsonValue"/>.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>A <see cref="BsonValue"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+            return Render(new(documentSerializer, serializerRegistry));
         }
 
         /// <summary>
@@ -156,21 +142,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TDocument> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public string ToString(IBsonSerializer<TDocument> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            var renderedPipeline = Render(new(inputSerializer, serializerRegistry, linqProvider));
+            var renderedPipeline = Render(new(inputSerializer, serializerRegistry));
             return renderedPipeline.ToJson();
         }
     }

@@ -26,24 +26,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void First_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().First()) :
                 collection.AsQueryable().Select(x => x.A.First());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $arrayElemAt : ['$A', 0] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', 0] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', 0] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 1, 1, 1);
@@ -52,24 +44,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void First_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().First(x => x > 1)) :
                 collection.AsQueryable().Select(x => x.A.First(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 2);
@@ -78,78 +62,52 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void FirstOrDefault_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().FirstOrDefault()) :
                 collection.AsQueryable().Select(x => x.A.FirstOrDefault());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().NotBeNull(); // the two cases throw different exceptions
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : 0, else : { $arrayElemAt : ['$A', 0] } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : 0, else : { $arrayElemAt : ['$A', 0] } } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 1, 1, 1);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 1, 1, 1);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void FirstOrDefault_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().FirstOrDefault(x => x > 1)) :
                 collection.AsQueryable().Select(x => x.A.FirstOrDefault(x => x > 1));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().NotBeNull(); // the two cases throw different exceptions
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 0, 2, 2);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 0, 2, 2);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Last_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Last()) :
                 collection.AsQueryable().Select(x => x.A.Last());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $arrayElemAt : ['$A', -1] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', -1] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : ['$A', -1] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 1, 2, 3);
@@ -158,24 +116,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Last_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Last(x => x > 1)) :
                 collection.AsQueryable().Select(x => x.A.Last(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, -1] }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, -1] }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, -1] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 3);
@@ -184,60 +134,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void LastOrDefault_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LastOrDefault()) :
                 collection.AsQueryable().Select(x => x.A.LastOrDefault());
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().NotBeNull(); // the two cases throw different exceptions
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : 0, else : { $arrayElemAt : ['$A', -1] } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $cond : { if : { $eq : [{ $size : '$A' }, 0] }, then : 0, else : { $arrayElemAt : ['$A', -1] } } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 1, 2, 3);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 1, 2, 3);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void LastOrDefault_with_predicate_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LastOrDefault(x => x > 1)) :
                 collection.AsQueryable().Select(x => x.A.LastOrDefault(x => x > 1));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().NotBeNull(); // the two cases throw different exceptions
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', -1] } } } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', -1] } } } } }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(0, 0, 2, 3);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(0, 0, 2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 0, A = new int[0] },

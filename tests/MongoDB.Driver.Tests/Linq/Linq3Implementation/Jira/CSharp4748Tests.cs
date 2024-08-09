@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -21,7 +20,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -43,12 +41,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             });
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_ContainsKey_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_ContainsKey_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
@@ -61,35 +57,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Id.Should().Be(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_with_ContainsKey_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Select_with_ContainsKey_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Languages.ContainsKey(language));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Languages.en' }, 'missing'] }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Languages.en' }, 'missing'] }, _id : 0 } }");
 
-                var results = queryable.ToList();
-                results.Should().Equal(true, false);
-            }
+            var results = queryable.ToList();
+            results.Should().Equal(true, false);
         }
 
-        private IMongoCollection<Translation> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Translation> GetCollection()
         {
-            var collection = GetCollection<Translation>("test", linqProvider);
+            var collection = GetCollection<Translation>("test");
             CreateCollection(
                 collection,
                 new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },

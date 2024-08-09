@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Tests.Jira
 
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<C>();
-            var renderedFilter = filter.Render(new(serializer, registry, LinqProvider.V3)).ToJson();
+            var renderedFilter = filter.Render(new(serializer, registry)).ToJson();
             renderedFilter.Should().Be(expectedFilter);
 
             var results = collection.FindSync(filter).ToList().OrderBy(x => x.Id).ToList();

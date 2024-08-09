@@ -19,7 +19,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -347,7 +346,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var documentSerializer = BsonDocumentSerializer.Instance;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var rendered = filter.Render(new(documentSerializer, serializerRegistry, LinqProvider.V3));
+            var rendered = filter.Render(new(documentSerializer, serializerRegistry));
 
             rendered.Should().Be(expectedFilter);
         }

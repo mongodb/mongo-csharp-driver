@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private IQueryable<Person> CreateSubject()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Person>("test");
             return collection.AsQueryable();

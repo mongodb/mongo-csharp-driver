@@ -13,26 +13,22 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4589Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Multiple_GroupJoins_using_method_syntax_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Multiple_GroupJoins_using_method_syntax_should_work()
         {
-            var teams = CreateTeamsCollection(linqProvider);
-            var teamAllianceMappings = CreateTeamAllianceMappingsCollection(linqProvider);
-            var organizationAdmins = CreateOrganizationAdminsCollection(linqProvider);
-            var users = CreateUsersCollection(linqProvider);
+            var teams = CreateTeamsCollection();
+            var teamAllianceMappings = CreateTeamAllianceMappingsCollection();
+            var organizationAdmins = CreateOrganizationAdminsCollection();
+            var users = CreateUsersCollection();
 
             // this is the LINQ query syntax provided by the user in the JIRA ticket
 
@@ -94,20 +90,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             AllianceTeamId = TransparentIdentifier4.TransparentIdentifier3.TransparentIdentifier2.TransparentIdentifier1.allianceMapping.AllianceTeamId
                         });
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(teams, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(teams, queryable);
-                AssertStages(
-                    stages,
-                    "{ $project : { _outer : '$$ROOT', _id : 0 } }",
-                    "{ $lookup : { from : 'teamAllianceMappings', localField : '_outer.TeamId', foreignField : 'TeamId', as : '_inner' } }",
-                    "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+            var stages = Translate(teams, queryable);
+            AssertStages(
+                stages,
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'teamAllianceMappings', localField : '_outer.TeamId', foreignField : 'TeamId', as : '_inner' } }",
+                "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v: { $map : {
                             input : { $cond : {
                                 if : { $eq : [{ $size : '$teamAllianceMappingsListTemp' }, 0] },
@@ -116,11 +105,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             as : 'allianceMapping',
                             in : { TransparentIdentifier0 : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
                         _id: 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _outer : '$_v', _id : 0 } }",
-                    "{ $lookup : { from : 'organizationAdmins', localField : '_outer.TransparentIdentifier0.team.OrganizationId', foreignField : 'OrganizationId', as : '_inner' } }",
-                    "{ $project : { TransparentIdentifier1 : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+                "{ $unwind : '$_v' }",
+                "{ $project : { _outer : '$_v', _id : 0 } }",
+                "{ $lookup : { from : 'organizationAdmins', localField : '_outer.TransparentIdentifier0.team.OrganizationId', foreignField : 'OrganizationId', as : '_inner' } }",
+                "{ $project : { TransparentIdentifier1 : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v : { $map : {
                             input : { $cond : {
                                 if : { $eq : [{ $size : '$organizationAdminsListTemp' }, 0] },
@@ -129,11 +118,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             as : 'organizationAdmin',
                             in : { TransparentIdentifier2 : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
                         _id : 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _outer : '$_v', _id : 0 } }",
-                    "{ $lookup : { from : 'users', localField : '_outer.organizationAdmin.UserId', foreignField : 'UserId', as : '_inner'  } }",
-                    "{ $project : { TransparentIdentifier3 : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+                "{ $unwind : '$_v' }",
+                "{ $project : { _outer : '$_v', _id : 0 } }",
+                "{ $lookup : { from : 'users', localField : '_outer.organizationAdmin.UserId', foreignField : 'UserId', as : '_inner'  } }",
+                "{ $project : { TransparentIdentifier3 : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v : { $map : {
                             input : { $cond : {
                                 if : { $eq : [{ $size : '$usersListTemp' }, 0] },
@@ -149,26 +138,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                     else : '$TransparentIdentifier3.TransparentIdentifier2.TransparentIdentifier1.TransparentIdentifier0.team.OrganizationLogo' } },
                                 AllianceTeamId : '$TransparentIdentifier3.TransparentIdentifier2.TransparentIdentifier1.allianceMapping.AllianceTeamId' } } },
                         _id : 0 } }",
-                    "{ $unwind : '$_v' }");
+                "{ $unwind : '$_v' }");
 
-                var results = queryable.ToList();
-                var result = results.Single();
-                result.TeamId.Should().Be(1);
-                result.TeamName.Should().Be("team name");
-                result.OrganizationLogo.Should().Be("profile image");
-                result.AllianceTeamId.Should().Be(2);
-            }
+            var results = queryable.ToList();
+            var result = results.Single();
+            result.TeamId.Should().Be(1);
+            result.TeamName.Should().Be("team name");
+            result.OrganizationLogo.Should().Be("profile image");
+            result.AllianceTeamId.Should().Be(2);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Multiple_GroupJoins_using_query_syntax_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Multiple_GroupJoins_using_query_syntax_should_work()
         {
-            var teams = CreateTeamsCollection(linqProvider);
-            var teamAllianceMappings = CreateTeamAllianceMappingsCollection(linqProvider);
-            var organizationAdmins = CreateOrganizationAdminsCollection(linqProvider);
-            var users = CreateUsersCollection(linqProvider);
+            var teams = CreateTeamsCollection();
+            var teamAllianceMappings = CreateTeamAllianceMappingsCollection();
+            var organizationAdmins = CreateOrganizationAdminsCollection();
+            var users = CreateUsersCollection();
 
             var queryable =
                 from team in teams.AsQueryable()
@@ -192,20 +178,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     AllianceTeamId = allianceMapping.AllianceTeamId
                 };
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(teams, queryable));
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                var stages = Translate(teams, queryable);
-                AssertStages(
-                    stages,
-                    "{ $project : { _outer : '$$ROOT', _id : 0 } }",
-                    "{ $lookup : { from : 'teamAllianceMappings', localField : '_outer.TeamId', foreignField : 'TeamId', as : '_inner' } }",
-                    "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+            var stages = Translate(teams, queryable);
+            AssertStages(
+                stages,
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'teamAllianceMappings', localField : '_outer.TeamId', foreignField : 'TeamId', as : '_inner' } }",
+                "{ $project : { team : '$_outer', teamAllianceMappingsListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v: { $map : {
                             input : { $cond : {
                                 if : { $eq : [{ $size : '$teamAllianceMappingsListTemp' }, 0] },
@@ -214,11 +193,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             as : 'allianceMapping',
                             in : { '<>h__TransparentIdentifier0' : '$$ROOT', allianceMapping : '$$allianceMapping' } } },
                         _id: 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _outer : '$_v', _id : 0 } }",
-                    "{ $lookup : { from : 'organizationAdmins', localField : '_outer.<>h__TransparentIdentifier0.team.OrganizationId', foreignField : 'OrganizationId', as : '_inner' } }",
-                    "{ $project : { '<>h__TransparentIdentifier1' : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+                "{ $unwind : '$_v' }",
+                "{ $project : { _outer : '$_v', _id : 0 } }",
+                "{ $lookup : { from : 'organizationAdmins', localField : '_outer.<>h__TransparentIdentifier0.team.OrganizationId', foreignField : 'OrganizationId', as : '_inner' } }",
+                "{ $project : { '<>h__TransparentIdentifier1' : '$_outer', organizationAdminsListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v : { $map : {
                             input : { $cond : {
                                 if : { $eq : [{ $size : '$organizationAdminsListTemp' }, 0] },
@@ -227,11 +206,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             as : 'organizationAdmin',
                             in : { '<>h__TransparentIdentifier2' : '$$ROOT', organizationAdmin : '$$organizationAdmin' } } },
                         _id : 0 } }",
-                    "{ $unwind : '$_v' }",
-                    "{ $project : { _outer : '$_v', _id : 0 } }",
-                    "{ $lookup : { from : 'users', localField : '_outer.organizationAdmin.UserId', foreignField : 'UserId', as : '_inner'  } }",
-                    "{ $project : { '<>h__TransparentIdentifier3' : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
-                    @"{ $project : {
+                "{ $unwind : '$_v' }",
+                "{ $project : { _outer : '$_v', _id : 0 } }",
+                "{ $lookup : { from : 'users', localField : '_outer.organizationAdmin.UserId', foreignField : 'UserId', as : '_inner'  } }",
+                "{ $project : { '<>h__TransparentIdentifier3' : '$_outer', usersListTemp : '$_inner', _id : 0 } }",
+                @"{ $project : {
                         _v : { $map : {
                             input : { $cond : {
                                     if : { $eq : [{ $size : '$usersListTemp' }, 0] },
@@ -247,47 +226,46 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                                     else : '$<>h__TransparentIdentifier3.<>h__TransparentIdentifier2.<>h__TransparentIdentifier1.<>h__TransparentIdentifier0.team.OrganizationLogo' } },
                                 AllianceTeamId : '$<>h__TransparentIdentifier3.<>h__TransparentIdentifier2.<>h__TransparentIdentifier1.allianceMapping.AllianceTeamId' } } },
                         _id : 0 } }",
-                    "{ $unwind : '$_v' }");
+                "{ $unwind : '$_v' }");
 
-                var results = queryable.ToList();
-                var result = results.Single();
-                result.TeamId.Should().Be(1);
-                result.TeamName.Should().Be("team name");
-                result.OrganizationLogo.Should().Be("profile image");
-                result.AllianceTeamId.Should().Be(2);
-            }
+            var results = queryable.ToList();
+            var result = results.Single();
+            result.TeamId.Should().Be(1);
+            result.TeamName.Should().Be("team name");
+            result.OrganizationLogo.Should().Be("profile image");
+            result.AllianceTeamId.Should().Be(2);
         }
 
-        private IMongoCollection<Team> CreateTeamsCollection(LinqProvider linqProvider)
+        private IMongoCollection<Team> CreateTeamsCollection()
         {
-            var collection = GetCollection<Team>("teams", linqProvider);
+            var collection = GetCollection<Team>("teams");
             CreateCollection(
                 collection,
                 new Team { Id = 1, TeamId = 1, TeamName = "team name", OrganizationId = 3, OrganizationLogo = "organization logo" });
             return collection;
         }
 
-        private IMongoCollection<TeamAllianceMapping> CreateTeamAllianceMappingsCollection(LinqProvider linqProvider)
+        private IMongoCollection<TeamAllianceMapping> CreateTeamAllianceMappingsCollection()
         {
-            var collection = GetCollection<TeamAllianceMapping>("teamAllianceMappings", linqProvider);
+            var collection = GetCollection<TeamAllianceMapping>("teamAllianceMappings");
             CreateCollection(
                 collection,
                 new TeamAllianceMapping { Id = 1, TeamId = 1, AllianceTeamId = 2 });
             return collection;
         }
 
-        private IMongoCollection<OrganizationAdmin> CreateOrganizationAdminsCollection(LinqProvider linqProvider)
+        private IMongoCollection<OrganizationAdmin> CreateOrganizationAdminsCollection()
         {
-            var collection = GetCollection<OrganizationAdmin>("organizationAdmins", linqProvider);
+            var collection = GetCollection<OrganizationAdmin>("organizationAdmins");
             CreateCollection(
                 collection,
                 new OrganizationAdmin { Id = 3, OrganizationId = 3, UserId = 4 });
             return collection;
         }
 
-        private IMongoCollection<User> CreateUsersCollection(LinqProvider linqProvider)
+        private IMongoCollection<User> CreateUsersCollection()
         {
-            var collection = GetCollection<User>("users", linqProvider);
+            var collection = GetCollection<User>("users");
             CreateCollection(
                 collection,
                 new User { Id = 4, UserId = 4, ProfileImage = "profile image" });

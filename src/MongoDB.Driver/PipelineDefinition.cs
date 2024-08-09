@@ -85,21 +85,8 @@ namespace MongoDB.Driver
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
         [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Renders the pipeline.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
-        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider) =>
-            Render(new (inputSerializer, serializerRegistry, linqProvider));
+        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            Render(new (inputSerializer, serializerRegistry));
 
         /// <summary>
         /// Renders the pipeline.
@@ -111,21 +98,9 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString()
         {
-            return ToString(LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public string ToString(LinqProvider linqProvider)
-        {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
-            return ToString(inputSerializer, serializerRegistry, linqProvider);
+            return ToString(inputSerializer, serializerRegistry);
         }
 
         /// <summary>
@@ -138,21 +113,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The LINQ provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
-        {
-            var renderedPipeline = Render(new(inputSerializer, serializerRegistry, linqProvider));
+            var renderedPipeline = Render(new(inputSerializer, serializerRegistry));
             return $"[{string.Join(", ", renderedPipeline.Documents.Select(stage => stage.ToJson()))}]";
         }
 
@@ -366,7 +327,7 @@ namespace MongoDB.Driver
             IBsonSerializer currentSerializer = args.DocumentSerializer;
             foreach (var stage in _stages)
             {
-                var renderedStage = stage.Render(currentSerializer, args.SerializerRegistry, args.LinqProvider);
+                var renderedStage = stage.Render(currentSerializer, args.SerializerRegistry);
                 currentSerializer = renderedStage.OutputSerializer;
                 foreach (var document in renderedStage.Documents)
                 {

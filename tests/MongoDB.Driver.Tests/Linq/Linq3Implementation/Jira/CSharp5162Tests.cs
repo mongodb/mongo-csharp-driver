@@ -19,127 +19,87 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5162Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Builders_Projection_Expression_with_camel_casing_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builders_Projection_Expression_with_camel_casing_should_work()
         {
-            var collection = GetCamelCollection(linqProvider);
+            var collection = GetCamelCollection();
 
             var projection = Builders<CamelDocument>.Projection.Expression(x => new CamelDocument { Id = x.Id, Name = x.Name });
             var aggregate = collection.Aggregate().Project(projection);
 
             var stages = Translate(collection, aggregate);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { _id : 1, name : 1 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _id : '$_id', name : '$name' } }");
-            }
+            AssertStages(stages, "{ $project : { _id : '$_id', name : '$name' } }");
 
             var result = aggregate.ToList().Single();
             result.Id.Should().Be(1);
             result.Name.Should().Be("John Doe");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Builders_Projection_Expression_with_pascal_casing_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Builders_Projection_Expression_with_pascal_casing_should_work()
         {
-            var collection = GetPascalCollection(linqProvider);
+            var collection = GetPascalCollection();
 
             var projection = Builders<PascalDocument>.Projection.Expression(x => new PascalDocument { Id = x.Id, Name = x.Name });
             var aggregate = collection.Aggregate().Project(projection);
 
             var stages = Translate(collection, aggregate);
-            if (linqProvider == LinqProvider.V2)
-            {
-                stages = NormalizeProjectFieldOrder(stages);
-                AssertStages(stages, "{ $project : { _id : 1, Name : 1 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _id : '$_id', Name : '$Name' } }");
-            }
+            AssertStages(stages, "{ $project : { _id : '$_id', Name : '$Name' } }");
 
             var result = aggregate.ToList().Single();
             result.Id.Should().Be(1);
             result.Name.Should().Be("John Doe");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void FindExpressionDefinition_with_camel_casing_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void FindExpressionDefinition_with_camel_casing_should_work()
         {
-            var collection = GetCamelCollection(linqProvider);
+            var collection = GetCamelCollection();
 
             var projection = new FindExpressionProjectionDefinition<CamelDocument, CamelDocument>(x => new CamelDocument { Id = x.Id, Name = x.Name });
             var aggregate = collection.Aggregate().Project(projection);
 
             var stages = Translate(collection, aggregate);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { _id : 1, name : 1 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _id : '$_id', name : '$name' } }");
-            }
+            AssertStages(stages, "{ $project : { _id : '$_id', name : '$name' } }");
 
             var result = aggregate.ToList().Single();
             result.Id.Should().Be(1);
             result.Name.Should().Be("John Doe");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void FindExpressionDefinition_with_pascal_casing_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void FindExpressionDefinition_with_pascal_casing_should_work()
         {
-            var collection = GetPascalCollection(linqProvider);
+            var collection = GetPascalCollection();
 
             var projection = new FindExpressionProjectionDefinition<PascalDocument, PascalDocument>(x => new PascalDocument { Id = x.Id, Name = x.Name });
             var aggregate = collection.Aggregate().Project(projection);
 
             var stages = Translate(collection, aggregate);
-            if (linqProvider == LinqProvider.V2)
-            {
-                stages = NormalizeProjectFieldOrder(stages);
-                AssertStages(stages, "{ $project : { _id : 1, Name : 1 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _id : '$_id', Name : '$Name' } }");
-            }
+            AssertStages(stages, "{ $project : { _id : '$_id', Name : '$Name' } }");
 
             var result = aggregate.ToList().Single();
             result.Id.Should().Be(1);
             result.Name.Should().Be("John Doe");
         }
 
-        private IMongoCollection<CamelDocument> GetCamelCollection(LinqProvider linqProvider)
+        private IMongoCollection<CamelDocument> GetCamelCollection()
         {
-            var collection = GetCollection<CamelDocument>("test", linqProvider);
+            var collection = GetCollection<CamelDocument>("test");
             var document = new CamelDocument { Id = 1, Name = "John Doe" };
             CreateCollection(collection, document);
             return collection;
         }
 
-        private IMongoCollection<PascalDocument> GetPascalCollection(LinqProvider linqProvider)
+        private IMongoCollection<PascalDocument> GetPascalCollection()
         {
-            var collection = GetCollection<PascalDocument>("test", linqProvider);
+            var collection = GetCollection<PascalDocument>("test");
             var document = new PascalDocument { Id = 1, Name = "John Doe" };
             CreateCollection(collection, document);
             return collection;

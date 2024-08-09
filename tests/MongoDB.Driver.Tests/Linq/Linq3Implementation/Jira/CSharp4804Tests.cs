@@ -16,19 +16,16 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4804Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_Slice_with_field_name_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_Slice_with_field_name_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -40,12 +37,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_Slice_with_field_expression_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_Slice_with_field_expression_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -57,12 +52,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_Slice_with_field_name_and_skip_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_Slice_with_field_name_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -74,12 +67,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_Slice_with_field_expression_and_skip_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_Slice_with_field_expression_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -91,12 +82,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Aggregate_Slice_with_field_name_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Aggregate_Slice_with_field_name_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var aggregate = collection.Aggregate()
@@ -109,12 +98,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Aggregate_Slice_with_field_expression_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Aggregate_Slice_with_field_expression_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var aggregate = collection.Aggregate()
@@ -127,12 +114,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void AggregateSlice_with_field_name_and_skip_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void AggregateSlice_with_field_name_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -145,12 +130,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Aggregate_Slice_with_field_expression_and_skip_and_limit_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Aggregate_Slice_with_field_expression_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -163,9 +146,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, A = new[] { 1, 2, 3, 4, 5 } });

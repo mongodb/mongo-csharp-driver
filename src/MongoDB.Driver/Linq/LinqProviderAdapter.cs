@@ -14,88 +14,183 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetStageTranslators;
 
 namespace MongoDB.Driver.Linq
 {
-    internal abstract class LinqProviderAdapter
+    internal static class LinqProviderAdapter
     {
-        #region static
-        public static readonly LinqProviderAdapter V2 = new Linq2Implementation.LinqProviderAdapterV2();
-        public static readonly LinqProviderAdapter V3 = new Linq3Implementation.LinqProviderAdapterV3();
-        #endregion
-
-        // internal methods
-        internal abstract IMongoQueryable<TDocument> AsQueryable<TDocument>(
+        internal static IMongoQueryable<TDocument> AsQueryable<TDocument>(
             IMongoCollection<TDocument> collection,
             IClientSessionHandle session,
-            AggregateOptions options);
+            AggregateOptions options)
+        {
+            var provider = new MongoQueryProvider<TDocument>(collection, session, options);
+            return new MongoQuery<TDocument, TDocument>(provider);
+        }
 
-        internal abstract IMongoQueryable<NoPipelineInput> AsQueryable(
+        internal static IMongoQueryable<NoPipelineInput> AsQueryable(
             IMongoDatabase database,
             IClientSessionHandle session,
-            AggregateOptions options);
+            AggregateOptions options)
+        {
+            var provider = new MongoQueryProvider<NoPipelineInput>(database, session, options);
+            return new MongoQuery<NoPipelineInput, NoPipelineInput>(provider);
+        }
 
-        internal abstract BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
+        internal static BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions,
-            TranslationContextData contextData = null);
+            TranslationContextData contextData = null)
+        {
+            expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
+            var context = TranslationContext.Create(expression, sourceSerializer, contextData);
+            var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
+            var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
-            Expression<Func<TInput, TValue>> valueExpression,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
+            return simplifiedAst.Render();
+        }
 
-        internal abstract RenderedFieldDefinition TranslateExpressionToField<TDocument>(
+        internal static RenderedFieldDefinition TranslateExpressionToField<TDocument>(
             LambdaExpression expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry);
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
+            var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression, documentSerializer);
+            var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
+            context = context.WithSymbol(symbol);
+            var body = RemovePossibleConvertToObject(expression.Body);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, body);
 
-        internal abstract RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
+            return new RenderedFieldDefinition(field.Path, field.Serializer);
+
+            static Expression RemovePossibleConvertToObject(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression &&
+                    unaryExpression.NodeType == ExpressionType.Convert &&
+                    unaryExpression.Type == typeof(object))
+                {
+                    return unaryExpression.Operand;
+                }
+
+                return expression;
+            }
+        }
+
+        internal static RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
             Expression<Func<TDocument, TField>> expression,
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
-            bool allowScalarValueForArrayField);
+            bool allowScalarValueForArrayField)
+        {
+            expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
+            var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression, documentSerializer);
+            var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
+            context = context.WithSymbol(symbol);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
 
-        internal abstract BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
+            var underlyingSerializer = field.Serializer;
+            var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
+            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
+
+            return new RenderedFieldDefinition<TField>(field.Path, fieldSerializer, valueSerializer, underlyingSerializer);
+        }
+
+        internal static BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
             Expression<Func<TElement, bool>> expression,
             IBsonSerializer<TElement> elementSerializer,
-            IBsonSerializerRegistry serializerRegistry);
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            var context = TranslationContext.Create(expression, elementSerializer);
+            var parameter = expression.Parameters.Single();
+            var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
+            context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
+            var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
+            filter = AstSimplifier.SimplifyAndConvert(filter);
 
-        internal abstract BsonDocument TranslateExpressionToFilter<TDocument>(
+            return filter.Render().AsBsonDocument;
+        }
+
+        internal static BsonDocument TranslateExpressionToFilter<TDocument>(
             Expression<Func<TDocument, bool>> expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry);
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            var context = TranslationContext.Create(expression, documentSerializer);
+            var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
+            filter = AstSimplifier.SimplifyAndConvert(filter);
 
-        internal abstract RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
+            return filter.Render().AsBsonDocument;
+        }
+
+        internal static RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
             Expression<Func<TSource, TProjection>> expression,
             IBsonSerializer<TSource> sourceSerializer,
-            IBsonSerializerRegistry serializerRegistry);
+            IBsonSerializerRegistry serializerRegistry)
+            => TranslateExpressionToProjection(expression, sourceSerializer, ProjectionHelper.CreateFindProjection, new AstFindProjectionSimplifier());
 
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
-            Expression<Func<TInput, TKey>> idExpression,
-            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
-
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
+        internal static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
             IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
+            ExpressionTranslationOptions translationOptions)
+            => TranslateExpressionToProjection(expression, inputSerializer, ProjectionHelper.CreateAggregationProjection, new AstSimplifier());
 
-        internal abstract BsonDocument TranslateExpressionToSetStage<TDocument, TOutput>(
-            Expression<Func<TDocument, TOutput>> expression,
+        private static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
+            Expression<Func<TInput, TOutput>> expression,
+            IBsonSerializer<TInput> inputSerializer,
+            Func<AggregationExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
+            AstSimplifier simplifier)
+        {
+            if (expression.Parameters.Count == 1 && expression.Body == expression.Parameters[0])
+            {
+                // handle x => x as a special case
+                return new RenderedProjectionDefinition<TOutput>(null, (IBsonSerializer<TOutput>)inputSerializer);
+            }
+
+            expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
+            var context = TranslationContext.Create(expression, inputSerializer);
+            var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
+            var (specifications, projectionSerializer) = projectionCreator(translation);
+            specifications = simplifier.VisitAndConvert(specifications);
+            var renderedProjection = new BsonDocument(specifications.Select(specification => specification.RenderAsElement()));
+            return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
+        }
+
+        internal static BsonDocument TranslateExpressionToSetStage<TDocument, TFields>(
+            Expression<Func<TDocument, TFields>> expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry);
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            var context = TranslationContext.Create(expression, documentSerializer); // do not partially evaluate expression
+            var parameter = expression.Parameters.Single();
+            var symbol = context.CreateSymbolWithVarName(parameter, varName: "ROOT", documentSerializer, isCurrent: true);
+            context = context.WithSymbol(symbol);
+            var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);
+            var simplifiedSetStage = AstSimplifier.SimplifyAndConvert(setStage);
+            return simplifiedSetStage.Render().AsBsonDocument;
+        }
     }
 }

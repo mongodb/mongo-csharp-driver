@@ -28,24 +28,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_decimals_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.Decimals.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$Decimals' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$Decimals' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$Decimals' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1.0M, 3.0M, 6.0M);
@@ -54,24 +46,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_decimals_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Sum(x => x * 2.0M)) :
                 collection.AsQueryable().Select(x => x.Decimals.Sum(x => x * 2.0M));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$Decimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Decimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Decimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2.0M, 6.0M, 12.0M);
@@ -80,24 +64,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_doubles_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.Doubles.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$Doubles' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$Doubles' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$Doubles' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1.0, 3.0, 6.0);
@@ -106,24 +82,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_doubles_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Sum(x => x * 2.0)) :
                 collection.AsQueryable().Select(x => x.Doubles.Sum(x => x * 2.0));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$Doubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Doubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Doubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2.0, 6.0, 12.0);
@@ -132,24 +100,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_floats_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.Floats.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$Floats' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$Floats' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$Floats' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1.0F, 3.0F, 6.0F);
@@ -158,24 +118,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_floats_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Sum(x => x * 2.0F)) :
                 collection.AsQueryable().Select(x => x.Floats.Sum(x => x * 2.0F));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$Floats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Floats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Floats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2.0F, 6.0F, 12.0F);
@@ -184,24 +136,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_ints_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.Ints.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$Ints' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$Ints' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$Ints' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1, 3, 6);
@@ -210,24 +154,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_ints_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Sum(x => x * 2)) :
                 collection.AsQueryable().Select(x => x.Ints.Sum(x => x * 2));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$Ints', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Ints', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Ints', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2, 6, 12);
@@ -236,24 +172,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_longs_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.Longs.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$Longs' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$Longs' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$Longs' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(1L, 3L, 6L);
@@ -262,24 +190,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_longs_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Sum(x => x * 2L)) :
                 collection.AsQueryable().Select(x => x.Longs.Sum(x => x * 2L));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$Longs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Longs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$Longs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(2L, 6L, 12L);
@@ -288,24 +208,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_decimals_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.NullableDecimals.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$NullableDecimals' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$NullableDecimals' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$NullableDecimals' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 6.0M);
@@ -314,24 +226,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_decimals_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Sum(x => x * 2.0M)) :
                 collection.AsQueryable().Select(x => x.NullableDecimals.Sum(x => x * 2.0M));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$NullableDecimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableDecimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableDecimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 12.0M);
@@ -340,24 +244,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_doubles_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.NullableDoubles.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$NullableDoubles' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$NullableDoubles' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$NullableDoubles' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 6.0);
@@ -366,24 +262,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_doubles_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Sum(x => x * 2.0)) :
                 collection.AsQueryable().Select(x => x.NullableDoubles.Sum(x => x * 2.0));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$NullableDoubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableDoubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableDoubles', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 12.0);
@@ -392,24 +280,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_floats_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.NullableFloats.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$NullableFloats' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$NullableFloats' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$NullableFloats' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 6.0F);
@@ -418,24 +298,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_floats_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Sum(x => x * 2.0F)) :
                 collection.AsQueryable().Select(x => x.NullableFloats.Sum(x => x * 2.0F));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$NullableFloats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableFloats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableFloats', as : 'x', in : { $multiply : ['$$x', 2.0] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 12.0F);
@@ -444,24 +316,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_ints_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.NullableInts.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$NullableInts' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$NullableInts' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$NullableInts' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 6);
@@ -470,24 +334,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_ints_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Sum(x => x * 2)) :
                 collection.AsQueryable().Select(x => x.NullableInts.Sum(x => x * 2));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$NullableInts', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableInts', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableInts', as : 'x', in : { $multiply : ['$$x', 2] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 12);
@@ -496,24 +352,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_longs_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Sum()) :
                 collection.AsQueryable().Select(x => x.NullableLongs.Sum());
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : '$NullableLongs' }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : '$NullableLongs' }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : '$NullableLongs' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 6L);
@@ -522,32 +370,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_nullable_longs_selector_should_work(
-            [Values(false, true)] bool withNestedAsQueryable,
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Sum(x => x * 2L)) :
                 collection.AsQueryable().Select(x => x.NullableLongs.Sum(x => x * 2L));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $sum : { $map : { input : '$NullableLongs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableLongs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$NullableLongs', as : 'x', in : { $multiply : ['$$x', NumberLong(2)] } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 12L);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C

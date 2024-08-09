@@ -13,67 +13,46 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     public class SelectMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Enumerable_Select_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Enumerable_Select_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable().Select(x => x.A.Select(x => x + 1));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $project : { __fld0 : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
-            }
+            AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
 
             var result = queryable.Single();
             result.Should().Equal(2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Queryable_Select_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Queryable_Select_should_work()
         {
-            var collection = CreateCollection(linqProvider);
+            var collection = CreateCollection();
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().Select(x => x + 1));
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidCastException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
 
-                var result = queryable.Single();
-                result.Should().Equal(2, 3, 4);
-            }
+            var result = queryable.Single();
+            result.Should().Equal(2, 3, 4);
         }
 
-        private IMongoCollection<C> CreateCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> CreateCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, A = new int[] { 1, 2, 3 } });

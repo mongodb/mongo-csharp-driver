@@ -22,15 +22,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators;
-using MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Translators
+namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translators
 {
     public class AggregateGroupTranslatorTests : IntegrationTestBase
     {

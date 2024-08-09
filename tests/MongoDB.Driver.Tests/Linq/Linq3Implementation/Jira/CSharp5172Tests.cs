@@ -13,74 +13,52 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5172Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Filter_ElemMatch_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Filter_ElemMatch_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var filter = Builders<Entity>.Filter.ElemMatch(e => e.Values, x => x > 1 && x < 3);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => (BsonDocument)filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider)));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var renderedUpdate = (BsonDocument)filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider));;
-                renderedUpdate.Should().Be("{ Values : { $elemMatch : { $gt : 1, $lt : 3 } } }");
+            var renderedUpdate = (BsonDocument)filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
+            renderedUpdate.Should().Be("{ Values : { $elemMatch : { $gt : 1, $lt : 3 } } }");
 
-                var results = collection.Find(filter).ToList();
-                results.Select(x => x.Id).Should().Equal(1);
-            }
+            var results = collection.Find(filter).ToList();
+            results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Update_PullFilter_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Update_PullFilter_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var update = Builders<Entity>.Update.PullFilter(e => e.Values, x => x > 1 && x < 3);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => (BsonDocument)update.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider)));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var renderedUpdate = (BsonDocument)update.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry, linqProvider)); ;
-                renderedUpdate.Should().Be("{ $pull : { Values : { $gt : 1, $lt : 3 } } }");
+            var renderedUpdate = (BsonDocument)update.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
+            renderedUpdate.Should().Be("{ $pull : { Values : { $gt : 1, $lt : 3 } } }");
 
-                var result = collection.UpdateMany(e => true, update);
-                result.ModifiedCount.Should().Be(1);
+            var result = collection.UpdateMany(e => true, update);
+            result.ModifiedCount.Should().Be(1);
 
-                var updatedDocuments = collection.Find("{}").ToList();
-                updatedDocuments.Should().HaveCount(2);
-                updatedDocuments[0].Values.Should().Equal(1, 3);
-                updatedDocuments[1].Values.Should().Equal(4, 5, 6);
-            }
+            var updatedDocuments = collection.Find("{}").ToList();
+            updatedDocuments.Should().HaveCount(2);
+            updatedDocuments[0].Values.Should().Equal(1, 3);
+            updatedDocuments[1].Values.Should().Equal(4, 5, 6);
         }
 
-        private IMongoCollection<Entity> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Entity> GetCollection()
         {
-            var collection = GetCollection<Entity>("test", linqProvider);
+            var collection = GetCollection<Entity>("test");
             CreateCollection(
                 collection,
                 new Entity { Id = 1, Values = new List<int> { 1, 2, 3 } },

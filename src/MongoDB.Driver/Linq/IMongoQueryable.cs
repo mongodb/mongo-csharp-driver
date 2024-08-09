@@ -32,14 +32,6 @@ namespace MongoDB.Driver.Linq
         /// Gets the IMongoQueryProvider for this queryable.
         /// </summary>
         new IMongoQueryProvider Provider { get; }
-
-        /// <summary>
-        /// Gets the execution model.
-        /// </summary>
-        /// <returns>
-        /// The execution model.
-        /// </returns>
-        QueryableExecutionModel GetExecutionModel();
     }
 
     /// <summary>

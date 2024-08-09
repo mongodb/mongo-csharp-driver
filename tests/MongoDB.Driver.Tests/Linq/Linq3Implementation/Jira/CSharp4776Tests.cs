@@ -13,24 +13,20 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4776Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() == 2);
@@ -42,12 +38,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_greater_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_greater_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() > 2);
@@ -59,12 +53,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_greater_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_greater_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() >= 2);
@@ -76,12 +68,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_less_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_less_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() < 2);
@@ -93,12 +83,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_less_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_less_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() <= 2);
@@ -110,12 +98,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_method_not_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_method_not_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Count() != 2);
@@ -127,12 +113,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_method_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_method_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count == 2);
@@ -144,12 +128,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_greater_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_greater_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count > 2);
@@ -161,12 +143,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_greater_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_greater_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count >= 2);
@@ -178,12 +158,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_less_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_less_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count < 2);
@@ -195,12 +173,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_less_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_less_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count <= 2);
@@ -212,12 +188,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Count_property_method_not_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Count_property_method_not_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.Count != 2);
@@ -229,12 +203,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length == 2);
@@ -246,12 +218,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_greater_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_greater_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length > 2);
@@ -263,12 +233,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_greater_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_greater_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length >= 2);
@@ -280,12 +248,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_less_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_less_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length < 2);
@@ -297,12 +263,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_less_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_less_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length <= 2);
@@ -314,12 +278,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_Length_property_not_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_Length_property_not_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.A.Length != 2);
@@ -331,159 +293,99 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2, 3, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_method_equal_to_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_method_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() == 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { L : { $size : 2 } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { L : { $size : 2 } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(4);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_greater_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_greater_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() > 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { 'L.2' : { $exists : true } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { 'L.2' : { $exists : true } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(5);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_greater_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_greater_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() >= 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { 'L.1' : { $exists : true } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { 'L.1' : { $exists : true } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(4, 5);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_less_than_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_less_than_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() < 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { 'L.1' : { $exists : false } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { 'L.1' : { $exists : false } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(1, 2, 3);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_less_than_or_equal_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_less_than_or_equal_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() <= 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { 'L.2' : { $exists : false } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { 'L.2' : { $exists : false } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(1, 2, 3, 4);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3, 4);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Where_with_LongCount_method_method_not_equal_to_should_work(
-           [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Where_with_LongCount_method_method_not_equal_to_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.L.LongCount() != 2);
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $match : { L : { $not : { $size : 2 } } } }");
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { L : { $not : { $size : 2 } } } }");
 
-                var results = queryable.ToList();
-                results.Select(x => x.Id).Should().Equal(1, 2, 3, 5);
-            }
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3, 5);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, A = null, L = null },

@@ -17,7 +17,6 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver
@@ -33,12 +32,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="linqProvider">The linq provider.</param>
         /// <returns>The rendered SetFieldDefinition.</returns>
         [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        public virtual BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new(documentSerializer, serializerRegistry, linqProvider));
+            return Render(new(documentSerializer, serializerRegistry));
         }
 
         /// <summary>

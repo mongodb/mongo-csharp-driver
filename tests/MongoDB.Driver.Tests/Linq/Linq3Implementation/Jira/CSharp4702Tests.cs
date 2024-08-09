@@ -18,19 +18,16 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp702Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Query1_using_list_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Query1_using_list_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -43,37 +40,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Query2_using_list_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Query2_using_list_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
                 .Where(model => model.List.Any(value => lookingFor.Contains(value)));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { List : { $elemMatch : { $in : ['value1', 'value2'] } } } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { List : { $in : ['value1', 'value2'] } } }");
-            }
+            AssertStages(stages, "{ $match : { List : { $in : ['value1', 'value2'] } } }");
 
             var results = queryable.ToList();
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Query1_using_hashset_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Query1_using_hashset_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -86,34 +72,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Query2_using_hashset_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Query2_using_hashset_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
                 .Where(model => model.HashSet.Any(value => lookingFor.Contains(value)));
 
             var stages = Translate(collection, queryable);
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(stages, "{ $match : { HashSet : { $elemMatch : { $in : ['value1', 'value2'] } } } }");
-            }
-            else
-            {
-                AssertStages(stages, "{ $match : { HashSet : { $in : ['value1', 'value2'] } } }");
-            }
+            AssertStages(stages, "{ $match : { HashSet : { $in : ['value1', 'value2'] } } }");
 
             var results = queryable.ToList();
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        private IMongoCollection<Model> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<Model> GetCollection()
         {
-            var collection = GetCollection<Model>("test", linqProvider);
+            var collection = GetCollection<Model>("test");
             var documentsCollection = GetCollection<BsonDocument>("test");
             CreateCollection(
                 documentsCollection,

@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers.KnownSeriali
 
         private IQueryable<TDocument> GetSubject<TDocument>()
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<TDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             return collection.AsQueryable();

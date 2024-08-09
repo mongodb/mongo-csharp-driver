@@ -16,19 +16,16 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4700Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void OrderBy_Count_should_work(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void OrderBy_Count_should_work()
         {
-            var collection = GetCollection(linqProvider);
+            var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.Name)
@@ -37,39 +34,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             var results = queryable.ToList();
 
-            if (linqProvider == LinqProvider.V2)
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : '$Name', __agg0 : { $sum : 1 } } }",
-                    "{ $sort : { __agg0 : 1 } }");
+            AssertStages(
+                stages,
+                "{ $group : { _id : '$Name', _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $size : '$_elements' } } }",
+                "{ $sort : { _key1 : 1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
 
-                results.Should().HaveCount(2);
-                results[0].Key.Should().Be("Jane");
-                results[0].Count().Should().Be(0); // this result is incorrect in LINQ2
-                results[1].Key.Should().Be("John");
-                results[1].Count().Should().Be(0); // this result is incorrect in LINQ2
-            }
-            else
-            {
-                AssertStages(
-                    stages,
-                    "{ $group : { _id : '$Name', _elements : { $push : '$$ROOT' } } }",
-                    "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $size : '$_elements' } } }",
-                    "{ $sort : { _key1 : 1 } }",
-                    "{ $replaceRoot : { newRoot : '$_document' } }");
-
-                results.Should().HaveCount(2);
-                results[0].Key.Should().Be("Jane");
-                results[0].Count().Should().Be(1);
-                results[1].Key.Should().Be("John");
-                results[1].Count().Should().Be(2);
-            }
+            results.Should().HaveCount(2);
+            results[0].Key.Should().Be("Jane");
+            results[0].Count().Should().Be(1);
+            results[1].Key.Should().Be("John");
+            results[1].Count().Should().Be(2);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
+        private IMongoCollection<C> GetCollection()
         {
-            var collection = GetCollection<C>("test", linqProvider);
+            var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
                 new C { Id = 1, Name = "John" },

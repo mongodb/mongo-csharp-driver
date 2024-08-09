@@ -20,21 +20,17 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp4172Tests : Linq3IntegrationTest
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Find_uses_the_expected_serializer(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Find_uses_the_expected_serializer()
         {
-            var collection = GetCollection<Order>(null, null, linqProvider);
+            var collection = GetCollection<Order>(null, null);
 
             var find = collection.Find(o => o.Items.Any(i => i.Type == ItemType.Refund));
             var result = find.ToString();
@@ -43,26 +39,19 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expectedResult);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Aggregate_uses_the_expected_serializer(
-            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
+        [Fact]
+        public void Aggregate_uses_the_expected_serializer()
         {
-            var collection = GetCollection<Order>(null, null, linqProvider);
+            var collection = GetCollection<Order>(null, null);
 
             var aggregate = collection
                 .Aggregate()
                 .Project((o) => new { o.Id, HasAnyRefund = o.Items.Any(i => i.Type == ItemType.Refund) });
-            var stages = Translate(collection, aggregate);
 
-            // LINQ2 uses the wrong serializer but won't be fixed
-            var expectedStage = linqProvider switch
-            {
-                LinqProvider.V2 => "{ $project : { Id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 1] } } } }, _id : 0 } }",
-                LinqProvider.V3 => "{ $project : { _id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 'refund'] } } } } } }",
-                _ => throw new ArgumentException($"Invalid linqProvider: {linqProvider}.", nameof(linqProvider))
-            };
-            AssertStages(stages, expectedStage);
+            var stages = Translate(collection, aggregate);
+            AssertStages(
+                stages,
+                "{ $project : { _id : '$_id', HasAnyRefund : { $anyElementTrue : { $map : { input : '$Items', as : 'i', in : { $eq : ['$$i.Type', 'refund'] } } } } } }");
         }
 
         public class Order

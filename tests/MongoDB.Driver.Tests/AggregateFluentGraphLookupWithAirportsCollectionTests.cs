@@ -22,7 +22,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.GraphLookup(__airportsCollection, connectFromField, connectToField, startWith, @as, depthField, options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__travelersCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(__travelersCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
 
             renderedStage.Document.Should().Be(
                 @"{
@@ -176,7 +175,7 @@ namespace MongoDB.Driver.Tests
                 options: options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__travelersCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(__travelersCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {
@@ -255,7 +254,7 @@ namespace MongoDB.Driver.Tests
                 options: options);
 
             var stage = result.Stages.Single();
-            var renderedStage = stage.Render(__airportsCollection.DocumentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V3);
+            var renderedStage = stage.Render(__airportsCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);
             renderedStage.Document.Should().Be(
                 @"{
                     $graphLookup : {
