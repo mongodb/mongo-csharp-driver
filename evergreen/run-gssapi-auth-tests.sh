@@ -37,6 +37,12 @@ else
   touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
   export KRB5_CONFIG=${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
 
+  IFS=':' read -ra PARTS <<< "$AUTH_GSSAPI"
+  USER=$(printf ${PARTS[0]//%/\\x}) # unescape percent-encoded string
+  PWD=$(printf ${PARTS[1]//%/\\x})
+
+  kinit $USER<<<$PWD
+
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   done

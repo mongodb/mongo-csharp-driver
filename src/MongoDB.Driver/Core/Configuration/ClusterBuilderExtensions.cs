@@ -20,8 +20,9 @@ using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Authentication.Gssapi;
+using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
@@ -262,12 +263,14 @@ namespace MongoDB.Driver.Core.Configuration
             return true;
         }
 
+        private const string AwsAuthMechanismName = "MONGODB-AWS";
+
         private static string GetAuthSource(ConnectionString connectionString)
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
 
-            if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
-                connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
+            if (connectionString.AuthMechanism == AwsAuthMechanismName ||
+                connectionString.AuthMechanism == OidcSaslMechanism.MechanismName)
             {
                 return connectionString.AuthSource ?? defaultSource;
             }
@@ -278,9 +281,9 @@ namespace MongoDB.Driver.Core.Configuration
         private static string GetDefaultAuthSource(ConnectionString connectionString)
         {
             if (connectionString.AuthMechanism != null && (
-                connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
-                connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
-                connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName))
+                connectionString.AuthMechanism == GssapiSaslMechanism.MechanismName ||
+                connectionString.AuthMechanism == AwsAuthMechanismName ||
+                connectionString.AuthMechanism == OidcSaslMechanism.MechanismName))
             {
                 return "$external";
             }
@@ -290,65 +293,34 @@ namespace MongoDB.Driver.Core.Configuration
 
         private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, ServerApi serverApi)
         {
+            if (connectionString.AuthMechanism == MongoDBX509Authenticator.MechanismName)
+            {
+                return new MongoDBX509Authenticator(connectionString.Username, serverApi);
+            }
+
+            var authSource = GetAuthSource(connectionString);
+            var identity = new MongoExternalIdentity(authSource, connectionString.Username);
+            MongoIdentityEvidence evidence = null;
             if (connectionString.Password != null)
             {
-                var credential = new UsernamePasswordCredential(
-                        GetAuthSource(connectionString),
-                        connectionString.Username,
-                        connectionString.Password);
-
-                if (connectionString.AuthMechanism == null)
-                {
-                    return new DefaultAuthenticator(credential, serverApi);
-                }
-                else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
-                {
-                    return new ScramSha1Authenticator(credential, serverApi);
-                }
-                else if (connectionString.AuthMechanism == ScramSha256Authenticator.MechanismName)
-                {
-                    return new ScramSha256Authenticator(credential, serverApi);
-                }
-                else if (connectionString.AuthMechanism == PlainAuthenticator.MechanismName)
-                {
-                    return new PlainAuthenticator(credential, serverApi);
-                }
-                else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
-                {
-                    return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
-                }
-                else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
-                {
-                    return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
-                }
-                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
-                {
-                    throw new NotSupportedException("OIDC authenticator cannot be constructed with password.");
-                }
+                evidence = new PasswordEvidence(connectionString.Password);
             }
-            else
+
+            if (connectionString.AuthMechanism == null)
             {
-                if (connectionString.AuthMechanism == MongoDBX509Authenticator.MechanismName)
-                {
-                    return new MongoDBX509Authenticator(connectionString.Username, serverApi);
-                }
-                else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
-                {
-                    return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
-                }
-                else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
-                {
-                    return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
-                }
-                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
-                {
-                    return MongoOidcAuthenticator.CreateAuthenticator(
-                        connectionString.AuthSource,
-                        connectionString.Username,
-                        connectionString.AuthMechanismProperties?.Select(pair => new KeyValuePair<string, object>(pair.Key, pair.Value)),
-                        connectionString.Hosts,
-                        serverApi);
-                }
+                return new DefaultAuthenticator(identity, evidence, connectionString.Hosts, serverApi);
+            }
+
+            if (SaslAuthenticator.TryCreate(
+                    connectionString.AuthMechanism,
+                    connectionString.Hosts,
+                    identity,
+                    evidence,
+                    connectionString.AuthMechanismProperties?.Select(pair => new KeyValuePair<string, object>(pair.Key, pair.Value)),
+                    serverApi,
+                    out var authenticator))
+            {
+                return authenticator;
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");

@@ -20,8 +20,9 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Authentication.Gssapi;
+using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -61,13 +62,35 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             }
 
             IAuthenticator authenticator = null;
-            if (parseException == null && !SkipActualAuthenticatorCreating(testCase.Name))
+            if (mongoCredential != null && parseException == null && !SkipActualAuthenticatorCreating(testCase.Name))
             {
                 var dummyEndpoint = new DnsEndPoint("localhost", 27017);
-                var environmentVariablesProviderMock = new Mock<IEnvironmentVariableProvider>();
-                environmentVariablesProviderMock
-                    .Setup(p => p.GetEnvironmentVariable("OIDC_TOKEN_FILE")).Returns("dummy_file_path");
-                parseException = Record.Exception(() => authenticator = mongoCredential?.ToAuthenticator(new[] { dummyEndpoint }, serverApi: null, environmentVariableProvider: environmentVariablesProviderMock.Object));
+
+                parseException = Record.Exception(
+                    () =>
+                    {
+                        var saslContext = new SaslContext
+                        {
+                            Mechanism = mongoCredential.Mechanism,
+                            Identity = mongoCredential.Identity,
+                            IdentityEvidence = mongoCredential.Evidence,
+                            MechanismProperties = mongoCredential._mechanismProperties(),
+                            EndPoint = dummyEndpoint,
+                            ClusterEndPoints = [dummyEndpoint],
+                        };
+
+                        if (mongoCredential.Mechanism?.ToUpper() == OidcSaslMechanism.MechanismName)
+                        {
+                            var environmentVariablesProviderMock = new Mock<IEnvironmentVariableProvider>();
+                            environmentVariablesProviderMock
+                                .Setup(p => p.GetEnvironmentVariable("OIDC_TOKEN_FILE")).Returns("dummy_file_path");
+                            var mechanism = OidcSaslMechanism.Create(saslContext, SystemClock.Instance, environmentVariablesProviderMock.Object);
+                            authenticator = new SaslAuthenticator(mechanism, null);
+                            return;
+                        }
+
+                        authenticator = mongoCredential.ToAuthenticator([dummyEndpoint], null);
+                    });
             }
             if (parseException == null)
             {
@@ -104,15 +127,14 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 var expectedMechanismProperties = expectedCredential["mechanism_properties"];
                 switch (mongoCredential.Mechanism)
                 {
-                    case GssapiAuthenticator.MechanismName:
+                    case GssapiSaslMechanism.MechanismName:
                         {
-                            var gssapiAuthenticator = (GssapiAuthenticator)authenticator;
+                            var saslAuthenticator = (SaslAuthenticator)authenticator;
+                            var gssapiMechanism = (GssapiSaslMechanism)saslAuthenticator.Mechanism;
                             if (expectedMechanismProperties.IsBsonNull)
                             {
-                                var serviceName = gssapiAuthenticator._mechanism_serviceName();
-                                serviceName.Should().Be("mongodb"); // The default is "mongodb".
-                                var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
-                                canonicalizeHostName.Should().BeFalse(); // The default is "false".
+                                gssapiMechanism.ServiceName.Should().Be("mongodb"); // The default is "mongodb".
+                                gssapiMechanism.CanonicalizeHostName.Should().BeFalse(); // The default is "false".
                             }
                             else
                             {
@@ -122,12 +144,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                                     switch (mechanismName)
                                     {
                                         case "SERVICE_NAME":
-                                            var serviceName = gssapiAuthenticator._mechanism_serviceName();
-                                            serviceName.Should().Be(ValueToString(expectedMechanismProperty.Value));
+                                            gssapiMechanism.ServiceName.Should().Be(ValueToString(expectedMechanismProperty.Value));
                                             break;
                                         case "CANONICALIZE_HOST_NAME":
-                                            var canonicalizeHostName = gssapiAuthenticator._mechanism_canonicalizeHostName();
-                                            canonicalizeHostName.Should().Be(expectedMechanismProperty.Value.ToBoolean());
+                                            gssapiMechanism.CanonicalizeHostName.Should().Be(expectedMechanismProperty.Value.ToBoolean());
                                             break;
                                         default:
                                             throw new Exception($"Invalid mechanism property '{mechanismName}'.");
@@ -136,21 +156,20 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                             }
                             break;
                         }
-                    case MongoOidcAuthenticator.MechanismName:
+                    case OidcSaslMechanism.MechanismName:
                         {
-                            var oidcAuthenticator = (MongoOidcAuthenticator)authenticator;
+                            var saslAuthenticator = (SaslAuthenticator)authenticator;
+                            var oidcMechanism = (OidcSaslMechanism)saslAuthenticator.Mechanism;
                             foreach (var expectedMechanismProperty in expectedMechanismProperties.AsBsonDocument)
                             {
                                 var mechanismName = expectedMechanismProperty.Name;
                                 switch (mechanismName)
                                 {
                                     case OidcConfiguration.EnvironmentMechanismPropertyName:
-                                        var environment = oidcAuthenticator.Configuration.Environment;
-                                        environment.Should().Be(expectedMechanismProperty.Value.ToString());
+                                        oidcMechanism.Configuration.Environment.Should().Be(expectedMechanismProperty.Value.ToString());
                                         break;
                                     case OidcConfiguration.TokenResourceMechanismPropertyName:
-                                        var resourceToken = oidcAuthenticator.Configuration.TokenResource;
-                                        resourceToken.Should().Be(expectedMechanismProperty.Value.ToString());
+                                        oidcMechanism.Configuration.TokenResource.Should().Be(expectedMechanismProperty.Value.ToString());
                                         break;
                                     default:
                                         throw new Exception($"Invalid mechanism property '{mechanismName}'.");
@@ -198,26 +217,6 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.auth.tests.legacy";
-        }
-    }
-
-    internal static class GssapiAuthenticatorReflector
-    {
-        public static bool _mechanism_canonicalizeHostName(this GssapiAuthenticator obj)
-        {
-            var mechanism = _mechanism(obj);
-            return (bool)Reflector.GetFieldValue(mechanism, "_canonicalizeHostName");
-        }
-
-        public static string _mechanism_serviceName(this GssapiAuthenticator obj)
-        {
-            var mechanism = _mechanism(obj);
-            return (string)Reflector.GetFieldValue(mechanism, "_serviceName");
-        }
-
-        private static object _mechanism(GssapiAuthenticator obj)
-        {
-            return Reflector.GetFieldValue(obj, nameof(_mechanism));
         }
     }
 

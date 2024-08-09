@@ -18,8 +18,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -101,23 +99,12 @@ namespace MongoDB.Driver
             }
         }
 
-        // internal methods
         /// <summary>
-        /// Computes the MONGODB-CR password digest.
+        /// Returns password as decoded string
         /// </summary>
-        /// <param name="username">The username.</param>
-        /// <returns>The MONGODB-CR password digest.</returns>
-        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
-        internal string ComputeMongoCRPasswordDigest(string username)
+        public string ToInsecureString()
         {
-            using (var md5 = MD5.Create())
-            using (var decryptedPassword = new DecryptedSecureString(_securePassword))
-            {
-                var encoding = Utf8Encodings.Strict;
-                var prefixBytes = encoding.GetBytes(username + ":mongo:");
-                var hash = ComputeHash(md5, prefixBytes, decryptedPassword.GetUtf8Bytes());
-                return BsonUtils.ToHexString(hash);
-            }
+            return SecureStringHelper.ToInsecureString(_securePassword);
         }
 
         // private static methods

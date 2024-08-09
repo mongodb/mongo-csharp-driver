@@ -17,7 +17,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;

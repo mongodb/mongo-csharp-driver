@@ -21,9 +21,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
                 : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
 
-            exception.Should().BeOfType<MongoConnectionException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
             VerifyCallbackUsage(callbackMock, async, Times.Once());
 
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
                 : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
 
-            exception.Should().BeOfType<MongoConnectionException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
             VerifyCallbackUsage(callbackMock, async, Times.Once());
 
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                     : collection.FindSync(Builders<BsonDocument>.Filter.Empty);
             }
 
-            exception.Should().BeOfType<MongoConnectionException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
             VerifyCallbackUsage(callbackMock, async, Times.Once());
         }
 
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                     : Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
             }
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
             VerifyCallbackUsage(callbackMock, async, Times.Exactly(2));
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
@@ -413,7 +413,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                     : Record.Exception(() => collection.InsertOne(dummyDocument));
             }
 
-            exception.Should().BeOfType<MongoCommandException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
+            exception.InnerException.Should().BeOfType<MongoCommandException>();
             VerifyCallbackUsage(callbackMock, async, Times.Exactly(2));
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();

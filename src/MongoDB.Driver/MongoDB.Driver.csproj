@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" />
     <PackageReference Include="DnsClient" Version="1.6.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
     <PackageReference Include="MongoDB.Libmongocrypt" Version="1.11.0" />
@@ -34,7 +33,7 @@
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
   </ItemGroup>

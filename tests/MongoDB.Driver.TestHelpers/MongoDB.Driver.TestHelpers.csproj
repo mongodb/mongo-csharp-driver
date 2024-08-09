@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Driver.Authentication.AWS\MongoDB.Driver.Authentication.AWS.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
     <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
   </ItemGroup>

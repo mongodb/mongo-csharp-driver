@@ -19,7 +19,7 @@ wait_until_package_is_available ()
   count=0
   echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
   while [ -z "$resp" ] && [ $count -le 40 ]; do
-    resp=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[] | select(.version==$jq_version) | .version')
+    resp=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[]? | select(.version==$jq_version) | .version')
     if [ -z "$resp" ]; then
       echo "sleeping for 15 seconds..."
       sleep 15
@@ -55,7 +55,7 @@ if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACK
   exit 1
 fi
 
-PACKAGES=("MongoDB.Bson" "MongoDB.Driver")
+PACKAGES=("MongoDB.Bson" "MongoDB.Driver" "MongoDB.Driver.Authentication.AWS")
 
 for package in ${PACKAGES[*]}; do
   dotnet nuget verify ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"

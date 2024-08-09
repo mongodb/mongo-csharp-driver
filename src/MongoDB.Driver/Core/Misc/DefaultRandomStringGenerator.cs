@@ -20,6 +20,8 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal class DefaultRandomStringGenerator : IRandomStringGenerator
     {
+        public static DefaultRandomStringGenerator Instance { get; } = new DefaultRandomStringGenerator();
+
         public string Generate(int length, string legalCharacters)
         {
             var randomData = new byte[length];

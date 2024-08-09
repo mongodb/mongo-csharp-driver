@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Authentication.ScramSha;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -77,9 +77,9 @@ namespace MongoDB.Driver.Core.Connections
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var credentials = new UsernamePasswordCredential(
-                source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
-            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var identity = new MongoExternalIdentity(source: "Pathfinder", username: "Barclay");
+            var evidence = new PasswordEvidence("Barclay-Alpha-1-7-Gamma");
+            var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
 
             var subject = CreateSubject();
             var helloDocument = subject.CreateInitialHelloCommand(authenticator, false);
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
             speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
-            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(identity.Source));
         }
 
         [Theory]
@@ -100,9 +100,9 @@ namespace MongoDB.Driver.Core.Connections
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var credentials = new UsernamePasswordCredential(
-                source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
-            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var identity = new MongoExternalIdentity(source: "Pathfinder", username: "Barclay");
+            var evidence = new PasswordEvidence("Barclay-Alpha-1-7-Gamma");
+            var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1), null);
             var helloDocument = subject.CreateInitialHelloCommand(authenticator, false);
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
             speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
-            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(identity.Source));
         }
 
         [Theory]
@@ -123,9 +123,9 @@ namespace MongoDB.Driver.Core.Connections
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var credentials = new UsernamePasswordCredential(
-                source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
-            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var identity = new MongoExternalIdentity(source: "Pathfinder", username: "Barclay");
+            var evidence = new PasswordEvidence("Barclay-Alpha-1-7-Gamma");
+            var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
 
             var subject = CreateSubject();
             var helloDocument = subject.CreateInitialHelloCommand(authenticator, true);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
             speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
-            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(identity.Source));
         }
 
         [Theory]
@@ -200,9 +200,9 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
-            var credentials = new UsernamePasswordCredential(
-                source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
-            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
+            var evidence = new PasswordEvidence("Omega-Phi-9-3");
+            var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
             speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
-            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(identity.Source));
         }
 
 
@@ -357,9 +357,9 @@ namespace MongoDB.Driver.Core.Connections
             var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson(
                     $"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}"));
-            var credentials = new UsernamePasswordCredential(
-                source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
-            var authenticator = CreateAuthenticator("default", credentials);
+            var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
+            var evidence = new PasswordEvidence("Omega-Phi-9-3");
+            var authenticator = CreateAuthenticator("default", identity, evidence);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
@@ -383,20 +383,32 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // private methods
-        private IAuthenticator CreateAuthenticator(string authenticatorType, UsernamePasswordCredential credentials)
+        private IAuthenticator CreateAuthenticator(string authenticatorType, MongoIdentity identity, MongoIdentityEvidence evidence)
         {
+            var saslContext = CreateSaslContext(authenticatorType, identity, evidence);
             switch (authenticatorType)
             {
                 case "SCRAM-SHA-1":
-                    return new ScramSha1Authenticator(credentials, serverApi: null);
+                    return new SaslAuthenticator(ScramShaSaslMechanism.CreateScramSha1Mechanism(saslContext), null);
                 case "SCRAM-SHA-256":
-                    return new ScramSha256Authenticator(credentials, serverApi: null);
+                    return new SaslAuthenticator(ScramShaSaslMechanism.CreateScramSha256Mechanism(saslContext), null);
                 case "default":
-                    return new DefaultAuthenticator(credentials, serverApi: null);
+                    return new DefaultAuthenticator(identity, evidence, [__serverId.EndPoint], null);
                 default:
                     throw new Exception("Invalid authenticator type.");
             }
         }
+
+        private SaslContext CreateSaslContext(string authenticatorType, MongoIdentity identity, MongoIdentityEvidence evidence)
+            => new()
+            {
+                Mechanism = authenticatorType,
+                Identity = identity,
+                IdentityEvidence = evidence,
+                MechanismProperties = null,
+                EndPoint = __serverId.EndPoint,
+                ClusterEndPoints = [__serverId.EndPoint]
+            };
 
         private ConnectionInitializer CreateSubject(bool withServerApi = false) =>
             new ConnectionInitializer(

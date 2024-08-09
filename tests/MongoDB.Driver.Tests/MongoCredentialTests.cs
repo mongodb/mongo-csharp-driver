@@ -14,7 +14,7 @@
 */
 
 using FluentAssertions;
-using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.Driver.Authentication.Oidc;
 using Moq;
 using Xunit;
 
