@@ -23,31 +23,13 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
 {
     public class ExplicitEncodingTests
     {
-        [Fact]
-        [ResetGuidModeAfterTest]
-        public void BsonBinaryData_constructor_with_a_Guid_and_no_representation_should_throw()
-        {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
-            var guid = new Guid("00112233445566778899aabbccddeeff");
-
-#pragma warning disable 618
-            var exception = Record.Exception(() => new BsonBinaryData(guid));
-#pragma warning disable 618
-
-            exception.Should().BeOfType<InvalidOperationException>();
-        }
-
         [Theory]
         [InlineData(GuidRepresentation.CSharpLegacy, BsonBinarySubType.UuidLegacy, "33221100554477668899aabbccddeeff")]
         [InlineData(GuidRepresentation.JavaLegacy, BsonBinarySubType.UuidLegacy, "7766554433221100ffeeddccbbaa9988")]
         [InlineData(GuidRepresentation.PythonLegacy, BsonBinarySubType.UuidLegacy, "00112233445566778899aabbccddeeff")]
         [InlineData(GuidRepresentation.Standard, BsonBinarySubType.UuidStandard, "00112233445566778899aabbccddeeff")]
-        [ResetGuidModeAfterTest]
         public void BsonBinaryData_constructor_with_a_Guid_and_a_representation_should_return_expected_result(GuidRepresentation guidRepresentation, BsonBinarySubType expectedSubType, string expectedBytes)
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var guid = new Guid("00112233445566778899aabbccddeeff");
 
             var result = new BsonBinaryData(guid, guidRepresentation);
@@ -57,11 +39,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void BsonBinaryData_constructor_with_a_Guid_and_representation_Unspecified_should_throw()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var guid = new Guid("00112233445566778899aabbccddeeff");
 
 #pragma warning disable 618

@@ -70,12 +70,6 @@ namespace MongoDB.Bson.IO
         protected override BsonReaderSettings CloneImplementation()
         {
             var clone = new JsonReaderSettings();
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone.GuidRepresentation = GuidRepresentation;
-            }
-#pragma warning restore 618
             return clone;
         }
     }

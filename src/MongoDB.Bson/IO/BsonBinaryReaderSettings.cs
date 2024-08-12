@@ -139,12 +139,6 @@ namespace MongoDB.Bson.IO
                 FixOldDateTimeMaxValueOnInput = _fixOldDateTimeMaxValueOnInput,
                 MaxDocumentSize = _maxDocumentSize
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone.GuidRepresentation = GuidRepresentation;
-            }
-#pragma warning restore 618
 
             return clone;
         }

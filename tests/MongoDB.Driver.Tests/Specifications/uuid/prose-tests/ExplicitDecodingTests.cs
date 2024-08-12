@@ -24,11 +24,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
     public class ExplicitDecodingTests
     {
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Explicit_decoding_with_csharp_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var bytes = BsonUtils.ParseHexString("33221100554477668899aabbccddeeff");
             var binaryData = new BsonBinaryData(bytes, BsonBinarySubType.UuidLegacy);
 
@@ -46,11 +43,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Explicit_decoding_with_java_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var bytes = BsonUtils.ParseHexString("7766554433221100ffeeddccbbaa9988");
             var binaryData = new BsonBinaryData(bytes, BsonBinarySubType.UuidLegacy);
 
@@ -68,11 +62,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Explicit_decoding_with_python_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var bytes = BsonUtils.ParseHexString("00112233445566778899aabbccddeeff");
             var binaryData = new BsonBinaryData(bytes, BsonBinarySubType.UuidLegacy);
 
@@ -90,11 +81,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Explicit_decoding_with_standard_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var guid = new Guid("00112233445566778899aabbccddeeff");
             var bytes = GuidConverter.ToBytes(guid, GuidRepresentation.Standard);
             var binaryData = new BsonBinaryData(bytes, BsonBinarySubType.UuidStandard);

@@ -41,7 +41,6 @@ namespace MongoDB.Bson
             { typeof(Decimal128), Conversion.Decimal128ToBsonDecimal128 },
             { typeof(double), Conversion.DoubleToBsonDouble },
             { typeof(float), Conversion.SingleToBsonDouble },
-            { typeof(Guid), Conversion.GuidToBsonBinary },
             { typeof(int), Conversion.Int32ToBsonInt32 },
             { typeof(long), Conversion.Int64ToBsonInt64 },
             { typeof(ObjectId), Conversion.ObjectIdToBsonObjectId },
@@ -107,7 +106,6 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(float), BsonType.Boolean), Conversion.SingleToBsonBoolean },
             { Mapping.FromTo(typeof(float), BsonType.Decimal128), Conversion.SingleToBsonDecimal128 },
             { Mapping.FromTo(typeof(float), BsonType.Double), Conversion.SingleToBsonDouble },
-            { Mapping.FromTo(typeof(Guid), BsonType.Binary), Conversion.GuidToBsonBinary },
             { Mapping.FromTo(typeof(int), BsonType.Boolean), Conversion.Int32ToBsonBoolean },
             { Mapping.FromTo(typeof(int), BsonType.Decimal128), Conversion.Int32ToBsonDecimal128 },
             { Mapping.FromTo(typeof(int), BsonType.Double), Conversion.Int32ToBsonDouble },
@@ -328,7 +326,7 @@ namespace MongoDB.Bson
                     {
                         return bsonBinaryData.Bytes;
                     }
-                    else if (bsonBinaryData.SubType == BsonBinarySubType.UuidLegacy || bsonBinaryData.SubType == BsonBinarySubType.UuidStandard)
+                    else if (bsonBinaryData.SubType == BsonBinarySubType.UuidStandard)
                     {
                         return bsonBinaryData.ToGuid();
                     }
@@ -558,9 +556,6 @@ namespace MongoDB.Bson
                 case Conversion.DoubleToBsonBoolean: var d = (double)value; return (BsonBoolean)(!(double.IsNaN(d) || d == 0.0));
                 case Conversion.DoubleToBsonDecimal128: return (BsonDecimal128)(Decimal128)(double)value;
                 case Conversion.DoubleToBsonDouble: return (BsonDouble)(double)value;
-#pragma warning disable 618
-                case Conversion.GuidToBsonBinary: return new BsonBinaryData((Guid)value);
-#pragma warning restore 618
                 case Conversion.Int16ToBsonBoolean: return (BsonBoolean)((short)value != 0);
                 case Conversion.Int16ToBsonDecimal128: return (BsonDecimal128)(Decimal128)(short)value;
                 case Conversion.Int16ToBsonDouble: return (BsonDouble)(double)(short)value;
@@ -653,7 +648,6 @@ namespace MongoDB.Bson
             DoubleToBsonBoolean,
             DoubleToBsonDecimal128,
             DoubleToBsonDouble,
-            GuidToBsonBinary,
             Int16ToBsonBoolean,
             Int16ToBsonDecimal128,
             Int16ToBsonDouble,

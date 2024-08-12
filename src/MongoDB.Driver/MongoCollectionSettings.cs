@@ -29,7 +29,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private Setting<bool> _assignIdOnInsert;
-        private Setting<GuidRepresentation> _guidRepresentation;
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
@@ -60,31 +59,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 _assignIdOnInsert.Value = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the representation used for Guids.
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoCollectionSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                return _guidRepresentation.Value;
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoCollectionSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                _guidRepresentation.Value = value;
             }
         }
 
@@ -186,7 +160,6 @@ namespace MongoDB.Driver
         {
             var clone = new MongoCollectionSettings();
             clone._assignIdOnInsert = _assignIdOnInsert.Clone();
-            clone._guidRepresentation = _guidRepresentation.Clone();
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
@@ -217,7 +190,6 @@ namespace MongoDB.Driver
                 {
                     return
                         _assignIdOnInsert.Value == rhs._assignIdOnInsert.Value &&
-                        _guidRepresentation.Value == rhs._guidRepresentation.Value &&
                         object.Equals(_readConcern.Value, rhs._readConcern.Value) &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
@@ -272,7 +244,6 @@ namespace MongoDB.Driver
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _assignIdOnInsert.Value.GetHashCode();
-            hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
             hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.Value.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.Value.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
@@ -294,7 +265,6 @@ namespace MongoDB.Driver
 
             var parts = new List<string>();
             parts.Add(string.Format("AssignIdOnInsert={0}", _assignIdOnInsert));
-            parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation));
             parts.Add(string.Format("ReadConcern={0}", _readConcern.Value));
             if (_readEncoding.HasBeenSet)
             {
@@ -316,12 +286,6 @@ namespace MongoDB.Driver
             {
                 AssignIdOnInsert = MongoDefaults.AssignIdOnInsert;
             }
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && !_guidRepresentation.HasBeenSet)
-            {
-                GuidRepresentation = databaseSettings.GuidRepresentation;
-            }
-#pragma warning restore 618
             if (!_readConcern.HasBeenSet)
             {
                 ReadConcern = databaseSettings.ReadConcern;

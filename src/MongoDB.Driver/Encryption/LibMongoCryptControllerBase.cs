@@ -67,13 +67,7 @@ namespace MongoDB.Driver.Encryption
         // protected methods
         protected void FeedResult(CryptContext context, BsonDocument document)
         {
-#pragma warning disable 618
             var writerSettings = new BsonBinaryWriterSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
             var documentBytes = document.ToBson(writerSettings: writerSettings);
             context.Feed(documentBytes);
             context.MarkDone();
@@ -81,13 +75,7 @@ namespace MongoDB.Driver.Encryption
 
         protected void FeedResults(CryptContext context, IEnumerable<BsonDocument> documents)
         {
-#pragma warning disable 618
             var writerSettings = new BsonBinaryWriterSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
             foreach (var document in documents)
             {
                 var documentBytes = document.ToBson(writerSettings: writerSettings);
@@ -171,12 +159,6 @@ namespace MongoDB.Driver.Encryption
             if (value != null)
             {
                 var writerSettings = BsonBinaryWriterSettings.Defaults.Clone();
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-                }
-#pragma warning restore 618
                 return value.ToBson(writerSettings: writerSettings, estimatedBsonSize: estimatedBsonSize);
             }
             return null;
@@ -192,12 +174,6 @@ namespace MongoDB.Driver.Encryption
                 ReadConcern = ReadConcern.Majority,
                 WriteConcern = WriteConcern.WMajority
             };
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                collectionSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
             return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName, collectionSettings);
         }
 

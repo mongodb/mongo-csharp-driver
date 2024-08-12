@@ -50,7 +50,6 @@ namespace MongoDB.Driver
         private string _databaseName;
         private bool? _directConnection;
         private bool? _fsync;
-        private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
@@ -104,12 +103,6 @@ namespace MongoDB.Driver
             _databaseName = null;
             _directConnection = null;
             _fsync = null;
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                _guidRepresentation = MongoDefaults.GuidRepresentation;
-            }
-#pragma warning restore 618
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -340,30 +333,6 @@ namespace MongoDB.Driver
             set
             {
                 _fsync = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the representation to use for Guids.
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoUrlBuilder.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                return _guidRepresentation;
-            }
-            set
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoUrlBuilder.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                _guidRepresentation = value;
             }
         }
 
@@ -1079,13 +1048,6 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("waitQueueTimeout={0}&", FormatTimeSpan(WaitQueueTimeout));
             }
-#pragma warning disable 618
-            var defaultGuidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
-            if (_guidRepresentation != defaultGuidRepresentation)
-            {
-                query.AppendFormat("uuidRepresentation={0}&", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
-            }
-#pragma warning restore 618
             if (!_retryReads.GetValueOrDefault(true))
             {
                 query.AppendFormat("retryReads=false&");
@@ -1159,19 +1121,6 @@ namespace MongoDB.Driver
                 _directConnection = connectionString.DirectConnection;
             }
             _fsync = connectionString.FSync;
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
-            }
-            else
-            {
-                if (connectionString.UuidRepresentation.HasValue)
-                {
-                    throw new InvalidOperationException("ConnectionString.UuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-            }
-#pragma warning restore 618
             _heartbeatInterval = connectionString.HeartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);

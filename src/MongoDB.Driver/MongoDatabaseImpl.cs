@@ -681,7 +681,7 @@ namespace MongoDB.Driver
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
             var effectiveEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap);
-            var messageEncoderSettings = GetMessageEncoderSettings(withGuidRepresentationUnspecified: effectiveEncryptedFields != null);
+            var messageEncoderSettings = GetMessageEncoderSettings();
 
             return CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(
                 collectionNamespace,
@@ -746,7 +746,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            var messageEncoderSettings = GetMessageEncoderSettings(withGuidRepresentationUnspecified: effectiveEncryptedFields != null);
+            var messageEncoderSettings = GetMessageEncoderSettings();
             return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
                 collectionNamespace,
                 effectiveEncryptedFields,
@@ -779,7 +779,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            var messageEncoderSettings = GetMessageEncoderSettings(withGuidRepresentationUnspecified: effectiveEncryptedFields != null);
+            var messageEncoderSettings = GetMessageEncoderSettings();
             return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
                 collectionNamespace,
                 effectiveEncryptedFields,
@@ -917,19 +917,13 @@ namespace MongoDB.Driver
             }
         }
 
-        private MessageEncoderSettings GetMessageEncoderSettings(bool withGuidRepresentationUnspecified = false)
+        private MessageEncoderSettings GetMessageEncoderSettings()
         {
             var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, withGuidRepresentationUnspecified ? GuidRepresentation.Unspecified : _settings.GuidRepresentation);
-            }
-#pragma warning restore 618
 
             if (_client is MongoClient mongoClient)
             {

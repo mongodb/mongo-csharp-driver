@@ -482,35 +482,6 @@ namespace MongoDB.Bson.Tests
             Assert.Null(idGenerator);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestGetDocumentIdWhenIdIsGuid(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
-        {
-            mode.Set();
-
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
-            {
-                var document = new BsonDocument("_id", Guid.Empty);
-                object id;
-                Type nominalType;
-                IIdGenerator idGenerator;
-                Assert.True(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
-                Assert.IsType<BsonBinaryData>(id);
-                Assert.Equal(new BsonBinaryData(Guid.Empty), id);
-                Assert.Equal(typeof(BsonValue), nominalType);
-                Assert.IsType<BsonBinaryDataGuidGenerator>(idGenerator);
-            }
-            else
-            {
-                var exception = Record.Exception(() => new BsonDocument("_id", Guid.Empty));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-#pragma warning restore 618
-        }
-
         [Fact]
         public void TestGetDocumentIdWhenIdIsMissing()
         {
@@ -710,39 +681,6 @@ namespace MongoDB.Bson.Tests
             Assert.Throws<InvalidCastException>(() => { var v = (double?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDouble; });
 #pragma warning restore
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestNullableGuid(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
-        {
-            mode.Set();
-
-#pragma warning disable 618, 1062
-            var guid = Guid.NewGuid();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
-            {
-                var document = new BsonDocument { { "v", guid }, { "n", BsonNull.Value }, { "s", "" } };
-                Assert.Equal(guid, (Guid?)document["v"]);
-                Assert.Equal(null, (Guid?)document["n"]);
-                Assert.Equal(null, (Guid?)document["x", null]);
-                Assert.Equal(null, (Guid?)document["x", (Guid?)null]);
-                Assert.Equal(null, (Guid?)document["x", BsonNull.Value]);
-                Assert.Equal(guid, document["v"].AsNullableGuid);
-                Assert.Equal(null, document["n"].AsNullableGuid);
-                Assert.Equal(null, document["x", (Guid?)null].AsNullableGuid);
-                Assert.Equal(null, document["x", BsonNull.Value].AsNullableGuid);
-                Assert.Throws<InvalidCastException>(() => { var v = (Guid?)document["s"]; });
-                Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableGuid; });
-            }
-            else
-            {
-                var exception = Record.Exception(() => new BsonDocument { { "v", guid }, { "n", BsonNull.Value }, { "s", "" } });
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-#pragma warning restore 618, 1062
         }
 
         [Fact]
@@ -1162,25 +1100,11 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(1.0, dictionary["x"]);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestToDictionaryOneGuidLegacy(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void TestToDictionaryOneGuidLegacy()
         {
-            mode.Set();
-
-#pragma warning disable 618
             var guid = Guid.NewGuid();
             var document = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                var dictionary = document.ToDictionary();
-                Assert.Equal(1, dictionary.Count);
-                Assert.IsType<Guid>(dictionary["x"]);
-                Assert.Equal(guid, dictionary["x"]);
-            }
-#pragma warning restore 618
         }
 
         [Fact]
@@ -1354,25 +1278,11 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(1.0, hashtable["x"]);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestToHashtableOneGuidLegacy(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void TestToHashtableOneGuidLegacy()
         {
-            mode.Set();
-
-#pragma warning disable 618
             var guid = Guid.NewGuid();
             var hashtable = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                var dictionary = hashtable.ToHashtable();
-                Assert.Equal(1, dictionary.Count);
-                Assert.IsType<Guid>(dictionary["x"]);
-                Assert.Equal(guid, dictionary["x"]);
-            }
-#pragma warning restore 618
         }
 
         [Fact]

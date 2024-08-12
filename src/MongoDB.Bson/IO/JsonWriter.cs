@@ -16,7 +16,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -120,17 +119,7 @@ namespace MongoDB.Bson.IO
 
             var subType = binaryData.SubType;
             var bytes = binaryData.Bytes;
-#pragma warning disable 618
-            GuidRepresentation guidRepresentation;
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                guidRepresentation = binaryData.GuidRepresentation;
-            }
-            else
-            {
-                guidRepresentation = subType == BsonBinarySubType.UuidStandard ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
+            var guidRepresentation = subType == BsonBinarySubType.UuidStandard ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
 
             WriteNameHelper(Name);
             switch (Settings.OutputMode)

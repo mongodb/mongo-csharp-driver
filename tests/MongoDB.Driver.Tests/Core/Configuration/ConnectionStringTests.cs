@@ -394,7 +394,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Tls.Should().Be(null);
             subject.TlsInsecure.Should().Be(null);
             subject.Username.Should().BeNull();
-            subject.UuidRepresentation.Should().BeNull();
 #pragma warning disable 618
             subject.WaitQueueMultiple.Should().Be(null);
             subject.WaitQueueSize.Should().Be(null);
@@ -439,7 +438,6 @@ namespace MongoDB.Driver.Core.Configuration
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
-                "uuidRepresentation=standard;" +
                 "waitQueueMultiple=10;" +
                 "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
@@ -490,7 +488,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Tls.Should().BeFalse();
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
-            subject.UuidRepresentation.Should().Be(GuidRepresentation.Standard);
 #pragma warning disable 618
             subject.WaitQueueMultiple.Should().Be(10);
             subject.WaitQueueSize.Should().Be(30);
@@ -1140,22 +1137,6 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.Username.Should().Be(username);
-        }
-
-        [Theory]
-        [InlineData("mongodb://localhost?uuidRepresentation=standard", GuidRepresentation.Standard)]
-        [InlineData("mongodb://localhost?guids=standard", GuidRepresentation.Standard)]
-        [InlineData("mongodb://localhost?uuidRepresentation=csharpLegacy", GuidRepresentation.CSharpLegacy)]
-        [InlineData("mongodb://localhost?guids=csharpLegacy", GuidRepresentation.CSharpLegacy)]
-        [InlineData("mongodb://localhost?uuidRepresentation=javaLegacy", GuidRepresentation.JavaLegacy)]
-        [InlineData("mongodb://localhost?guids=javaLegacy", GuidRepresentation.JavaLegacy)]
-        [InlineData("mongodb://localhost?uuidRepresentation=pythonLegacy", GuidRepresentation.PythonLegacy)]
-        [InlineData("mongodb://localhost?guids=pythonLegacy", GuidRepresentation.PythonLegacy)]
-        public void When_uuidRepresentation_is_specified(string connectionString, GuidRepresentation representation)
-        {
-            var subject = new ConnectionString(connectionString);
-
-            subject.UuidRepresentation.Should().Be(representation);
         }
 
         [Theory]

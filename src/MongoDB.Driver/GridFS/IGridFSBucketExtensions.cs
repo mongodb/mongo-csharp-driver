@@ -43,12 +43,6 @@ namespace MongoDB.Driver.GridFS
                 { MessageEncoderSettingsName.ReadEncoding,  databaseSettings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding,  databaseSettings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, databaseSettings.GuidRepresentation);
-            }
-#pragma warning restore 618
             return messageEncoderSettings;
         }
     }

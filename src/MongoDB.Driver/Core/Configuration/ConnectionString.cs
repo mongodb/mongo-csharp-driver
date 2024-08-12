@@ -108,7 +108,6 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
         private string _username;
-        private GuidRepresentation? _uuidRepresentation;
         private double? _waitQueueMultiple;
         private int? _waitQueueSize;
         private TimeSpan? _waitQueueTimeout;
@@ -530,14 +529,6 @@ namespace MongoDB.Driver.Core.Configuration
         public string Username
         {
             get { return _username; }
-        }
-
-        /// <summary>
-        /// Gets the UUID representation.
-        /// </summary>
-        public GuidRepresentation? UuidRepresentation
-        {
-            get { return _uuidRepresentation; }
         }
 
         /// <summary>
@@ -1174,10 +1165,6 @@ namespace MongoDB.Driver.Core.Configuration
                 case "tlsinsecure":
                     var tlsInsecureValue = ParseBoolean(name, value);
                     _tlsInsecure = EnsureTlsInsecureIsValid(tlsInsecureValue);
-                    break;
-                case "guids":
-                case "uuidrepresentation":
-                    _uuidRepresentation = ParseEnum<GuidRepresentation>(name, value);
                     break;
                 case "w":
                     _w = WriteConcern.WValue.Parse(value);

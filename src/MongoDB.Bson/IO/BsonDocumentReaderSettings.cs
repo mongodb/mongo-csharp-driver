@@ -34,16 +34,6 @@ namespace MongoDB.Bson.IO
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the BsonDocumentReaderSettings class.
-        /// </summary>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        [Obsolete("Configure serializers instead.")]
-        public BsonDocumentReaderSettings(GuidRepresentation guidRepresentation)
-            : base(guidRepresentation)
-        {
-        }
-
         // public static properties
         /// <summary>
         /// Gets or sets the default settings for a BsonDocumentReader.
@@ -79,12 +69,6 @@ namespace MongoDB.Bson.IO
         protected override BsonReaderSettings CloneImplementation()
         {
             var clone = new BsonDocumentReaderSettings();
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone.GuidRepresentation = GuidRepresentation;
-            }
-#pragma warning restore 618
             return clone;
         }
     }

@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     public class MongoDatabaseSettings
     {
         // private fields
-        private Setting<GuidRepresentation> _guidRepresentation;
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
@@ -46,32 +45,6 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoDatabaseSettings()
         {
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets or sets the representation to use for Guids.
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoDatabaseSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                return _guidRepresentation.Value;
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoDatabaseSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                _guidRepresentation.Value = value;
-            }
         }
 
         /// <summary>
@@ -171,7 +144,6 @@ namespace MongoDB.Driver
         public MongoDatabaseSettings Clone()
         {
             var clone = new MongoDatabaseSettings();
-            clone._guidRepresentation = _guidRepresentation.Clone();
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
@@ -201,7 +173,6 @@ namespace MongoDB.Driver
                 else
                 {
                     return
-                        _guidRepresentation.Value == rhs._guidRepresentation.Value &&
                         _readConcern.Value == rhs._readConcern.Value &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         object.Equals(_readPreference.Value, rhs._readPreference.Value) &&
@@ -255,7 +226,6 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
             hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
@@ -276,7 +246,6 @@ namespace MongoDB.Driver
             }
 
             var parts = new List<string>();
-            parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
             parts.Add(string.Format("ReadConcern={0}", _readConcern.Value));
             if (_readEncoding.HasBeenSet)
             {
@@ -294,12 +263,6 @@ namespace MongoDB.Driver
         // internal methods
         internal void ApplyDefaultValues(IInheritableMongoClientSettings clientSettings)
         {
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && !_guidRepresentation.HasBeenSet)
-            {
-                GuidRepresentation = clientSettings.GuidRepresentation;
-            }
-#pragma warning restore 618
             if (!_readConcern.HasBeenSet)
             {
                 ReadConcern = clientSettings.ReadConcern;

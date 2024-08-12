@@ -26,11 +26,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
     public class ImplicitEncodingTests
     {
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Implicit_encoding_with_csharp_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var collection = GetCollection<ClassWithGuidIdUsingCSharpLegacyRepresentation>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
             var document = new ClassWithGuidIdUsingCSharpLegacyRepresentation { Id = guid };
@@ -48,11 +45,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Implicit_encoding_with_java_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var collection = GetCollection<ClassWithGuidIdUsingJavaLegacyRepresentation>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
             var document = new ClassWithGuidIdUsingJavaLegacyRepresentation { Id = guid };
@@ -70,11 +64,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Implicit_encoding_with_pyton_legacy_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var collection = GetCollection<ClassWithGuidIdUsingPythonLegacyRepresentation>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
             var document = new ClassWithGuidIdUsingPythonLegacyRepresentation { Id = guid };
@@ -92,11 +83,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Implicit_encoding_with_standard_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var collection = GetCollection<ClassWithGuidIdUsingStandardRepresentation>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
             var document = new ClassWithGuidIdUsingStandardRepresentation { Id = guid };
@@ -114,11 +102,8 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         }
 
         [Fact]
-        [ResetGuidModeAfterTest]
         public void Implicit_encoding_with_unspecified_representation_should_work_as_expected()
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var collection = GetCollection<ClassWithGuidIdUsingUnspecifiedRepresentation>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
             var document = new ClassWithGuidIdUsingUnspecifiedRepresentation { Id = guid };

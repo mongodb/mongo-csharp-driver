@@ -189,12 +189,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private void AddInitialData(IMongoClient client, BsonArray initialData, UnifiedEntityMap entityMap)
         {
             var mongoCollectionSettings = new MongoCollectionSettings();
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                mongoCollectionSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
 
             var writeConcern = WriteConcern.WMajority;
             if (DriverTestConfiguration.IsReplicaSet(client))

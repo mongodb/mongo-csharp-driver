@@ -21,7 +21,6 @@ namespace MongoDB.Driver
 {
     internal interface IInheritableMongoClientSettings
     {
-        GuidRepresentation GuidRepresentation { get; }
         ReadConcern ReadConcern { get; }
         UTF8Encoding ReadEncoding { get; }
         ReadPreference ReadPreference { get; }

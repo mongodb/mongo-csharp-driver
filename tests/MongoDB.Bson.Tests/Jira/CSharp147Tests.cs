@@ -36,28 +36,13 @@ namespace MongoDB.Bson.Tests.Jira.CSharp147
             public int A { get; set; }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void Test(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void Test()
         {
-            mode.Set();
-
-#pragma warning disable 618
             var p = new Parent { Child = new Child() };
             p.Child.A = 1;
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
-            {
-                var json = p.ToJson(new JsonWriterSettings());
-                BsonSerializer.Deserialize<Parent>(json); // throws Unexpected element exception
-            }
-            else
-            {
-                var exception = Record.Exception(() => p.ToJson(new JsonWriterSettings()));
-                exception.Should().BeOfType<BsonSerializationException>();
-            }
-#pragma warning restore 618
+            var exception = Record.Exception(() => p.ToJson(new JsonWriterSettings()));
+            exception.Should().BeOfType<BsonSerializationException>();
         }
     }
 }

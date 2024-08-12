@@ -93,12 +93,6 @@ namespace MongoDB.Driver.Tests
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverMonitoringMode=Stream;serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                connectionString += ";uuidRepresentation=pythonLegacy";
-            }
-#pragma warning restore 618
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var settings = MongoClientSettings.FromUrl(url);
@@ -248,10 +242,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             Assert.Null(settings.Credential);
             Assert.Equal(null, settings.DirectConnection);
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
-            }
 #pragma warning restore 618
             Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
@@ -447,16 +437,6 @@ namespace MongoDB.Driver.Tests
             clone = settings.Clone();
             clone.LibraryInfo = new LibraryInfo("name", "version");
             Assert.False(clone.Equals(settings));
-
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone = settings.Clone();
-                var unequalGuidRepresentation = clone.GuidRepresentation != GuidRepresentation.PythonLegacy ? GuidRepresentation.PythonLegacy : GuidRepresentation.CSharpLegacy;
-                clone.GuidRepresentation = unequalGuidRepresentation;
-                Assert.False(clone.Equals(settings));
-            }
-#pragma warning restore 618
 
             clone = settings.Clone();
             clone.HeartbeatInterval = new TimeSpan(1, 2, 3);
@@ -686,12 +666,6 @@ namespace MongoDB.Driver.Tests
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                connectionString += ";uuidRepresentation=pythonLegacy";
-            }
-#pragma warning restore 618
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
 
@@ -712,12 +686,6 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(true, settings.Credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
             Assert.Equal(url.AuthenticationSource, settings.Credential.Source);
             Assert.Equal(new PasswordEvidence(url.Password), settings.Credential.Evidence);
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
-            }
-#pragma warning restore 618
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
@@ -877,35 +845,6 @@ namespace MongoDB.Driver.Tests
 
             var secondFrozenCopy = frozenCopy.FrozenCopy();
             Assert.Same(frozenCopy, secondFrozenCopy);
-        }
-
-        [Fact]
-        public void TestGuidRepresentation()
-        {
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                var settings = new MongoClientSettings();
-                Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
-
-                var guidRepresentation = GuidRepresentation.PythonLegacy;
-                settings.GuidRepresentation = guidRepresentation;
-                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
-
-                settings.Freeze();
-                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
-                Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
-            }
-            else
-            {
-                var settings = new MongoClientSettings();
-                var exception = Record.Exception(() => settings.GuidRepresentation);
-                exception.Should().BeOfType<InvalidOperationException>();
-
-                exception = Record.Exception(() => { settings.GuidRepresentation = GuidRepresentation.CSharpLegacy; });
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-#pragma warning restore 618
         }
 
         [Fact]
@@ -1499,12 +1438,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                subject.GuidRepresentation = GuidRepresentation.Standard;
-            }
-#pragma warning restore 618
 
             var result = subject.ToClusterKey();
 

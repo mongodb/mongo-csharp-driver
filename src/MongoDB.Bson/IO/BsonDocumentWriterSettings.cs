@@ -34,16 +34,6 @@ namespace MongoDB.Bson.IO
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the BsonDocumentWriterSettings class.
-        /// </summary>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        [Obsolete("Configure serializers instead.")]
-        public BsonDocumentWriterSettings(GuidRepresentation guidRepresentation)
-            : base(guidRepresentation)
-        {
-        }
-
         // public static properties
         /// <summary>
         /// Gets or sets the default BsonDocumentWriter settings.
@@ -82,12 +72,6 @@ namespace MongoDB.Bson.IO
             {
                 MaxSerializationDepth = MaxSerializationDepth
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone.GuidRepresentation = GuidRepresentation;
-            }
-#pragma warning restore 618
             return clone;
         }
     }

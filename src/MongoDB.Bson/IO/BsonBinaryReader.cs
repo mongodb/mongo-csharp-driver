@@ -153,23 +153,7 @@ namespace MongoDB.Bson.IO
             }
 
             var bytes = _bsonStream.ReadBytes(size);
-
-            BsonBinaryData binaryData;
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                GuidRepresentation guidRepresentation;
-                switch (subType)
-                {
-                    case BsonBinarySubType.UuidLegacy: guidRepresentation = Settings.GuidRepresentation; break;
-                    case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
-                    default: guidRepresentation = GuidRepresentation.Unspecified; break;
-                }
-                binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
-            }
-            else
-            {
-                binaryData = new BsonBinaryData(bytes, subType);
-            }
+            var binaryData = new BsonBinaryData(bytes, subType);
 
             State = GetNextState();
             return binaryData;

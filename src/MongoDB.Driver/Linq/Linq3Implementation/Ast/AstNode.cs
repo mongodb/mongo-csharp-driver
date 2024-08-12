@@ -30,12 +30,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         public override string ToString()
         {
             var jsonWriterSettings = new JsonWriterSettings();
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                jsonWriterSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
             return Render().ToJson(jsonWriterSettings);
         }
     }

@@ -80,10 +80,6 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
                 FixOldBinarySubTypeOnInput = false,
                 FixOldDateTimeMaxValueOnInput = false
             };
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                readerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
 #pragma warning restore 618
             using (var stream = new MemoryStream(bytes))
             using (var reader = new BsonBinaryReader(stream, readerSettings))
@@ -105,10 +101,6 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
             {
                 FixOldBinarySubTypeOnOutput = false,
             };
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
 #pragma warning restore 618
             using (var stream = new MemoryStream())
             using (var writer = new BsonBinaryWriter(stream, writerSettings))
@@ -126,10 +118,6 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
             {
                 OutputMode = JsonOutputMode.CanonicalExtendedJson,
             };
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
 #pragma warning restore 618
             var json = document.ToJson(writerSettings);
             return json.Replace(" ", "");
@@ -142,10 +130,6 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
             {
                 OutputMode = JsonOutputMode.RelaxedExtendedJson,
             };
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
 #pragma warning restore 618
             var json = document.ToJson(writerSettings);
             return json.Replace(" ", "");

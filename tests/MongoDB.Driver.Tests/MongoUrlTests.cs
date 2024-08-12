@@ -201,12 +201,6 @@ namespace MongoDB.Driver.Tests
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
                 WTimeout = TimeSpan.FromSeconds(9)
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                built.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            }
-#pragma warning restore 618
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
                 "authMechanism=GSSAPI",
@@ -243,13 +237,6 @@ namespace MongoDB.Driver.Tests
                 "retryReads=false",
                 "retryWrites=true"
             });
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                var index = connectionString.IndexOf("retryReads=false&");
-                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy&");
-            }
-#pragma warning restore 618
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
@@ -269,12 +256,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.Equal("database", url.DatabaseName);
                 Assert.Equal(true, url.FSync);
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    Assert.Equal(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
-                }
-#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(11), url.HeartbeatInterval);
                 Assert.Equal(TimeSpan.FromSeconds(12), url.HeartbeatTimeout);
                 Assert.Equal(true, url.IPv6);
@@ -315,16 +296,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
 
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
-                    if (url.GuidRepresentation == defaultGuidRepresentation)
-                    {
-                        connectionString = connectionString.Replace("uuidRepresentation=pythonLegacy&", "");
-                    }
-                }
-#pragma warning restore 618
                 Assert.Equal(connectionString, url.ToString());
             }
         }

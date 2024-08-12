@@ -184,28 +184,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     goto default;
 
                 case BsonType.Binary:
-#pragma warning disable 618
-                    if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && _guidRepresentation == GuidRepresentation.Unspecified)
+                    var binaryDataBookmark = bsonReader.GetBookmark();
+                    var binaryData = bsonReader.ReadBinaryData();
+                    var subType = binaryData.SubType;
+                    if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                     {
-                        var binaryData = bsonReader.ReadBinaryData();
-                        var subType = binaryData.SubType;
-                        if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
-                        {
-                            return binaryData.ToGuid();
-                        }
+                        bsonReader.ReturnToBookmark(binaryDataBookmark);
+                        return _guidSerializer.Deserialize(context);
                     }
-                    else
-                    {
-                        var binaryDataBookmark = bsonReader.GetBookmark();
-                        var binaryData = bsonReader.ReadBinaryDataWithGuidRepresentationUnspecified();
-                        var subType = binaryData.SubType;
-                        if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
-                        {
-                            bsonReader.ReturnToBookmark(binaryDataBookmark);
-                            return _guidSerializer.Deserialize(context);
-                        }
-                    }
-#pragma warning restore 618
                     goto default;
 
                 case BsonType.Boolean:
@@ -331,18 +317,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 if (actualType == typeof(Guid))
                                 {
                                     var guid = (Guid)value;
-#pragma warning disable 618
-                                    if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && _guidRepresentation == GuidRepresentation.Unspecified)
-                                    {
-                                        var guidRepresentation = bsonWriter.Settings.GuidRepresentation;
-                                        var binaryData = new BsonBinaryData(guid, guidRepresentation);
-                                        bsonWriter.WriteBinaryData(binaryData);
-                                    }
-                                    else
-                                    {
-                                        _guidSerializer.Serialize(context, args, guid);
-                                    }
-#pragma warning restore 618
+                                    _guidSerializer.Serialize(context, args, guid);
                                     return;
                                 }
                                 if (actualType == typeof(ObjectId))

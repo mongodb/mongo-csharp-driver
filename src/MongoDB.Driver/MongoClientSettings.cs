@@ -48,7 +48,6 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredential _credential;
         private bool? _directConnection;
-        private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
@@ -104,12 +103,6 @@ namespace MongoDB.Driver
 #pragma warning restore CS0618 // Type or member is obsolete
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _directConnection = null;
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                _guidRepresentation = MongoDefaults.GuidRepresentation;
-            }
-#pragma warning restore 618
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -316,31 +309,6 @@ namespace MongoDB.Driver
                 _directConnection = value;
                 _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection; // _connectionMode is always Automatic here
 #pragma warning restore CS0618 // Type or member is obsolete
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the representation to use for Guids.
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoClientSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationModes is V2.");
-                }
-                return _guidRepresentation;
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoClientSettings.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationModes is V2.");
-                }
-                _guidRepresentation = value;
             }
         }
 
@@ -957,12 +925,6 @@ namespace MongoDB.Driver
             {
                 clientSettings.DirectConnection = url.DirectConnection;
             }
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clientSettings.GuidRepresentation = url.GuidRepresentation;
-            }
-#pragma warning restore 618
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
@@ -1020,7 +982,6 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credential = _credential;
             clone._directConnection = _directConnection;
-            clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
@@ -1091,7 +1052,6 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credential == rhs._credential &&
                 _directConnection.Equals(rhs._directConnection) &&
-                _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
@@ -1180,7 +1140,6 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credential)
                 .Hash(_directConnection)
-                .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
@@ -1250,7 +1209,6 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
             }
-            sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);

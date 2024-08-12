@@ -44,12 +44,6 @@ namespace MongoDB.Driver.Core.Operations
             if (messageEncoderSettings != null)
             {
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    readerSettings.GuidRepresentation = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
-                }
-#pragma warning restore 618
             };
 
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))

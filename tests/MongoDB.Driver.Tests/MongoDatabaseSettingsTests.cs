@@ -32,19 +32,7 @@ namespace MongoDB.Driver.Tests
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                settings.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            }
-#pragma warning restore 618
 
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                Assert.Equal(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
-            }
-#pragma warning restore 618
             Assert.Equal(ReadConcern.Majority, settings.ReadConcern);
             Assert.Same(ReadPreference.Primary, settings.ReadPreference);
             Assert.Same(WriteConcern.Acknowledged, settings.WriteConcern);
@@ -60,12 +48,6 @@ namespace MongoDB.Driver.Tests
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.W2
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                settings.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            }
-#pragma warning restore 618
             var clone = settings.Clone();
             Assert.True(clone.Equals(settings));
         }
@@ -74,12 +56,6 @@ namespace MongoDB.Driver.Tests
         public void TestConstructor()
         {
             var settings = new MongoDatabaseSettings();
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                Assert.Equal(GuidRepresentation.Unspecified, settings.GuidRepresentation);
-            }
-#pragma warning restore 618
             Assert.Equal(null, settings.ReadConcern);
             Assert.Equal(null, settings.ReadPreference);
             Assert.Equal(null, settings.WriteConcern);
@@ -95,15 +71,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             clone.Freeze();
             Assert.True(clone.Equals(settings));
-
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone = settings.Clone();
-                clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
-                Assert.False(clone.Equals(settings));
-            }
-#pragma warning restore 618
 
             clone = settings.Clone();
             clone.ReadConcern = ReadConcern.Majority;
@@ -149,34 +116,6 @@ namespace MongoDB.Driver.Tests
             var secondFrozenCopy = frozenCopy.FrozenCopy();
             Assert.True(secondFrozenCopy.IsFrozen);
             Assert.Same(frozenCopy, secondFrozenCopy);
-        }
-
-        [Fact]
-        public void TestGuidRepresentation()
-        {
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                var settings = new MongoDatabaseSettings();
-                Assert.Equal(GuidRepresentation.Unspecified, settings.GuidRepresentation);
-
-                var guidRepresentation = GuidRepresentation.PythonLegacy;
-                settings.GuidRepresentation = guidRepresentation;
-                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
-
-                settings.Freeze();
-                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
-                Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
-            }
-            else
-            {
-                var settings = new MongoDatabaseSettings();
-                var exception = Record.Exception(() => settings.GuidRepresentation);
-                exception.Should().BeOfType<InvalidOperationException>();
-                exception = Record.Exception(() => { settings.GuidRepresentation = GuidRepresentation.CSharpLegacy; });
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-#pragma warning restore 618
         }
 
         [Fact]

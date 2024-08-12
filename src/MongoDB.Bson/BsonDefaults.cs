@@ -29,26 +29,8 @@ namespace MongoDB.Bson
         private static IBsonSerializer __dynamicArraySerializer;
         private static bool __dynamicDocumentSerializerWasSet;
         private static IBsonSerializer __dynamicDocumentSerializer;
-        private static GuidRepresentation __guidRepresentation = GuidRepresentation.CSharpLegacy;
-        private static GuidRepresentationMode __guidRepresentationMode = GuidRepresentationMode.V2;
         private static int __maxDocumentSize = int.MaxValue;
         private static int __maxSerializationDepth = 100;
-
-        // static constructor
-        static BsonDefaults()
-        {
-            var testWithDefaultGuidRepresentation = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION");
-            if (testWithDefaultGuidRepresentation != null)
-            {
-                var _ = Enum.TryParse(testWithDefaultGuidRepresentation, out __guidRepresentation); // ignore errors
-            }
-
-            var testWithDefaultGuidRepresentationMode = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE");
-            if (testWithDefaultGuidRepresentationMode != null)
-            {
-                var _ = Enum.TryParse(testWithDefaultGuidRepresentationMode, out __guidRepresentationMode); // ignore errors
-            }
-        }
 
         // public static properties
         /// <summary>
@@ -88,51 +70,6 @@ namespace MongoDB.Bson
             {
                 __dynamicDocumentSerializerWasSet = true;
                 __dynamicDocumentSerializer = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the default representation to be used in serialization of
-        /// Guids to the database.
-        /// <seealso cref="MongoDB.Bson.GuidRepresentation"/>
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public static GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("BsonDefaults.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                return __guidRepresentation;
-            }
-            set
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("BsonDefaults.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                __guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the default representation to be used in serialization of
-        /// Guids to the database.
-        /// <seealso cref="MongoDB.Bson.GuidRepresentation"/>
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public static GuidRepresentationMode GuidRepresentationMode
-        {
-            get { return __guidRepresentationMode; }
-            set
-            {
-                __guidRepresentationMode = value;
-                if (value == GuidRepresentationMode.V3)
-                {
-                    __guidRepresentation = GuidRepresentation.Unspecified;
-                }
             }
         }
 

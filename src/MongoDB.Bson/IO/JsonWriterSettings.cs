@@ -169,12 +169,6 @@ namespace MongoDB.Bson.IO
                 OutputMode = _outputMode,
                 ShellVersion = _shellVersion
             };
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                clone.GuidRepresentation = GuidRepresentation;
-            }
-#pragma warning restore
             return clone;
         }
     }

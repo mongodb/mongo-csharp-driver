@@ -243,23 +243,14 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
         public void ReadBinaryData_subtype_3_should_use_GuidRepresentation_from_settings(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
             [Values(
                 GuidRepresentation.CSharpLegacy,
                 GuidRepresentation.JavaLegacy,
                 GuidRepresentation.PythonLegacy,
                 GuidRepresentation.Unspecified)] GuidRepresentation guidRepresentation)
         {
-            mode.Set();
-
-#pragma warning disable 618
             var settings = new BsonBinaryReaderSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                settings.GuidRepresentation = guidRepresentation;
-            }
             var bytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             using (var stream = new MemoryStream(bytes))
             using (var reader = new BsonBinaryReader(stream, settings))
@@ -275,21 +266,14 @@ namespace MongoDB.Bson.Tests.IO
                 type.Should().Be(BsonType.Binary);
                 binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
                 binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    binaryData.GuidRepresentation.Should().Be(guidRepresentation);
-                }
                 endOfDocument.Should().Be(BsonType.EndOfDocument);
                 stream.Position.Should().Be(stream.Length);
             }
-#pragma warning restore 618
         }
 
         [Theory]
         [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
         public void ReadBinaryData_subtype_4_should_use_GuidRepresentation_Standard(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
             [Values(
                 GuidRepresentation.CSharpLegacy,
                 GuidRepresentation.JavaLegacy,
@@ -297,14 +281,7 @@ namespace MongoDB.Bson.Tests.IO
                 GuidRepresentation.Standard,
                 GuidRepresentation.Unspecified)] GuidRepresentation guidRepresentation)
         {
-            mode.Set();
-
-#pragma warning disable 618
             var settings = new BsonBinaryReaderSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                settings.GuidRepresentation = guidRepresentation;
-            }
             var bytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             using (var stream = new MemoryStream(bytes))
             using (var reader = new BsonBinaryReader(stream, settings))
@@ -320,14 +297,9 @@ namespace MongoDB.Bson.Tests.IO
                 type.Should().Be(BsonType.Binary);
                 binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
                 binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    binaryData.GuidRepresentation.Should().Be(GuidRepresentation.Standard);
-                }
                 endOfDocument.Should().Be(BsonType.EndOfDocument);
                 stream.Position.Should().Be(stream.Length);
             }
-#pragma warning restore 618
         }
 
         // private methods

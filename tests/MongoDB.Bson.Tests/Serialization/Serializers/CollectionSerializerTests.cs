@@ -213,29 +213,13 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestMixedPrimitiveTypes(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void TestMixedPrimitiveTypes()
         {
-            mode.Set();
-
-#pragma warning disable 618
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var isoDate = string.Format("ISODate(\"{0}\")", dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
             var guid = Guid.Empty;
             string expectedGuidJson = null;
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                switch (BsonDefaults.GuidRepresentation)
-                {
-                    case GuidRepresentation.CSharpLegacy: expectedGuidJson = "CSUUID('00000000-0000-0000-0000-000000000000')"; break;
-                    case GuidRepresentation.JavaLegacy: expectedGuidJson = "JUUID('00000000-0000-0000-0000-000000000000')"; break;
-                    case GuidRepresentation.PythonLegacy: expectedGuidJson = "PYUUID('00000000-0000-0000-0000-000000000000')"; break;
-                    case GuidRepresentation.Standard: expectedGuidJson = "UUID('00000000-0000-0000-0000-000000000000')"; break;
-                }
-            }
             var objectId = ObjectId.Empty;
             ArrayList list;
             if (expectedGuidJson == null)
@@ -272,7 +256,6 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             Assert.IsType<ArrayList>(rehydrated.IE);
             Assert.IsType<ArrayList>(rehydrated.IL);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson(writerSettings: new BsonBinaryWriterSettings())));
-#pragma warning restore 618
         }
     }
 

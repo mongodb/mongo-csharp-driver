@@ -98,52 +98,16 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         public static IEnumerable<object[]> Deserialize_should_return_expected_result_when_representation_is_binary_MemberData()
         {
-            var data = new TheoryData<GuidRepresentationMode, GuidRepresentation, GuidRepresentation, GuidRepresentation, GuidRepresentation>();
+            var data = new TheoryData<GuidRepresentation>();
 
-            foreach (var defaultGuidRepresentationMode in EnumHelper.GetValues<GuidRepresentationMode>())
+            foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
             {
-                foreach (var defaultGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
+                if (serializerGuidRepresentation == GuidRepresentation.Unspecified)
                 {
-                    if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && defaultGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        continue;
-                    }
-
-                    foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                    {
-                        if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && serializerGuidRepresentation == GuidRepresentation.Unspecified)
-                        {
-                            continue;
-                        }
-
-                        foreach (var readerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                        {
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 &&
-                                serializerGuidRepresentation != GuidRepresentation.Unspecified &&
-                                readerGuidRepresentation != GuidRepresentation.Unspecified &&
-                                GuidConverter.GetSubType(serializerGuidRepresentation) != GuidConverter.GetSubType(readerGuidRepresentation))
-                            {
-                                continue;
-                            }
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && readerGuidRepresentation != GuidRepresentation.Unspecified)
-                            {
-                                continue;
-                            }
-
-                            var expectedGuidRepresentation = serializerGuidRepresentation;
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && expectedGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                expectedGuidRepresentation = readerGuidRepresentation;
-                            }
-                            if (expectedGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                continue;
-                            }
-
-                            data.Add(defaultGuidRepresentationMode, defaultGuidRepresentation, serializerGuidRepresentation, readerGuidRepresentation, expectedGuidRepresentation);
-                        }
-                    }
+                    continue;
                 }
+
+                data.Add(serializerGuidRepresentation);
             }
 
             return data;
@@ -151,27 +115,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         [Theory]
         [MemberData(nameof(Deserialize_should_return_expected_result_when_representation_is_binary_MemberData))]
-        [ResetGuidModeAfterTest]
         public void Deserializer_should_return_expected_result_when_representation_is_binary(
-            GuidRepresentationMode defaultGuidRepresentationMode,
-            GuidRepresentation defaultGuidRepresentation,
-            GuidRepresentation serializerGuidRepresentation,
-            GuidRepresentation readerGuidRepresentation,
-            GuidRepresentation expectedGuidRepresentation)
+            GuidRepresentation serializerGuidRepresentation)
         {
-            GuidMode.Set(defaultGuidRepresentationMode, defaultGuidRepresentation);
-
             var subject = new GuidSerializer(serializerGuidRepresentation);
             var documentBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
-            var documentSubType = GuidConverter.GetSubType(expectedGuidRepresentation);
+            var documentSubType = GuidConverter.GetSubType(serializerGuidRepresentation);
             documentBytes[11] = (byte)documentSubType;
             var readerSettings = new BsonBinaryReaderSettings();
-            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-#pragma warning disable 618
-                readerSettings.GuidRepresentation = readerGuidRepresentation;
-#pragma warning restore 618
-            }
             var reader = new BsonBinaryReader(new MemoryStream(documentBytes), readerSettings);
             reader.ReadStartDocument();
             reader.ReadName("x");
@@ -181,7 +132,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context, args);
 
             var guidBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-            var expectedGuid = GuidConverter.FromBytes(guidBytes, expectedGuidRepresentation);
+            var expectedGuid = GuidConverter.FromBytes(guidBytes, serializerGuidRepresentation);
             result.Should().Be(expectedGuid);
         }
 
@@ -231,58 +182,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             exception.Should().BeOfType<FormatException>();
         }
 
-        public static IEnumerable<object[]> Deserialize_should_throw_when_representation_is_binary_and_guid_representation_is_unspecified_MemberData()
+        [Fact]
+        public void Deserialize_should_throw_when_representation_is_binary_and_guid_representation_is_unspecified()
         {
-            var data = new TheoryData<GuidRepresentationMode, GuidRepresentation, GuidRepresentation?>();
-
-            foreach (var defaultGuidRepresentationMode in EnumHelper.GetValues<GuidRepresentationMode>())
-            {
-                foreach (var defaultGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                {
-                    if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && defaultGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        continue;
-                    }
-
-                    foreach (var readerGuidRepresentation in EnumHelper.GetValuesAndNull<GuidRepresentation>())
-                    {
-                        var effectiveGuidRepresentation = GuidRepresentation.Unspecified;
-                        if (defaultGuidRepresentationMode == GuidRepresentationMode.V2)
-                        {
-                            effectiveGuidRepresentation = readerGuidRepresentation ?? defaultGuidRepresentation;
-                        }
-                        if (effectiveGuidRepresentation != GuidRepresentation.Unspecified)
-                        {
-                            continue;
-                        }
-
-                        data.Add(defaultGuidRepresentationMode, defaultGuidRepresentation, readerGuidRepresentation);
-                    }
-                }
-            }
-
-            return data;
-        }
-
-        [Theory]
-        [MemberData(nameof(Deserialize_should_throw_when_representation_is_binary_and_guid_representation_is_unspecified_MemberData))]
-        [ResetGuidModeAfterTest]
-        public void Deserialize_should_throw_when_representation_is_binary_and_guid_representation_is_unspecified(
-            GuidRepresentationMode defaultGuidRepresentationMode,
-            GuidRepresentation defaultGuidRepresentation,
-            GuidRepresentation? readerGuidRepresentation)
-        {
-            GuidMode.Set(defaultGuidRepresentationMode, defaultGuidRepresentation);
-
             var subject = new GuidSerializer(GuidRepresentation.Unspecified);
             var documentBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             var readerSettings = new BsonBinaryReaderSettings();
-            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && readerGuidRepresentation.HasValue)
-            {
-#pragma warning disable 618
-                readerSettings.GuidRepresentation = readerGuidRepresentation.Value;
-#pragma warning restore 618
-            }
             var reader = new BsonBinaryReader(new MemoryStream(documentBytes), readerSettings);
             reader.ReadStartDocument();
             reader.ReadName("x");
@@ -296,43 +201,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         public static IEnumerable<object[]> Deserialize_should_throw_when_representation_is_binary_and_sub_type_does_not_match_MemberData()
         {
-            var data = new TheoryData<GuidRepresentationMode, GuidRepresentation, GuidRepresentation, GuidRepresentation?, BsonBinarySubType>();
+            var data = new TheoryData<GuidRepresentation, BsonBinarySubType>();
 
-            foreach (var defaultGuidRepresentationMode in EnumHelper.GetValues<GuidRepresentationMode>())
+            foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
             {
-                if (defaultGuidRepresentationMode == GuidRepresentationMode.V2)
+                if (serializerGuidRepresentation == GuidRepresentation.Unspecified)
                 {
-                    continue; // for backward compatibility GuidSerializer only enforces this constraint in V3 mode
+                    continue;
                 }
+                var expectedSubType = GuidConverter.GetSubType(serializerGuidRepresentation);
 
-                foreach (var defaultGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                {
-                    if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && defaultGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        continue;
-                    }
-
-                    foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                    {
-                        foreach (var readerGuidRepresentation in EnumHelper.GetValuesAndNull<GuidRepresentation>())
-                        {
-                            var effectiveGuidRepresentation = serializerGuidRepresentation;
-#pragma warning disable 618
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && serializerGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                effectiveGuidRepresentation = readerGuidRepresentation ?? defaultGuidRepresentation;
-                            }
-#pragma warning restore 618
-                            if (effectiveGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                continue;
-                            }
-                            var expectedSubType = GuidConverter.GetSubType(effectiveGuidRepresentation);
-
-                            data.Add(defaultGuidRepresentationMode, defaultGuidRepresentation, serializerGuidRepresentation, readerGuidRepresentation, expectedSubType);
-                        }
-                    }
-                }
+                data.Add(serializerGuidRepresentation, expectedSubType);
             }
 
             return data;
@@ -340,27 +219,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         [Theory]
         [MemberData(nameof(Deserialize_should_throw_when_representation_is_binary_and_sub_type_does_not_match_MemberData))]
-        [ResetGuidModeAfterTest]
         public void Deserialize_should_throw_when_representation_is_binary_and_sub_type_does_not_match(
-            GuidRepresentationMode defaultGuidRepresentationMode,
-            GuidRepresentation defaultGuidRepresentation,
             GuidRepresentation serializerGuidRepresentation,
-            GuidRepresentation? readerGuidRepresentation,
             BsonBinarySubType expectedSubType)
         {
-            GuidMode.Set(defaultGuidRepresentationMode, defaultGuidRepresentation);
-
             var subject = new GuidSerializer(serializerGuidRepresentation);
             var documentBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             var nonMatchingSubType = expectedSubType == BsonBinarySubType.UuidLegacy ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
             documentBytes[11] = (byte)nonMatchingSubType;
             var readerSettings = new BsonBinaryReaderSettings();
-            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && readerGuidRepresentation.HasValue)
-            {
-#pragma warning disable 618
-                readerSettings.GuidRepresentation = readerGuidRepresentation.Value;
-#pragma warning restore 618
-            }
             var reader = new BsonBinaryReader(new MemoryStream(documentBytes), readerSettings);
             reader.ReadStartDocument();
             reader.ReadName("x");
@@ -372,14 +239,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             exception.Should().BeOfType<FormatException>();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void Deserialize_should_return_expected_result_when_representation_is_string(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void Deserialize_should_return_expected_result_when_representation_is_string()
         {
-            mode.Set();
-
             var subject = new GuidSerializer(BsonType.String);
             var json = "\"01020304-0506-0708-090a-0b0c0d0e0f10\"";
             var reader = new JsonReader(json, new JsonReaderSettings());
@@ -408,45 +270,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         public static IEnumerable<object[]> Serialize_should_write_expected_bytes_MemberData()
         {
-            var data = new TheoryData<GuidRepresentationMode, GuidRepresentation, GuidRepresentation, GuidRepresentation?, BsonBinarySubType, GuidRepresentation>();
+            var data = new TheoryData<GuidRepresentation, BsonBinarySubType>();
 
-            foreach (var defaultGuidRepresentationMode in EnumHelper.GetValues<GuidRepresentationMode>())
+            foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
             {
-                foreach (var defaultGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
+                if (serializerGuidRepresentation == GuidRepresentation.Unspecified)
                 {
-                    if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && defaultGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        continue;
-                    }
-
-                    foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                    {
-                        foreach (var writerGuidRepresentation in EnumHelper.GetValuesAndNull<GuidRepresentation>())
-                        {
-                            var effectiveGuidRepresentation = serializerGuidRepresentation;
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && serializerGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                effectiveGuidRepresentation = writerGuidRepresentation ?? defaultGuidRepresentation;
-                            }
-                            if (effectiveGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                continue;
-                            }
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2)
-                            {
-                                var effectiveWriterGuidRepresentation = writerGuidRepresentation ?? defaultGuidRepresentation;
-                                if (effectiveWriterGuidRepresentation != GuidRepresentation.Unspecified && effectiveGuidRepresentation != effectiveWriterGuidRepresentation)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            var expectedSubType = GuidConverter.GetSubType(effectiveGuidRepresentation);
-
-                            data.Add(defaultGuidRepresentationMode, defaultGuidRepresentation, serializerGuidRepresentation, writerGuidRepresentation, expectedSubType, effectiveGuidRepresentation);
-                        }
-                    }
+                    continue;
                 }
+
+                var expectedSubType = GuidConverter.GetSubType(serializerGuidRepresentation);
+
+                data.Add(serializerGuidRepresentation, expectedSubType);
             }
 
             return data;
@@ -454,26 +289,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         [Theory]
         [MemberData(nameof(Serialize_should_write_expected_bytes_MemberData))]
-        [ResetGuidModeAfterTest]
         public void Serialize_should_write_expected_bytes(
-            GuidRepresentationMode defaultGuiRepresentationMode,
-            GuidRepresentation defaultGuidRepresentation,
             GuidRepresentation serializerGuidRepresentation,
-            GuidRepresentation? writerGuidRepresentation,
-            BsonBinarySubType expectedSubType,
-            GuidRepresentation effectiveGuidRepresentation)
+            BsonBinarySubType expectedSubType)
         {
-            GuidMode.Set(defaultGuiRepresentationMode, defaultGuidRepresentation);
-
             var subject = new GuidSerializer(serializerGuidRepresentation);
             var memoryStream = new MemoryStream();
             var writerSettings = new BsonBinaryWriterSettings();
-            if (defaultGuiRepresentationMode == GuidRepresentationMode.V2 && writerGuidRepresentation.HasValue)
-            {
-#pragma warning disable 618
-                writerSettings.GuidRepresentation = writerGuidRepresentation.Value;
-#pragma warning restore 618
-            }
             var writer = new BsonBinaryWriter(memoryStream, writerSettings);
             var context = BsonSerializationContext.CreateRoot(writer);
             var args = new BsonSerializationArgs();
@@ -487,66 +309,16 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var expectedBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             expectedBytes[11] = (byte)expectedSubType;
-            Array.Copy(GuidConverter.ToBytes(value, effectiveGuidRepresentation), 0, expectedBytes, 12, 16);
+            Array.Copy(GuidConverter.ToBytes(value, serializerGuidRepresentation), 0, expectedBytes, 12, 16);
             result.Should().Equal(expectedBytes);
         }
 
-        public static IEnumerable<object[]> Serialize_should_throw_when_effectiveGuidRepresentation_is_Unspecified_MemberData()
+        [Fact]
+        public void Serialize_should_throw_when_effectiveGuidRepresentation_is_Unspecified()
         {
-            var data = new TheoryData<GuidRepresentationMode, GuidRepresentation, GuidRepresentation, GuidRepresentation?>();
-
-            foreach (var defaultGuidRepresentationMode in EnumHelper.GetValues<GuidRepresentationMode>())
-            {
-                foreach (var defaultGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                {
-                    if (defaultGuidRepresentationMode == GuidRepresentationMode.V3 && defaultGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        continue;
-                    }
-
-                    foreach (var serializerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
-                    {
-                        foreach (var writerGuidRepresentation in EnumHelper.GetValuesAndNull<GuidRepresentation>())
-                        {
-                            var effectiveGuidRepresentation = serializerGuidRepresentation;
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && serializerGuidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                effectiveGuidRepresentation = writerGuidRepresentation ?? defaultGuidRepresentation;
-                            }
-                            if (effectiveGuidRepresentation != GuidRepresentation.Unspecified)
-                            {
-                                continue;
-                            }
-
-                            data.Add(defaultGuidRepresentationMode, defaultGuidRepresentation, serializerGuidRepresentation, writerGuidRepresentation);
-                        }
-                    }
-                }
-            }
-
-            return data;
-        }
-
-        [Theory]
-        [MemberData(nameof(Serialize_should_throw_when_effectiveGuidRepresentation_is_Unspecified_MemberData))]
-        [ResetGuidModeAfterTest]
-        public void Serialize_should_throw_when_effectiveGuidRepresentation_is_Unspecified(
-            GuidRepresentationMode defaultGuidRepresentationMode,
-            GuidRepresentation defaultGuidRepresentation,
-            GuidRepresentation serializerGuidRepresentation,
-            GuidRepresentation? writerGuidRepresentation)
-        {
-            GuidMode.Set(defaultGuidRepresentationMode, defaultGuidRepresentation);
-
-            var subject = new GuidSerializer(serializerGuidRepresentation);
+            var subject = new GuidSerializer(GuidRepresentation.Unspecified);
             var memoryStream = new MemoryStream();
             var writerSettings = new BsonBinaryWriterSettings();
-            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && writerGuidRepresentation.HasValue)
-            {
-#pragma warning disable 618
-                writerSettings.GuidRepresentation = writerGuidRepresentation.Value;
-#pragma warning restore 618
-            }
             var writer = new BsonBinaryWriter(memoryStream, writerSettings);
             var context = BsonSerializationContext.CreateRoot(writer);
             var args = new BsonSerializationArgs();
@@ -559,14 +331,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             exception.Should().BeOfType<BsonSerializationException>();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void Serialize_shoud_write_expected_string_when_representation_is_string(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void Serialize_shoud_write_expected_string_when_representation_is_string()
         {
-            mode.Set();
-
             var subject = new GuidSerializer(BsonType.String);
             var stringWriter = new StringWriter();
             var writer = new JsonWriter(stringWriter);

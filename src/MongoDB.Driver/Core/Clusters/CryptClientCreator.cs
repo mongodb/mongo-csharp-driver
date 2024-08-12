@@ -111,13 +111,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var mapElements = map.Select(c => new BsonElement(c.Key, c.Value));
             var mapDocument = new BsonDocument(mapElements);
-#pragma warning disable 618
             var writerSettings = new BsonBinaryWriterSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
             return mapDocument.ToBson(writerSettings: writerSettings);
         }
     }

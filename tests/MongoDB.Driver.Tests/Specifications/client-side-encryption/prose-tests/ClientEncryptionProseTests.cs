@@ -2834,12 +2834,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool? retryReads = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                mongoClientSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
             if (eventCapturer != null)
             {
                 mongoClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);

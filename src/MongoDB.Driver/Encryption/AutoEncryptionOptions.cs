@@ -230,12 +230,6 @@ namespace MongoDB.Driver.Encryption
         {
             var sb = new StringBuilder();
             var jsonWriterSettings = new JsonWriterSettings();
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                jsonWriterSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-            }
-#pragma warning restore 618
 
             sb.Append("{ ");
             sb.AppendFormat("BypassAutoEncryption : {0}, ", _bypassAutoEncryption);

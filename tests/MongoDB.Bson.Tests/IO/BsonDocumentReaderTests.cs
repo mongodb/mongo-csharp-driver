@@ -133,35 +133,6 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void TestGuid(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
-        {
-            mode.Set();
-
-#pragma warning disable 618, 1062
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
-            {
-                var document = new BsonDocument
-                {
-                    { "guid", new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6") }
-                };
-                using (var bsonReader = new BsonDocumentReader(document))
-                {
-                    var rehydrated = DeserializeBsonDocument(bsonReader);
-                    Assert.True(document.Equals(rehydrated));
-                }
-            }
-            else
-            {
-                var exception = Record.Exception(() => new BsonDocument("guid", new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6")));
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-#pragma warning restore 618, 1062
-        }
-
         [Fact]
         public void TestIsAtEndOfFile()
         {

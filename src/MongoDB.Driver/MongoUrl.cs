@@ -53,7 +53,6 @@ namespace MongoDB.Driver
         private readonly string _databaseName;
         private readonly bool? _directConnection;
         private readonly bool? _fsync;
-        private readonly GuidRepresentation _guidRepresentation;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
@@ -124,12 +123,6 @@ namespace MongoDB.Driver
             }
 #pragma warning restore CS0618 // Type or member is obsolete
             _fsync = builder.FSync;
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                _guidRepresentation = builder.GuidRepresentation;
-            }
-#pragma warning restore 618
             _heartbeatInterval = builder.HeartbeatInterval;
             _heartbeatTimeout = builder.HeartbeatTimeout;
             _ipv6 = builder.IPv6;
@@ -298,22 +291,6 @@ namespace MongoDB.Driver
         public bool? FSync
         {
             get { return _fsync; }
-        }
-
-        /// <summary>
-        /// Gets the representation to use for Guids.
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public GuidRepresentation GuidRepresentation
-        {
-            get
-            {
-                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
-                {
-                    throw new InvalidOperationException("MongoUrl.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-                return _guidRepresentation;
-            }
         }
 
         /// <summary>

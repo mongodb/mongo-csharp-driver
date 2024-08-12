@@ -124,16 +124,6 @@ Task("Test")
             return; // Legacy tests are exempt from Version API testing
         }
 
-        var testWithDefaultGuidRepresentationMode = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE");
-        if (testWithDefaultGuidRepresentationMode != null)
-        {
-            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithDefaultGuidRepresentationMode}");
-        }
-        var testWithDefaultGuidRepresentation = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION");
-        if (testWithDefaultGuidRepresentation != null)
-        {
-            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithDefaultGuidRepresentation}");
-        }
         var mongoX509ClientCertificatePath = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
         if (mongoX509ClientCertificatePath != null)
         {
@@ -167,46 +157,6 @@ Task("TestPlainAuthentication")
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"PlainMechanism\""));
-
-// currently we are not running this Task on Evergreen (only locally occassionally)
-Task("TestAllGuidRepresentations")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        items: GetFiles("./**/*.Tests.csproj")
-        // .Where(name => name.ToString().Contains("Bson.Tests")) // uncomment to only test Bson
-        .Where(name => !name.ToString().Contains("Atlas")),
-        action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var modes = new string[][]
-        {
-            new[] { "V2", "Unspecified" },
-            new[] { "V2", "JavaLegacy" },
-            new[] { "V2", "Standard" },
-            new[] { "V2", "PythonLegacy" },
-            new[] { "V2", "CSharpLegacy" },
-            new[] { "V3", "Unspecified" }
-        };
-
-        foreach (var mode in modes)
-        {
-            var testWithGuidRepresentationMode = mode[0];
-            var testWithGuidRepresentation = mode[1];
-            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithGuidRepresentationMode}");
-            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithGuidRepresentation}");
-
-            RunTests(
-                buildConfig,
-                testProject,
-                settings =>
-                {
-                    settings.EnvironmentVariables = new Dictionary<string, string>
-                    {
-                        { "TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE", testWithGuidRepresentationMode },
-                        { "TEST_WITH_DEFAULT_GUID_REPRESENTATION", testWithGuidRepresentation }
-                    };
-                });
-        }
-    });
 
 Task("TestAtlasConnectivity")
     .IsDependentOn("Build")

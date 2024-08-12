@@ -97,18 +97,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the representation to use for Guids (this is an alias for BsonDefaults.GuidRepresentation).
-        /// </summary>
-        [Obsolete("Configure serializers instead.")]
-        public static GuidRepresentation GuidRepresentation
-        {
-#pragma warning disable 618
-            get { return BsonDefaults.GuidRepresentation; }
-            set { BsonDefaults.GuidRepresentation = value; }
-#pragma warning restore 618
-        }
-
-        /// <summary>
         /// Gets or sets the default local threshold.
         /// </summary>
         public static TimeSpan LocalThreshold

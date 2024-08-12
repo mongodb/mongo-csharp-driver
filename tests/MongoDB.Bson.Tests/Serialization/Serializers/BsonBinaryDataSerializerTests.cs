@@ -135,14 +135,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
-        public void SerializeValue_should_call_WriteBinaryData(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
+        [Fact]
+        public void SerializeValue_should_call_WriteBinaryData()
         {
-            mode.Set();
-
             var subject = new BsonBinaryDataSerializer();
 
             var mockWriter = new Mock<IBsonWriter>();
@@ -157,9 +152,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         [Theory]
         [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
         public void SerializeValue_should_throw_when_value_representation_is_unspecified(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
             [Values(
                 GuidRepresentation.CSharpLegacy,
                 GuidRepresentation.JavaLegacy,
@@ -173,49 +166,24 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 GuidRepresentation.Standard,
                 GuidRepresentation.Unspecified)] GuidRepresentation valueGuidRepresentation)
         {
-            mode.Set();
-
-#pragma warning disable 618
             var subject = new BsonBinaryDataSerializer();
 
             var mockWriter = new Mock<IBsonWriter>();
             var writerSettings = new BsonBinaryWriterSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = writerGuidRepresentation;
-            }
             mockWriter.SetupGet(m => m.Settings).Returns(writerSettings);
             var context = BsonSerializationContext.CreateRoot(mockWriter.Object);
             var args = new BsonSerializationArgs();
             var subType = valueGuidRepresentation == GuidRepresentation.Unspecified ? BsonBinarySubType.UuidLegacy : GuidConverter.GetSubType(valueGuidRepresentation);
-            var value = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2
-                ? new BsonBinaryData(new byte[16], subType, valueGuidRepresentation)
-                : new BsonBinaryData(new byte[16], subType);
+            var value = new BsonBinaryData(new byte[16], subType);
 
             var exception = Record.Exception(() => subject.Serialize(context, args, value));
 
-            var isExceptionExpected =
-                BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 &&
-                writerGuidRepresentation != GuidRepresentation.Unspecified &&
-                valueGuidRepresentation == GuidRepresentation.Unspecified;
-
-            if (isExceptionExpected)
-            {
-                var e = exception.Should().BeOfType<BsonSerializationException>().Subject;
-                e.Message.Should().Contain("Cannot serialize BsonBinaryData with GuidRepresentation Unspecified");
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
-#pragma warning restore 618
+            exception.Should().BeNull();
         }
 
         [Theory]
         [ParameterAttributeData]
-        [ResetGuidModeAfterTest]
         public void SerializeValue_should_convert_representation_when_required(
-            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
             [Values(
                 GuidRepresentation.CSharpLegacy,
                 GuidRepresentation.JavaLegacy,
@@ -229,53 +197,20 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 GuidRepresentation.Standard,
                 GuidRepresentation.Unspecified)] GuidRepresentation valueGuidRepresentation)
         {
-            mode.Set();
-
-#pragma warning disable 618
             var subject = new BsonBinaryDataSerializer();
 
             var mockWriter = new Mock<IBsonWriter>();
             var writerSettings = new BsonBinaryWriterSettings();
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                writerSettings.GuidRepresentation = writerGuidRepresentation;
-            }
             mockWriter.SetupGet(m => m.Settings).Returns(writerSettings);
             var context = BsonSerializationContext.CreateRoot(mockWriter.Object);
             var args = new BsonSerializationArgs();
             var bytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
             var subType = valueGuidRepresentation == GuidRepresentation.Unspecified ? BsonBinarySubType.UuidLegacy : GuidConverter.GetSubType(valueGuidRepresentation);
-            var value = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2
-                ? new BsonBinaryData(bytes, subType, valueGuidRepresentation)
-                : new BsonBinaryData(bytes, subType);
+            var value = new BsonBinaryData(bytes, subType);
 
-            var isExceptionExpected =
-                BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 &&
-                writerGuidRepresentation != GuidRepresentation.Unspecified &&
-                valueGuidRepresentation == GuidRepresentation.Unspecified;
+            subject.Serialize(context, args, value);
 
-            if (!isExceptionExpected)
-            {
-                subject.Serialize(context, args, value);
-
-                var shouldConvertRepresentation =
-                    BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 &&
-                    writerGuidRepresentation != GuidRepresentation.Unspecified &&
-                    valueGuidRepresentation != GuidRepresentation.Unspecified &&
-                    valueGuidRepresentation != writerGuidRepresentation;
-
-                var writtenValue = value;
-                if (shouldConvertRepresentation)
-                {
-                    var guid = GuidConverter.FromBytes(bytes, valueGuidRepresentation);
-                    var convertedBytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
-                    var convertedSubType = GuidConverter.GetSubType(writerGuidRepresentation);
-                    writtenValue = new BsonBinaryData(convertedBytes, convertedSubType, writerGuidRepresentation);
-                }
-
-                mockWriter.Verify(m => m.WriteBinaryData(writtenValue), Times.Once);
-            }
-#pragma warning restore 618
+            mockWriter.Verify(m => m.WriteBinaryData(value), Times.Once);
         }
     }
 }

@@ -88,11 +88,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             CreateTestCase<double>("{ $numberDouble : '1.0' }", x => (BsonValue)x.V),
             CreateTestCase<double?>("{ $numberDouble : '1.0' }", x => (BsonValue)x.V),
             CreateTestCase<double?>("null", x => (BsonValue)x.V),
-#pragma warning disable CS0618 // Type or member is obsolete
-            CreateTestCase<Guid>("UUID('01020304-0506-0708-090a-0b0c0d0e0f10')", x => (BsonValue)x.V),
-            CreateTestCase<Guid?>("UUID('01020304-0506-0708-090a-0b0c0d0e0f10')", x => (BsonValue)x.V),
-            CreateTestCase<Guid?>("null", x => (BsonValue)x.V),
-#pragma warning restore CS0618 // Type or member is obsolete
             CreateTestCase<Guid>("UUID('01020304-0506-0708-090a-0b0c0d0e0f10')", x => (BsonValue)(object)x.V),
             CreateTestCase<Guid?>("UUID('01020304-0506-0708-090a-0b0c0d0e0f10')", x => (BsonValue)(object)x.V),
             CreateTestCase<Guid?>("null", x => (BsonValue)(object)x.V),
@@ -124,11 +119,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [MemberData(nameof(Convert_to_BsonValue_from_TValue_should_work_MemberData))]
-        [ResetGuidModeAfterTest]
         public void Convert_to_BsonValue_from_TValue_should_work_invoker(Type valueType, int i, string valueAsJson, string projectionAsString)
         {
-            GuidMode.Set(GuidRepresentationMode.V3);
-
             var testMethodInfo = this.GetType().GetMethod(nameof(Convert_to_BsonValue_from_TValue_should_work));
             var testMethod = testMethodInfo.MakeGenericMethod(valueType);
             testMethod.Invoke(this, new object[] { i, valueAsJson, projectionAsString });
