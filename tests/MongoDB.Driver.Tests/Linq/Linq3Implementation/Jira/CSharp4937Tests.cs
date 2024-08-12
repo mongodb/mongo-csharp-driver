@@ -14,17 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4937Tests : Linq3IntegrationTest
+    public class CSharp4937Tests : LinqIntegrationTest<CSharp4937Tests.CollectionFixture>
     {
+        public CSharp4937Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
+
         [Theory]
         [InlineData(2, "<" , 0, LinqProvider.V2, "{ _id : { $lt : 2 } }", new int[] { 1 })]
         [InlineData(2, "<=", 0, LinqProvider.V2, "{ _id : { $lte : 2 } }", new int[] { 1, 2 })]
@@ -46,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedFilter,
             int[] expectedIds)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             Expression<Func<C, bool>> predicate = comparisonOperator switch
             {
@@ -98,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedProjection,
             bool[] expectedResults)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             Expression<Func<C, bool>> selector = comparisonOperator switch
             {
@@ -130,25 +138,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1 },
-                new C { Id = 2 },
-                new C { Id = 3 });
-            return collection;
-        }
-
         public interface IIdentity<TId>
         {
             public TId Id { get; set; }
         }
 
-        private class C : IIdentity<int>
+        public class C : IIdentity<int>
         {
             public int Id { get; set; }
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1 },
+                    new C { Id = 2 },
+                    new C { Id = 3 }
+                };
         }
     }
 }

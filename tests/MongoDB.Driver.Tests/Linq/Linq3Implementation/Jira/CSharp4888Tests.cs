@@ -13,24 +13,32 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4888Tests : Linq3IntegrationTest
+    public class CSharp4888Tests : LinqIntegrationTest<CSharp4888Tests.CollectionFixture>
     {
+        public CSharp4888Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void GroupBy_Select_with_int_enum_representation_in_conditional_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -66,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void GroupBy_Select_with_string_enum_representation_in_conditional_should_work(
            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -103,16 +111,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Car> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<Car>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new Car { Id = 1, LicensePlate = "abcdef", CarType = CarType.Sport, CarTypeString = CarType.Sport });
-            return collection;
-        }
-
-        private class Car
+        public class Car
         {
             public int Id { get; set; }
             public string LicensePlate { get; set; }
@@ -120,11 +119,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public CarType CarTypeString { get; set; }
         }
 
-        private enum CarType
+        public enum CarType
         {
             Undefined = 0,
             Sport = 1,
             Suv = 2
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<Car>
+        {
+            protected override IEnumerable<Car> GetInitialData()
+                => new[]
+                {
+                    new Car { Id = 1, LicensePlate = "abcdef", CarType = CarType.Sport, CarTypeString = CarType.Sport }
+                };
         }
     }
 }

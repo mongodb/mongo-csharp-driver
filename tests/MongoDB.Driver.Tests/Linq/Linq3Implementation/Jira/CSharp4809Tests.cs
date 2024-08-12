@@ -14,25 +14,33 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4809Tests : Linq3IntegrationTest
+    public class CSharp4809Tests : LinqIntegrationTest<CSharp4809Tests.CollectionFixture>
     {
+        public CSharp4809Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Filter_by_Id_with_custom_serializer_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
             var id = "111111111111111111111111";
 
             var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
@@ -44,17 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(1);
         }
 
-        private IMongoCollection<RootDocument> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<RootDocument>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new RootDocument { Id = "111111111111111111111111", X = 1 },
-                new RootDocument { Id = "222222222222222222222222", X = 2 });
-            return collection;
-        }
-
-        private class RootDocument
+        public class RootDocument
         {
             [BsonSerializer(typeof(CustomStringRepresentedAsObjectIdSerializer))]
             public string Id { get; set; }
@@ -94,6 +92,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     return ObjectId.Empty;
                 }
             }
+        }
+
+        public class CollectionFixture : TemporaryCollectionFixture<RootDocument>
+        {
+            protected override IEnumerable<RootDocument> GetInitialData()
+                => new[]
+                {
+                    new RootDocument { Id = "111111111111111111111111", X = 1 },
+                    new RootDocument { Id = "222222222222222222222222", X = 2 }
+                };
         }
     }
 }

@@ -13,24 +13,32 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4821Tests : Linq3IntegrationTest
+    public class CSharp4821Tests : LinqIntegrationTest<CSharp4821Tests.CollectionFixture>
     {
+        public CSharp4821Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Where_should_work(
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Status == Status.Open);
@@ -48,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Select(x => new { Result = (int)x.Version });
@@ -73,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = GetCollection(linqProvider);
+            var collection = Fixture.GetCollection(linqProvider);
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Status == Status.Open)
@@ -99,17 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Result).Should().Equal(1);
         }
 
-        private IMongoCollection<C> GetCollection(LinqProvider linqProvider)
-        {
-            var collection = GetCollection<C>("test", linqProvider);
-            CreateCollection(
-                collection,
-                new C { Id = 1, Status = Status.Open, Version = 1L },
-                new C { Id = 2, Status = Status.Closed, Version = 2L });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public Status Status { get; set; }
@@ -119,5 +117,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #pragma warning disable CA1717 // Only FlagsAttribute enums should have plural names
         public enum Status { Closed, Open };
 #pragma warning restore CA1717 // Only FlagsAttribute enums should have plural names
+
+        public class CollectionFixture : TemporaryCollectionFixture<C>
+        {
+            protected override IEnumerable<C> GetInitialData()
+                => new[]
+                {
+                    new C { Id = 1, Status = Status.Open, Version = 1L },
+                    new C { Id = 2, Status = Status.Closed, Version = 2L }
+                };
+        }
     }
 }
