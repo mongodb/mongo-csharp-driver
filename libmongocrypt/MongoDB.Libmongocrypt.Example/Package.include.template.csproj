@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <CMakeCurrentSourceDir>@CMAKE_CURRENT_LIST_DIR@/MongoDB.Libmongocrypt.Example</CMakeCurrentSourceDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(CMakeCurrentSourceDir)/*.cs" />
+  </ItemGroup>
+
+</Project>

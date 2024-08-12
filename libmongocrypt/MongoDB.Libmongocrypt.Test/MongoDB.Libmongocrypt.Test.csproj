@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net472;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+
+    <Platforms>AnyCPU</Platforms>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.6.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <CMakeCurrentSourceDir>.</CMakeCurrentSourceDir>
+  </PropertyGroup>
+
+  <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
+
+  <ItemGroup>
+    <None Include="$(CMakeCurrentSourceDir)/xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
+  </ItemGroup>
+
+</Project>

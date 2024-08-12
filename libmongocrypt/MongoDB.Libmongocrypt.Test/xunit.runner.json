@@ -1,0 +1,6 @@
+﻿{
+  "$schema": "https://xunit.github.io/schema/current/xunit.runner.schema.json",
+
+  "appDomain": "denied",
+  "shadowCopy": false
+}

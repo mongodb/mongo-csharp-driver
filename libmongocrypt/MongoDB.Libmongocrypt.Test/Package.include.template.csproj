@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <CMakeCurrentSourceDir>@CMAKE_CURRENT_LIST_DIR@/MongoDB.Libmongocrypt.Test</CMakeCurrentSourceDir>
+    <CMakeCurrentBinaryDir>@CMAKE_CURRENT_BINARY_DIR@/MongoDB.Libmongocrypt.Test</CMakeCurrentBinaryDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(CMakeCurrentSourceDir)/*.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>  
+        <JsonTestFiles Include="$(CMakeCurrentSourceDir)/test/**/*.json" />  
+  </ItemGroup>  
+  
+  <Target Name="CopyJsonTestFiles" BeforeTargets="Build">  
+      <Copy  
+          SourceFiles="@(JsonTestFiles)"  
+          DestinationFiles="@(JsonTestFiles->'$(CMakeCurrentBinaryDir)/test/%(RecursiveDir)%(Filename)%(Extension)')"  
+      />  
+  </Target>  
+
+</Project>

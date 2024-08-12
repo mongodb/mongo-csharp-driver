@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard2.1</TargetFrameworks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MongoDB.Libmongocrypt.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Libmongocrypt</AssemblyTitle>
+    <Product>MongoDB.Libmongocrypt</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2019–present MongoDB Inc.</Copyright>
+    <Description>Libmongocrypt wrapper for the .NET driver.</Description>
+    <Authors>MongoDB Inc.</Authors>
+    <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageDescription>Libmongocrypt wrapper for the .NET driver.</PackageDescription>
+    <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageTags>mongodb;mongo;nosql</PackageTags>
+    <PackageLanguage>en-US</PackageLanguage>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LibMongoCryptBinaries>../../../cmake-build/$(Configuration)</LibMongoCryptBinaries>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.so" Condition="Exists('$(LibMongoCryptBinaries)/libmongocrypt.so')">
+      <Link>libmongocrypt.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.dylib" Condition="Exists('$(LibMongoCryptBinaries)/libmongocrypt.dylib')">
+      <Link>libmongocrypt.dylib</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.dll" Condition="Exists('$(LibMongoCryptBinaries)/mongocrypt.dll')">
+      <Link>mongocrypt.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.pdb" Condition="Exists('$(LibMongoCryptBinaries)/mongocrypt.pdb')">
+      <Link>mongocrypt.pdb</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup> -->
+  <ItemGroup>
+    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.dll">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win/native</PackagePath>
+    </Content>
+    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.so">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux/native</PackagePath>
+    </Content>
+    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.dylib">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx/native</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="License.txt">
+      <Pack>true</Pack>
+      <PackagePath>$(PackageLicenseFile)</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MongoDB.Libmongocrypt.targets">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>1.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DocumentationFile>bin\x64\Debug\MongoDB.Libmongocrypt.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>bin\x64\Release\MongoDB.Libmongocrypt.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
+
+</Project>

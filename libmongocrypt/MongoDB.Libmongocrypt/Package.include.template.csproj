@@ -1,0 +1,38 @@
+<Project>
+
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <CMakeCurrentSourceDir>@CMAKE_CURRENT_LIST_DIR@/MongoDB.Libmongocrypt</CMakeCurrentSourceDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(CMakeCurrentSourceDir)/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="@mongocrypt_BINARY_DIR@/libmongocrypt.so" Condition="Exists('@mongocrypt_BINARY_DIR@/libmongocrypt.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>x64/native/linux/libmongocrypt.so</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+
+    <Content Include="@mongocrypt_BINARY_DIR@/libmongocrypt.dylib" Condition="Exists('@mongocrypt_BINARY_DIR@/libmongocrypt.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>x64/native/osx/libmongocrypt.dylib</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+
+    <Content Include="@mongocrypt_BINARY_DIR@/$(Configuration)/mongocrypt.dll" Condition="'$(Configuration)'!='Release' And Exists('@mongocrypt_BINARY_DIR@/$(Configuration)/mongocrypt.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>x64/native/windows/mongocrypt.dll</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+
+    <Content Include="@mongocrypt_BINARY_DIR@/RelWithDebInfo/mongocrypt.dll" Condition="'$(Configuration)'=='Release' And Exists('@mongocrypt_BINARY_DIR@/RelWithDebInfo/mongocrypt.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>x64/native/windows/mongocrypt.dll</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+
+</Project>
