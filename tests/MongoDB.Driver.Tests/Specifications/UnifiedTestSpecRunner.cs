@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Tests.Specifications
             RequirePlatform
                 .Check()
                 // rewrap tests calls gcp kms that is supported starting from netstandard2.1
-                .SkipWhen(() => exclusionKeywords.Any(keyword => testCaseNameLower.Contains(keyword)), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => exclusionKeywords.Any(keyword => testCaseNameLower.Contains(keyword)), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => exclusionKeywords.Any(testCaseNameLower.Contains), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => exclusionKeywords.Any(testCaseNameLower.Contains), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             Run(testCase);
         }

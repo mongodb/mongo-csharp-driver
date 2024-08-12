@@ -22,10 +22,11 @@ using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedDecryptOperation : IUnifiedEntityTestOperation
+    public sealed class UnifiedDecryptOperation : IUnifiedEntityTestOperation
     {
         private readonly ClientEncryption _clientEncryption;
         private readonly BsonBinaryData _value;
+        
         public UnifiedDecryptOperation(ClientEncryption clientEncryption, BsonBinaryData value)
         {
             _clientEncryption = Ensure.IsNotNull(clientEncryption, nameof(clientEncryption));
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedDecryptOperationBuilder
+    public sealed class UnifiedDecryptOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
