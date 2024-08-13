@@ -21,16 +21,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenWithThreadState
+    internal sealed class JsonDrivenWithThreadState
     {
-        #region static
-        public static string Key => nameof(Tasks);
-        #endregion
+        public const string Key = nameof(Tasks);
 
         public ConcurrentDictionary<string, Task> Tasks { get; } = new ConcurrentDictionary<string, Task>();
     }
 
-    public abstract class JsonDrivenWithThreadTest : JsonDrivenTestRunnerTest
+    internal abstract class JsonDrivenWithThreadTest : JsonDrivenTestRunnerTest
     {
         protected string _name;
         protected readonly JsonDrivenWithThreadState _testState;

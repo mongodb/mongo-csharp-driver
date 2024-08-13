@@ -32,37 +32,18 @@ using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a cluster.
-    /// </summary>
-    internal abstract class Cluster : ICluster
+    internal abstract class Cluster : IClusterInternal
     {
         #region static
-        // static fields
+
         private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
-        private static readonly SemanticVersion __minSupportedServerVersion = WireVersion.ToServerVersion(WireVersion.SupportedWireVersionRange.Min);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
-        private static readonly Range<int> __supportedWireVersionRange = WireVersion.SupportedWireVersionRange;
 
-        // static properties
-        /// <summary>
-        /// Gets the minimum supported server version.
-        /// </summary>
-        /// <value>
-        /// The minimum supported server version
-        /// </value>
-        public static SemanticVersion MinSupportedServerVersion => __minSupportedServerVersion;
+        public static SemanticVersion MinSupportedServerVersion { get; } = WireVersion.ToServerVersion(WireVersion.SupportedWireVersionRange.Min);
+        public static Range<int> SupportedWireVersionRange { get; } = WireVersion.SupportedWireVersionRange;
 
-        /// <summary>
-        /// Gets the supported wire version range.
-        /// </summary>
-        /// <value>
-        /// The supported wire version range.
-        /// </value>
-        public static Range<int> SupportedWireVersionRange => __supportedWireVersionRange;
         #endregion
 
-        // fields
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;

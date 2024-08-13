@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class WritableServerBinding : IReadWriteBinding
     {
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private bool _disposed;
         private readonly ICoreSessionHandle _session;
 
-        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
+        public WritableServerBinding(IClusterInternal cluster, ICoreSessionHandle session)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));

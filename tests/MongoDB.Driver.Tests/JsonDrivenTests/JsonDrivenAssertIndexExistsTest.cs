@@ -23,7 +23,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertIndexExistsTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertIndexExistsTest : JsonDrivenTestRunnerTest
     {
         // private fields
         private string _collectionName;

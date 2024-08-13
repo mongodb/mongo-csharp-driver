@@ -13,20 +13,56 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
-    public interface IJsonDrivenTestRunner
+    internal interface IJsonDrivenTestRunner
     {
-        ICluster FailPointCluster { get; }
+        IClusterInternal FailPointCluster { get; }
         IServer FailPointServer { get; }
 
         void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
         Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
+    }
+
+    internal sealed class JsonDrivenTestRunner : IJsonDrivenTestRunner, IDisposable
+    {
+        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+
+        public IClusterInternal FailPointCluster
+        {
+            get
+            {
+                var regularClient = DriverTestConfiguration.Client;
+                var client = regularClient.Cluster.Description.Type == ClusterType.Sharded
+                    ? DriverTestConfiguration.ClientWithMultipleShardRouters
+                    : regularClient;
+                return client.GetClusterInternal();
+            }
+        }
+
+        public IServer FailPointServer => null;
+
+        public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        {
+            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
+            _disposables.Add(failPoint);
+        }
+
+        public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        {
+            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
+            _disposables.Add(failPoint);
+        }
+
+        public void Dispose() => _disposables.ForEach(x => x.Dispose());
     }
 }

@@ -37,7 +37,7 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
-        private static Lazy<ICluster> __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
+        private static Lazy<IClusterInternal> __cluster = new Lazy<IClusterInternal>(CreateCluster, isThreadSafe: true);
         private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(CreateConnectionString, isThreadSafe: true);
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         public static TimeSpan DefaultTestTimeout { get; } = TimeSpan.FromMinutes(3);
 
         // static properties
-        public static ICluster Cluster
+        internal static IClusterInternal Cluster
         {
             get { return __cluster.Value; }
         }
@@ -186,12 +186,12 @@ namespace MongoDB.Driver
             return builder.TraceWith(__traceSource);
         }
 
-        public static ICluster CreateCluster()
+        internal static IClusterInternal CreateCluster()
         {
             return CreateCluster(b => b);
         }
 
-        public static ICluster CreateCluster(Func<ClusterBuilder, ClusterBuilder> postConfigurator, bool allowDataBearingServers = false)
+        internal static IClusterInternal CreateCluster(Func<ClusterBuilder, ClusterBuilder> postConfigurator, bool allowDataBearingServers = false)
         {
             var builder = new ClusterBuilder();
             builder = ConfigureCluster(builder);
@@ -199,12 +199,12 @@ namespace MongoDB.Driver
             return CreateCluster(builder, allowDataBearingServers);
         }
 
-        public static ICluster CreateCluster(ClusterBuilder builder, bool allowDataBearingServers = false)
+        internal static IClusterInternal CreateCluster(ClusterBuilder builder, bool allowDataBearingServers = false)
         {
             var expectedServerKey = allowDataBearingServers ? "Databearing" : "Writable";
 
             bool hasExpectedServer = false;
-            var cluster = builder.BuildCluster();
+            var cluster = builder.BuildClusterInternal();
             cluster.DescriptionChanged += (o, e) =>
             {
                 var anyExpectedServer = e.NewClusterDescription.Servers.Any(
@@ -355,12 +355,12 @@ namespace MongoDB.Driver
             }
         }
 
-        public static ICoreSessionHandle StartSession()
+        internal static ICoreSessionHandle StartSession()
         {
             return StartSession(__cluster.Value);
         }
 
-        public static ICoreSessionHandle StartSession(ICluster cluster, CoreSessionOptions options = null)
+        internal static ICoreSessionHandle StartSession(IClusterInternal cluster, CoreSessionOptions options = null)
         {
             if (AreSessionsSupported(cluster))
             {
@@ -396,7 +396,7 @@ namespace MongoDB.Driver
             return CreateReadBinding(__cluster.Value, readPreference, session);
         }
 
-        private static IReadBindingHandle CreateReadBinding(ICluster cluster, ReadPreference readPreference, ICoreSessionHandle session)
+        private static IReadBindingHandle CreateReadBinding(IClusterInternal cluster, ReadPreference readPreference, ICoreSessionHandle session)
         {
             var binding = new ReadPreferenceBinding(cluster, readPreference, session.Fork());
             return new ReadBindingHandle(binding);
@@ -419,7 +419,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static IEnumerable<BsonDocument> FindDocuments(ICluster cluster, CollectionNamespace collectionNamespace)
+        private static IEnumerable<BsonDocument> FindDocuments(IClusterInternal cluster, CollectionNamespace collectionNamespace)
         {
             using (var session = StartSession(cluster))
             using (var binding = CreateReadBinding(cluster, ReadPreference.Primary, session))
@@ -498,7 +498,7 @@ namespace MongoDB.Driver
 
             return result ?? "mmapv1";
 
-            string GetStorageEngineForCluster(ICluster cluster)
+            string GetStorageEngineForCluster(IClusterInternal cluster)
             {
                 var command = new BsonDocument("serverStatus", 1);
                 using (var session = StartSession(cluster))
@@ -521,7 +521,7 @@ namespace MongoDB.Driver
         {
             var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
 
-            using (var cluster = clusterBuilder.BuildCluster())
+            using (var cluster = clusterBuilder.BuildClusterInternal())
             {
                 cluster.Initialize();
 
@@ -538,7 +538,7 @@ namespace MongoDB.Driver
                 // TODO: DropDatabase
                 //DropDatabase();
                 __cluster.Value.Dispose();
-                __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
+                __cluster = new Lazy<IClusterInternal>(CreateCluster, isThreadSafe: true);
             }
         }
 

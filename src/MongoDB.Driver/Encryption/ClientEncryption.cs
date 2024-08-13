@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
@@ -121,7 +120,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
-            EnsureFeatureSupported(database.Client.Cluster, Feature.Csfle2QEv2, cancellationToken);
+            EnsureFeatureSupported(database.Client.GetClusterInternal(), Feature.Csfle2QEv2, cancellationToken);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
@@ -184,7 +183,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
-            await EnsureFeatureSupportedAsync(database.Client.Cluster, Feature.Csfle2QEv2, cancellationToken).ConfigureAwait(false);
+            await EnsureFeatureSupportedAsync(database.Client.GetClusterInternal(), Feature.Csfle2QEv2, cancellationToken).ConfigureAwait(false);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
@@ -443,7 +442,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private void EnsureFeatureSupported(ICluster cluster, Feature feature, CancellationToken cancellationToken)
+        private void EnsureFeatureSupported(IClusterInternal cluster, Feature feature, CancellationToken cancellationToken)
         {
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
@@ -454,7 +453,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private async Task EnsureFeatureSupportedAsync(ICluster cluster, Feature feature, CancellationToken cancellationToken)
+        private async Task EnsureFeatureSupportedAsync(IClusterInternal cluster, Feature feature, CancellationToken cancellationToken)
         {
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))

@@ -37,13 +37,13 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly IMongoClient _client;
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
         // constructors
-        public MongoDatabaseImpl(IMongoClient client, DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoDatabaseImpl(IMongoClient client, DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, IClusterInternal cluster, IOperationExecutor operationExecutor)
         {
             _client = Ensure.IsNotNull(client, nameof(client));
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));

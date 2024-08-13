@@ -17,17 +17,8 @@ using System.Net;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    /// <summary>
-    /// Represents a server monitor factory.
-    /// </summary>
     internal interface IServerMonitorFactory
     {
-        /// <summary>
-        /// Creates a server monitor.
-        /// </summary>
-        /// <param name="serverId">The server identifier.</param>
-        /// <param name="endPoint">The end point.</param>
-        /// <returns>A server monitor.</returns>
         IServerMonitor Create(ServerId serverId, EndPoint endPoint);
     }
 }

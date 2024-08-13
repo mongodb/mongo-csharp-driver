@@ -83,10 +83,10 @@ namespace MongoDB.Driver.Core.Bindings
         /// <value>
         /// The pinned server for the current transaction.
         /// </value>
-        public IServer PinnedServer
+        internal IServer PinnedServer
         {
             get => _pinnedServer;
-            internal set => _pinnedServer = value;
+            set => _pinnedServer = value;
         }
 
         /// <summary>

@@ -32,10 +32,7 @@ using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents the cluster that uses load balanced mode.
-    /// </summary>
-    internal class LoadBalancedCluster : ICluster, IDnsMonitoringCluster
+    internal sealed class LoadBalancedCluster : IClusterInternal, IDnsMonitoringCluster
     {
         private readonly IClusterClock _clusterClock;
         private readonly ClusterId _clusterId;

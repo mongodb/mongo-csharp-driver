@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
     [Trait("Category", "SDAM")]
     public class ServerDiscoveryAndMonitoringTestRunner : LoggableTestClass
     {
-        private ICluster _cluster;
+        private IClusterInternal _cluster;
         private IEventSubscriber _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
 
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
-        private void VerifyTopology(ICluster cluster, string expectedType, string phaseDescription)
+        private void VerifyTopology(IClusterInternal cluster, string expectedType, string phaseDescription)
         {
             var clusterDescription = cluster.Description;
             switch (expectedType)
@@ -567,7 +567,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        private ICluster BuildCluster(BsonDocument definition)
+        private IClusterInternal BuildCluster(BsonDocument definition)
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
             var settings = new ClusterSettings(

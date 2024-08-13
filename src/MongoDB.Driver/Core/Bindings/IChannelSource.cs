@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a channel source.
     /// </summary>
-    public interface IChannelSource : IDisposable
+    internal interface IChannelSource : IDisposable
     {
         /// <summary>
         /// Gets the server.
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a channel source.
     /// </summary>
-    public interface IChannelSourceHandle : IChannelSource
+    internal interface IChannelSourceHandle : IChannelSource
     {
         /// <summary>
         /// Returns a new handle to the underlying channel source.

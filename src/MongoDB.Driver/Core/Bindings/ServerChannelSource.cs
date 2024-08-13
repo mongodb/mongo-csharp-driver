@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a channel source that is bound to a server.
     /// </summary>
-    public sealed class ServerChannelSource : IChannelSource
+    internal sealed class ServerChannelSource : IChannelSource
     {
         // fields
         private bool _disposed;

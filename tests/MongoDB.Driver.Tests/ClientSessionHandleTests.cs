@@ -249,12 +249,10 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Fork_should_return_expected_result()
         {
-            var cluster = Mock.Of<ICluster>();
+            var cluster = Mock.Of<IClusterInternal>();
             var coreServerSession = new CoreServerSession();
             var options = new ClientSessionOptions();
-#pragma warning disable CS0618 // Type or member is obsolete
             var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
-#pragma warning restore CS0618 // Type or member is obsolete
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             var subject = CreateSubject(coreSession: coreSessionHandle);
             coreSessionHandle.ReferenceCount().Should().Be(1);

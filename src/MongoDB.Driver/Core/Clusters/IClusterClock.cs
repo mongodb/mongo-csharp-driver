@@ -17,25 +17,10 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// A cluster clock.
-    /// </summary>
-    public interface IClusterClock
+    internal interface IClusterClock
     {
-        // properties
-        /// <summary>
-        /// Gets the cluster time.
-        /// </summary>
-        /// <value>
-        /// The cluster time.
-        /// </value>
         BsonDocument ClusterTime { get; }
-
-        // methods
-        /// <summary>
-        /// Advances the cluster time.
-        /// </summary>
-        /// <param name="newClusterTime">The new cluster time.</param>
+ 
         void AdvanceClusterTime(BsonDocument newClusterTime);
     }
 }

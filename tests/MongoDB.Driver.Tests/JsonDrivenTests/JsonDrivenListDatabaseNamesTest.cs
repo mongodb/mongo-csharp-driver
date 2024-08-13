@@ -21,7 +21,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenListDatabaseNamesTest : JsonDrivenClientTest
+    internal sealed class JsonDrivenListDatabaseNamesTest : JsonDrivenClientTest
     {
         // private fields
         private IClientSessionHandle _session;

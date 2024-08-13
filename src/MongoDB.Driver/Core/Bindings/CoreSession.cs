@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
     public sealed class CoreSession : ICoreSession
     {
         // private fields
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private CoreTransaction _currentTransaction;
         private bool _disposed;
@@ -43,25 +43,18 @@ namespace MongoDB.Driver.Core.Bindings
         private BsonTimestamp _snapshotTime;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CoreSession" /> class.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="serverSession">The server session.</param>
-        /// <param name="options">The options.</param>
-        [Obsolete("This constructor is deprecated. Avoid using CoreSession directly.")]
-        public CoreSession(
-            ICluster cluster,
+        internal CoreSession(
+            IClusterInternal cluster,
             ICoreServerSession serverSession,
             CoreSessionOptions options)
-            : this(cluster, options: options)
+        : this(cluster, options: options)
         {
             Ensure.IsNotNull(serverSession, nameof(serverSession));
             _serverSession = new Lazy<ICoreServerSession>(() => serverSession);
         }
 
         internal CoreSession(
-            ICluster cluster,
+            IClusterInternal cluster,
             ICoreServerSessionPool serverSessionPool,
             CoreSessionOptions options)
              : this(cluster, options)
@@ -71,7 +64,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         private CoreSession(
-           ICluster cluster,
+           IClusterInternal cluster,
            CoreSessionOptions options)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));

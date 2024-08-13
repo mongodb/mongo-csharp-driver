@@ -26,13 +26,13 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class ReadPreferenceBinding : IReadBinding
     {
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
-        public ReadPreferenceBinding(ICluster cluster, ReadPreference readPreference, ICoreSessionHandle session)
+        public ReadPreferenceBinding(IClusterInternal cluster, ReadPreference readPreference, ICoreSessionHandle session)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));

@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // private methods
         private FailPoint ConfigureFailPoint(string failpointCommand)
         {
-            var cluster = DriverTestConfiguration.Client.Cluster;
+            var cluster = DriverTestConfiguration.Client.GetClusterInternal();
             var session = NoCoreSession.NewHandle();
 
             return FailPoint.Configure(cluster, session, BsonDocument.Parse(failpointCommand));

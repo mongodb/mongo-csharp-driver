@@ -19,7 +19,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public abstract class JsonDrivenClientTest : JsonDrivenCommandTest
+    internal abstract class JsonDrivenClientTest : JsonDrivenCommandTest
     {
         // protected fields
         protected IMongoClient _client;

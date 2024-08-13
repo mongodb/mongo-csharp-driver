@@ -19,33 +19,13 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    /// <summary>
-    /// Handler for connections related exceptions raised in <see cref="IConnectionPool"/>.
-    /// </summary>
-    public interface IConnectionExceptionHandler
+    internal interface IConnectionExceptionHandler
     {
-        /// <summary>
-        /// Handles the exception raised during connection open.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
         void HandleExceptionOnOpen(Exception exception);
     }
 
-    /// <summary>
-    /// Represents a connection pool factory.
-    /// </summary>
-    public interface IConnectionPoolFactory
+    internal interface IConnectionPoolFactory
     {
-        // methods
-        /// <summary>
-        /// Creates a connection pool.
-        /// </summary>
-        /// <param name="serverId">The server identifier.</param>
-        /// <param name="endPoint">The end point.</param>
-        /// <param name="connectionExceptionHandler">The connection exception handler.</param>
-        /// <returns>
-        /// A connection pool.
-        /// </returns>
         IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint, IConnectionExceptionHandler connectionExceptionHandler);
     }
 }

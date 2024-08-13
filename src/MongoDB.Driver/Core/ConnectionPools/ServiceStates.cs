@@ -19,10 +19,10 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    internal class ServiceStates
+    internal sealed class ServiceStates
     {
         private readonly Dictionary<ObjectId, ServiceState> _serviceStates = new();
-        private object _lock = new object();
+        private readonly object _lock = new();
 
         public void IncrementConnectionCount(ObjectId? serviceId)
         {

@@ -1448,7 +1448,7 @@ namespace MongoDB.Driver
         // private methods
         private Mock<IMongoClient> CreateMockClient()
         {
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
             var clientSettings = new MongoClientSettings();
 
             var mockClient = new Mock<IMongoClient>();
@@ -1461,7 +1461,7 @@ namespace MongoDB.Driver
                     var databaseNamespace = new DatabaseNamespace(databaseName);
                     settings = settings ?? new MongoDatabaseSettings();
                     settings.ApplyDefaultValues(mockClient.Object.Settings);
-                    var cluster = new Mock<ICluster>().Object;
+                    var cluster = new Mock<IClusterInternal>().Object;
                     return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
                 });
 
@@ -1472,12 +1472,10 @@ namespace MongoDB.Driver
         {
             if (usingSession)
             {
-                var cluster = Mock.Of<ICluster>();
+                var cluster = Mock.Of<IClusterInternal>();
                 var options = new ClientSessionOptions();
                 var coreServerSession = new CoreServerSession();
-#pragma warning disable CS0618 // Type or member is obsolete
                 var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
-#pragma warning restore CS0618 // Type or member is obsolete
                 var coreSessionHandle = new CoreSessionHandle(coreSession);
                 return new ClientSessionHandle(_client, options, coreSessionHandle);
             }
@@ -1495,7 +1493,7 @@ namespace MongoDB.Driver
                 _client,
                 new DatabaseNamespace(databaseName),
                 settings,
-                new Mock<ICluster>().Object,
+                new Mock<IClusterInternal>().Object,
                 operationExecutor ?? _operationExecutor);
         }
 

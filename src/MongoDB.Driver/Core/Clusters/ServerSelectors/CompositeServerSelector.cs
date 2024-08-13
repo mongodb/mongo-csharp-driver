@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers based on multiple partial selectors
     /// </summary>
-    public class CompositeServerSelector : IServerSelector
+    public sealed class CompositeServerSelector : IServerSelector
     {
         // fields
         private readonly IReadOnlyList<IServerSelector> _selectors;

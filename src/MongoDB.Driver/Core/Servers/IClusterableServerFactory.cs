@@ -18,22 +18,8 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    /// <summary>
-    /// Represents a server factory.
-    /// </summary>
-    public interface IClusterableServerFactory
+    internal interface IClusterableServerFactory
     {
-        // methods
-        /// <summary>
-        /// Creates the server.
-        /// </summary>
-        /// <param name="clusterType">The cluster type.</param>
-        /// <param name="clusterId">The cluster identifier.</param>
-        /// <param name="clusterClock">The cluster clock.</param>
-        /// <param name="endPoint">The end point.</param>
-        /// <returns>
-        /// A server.
-        /// </returns>
         IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint);
     }
 }

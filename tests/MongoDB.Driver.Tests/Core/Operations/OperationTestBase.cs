@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     public abstract class OperationTestBase : IDisposable
     {
-        protected ICluster _cluster;
+        private protected IClusterInternal _cluster;
         protected Driver.CollectionNamespace _collectionNamespace;
         protected DatabaseNamespace _databaseNamespace;
         private bool _hasOncePerFixtureRun;
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, ICluster cluster, bool async)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IClusterInternal cluster, bool async)
         {
             using (var binding = CreateReadBinding(cluster))
             using (var bindingHandle = new ReadBindingHandle(binding))
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, ICluster cluster, bool async)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IClusterInternal cluster, bool async)
         {
             using (var binding = CreateReadWriteBinding(cluster: cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
@@ -281,17 +281,17 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        private protected IReadBinding CreateReadBinding(ICluster cluster = null)
+        private protected IReadBinding CreateReadBinding(IClusterInternal cluster = null)
         {
             return CreateReadBinding(ReadPreference.Primary, cluster);
         }
 
-        private protected IReadBinding CreateReadBinding(ReadPreference readPreference, ICluster cluster = null)
+        private protected IReadBinding CreateReadBinding(ReadPreference readPreference, IClusterInternal cluster = null)
         {
             return new ReadPreferenceBinding(cluster ?? _cluster, readPreference, _session.Fork());
         }
 
-        private protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, ICluster cluster = null)
+        private protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, IClusterInternal cluster = null)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
             var session = CoreTestConfiguration.StartSession(cluster ?? _cluster, options);
@@ -605,7 +605,7 @@ namespace MongoDB.Driver.Core.Operations
             session.ReferenceCount().Should().Be(2);
         }
 
-        private ICoreSessionHandle CreateSession(ICluster cluster, bool useImplicitSession)
+        private ICoreSessionHandle CreateSession(IClusterInternal cluster, bool useImplicitSession)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
             return CoreTestConfiguration.StartSession(cluster, options);
