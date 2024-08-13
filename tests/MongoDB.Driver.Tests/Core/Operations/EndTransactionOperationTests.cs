@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public static class EndTransactionOperationReflector
+    internal static class EndTransactionOperationReflector
     {
         // fields
         public static BsonDocument _recoveryToken(this EndTransactionOperation obj) => (BsonDocument)Reflector.GetFieldValue(obj, nameof(_recoveryToken));

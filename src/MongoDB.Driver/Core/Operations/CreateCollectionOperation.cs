@@ -27,13 +27,11 @@ using static MongoDB.Driver.Encryption.EncryptedCollectionHelper;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a create collection operation.
-    /// </summary>
-    public class CreateCollectionOperation : IWriteOperation<BsonDocument>
+    internal sealed class CreateCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static
-        internal static IWriteOperation<BsonDocument> CreateEncryptedCreateCollectionOperationIfConfigured(
+
+        public static IWriteOperation<BsonDocument> CreateEncryptedCreateCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
@@ -70,8 +68,6 @@ namespace MongoDB.Driver.Core.Operations
         }
         #endregion
 
-        // fields
-        private bool? _autoIndexId;
         private bool? _capped;
         private BsonDocument _changeStreamPreAndPostImages;
         private BsonDocument _clusteredIndex;
@@ -95,12 +91,6 @@ namespace MongoDB.Driver.Core.Operations
 
         private readonly Feature _supportedFeature;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -118,74 +108,30 @@ namespace MongoDB.Driver.Core.Operations
             _supportedFeature = supportedFeature;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether an index on _id should be created automatically.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether an index on _id should be created automatically.
-        /// </value>
-        [Obsolete("AutoIndexId has been deprecated since server version 3.2.")]
-        public bool? AutoIndexId
-        {
-            get { return _autoIndexId; }
-            set { _autoIndexId = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the collection is a capped collection.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the collection is a capped collection.
-        /// </value>
         public bool? Capped
         {
             get { return _capped; }
             set { _capped = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a change streams pre and post images options.
-        /// </summary>
-        /// <value>
-        /// change streams pre and post images options.
-        /// </value>
         public BsonDocument ChangeStreamPreAndPostImages
         {
             get { return _changeStreamPreAndPostImages; }
             set { _changeStreamPreAndPostImages = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -197,175 +143,89 @@ namespace MongoDB.Driver.Core.Operations
             private set { _encryptedFields = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the expiration timespan for time series collections. Used to automatically delete documents in time series collections.
-        /// See https://www.mongodb.com/docs/manual/reference/command/create/ for supported options and https://www.mongodb.com/docs/manual/core/timeseries-collections/
-        /// for more information on time series collections.
-        /// </summary>
-        /// <value>
-        /// The timespan after which to expire documents.
-        /// </value>
         public TimeSpan? ExpireAfter
         {
             get { return _expireAfter; }
             set { _expireAfter = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the index option defaults.
-        /// </summary>
-        /// <value>
-        /// The index option defaults.
-        /// </value>
         public BsonDocument IndexOptionDefaults
         {
             get { return _indexOptionDefaults; }
             set { _indexOptionDefaults = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum number of documents in a capped collection.
-        /// </summary>
-        /// <value>
-        /// The maximum number of documents in a capped collection.
-        /// </value>
         public long? MaxDocuments
         {
             get { return _maxDocuments; }
             set { _maxDocuments = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a capped collection.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a capped collection.
-        /// </value>
         public long? MaxSize
         {
             get { return _maxSize; }
             set { _maxSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets whether padding should not be used.
-        /// </summary>
         public bool? NoPadding
         {
             get { return _noPadding; }
             set { _noPadding = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the storage engine options.
-        /// </summary>
-        /// <value>
-        /// The storage engine options.
-        /// </value>
         public BsonDocument StorageEngine
         {
             get { return _storageEngine; }
             set { _storageEngine = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the <see cref="TimeSeriesOptions"/>. Represents an object containing options for creating time series collections.
-        /// See https://www.mongodb.com/docs/manual/reference/command/create/ for supported options and https://www.mongodb.com/docs/manual/core/timeseries-collections/
-        /// for more information on time series collections.
-        /// </summary>
-        /// <value>
-        /// The time series options.
-        /// </value>
         public TimeSeriesOptions TimeSeriesOptions
         {
             get { return _timeSeriesOptions; }
             set { _timeSeriesOptions = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the collection should use power of 2 sizes.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the collection should use power of 2 sizes.
-        /// </value>
         public bool? UsePowerOf2Sizes
         {
             get { return _usePowerOf2Sizes; }
             set { _usePowerOf2Sizes = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the validation action.
-        /// </summary>
-        /// <value>
-        /// The validation action.
-        /// </value>
         public DocumentValidationAction? ValidationAction
         {
             get { return _validationAction; }
             set { _validationAction = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the validation level.
-        /// </summary>
-        /// <value>
-        /// The validation level.
-        /// </value>
         public DocumentValidationLevel? ValidationLevel
         {
             get { return _validationLevel; }
             set { _validationLevel = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the validator.
-        /// </summary>
-        /// <value>
-        /// The validator.
-        /// </value>
         public BsonDocument Validator
         {
             get { return _validator; }
             set { _validator = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the clustered index definition.
-        /// </summary>
-        /// <value>
-        /// The clustered index definition.
-        /// </value>
         public BsonDocument ClusteredIndex
         {
             get => _clusteredIndex;
             set => _clusteredIndex = value;
         }
 
-        // methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session)
         {
             var flags = GetFlags();
@@ -375,7 +235,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "create", _collectionNamespace.CollectionName },
                 { "clusteredIndex", _clusteredIndex, _clusteredIndex != null },
                 { "capped", () => _capped.Value, _capped.HasValue },
-                { "autoIndexId", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
                 { "flags", () => (int)flags.Value, flags.HasValue },
@@ -415,7 +274,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -433,7 +291,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -451,7 +308,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation("create");
 
         private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)

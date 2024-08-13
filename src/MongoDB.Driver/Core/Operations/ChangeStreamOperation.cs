@@ -27,70 +27,19 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// A change stream operation.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IChangeStreamOperation<TResult> : IReadOperation<IChangeStreamCursor<TResult>>
+    internal interface IChangeStreamOperation<TResult> : IReadOperation<IChangeStreamCursor<TResult>>
     {
-        // properties
-        /// <summary>
-        /// Gets or sets the resume after value.
-        /// </summary>
-        /// <value>
-        /// The resume after value.
-        /// </value>
         BsonDocument ResumeAfter { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether the change stream should show expanded events (MongoDB 6.0 and later).
-        /// </summary>
-        /// <value>
-        /// The value.
-        /// </value>
         bool? ShowExpandedEvents { get; set; }
-
-        /// <summary>
-        /// Gets or sets the start after value.
-        /// </summary>
-        /// <value>
-        /// The start after value.
-        /// </value>
         BsonDocument StartAfter { get; set; }
-
-        /// <summary>
-        /// Gets or sets the start at operation time.
-        /// </summary>
-        /// <value>
-        /// The start at operation time.
-        /// </value>
         BsonTimestamp StartAtOperationTime { get; set; }
 
-        // methods
-        /// <summary>
-        /// Resumes the operation after a resume token.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A cursor.</returns>
         IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Resumes the operation after a resume token.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// A change stream operation.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result values.</typeparam>
-    public class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
+    internal sealed class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
     {
-        // private fields
         private int? _batchSize;
         private Collation _collation;
         private BsonValue _comment;
@@ -109,13 +58,6 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
-        /// </summary>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="resultSerializer">The result value serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ChangeStreamOperation(
             IEnumerable<BsonDocument> pipeline,
             IBsonSerializer<TResult> resultSerializer,
@@ -126,13 +68,6 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="resultSerializer">The result value serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ChangeStreamOperation(
             DatabaseNamespace databaseNamespace,
             IEnumerable<BsonDocument> pipeline,
@@ -143,13 +78,6 @@ namespace MongoDB.Driver.Core.Operations
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="resultSerializer">The result value serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ChangeStreamOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<BsonDocument> pipeline,

@@ -28,13 +28,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a distinct operation.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
+    internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
     {
-        // fields
         private Collation _collation;
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -46,14 +41,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private IBsonSerializer<TValue> _valueSerializer;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DistinctOperation{TValue}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="valueSerializer">The value serializer.</param>
-        /// <param name="fieldName">The name of the field.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
@@ -62,123 +49,62 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        /// <value>
-        /// The collation.
-        /// </value>
         public Collation Collation
         {
             get { return _collation; }
             set { _collation = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        /// <value>
-        /// The filter.
-        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
-        /// <summary>
-        /// Gets the name of the field.
-        /// </summary>
-        /// <value>
-        /// The name of the field.
-        /// </value>
         public string FieldName
         {
             get { return _fieldName; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time the server should spend on this operation.
-        /// </summary>
-        /// <value>
-        /// The maximum time the server should spend on this operation.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
-        /// <value>
-        /// The read concern.
-        /// </value>
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to retry.
-        /// </summary>
-        /// <value>Whether to retry.</value>
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        /// <summary>
-        /// Gets the value serializer.
-        /// </summary>
-        /// <value>
-        /// The value serializer.
-        /// </value>
         public IBsonSerializer<TValue> ValueSerializer
         {
             get { return _valueSerializer; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public IAsyncCursor<TValue> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -195,7 +121,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -212,8 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
-        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument

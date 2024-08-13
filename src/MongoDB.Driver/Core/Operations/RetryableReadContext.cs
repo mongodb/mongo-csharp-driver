@@ -21,21 +21,10 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a context for retryable reads.
-    /// </summary>
-    /// <seealso cref="System.IDisposable" />
-    public sealed class RetryableReadContext : IDisposable
+    internal sealed class RetryableReadContext : IDisposable
     {
         #region static
-        // public static methods
-        /// <summary>
-        /// Creates and initializes a retryable read operation context.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="retryRequested">if set to <c>true</c> [retry requested].</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A retryable read context.</returns>
+
         public static RetryableReadContext Create(IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
         {
             var context = new RetryableReadContext(binding, retryRequested);
@@ -57,13 +46,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Creates and initializes a retryable read operation context.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="retryRequested">if set to <c>true</c> [retry requested].</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A retryable read context.</returns>
         public static async Task<RetryableReadContext> CreateAsync(IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
         {
             var context = new RetryableReadContext(binding, retryRequested);
@@ -86,60 +68,23 @@ namespace MongoDB.Driver.Core.Operations
         }
         #endregion
 
-        // private fields
         private readonly IReadBinding _binding;
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RetryableReadContext"/> class.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="retryRequested">if set to <c>true</c> the operation can be retried.</param>
         public RetryableReadContext(IReadBinding binding, bool retryRequested)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
         }
 
-        // public properties
-        /// <summary>
-        /// Gets the binding.
-        /// </summary>
-        /// <value>
-        /// The binding.
-        /// </value>
         public IReadBinding Binding => _binding;
-
-        /// <summary>
-        /// Gets the channel.
-        /// </summary>
-        /// <value>
-        /// The channel.
-        /// </value>
         public IChannelHandle Channel => _channel;
-
-        /// <summary>
-        /// Gets the channel source.
-        /// </summary>
-        /// <value>
-        /// The channel source.
-        /// </value>
         public IChannelSourceHandle ChannelSource => _channelSource;
-
-        /// <summary>
-        /// Gets a value indicating whether the operation can be retried.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the operation can be retried; otherwise, <c>false</c>.
-        /// </value>
         public bool RetryRequested => _retryRequested;
 
-        // public methods
-        /// <inheritdoc />
         public void Dispose()
         {
             if (!_disposed)
@@ -150,10 +95,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Replaces the channel.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
         public void ReplaceChannel(IChannelHandle channel)
         {
             Ensure.IsNotNull(channel, nameof(channel));
@@ -161,10 +102,6 @@ namespace MongoDB.Driver.Core.Operations
             _channel = channel;
         }
 
-        /// <summary>
-        /// Replaces the channel source.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
         public void ReplaceChannelSource(IChannelSourceHandle channelSource)
         {
             Ensure.IsNotNull(channelSource, nameof(channelSource));

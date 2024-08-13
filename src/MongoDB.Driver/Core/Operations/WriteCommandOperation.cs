@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -26,39 +24,21 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a write command operation.
-    /// </summary>
-    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
-    public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
+    internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         private ReadPreference _readPreference = ReadPreference.Primary;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WriteCommandOperation{TCommandResult}"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the read preference.
-        /// </summary>
         public ReadPreference ReadPreference
         {
             get => _readPreference;
             set => _readPreference = Ensure.IsNotNull(value, nameof(value));
         }
 
-        // methods
-        /// <inheritdoc/>
         public TCommandResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -70,7 +50,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, nameof(binding));

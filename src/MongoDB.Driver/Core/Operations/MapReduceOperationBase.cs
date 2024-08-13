@@ -19,7 +19,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -27,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a base class for map-reduce operations.
     /// </summary>
     [Obsolete("Use Aggregation pipeline instead.")]
-    public abstract class MapReduceOperationBase
+    internal abstract class MapReduceOperationBase
     {
         // fields
         private Collation _collation;

@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = new ConnectionDescription(connectionId, helloResult);
             var session = NoCoreSession.Instance;
 
-            var result = subject.CreateExplainCommand(connectionDescription, session);
+            var result = subject.CreateCommand(connectionDescription, session);
 
             result.Should().Be(expectedResult);
         }

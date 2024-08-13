@@ -26,12 +26,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the listDatabases command.
-    /// </summary>
-    public class ListDatabasesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
+    internal sealed class ListDatabasesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
-        // fields
         private bool? _authorizedDatabases;
         private BsonValue _comment;
         private BsonDocument _filter;
@@ -39,90 +35,58 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _nameOnly;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ListDatabasesOperation"/> class.
-        /// </summary>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings)
         {
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the AuthorizedDatabases flag.
-        /// </summary>
-        /// <value>
-        /// The AuthorizedDatabases flag.
-        /// </value>
         public bool? AuthorizedDatabases
         {
             get { return _authorizedDatabases; }
             set { _authorizedDatabases = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        /// <value>
-        /// The filter.
-        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the NameOnly flag.
-        /// </summary>
-        /// <value>
-        /// The NameOnly flag.
-        /// </value>
         public bool? NameOnly
         {
             get { return _nameOnly; }
             set { _nameOnly = value; }
         }
 
-        /// <summary>
-        /// Gets or sets whether or not retry was requested.
-        /// </summary>
-        /// <value>
-        /// Whether retry was requested.
-        /// </value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
+        public BsonDocument CreateCommand()
+        {
+            return new BsonDocument
+            {
+                { "listDatabases", 1 },
+                { "filter", _filter, _filter != null },
+                { "nameOnly", _nameOnly, _nameOnly != null },
+                { "authorizedDatabases", _authorizedDatabases, _authorizedDatabases != null },
+                { "comment", _comment, _comment != null }
+            };
+        }
+
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -135,7 +99,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -148,20 +111,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
-        internal BsonDocument CreateCommand()
-        {
-            return new BsonDocument
-            {
-                { "listDatabases", 1 },
-                { "filter", _filter, _filter != null },
-                { "nameOnly", _nameOnly, _nameOnly != null },
-                { "authorizedDatabases", _authorizedDatabases, _authorizedDatabases != null },
-                { "comment", _comment, _comment != null }
-            };
-        }
-
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
 
         private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)

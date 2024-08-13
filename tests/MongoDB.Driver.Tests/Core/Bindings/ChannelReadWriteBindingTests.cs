@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
     }
 
-    public static class ChannelReadWriteBindingReflector
+    internal static class ChannelReadWriteBindingReflector
     {
         public static IChannelHandle _channel(this ChannelReadWriteBinding obj)
         {

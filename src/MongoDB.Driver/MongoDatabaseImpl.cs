@@ -674,9 +674,6 @@ namespace MongoDB.Driver
                 messageEncoderSettings,
                 createCollectionOperationConfigurator: cco =>
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    cco.AutoIndexId = options.AutoIndexId;
-#pragma warning restore CS0618 // Type or member is obsolete
                     cco.Capped = options.Capped;
                     cco.ChangeStreamPreAndPostImages = options.ChangeStreamPreAndPostImagesOptions?.BackingDocument;
                     cco.ClusteredIndex = clusteredIndex;

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,12 +22,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an update operation using the update opcode.
-    /// </summary>
-    public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>, IExecutableInRetryableWriteContext<WriteConcernResult>
+    internal sealed class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>, IExecutableInRetryableWriteContext<WriteConcernResult>
     {
-        // fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private int? _maxDocumentSize;
@@ -36,13 +32,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateOpcodeOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="request">The request.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public UpdateOpcodeOperation(
             CollectionNamespace collectionNamespace,
             UpdateRequest request,
@@ -53,88 +42,45 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether to bypass document validation.
-        /// </value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a document.
-        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
-
-        /// <summary>
-        /// Gets the request.
-        /// </summary>
-        /// <value>
-        /// The request.
-        /// </value>
+ 
         public UpdateRequest Request
         {
             get { return _request; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether retry is enabled for the operation.
-        /// </summary>
-        /// <value>A value indicating whether retry is enabled.</value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public WriteConcernResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -145,7 +91,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public WriteConcernResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
@@ -155,7 +100,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -166,7 +110,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
@@ -176,7 +119,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private UpdateOpcodeOperationEmulator CreateEmulator()
         {
             return new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)

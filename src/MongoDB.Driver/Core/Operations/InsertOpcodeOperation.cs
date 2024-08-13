@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,13 +25,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an insert operation using the insert opcode.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
+    internal sealed class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
-        // fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
@@ -46,15 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TDocument> _serializer;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InsertOpcodeOperation{TDocument}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="documents">The documents.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public InsertOpcodeOperation(CollectionNamespace collectionNamespace, IEnumerable<TDocument> documents, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
+       public InsertOpcodeOperation(CollectionNamespace collectionNamespace, IEnumerable<TDocument> documents, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _documents = Ensure.IsNotNull(documents, nameof(documents)).ToList();
@@ -65,165 +51,73 @@ namespace MongoDB.Driver.Core.Operations
             _documentSource = new BatchableSource<TDocument>(_documents, canBeSplit: true);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InsertOpcodeOperation{TDocument}"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="documentSource">The document source.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        [Obsolete("Use the constructor that takes an IEnumerable<TDocument> instead of a BatchableSource<TDocument>.")]
-        public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
-        {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _documentSource = Ensure.IsNotNull(documentSource, nameof(documentSource));
-            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
-            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _writeConcern = WriteConcern.Acknowledged;
-
-            _documents = _documentSource.GetBatchItems();
-        }
-
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether to bypass document validation.
-        /// </value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the server should continue on error.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server should continue on error; otherwise, <c>false</c>.
-        /// </value>
         public bool ContinueOnError
         {
             get { return _continueOnError; }
             set { _continueOnError = value; }
         }
 
-        /// <summary>
-        /// Gets the documents.
-        /// </summary>
-        /// <value>
-        /// The documents.
-        /// </value>
         public IReadOnlyList<TDocument> Documents
         {
             get { return _documents; }
         }
 
-        /// <summary>
-        /// Gets the document source.
-        /// </summary>
-        /// <value>
-        /// The document source.
-        /// </value>
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum number of documents in a batch.
-        /// </summary>
-        /// <value>
-        /// The maximum number of documents in a batch.
-        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a document.
-        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a message.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a message.
-        /// </value>
         public int? MaxMessageSize
         {
             get { return _maxMessageSize; }
             set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether retry is enabled for the operation.
-        /// </summary>
-        /// <value>A value indicating whether retry is enabled.</value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        /// <summary>
-        /// Gets the serializer.
-        /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public IEnumerable<WriteConcernResult> Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -237,7 +131,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -251,7 +144,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private InsertOpcodeOperationEmulator<TDocument> CreateEmulator()
         {
             return new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)

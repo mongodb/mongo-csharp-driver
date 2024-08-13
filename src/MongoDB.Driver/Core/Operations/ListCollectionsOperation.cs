@@ -26,12 +26,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a list collections operation.
-    /// </summary>
-    public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
+    internal sealed class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
-        // fields
         private bool? _authorizedCollections;
         private int? _batchSize;
         private BsonValue _comment;
@@ -41,12 +37,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _nameOnly;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ListCollectionsOperation"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ListCollectionsOperation(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -55,100 +45,52 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the AuthorizedCollections flag.
-        /// </summary>
-        /// <value>
-        /// Whether authorizedCollections flag is set.
-        /// </value>
         public bool? AuthorizedCollections
         {
             get => _authorizedCollections;
             set => _authorizedCollections = value;
         }
 
-        /// <summary>
-        /// Gets or sets the batch size.
-        /// </summary>
-        /// <value>
-        /// The batch size.
-        /// </value>
         public int? BatchSize
         {
             get => _batchSize;
             set => _batchSize = value;
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        /// <value>
-        /// The filter.
-        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the name only option.
-        /// </summary>
-        /// <value>
-        /// The name only option.
-        /// </value>
         public bool? NameOnly
         {
             get { return _nameOnly; }
             set { _nameOnly = value; }
         }
 
-        /// <summary>
-        /// Gets or sets whether or not retry was requested.
-        /// </summary>
-        /// <value>
-        /// Whether retry was requested.
-        /// </value>
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        // public methods
-        /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -162,7 +104,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(context, nameof(context));
@@ -175,7 +116,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -189,7 +129,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(context, nameof(context));
@@ -202,7 +141,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listCollections");
 
         private ReadCommandOperation<BsonDocument> CreateOperation()

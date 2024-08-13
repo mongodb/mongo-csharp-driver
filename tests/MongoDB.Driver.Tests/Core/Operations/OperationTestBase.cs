@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
+        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, bool async)
+        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, bool async)
         {
             if (async)
             {
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, ICluster cluster, bool async)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, ICluster cluster, bool async)
         {
             using (var binding = CreateReadBinding(cluster))
             using (var bindingHandle = new ReadBindingHandle(binding))
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, IReadBinding binding, bool async)
+        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, IReadBinding binding, bool async)
         {
             if (async)
             {
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
+        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
         {
             using (var binding = CreateReadBinding(readPreference))
             using (var bindingHandle = new ReadBindingHandle(binding))
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperationSync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
+        private protected TResult ExecuteOperationSync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async = false, bool useImplicitSession = false)
+        private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async = false, bool useImplicitSession = false)
         {
             if (async)
             {
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
+        private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
         {
             if (async)
             {
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
@@ -236,12 +236,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
         {
             return await operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, ICluster cluster, bool async)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, ICluster cluster, bool async)
         {
             using (var binding = CreateReadWriteBinding(cluster: cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
+        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
             return await operation.ExecuteAsync(binding, CancellationToken.None);
         }
@@ -281,17 +281,17 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        protected IReadBinding CreateReadBinding(ICluster cluster = null)
+        private protected IReadBinding CreateReadBinding(ICluster cluster = null)
         {
             return CreateReadBinding(ReadPreference.Primary, cluster);
         }
 
-        protected IReadBinding CreateReadBinding(ReadPreference readPreference, ICluster cluster = null)
+        private protected IReadBinding CreateReadBinding(ReadPreference readPreference, ICluster cluster = null)
         {
             return new ReadPreferenceBinding(cluster ?? _cluster, readPreference, _session.Fork());
         }
 
-        protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, ICluster cluster = null)
+        private protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, ICluster cluster = null)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
             var session = CoreTestConfiguration.StartSession(cluster ?? _cluster, options);
@@ -477,7 +477,7 @@ namespace MongoDB.Driver.Core.Operations
             Update(BsonDocument.Parse(filter), BsonDocument.Parse(update));
         }
 
-        protected async Task VerifyOperationNameIsSet<TResult>(
+        private protected async Task VerifyOperationNameIsSet<TResult>(
             IReadOperation<TResult> operation,
             bool async,
             string operationName)
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task VerifyOperationNameIsSet<TResult>(
+        private protected async Task VerifyOperationNameIsSet<TResult>(
            IWriteOperation<TResult> operation,
            bool async,
            string operationName)
@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected void VerifySessionIdWasNotSentIfUnacknowledgedWrite<TResult>(
+        private protected void VerifySessionIdWasNotSentIfUnacknowledgedWrite<TResult>(
             IWriteOperation<TResult> operation,
             string commandName,
             bool async,
@@ -520,7 +520,7 @@ namespace MongoDB.Driver.Core.Operations
                 useImplicitSession);
         }
 
-        protected void VerifySessionIdWasSentWhenSupported<TResult>(IReadOperation<TResult> operation, string commandName, bool async)
+        private protected void VerifySessionIdWasSentWhenSupported<TResult>(IReadOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
                 (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
@@ -530,7 +530,7 @@ namespace MongoDB.Driver.Core.Operations
                 async);
         }
 
-        protected void VerifySessionIdWasSentWhenSupported<TResult>(IWriteOperation<TResult> operation, string commandName, bool async)
+        private protected void VerifySessionIdWasSentWhenSupported<TResult>(IWriteOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
                 (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
@@ -540,7 +540,7 @@ namespace MongoDB.Driver.Core.Operations
                 async);
         }
 
-        protected void VerifySessionIdSending<TResult>(
+        private protected void VerifySessionIdSending<TResult>(
             Func<WritableServerBinding, CancellationToken, Task<TResult>> executeAsync,
             Func<WritableServerBinding, CancellationToken, TResult> execute,
             Action<EventCapturer, ICoreSessionHandle, Exception> assertResults,

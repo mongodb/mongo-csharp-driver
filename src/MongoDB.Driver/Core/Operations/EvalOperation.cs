@@ -22,16 +22,11 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an eval operation.
-    /// </summary>
-    public class EvalOperation : IWriteOperation<BsonValue>
+    internal sealed class EvalOperation : IWriteOperation<BsonValue>
     {
-        // fields
         private IEnumerable<BsonValue> _args;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly BsonJavaScript _function;
@@ -39,13 +34,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _noLock;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EvalOperation"/> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="function">The JavaScript function.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public EvalOperation(
             DatabaseNamespace databaseNamespace,
             BsonJavaScript function,
@@ -56,97 +44,40 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets the arguments to the JavaScript function.
-        /// </summary>
-        /// <value>
-        /// The arguments to the JavaScript function.
-        /// </value>
         public IEnumerable<BsonValue> Args
         {
             get { return _args; }
             set { _args = value; }
         }
 
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets the JavaScript function.
-        /// </summary>
-        /// <value>
-        /// The JavaScript function.
-        /// </value>
         public BsonJavaScript Function
         {
             get { return _function; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time the server should spend on this operation.
-        /// </summary>
-        /// <value>
-        /// The maximum time the server should spend on this operation.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should not take a global write lock before evaluating the JavaScript function.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the server should not take a global write lock before evaluating the JavaScript function.
-        /// </value>
         public bool? NoLock
         {
             get { return _noLock; }
             set { _noLock = value; }
         }
 
-        // public methods
-        /// <inheritdoc/>
-        public BsonValue Execute(IWriteBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var result = operation.Execute(binding, cancellationToken);
-            return result["retval"];
-        }
-
-        /// <inheritdoc/>
-        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return result["retval"];
-        }
-
-        // private methods
-        internal BsonDocument CreateCommand()
+        public BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -155,6 +86,22 @@ namespace MongoDB.Driver.Core.Operations
                 { "nolock", () => _noLock.Value, _noLock.HasValue },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue }
             };
+        }
+
+        public BsonValue Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var result = operation.Execute(binding, cancellationToken);
+            return result["retval"];
+        }
+
+        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return result["retval"];
         }
 
         private WriteCommandOperation<BsonDocument> CreateOperation()

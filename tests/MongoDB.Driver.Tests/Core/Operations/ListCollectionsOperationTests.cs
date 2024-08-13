@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public static class ListCollectionsOperationReflector
+    internal static class ListCollectionsOperationReflector
     {
         public static ReadCommandOperation<BsonDocument> CreateOperation(this ListCollectionsOperation obj) => (ReadCommandOperation<BsonDocument>)Reflector.Invoke(obj, nameof(CreateOperation));
     }

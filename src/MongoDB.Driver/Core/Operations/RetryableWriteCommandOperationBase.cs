@@ -29,12 +29,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a base class for a delete, insert or update command operation.
-    /// </summary>
-    public abstract class RetryableWriteCommandOperationBase : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
+    internal abstract class RetryableWriteCommandOperationBase : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
-        // private fields
         private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
         private bool _isOrdered = true;
@@ -43,12 +39,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RetryableWriteCommandOperationBase" /> class.
-        /// </summary>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RetryableWriteCommandOperationBase(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -57,87 +47,46 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the database namespace.
-        /// </summary>
-        /// <value>
-        /// The database namespace.
-        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should process the requests in order.
-        /// </summary>
-        /// <value>A value indicating whether the server should process the requests in order.</value>
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum batch count.
-        /// </summary>
-        /// <value>
-        /// The maximum batch count.
-        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether retry is enabled for the operation.
-        /// </summary>
-        /// <value>A value indicating whether retry is enabled.</value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        // public methods
-        /// <inheritdoc />
         public virtual BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
@@ -146,13 +95,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc />
         public virtual BsonDocument Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             return RetryableWriteOperationExecutor.Execute(this, context, cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
@@ -161,13 +108,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<BsonDocument> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationToken);
         }
 
-        /// <inheritdoc />
         public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
@@ -187,7 +132,6 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken);
         }
 
-        /// <inheritdoc />
         public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
@@ -207,29 +151,10 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken);
         }
 
-        // protected methods
-        /// <summary>
-        /// Creates the command.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="attempt">The attempt.</param>
-        /// <param name="transactionNumber">The transaction number.</param>
-        /// <returns>
-        /// A command.
-        /// </returns>
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);
 
-        /// <summary>
-        /// Creates the command payloads.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
-        /// <param name="attempt">The attempt.</param>
-        /// <returns>
-        /// The command payloads.
-        /// </returns>
         protected abstract IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
-        // private methods
         private MessageEncoderSettings CreateMessageEncoderSettings(IChannelHandle channel)
         {
             var clone = _messageEncoderSettings.Clone();

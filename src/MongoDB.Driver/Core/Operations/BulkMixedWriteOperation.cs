@@ -27,12 +27,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a mixed write bulk operation.
-    /// </summary>
-    public class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
+    internal sealed class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
     {
-        // fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -47,13 +43,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkMixedWriteOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="requests">The requests.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<WriteRequest> requests,
@@ -62,12 +51,6 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkMixedWriteOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="requests">The requests.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             List<WriteRequest> requests,
@@ -79,162 +62,81 @@ namespace MongoDB.Driver.Core.Operations
             _writeConcern = WriteConcern.Acknowledged;
         }
 
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether to bypass document validation.
-        /// </value>
         public bool? BypassDocumentValidation
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the writes must be performed in order.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the writes must be performed in order; otherwise, <c>false</c>.
-        /// </value>
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the let document.
-        /// </summary>
-        /// <value>
-        /// The let document.
-        /// </value>
         public BsonDocument Let
         {
             get { return _let; }
             set { _let = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum number of documents in a batch.
-        /// </summary>
-        /// <value>
-        /// The maximum number of documents in a batch.
-        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum length of a batch.
-        /// </summary>
-        /// <value>
-        /// The maximum length of a batch.
-        /// </value>
         public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
             set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a document.
-        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum size of a wire document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of a wire document.
-        /// </value>
         public int? MaxWireDocumentSize
         {
             get { return _maxWireDocumentSize; }
             set { _maxWireDocumentSize = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets the requests.
-        /// </summary>
-        /// <value>
-        /// The requests.
-        /// </value>
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether [retry requested].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [retry requested]; otherwise, <c>false</c>.
-        /// </value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -251,7 +153,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (BeginOperation())
@@ -268,7 +169,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() =>
             // Execution starts with the first request
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());

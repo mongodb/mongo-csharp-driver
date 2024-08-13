@@ -31,7 +31,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -255,9 +254,6 @@ namespace MongoDB.Driver
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            findOperation.Modifiers.Should().BeNull();
-#pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
 #pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
@@ -1420,9 +1416,6 @@ namespace MongoDB.Driver
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
-#pragma warning restore 618
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true,
@@ -1474,9 +1467,6 @@ namespace MongoDB.Driver
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            operation.Modifiers.Should().Be(options.Modifiers);
-#pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);
@@ -1515,9 +1505,6 @@ namespace MongoDB.Driver
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
-#pragma warning restore 618
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true,
@@ -1568,9 +1555,6 @@ namespace MongoDB.Driver
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            operation.Modifiers.Should().Be(options.Modifiers);
-#pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);

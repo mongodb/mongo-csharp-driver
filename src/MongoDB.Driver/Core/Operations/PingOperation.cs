@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -24,43 +23,40 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a ping operation.
-    /// </summary>
-    public class PingOperation : IReadOperation<BsonDocument>
+    internal sealed class PingOperation : IReadOperation<BsonDocument>
     {
-        // fields
         private MessageEncoderSettings _messageEncoderSettings;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PingOperation"/> class.
-        /// </summary>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public PingOperation(MessageEncoderSettings messageEncoderSettings)
         {
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        // methods
-        internal BsonDocument CreateCommand()
+        public BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
                 { "ping", 1 }
             };
+        }
+
+        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return operation.Execute(binding, cancellationToken);
+        }
+
+        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, nameof(binding));
+            var operation = CreateOperation();
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
         private ReadCommandOperation<BsonDocument> CreateOperation()
@@ -70,22 +66,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 RetryRequested = false
             };
-        }
-
-        /// <inheritdoc/>
-        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return operation.Execute(binding, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, nameof(binding));
-            var operation = CreateOperation();
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
     }
 }

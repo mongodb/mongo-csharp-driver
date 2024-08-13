@@ -18,20 +18,10 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// An operation clock.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.Operations.IOperationClock" />
-    internal class OperationClock : IOperationClock
+    internal sealed class OperationClock : IOperationClock
     {
         #region static
-        // public static methods
-        /// <summary>
-        /// Returns the greater of two operation times.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        /// <returns>The greater operation time.</returns>
+
         public static BsonTimestamp GreaterOperationTime(BsonTimestamp x, BsonTimestamp y)
         {
             if (x == null)
@@ -47,17 +37,13 @@ namespace MongoDB.Driver.Core.Operations
                 return x > y ? x : y;
             }
         }
+
         #endregion
 
-        // private fields
         private BsonTimestamp _operationTime;
 
-        // public properties
-        /// <inheritdoc />
         public BsonTimestamp OperationTime => _operationTime;
 
-        // public methods
-        /// <inheritdoc />
         public void AdvanceOperationTime(BsonTimestamp newOperationTime)
         {
             Ensure.IsNotNull(newOperationTime, nameof(newOperationTime));
@@ -65,16 +51,10 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    /// <summary>
-    /// An object that represents no operation clock.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.Operations.IOperationClock" />
-    public sealed class NoOperationClock : IOperationClock
+    internal sealed class NoOperationClock : IOperationClock
     {
-        /// <inheritdoc />
         public BsonTimestamp OperationTime => null;
 
-        /// <inheritdoc />
         public void AdvanceOperationTime(BsonTimestamp newOperationTime)
         {
         }

@@ -13,61 +13,21 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a database read operation.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IReadOperation<TResult>
+    internal interface IReadOperation<TResult>
     {
-        // methods
-        /// <summary>
-        /// Executes the operation.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the operation.</returns>
         TResult Execute(IReadBinding binding, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes the operation.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the operation.</returns>
         Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// Represents a database write operation.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IWriteOperation<TResult>
+    internal interface IWriteOperation<TResult>
     {
-        // methods
-        /// <summary>
-        /// Executes the operation.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the operation.</returns>
         TResult Execute(IWriteBinding binding, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes the operation.
-        /// </summary>
-        /// <param name="binding">The binding.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the operation.</returns>
         Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
     }
 }

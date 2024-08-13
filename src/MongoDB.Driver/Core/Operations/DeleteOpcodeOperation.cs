@@ -22,25 +22,14 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a delete operation using the delete opcode.
-    /// </summary>
-    public class DeleteOpcodeOperation : IWriteOperation<WriteConcernResult>, IExecutableInRetryableWriteContext<WriteConcernResult>
+    internal sealed class DeleteOpcodeOperation : IWriteOperation<WriteConcernResult>, IExecutableInRetryableWriteContext<WriteConcernResult>
     {
-        // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly DeleteRequest _request;
         private bool _retryRequested;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteOpcodeOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="request">The request.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DeleteOpcodeOperation(
             CollectionNamespace collectionNamespace,
             DeleteRequest request,
@@ -51,64 +40,33 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        // properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets the request.
-        /// </summary>
-        /// <value>
-        /// The request.
-        /// </value>
         public DeleteRequest Request
         {
             get { return _request; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether retry is enabled for the operation.
-        /// </summary>
-        /// <value>A value indicating whether retry is enabled.</value>
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public WriteConcernResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -119,7 +77,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public WriteConcernResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(context, nameof(context));
@@ -131,7 +88,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -142,7 +98,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(context, nameof(context));
@@ -154,7 +109,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IExecutableInRetryableWriteContext<WriteConcernResult> CreateEmulator()
         {
             return new DeleteOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)

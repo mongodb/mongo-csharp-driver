@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
     }
 
-    public static class WritableServerBindingReflector
+    internal static class WritableServerBindingReflector
     {
         public static ICluster _cluster(this WritableServerBinding obj)
         {

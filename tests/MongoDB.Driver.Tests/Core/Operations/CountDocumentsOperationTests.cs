@@ -607,7 +607,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public static class CountDocumentsOperationReflector
+    internal static class CountDocumentsOperationReflector
     {
         public static AggregateOperation<BsonDocument> CreateOperation(this CountDocumentsOperation obj) => (AggregateOperation<BsonDocument>)Reflector.Invoke(obj, nameof(CreateOperation));
         public static List<BsonDocument> CreatePipeline(this CountDocumentsOperation obj) => (List<BsonDocument>)Reflector.Invoke(obj, nameof(CreatePipeline));

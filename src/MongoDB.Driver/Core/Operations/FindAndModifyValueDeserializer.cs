@@ -18,33 +18,20 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a deserializer for find and modify result values.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindAndModifyValueDeserializer<TResult> : SerializerBase<TResult>
+    internal class FindAndModifyValueDeserializer<TResult> : SerializerBase<TResult>
     {
-        // fields
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FindAndModifyValueDeserializer{TResult}"/> class.
-        /// </summary>
-        /// <param name="valueSerializer">The value serializer.</param>
         public FindAndModifyValueDeserializer(IBsonSerializer<TResult> valueSerializer)
         {
             _resultSerializer = new ElementDeserializer<TResult>("value", valueSerializer, deserializeNull: false);
         }
 
-        // methods
-        /// <inheritdoc/>
         public override TResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             return _resultSerializer.Deserialize(context);
         }
 
-        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (object.ReferenceEquals(obj, null)) { return false; }
@@ -55,7 +42,6 @@ namespace MongoDB.Driver.Core.Operations
                 object.Equals(_resultSerializer, other._resultSerializer);
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode() => 0;
     }
 }

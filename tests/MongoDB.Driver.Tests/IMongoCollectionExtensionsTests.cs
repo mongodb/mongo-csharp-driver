@@ -611,9 +611,6 @@ namespace MongoDB.Driver.Tests
                 CursorType = CursorType.Tailable,
                 MaxAwaitTime = TimeSpan.FromSeconds(1),
                 MaxTime = TimeSpan.FromSeconds(2),
-#pragma warning disable 618
-                Modifiers = new BsonDocument("modifier", 1),
-#pragma warning restore 618
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true
@@ -664,9 +661,6 @@ namespace MongoDB.Driver.Tests
             actualOptions.CursorType.Should().Be(options.CursorType);
             actualOptions.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             actualOptions.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            actualOptions.Modifiers.Should().Be(options.Modifiers);
-#pragma warning restore 618
             actualOptions.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             actualOptions.OplogReplay.Should().Be(options.OplogReplay);

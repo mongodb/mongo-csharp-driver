@@ -24,12 +24,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an estimated document count operation.
-    /// </summary>
-    public class EstimatedDocumentCountOperation : IReadOperation<long>
+    internal sealed class EstimatedDocumentCountOperation : IReadOperation<long>
     {
-        // private fields
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private TimeSpan? _maxTime;
@@ -37,66 +33,40 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EstimatedDocumentCountOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public EstimatedDocumentCountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
         public BsonValue Comment
         {
             get => _comment;
             set => _comment = value;
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time the server should spend on this operation.
-        /// </summary>
         public TimeSpan? MaxTime
         {
             get => _maxTime;
             set => _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value));
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
         public MessageEncoderSettings MessageEncoderSettings => _messageEncoderSettings;
 
-        /// <summary>
-        /// Gets or sets the read concern.
-        /// </summary>
         public ReadConcern ReadConcern
         {
             get => _readConcern;
             set => _readConcern = Ensure.IsNotNull(value, nameof(value));
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to retry.
-        /// </summary>
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        /// <inheritdoc/>
         public long Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -110,7 +80,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -124,7 +93,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
         private IDisposable BeginOperation() => EventContext.BeginOperation("count");
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()

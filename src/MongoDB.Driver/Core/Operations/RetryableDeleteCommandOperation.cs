@@ -27,23 +27,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a delete command operation.
-    /// </summary>
-    public class RetryableDeleteCommandOperation : RetryableWriteCommandOperationBase
+    internal sealed class RetryableDeleteCommandOperation : RetryableWriteCommandOperationBase
     {
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BatchableSource<DeleteRequest> _deletes;
         private BsonDocument _let;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RetryableDeleteCommandOperation" /> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="deletes">The deletes.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RetryableDeleteCommandOperation(
             CollectionNamespace collectionNamespace,
             BatchableSource<DeleteRequest> deletes,
@@ -54,43 +44,22 @@ namespace MongoDB.Driver.Core.Operations
             _deletes = Ensure.IsNotNull(deletes, nameof(deletes));
         }
 
-        // public properties
-        /// <summary>
-        /// Gets or sets the let document.
-        /// </summary>
-        /// <value>
-        /// The let document.
-        /// </value>
         public BsonDocument Let
         {
             get { return _let; }
             set { _let = value; }
         }
 
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets the deletes.
-        /// </summary>
-        /// <value>
-        /// The deletes.
-        /// </value>
         public BatchableSource<DeleteRequest> Deletes
         {
             get { return _deletes; }
         }
 
-        // protected methods
-        /// <inheritdoc />
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             if (WriteConcern != null && !WriteConcern.IsAcknowledged)

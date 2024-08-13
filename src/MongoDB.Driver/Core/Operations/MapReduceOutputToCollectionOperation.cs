@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a map-reduce operation that outputs its results to a collection.
     /// </summary>
     [Obsolete("Use Aggregation pipeline instead.")]
-    public class MapReduceOutputToCollectionOperation : MapReduceOperationBase, IWriteOperation<BsonDocument>
+    internal sealed class MapReduceOutputToCollectionOperation : MapReduceOperationBase, IWriteOperation<BsonDocument>
     {
         // fields
         private bool? _bypassDocumentValidation;

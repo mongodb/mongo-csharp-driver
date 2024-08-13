@@ -141,9 +141,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit.Should().NotHaveValue();
             subject.Max.Should().BeNull();
             subject.MaxAwaitTime.Should().NotHaveValue();
-#pragma warning disable 618
-            subject.MaxScan.Should().NotHaveValue();
-#pragma warning restore
             subject.MaxTime.Should().NotHaveValue();
             subject.Min.Should().BeNull();
             subject.NoCursorTimeout.Should().NotHaveValue();
@@ -157,9 +154,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.ShowRecordId.Should().NotHaveValue();
             subject.SingleBatch.Should().NotHaveValue();
             subject.Skip.Should().NotHaveValue();
-#pragma warning disable 618
-            subject.Snapshot.Should().NotHaveValue();
-#pragma warning restore
             subject.Sort.Should().BeNull();
         }
 
@@ -461,32 +455,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_MaxScan_is_set(
-            [Values(null, 1, 2)]
-            int? maxScan)
-        {
-#pragma warning disable 618
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                MaxScan = maxScan
-            };
-#pragma warning restore
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(connectionDescription, session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "find", _collectionNamespace.CollectionName },
-                { "maxScan", () => maxScan.Value, maxScan.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
         [InlineData(-10000, 0)]
         [InlineData(0, 0)]
         [InlineData(1, 1)]
@@ -706,32 +674,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "find", _collectionNamespace.CollectionName },
                 { "skip", () => skip.Value, skip.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_Snapshot_is_set(
-            [Values(null, false, true)]
-            bool? snapshot)
-        {
-#pragma warning disable 618
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                Snapshot = snapshot
-            };
-#pragma warning restore
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(connectionDescription, session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "find", _collectionNamespace.CollectionName },
-                { "snapshot", () => snapshot.Value, snapshot.HasValue }
             };
             result.Should().Be(expectedResult);
         }
@@ -1083,38 +1025,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void MaxScan_get_and_set_should_work(
-            [Values(null, 1, 2)]
-            int? value)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.MaxScan = value;
-            var result = subject.MaxScan;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void MaxScan_should_throw_when_value_is_invalid(
-            [Values(-1, 0)]
-            int? value)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-#pragma warning disable 618
-            var exception = Record.Exception(() => { subject.MaxScan = value; });
-#pragma warning restore
-
-            var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            argumentOutOfRangeException.ParamName.Should().Be("value");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void MaxAwaitTime_get_and_set_should_work(
             [Values(null, 1, 2)]
             int? seconds)
@@ -1328,22 +1238,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Snapshot_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.Snapshot = value;
-            var result = subject.Snapshot;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Sort_get_and_set_should_work(
             [Values(null, "{ x : 1 }", "{ y : 1 }")]
             string valueString)
@@ -1373,7 +1267,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public static class FindOperationReflector
+    internal static class FindOperationReflector
     {
         public static AsyncCursor<BsonDocument> CreateCursor(
             this FindOperation<BsonDocument> obj,

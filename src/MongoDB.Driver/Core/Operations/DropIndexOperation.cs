@@ -25,12 +25,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a drop index operation.
-    /// </summary>
-    public class DropIndexOperation : IWriteOperation<BsonDocument>
+    internal sealed class DropIndexOperation : IWriteOperation<BsonDocument>
     {
-        // fields
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private readonly string _indexName;
@@ -38,13 +34,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DropIndexOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="keys">The keys.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             BsonDocument keys,
@@ -53,12 +42,6 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DropIndexOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="indexName">The name of the index.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
@@ -69,76 +52,40 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        // properties
-        /// <summary>
-        /// Gets the collection namespace.
-        /// </summary>
-        /// <value>
-        /// The collection namespace.
-        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        /// <value>
-        /// The comment.
-        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
-        /// <summary>
-        /// Gets the name of the index.
-        /// </summary>
-        /// <value>
-        /// The name of the index.
-        /// </value>
         public string IndexName
         {
             get { return _indexName; }
         }
 
-        /// <summary>
-        /// Gets the message encoder settings.
-        /// </summary>
-        /// <value>
-        /// The message encoder settings.
-        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
-        /// <summary>
-        /// Gets or sets the write concern.
-        /// </summary>
-        /// <value>
-        /// The write concern.
-        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum time.
-        /// </summary>
-        /// <value>The maximum time.</value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        // methods
-        internal BsonDocument CreateCommand(ICoreSessionHandle session)
+        public BsonDocument CreateCommand(ICoreSessionHandle session)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             return new BsonDocument
@@ -151,15 +98,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("dropIndexes");
-
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
-        {
-            var command = CreateCommand(session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-        }
-
-        /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -187,7 +125,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -213,6 +150,14 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 return result;
             }
+        }
+
+        private IDisposable BeginOperation() => EventContext.BeginOperation("dropIndexes");
+
+        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
+        {
+            var command = CreateCommand(session);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
         private bool ShouldIgnoreException(MongoCommandException ex)
