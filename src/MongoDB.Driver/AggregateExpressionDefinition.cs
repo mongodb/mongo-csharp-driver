@@ -69,18 +69,6 @@ namespace MongoDB.Driver
         #endregion
 
         /// <summary>
-        /// Renders the aggregation expression.
-        /// </summary>
-        /// <param name="sourceSerializer">The source serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>The rendered aggregation expression.</returns>
-        [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
-        public virtual BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(sourceSerializer, serializerRegistry));
-        }
-
-        /// <summary>
         /// Renders the aggregation expression to a <see cref="BsonValue"/>.
         /// </summary>
         /// <param name="args">The render arguments.</param>

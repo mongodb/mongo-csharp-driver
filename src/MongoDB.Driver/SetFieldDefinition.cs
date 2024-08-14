@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
@@ -27,18 +25,6 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public abstract class SetFieldDefinition<TDocument>
     {
-        /// <summary>
-        /// Renders the SetFieldDefinition.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>The rendered SetFieldDefinition.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonElement Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
-        }
-
         /// <summary>
         /// Renders the SetFieldDefinition.
         /// </summary>

@@ -47,15 +47,6 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Renders the span clause to a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="renderContext">The render context.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonDocument Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            Render(new RenderArgs<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathRenderArgs: new PathRenderArgs(renderContext.PathPrefix)));
-
-        /// <summary>
-        /// Renders the span clause to a <see cref="BsonDocument"/>.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public virtual BsonDocument Render(RenderArgs<TDocument> args) =>

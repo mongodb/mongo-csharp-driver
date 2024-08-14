@@ -33,18 +33,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the set field definitions.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>The rendered set field definitions.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
-        }
-
-        /// <summary>
-        /// Renders the set field definitions.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>The rendered set field definitions.</returns>
         public abstract BsonDocument Render(RenderArgs<TDocument> args);

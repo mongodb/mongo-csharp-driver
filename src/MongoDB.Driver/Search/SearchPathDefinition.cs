@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -26,15 +25,6 @@ namespace MongoDB.Driver.Search
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public abstract class SearchPathDefinition<TDocument>
     {
-        /// <summary>
-        /// Renders the path to a <see cref="BsonValue"/>.
-        /// </summary>
-        /// <param name="renderContext">The render context.</param>
-        /// <returns>A <see cref="BsonValue"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
-        public virtual BsonValue Render(SearchDefinitionRenderContext<TDocument> renderContext) =>
-            Render(new RenderArgs<TDocument>(renderContext.DocumentSerializer, renderContext.SerializerRegistry, pathRenderArgs: new(renderContext.PathPrefix)));
-
         /// <summary>
         /// Renders the path to a <see cref="BsonValue"/>.
         /// </summary>
