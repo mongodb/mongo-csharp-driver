@@ -38,6 +38,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     return AppendStageMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "As":
                     return AsMethodToPipelineTranslator.Translate(context, methodCallExpression);
+                case "Concat":
+                    return ConcatMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "Densify":
                     return DensifyMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "Distinct":

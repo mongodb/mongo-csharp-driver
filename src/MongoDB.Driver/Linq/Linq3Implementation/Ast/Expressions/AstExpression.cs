@@ -24,6 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal abstract class AstExpression : AstNode
     {
         #region static
+        // private static properties
+        private static readonly AstExpression __rootVar = AstExpression.Var("ROOT", isCurrent: true);
+
+        // public static properties
+        public static AstExpression RootVar => __rootVar;
+
         // public implicit conversions
         public static implicit operator AstExpression(BsonValue value)
         {

@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -24,14 +22,14 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-    internal static class UnionMethodToPipelineTranslator
+    internal static class ConcatMethodToPipelineTranslator
     {
         public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(QueryableMethod.Union))
+            if (method.Is(QueryableMethod.Concat))
             {
                 var firstExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, firstExpression);
@@ -58,9 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                     pipeline = pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        AstStage.UnionWith(secondCollectionName, secondPipeline),
-                        AstStage.Group(AstExpression.RootVar, fields: Array.Empty<AstAccumulatorField>()),
-                        AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")));
+                        AstStage.UnionWith(secondCollectionName, secondPipeline));
 
                     return pipeline;
                 }
