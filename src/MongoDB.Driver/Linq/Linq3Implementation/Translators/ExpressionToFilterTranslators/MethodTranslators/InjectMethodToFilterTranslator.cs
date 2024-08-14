@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -39,13 +40,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var documentType = filterDefinitionType.GetGenericArguments()[0];
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
-                var renderMethodArgumentTypes = new[]
-                {
-                    typeof(IBsonSerializer<>).MakeGenericType(documentType),
-                    typeof(IBsonSerializerRegistry)
-                };
-                var renderMethod = filterDefinitionType.GetMethod("Render", renderMethodArgumentTypes);
-                var renderedFilter = (BsonDocument)renderMethod.Invoke(filterDefinition, new object[] { documentSerializer, serializerRegistry });
+
+                var renderArgsType = typeof(RenderArgs<>).MakeGenericType(documentType);
+                var renderArgs = Activator.CreateInstance(
+                    renderArgsType,
+                    documentSerializer,
+                    serializerRegistry,
+                    default(PathRenderArgs),
+                    false, // renderDollarForm
+                    false, // renderForFind
+                    false); // renderForElemMatch
+
+                var renderMethod = filterDefinitionType.GetMethod(nameof(FilterDefinition<BsonDocument>.Render), new[] { renderArgsType });
+                var renderedFilter = (BsonDocument)renderMethod.Invoke(filterDefinition, new object[] { renderArgs });
                 return AstFilter.Raw(renderedFilter);
             }
 
