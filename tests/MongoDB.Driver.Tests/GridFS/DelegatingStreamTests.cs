@@ -18,11 +18,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Driver.GridFS;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class DelegatingStreamTests
     {

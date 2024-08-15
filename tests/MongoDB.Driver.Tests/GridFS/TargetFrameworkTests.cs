@@ -16,7 +16,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class TargetFrameworkTests
     {

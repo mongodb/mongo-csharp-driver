@@ -18,19 +18,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Tests;
+using MongoDB.Driver.GridFS;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class GridFSBucketTests
     {
@@ -716,11 +715,6 @@ namespace MongoDB.Driver.GridFS.Tests
             mockDatabase.SetupGet(d => d.DatabaseNamespace).Returns(new DatabaseNamespace("database"));
 
             return new GridFSBucket(mockDatabase.Object, options);
-        }
-
-        private void DropBucket(IGridFSBucket bucket)
-        {
-            bucket.Drop();
         }
 
         private void EnsureBucketExists(IGridFSBucket bucket)

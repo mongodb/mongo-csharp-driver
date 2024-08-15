@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
-using System.Threading.Tasks;
+using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
 {
     public interface IGridFSTest
     {

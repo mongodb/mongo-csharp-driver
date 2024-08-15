@@ -18,8 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
 {
     public abstract class GridFSTestBase : IGridFSTest
     {

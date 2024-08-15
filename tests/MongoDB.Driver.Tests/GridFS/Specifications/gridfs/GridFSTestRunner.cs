@@ -19,11 +19,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson;
-using MongoDB.Driver.Tests;
+using MongoDB.Driver.GridFS;
 using Xunit;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
 {
     public class GridFSTestRunner
     {
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Driver.GridFS.Tests.Specifications.gridfs.tests.";
+                const string prefix = "MongoDB.Driver.Tests.GridFS.Specifications.gridfs.tests.";
                 var testCases = typeof(TestCaseSource).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))

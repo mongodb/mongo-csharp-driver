@@ -23,8 +23,9 @@ using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Xunit;
+using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class GridFSUploadStreamTests
     {

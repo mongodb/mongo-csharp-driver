@@ -14,10 +14,10 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson;
+using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
 {
     public static class GridFSDownloadAsBytesTestFactory
     {

@@ -16,7 +16,7 @@
 using System;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
+namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
 {
     public static class GridFSTestFactory
     {

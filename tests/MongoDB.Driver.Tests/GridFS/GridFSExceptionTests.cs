@@ -17,14 +17,15 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
+using MongoDB.Driver.GridFS;
 using Xunit;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class GridFSExceptionTests
     {
         [Fact]
-        public void constructor_with_messsage_should_initialize_instance()
+        public void constructor_with_message_should_initialize_instance()
         {
             var result = new GridFSException("message");
 
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Fact]
-        public void constructor_with_messsage_and_innerException_should_initialize_instance()
+        public void constructor_with_message_and_innerException_should_initialize_instance()
         {
             var innerException = new Exception();
             var result = new GridFSException("message", innerException);

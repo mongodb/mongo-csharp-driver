@@ -17,9 +17,10 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
+using MongoDB.Driver.GridFS;
 using Xunit;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     public class GridFSChunkExceptionTests
     {
