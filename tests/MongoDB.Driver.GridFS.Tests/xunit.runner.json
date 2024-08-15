@@ -1,5 +1,0 @@
-{
-  "longRunningTestSeconds": 10,
-  "parallelizeAssembly": false,
-  "parallelizeTestCollections": false
-}

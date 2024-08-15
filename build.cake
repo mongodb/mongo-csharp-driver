@@ -35,8 +35,7 @@ var solutionFullPath = solutionFile.FullPath;
 var srcProjectNames = new[]
 {
     "MongoDB.Bson",
-    "MongoDB.Driver",
-    "MongoDB.Driver.GridFS"
+    "MongoDB.Driver"
 };
 
 Task("Default")
@@ -91,7 +90,7 @@ Task("BuildArtifacts")
             var toDirectory = artifactsBinDirectory.Combine(targetFramework);
             CleanDirectory(toDirectory);
 
-            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver", "MongoDB.Driver.GridFS" };
+            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver" };
             foreach (var project in projects)
             {
                 var fromDirectory = srcDirectory.Combine(project).Combine("bin").Combine(configuration).Combine(targetFramework);
@@ -336,8 +335,7 @@ Task("PackageNugetPackages")
         var projects = new[]
         {
             "MongoDB.Bson",
-            "MongoDB.Driver",
-            "MongoDB.Driver.GridFS"
+            "MongoDB.Driver"
         };
 
         foreach (var project in projects)
@@ -372,8 +370,7 @@ Task("PushToNuGet")
         var projects = new[]
         {
             "MongoDB.Bson",
-            "MongoDB.Driver",
-            "MongoDB.Driver.GridFS"
+            "MongoDB.Driver"
         };
 
         foreach (var project in projects)
