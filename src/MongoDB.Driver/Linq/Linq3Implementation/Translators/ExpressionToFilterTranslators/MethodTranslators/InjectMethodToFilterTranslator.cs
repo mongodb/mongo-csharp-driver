@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -26,6 +26,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class InjectMethodToFilterTranslator
     {
+        private readonly static MethodInfo __renderMethodInfo;
+
+        static InjectMethodToFilterTranslator()
+        {
+            __renderMethodInfo = typeof(InjectMethodToFilterTranslator).GetMethod(nameof(RenderFilter), BindingFlags.NonPublic | BindingFlags.Static);
+        }
+
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -38,25 +45,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var filterDefinition = filterExpression.GetConstantValue<object>(expression);
                 var filterDefinitionType = filterDefinition.GetType(); // we KNOW it's a FilterDefinition<TDocument> because of the Inject method signature
                 var documentType = filterDefinitionType.GetGenericArguments()[0];
+
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
 
-                var renderArgsType = typeof(RenderArgs<>).MakeGenericType(documentType);
-                var renderArgs = Activator.CreateInstance(
-                    renderArgsType,
-                    documentSerializer,
-                    serializerRegistry,
-                    default(PathRenderArgs),
-                    false, // renderDollarForm
-                    false, // renderForFind
-                    false); // renderForElemMatch
+                var renderMethod = __renderMethodInfo.MakeGenericMethod(documentType);
+                var renderedFilter = (BsonDocument)renderMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry });
 
-                var renderMethod = filterDefinitionType.GetMethod(nameof(FilterDefinition<BsonDocument>.Render), new[] { renderArgsType });
-                var renderedFilter = (BsonDocument)renderMethod.Invoke(filterDefinition, new object[] { renderArgs });
                 return AstFilter.Raw(renderedFilter);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
+
+        // private static methods
+        private static BsonDocument RenderFilter<TDocument>(FilterDefinition<TDocument> filterDefinition, IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            filterDefinition.Render(new(documentSerializer, serializerRegistry));
     }
 }
