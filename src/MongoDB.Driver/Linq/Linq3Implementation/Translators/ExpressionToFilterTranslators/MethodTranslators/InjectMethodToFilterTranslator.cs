@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class InjectMethodToFilterTranslator
     {
-        private readonly static MethodInfo __renderMethodInfo;
+        private readonly static MethodInfo __renderFilterMethodInfo;
 
         static InjectMethodToFilterTranslator()
         {
-            __renderMethodInfo = typeof(InjectMethodToFilterTranslator).GetMethod(nameof(RenderFilter), BindingFlags.NonPublic | BindingFlags.Static);
+            __renderFilterMethodInfo = typeof(InjectMethodToFilterTranslator).GetMethod(nameof(RenderFilter), BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         // public static methods
@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
 
-                var renderMethod = __renderMethodInfo.MakeGenericMethod(documentType);
-                var renderedFilter = (BsonDocument)renderMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry });
+                var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(documentType);
+                var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry });
 
                 return AstFilter.Raw(renderedFilter);
             }
