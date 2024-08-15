@@ -68,18 +68,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
         /// </summary>
-        /// <param name="sourceSerializer">The source serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
-        public virtual BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(sourceSerializer, serializerRegistry));
-        }
-
-        /// <summary>
-        /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public abstract BsonDocument Render(RenderArgs<TSource> args);
@@ -126,18 +114,6 @@ namespace MongoDB.Driver
     /// <typeparam name="TProjection">The type of the projection.</typeparam>
     public abstract class ProjectionDefinition<TSource, TProjection>
     {
-        /// <summary>
-        /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
-        /// </summary>
-        /// <param name="sourceSerializer">The source serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedProjectionDefinition{TProjection}"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TSource> args) overload instead.")]
-        public virtual RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(sourceSerializer, serializerRegistry));
-        }
-
         /// <summary>
         /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
         /// </summary>

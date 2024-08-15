@@ -29,18 +29,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the update to a <see cref="BsonValue"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonValue"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
-        }
-
-        /// <summary>
-        /// Renders the update to a <see cref="BsonValue"/>.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
         public abstract BsonValue Render(RenderArgs<TDocument> args);
