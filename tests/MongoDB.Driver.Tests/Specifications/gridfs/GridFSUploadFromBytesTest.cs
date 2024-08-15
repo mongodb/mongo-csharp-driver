@@ -21,7 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
+namespace MongoDB.Driver.Tests.Specifications.gridfs
 {
     public abstract class GridFSUploadFromBytesTestBase : GridFSTestBase
     {

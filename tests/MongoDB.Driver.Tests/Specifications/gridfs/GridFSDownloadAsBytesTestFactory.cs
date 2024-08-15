@@ -17,24 +17,28 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
+namespace MongoDB.Driver.Tests.Specifications.gridfs
 {
-    public static class GridFSDownloadAsBytesByNameTestFactory
+    public static class GridFSDownloadAsBytesTestFactory
     {
         // static public methods
         public static IGridFSTest CreateTest(BsonDocument data, BsonDocument testDefinition)
         {
             if (testDefinition["assert"].AsBsonDocument.Contains("result"))
             {
-                return new GridFSDownloadAsBytesByNameTest(data, testDefinition);
+                return new GridFSDownloadAsBytesTest(data, testDefinition);
             }
 
             var error = testDefinition["assert"]["error"].AsString;
             switch (error)
             {
+                case "ChunkIsMissing":
+                case "ChunkIsWrongSize":
+                case "ChunksAreCorrupt":
+                case "ExtraChunk":
+                    return new GridFSDownloadAsBytesTest<GridFSChunkException>(data, testDefinition);
                 case "FileNotFound":
-                case "RevisionNotFound":
-                    return new GridFSDownloadAsBytesByNameTest<GridFSFileNotFoundException>(data, testDefinition);
+                    return new GridFSDownloadAsBytesTest<GridFSFileNotFoundException>(data, testDefinition);
                 default:
                     throw new NotSupportedException(string.Format("Invalid error: {0}.", error));
             }

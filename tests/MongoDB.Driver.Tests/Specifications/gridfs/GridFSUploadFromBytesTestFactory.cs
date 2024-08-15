@@ -13,30 +13,16 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
+namespace MongoDB.Driver.Tests.Specifications.gridfs
 {
-    public static class GridFSDeleteTestFactory
+    public static class GridFSUploadFromBytesTestFactory
     {
         // static public methods
         public static IGridFSTest CreateTest(BsonDocument data, BsonDocument testDefinition)
         {
-            if (testDefinition["assert"].AsBsonDocument.Contains("result"))
-            {
-                return new GridFSDeleteTest(data, testDefinition);
-            }
-
-            var error = testDefinition["assert"]["error"].AsString;
-            switch (error)
-            {
-                case "FileNotFound":
-                    return new GridFSDeleteTest<GridFSFileNotFoundException>(data, testDefinition);
-                default:
-                    throw new NotSupportedException(string.Format("Invalid error: {0}.", error));
-            }
+            return new GridFSUploadFromBytesTest(data, testDefinition);
         }
     }
 }

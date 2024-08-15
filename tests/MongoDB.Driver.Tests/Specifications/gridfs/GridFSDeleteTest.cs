@@ -20,20 +20,19 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
+namespace MongoDB.Driver.Tests.Specifications.gridfs
 {
-    public abstract class GridFSDownloadAsBytesByNameTestBase : GridFSTestBase
+    public abstract class GridFSDeleteTestBase : GridFSTestBase
     {
         // fields
-        protected string _filename;
-        protected GridFSDownloadByNameOptions _options = null;
+        protected ObjectId _id;
 
         // constructors
-        public GridFSDownloadAsBytesByNameTestBase(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTestBase(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
             var operationName = testDefinition["act"]["operation"].AsString;
-            if (operationName != "download_by_name")
+            if (operationName != "delete")
             {
                 throw new ArgumentException(string.Format("Invalid operation name: {0}.", operationName), "testDefinition");
             }
@@ -41,14 +40,14 @@ namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
         }
 
         // protected methods
-        protected byte[] InvokeMethod(GridFSBucket bucket)
+        protected void InvokeMethod(GridFSBucket bucket)
         {
-            return bucket.DownloadAsBytesByName(_filename, _options);
+            bucket.Delete(_id);
         }
 
-        protected Task<byte[]> InvokeMethodAsync(GridFSBucket bucket)
+        protected Task InvokeMethodAsync(GridFSBucket bucket)
         {
-            return bucket.DownloadAsBytesByNameAsync(_filename, _options);
+            return bucket.DeleteAsync(_id);
         }
 
         // private methods
@@ -58,12 +57,8 @@ namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
             {
                 switch (argument.Name)
                 {
-                    case "filename":
-                        _filename = argument.Value.AsString;
-                        break;
-
-                    case "options":
-                        ParseOptions((BsonDocument)argument.Value);
+                    case "id":
+                        _id = argument.Value.AsObjectId;
                         break;
 
                     default:
@@ -71,40 +66,14 @@ namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
                 }
             }
         }
-
-        private void ParseOptions(BsonDocument options)
-        {
-            foreach (var option in options.Elements)
-            {
-                _options = _options ?? new GridFSDownloadByNameOptions();
-                switch (option.Name)
-                {
-                    case "checkMD5":
-                        _options.CheckMD5 = option.Value.ToBoolean();
-                        break;
-
-                    case "revision":
-                        _options.Revision = option.Value.ToInt32();
-                        break;
-
-                    default:
-                        throw new ArgumentException(string.Format("Invalid option name: {0}.", option.Name));
-                }
-            }
-        }
     }
 
-    public class GridFSDownloadAsBytesByNameTest : GridFSDownloadAsBytesByNameTestBase
+    public class GridFSDeleteTest : GridFSDeleteTestBase
     {
-        // fields
-        private readonly byte[] _expectedResult;
-        private byte[] _result;
-
         // constructors
-        public GridFSDownloadAsBytesByNameTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
-            _expectedResult = testDefinition["assert"]["result"].AsByteArray;
         }
 
         // protected methods
@@ -112,28 +81,22 @@ namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
         {
             if (async)
             {
-                _result = InvokeMethodAsync(bucket).GetAwaiter().GetResult();
+                InvokeMethodAsync(bucket).GetAwaiter().GetResult();
             }
             else
             {
-                _result = InvokeMethod(bucket);
+                InvokeMethod(bucket);
             }
-        }
-
-        protected override void Assert(GridFSBucket bucket)
-        {
-            _result.Should().Equal(_expectedResult);
-            // don't call base.Assert
         }
     }
 
-    public class GridFSDownloadAsBytesByNameTest<TException> : GridFSDownloadAsBytesByNameTestBase where TException : Exception
+    public class GridFSDeleteTest<TException> : GridFSDeleteTestBase where TException : Exception
     {
         // fields
         private Action _action;
 
         // constructors
-        public GridFSDownloadAsBytesByNameTest(BsonDocument data, BsonDocument testDefinition)
+        public GridFSDeleteTest(BsonDocument data, BsonDocument testDefinition)
             : base(data, testDefinition)
         {
         }
@@ -154,7 +117,7 @@ namespace MongoDB.Driver.Tests.GridFS.Specifications.gridfs
         protected override void Assert(GridFSBucket bucket)
         {
             _action.ShouldThrow<TException>();
-            // don't call base.Assert
+            base.Assert(bucket);
         }
     }
 }
