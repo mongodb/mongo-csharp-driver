@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;

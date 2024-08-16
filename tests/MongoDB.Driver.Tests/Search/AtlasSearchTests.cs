@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 using MongoDB.Driver.TestHelpers;

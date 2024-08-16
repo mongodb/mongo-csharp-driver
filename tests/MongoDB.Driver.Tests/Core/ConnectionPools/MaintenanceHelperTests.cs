@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 using Moq;
 using Xunit;
 

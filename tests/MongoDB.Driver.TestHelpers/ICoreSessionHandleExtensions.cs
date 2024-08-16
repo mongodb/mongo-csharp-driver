@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Driver.TestHelpers
 {
     public static class ICoreSessionHandleExtensions
     {

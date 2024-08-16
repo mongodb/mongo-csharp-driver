@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.TestHelpers;
 using MongoDB.TestHelpers.JsonDrivenTests;
 
-namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
+namespace MongoDB.Driver.TestHelpers.JsonDrivenTests
 {
     public class CommandStartedEventAsserter : AspectAsserter<CommandStartedEvent>
     {

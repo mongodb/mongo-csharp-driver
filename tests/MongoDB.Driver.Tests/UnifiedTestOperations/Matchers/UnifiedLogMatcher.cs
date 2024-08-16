@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {

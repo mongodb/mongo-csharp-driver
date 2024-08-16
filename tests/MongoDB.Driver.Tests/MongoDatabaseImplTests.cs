@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;

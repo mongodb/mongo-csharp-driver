@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
+namespace MongoDB.Driver.TestHelpers.JsonDrivenTests
 {
     public static class RecursiveFieldSetter
     {

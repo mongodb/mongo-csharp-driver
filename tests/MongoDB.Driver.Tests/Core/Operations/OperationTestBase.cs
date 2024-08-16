@@ -24,7 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 

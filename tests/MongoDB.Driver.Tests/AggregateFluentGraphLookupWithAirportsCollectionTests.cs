@@ -19,7 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers;
 using MongoDB.TestHelpers.EqualityComparers;
 using Xunit;

@@ -23,13 +23,12 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static class LogCategoryHelper
     {
-        private static readonly IDictionary<Type, string> __catergories = new ConcurrentDictionary<Type, string>();
+        private static readonly IDictionary<Type, string> __categories = new ConcurrentDictionary<Type, string>();
 
         private static readonly string[] __driverNamespaces = new []
         {
             "MongoDB.Bson",
-            "MongoDB.Driver",
-            "MongoDB.Driver.Core"
+            "MongoDB.Driver"
         };
 
         private static readonly string[] __driverTestsNamespaces = new[]
@@ -37,9 +36,7 @@ namespace MongoDB.Driver.Core.Logging
             "MongoDB.Bson.Tests",
             "MongoDB.TestHelpers",
             "MongoDB.Driver.Tests",
-            "MongoDB.Driver.TestHelpers",
-            "MongoDB.Driver.Core.Tests",
-            "MongoDB.Driver.Core.TestHelpers"
+            "MongoDB.Driver.TestHelpers"
         };
 
         private static readonly string __specCategoryPrefix = typeof(LogCategories).FullName;
@@ -74,10 +71,10 @@ namespace MongoDB.Driver.Core.Logging
         public static string GetCategoryName<T>() where T : LogCategories.BaseCategory
         {
             var type = typeof(T);
-            if (!__catergories.TryGetValue(type, out var result))
+            if (!__categories.TryGetValue(type, out var result))
             {
                 result = DecorateCategoryName(type.FullName.Replace('+', '.'));
-                __catergories.Add(type, result);
+                __categories.Add(type, result);
             }
 
             return result;

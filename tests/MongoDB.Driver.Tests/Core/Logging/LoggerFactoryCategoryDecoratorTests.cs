@@ -36,8 +36,8 @@ namespace MongoDB.Driver.Core.Logging
         [InlineData("MongoDB.Driver.Tests.Namespace.SomeType", "MongoDB.Tests.SomeType")]
         [InlineData("MongoDB.Driver.Core.Tests.SomeType", "MongoDB.Tests.SomeType")]
         [InlineData("MongoDB.Driver.Core.Tests.NameSpace.SomeType", "MongoDB.Tests.SomeType")]
-        [InlineData("MongoDB.Driver.Core.TestHelpers.SomeType", "MongoDB.Tests.SomeType")]
-        [InlineData("MongoDB.Driver.Core.TestHelpers.NameSpace.SomeType", "MongoDB.Tests.SomeType")]
+        [InlineData("MongoDB.Driver.TestHelpers.SomeType", "MongoDB.Tests.SomeType")]
+        [InlineData("MongoDB.Driver.TestHelpers.NameSpace.SomeType", "MongoDB.Tests.SomeType")]
         [InlineData("MongoDB", "MongoDB")]
         [InlineData("Random", "Random")]
         internal void DecorateCategories_should_return_correct_category(string providedCategory, string expectedCatergory)

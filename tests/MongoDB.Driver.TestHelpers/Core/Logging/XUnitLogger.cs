@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions.Internal;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     [DebuggerStepThrough]
     internal sealed class XUnitLogger : ILogger

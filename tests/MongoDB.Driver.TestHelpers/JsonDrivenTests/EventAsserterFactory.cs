@@ -16,7 +16,7 @@
 using System;
 using MongoDB.TestHelpers.JsonDrivenTests;
 
-namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
+namespace MongoDB.Driver.TestHelpers.JsonDrivenTests
 {
     public static class EventAsserterFactory
     {

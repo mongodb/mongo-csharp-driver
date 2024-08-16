@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 using MongoDB.Driver.Core.Connections;
 

@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;

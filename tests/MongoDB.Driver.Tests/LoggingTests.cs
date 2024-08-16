@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;

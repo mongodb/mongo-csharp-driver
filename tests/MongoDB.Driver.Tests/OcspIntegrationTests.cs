@@ -17,7 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;

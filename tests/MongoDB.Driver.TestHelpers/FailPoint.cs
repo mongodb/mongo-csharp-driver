@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Driver.TestHelpers
 {
     public static class FailPointName
     {

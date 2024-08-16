@@ -20,7 +20,7 @@ using MongoDB.Bson;
 using MongoDB.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Libmongocrypt;

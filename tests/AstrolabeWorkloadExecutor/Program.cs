@@ -23,7 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using MongoDB.TestHelpers.JsonDrivenTests;
 

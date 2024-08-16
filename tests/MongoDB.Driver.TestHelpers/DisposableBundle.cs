@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Driver.TestHelpers
 {
     public sealed class DisposableBundle : IDisposable
     {

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {

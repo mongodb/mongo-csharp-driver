@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     internal sealed class XUnitOutputAccumulator
     {

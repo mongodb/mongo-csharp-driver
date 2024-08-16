@@ -16,7 +16,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Driver.Core.Configuration;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     public sealed class NullLoggingService : ILoggingService
     {

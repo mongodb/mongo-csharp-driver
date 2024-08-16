@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     [DebuggerStepThrough]
     public abstract class LoggableTestClass : IDisposable, ILoggingService, ITestExceptionHandler

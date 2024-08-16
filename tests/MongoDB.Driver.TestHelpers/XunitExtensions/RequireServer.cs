@@ -18,10 +18,9 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using Xunit;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
+namespace MongoDB.Driver.TestHelpers.XunitExtensions
 {
     public class RequireServer
     {
@@ -174,13 +173,13 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer SupportsCausalConsistency()
         {
-            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet).SupportsSessions();
+            return ClusterTypes(Core.Clusters.ClusterType.Sharded, Core.Clusters.ClusterType.ReplicaSet).SupportsSessions();
         }
 
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
-            if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Clusters.ClusterType.LoadBalanced)
+            if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Core.Clusters.ClusterType.LoadBalanced)
             {
                 return this;
             }
@@ -223,7 +222,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         public RequireServer MultipleMongosesIfSharded(bool required)
         {
             var clusterType = CoreTestConfiguration.Cluster.Description.Type;
-            if (clusterType == Clusters.ClusterType.Sharded || clusterType == Clusters.ClusterType.LoadBalanced)
+            if (clusterType == Core.Clusters.ClusterType.Sharded || clusterType == Core.Clusters.ClusterType.LoadBalanced)
             {
                 MultipleMongoses(required);
             }
@@ -355,11 +354,11 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         {
             switch (topology)
             {
-                case "single": return Clusters.ClusterType.Standalone;
-                case "replicaset": return Clusters.ClusterType.ReplicaSet;
+                case "single": return Core.Clusters.ClusterType.Standalone;
+                case "replicaset": return Core.Clusters.ClusterType.ReplicaSet;
                 case "sharded-replicaset":
-                case "sharded": return Clusters.ClusterType.Sharded;
-                case "load-balanced": return Clusters.ClusterType.LoadBalanced;
+                case "sharded": return Core.Clusters.ClusterType.Sharded;
+                case "load-balanced": return Core.Clusters.ClusterType.LoadBalanced;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
         }

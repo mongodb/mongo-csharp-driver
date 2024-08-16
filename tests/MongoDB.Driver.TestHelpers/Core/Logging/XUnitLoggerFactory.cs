@@ -16,7 +16,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     [DebuggerStepThrough]
     internal sealed class XUnitLoggerFactory : ILoggerFactory

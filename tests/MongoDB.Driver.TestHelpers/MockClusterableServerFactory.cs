@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers;
 using Moq;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Driver.TestHelpers
 {
     public class MockClusterableServerFactory : IClusterableServerFactory
     {

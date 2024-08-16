@@ -20,7 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Driver.TestHelpers
 {
     public static class ServerDescriptionParser
     {

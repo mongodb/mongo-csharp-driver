@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;

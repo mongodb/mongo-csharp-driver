@@ -18,8 +18,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
