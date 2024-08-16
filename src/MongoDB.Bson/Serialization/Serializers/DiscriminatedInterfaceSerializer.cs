@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
-            : this(discriminatorConvention, CreateInterfaceSerializer(), null)
+            : this(discriminatorConvention, CreateInterfaceSerializer(), objectSerializer: null)
         {
         }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer)
-            : this(discriminatorConvention, interfaceSerializer, null)
+            : this(discriminatorConvention, interfaceSerializer, objectSerializer: null)
         {
         }
 
@@ -109,7 +109,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface));
-            _objectSerializer = objectSerializer ?? new ObjectSerializer(type => typeof(TInterface).IsAssignableFrom(type));
+            _objectSerializer = objectSerializer ?? new ObjectSerializer(allowedTypes: type => typeof(TInterface).IsAssignableFrom(type));
             if (_objectSerializer is ObjectSerializer standardObjectSerializer)
             {
                 _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);

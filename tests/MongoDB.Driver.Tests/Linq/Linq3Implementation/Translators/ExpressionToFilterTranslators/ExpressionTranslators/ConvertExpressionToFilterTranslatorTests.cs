@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Filter_using_field_from_underlying_type_should_work()
+        public void Filter_using_field_from_implementing_type_should_work()
         {
             var collection = GetInterfaceCollection();
 
