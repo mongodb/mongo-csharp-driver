@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private void AssertOutcome(
             IMongoCollection<C> collection,
-            IMongoQueryable<DateTime> queryable,
+            IQueryable<DateTime> queryable,
             string[] expectedStages,
             string expectedResult)
         {
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private void AssertOutcome(
             IMongoCollection<C> collection,
-            IMongoQueryable<DateTime?> queryable,
+            IQueryable<DateTime?> queryable,
             string[] expectedStages,
             string expectedResult)
         {
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private void AssertOutcome<TResult>(
             IMongoCollection<C> collection,
-            IMongoQueryable<TResult> queryable,
+            IQueryable<TResult> queryable,
             string[] expectedStages,
             string expectedResult,
             Action<TResult, string> assertResult)

@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.OrderBy(r => r.Id).Select(r => r.Id).Should().Equal("11", "22");
         }
 
-        private IMongoQueryable<TChild> GetChildrenQueryable<TChild>(IMongoDatabase db, string childCollectionName) where TChild : IEntity
+        private IQueryable<TChild> GetChildrenQueryable<TChild>(IMongoDatabase db, string childCollectionName) where TChild : IEntity
         {
             var parentCollection = db.GetCollection<Parent>("Parent");
             var childCollection = db.GetCollection<TChild>(childCollectionName).AsQueryable();

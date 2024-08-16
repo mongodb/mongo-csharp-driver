@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
             if (method.Is(MongoQueryableMethod.DensifyWithArrayPartitionByFields))
             {
-                var sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
+                var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 

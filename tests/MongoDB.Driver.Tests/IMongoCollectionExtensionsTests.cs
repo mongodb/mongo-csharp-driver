@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
             var session = withSession ? Mock.Of<IClientSessionHandle>() : null;
             var options = new AggregateOptions();
 
-            IMongoQueryable<Person> result;
+            IQueryable<Person> result;
             if (withSession)
             {
                 result = collection.AsQueryable(session, options);

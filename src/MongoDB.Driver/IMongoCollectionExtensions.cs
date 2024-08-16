@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,7 +68,7 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection.</param>
         /// <param name="aggregateOptions">The aggregate options</param>
         /// <returns>A queryable source of documents.</returns>
-        public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions aggregateOptions = null)
+        public static IQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions aggregateOptions = null)
         {
             Ensure.IsNotNull(collection, nameof(collection));
 
@@ -82,7 +83,7 @@ namespace MongoDB.Driver
         /// <param name="session">The session.</param>
         /// <param name="aggregateOptions">The aggregate options</param>
         /// <returns>A queryable source of documents.</returns>
-        public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
+        public static IQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
@@ -2652,7 +2653,7 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-        private static IMongoQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
+        private static IQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
             return LinqProviderAdapter.AsQueryable(collection, session, aggregateOptions);

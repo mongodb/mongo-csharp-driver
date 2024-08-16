@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __singleOrDefault = ReflectionInfo.Method((IQueryable<object> source) => source.SingleOrDefault());
             __singleOrDefaultWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.SingleOrDefault(predicate));
             __singleWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Single(predicate));
-            __skip = ReflectionInfo.Method((IQueryable<object> source, int count) => source.Skip(count));
+            __skip = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Skip(source, count));
             __sumDecimal = ReflectionInfo.Method((IQueryable<decimal> source) => source.Sum());
             __sumDecimalWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, decimal>> selector) => source.Sum(selector));
             __sumDouble = ReflectionInfo.Method((IQueryable<double> source) => source.Sum());
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumNullableSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float?>> selector) => source.Sum(selector));
             __sumSingle = ReflectionInfo.Method((IQueryable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector) => source.Sum(selector));
-            __take = ReflectionInfo.Method((IQueryable<object> source, int count) => source.Take(count));
+            __take = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Take(source, count));
             __thenBy = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenBy(keySelector));
             __thenByDescending = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenByDescending(keySelector));
             __union = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.Union(source2));

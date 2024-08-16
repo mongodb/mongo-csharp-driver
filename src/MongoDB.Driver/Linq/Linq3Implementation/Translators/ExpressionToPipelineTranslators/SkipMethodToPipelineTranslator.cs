@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var sourceExpression = arguments[0];
                 if (method.Is(MongoQueryableMethod.SkipWithLong))
                 {
-                    sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
+                    sourceExpression = arguments[0];
                 }
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 

@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
             if (method.IsOneOf(__standardDeviationMethods))
             {
-                var sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
+                var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 

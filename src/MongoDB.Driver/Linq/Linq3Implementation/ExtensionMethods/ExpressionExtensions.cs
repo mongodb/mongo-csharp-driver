@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
@@ -38,14 +39,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
         {
             if (innerExpression is ConstantExpression constantExpression &&
-                constantExpression.Value is IMongoQueryable mongoQueryable &&
-                mongoQueryable.Provider is IMongoQueryProviderInternal mongoQueryProvider &&
+                constantExpression.Value is IQueryable queryable &&
+                queryable.Provider is IMongoQueryProviderInternal mongoQueryProvider &&
                 mongoQueryProvider.CollectionNamespace != null)
             {
                 return (mongoQueryProvider.CollectionNamespace.CollectionName, mongoQueryProvider.PipelineInputSerializer);
             }
 
-            var message = $"inner expression is not an IMongoQueryable representing a collection";
+            var message = $"inner expression must be a MongoDB IQueryable against a collection";
             throw new ExpressionNotSupportedException(innerExpression, containerExpression, because: message);
         }
 

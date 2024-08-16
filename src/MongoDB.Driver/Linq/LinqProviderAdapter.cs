@@ -20,7 +20,6 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -35,7 +34,7 @@ namespace MongoDB.Driver.Linq
 {
     internal static class LinqProviderAdapter
     {
-        internal static IMongoQueryable<TDocument> AsQueryable<TDocument>(
+        internal static IQueryable<TDocument> AsQueryable<TDocument>(
             IMongoCollection<TDocument> collection,
             IClientSessionHandle session,
             AggregateOptions options)
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Linq
             return new MongoQuery<TDocument, TDocument>(provider);
         }
 
-        internal static IMongoQueryable<NoPipelineInput> AsQueryable(
+        internal static IQueryable<NoPipelineInput> AsQueryable(
             IMongoDatabase database,
             IClientSessionHandle session,
             AggregateOptions options)

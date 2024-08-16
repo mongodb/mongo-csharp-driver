@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Tests.Search
             query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"numCandidates\" : 33, \"index\" : \"my_index\" } }])");
         }
 
-        private IMongoQueryable<Person> CreateSubject()
+        private IQueryable<Person> CreateSubject()
         {
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -62,7 +63,7 @@ namespace MongoDB.Driver
         /// <param name="database">The database.</param>
         /// <param name="aggregateOptions">The aggregate options</param>
         /// <returns>A queryable source of documents.</returns>
-        public static IMongoQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, AggregateOptions aggregateOptions = null)
+        public static IQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, AggregateOptions aggregateOptions = null)
         {
             Ensure.IsNotNull(database, nameof(database));
 
@@ -76,7 +77,7 @@ namespace MongoDB.Driver
         /// <param name="session">The session.</param>
         /// <param name="aggregateOptions">The aggregate options</param>
         /// <returns>A queryable source of documents.</returns>
-        public static IMongoQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
+        public static IQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
         {
             Ensure.IsNotNull(database, nameof(database));
             Ensure.IsNotNull(session, nameof(session));
@@ -167,7 +168,7 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-        private static IMongoQueryable<NoPipelineInput> AsQueryableHelper(IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions)
+        private static IQueryable<NoPipelineInput> AsQueryableHelper(IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
             return LinqProviderAdapter.AsQueryable(database, session, aggregateOptions);

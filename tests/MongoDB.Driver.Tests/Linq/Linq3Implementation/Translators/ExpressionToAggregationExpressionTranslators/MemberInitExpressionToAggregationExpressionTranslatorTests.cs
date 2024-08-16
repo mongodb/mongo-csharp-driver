@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;

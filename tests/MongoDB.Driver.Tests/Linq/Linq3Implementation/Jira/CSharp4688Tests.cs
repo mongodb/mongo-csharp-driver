@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
@@ -25,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     {
         [Theory]
         [ParameterAttributeData]
-        public async Task IMongoQueryable_Any_should_add_expected_stages(
+        public async Task IQueryable_Any_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -34,7 +35,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = async ? await queryable.AnyAsync() : queryable.Any();
 
             AssertStages(
-                queryable.LoggedStages,
+                queryable.GetLoggedStages(),
                 "{ $limit : 1 }",
                 "{ $project : { _id : 0, _v : null } }");
             result.Should().Be(true);
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public async Task IMongoQueryable_First_should_add_expected_stages(
+        public async Task IQueryable_First_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -50,13 +51,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var result = async ? await queryable.FirstAsync() : queryable.First();
 
-            AssertStages(queryable.LoggedStages, "{ $limit : 1 }");
+            AssertStages(queryable.GetLoggedStages(), "{ $limit : 1 }");
             result.Id.Should().Be(1);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public async Task IMongoQueryable_FirstOrDefault_should_add_expected_stages(
+        public async Task IQueryable_FirstOrDefault_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -64,13 +65,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var result = async ? await queryable.FirstOrDefaultAsync() : queryable.FirstOrDefault();
 
-            AssertStages(queryable.LoggedStages, "{ $limit : 1 }");
+            AssertStages(queryable.GetLoggedStages(), "{ $limit : 1 }");
             result.Id.Should().Be(1);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public async Task IMongoQueryable_Single_should_add_expected_stages(
+        public async Task IQueryable_Single_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = async ? await queryable.SingleAsync() : queryable.Single();
 
             AssertStages(
-                queryable.LoggedStages,
+                queryable.GetLoggedStages(),
                 "{ $match : { X : 1 } }",
                 "{ $limit : 2 }");
             result.Id.Should().Be(1);
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public async Task IMongoQueryable_SingleOrDefault_should_add_expected_stages(
+        public async Task IQueryable_SingleOrDefault_should_add_expected_stages(
             [Values(false, true)] bool async)
         {
             var collection = GetCollection();
@@ -96,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = async ? await queryable.SingleOrDefaultAsync() : queryable.SingleOrDefault();
 
             AssertStages(
-                queryable.LoggedStages,
+                queryable.GetLoggedStages(),
                 "{ $match : { X : 1 } }",
                 "{ $limit : 2 }");
             result.Id.Should().Be(1);

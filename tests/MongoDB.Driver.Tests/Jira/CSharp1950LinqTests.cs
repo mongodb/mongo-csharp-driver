@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         private void Assert(
-            Func<IMongoQueryable<C>, IMongoQueryable<C>> queryableFactory,
+            Func<IQueryable<C>, IQueryable<C>> queryableFactory,
             string expectedStage,
             params string[] expectedResults)
         {

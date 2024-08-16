@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Documents_should_throw_when_source_is_null()
         {
-            var source = (IMongoQueryable<NoPipelineInput>)null;
+            var source = (IQueryable<NoPipelineInput>)null;
             var documents = new C[0];
 
             var exception = Record.Exception(() => source.Documents(documents));
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Documents_with_documentSerializer_should_throw_when_source_is_null()
         {
-            var source = (IMongoQueryable<NoPipelineInput>)null;
+            var source = (IQueryable<NoPipelineInput>)null;
             var documents = new C[0];
             var documentSerializer = BsonSerializer.LookupSerializer<C>();
 

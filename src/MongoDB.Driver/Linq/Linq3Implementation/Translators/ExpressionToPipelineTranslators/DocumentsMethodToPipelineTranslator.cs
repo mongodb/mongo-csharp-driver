@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
             if (method.IsOneOf(MongoQueryableMethod.Documents, MongoQueryableMethod.DocumentsWithSerializer))
             {
-                var sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
+                var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var documentsExpression = arguments[1];

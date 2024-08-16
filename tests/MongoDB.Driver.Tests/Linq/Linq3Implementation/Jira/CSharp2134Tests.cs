@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -33,7 +34,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = queryable.All(x => x.Id != null); // AllAsync is not implemented
 
             AssertStages(
-                queryable.LoggedStages,
+                queryable.GetLoggedStages(),
                 "{ $match : { _id : null } }",
                 "{ $limit : 1 }",
                 "{ $project : { _id : 0, _v : null } }");
