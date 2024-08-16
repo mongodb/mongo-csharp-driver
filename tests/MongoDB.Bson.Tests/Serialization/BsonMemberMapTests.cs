@@ -379,7 +379,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 "isRequired" => WithIsRequired(x, true),
                 "memberInfo" => WithMemberInfo(x, null),
                 "order" => WithOrder(x, 1),
-                "serializer" => WithSerializerMethod(x, null),
+                "serializer" => WithSerializerMethod(x, new Int32Serializer(BsonType.String)),
                 "shouldSerializeMethod" => WithShouldSerializeMethod(x, x => true),
                 _ => throw new Exception()
             };
