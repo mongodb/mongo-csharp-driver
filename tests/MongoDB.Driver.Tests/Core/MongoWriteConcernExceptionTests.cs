@@ -17,7 +17,7 @@ using System;
 using System.Net;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using MongoDB.Bson.TestHelpers.EqualityComparers;
+using MongoDB.TestHelpers.EqualityComparers;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;

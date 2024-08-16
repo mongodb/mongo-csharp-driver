@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;

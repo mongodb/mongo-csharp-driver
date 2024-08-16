@@ -15,7 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.GridFS;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests

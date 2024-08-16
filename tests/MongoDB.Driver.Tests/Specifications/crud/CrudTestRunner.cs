@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;

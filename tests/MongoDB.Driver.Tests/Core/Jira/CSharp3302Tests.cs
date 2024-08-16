@@ -21,7 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;

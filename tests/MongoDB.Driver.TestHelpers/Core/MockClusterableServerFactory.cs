@@ -19,7 +19,6 @@ using System.Net;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -27,6 +26,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers;
 using Moq;
 
 namespace MongoDB.Driver.Core.TestHelpers

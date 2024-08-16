@@ -20,9 +20,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers;
+using MongoDB.TestHelpers.EqualityComparers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests

@@ -21,7 +21,7 @@ using System.Runtime.Serialization;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization

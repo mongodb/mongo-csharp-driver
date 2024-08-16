@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Logging
         private static readonly string[] __driverTestsNamespaces = new[]
         {
             "MongoDB.Bson.Tests",
-            "MongoDB.Bson.TestHelpers",
+            "MongoDB.TestHelpers",
             "MongoDB.Driver.Tests",
             "MongoDB.Driver.TestHelpers",
             "MongoDB.Driver.Core.Tests",

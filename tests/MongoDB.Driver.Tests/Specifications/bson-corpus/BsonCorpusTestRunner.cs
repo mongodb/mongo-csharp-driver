@@ -23,7 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.bson_corpus

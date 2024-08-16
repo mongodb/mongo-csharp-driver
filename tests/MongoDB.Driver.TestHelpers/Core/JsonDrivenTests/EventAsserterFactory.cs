@@ -14,7 +14,7 @@
 */
 
 using System;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
 {

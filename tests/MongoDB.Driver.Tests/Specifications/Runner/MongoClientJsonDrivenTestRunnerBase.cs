@@ -20,8 +20,6 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -35,9 +33,11 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
+using MongoDB.TestHelpers;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using Reflector = MongoDB.Bson.TestHelpers.Reflector;
+using Reflector = MongoDB.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.Runner
 {

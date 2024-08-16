@@ -19,9 +19,9 @@ using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Events;
+using MongoDB.TestHelpers;
+using MongoDB.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
 {

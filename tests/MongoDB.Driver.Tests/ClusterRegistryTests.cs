@@ -20,13 +20,13 @@ using System.Net;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 

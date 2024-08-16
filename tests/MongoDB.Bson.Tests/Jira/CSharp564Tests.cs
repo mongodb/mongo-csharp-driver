@@ -14,7 +14,7 @@
 */
 
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp564

@@ -20,7 +20,7 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;

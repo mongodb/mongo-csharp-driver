@@ -25,7 +25,7 @@ using System.Reflection;
 using System.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 
 namespace MongoDB.Driver.Core.Connections
 {

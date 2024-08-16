@@ -20,15 +20,14 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit.Sdk;
 

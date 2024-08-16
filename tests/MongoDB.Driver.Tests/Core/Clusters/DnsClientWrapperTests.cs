@@ -20,7 +20,7 @@ using System.Reflection;
 using System.Threading;
 using DnsClient;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 

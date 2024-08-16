@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Bson", "src\MongoDB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Bson.Tests", "tests\MongoDB.Bson.Tests\MongoDB.Bson.Tests.csproj", "{3CE61F2A-B852-45F9-B607-E0FFFEF9DBC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Bson.TestHelpers", "tests\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj", "{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver", "src\MongoDB.Driver\MongoDB.Driver.csproj", "{756980B3-0DCF-42F0-A324-C386B1A3E9F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.TestHelpers", "tests\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj", "{253DBC37-A955-4CCE-8EAF-9CF4A91895DB}"
@@ -54,6 +52,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FaasTests", "FaasTests", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.LambdaTest", "tests\FaasTests\LambdaTests\MongoDB.Driver.LambdaTest\MongoDB.Driver.LambdaTest.csproj", "{33B11279-DA4A-46EA-99BF-9DEDCAC50D95}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Shared", "src\MongoDB.Shared\MongoDB.Shared.shproj", "{AFCA9FD5-71D6-469C-8818-762D894B0302}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,10 +68,6 @@ Global
 		{3CE61F2A-B852-45F9-B607-E0FFFEF9DBC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CE61F2A-B852-45F9-B607-E0FFFEF9DBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CE61F2A-B852-45F9-B607-E0FFFEF9DBC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206}.Release|Any CPU.Build.0 = Release|Any CPU
 		{756980B3-0DCF-42F0-A324-C386B1A3E9F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{756980B3-0DCF-42F0-A324-C386B1A3E9F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{756980B3-0DCF-42F0-A324-C386B1A3E9F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -119,7 +115,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9FCB42A5-3BC6-492B-8EA0-53EF32E9F8CD} = {D2012971-32BB-4C5F-BFC4-30A9994AB152}
 		{3CE61F2A-B852-45F9-B607-E0FFFEF9DBC6} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
-		{4D6F0AD1-91CE-4736-AD4E-D9B11E49F206} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{756980B3-0DCF-42F0-A324-C386B1A3E9F4} = {D2012971-32BB-4C5F-BFC4-30A9994AB152}
 		{253DBC37-A955-4CCE-8EAF-9CF4A91895DB} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{FD003B6D-C0C3-4D1E-832D-1AA96AF0244C} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
@@ -132,8 +127,14 @@ Global
 		{CF670F4A-49DD-4030-A4A0-1F4D600EB70A} = {503AB075-7C23-475B-BF7D-E7F751A31536}
 		{66E1914C-9E10-4B28-915E-AB3773EFDAB2} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{33B11279-DA4A-46EA-99BF-9DEDCAC50D95} = {66E1914C-9E10-4B28-915E-AB3773EFDAB2}
+		{AFCA9FD5-71D6-469C-8818-762D894B0302} = {D2012971-32BB-4C5F-BFC4-30A9994AB152}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {24BEC44B-92B0-43AA-9B15-163459D0C098}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\MongoDB.Shared\MongoDB.Shared.projitems*{756980b3-0dcf-42f0-a324-c386b1a3e9f4}*SharedItemsImports = 5
+		src\MongoDB.Shared\MongoDB.Shared.projitems*{9fcb42a5-3bc6-492b-8ea0-53ef32e9f8cd}*SharedItemsImports = 5
+		src\MongoDB.Shared\MongoDB.Shared.projitems*{afca9fd5-71d6-469c-8818-762d894b0302}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

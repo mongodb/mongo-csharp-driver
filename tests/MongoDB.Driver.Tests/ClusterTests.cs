@@ -20,8 +20,6 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -33,6 +31,8 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
