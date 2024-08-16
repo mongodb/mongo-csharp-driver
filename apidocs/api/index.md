@@ -44,6 +44,9 @@
 <a href="xref:MongoDB.Driver.GeoJsonObjectModel.Serializers"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.GeoJsonObjectModel.Serializers.md)]
 
+<a href="xref:MongoDB.Driver.GridFS"></a>
+:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.GridFS.md)]
+
 <a href="xref:MongoDB.Driver.Linq"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Linq.md)]
 
@@ -98,8 +101,3 @@
 <a href="xref:MongoDB.Driver.Core.WireProtocol"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.WireProtocol.md)]
 
-
-## MongoDB.Driver.GridFS Namespaces
-
-<a href="xref:MongoDB.Driver.GridFS"></a>
-:   [!INCLUDE[summary](../namespaces/MongoDB.Driver.GridFS/MongoDB.Driver.GridFS.md)]
