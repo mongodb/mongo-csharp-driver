@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;

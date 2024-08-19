@@ -27,11 +27,10 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.TestHelpers;
-using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations

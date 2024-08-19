@@ -33,7 +33,6 @@ using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using MongoDB.TestHelpers.JsonDrivenTests;
 using Xunit;

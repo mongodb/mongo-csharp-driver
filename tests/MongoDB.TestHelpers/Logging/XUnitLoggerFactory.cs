@@ -16,14 +16,14 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace MongoDB.Driver.TestHelpers.Logging
+namespace MongoDB.TestHelpers.Logging
 {
     [DebuggerStepThrough]
-    internal sealed class XUnitLoggerFactory : ILoggerFactory
+    public sealed class XUnitLoggerFactory : ILoggerFactory
     {
-        private readonly XUnitOutputAccumulator _logsAccumulator;
+        private readonly IXUnitOutputAccumulator _logsAccumulator;
 
-        public XUnitLoggerFactory(XUnitOutputAccumulator testOutput)
+        public XUnitLoggerFactory(IXUnitOutputAccumulator testOutput)
         {
             _logsAccumulator = testOutput;
         }

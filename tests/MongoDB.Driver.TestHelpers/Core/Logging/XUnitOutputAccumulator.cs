@@ -17,10 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using MongoDB.TestHelpers.Logging;
 
 namespace MongoDB.Driver.TestHelpers.Logging
 {
-    internal sealed class XUnitOutputAccumulator
+    internal sealed class XUnitOutputAccumulator : IXUnitOutputAccumulator
     {
         private readonly HashSet<string> _categoriesToExclude;
         private readonly List<LogEntry> _logs;

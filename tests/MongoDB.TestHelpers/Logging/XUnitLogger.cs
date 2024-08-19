@@ -20,15 +20,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions.Internal;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.TestHelpers.Logging
+namespace MongoDB.TestHelpers.Logging
 {
     [DebuggerStepThrough]
-    internal sealed class XUnitLogger : ILogger
+    public sealed class XUnitLogger : ILogger
     {
         private readonly string _category;
-        private readonly XUnitOutputAccumulator _output;
+        private readonly IXUnitOutputAccumulator _output;
 
-        public XUnitLogger(string category, XUnitOutputAccumulator output)
+        public XUnitLogger(string category, IXUnitOutputAccumulator output)
         {
             _category = category;
             _output = Ensure.IsNotNull(output, nameof(output));

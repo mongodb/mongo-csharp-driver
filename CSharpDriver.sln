@@ -136,5 +136,6 @@ Global
 		src\MongoDB.Shared\MongoDB.Shared.projitems*{756980b3-0dcf-42f0-a324-c386b1a3e9f4}*SharedItemsImports = 5
 		src\MongoDB.Shared\MongoDB.Shared.projitems*{9fcb42a5-3bc6-492b-8ea0-53ef32e9f8cd}*SharedItemsImports = 5
 		src\MongoDB.Shared\MongoDB.Shared.projitems*{afca9fd5-71d6-469c-8818-762d894b0302}*SharedItemsImports = 13
+		src\MongoDB.Shared\MongoDB.Shared.projitems*{b90f025f-89d3-436a-ad78-6aa304a6e240}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

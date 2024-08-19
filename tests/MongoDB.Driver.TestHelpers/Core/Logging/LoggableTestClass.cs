@@ -18,11 +18,12 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
-using MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

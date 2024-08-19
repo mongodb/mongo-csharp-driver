@@ -14,13 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Misc
+namespace MongoDB.Shared
 {
     internal static class TimeSpanParser
     {
