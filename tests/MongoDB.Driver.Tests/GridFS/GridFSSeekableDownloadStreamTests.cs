@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GridFS;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
             var bucket = new GridFSBucket<ObjectId>(database);
             var binding = new Mock<IReadBinding>().Object;
             var fileInfo = new GridFSFileInfo<ObjectId>(new BsonDocument { { "_id", ObjectId.GenerateNewId() } }, new GridFSFileInfoSerializer<ObjectId>());
@@ -280,7 +279,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         private GridFSSeekableDownloadStream<ObjectId> CreateSubject(long? length = null)
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
             var bucket = new GridFSBucket<ObjectId>(database);
             var binding = new Mock<IReadBinding>().Object;
             var fileInfoDocument = new BsonDocument

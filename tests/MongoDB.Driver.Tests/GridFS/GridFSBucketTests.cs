@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
             var options = new GridFSBucketOptions();
 
             var result = new GridFSBucket(database, options);
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_should_use_default_options_when_options_is_null()
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
 
             var result = new GridFSBucket(database, null);
 
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void Database_get_should_return_the_expected_result()
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
             var subject = new GridFSBucket(database, null);
 
             var result = subject.Database;
@@ -464,7 +464,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void Options_get_should_return_the_expected_result()
         {
-            var database = MockHelpers.GetMockMongoDatabase();
+            var database = MockHelpers.GetMockMongoDatabaseMock();
             var options = new GridFSBucketOptions();
             var subject = new GridFSBucket(database, options);
 

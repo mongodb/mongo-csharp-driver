@@ -1,6 +1,6 @@
 ﻿using Moq;
 
-namespace MongoDB.Driver.GridFS.Tests
+namespace MongoDB.Driver.Tests.GridFS
 {
     internal static class MockHelpers
     {
