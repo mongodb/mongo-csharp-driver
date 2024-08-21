@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver.Core;
 
-namespace MongoDB.Driver.Core.Encryption
+namespace MongoDB.Driver.Encryption
 {
     internal static class KmsProvidersEqualityHelper
     {
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Encryption
             }
             else
             {
-                return object.Equals(x, y);
+                return Equals(x, y);
             }
         }
     }
