@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 {
     internal interface IConnectionPool : IDisposable
     {
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1721:Property names should not match get methods", Justification = "Backward compatibility")]
         int Generation { get; }
         ServerId ServerId { get; }
 
