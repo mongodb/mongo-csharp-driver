@@ -20,14 +20,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
-using MongoDB.Libmongocrypt;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -153,15 +152,15 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class LibMongoCryptControllerBaseReflector
     {
-        public static CryptClient _cryptClient(this LibMongoCryptControllerBase libMongoCryptController)
+        public static ICryptClient _cryptClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
         {
-            return (CryptClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
+            return (ICryptClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
         }
     }
 
     internal static class AutoEncryptionLibMongoCryptControllerReflector
     {
-        public static Lazy<IMongoClient> _mongocryptdClient(this AutoEncryptionLibMongoCryptController libMongoCryptController)
+        public static Lazy<IMongoClient> _mongocryptdClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
         {
             return (Lazy<IMongoClient>)Reflector.GetFieldValue(libMongoCryptController, nameof(_mongocryptdClient));
         }

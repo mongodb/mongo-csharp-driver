@@ -18,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
@@ -33,6 +32,8 @@ using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
+using MongoDB.Libmongocrypt;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {

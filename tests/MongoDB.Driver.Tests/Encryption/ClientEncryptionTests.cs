@@ -14,26 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Libmongocrypt;
-using Xunit;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
-using System.Collections.Generic;
-using System.Threading;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
-using System.Net;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
@@ -406,9 +406,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class ClientEncryptionReflector
     {
-        public static CryptClient _cryptClient(this ClientEncryption clientEncryption)
+        public static ICryptClient _cryptClient(this ClientEncryption clientEncryption)
         {
-            return (CryptClient)Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
+            return (ICryptClient)Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
         }
 
         public static ExplicitEncryptionLibMongoCryptController _libMongoCryptController(this ClientEncryption clientEncryption)

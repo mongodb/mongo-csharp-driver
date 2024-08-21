@@ -13,13 +13,14 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -57,6 +58,8 @@ namespace MongoDB.Driver.Examples
             {
                 AutoEncryptionOptions = autoEncryptionOptions
             };
+            
+            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
             var client = new MongoClient(mongoClientSettings);
             var database = client.GetDatabase("test");
             database.DropCollection("coll");

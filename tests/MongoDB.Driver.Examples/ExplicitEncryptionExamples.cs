@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -108,6 +109,7 @@ namespace MongoDB.Driver.Examples
                 bypassAutoEncryption: true);
             var clientSettings = MongoClientSettings.FromConnectionString("mongodb://localhost");
             clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
             var mongoClient = new MongoClient(clientSettings);
             var database = mongoClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
             database.DropCollection(collectionNamespace.CollectionName);
