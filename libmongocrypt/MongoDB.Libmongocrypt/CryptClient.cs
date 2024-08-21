@@ -16,6 +16,8 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Driver;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Libmongocrypt
 {
@@ -25,7 +27,7 @@ namespace MongoDB.Libmongocrypt
     /// It can be used to encrypt and decrypt documents.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    public class CryptClient : IDisposable, IStatus
+    internal class CryptClient : IDisposable, IStatus, ICryptClient
     {
         private MongoCryptSafeHandle _handle;
         private Status _status;
@@ -49,6 +51,12 @@ namespace MongoDB.Libmongocrypt
 
                 return result;
             }
+        }
+
+        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient mongoClient,
+            AutoEncryptionOptions autoEncryptionOptions)
+        {
+            return AutoEncryptionLibMongoCryptController.Create(mongoClient, this, autoEncryptionOptions);
         }
 
         /// <summary>

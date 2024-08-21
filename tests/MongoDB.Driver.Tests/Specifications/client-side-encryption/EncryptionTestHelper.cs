@@ -22,7 +22,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
 
@@ -373,7 +372,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     dummyNamespace,
                     kmsProviders: GetKmsProviders(filter: "local"),
                     extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
-                using (var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings()))
+                using (var cryptClient = AutoEncryptionProvider.Instance.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings()))
                 {
                     if (cryptClient.CryptSharedLibraryVersion != null)
                     {

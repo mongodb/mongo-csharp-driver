@@ -251,7 +251,7 @@ namespace MongoDB.Driver.TestHelpers
             if (wrapped is MongoClient mongoClient)
             {
                 var controller = mongoClient.LibMongoCryptController;
-                foreach (var clientToDispose in new[] { controller?.InternalClient, controller?.MongoCryptdClient })
+                foreach (var clientToDispose in new[] { controller?.GetInternalClient(), controller?.GetMongoCryptdClient() })
                 {
                     if (clientToDispose != null)
                     {

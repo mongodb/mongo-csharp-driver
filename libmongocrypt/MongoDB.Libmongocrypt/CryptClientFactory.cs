@@ -15,14 +15,19 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// A factory for CryptClients.
     /// </summary>
-    public class CryptClientFactory
+    internal class CryptClientFactory
     {
         // MUST be static fields since otherwise these callbacks can be collected via the garbage collector
         // regardless they're used by mongocrypt level or no
@@ -38,10 +43,53 @@ namespace MongoDB.Libmongocrypt
         // mongocrypt_is_crypto_available is only available in libmongocrypt version >= 1.9
         private static readonly Version __mongocryptIsCryptoAvailableMinVersion = Version.Parse("1.9");
 
+        public static ICryptClient Create(CryptClientSettings cryptClientSettings)
+        {
+            List<KmsCredentials> kmsProviders = null;
+            if (cryptClientSettings.KmsProviders?.Count > 0)
+            {
+                kmsProviders = new List<KmsCredentials>();
+                foreach (var kmsProvider in cryptClientSettings.KmsProviders)
+                {
+                    var kmsTypeDocumentKey = kmsProvider.Key.ToLower();
+                    var kmsProviderDocument = CreateProviderDocument(kmsTypeDocumentKey, kmsProvider.Value);
+                    var kmsCredentials = new KmsCredentials(credentialsBytes: kmsProviderDocument.ToBson());
+                    kmsProviders.Add(kmsCredentials);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("At least one kms provider must be specified");
+            }
+
+            byte[] schemaBytes = null;
+            if (cryptClientSettings.SchemaMap != null)
+            {
+                schemaBytes = GetBytesFromMap(cryptClientSettings.SchemaMap);
+            }
+
+            byte[] encryptedFieldsBytes = null;
+            if (cryptClientSettings.EncryptedFieldsMap != null)
+            {
+                encryptedFieldsBytes = GetBytesFromMap(cryptClientSettings.EncryptedFieldsMap);
+            }
+
+            var cryptOptions =  new CryptOptions(
+                kmsProviders,
+                encryptedFieldsMap: encryptedFieldsBytes,
+                schema: schemaBytes,
+                bypassQueryAnalysis: cryptClientSettings.BypassQueryAnalysis.GetValueOrDefault(false),
+                cryptClientSettings.CryptSharedLibPath,
+                cryptClientSettings.CryptSharedLibSearchPath,
+                cryptClientSettings.IsCryptSharedLibRequired ?? false);
+            
+            return Create(cryptOptions);
+        }
+
         /// <summary>Creates a CryptClient with the specified options.</summary>
         /// <param name="options">The options.</param>
         /// <returns>A CryptClient</returns>
-        public static CryptClient Create(CryptOptions options)
+        public static ICryptClient Create(CryptOptions options)
         {
             MongoCryptSafeHandle handle = null;
             Status status = null;
@@ -133,6 +181,31 @@ namespace MongoDB.Libmongocrypt
             }
 
             return new CryptClient(handle, status);
+        }
+        
+        private static BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
+        {
+            var providerContent = new BsonDocument();
+            foreach (var record in data)
+            {
+                providerContent.Add(new BsonElement(record.Key, BsonValue.Create(record.Value)));
+            }
+            var providerDocument = new BsonDocument(kmsType, providerContent);
+            return providerDocument;
+        }
+        
+        private static byte[] GetBytesFromMap(IReadOnlyDictionary<string, BsonDocument> map)
+        {
+            var mapElements = map.Select(c => new BsonElement(c.Key, c.Value));
+            var mapDocument = new BsonDocument(mapElements);
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
+            return mapDocument.ToBson(writerSettings: writerSettings);
         }
     }
 }
