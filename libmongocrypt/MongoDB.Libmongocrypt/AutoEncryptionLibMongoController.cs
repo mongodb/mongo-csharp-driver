@@ -19,16 +19,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
-    internal sealed class AutoEncryptionLibMongoCryptController : LibMongoCryptControllerBase, IBinaryDocumentFieldDecryptor, IBinaryCommandFieldEncryptor
+    internal sealed class AutoEncryptionLibMongoCryptController : LibMongoCryptControllerBase, IAutoEncryptionLibMongoCryptController
     {
         #region static
-        public static AutoEncryptionLibMongoCryptController Create(IMongoClient client, CryptClient cryptClient, AutoEncryptionOptions autoEncryptionOptions)
+        public static AutoEncryptionLibMongoCryptController Create(IMongoClient client, ICryptClient cryptClient, AutoEncryptionOptions autoEncryptionOptions)
         {
             var lazyInternalClient = new Lazy<IMongoClient>(() => CreateInternalClient());
             var keyVaultClient = autoEncryptionOptions.KeyVaultClient ?? lazyInternalClient.Value;
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Encryption
             IMongoClient internalClient,
             IMongoClient keyVaultClient,
             IMongoClient metadataClient,
-            CryptClient cryptClient,
+            ICryptClient cryptClient,
             AutoEncryptionOptions autoEncryptionOptions)
             : base(cryptClient, keyVaultClient, autoEncryptionOptions)
         {
@@ -77,12 +77,12 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// This property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
         /// </summary>
-        internal IMongoClient InternalClient => _internalClient;
+        public IMongoClient GetInternalClient() => _internalClient;
 
         /// <summary>
         /// This property is used by DisposableMongoClient.Dispose to unregister the mongocryptd cluster.
         /// </summary>
-        internal IMongoClient MongoCryptdClient => _mongocryptdClient.IsValueCreated ? _mongocryptdClient.Value : null;
+        public IMongoClient GetMongoCryptdClient() => _mongocryptdClient.IsValueCreated ? _mongocryptdClient.Value : null;
 
         // public methods
         public byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken)

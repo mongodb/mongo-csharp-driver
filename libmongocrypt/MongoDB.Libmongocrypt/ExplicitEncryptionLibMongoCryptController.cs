@@ -20,10 +20,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     internal sealed class ExplicitEncryptionLibMongoCryptController : LibMongoCryptControllerBase
     {
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         public ExplicitEncryptionLibMongoCryptController(
-            CryptClient cryptClient,
+            ICryptClient cryptClient,
             ClientEncryptionOptions clientEncryptionOptions)
             : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),

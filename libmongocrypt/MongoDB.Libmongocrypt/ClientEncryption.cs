@@ -18,13 +18,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Explicit client encryption.
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Encryption
     public sealed class ClientEncryption : IDisposable
     {
         // private fields
-        private readonly CryptClient _cryptClient;
+        private readonly ICryptClient _cryptClient;
         private bool _disposed;
         private readonly ExplicitEncryptionLibMongoCryptController _libMongoCryptController;
 
@@ -52,7 +53,7 @@ namespace MongoDB.Driver.Encryption
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null);
 
-            _cryptClient = CryptClientCreator.CreateCryptClient(cryptClientSettings);
+            _cryptClient = CryptClientFactory.Create(cryptClientSettings);
 
             _libMongoCryptController = new ExplicitEncryptionLibMongoCryptController(
                 _cryptClient,
