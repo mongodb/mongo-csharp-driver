@@ -54,15 +54,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FaasTests", "FaasTests", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.LambdaTest", "tests\FaasTests\LambdaTests\MongoDB.Driver.LambdaTest\MongoDB.Driver.LambdaTest.csproj", "{33B11279-DA4A-46EA-99BF-9DEDCAC50D95}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libmongocrypt", "libmongocrypt", "{5588CDB9-B5D0-471B-89A9-2C34155134B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt", "src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj", "{642518BC-D28A-4ABC-851C-BC18CC34EEDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt", "libmongocrypt\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj", "{642518BC-D28A-4ABC-851C-BC18CC34EEDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Example", "tests\MongoDB.Libmongocrypt.Example\MongoDB.Libmongocrypt.Example.csproj", "{5F659C95-981B-434D-99CB-62A0E7CED418}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Example", "libmongocrypt\MongoDB.Libmongocrypt.Example\MongoDB.Libmongocrypt.Example.csproj", "{5F659C95-981B-434D-99CB-62A0E7CED418}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Test", "tests\MongoDB.Libmongocrypt.Test\MongoDB.Libmongocrypt.Test.csproj", "{AB4AD0CB-756C-444F-9F37-26DA35148934}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Test", "libmongocrypt\MongoDB.Libmongocrypt.Test\MongoDB.Libmongocrypt.Test.csproj", "{AB4AD0CB-756C-444F-9F37-26DA35148934}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Test32", "libmongocrypt\MongoDB.Libmongocrypt.Test32\MongoDB.Libmongocrypt.Test32.csproj", "{D6A59B74-55C3-437C-B715-3BF35CE3CE8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Test32", "tests\MongoDB.Libmongocrypt.Test32\MongoDB.Libmongocrypt.Test32.csproj", "{D6A59B74-55C3-437C-B715-3BF35CE3CE8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,10 +144,10 @@ Global
 		{CF670F4A-49DD-4030-A4A0-1F4D600EB70A} = {503AB075-7C23-475B-BF7D-E7F751A31536}
 		{66E1914C-9E10-4B28-915E-AB3773EFDAB2} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{33B11279-DA4A-46EA-99BF-9DEDCAC50D95} = {66E1914C-9E10-4B28-915E-AB3773EFDAB2}
-		{642518BC-D28A-4ABC-851C-BC18CC34EEDA} = {5588CDB9-B5D0-471B-89A9-2C34155134B2}
-		{5F659C95-981B-434D-99CB-62A0E7CED418} = {5588CDB9-B5D0-471B-89A9-2C34155134B2}
-		{AB4AD0CB-756C-444F-9F37-26DA35148934} = {5588CDB9-B5D0-471B-89A9-2C34155134B2}
-		{D6A59B74-55C3-437C-B715-3BF35CE3CE8E} = {5588CDB9-B5D0-471B-89A9-2C34155134B2}
+		{642518BC-D28A-4ABC-851C-BC18CC34EEDA} = {D2012971-32BB-4C5F-BFC4-30A9994AB152}
+		{5F659C95-981B-434D-99CB-62A0E7CED418} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
+		{AB4AD0CB-756C-444F-9F37-26DA35148934} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
+		{D6A59B74-55C3-437C-B715-3BF35CE3CE8E} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {24BEC44B-92B0-43AA-9B15-163459D0C098}

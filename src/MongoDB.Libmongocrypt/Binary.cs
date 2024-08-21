@@ -100,7 +100,7 @@ namespace MongoDB.Libmongocrypt
         /// </summary>
         public void WriteBytes(byte[] bytes)
         {
-            // The length of the new bytes can be smaller than allocated memory 
+            // The length of the new bytes can be smaller than allocated memory
             // because sometimes the allocated memory contains reserved blocks for future usage
             if (bytes.Length <= Length)
             {
