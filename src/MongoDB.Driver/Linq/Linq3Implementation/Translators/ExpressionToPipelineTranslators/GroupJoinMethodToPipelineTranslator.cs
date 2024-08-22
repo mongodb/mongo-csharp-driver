@@ -62,14 +62,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
 
                 var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
-                var localFieldPath = outerKeySelectorLambda.GetFieldPath(context, wrappedOuterSerializer);
+                var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
 
                 var innerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[3]);
-                var foreignFieldPath = innerKeySelectorLambda.GetFieldPath(context, innerSerializer);
+                var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
                 var lookupStage = AstStage.Lookup(
                     from: innerCollectionName,
-                    match: new AstLookupStageEqualityMatch(localFieldPath, foreignFieldPath),
+                    localField,
+                    foreignField,
                     @as: "_inner");
 
                 var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);

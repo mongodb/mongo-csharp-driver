@@ -961,7 +961,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public virtual string ConvertToFieldPath()
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"{this} cannot be converted to a field path.");
         }
     }
 }

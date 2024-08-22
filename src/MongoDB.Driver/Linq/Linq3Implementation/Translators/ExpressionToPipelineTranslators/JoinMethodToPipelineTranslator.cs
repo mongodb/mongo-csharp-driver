@@ -37,57 +37,56 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             if (method.Is(QueryableMethod.Join))
             {
                 var outerExpression = arguments[0];
+                var innerExpression = arguments[1];
+                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
+                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[3]);
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
+
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, outerExpression);
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 AstExpression outerAst;
                 IBsonSerializer outerSerializer;
-                var root = AstExpression.Var("ROOT", isCurrent: true);
                 if (pipeline.OutputSerializer is IWrappedValueSerializer pipelineOutputWrappedSerializer)
                 {
-                    outerAst = AstExpression.GetField(root, pipelineOutputWrappedSerializer.FieldName);
+                    outerAst = AstExpression.GetField(AstExpression.RootVar, pipelineOutputWrappedSerializer.FieldName);
                     outerSerializer = pipelineOutputWrappedSerializer.ValueSerializer;
                 }
                 else
                 {
-                    outerAst = root;
+                    outerAst = AstExpression.RootVar;
                     outerSerializer = pipeline.OutputSerializer;
                 }
 
                 var wrapOuterStage = AstStage.Project(
                     AstProject.Set("_outer", outerAst),
-                    AstProject.ExcludeId());
+                    AstProject.Exclude("_id"));
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
-                var innerExpression = arguments[1];
                 var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
-
-                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
-                var localFieldPath = outerKeySelectorLambda.GetFieldPath(context, wrappedOuterSerializer);
-
-                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[3]);
-                var foreignFieldPath = innerKeySelectorLambda.GetFieldPath(context, innerSerializer);
+                var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
+                var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
                 var lookupStage = AstStage.Lookup(
                     from: innerCollectionName,
-                    match: new AstLookupStageEqualityMatch(localFieldPath, foreignFieldPath),
+                    localField,
+                    foreignField,
                     @as: "_inner");
 
                 var unwindStage = AstStage.Unwind("_inner");
 
-                var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
                 var outerParameter = resultSelectorLambda.Parameters[0];
-                var outerField = AstExpression.GetField(root, "_outer");
+                var outerField = AstExpression.GetField(AstExpression.RootVar, "_outer");
                 var outerSymbol = context.CreateSymbol(outerParameter, outerField, outerSerializer);
                 var innerParameter = resultSelectorLambda.Parameters[1];
-                var innerField = AstExpression.GetField(root, "_inner");
+                var innerField = AstExpression.GetField(AstExpression.RootVar, "_inner");
                 var innerSymbol = context.CreateSymbol(innerParameter, innerField, innerSerializer);
                 var resultSelectorContext = context.WithSymbols(outerSymbol, innerSymbol);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-                var (projectStage, newOutputSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
+                var (projectStage, projectSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
 
                 pipeline = pipeline.AddStages(
-                    newOutputSerializer,
+                    projectSerializer,
                     wrapOuterStage,
                     lookupStage,
                     unwindStage,

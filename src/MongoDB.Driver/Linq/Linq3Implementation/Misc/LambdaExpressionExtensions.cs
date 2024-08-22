@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class LambdaExpressionExtensions
     {
-        public static string GetFieldPath(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
+        public static string TranslateToDottedFieldName(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
         {
             var parameterExpression = fieldSelectorLambda.Parameters.Single();
             if (parameterSerializer.ValueType != parameterExpression.Type)
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 }
             }
 
-            throw new ExpressionNotSupportedException(fieldSelectorLambda, because: "expression cannot be translated as a field path");
+            throw new ExpressionNotSupportedException(fieldSelectorLambda, because: "expression cannot be translated to a dotted field name");
         }
     }
 }

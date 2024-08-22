@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     throw new ExpressionNotSupportedException(keySelectorLambda, expression, because: "ThenBy and ThenByDescending cannot be used to sort on the entire object");
                 }
 
-                var sortFieldPath = keySelectorLambda.GetFieldPath(context, itemSerializer);
+                var sortFieldPath = keySelectorLambda.TranslateToDottedFieldName(context, itemSerializer);
                 var sortField = AstSort.Field(sortFieldPath, order);
 
                 if (method.IsOneOf(__orderByMethods))
