@@ -788,6 +788,8 @@ functions:
         include_expansions_in_env:
           - "FLE_AWS_ACCESS_KEY_ID"
           - "FLE_AWS_SECRET_ACCESS_KEY"
+          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
+          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
           - "FLE_AZURE_TENANT_ID"
           - "FLE_AZURE_CLIENT_ID"
           - "FLE_AZURE_CLIENT_SECRET"
