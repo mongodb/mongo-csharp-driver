@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -77,7 +78,8 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry));
+            var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options?.TranslationOptions);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(renderArgs);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -112,7 +114,8 @@ namespace MongoDB.Driver
         public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry));
+            var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options?.TranslationOptions);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(renderArgs);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -147,7 +150,8 @@ namespace MongoDB.Driver
         public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry));
+            var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options?.TranslationOptions);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(renderArgs);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -171,7 +175,8 @@ namespace MongoDB.Driver
         public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(new(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry));
+            var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options?.TranslationOptions);
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(renderArgs);
             options = options ?? new AggregateOptions();
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
@@ -271,7 +276,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(viewOn, nameof(viewOn));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             options = options ?? new CreateViewOptions<TDocument>();
-            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options, translationOptions);
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
@@ -287,7 +293,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(viewOn, nameof(viewOn));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             options = options ?? new CreateViewOptions<TDocument>();
-            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateCreateViewOperation(viewName, viewOn, pipeline, options, translationOptions);
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
@@ -358,7 +365,8 @@ namespace MongoDB.Driver
         public override IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListCollectionNamesOperation(options);
+            var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
+            var operation = CreateListCollectionNamesOperation(options, renderArgs);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             var cursor = ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
@@ -372,7 +380,8 @@ namespace MongoDB.Driver
         public override async Task<IAsyncCursor<string>> ListCollectionNamesAsync(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListCollectionNamesOperation(options);
+            var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
+            var operation = CreateListCollectionNamesOperation(options, renderArgs);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             var cursor = await ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken).ConfigureAwait(false);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
@@ -386,7 +395,8 @@ namespace MongoDB.Driver
         public override IAsyncCursor<BsonDocument> ListCollections(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListCollectionsOperation(options);
+            var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
+            var operation = CreateListCollectionsOperation(options, renderArgs);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
@@ -399,7 +409,8 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListCollectionsOperation(options);
+            var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
+            var operation = CreateListCollectionsOperation(options, renderArgs);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
@@ -482,7 +493,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateChangeStreamOperation(pipeline, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
@@ -502,7 +514,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateChangeStreamOperation(pipeline, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -643,7 +656,8 @@ namespace MongoDB.Driver
         {
             options = options ?? new CreateCollectionOptions<TDocument>();
 
-            var operation = CreateCreateCollectionOperation(name, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateCreateCollectionOperation(name, options, translationOptions);
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
@@ -651,17 +665,18 @@ namespace MongoDB.Driver
         {
             options = options ?? new CreateCollectionOptions<TDocument>();
 
-            var operation = CreateCreateCollectionOperation(name, options);
+            var translationOptions = _client.Settings.TranslationOptions;
+            var operation = CreateCreateCollectionOperation(name, options, translationOptions);
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
-        private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
+        private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options, ExpressionTranslationOptions translationOptions)
         {
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
-            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry);
-            var validator = options.Validator?.Render(new(documentSerializer, serializerRegistry));
+            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
+            var validator = options.Validator?.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
@@ -693,11 +708,16 @@ namespace MongoDB.Driver
                 });
         }
 
-        private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options)
+        private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(
+            string viewName,
+            string viewOn,
+            PipelineDefinition<TDocument, TResult> pipeline,
+            CreateViewOptions<TDocument> options,
+            ExpressionTranslationOptions translationOptions)
         {
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry)).Documents;
+            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
@@ -770,27 +790,27 @@ namespace MongoDB.Driver
                 });
         }
 
-        private ListCollectionsOperation CreateListCollectionNamesOperation(ListCollectionNamesOptions options)
+        private ListCollectionsOperation CreateListCollectionNamesOperation(ListCollectionNamesOptions options, RenderArgs<BsonDocument> renderArgs)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
                 AuthorizedCollections = options?.AuthorizedCollections,
                 Comment = options?.Comment,
-                Filter = options?.Filter?.Render(new(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)),
+                Filter = options?.Filter?.Render(renderArgs),
                 NameOnly = true,
                 RetryRequested = _client.Settings.RetryReads
             };
         }
 
-        private ListCollectionsOperation CreateListCollectionsOperation(ListCollectionsOptions options)
+        private ListCollectionsOperation CreateListCollectionsOperation(ListCollectionsOptions options, RenderArgs<BsonDocument> renderArgs)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
                 BatchSize = options?.BatchSize,
                 Comment = options?.Comment,
-                Filter = options?.Filter?.Render(new(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)),
+                Filter = options?.Filter?.Render(renderArgs),
                 RetryRequested = _client.Settings.RetryReads
             };
         }
@@ -835,7 +855,8 @@ namespace MongoDB.Driver
 
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
-            ChangeStreamOptions options)
+            ChangeStreamOptions options,
+            ExpressionTranslationOptions translationOptions)
         {
             return ChangeStreamHelper.CreateChangeStreamOperation(
                 this,
@@ -843,7 +864,8 @@ namespace MongoDB.Driver
                 options,
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
-                _client.Settings.RetryReads);
+                _client.Settings.RetryReads,
+                translationOptions);
         }
 
         private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)
@@ -915,6 +937,18 @@ namespace MongoDB.Driver
             }
 
             return messageEncoderSettings;
+        }
+
+        private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer)
+        {
+            var translationOptions = _client.Settings.TranslationOptions;
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+        }
+
+        private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer, ExpressionTranslationOptions translationOptions)
+        {
+            translationOptions = translationOptions.AddMissingOptionsFrom(_client.Settings.TranslationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
         }
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)

@@ -50,9 +50,8 @@ namespace MongoDB.Driver.Tests.Linq
             Expression<Func<C, int>> expression = c => c.X;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var sourceSerializer = serializerRegistry.GetSerializer<C>();
-            var translationOptions = new ExpressionTranslationOptions();
 
-            var result = LinqProviderAdapter.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions);
+            var result = LinqProviderAdapter.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions: null);
 
             result.Should().Be("'$X'");
         }
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null, allowScalarValueForArrayField: false);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));
@@ -90,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry);
+            var result = LinqProviderAdapter.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry, translationOptions: null);
 
             result.Should().Be("{ X : 0 }");
         }
@@ -102,7 +101,7 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry);
+            var result = LinqProviderAdapter.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry, translationOptions: null);
 
             result.Document.Should().Be("{ X : 1, _id : 0 }");
             result.ProjectionSerializer.ValueType.Should().Be(typeof(int));
@@ -117,9 +116,8 @@ namespace MongoDB.Driver.Tests.Linq
             {
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var inputSerializer = serializerRegistry.GetSerializer<C>();
-                var translationOptions = new ExpressionTranslationOptions();
 
-                var result = LinqProviderAdapter.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions);
+                var result = LinqProviderAdapter.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions: null);
 
                 result.Document.Should().Be("{ _id : '$_id', x : '$X' }");
                 result.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));

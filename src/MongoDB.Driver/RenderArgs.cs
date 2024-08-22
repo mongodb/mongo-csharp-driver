@@ -37,6 +37,7 @@ namespace MongoDB.Driver
         private readonly bool _renderForElemMatch = false;
         private readonly bool _renderForFind = false;
         private readonly IBsonSerializerRegistry _serializerRegistry = default;
+        private readonly ExpressionTranslationOptions _translationOptions = default;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
@@ -47,13 +48,15 @@ namespace MongoDB.Driver
         /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
+        /// <param name="translationOptions">The translation options.</param>
         public RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             PathRenderArgs pathRenderArgs = default,
             bool renderDollarForm = default,
             bool renderForFind = false,
-            bool renderForElemMatch = false)
+            bool renderForElemMatch = false,
+            ExpressionTranslationOptions translationOptions = null)
         {
             DocumentSerializer = documentSerializer;
             PathRenderArgs = pathRenderArgs;
@@ -61,6 +64,7 @@ namespace MongoDB.Driver
             RenderDollarForm = renderDollarForm;
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
+            _translationOptions = translationOptions; // can be null
         }
 
         /// <summary>
@@ -102,6 +106,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the translation options used when translation Expressions to MQL.
+        /// </summary>
+        public readonly ExpressionTranslationOptions TranslationOptions
+        {
+            get => _translationOptions;
+            init => _translationOptions = value;
+        }
+
+        /// <summary>
         /// Returns <see cref="DocumentSerializer"/> if it implements <c>IBsonSerializer{T}</c>
         /// or resolves <c>IBsonSerializer{T}</c> from <see cref="SerializerRegistry"/>.
         /// </summary>
@@ -116,6 +129,6 @@ namespace MongoDB.Driver
         /// A new RenderArgs{TNewDocument} instance.
         /// </returns>
         public readonly RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
-            new(serializer, SerializerRegistry, PathRenderArgs);
+            new(serializer, _serializerRegistry, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions);
     }
 }

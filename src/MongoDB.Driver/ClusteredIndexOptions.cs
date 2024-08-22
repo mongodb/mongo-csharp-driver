@@ -64,10 +64,10 @@ namespace MongoDB.Driver
             set => _unique = value;
         }
 
-        internal BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        internal BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             return new BsonDocument {
-                { "key", _key.Render(new(documentSerializer, serializerRegistry)) },
+                { "key", _key.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions)) },
                 { "unique", _unique },
                 { "name", _name, _name != null }
             };

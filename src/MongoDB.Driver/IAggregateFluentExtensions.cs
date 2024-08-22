@@ -339,7 +339,7 @@ namespace MongoDB.Driver
                 where TAs : IEnumerable<TFrom>
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, options, aggregate.Options?.TranslationOptions));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, options));
         }
 
         /// <summary>
@@ -374,7 +374,7 @@ namespace MongoDB.Driver
                 where TAs : IEnumerable<TAsElement>
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, depthField, options, aggregate.Options?.TranslationOptions));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GraphLookup(from, connectFromField, connectToField, startWith, @as, depthField, options));
         }
 
         /// <summary>

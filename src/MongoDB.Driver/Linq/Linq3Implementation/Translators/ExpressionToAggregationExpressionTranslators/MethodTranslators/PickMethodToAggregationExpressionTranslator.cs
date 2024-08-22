@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var sortByExpression = arguments[1];
                     var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
-                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer);
+                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
                 }
 
                 var selectorLambda = (LambdaExpression)GetSelectorArgument(method, arguments);
@@ -280,18 +280,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        private static AstSortFields TranslateSortByDefinition(Expression expression, Expression sortByExpression, object sortByDefinition, IBsonSerializer documentSerializer)
+        private static AstSortFields TranslateSortByDefinition(
+            Expression expression,
+            Expression sortByExpression,
+            object sortByDefinition,
+            IBsonSerializer documentSerializer,
+            ExpressionTranslationOptions translationOptions)
         {
             var methodInfoDefinition = typeof(PickMethodToAggregationExpressionTranslator).GetMethod(nameof(TranslateSortByDefinitionGeneric), BindingFlags.Static | BindingFlags.NonPublic);
             var documentType = documentSerializer.ValueType;
             var methodInfo = methodInfoDefinition.MakeGenericMethod(documentType);
-            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer });
+            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer, translationOptions });
         }
 
-        private static AstSortFields TranslateSortByDefinitionGeneric<TDocument>(Expression expression, Expression sortByExpression, SortDefinition<TDocument> sortByDefinition, IBsonSerializer<TDocument> documentSerializer)
+        private static AstSortFields TranslateSortByDefinitionGeneric<TDocument>(
+            Expression expression,
+            Expression sortByExpression,
+            SortDefinition<TDocument> sortByDefinition,
+            IBsonSerializer<TDocument> documentSerializer,
+            ExpressionTranslationOptions translationOptions)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry));
+            var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
             var fields = new List<AstSortField>();
             foreach (var element in sortDocument)
             {

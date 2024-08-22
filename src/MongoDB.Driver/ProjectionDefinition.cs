@@ -277,11 +277,11 @@ namespace MongoDB.Driver
         {
             if (args.RenderForFind)
             {
-                return LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry);
+                return LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
             }
             else
             {
-                return LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, translationOptions: null);
+                return LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
             }
         }
     }

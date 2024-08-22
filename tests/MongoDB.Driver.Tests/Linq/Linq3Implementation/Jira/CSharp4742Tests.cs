@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(true, false)] bool renderForFind)
         {
             var collection = GetCollection();
-            var projection = new ExpressionProjectionDefinition<C, C>(x => x, translationOptions: null);
+            var projection = new ExpressionProjectionDefinition<C, C>(x => x);
             var sourceSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
 

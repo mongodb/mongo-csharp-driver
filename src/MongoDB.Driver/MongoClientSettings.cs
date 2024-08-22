@@ -76,6 +76,7 @@ namespace MongoDB.Driver
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
+        private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
@@ -135,6 +136,7 @@ namespace MongoDB.Driver
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
+            _translationOptions = null;
             _useTls = false;
 #pragma warning disable 618
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
@@ -745,6 +747,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the translation options.
+        /// </summary>
+        public ExpressionTranslationOptions TranslationOptions
+        {
+            get { return _translationOptions; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _translationOptions = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to use SSL.
         /// </summary>
         [Obsolete("Use UseTls instead.")]
@@ -1033,6 +1048,7 @@ namespace MongoDB.Driver
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
+            clone._translationOptions = _translationOptions;
             clone._useTls = _useTls;
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
@@ -1103,6 +1119,7 @@ namespace MongoDB.Driver
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
+                object.Equals(_translationOptions, rhs._translationOptions) &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout &&
@@ -1190,6 +1207,7 @@ namespace MongoDB.Driver
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
+                .Hash(_translationOptions)
                 .Hash(_useTls)
                 .Hash(_waitQueueSize)
                 .Hash(_waitQueueTimeout)
@@ -1279,6 +1297,10 @@ namespace MongoDB.Driver
             }
             sb.AppendFormat("Tls={0};", _useTls);
             sb.AppendFormat("TlsInsecure={0};", _allowInsecureTls);
+            if (_translationOptions != null)
+            {
+                sb.AppendFormat("TranslationOptions={0};", _translationOptions);
+            }
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
             sb.AppendFormat("WriteConcern={0};", _writeConcern);

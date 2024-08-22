@@ -78,7 +78,7 @@ namespace MongoDB.Driver.GridFS
             get { return _options; }
         }
 
-        // methods
+        // public methods
         /// <inheritdoc />
         public void Delete(TFileId id, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -261,7 +261,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new GridFSFindOptions<TFileId>();
 
-            var operation = CreateFindOperation(filter, options);
+            var translationOptions = _database.Client.Settings.TranslationOptions;
+            var operation = CreateFindOperation(filter, options, translationOptions);
             using (var binding = GetSingleServerReadBinding(cancellationToken))
             {
                 return operation.Execute(binding, cancellationToken);
@@ -274,7 +275,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new GridFSFindOptions<TFileId>();
 
-            var operation = CreateFindOperation(filter, options);
+            var translationOptions = _database.Client.Settings.TranslationOptions;
+            var operation = CreateFindOperation(filter, options, translationOptions);
             using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
@@ -623,11 +625,14 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        private FindOperation<GridFSFileInfo<TFileId>> CreateFindOperation(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options)
+        private FindOperation<GridFSFileInfo<TFileId>> CreateFindOperation(
+            FilterDefinition<GridFSFileInfo<TFileId>> filter,
+            GridFSFindOptions<TFileId> options,
+            ExpressionTranslationOptions translationOptions)
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _options.SerializerRegistry);
+            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _options.SerializerRegistry, translationOptions: translationOptions);
             var renderedFilter = filter.Render(args);
             var renderedSort = options.Sort == null ? null : options.Sort.Render(args);
 

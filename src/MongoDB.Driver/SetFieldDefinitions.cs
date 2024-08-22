@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 
@@ -94,7 +93,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var stage = LinqProviderAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry);
+            var stage = LinqProviderAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
             return stage["$set"].AsBsonDocument;
         }
     }

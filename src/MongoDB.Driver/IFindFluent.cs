@@ -140,6 +140,13 @@ namespace MongoDB.Driver
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TProjection> Sort(SortDefinition<TDocument> sort);
+
+        /// <summary>
+        /// Returns a string representation of an IFindFluent instance.
+        /// </summary>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The string representation.</returns>
+        string ToString(ExpressionTranslationOptions translationOptions);
     }
 
     /// <summary>

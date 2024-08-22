@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
             bool renderForFind,
             string expectedProjection)
         {
-            var projection = new ExpressionProjectionDefinition<C, TProjection>(expression, null);
+            var projection = new ExpressionProjectionDefinition<C, TProjection>(expression);
 
             var renderedProjection = projection.Render(new(BsonSerializer.LookupSerializer<C>(), BsonSerializer.SerializerRegistry, renderForFind: renderForFind));
 

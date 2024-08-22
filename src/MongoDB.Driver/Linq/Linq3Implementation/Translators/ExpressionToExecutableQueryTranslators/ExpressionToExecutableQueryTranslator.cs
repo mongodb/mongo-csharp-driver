@@ -24,11 +24,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class ExpressionToExecutableQueryTranslator
     {
         // public static methods
-        public static ExecutableQuery<TDocument, IAsyncCursor<TOutput>> Translate<TDocument, TOutput>(MongoQueryProvider<TDocument> provider, Expression expression)
+        public static ExecutableQuery<TDocument, IAsyncCursor<TOutput>> Translate<TDocument, TOutput>(
+            MongoQueryProvider<TDocument> provider,
+            Expression expression,
+            ExpressionTranslationOptions translationOptions)
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
-            var context = TranslationContext.Create(expression, provider.PipelineInputSerializer);
+            var context = TranslationContext.Create(expression, provider.PipelineInputSerializer, translationOptions);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
             return ExecutableQuery.Create(
@@ -37,11 +40,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 IdentityFinalizer<TOutput>.Instance);
         }
 
-        public static ExecutableQuery<TDocument, TResult> TranslateScalar<TDocument, TResult>(MongoQueryProvider<TDocument> provider, Expression expression)
+        public static ExecutableQuery<TDocument, TResult> TranslateScalar<TDocument, TResult>(
+            MongoQueryProvider<TDocument> provider,
+            Expression expression,
+            ExpressionTranslationOptions translationOptions)
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
-            var context = TranslationContext.Create(expression, provider.PipelineInputSerializer);
+            var context = TranslationContext.Create(expression, provider.PipelineInputSerializer, translationOptions);
             var methodCallExpression = (MethodCallExpression)expression;
             switch (methodCallExpression.Method.Name)
             {

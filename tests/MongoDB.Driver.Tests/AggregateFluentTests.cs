@@ -1359,7 +1359,7 @@ namespace MongoDB.Driver.Tests
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
-            return pipeline.Render(new(inputSerializer, serializerRegistry));
+            return pipeline.Render(new(inputSerializer, serializerRegistry, translationOptions: null));
         }
 
         private List<IRenderedPipelineStageDefinition> RenderStages(

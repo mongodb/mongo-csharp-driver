@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
 
                 var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(documentType);
-                var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry });
+                var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry, context.TranslationOptions });
 
                 return AstFilter.Raw(renderedFilter);
             }
@@ -59,7 +59,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         }
 
         // private static methods
-        private static BsonDocument RenderFilter<TDocument>(FilterDefinition<TDocument> filterDefinition, IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            filterDefinition.Render(new(documentSerializer, serializerRegistry));
+        private static BsonDocument RenderFilter<TDocument>(
+            FilterDefinition<TDocument> filterDefinition,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions) =>
+                filterDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
     }
 }

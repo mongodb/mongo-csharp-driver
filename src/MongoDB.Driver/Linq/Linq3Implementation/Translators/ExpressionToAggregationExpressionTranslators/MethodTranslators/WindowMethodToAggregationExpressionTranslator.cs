@@ -461,10 +461,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var windowConstant = windowExpression.GetConstantValue<SetWindowFieldsWindow>(expression);
             var sortBy = context.Data?.GetValueOrDefault<object>("SortBy", null);
             var serializerRegistry = context.Data?.GetValueOrDefault<BsonSerializerRegistry>("SerializerRegistry", null);
-            return ToAstWindow(windowConstant, sortBy, inputSerializer, serializerRegistry);
+            return ToAstWindow(windowConstant, sortBy, inputSerializer, serializerRegistry, context.TranslationOptions);
         }
 
-        private static AstWindow ToAstWindow(SetWindowFieldsWindow window, object sortBy, IBsonSerializer inputSerializer, BsonSerializerRegistry serializerRegistry)
+        private static AstWindow ToAstWindow(
+            SetWindowFieldsWindow window,
+            object sortBy,
+            IBsonSerializer inputSerializer,
+            BsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
         {
             if (window == null)
             {
@@ -490,7 +495,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer upperBoundaryValueSerializer = null;
                 if (lowerValueBoundary != null || upperValueBoundary != null)
                 {
-                    var sortBySerializer = GetSortBySerializer(sortBy, inputSerializer, serializerRegistry);
+                    var sortBySerializer = GetSortBySerializer(sortBy, inputSerializer, serializerRegistry, translationOptions);
                     if (lowerValueBoundary != null)
                     {
                         lowerBoundaryValueSerializer = ValueRangeWindowBoundaryConvertingValueSerializerFactory.Create(lowerValueBoundary, sortBySerializer);
@@ -514,7 +519,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ArgumentException($"Invalid window type: {window.GetType().FullName}.");
         }
 
-        private static IBsonSerializer GetSortBySerializer(object sortBy, IBsonSerializer inputSerializer, BsonSerializerRegistry serializerRegistry)
+        private static IBsonSerializer GetSortBySerializer(
+            object sortBy,
+            IBsonSerializer inputSerializer,
+            BsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
         {
             Ensure.IsNotNull(sortBy, nameof(sortBy));
 
@@ -525,10 +534,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 nameof(GetSortBySerializerGeneric),
                 BindingFlags.NonPublic | BindingFlags.Static);
             var methodInfo = methodInfoDefinition.MakeGenericMethod(documentType);
-            return (IBsonSerializer)methodInfo.Invoke(null, new object[] { sortBy, inputSerializer, serializerRegistry });
+            return (IBsonSerializer)methodInfo.Invoke(null, new object[] { sortBy, inputSerializer, serializerRegistry, translationOptions });
         }
 
-        private static IBsonSerializer GetSortBySerializerGeneric<TDocument>(SortDefinition<TDocument> sortBy, IBsonSerializer<TDocument> documentSerializer, BsonSerializerRegistry serializerRegistry)
+        private static IBsonSerializer GetSortBySerializerGeneric<TDocument>(
+            SortDefinition<TDocument> sortBy,
+            IBsonSerializer<TDocument> documentSerializer,
+            BsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
         {
             var directionalSortBy = sortBy as DirectionalSortDefinition<TDocument>;
             if (directionalSortBy == null)
@@ -541,7 +554,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var field = directionalSortBy.Field;
-            var renderedField = field.Render(new(documentSerializer, serializerRegistry));
+            var renderedField = field.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
 
             return renderedField.FieldSerializer;
         }

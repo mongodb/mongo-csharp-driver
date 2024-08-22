@@ -31,15 +31,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
         }
 
-        public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer)
+        public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer, ExpressionTranslationOptions translationOptions)
         {
-            var rendered = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry));
+            var rendered = pipeline.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
             return rendered.Documents;
         }
 
-        public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer)
+        public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, ExpressionTranslationOptions translationOptions)
         {
-            var rendered = stage.Render(new(inputSerializer, BsonSerializer.SerializerRegistry));
+            var rendered = stage.Render(new(inputSerializer, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
             return rendered.Documents;
         }
 
@@ -61,7 +61,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         public static List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
             var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
+            var translationOptions = provider.GetTranslationOptions();
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression, translationOptions);
             var stages = executableQuery.Pipeline.Stages;
             return stages.Select(s => s.Render().AsBsonDocument).ToList();
         }

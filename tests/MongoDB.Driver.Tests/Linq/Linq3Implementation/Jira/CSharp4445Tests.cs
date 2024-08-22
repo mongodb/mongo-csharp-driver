@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new EmptyPipelineDefinition<C>()
                 .Limit(limit);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, collection.DocumentSerializer, translationOptions: null);
 
             AssertStages(stages, "{ $limit : 1 }");
             stages[0]["$limit"].BsonType.Should().Be(BsonType.Int64);
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new EmptyPipelineDefinition<C>()
                 .Limit(limit);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, collection.DocumentSerializer, translationOptions: null);
 
             AssertStages(stages, "{ $limit : 1 }");
             stages[0]["$limit"].BsonType.Should().Be(BsonType.Int64);
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new EmptyPipelineDefinition<C>()
                 .Skip(skip);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, collection.DocumentSerializer, translationOptions: null);
 
             AssertStages(stages, "{ $skip : 1 }");
             stages[0]["$skip"].BsonType.Should().Be(BsonType.Int64);
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new EmptyPipelineDefinition<C>()
                 .Skip(skip);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, collection.DocumentSerializer, translationOptions: null);
 
             AssertStages(stages, "{ $skip : 1 }");
             stages[0]["$skip"].BsonType.Should().Be(BsonType.Int64);

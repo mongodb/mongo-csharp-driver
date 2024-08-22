@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -108,6 +109,7 @@ namespace MongoDB.Driver
             return client.WatchAsync(session, emptyPipeline, options, cancellationToken);
         }
 
+        // internal static methods
         internal static IClusterInternal GetClusterInternal(this IMongoClient client) => (IClusterInternal)client.Cluster;
     }
 }

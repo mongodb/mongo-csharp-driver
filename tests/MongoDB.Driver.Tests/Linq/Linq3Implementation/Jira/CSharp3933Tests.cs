@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var pipeline = emptyPipeline.Group("{ _id : 1, Count : { $sum : 1 } }");
 
-            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages = new[]
             {
                 "{ $group : { _id : 1, Count : { $sum : 1 } } }"
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var pipeline = emptyPipeline.Group<BsonDocument, BsonDocument, Result>("{ _id : 1, Count : { $sum : 1 } }");
 
-            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages = new[]
             {
                 "{ $group : { _id : 1, Count : { $sum : 1 } } }"
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var pipeline = emptyPipeline.Group(x => 1, x => new { Count = x.Count() });
 
-            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(pipeline, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages =
                 new[]
                 {
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var stageDefinition = PipelineStageDefinitionBuilder.Group<BsonDocument>("{ _id : 1, Count : { $sum : 1 } }");
 
-            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages = new[]
             {
                 "{ $group : { _id : 1, Count : { $sum : 1 } } }"
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var stageDefinition = PipelineStageDefinitionBuilder.Group<BsonDocument, BsonDocument>("{ _id : 1, Count : { $sum : 1 } }");
 
-            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages = new[]
             {
                 "{ $group : { _id : 1, Count : { $sum : 1 } } }"
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var stageDefinition = PipelineStageDefinitionBuilder.Group((BsonDocument x) => 1, x => new { Count = x.Count() });
 
-            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance);
+            var stages = Linq3TestHelpers.Render(stageDefinition, BsonDocumentSerializer.Instance, translationOptions: null);
             var expectedStages =
                 new[]
                 {

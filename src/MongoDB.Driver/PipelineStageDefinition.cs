@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -147,6 +148,15 @@ namespace MongoDB.Driver
         IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
+        /// Renders the specified document serializer.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>An <see cref="IRenderedPipelineStageDefinition" /></returns>
+        IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions);
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <param name="inputSerializer">The input serializer.</param>
@@ -206,9 +216,21 @@ namespace MongoDB.Driver
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
-        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            ToString(inputSerializer, serializerRegistry, translationOptions: null);
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
-            var renderedStage = Render(new(inputSerializer, serializerRegistry));
+            var renderedStage = Render(new(inputSerializer, serializerRegistry, translationOptions: translationOptions));
             var documents = renderedStage.Documents;
             if (documents.Count == 1)
             {
@@ -262,7 +284,13 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry));
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, translationOptions: null));
+        }
+
+        /// <inheritdoc />
+        IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
+        {
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, translationOptions: translationOptions));
         }
     }
 

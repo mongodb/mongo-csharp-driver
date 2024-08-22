@@ -20,9 +20,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Documents(documents)
                 .BucketAuto(groupBy: d => d.X, buckets: 4);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, NoPipelineInputSerializer.Instance, translationOptions: null);
             AssertStages(
                 stages,
                 "{ $documents : [{ X : 10 }, { X : 2 }, { X : 5 }] }",
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Documents(documents)
                 .BucketAuto(groupBy: d => d.X, buckets: 4);
 
-            var stages = Translate(pipeline);
+            var stages = Translate(pipeline, NoPipelineInputSerializer.Instance, translationOptions: null);
             AssertStages(
                 stages,
                 "{ $documents : [{ X : 10 }, { X : 2 }, { X : 5 }] }",

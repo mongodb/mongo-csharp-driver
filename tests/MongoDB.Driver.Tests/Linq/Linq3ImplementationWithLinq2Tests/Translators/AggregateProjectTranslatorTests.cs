@@ -31,11 +31,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 {
     public class AggregateProjectTranslatorTests : IntegrationTestBase
     {
-        private readonly static ExpressionTranslationOptions __codePointTranslationOptions = new ExpressionTranslationOptions
-        {
-            StringTranslationMode = AggregateStringTranslationMode.CodePoints
-        };
-
         [Fact]
         public void Should_translate_using_non_anonymous_type_with_default_constructor()
         {
@@ -623,27 +618,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check();
 
-            var result = Project(x => new { Result = x.A.IndexOf('e') }, __codePointTranslationOptions);
+            var result = Project(x => new { Result = x.A.IndexOf('e') });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\"] }, _id: 0 }");
             result.Value.Result.Should().Be(2);
 
-            result = Project(x => new { Result = x.A.IndexOf("e") }, __codePointTranslationOptions);
+            result = Project(x => new { Result = x.A.IndexOf("e") });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\"] }, _id: 0 }");
             result.Value.Result.Should().Be(2);
 
-            result = Project(x => new { Result = x.A.IndexOf('e', 4) }, __codePointTranslationOptions);
+            result = Project(x => new { Result = x.A.IndexOf('e', 4) });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4] }, _id: 0 }");
             result.Value.Result.Should().Be(6);
 
-            result = Project(x => new { Result = x.A.IndexOf("e", 4) }, __codePointTranslationOptions);
+            result = Project(x => new { Result = x.A.IndexOf("e", 4) });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4] }, _id: 0 }");
             result.Value.Result.Should().Be(6);
 
-            result = Project(x => new { Result = x.A.IndexOf('e', 4, 2) }, __codePointTranslationOptions);
+            result = Project(x => new { Result = x.A.IndexOf('e', 4, 2) });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, 6] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
 
-            result = Project(x => new { Result = x.A.IndexOf("e", 4, 2) }, __codePointTranslationOptions);
+            result = Project(x => new { Result = x.A.IndexOf("e", 4, 2) });
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, 6] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
@@ -1758,15 +1753,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
         private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector)
         {
-            return Project(projector, null);
-        }
-
-        private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector, ExpressionTranslationOptions translationOptions)
-        {
             var query = __collection.AsQueryable().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression, translationOptions: null);
             var projection = executableQuery.Pipeline.Stages.First().Render()["$project"].AsBsonDocument;
             var value = query.Take(1).FirstOrDefault();
 

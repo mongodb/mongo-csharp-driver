@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -275,7 +276,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             options = options ?? new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = CreateListDatabaseOperation(options, messageEncoderSettings);
+            var translationOptions = _settings.TranslationOptions;
+            var operation = CreateListDatabaseOperation(options, messageEncoderSettings, translationOptions);
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
@@ -311,7 +313,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             options = options ?? new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = CreateListDatabaseOperation(options, messageEncoderSettings);
+            var translationOptions = _settings.TranslationOptions;
+            var operation = CreateListDatabaseOperation(options, messageEncoderSettings, translationOptions);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -363,7 +366,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateChangeStreamOperation(pipeline, options);
+            var translationOptions = _settings.TranslationOptions;
+            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
@@ -385,7 +389,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var operation = CreateChangeStreamOperation(pipeline, options);
+            var translationOptions = _settings.TranslationOptions;
+            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -426,13 +431,14 @@ namespace MongoDB.Driver
 
         private ListDatabasesOperation CreateListDatabaseOperation(
             ListDatabasesOptions options,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            ExpressionTranslationOptions translationOptions)
         {
             return new ListDatabasesOperation(messageEncoderSettings)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
-                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry)),
+                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -471,14 +477,16 @@ namespace MongoDB.Driver
 
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
-            ChangeStreamOptions options)
+            ChangeStreamOptions options,
+            ExpressionTranslationOptions translationOptions)
         {
             return ChangeStreamHelper.CreateChangeStreamOperation(
                 pipeline,
                 options,
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
-                _settings.RetryReads);
+                _settings.RetryReads,
+                translationOptions);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))

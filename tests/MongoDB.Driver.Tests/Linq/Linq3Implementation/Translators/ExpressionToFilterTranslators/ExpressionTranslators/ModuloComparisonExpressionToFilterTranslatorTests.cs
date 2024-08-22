@@ -20,7 +20,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 using Xunit;
@@ -184,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         private TranslationContext CreateContext(ParameterExpression parameter)
         {
             var serializer = BsonSerializer.LookupSerializer(parameter.Type);
-            var context = TranslationContext.Create(parameter, serializer);
+            var context = TranslationContext.Create(parameter, serializer, translationOptions: null);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             return context.WithSymbol(symbol);
         }

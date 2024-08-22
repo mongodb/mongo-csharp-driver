@@ -541,17 +541,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
         private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)
         {
-            return Group(idProjector, groupProjector, null);
-        }
-
-        private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector, ExpressionTranslationOptions translationOptions)
-        {
             var queryable = __collection.AsQueryable()
                 .GroupBy(idProjector)
                 .Select(groupProjector);
 
             var collectionSerializer = (IBsonDocumentSerializer)BsonSerializer.LookupSerializer<Root>();
-            var context = TranslationContext.Create(queryable.Expression, collectionSerializer);
+            var context = TranslationContext.Create(queryable.Expression, collectionSerializer, translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
             pipeline = AstPipelineOptimizer.Optimize(pipeline);
 
