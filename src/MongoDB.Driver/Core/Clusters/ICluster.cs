@@ -29,12 +29,6 @@ namespace MongoDB.Driver.Core.Clusters
     /// </summary>
     public interface ICluster : IDisposable
     {
-        // events
-        /// <summary>
-        /// Occurs when the cluster description has changed.
-        /// </summary>
-        event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
-
         // properties
         /// <summary>
         /// Gets the cluster identifier.
@@ -63,6 +57,8 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal interface IClusterInternal : ICluster
     {
+        event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
+
         ICoreServerSession AcquireServerSession();
 
         CryptClient CryptClient { get; }
