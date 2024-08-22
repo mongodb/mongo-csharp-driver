@@ -105,6 +105,20 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            // note: we can't compare _classMap(s) because that would result in infinite recursion
+            // note: if _memberInfo(s) are Equal we have to ignore the _delegate(s)
+            // so this is the best implementation we can have
+            return
+                GetType().Equals(obj.GetType()) &&
+                obj is BsonCreatorMap other &&
+                (_memberInfo != null && object.Equals(_memberInfo, other._memberInfo) || object.Equals(_delegate, other._delegate));
+        }
+
         /// <summary>
         /// Freezes the creator map.
         /// </summary>
@@ -153,6 +167,9 @@ namespace MongoDB.Bson.Serialization
                 _isFrozen = true;
             }
         }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <summary>
         /// Gets whether there is a default value for a missing element.

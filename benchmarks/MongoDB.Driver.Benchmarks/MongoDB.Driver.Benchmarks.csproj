@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
-    <ProjectReference Include="..\..\src\MongoDB.Driver.GridFS\MongoDB.Driver.GridFS.csproj" />
     <ProjectReference Include="..\..\tests\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
   </ItemGroup>
 </Project>

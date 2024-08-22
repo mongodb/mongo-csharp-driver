@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     case "kmsProviders":
                         kmsProviders = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument, legacy: true);
                         autoEncryptionOptions = autoEncryptionOptions.With(kmsProviders: Optional.Create(kmsProviders));
-                        var tlsSettings = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc: (kms) => kms == "kmip");
+                        var tlsSettings = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc: (kms) => kms.StartsWith("kmip"));
                         if (tlsSettings != null)
                         {
                             autoEncryptionOptions = autoEncryptionOptions.With(tlsOptions: tlsSettings);

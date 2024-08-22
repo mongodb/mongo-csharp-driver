@@ -283,7 +283,7 @@ namespace MongoDB.Bson.Serialization
                 _isRequired.Equals(other._isRequired) &&
                 object.Equals(_memberInfo, other._memberInfo) &&
                 _order.Equals(other._order) &&
-                object.Equals(_serializer, other._serializer) &&
+                object.Equals(GetSerializer(), other.GetSerializer()) && // note: call GetSerializer instead of using _serializer
                 object.Equals(_shouldSerializeMethod, other._shouldSerializeMethod);
         }
 

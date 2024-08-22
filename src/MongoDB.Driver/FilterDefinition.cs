@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 
@@ -36,18 +35,6 @@ namespace MongoDB.Driver
         public static FilterDefinition<TDocument> Empty
         {
             get { return __empty; }
-        }
-
-        /// <summary>
-        /// Renders the filter to a <see cref="BsonDocument"/>.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
         }
 
         /// <summary>

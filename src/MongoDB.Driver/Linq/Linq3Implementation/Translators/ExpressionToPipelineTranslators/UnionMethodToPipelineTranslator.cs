@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -35,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, firstExpression);
 
                 var secondExpression = arguments[1];
-                var secondValue = secondExpression.Evaluate();
+                var secondValue = secondExpression.Evaluate(); // TODO: Evaluate might not be necessary once IMongoQueryable is removed
                 if (secondValue is IMongoQueryable secondQueryable)
                 {
                     var secondProvider = (IMongoQueryProviderInternal)secondQueryable.Provider;
@@ -56,7 +58,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                     pipeline = pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        AstStage.UnionWith(secondCollectionName, secondPipeline));
+                        AstStage.UnionWith(secondCollectionName, secondPipeline),
+                        AstStage.Group(AstExpression.RootVar, fields: Array.Empty<AstAccumulatorField>()),
+                        AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")));
 
                     return pipeline;
                 }

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Events;
@@ -58,11 +59,12 @@ namespace MongoDB.Driver.Tests.Specifications
                 RequireKmsMock();
             }
 
+            var exclusionKeywords = new[] { "gcp", "rewrap with", "rewrap to" };
             RequirePlatform
                 .Check()
                 // rewrap tests calls gcp kms that is supported starting from netstandard2.1
-                .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => exclusionKeywords.Any(testCaseNameLower.Contains), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => exclusionKeywords.Any(testCaseNameLower.Contains), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             Run(testCase);
         }

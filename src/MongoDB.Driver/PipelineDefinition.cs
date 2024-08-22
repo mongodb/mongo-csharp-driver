@@ -81,16 +81,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the pipeline.
         /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
-        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry) =>
-            Render(new (inputSerializer, serializerRegistry));
-
-        /// <summary>
-        /// Renders the pipeline.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
         public abstract RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args);

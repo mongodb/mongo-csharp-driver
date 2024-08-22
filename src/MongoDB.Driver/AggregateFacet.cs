@@ -75,18 +75,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the facet pipeline.
         /// </summary>
-        /// <param name="inputSerializer">The input serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>The rendered pipeline.</returns>
-        [Obsolete("Use Render(RenderArgs<TInput> args) overload instead.")]
-        public virtual BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return RenderPipeline(new(inputSerializer, serializerRegistry));
-        }
-
-        /// <summary>
-        /// Renders the facet pipeline.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="BsonValue"/>.</returns>
         public abstract BsonArray RenderPipeline(RenderArgs<TInput> args);

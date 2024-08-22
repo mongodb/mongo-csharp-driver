@@ -137,6 +137,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "createDataKey" => new UnifiedCreateDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "rewrapManyDataKey" => new UnifiedRewrapManyDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "encrypt" => new UnifiedEncryptOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "decrypt" => new UnifiedDecryptOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "addKeyAltName" => new UnifiedAddKeyAltNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "deleteKey" => new UnifiedDeleteKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "getKey" => new UnifiedGetKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

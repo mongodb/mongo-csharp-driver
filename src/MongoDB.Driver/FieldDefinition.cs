@@ -138,18 +138,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Renders the field to a <see cref="RenderedFieldDefinition"/>.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedFieldDefinition"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
-        }
-
-        /// <summary>
-        /// Renders the field to a <see cref="RenderedFieldDefinition"/>.
-        /// </summary>
         /// <param name="args">The render arguments.</param>
         /// <returns>A <see cref="RenderedFieldDefinition"/>.</returns>
         public abstract RenderedFieldDefinition Render(RenderArgs<TDocument> args);
@@ -179,34 +167,6 @@ namespace MongoDB.Driver
     /// <typeparam name="TField">The type of the field.</typeparam>
     public abstract class FieldDefinition<TDocument, TField>
     {
-        /// <summary>
-        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <param name="allowScalarValueForArrayField">Whether a scalar value is allowed for an array field.</param>
-        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual RenderedFieldDefinition<TField> Render(
-            IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            bool allowScalarValueForArrayField)
-        {
-            return Render(new(documentSerializer, serializerRegistry)); // ignore allowScalarValueForArrayField if not overridden by subclass
-        }
-
-        /// <summary>
-        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
-        [Obsolete("Use Render(RenderArgs<TDocument> args) overload instead.")]
-        public virtual RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return Render(new(documentSerializer, serializerRegistry));
-        }
-
         /// <summary>
         /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
         /// </summary>

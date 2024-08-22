@@ -48,7 +48,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .Union(_secondCollection.AsQueryable());
 
             var stages = Translate(_firstCollection, queryable);
-            AssertStages(stages, "{ $unionWith : 'partners' }");
+            AssertStages(
+                stages,
+                "{ $unionWith : 'partners' }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5 });
@@ -64,10 +68,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .Union(_firstCollection.AsQueryable());
 
             var stages = Translate(_firstCollection, queryable);
-            AssertStages(stages, "{ $unionWith : 'clients' }");
+            AssertStages(
+                stages,
+                "{ $unionWith : 'clients' }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
 
             var results = queryable.ToList();
-            results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 1, 2, 3, 1, 2, 3 });
+            results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 1, 2, 3 });
         }
 
         [Fact]
@@ -83,7 +91,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var stages = Translate(_firstCollection, queryable);
             AssertStages(stages,
                 "{ $match : { Name : /^second/s } }",
-                "{ $unionWith : { coll : 'partners', pipeline : [{ $match : { Name : /^another/s } }] } }");
+                "{ $unionWith : { coll : 'partners', pipeline : [{ $match : { Name : /^another/s } }] } }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().BeEquivalentTo(new[] { 2, 5 });
@@ -104,7 +114,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages,
                 "{ $match : { Name : /^second/s } }",
                 "{ $project : { Number : '$_id', _id : 0 } }",
-                "{ $unionWith : { coll : 'partners', pipeline : [{ $project : { Number : '$_id', _id : 0 } }] } }");
+                "{ $unionWith : { coll : 'partners', pipeline : [{ $project : { Number : '$_id', _id : 0 } }] } }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Number).Should().BeEquivalentTo(new[] { 2, 4, 5 });
@@ -125,7 +137,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages,
                 "{ $match : { Name : /^second/s } }",
                 "{ $project : { Number : '$_id', _id : 0 } }",
-                "{ $unionWith : { coll : 'partners', pipeline : [{ $project : { Number : '$_id', _id : 0 } }] } }");
+                "{ $unionWith : { coll : 'partners', pipeline : [{ $project : { Number : '$_id', _id : 0 } }] } }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
 
             var results = queryable.ToList();
             results.Select(x => x.Number).Should().BeEquivalentTo(new[] { 2, 4, 5 });

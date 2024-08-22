@@ -536,6 +536,21 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Concatenates two sequences.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the input sequences.</typeparam>
+        /// <param name="source1">The first sequence to concatenate.</param>
+        /// <param name="source2">The second sequence to concatenate to the first sequence</param>
+        /// <returns>An <see cref="IMongoQueryable{TSource}" /> that contains the concatenated elements of the two input sequences.</returns>
+        public static IMongoQueryable<TSource> Concat<TSource>(this IMongoQueryable<TSource> source1, IEnumerable<TSource> source2)
+        {
+            Ensure.IsNotNull(source1, nameof(source1));
+            Ensure.IsNotNull(source2, nameof(source2));
+
+            return (IMongoQueryable<TSource>)Queryable.Concat(source1, source2);
+        }
+
+        /// <summary>
         /// Returns the number of elements in a sequence.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -3482,6 +3497,21 @@ namespace MongoDB.Driver.Linq
             Ensure.IsNotNull(keySelector, nameof(keySelector));
 
             return (IOrderedMongoQueryable<TSource>)Queryable.ThenByDescending(source, keySelector);
+        }
+
+        /// <summary>
+        /// Produces the set union of two sequences.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the input sequences.</typeparam>
+        /// <param name="source1">A sequence whose distinct elements form the first set for the union operation.</param>
+        /// <param name="source2">A sequence whose distinct elements form the second set for the union operation.</param>
+        /// <returns>An <see cref="IMongoQueryable{TSource}" /> that contains the elements from both input sequences, excluding duplicates.</returns>
+        public static IMongoQueryable<TSource> Union<TSource>(this IMongoQueryable<TSource> source1, IEnumerable<TSource> source2)
+        {
+            Ensure.IsNotNull(source1, nameof(source1));
+            Ensure.IsNotNull(source2, nameof(source2));
+
+            return (IMongoQueryable<TSource>)Queryable.Union(source1, source2);
         }
 
         /// <summary>
