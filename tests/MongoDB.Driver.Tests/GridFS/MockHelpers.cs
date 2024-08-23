@@ -4,7 +4,7 @@ namespace MongoDB.Driver.Tests.GridFS
 {
     internal static class MockHelpers
     {
-        public static IMongoDatabase GetMockMongoDatabaseMock()
+        public static IMongoDatabase GetMongoDatabaseMock()
         {
             var client = new Mock<IMongoClient>() { DefaultValue = DefaultValue.Empty };
             var database = new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock };
