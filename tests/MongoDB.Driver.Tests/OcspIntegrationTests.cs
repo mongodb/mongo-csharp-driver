@@ -83,12 +83,6 @@ namespace MongoDB.Driver.Tests
                 using (var client = CreateDisposableMongoClient(tlsInsecure))
                 {
                     client.GetDatabase("admin").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
-#pragma warning disable CS0618 // Type or member is obsolete
-                    if (client.Settings.SdamLogFilename != null)
-                    { // Log file needs a bit of time to be written before we dispose the client
-                        System.Threading.Thread.Sleep(2000);
-                    }
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
             }
         }

@@ -108,9 +108,6 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
 #pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
-#pragma warning disable CS0618 // Type or member is obsolete
-            settings.SdamLogFilename = "stdout";
-#pragma warning restore CS0618 // Type or member is obsolete
             settings.ServerApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var clone = settings.Clone();
@@ -291,9 +288,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal(null, settings.SdamLogFilename);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -579,9 +573,6 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-#pragma warning disable CS0618 // Type or member is obsolete
-            clone.SdamLogFilename = "garbage";
-#pragma warning restore CS0618 // Type or member is obsolete
             Assert.False(clone.Equals(settings));
 
             // set non default values
@@ -1191,23 +1182,6 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.Scheme = scheme; });
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        [Fact]
-        public void TestSdamLogFileName()
-        {
-            var settings = new MongoClientSettings();
-            Assert.Equal(null, settings.SdamLogFilename);
-
-            var sdamLogFileName = "LCARS";
-            settings.SdamLogFilename = sdamLogFileName;
-            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
-
-            settings.Freeze();
-            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
-            Assert.Throws<InvalidOperationException>(() => { settings.SdamLogFilename = sdamLogFileName; });
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
         [Fact]
         public void TestServer()
         {
@@ -1516,9 +1490,6 @@ namespace MongoDB.Driver.Tests
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
                 Scheme = ConnectionStringScheme.MongoDB,
-#pragma warning disable CS0618 // Type or member is obsolete
-                SdamLogFilename = "pokédex",
-#pragma warning restore CS0618 // Type or member is obsolete
                 ServerApi = serverApi,
                 Servers = servers,
                 ServerMonitoringMode = ServerMonitoringMode.Poll,

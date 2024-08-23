@@ -96,7 +96,6 @@ namespace MongoDB.Driver
             int receiveBufferSize,
             string replicaSetName,
             ConnectionStringScheme scheme,
-            string sdamLogFilename,
             int sendBufferSize,
             ServerApi serverApi,
             IReadOnlyList<MongoServerAddress> servers,
