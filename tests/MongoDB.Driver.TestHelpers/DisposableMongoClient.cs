@@ -250,14 +250,7 @@ namespace MongoDB.Driver.TestHelpers
 
             if (wrapped is MongoClient mongoClient)
             {
-                var controller = mongoClient.LibMongoCryptController;
-                foreach (var clientToDispose in new[] { controller?.GetInternalClient(), controller?.GetMongoCryptdClient() })
-                {
-                    if (clientToDispose != null)
-                    {
-                        ClusterRegistry.Instance.UnregisterAndDisposeCluster(clientToDispose.Cluster);
-                    }
-                }
+                mongoClient.LibMongoCryptController.Dispose();
             }
 
             _logger?.LogDebug(wrapped.Cluster.ClusterId, "Disposed");

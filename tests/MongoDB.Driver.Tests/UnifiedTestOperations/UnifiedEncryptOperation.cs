@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -103,7 +104,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         throw new FormatException($"Invalid {nameof(UnifiedEncryptOperation)} argument name: '{argument.Name}'.");
                 }
             }
-            
+
             return new UnifiedEncryptOperation(clientEncryption, value, new EncryptOptions(algorithm, keyAltName));
         }
     }

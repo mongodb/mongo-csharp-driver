@@ -13,24 +13,20 @@
  * limitations under the License.
  */
 
+using System;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    public interface IAutoEncryptionLibMongoCryptController : IBinaryCommandFieldEncryptor, IBinaryDocumentFieldDecryptor
+    public interface IAutoEncryptionLibMongoCryptController : IBinaryCommandFieldEncryptor, IBinaryDocumentFieldDecryptor, IDisposable
     {
-        // internal properties
         /// <summary>
-        /// This property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
+        /// Gets the crypt shared library version.
         /// </summary>
-        internal IMongoClient GetInternalClient();
-
-        /// <summary>
-        /// This property is used by DisposableMongoClient.Dispose to unregister the mongocryptd cluster.
-        /// </summary>
-        internal IMongoClient GetMongoCryptdClient();
+        /// <returns>A crypt shared library version.</returns>
+        public string CryptSharedLibraryVersion();
     }
 }

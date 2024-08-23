@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Tests
 
             public ClusterSettings Settings => throw new NotImplementedException();
 
-            public ICryptClient CryptClient => throw new NotImplementedException();
+            // public ICryptClient CryptClient => throw new NotImplementedException();
 
             public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 

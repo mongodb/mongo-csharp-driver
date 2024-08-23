@@ -37,10 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\libmongocrypt\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver.Authentication.AWS\MongoDB.Driver.Authentication.AWS.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
     <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
     <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
   </ItemGroup>

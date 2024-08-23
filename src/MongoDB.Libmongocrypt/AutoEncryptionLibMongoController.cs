@@ -18,8 +18,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 
@@ -28,12 +30,20 @@ namespace MongoDB.Libmongocrypt
     internal sealed class AutoEncryptionLibMongoCryptController : LibMongoCryptControllerBase, IAutoEncryptionLibMongoCryptController
     {
         #region static
-        public static AutoEncryptionLibMongoCryptController Create(IMongoClient client, ICryptClient cryptClient, AutoEncryptionOptions autoEncryptionOptions)
+        public static IAutoEncryptionLibMongoCryptController Create(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
         {
             var lazyInternalClient = new Lazy<IMongoClient>(() => CreateInternalClient());
             var keyVaultClient = autoEncryptionOptions.KeyVaultClient ?? lazyInternalClient.Value;
             var metadataClient = autoEncryptionOptions.BypassAutoEncryption ? null : lazyInternalClient.Value;
             var internalClient = lazyInternalClient.IsValueCreated ? lazyInternalClient.Value : null;
+
+            var cryptClient = CryptClientFactory.Create(client.Cluster.Settings.CryptClientSettings);
+
+            client.Settings.LoggingSettings.CreateLogger<LogCategories.Client>().LogTrace(
+                StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
+                client.Cluster.ClusterId,
+                "CryptClient created. Configured shared library version: ",
+                cryptClient.CryptSharedLibraryVersion ?? "None");
 
             return new AutoEncryptionLibMongoCryptController(
                 internalClient,
@@ -63,7 +73,7 @@ namespace MongoDB.Libmongocrypt
             IMongoClient internalClient,
             IMongoClient keyVaultClient,
             IMongoClient metadataClient,
-            ICryptClient cryptClient,
+            CryptClient cryptClient,
             AutoEncryptionOptions autoEncryptionOptions)
             : base(cryptClient, keyVaultClient, autoEncryptionOptions)
         {
@@ -74,15 +84,7 @@ namespace MongoDB.Libmongocrypt
         }
 
         // internal properties
-        /// <summary>
-        /// This property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
-        /// </summary>
-        public IMongoClient GetInternalClient() => _internalClient;
-
-        /// <summary>
-        /// This property is used by DisposableMongoClient.Dispose to unregister the mongocryptd cluster.
-        /// </summary>
-        public IMongoClient GetMongoCryptdClient() => _mongocryptdClient.IsValueCreated ? _mongocryptdClient.Value : null;
+        public string CryptSharedLibraryVersion() => _cryptClient.CryptSharedLibraryVersion;
 
         // public methods
         public byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken)
@@ -294,6 +296,19 @@ namespace MongoDB.Libmongocrypt
                     return;
                 }
                 await Task.Delay(TimeSpan.FromMilliseconds(5)).ConfigureAwait(false);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_internalClient != null)
+            {
+                ClusterRegistry.Instance.UnregisterAndDisposeCluster(_internalClient.Cluster);
+            }
+
+            if (_mongocryptdClient != null)
+            {
+                ClusterRegistry.Instance.UnregisterAndDisposeCluster(_mongocryptdClient.Value.Cluster);
             }
         }
     }

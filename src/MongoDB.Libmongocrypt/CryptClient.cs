@@ -16,25 +16,23 @@
 
 using System;
 using System.Runtime.InteropServices;
-using MongoDB.Driver;
-using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// CryptClient represents a session with libmongocrypt.
-    /// 
+    ///
     /// It can be used to encrypt and decrypt documents.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal class CryptClient : IDisposable, IStatus, ICryptClient
+    internal class CryptClient : IDisposable, IStatus
     {
         private MongoCryptSafeHandle _handle;
         private Status _status;
 
         internal CryptClient(MongoCryptSafeHandle handle, Status status)
         {
-            _handle = handle ?? throw new ArgumentNullException(paramName: nameof(handle)); 
+            _handle = handle ?? throw new ArgumentNullException(paramName: nameof(handle));
             _status = status ?? throw new ArgumentNullException(paramName: nameof(status));
         }
 
@@ -51,12 +49,6 @@ namespace MongoDB.Libmongocrypt
 
                 return result;
             }
-        }
-
-        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient mongoClient,
-            AutoEncryptionOptions autoEncryptionOptions)
-        {
-            return AutoEncryptionLibMongoCryptController.Create(mongoClient, this, autoEncryptionOptions);
         }
 
         /// <summary>
@@ -145,9 +137,9 @@ namespace MongoDB.Libmongocrypt
             }
 
             PinnedBinary.RunAsPinnedBinary(
-                handle, 
-                message, 
-                _status, 
+                handle,
+                message,
+                _status,
                 (h, pb) =>
                 {
                     if (isExpressionMode)

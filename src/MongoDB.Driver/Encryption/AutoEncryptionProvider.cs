@@ -19,34 +19,38 @@ using MongoDB.Driver.Core.Configuration;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class AutoEncryptionProvider
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static readonly AutoEncryptionProvider Instance = new AutoEncryptionProvider();
 
-        private static Func<CryptClientSettings, ICryptClient>  __cryptClientfactory;
- 
+        private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="factory"> crypt client factory</param>
         /// <exception cref="ArgumentException"></exception>
-        internal void RegisterCryptClientFactory(Func<CryptClientSettings, ICryptClient> factory)
+        internal void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  factory)
         {
-            __cryptClientfactory = factory;
+            if (s_autoCryptClientControllerFactory != null)
+            {
+                throw new MongoConfigurationException("AutoEncryption Provider already registered.");
+            }
+            s_autoCryptClientControllerFactory = factory;
         }
- 
-        internal ICryptClient CreateCryptClient(CryptClientSettings cryptClientSettings)
+
+        internal IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
         {
-            if (__cryptClientfactory == null)
+            if (s_autoCryptClientControllerFactory == null)
             {
                 throw new MongoConfigurationException("No AutoEncryption provider has been registered.");
             }
-            return __cryptClientfactory(cryptClientSettings);
+            return s_autoCryptClientControllerFactory(client, autoEncryptionOptions);
         }
     }
 }

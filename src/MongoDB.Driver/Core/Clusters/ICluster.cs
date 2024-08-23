@@ -61,8 +61,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         ICoreServerSession AcquireServerSession();
 
-        CryptClient CryptClient { get; }
-
         void Initialize();
 
         IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);

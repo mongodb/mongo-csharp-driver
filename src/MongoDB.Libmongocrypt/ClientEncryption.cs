@@ -33,7 +33,7 @@ namespace MongoDB.Libmongocrypt
     public sealed class ClientEncryption : IDisposable
     {
         // private fields
-        private readonly ICryptClient _cryptClient;
+        private readonly CryptClient _cryptClient;
         private bool _disposed;
         private readonly ExplicitEncryptionLibMongoCryptController _libMongoCryptController;
 

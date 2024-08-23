@@ -41,12 +41,12 @@ namespace MongoDB.Libmongocrypt
 
         // constructors
         protected LibMongoCryptControllerBase(
-             ICryptClient cryptClient,
+             CryptClient cryptClient,
              IMongoClient keyVaultClient,
              IEncryptionOptions encryptionOptions)
         {
             Ensure.IsNotNull<IEncryptionOptions>(encryptionOptions, nameof(encryptionOptions));
-            _cryptClient = Ensure.IsNotNull(cryptClient, nameof(cryptClient)) as CryptClient;
+            _cryptClient = Ensure.IsNotNull(cryptClient, nameof(cryptClient));
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)); // _keyVaultClient might not be fully constructed at this point, don't call any instance methods on it yet
             _keyVaultNamespace = Ensure.IsNotNull(encryptionOptions.KeyVaultNamespace, nameof(encryptionOptions.KeyVaultNamespace));
             _keyVaultCollection = new Lazy<IMongoCollection<BsonDocument>>(GetKeyVaultCollection); // delay use _keyVaultClient

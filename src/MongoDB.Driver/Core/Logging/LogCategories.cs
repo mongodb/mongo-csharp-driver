@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Logging
 
         public abstract class EventCategory : BaseCategory { }
 
-        public sealed class Client : BaseCategory { }
+        public sealed class Client : EventCategory { }
 
         public sealed class Command : EventCategory { }
 

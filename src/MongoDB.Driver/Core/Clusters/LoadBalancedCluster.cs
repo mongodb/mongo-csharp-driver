@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly IClusterClock _clusterClock;
         private readonly ClusterId _clusterId;
         private readonly ClusterType _clusterType = ClusterType.LoadBalanced;
-        private ICryptClient _cryptClient = null;
+        // private ICryptClient _cryptClient = null;
         private ClusterDescription _description;
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
         private Thread _dnsMonitorThread;
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         public ClusterId ClusterId => _clusterId;
-        public ICryptClient CryptClient => _cryptClient;
+        // public ICryptClient CryptClient => _cryptClient;
 
         public ClusterDescription Description => _description;
 
@@ -164,10 +164,10 @@ namespace MongoDB.Driver.Core.Clusters
                 var stopwatch = Stopwatch.StartNew();
                 _eventLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
-                if (_settings.CryptClientSettings != null)
-                {
-                    _cryptClient = AutoEncryptionProvider.Instance.CreateCryptClient(_settings.CryptClientSettings);
-                }
+                // if (_settings.CryptClientSettings != null)
+                // {
+                //     _cryptClient = AutoEncryptionProvider.Instance.CreateCryptClient(_settings.CryptClientSettings);
+                // }
 
                 var endPoint = _settings.EndPoints.Single();
                 if (_settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)

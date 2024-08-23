@@ -60,7 +60,7 @@ namespace MongoDB.Driver
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
             {
-                _libMongoCryptController = _cluster.CryptClient.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
+                _libMongoCryptController = AutoEncryptionProvider.Instance.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
             }
         }
 

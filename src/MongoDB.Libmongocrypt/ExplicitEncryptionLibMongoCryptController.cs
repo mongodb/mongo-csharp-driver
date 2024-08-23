@@ -32,7 +32,7 @@ namespace MongoDB.Libmongocrypt
 
         // constructors
         public ExplicitEncryptionLibMongoCryptController(
-            ICryptClient cryptClient,
+            CryptClient cryptClient,
             ClientEncryptionOptions clientEncryptionOptions)
             : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),

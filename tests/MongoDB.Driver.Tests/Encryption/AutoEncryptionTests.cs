@@ -117,8 +117,7 @@ namespace MongoDB.Driver.Tests.Encryption
             using (var client = GetClient(withAutoEncryption: true))
             {
                 var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
-                var cryptClient = libMongoCryptController._cryptClient();
-                cryptClient.CryptSharedLibraryVersion.Should().NotBeNull();
+                libMongoCryptController.CryptSharedLibraryVersion().Should().NotBeNull();
             }
         }
 
@@ -152,9 +151,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class LibMongoCryptControllerBaseReflector
     {
-        public static ICryptClient _cryptClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
+        public static object _cryptClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
         {
-            return (ICryptClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
+            return Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
         }
     }
 

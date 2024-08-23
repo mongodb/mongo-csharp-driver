@@ -43,7 +43,7 @@ namespace MongoDB.Libmongocrypt
         // mongocrypt_is_crypto_available is only available in libmongocrypt version >= 1.9
         private static readonly Version __mongocryptIsCryptoAvailableMinVersion = Version.Parse("1.9");
 
-        public static ICryptClient Create(CryptClientSettings cryptClientSettings)
+        public static CryptClient Create(CryptClientSettings cryptClientSettings)
         {
             List<KmsCredentials> kmsProviders = null;
             if (cryptClientSettings.KmsProviders?.Count > 0)
@@ -82,14 +82,14 @@ namespace MongoDB.Libmongocrypt
                 cryptClientSettings.CryptSharedLibPath,
                 cryptClientSettings.CryptSharedLibSearchPath,
                 cryptClientSettings.IsCryptSharedLibRequired ?? false);
-            
+
             return Create(cryptOptions);
         }
 
         /// <summary>Creates a CryptClient with the specified options.</summary>
         /// <param name="options">The options.</param>
         /// <returns>A CryptClient</returns>
-        public static ICryptClient Create(CryptOptions options)
+        public static CryptClient Create(CryptOptions options)
         {
             MongoCryptSafeHandle handle = null;
             Status status = null;
@@ -100,7 +100,7 @@ namespace MongoDB.Libmongocrypt
             {
                 handle = Library.mongocrypt_new();
                 status = new Status();
-                
+
                 if (!cryptoAvailable)
                 {
                     handle.Check(
@@ -182,7 +182,7 @@ namespace MongoDB.Libmongocrypt
 
             return new CryptClient(handle, status);
         }
-        
+
         private static BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
         {
             var providerContent = new BsonDocument();
@@ -193,7 +193,7 @@ namespace MongoDB.Libmongocrypt
             var providerDocument = new BsonDocument(kmsType, providerContent);
             return providerDocument;
         }
-        
+
         private static byte[] GetBytesFromMap(IReadOnlyDictionary<string, BsonDocument> map)
         {
             var mapElements = map.Select(c => new BsonElement(c.Key, c.Value));

@@ -406,9 +406,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class ClientEncryptionReflector
     {
-        public static ICryptClient _cryptClient(this ClientEncryption clientEncryption)
+        public static object _cryptClient(this ClientEncryption clientEncryption)
         {
-            return (ICryptClient)Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
+            return Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
         }
 
         public static ExplicitEncryptionLibMongoCryptController _libMongoCryptController(this ClientEncryption clientEncryption)
