@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.TestHelpers.XunitExtensions;
 using System.Linq;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Authentication

@@ -17,10 +17,10 @@ using System;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers.EqualityComparers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.EqualityComparers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration

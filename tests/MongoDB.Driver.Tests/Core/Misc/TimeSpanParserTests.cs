@@ -15,7 +15,7 @@
 
 using System;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Misc

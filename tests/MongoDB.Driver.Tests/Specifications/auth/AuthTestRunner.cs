@@ -19,15 +19,15 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using Xunit.Sdk;
-using Reflector = MongoDB.Bson.TestHelpers.Reflector;
+using Reflector = MongoDB.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {

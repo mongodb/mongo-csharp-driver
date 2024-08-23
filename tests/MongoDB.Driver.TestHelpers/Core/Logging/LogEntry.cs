@@ -19,7 +19,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Logging;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     public sealed class LogEntry
     {

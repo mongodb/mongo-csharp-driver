@@ -19,8 +19,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 

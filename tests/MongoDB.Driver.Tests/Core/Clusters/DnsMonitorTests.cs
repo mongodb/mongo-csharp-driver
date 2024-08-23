@@ -19,7 +19,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;

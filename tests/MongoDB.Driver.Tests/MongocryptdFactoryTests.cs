@@ -15,7 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using System;

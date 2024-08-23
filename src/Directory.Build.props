@@ -53,10 +53,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\IsExternalInit.cs" Visible="false" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
     <None Include="..\..\README.md" Pack="true" PackagePath=""/>
   </ItemGroup>

@@ -14,7 +14,7 @@
 */
 
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;

@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using Xunit;

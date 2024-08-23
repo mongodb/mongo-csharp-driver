@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Moq;
 using Xunit;
 

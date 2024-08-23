@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp515

@@ -17,7 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {

@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.TestHelpers.JsonDrivenTests;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.Runner

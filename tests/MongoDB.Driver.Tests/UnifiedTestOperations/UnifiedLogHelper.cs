@@ -19,7 +19,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Logging;
-using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.Logging;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {

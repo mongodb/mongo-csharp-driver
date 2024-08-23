@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Misc
 {

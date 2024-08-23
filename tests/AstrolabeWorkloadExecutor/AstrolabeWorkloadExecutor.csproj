@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\src\MongoDB.Shared\MongoDB.Shared.projitems" Label="Shared" />
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>

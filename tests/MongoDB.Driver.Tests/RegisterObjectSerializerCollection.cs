@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests

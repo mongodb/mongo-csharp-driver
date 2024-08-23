@@ -17,6 +17,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Bson.IO;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Misc
 {

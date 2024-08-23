@@ -20,7 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
-    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj" />
+    <ProjectReference Include="..\MongoDB.TestHelpers\MongoDB.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

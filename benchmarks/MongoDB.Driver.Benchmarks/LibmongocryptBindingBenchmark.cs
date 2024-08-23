@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Encryption;

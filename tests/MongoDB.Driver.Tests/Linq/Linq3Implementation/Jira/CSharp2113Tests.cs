@@ -15,7 +15,7 @@
 
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.Linq;
 using Xunit;
 

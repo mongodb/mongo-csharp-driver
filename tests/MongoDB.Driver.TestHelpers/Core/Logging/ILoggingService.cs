@@ -15,7 +15,7 @@
 
 using MongoDB.Driver.Core.Configuration;
 
-namespace MongoDB.Driver.Core.TestHelpers.Logging
+namespace MongoDB.Driver.TestHelpers.Logging
 {
     public interface ILoggingService
     {

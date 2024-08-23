@@ -17,7 +17,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests

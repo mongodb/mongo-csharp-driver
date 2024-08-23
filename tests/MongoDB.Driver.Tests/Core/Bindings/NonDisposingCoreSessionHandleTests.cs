@@ -14,7 +14,7 @@
 */
 
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using Moq;
 using Xunit;
 

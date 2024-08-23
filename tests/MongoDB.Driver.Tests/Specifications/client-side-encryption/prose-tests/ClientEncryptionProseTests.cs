@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
@@ -37,17 +36,17 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers.XunitExtensions;
 using MongoDB.Libmongocrypt;
+using MongoDB.TestHelpers.JsonDrivenTests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using Reflector = MongoDB.Bson.TestHelpers.Reflector;
+using Reflector = MongoDB.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {

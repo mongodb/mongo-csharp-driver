@@ -16,7 +16,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using BenchmarkDotNet.Attributes;
-using MongoDB.Bson.TestHelpers;
+using MongoDB.TestHelpers;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;

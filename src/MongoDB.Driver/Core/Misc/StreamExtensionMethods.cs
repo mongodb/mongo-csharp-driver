@@ -18,6 +18,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Misc
 {
