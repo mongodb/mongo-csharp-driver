@@ -572,9 +572,6 @@ namespace MongoDB.Driver.Tests
             clone.WriteConcern = WriteConcern.W2;
             Assert.False(clone.Equals(settings));
 
-            clone = settings.Clone();
-            Assert.False(clone.Equals(settings));
-
             // set non default values
             settings.AutoEncryptionOptions = new AutoEncryptionOptions(CollectionNamespace.FromFullName("encryption.__keyVault"), new Dictionary<string, IReadOnlyDictionary<string, object>>());
             settings.LoggingSettings = new LoggingSettings(null, 123);
