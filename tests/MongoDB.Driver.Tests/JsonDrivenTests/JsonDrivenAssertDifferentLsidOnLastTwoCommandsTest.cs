@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertDifferentLsidOnLastTwoCommandsTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertDifferentLsidOnLastTwoCommandsTest : JsonDrivenTestRunnerTest
     {
         private readonly EventCapturer _eventCapturer;
 

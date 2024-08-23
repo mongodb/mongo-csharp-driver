@@ -27,12 +27,8 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a multi server cluster.
-    /// </summary>
     internal sealed class MultiServerCluster : Cluster, IDnsMonitoringCluster
     {
-        // fields
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
         private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
@@ -41,9 +37,8 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly List<IClusterableServer> _servers;
         private readonly object _serversLock = new object();
         private readonly InterlockedInt32 _state;
-        private readonly object _updateClusterDescriptionLock = new object();
+        private readonly object _updateClusterDescriptionLock = new();
 
-        // constructors
         public MultiServerCluster(
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
@@ -74,7 +69,6 @@ namespace MongoDB.Driver.Core.Clusters
             _maxElectionInfo = new ElectionInfo(null, null);
         }
 
-        // methods
         protected override void Dispose(bool disposing)
         {
             Stopwatch stopwatch = null;

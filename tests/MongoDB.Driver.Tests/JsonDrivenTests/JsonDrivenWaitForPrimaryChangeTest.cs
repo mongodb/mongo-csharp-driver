@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenWaitForPrimaryChangeTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenWaitForPrimaryChangeTest : JsonDrivenTestRunnerTest
     {
         private readonly IMongoClient _client;
         private readonly JsonDrivenRecordedPrimaryState _testState;

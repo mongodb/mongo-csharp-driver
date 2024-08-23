@@ -650,7 +650,7 @@ namespace MongoDB.Driver.Core.Tests
                 : RetryableReadContext.Create(readBindingHandle, retryRequested: false, CancellationToken.None);
         }
 
-        private DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> CreateReadBindingsAndRetryableReadContext(ICluster cluster, ICoreSessionHandle sessionHandle, bool async)
+        private DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> CreateReadBindingsAndRetryableReadContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)
         {
             var readPreference = ReadPreference.Primary;
 
@@ -667,7 +667,7 @@ namespace MongoDB.Driver.Core.Tests
                     : RetryableWriteContext.Create(readWriteBindingHandle, retryRequested: false, CancellationToken.None);
         }
 
-        private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(ICluster cluster, ICoreSessionHandle sessionHandle, bool async)
+        private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)
         {
             var effectiveReadBindings = ChannelPinningHelper.CreateReadWriteBinding(cluster, sessionHandle);
             var retryableReadContext = CreateRetryableWriteContext(effectiveReadBindings, async);
@@ -675,7 +675,7 @@ namespace MongoDB.Driver.Core.Tests
             return new DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext>(effectiveReadBindings, retryableReadContext);
         }
 
-        private ICluster CreateLoadBalancedCluster(EventCapturer eventCapturer, string appName = null) =>
+        private IClusterInternal CreateLoadBalancedCluster(EventCapturer eventCapturer, string appName = null) =>
             CoreTestConfiguration.CreateCluster(builder =>
             {
                 return builder
@@ -684,7 +684,7 @@ namespace MongoDB.Driver.Core.Tests
                     .Subscribe(eventCapturer);
             });
 
-        private ICoreSessionHandle CreateSession(ICluster cluster, bool isImplicit, bool withTransaction = false)
+        private ICoreSessionHandle CreateSession(IClusterInternal cluster, bool isImplicit, bool withTransaction = false)
         {
             if (isImplicit)
             {

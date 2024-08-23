@@ -74,7 +74,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// Builds the cluster.
         /// </summary>
         /// <returns>A cluster.</returns>
-        public ICluster BuildCluster()
+        public ICluster BuildCluster() => BuildClusterInternal();
+
+        internal IClusterInternal BuildClusterInternal()
         {
             var clusterFactory = CreateClusterFactory();
             return clusterFactory.CreateCluster();

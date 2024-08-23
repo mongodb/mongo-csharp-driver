@@ -17,40 +17,15 @@ using System;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    /// <summary>
-    /// Monitors a server for state changes.
-    /// </summary>
-    /// <seealso cref="System.IDisposable" />
     internal interface IServerMonitor : IDisposable
     {
-        /// <summary>
-        /// The monitor's view of the server, which could be considered stale relative to the <see cref="Server"/>'s view.
-        /// </summary>
-        ServerDescription Description { get; }
-
-        /// <summary>
-        /// Lock reference to prevent race condition between the monitor and higher levels.
-        /// </summary>
-        object Lock { get; }
-
-        /// <summary>
-        /// Cancel the current heartbeat.
-        /// </summary>
-        void CancelCurrentCheck();
-
-        /// <summary>
-        /// Occurs when the server description changes.
-        /// </summary>
         event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        void Initialize();
+        ServerDescription Description { get; }
+        object Lock { get; }
 
-        /// <summary>
-        /// Requests a heartbeat as soon as possible.
-        /// </summary>
+        void CancelCurrentCheck();
+        void Initialize();
         void RequestHeartbeat();
     }
 }

@@ -36,12 +36,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    /// <summary>
-    /// Represents a server in a MongoDB cluster.
-    /// </summary>
     internal abstract class Server : IClusterableServer, IConnectionExceptionHandler
     {
-        // fields
         private readonly IClusterClock _clusterClock;
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _clusterConnectionMode;
@@ -58,7 +54,6 @@ namespace MongoDB.Driver.Core.Servers
 
         private int _outstandingOperationsCount;
 
-        // constructors
         public Server(
             ClusterId clusterId,
             IClusterClock clusterClock,
@@ -91,10 +86,8 @@ namespace MongoDB.Driver.Core.Servers
             _eventLogger = Ensure.IsNotNull(eventLogger, nameof(eventLogger));
         }
 
-        // events
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
-        // properties
         public IClusterClock ClusterClock => _clusterClock;
         public IConnectionPool ConnectionPool => _connectionPool;
         public abstract ServerDescription Description { get; }
@@ -105,7 +98,6 @@ namespace MongoDB.Driver.Core.Servers
 
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 
-        // public methods
         public void Dispose()
         {
             if (_state.TryChange(State.Disposed))

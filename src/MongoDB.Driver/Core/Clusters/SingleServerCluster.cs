@@ -24,18 +24,13 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a standalone cluster.
-    /// </summary>
     internal sealed class SingleServerCluster : Cluster
     {
-        // fields
         private IClusterableServer _server;
         private readonly InterlockedInt32 _state;
         private readonly string _replicaSetName;
 
-        // constructor
-        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+        public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
             : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with a single server cluster.");
@@ -45,7 +40,6 @@ namespace MongoDB.Driver.Core.Clusters
             _state = new InterlockedInt32(State.Initial);
         }
 
-        // methods
         protected override void Dispose(bool disposing)
         {
             Stopwatch stopwatch = null;

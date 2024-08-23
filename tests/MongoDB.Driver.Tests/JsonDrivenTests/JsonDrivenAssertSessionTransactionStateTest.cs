@@ -23,14 +23,13 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertSessionTransactionStateTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertSessionTransactionStateTest : JsonDrivenTestRunnerTest
     {
         private CoreTransactionState _state;
 
         public JsonDrivenAssertSessionTransactionStateTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)
         {
-
         }
 
         // public methods

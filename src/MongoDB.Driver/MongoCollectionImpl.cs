@@ -35,7 +35,7 @@ namespace MongoDB.Driver
     internal sealed class MongoCollectionImpl<TDocument> : MongoCollectionBase<TDocument>
     {
         // fields
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IMongoDatabase _database;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -45,12 +45,12 @@ namespace MongoDB.Driver
         private readonly RenderArgs<TDocument> _args;
 
         // constructors
-        public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, IClusterInternal cluster, IOperationExecutor operationExecutor)
             : this(database, collectionNamespace, settings, cluster, operationExecutor, Ensure.IsNotNull(settings, "settings").SerializerRegistry.GetSerializer<TDocument>())
         {
         }
 
-        private MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor, IBsonSerializer<TDocument> documentSerializer)
+        private MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, IClusterInternal cluster, IOperationExecutor operationExecutor, IBsonSerializer<TDocument> documentSerializer)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));

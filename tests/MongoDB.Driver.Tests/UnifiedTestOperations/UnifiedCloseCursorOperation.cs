@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedCloseCursorOperation<T> : IUnifiedEntityTestOperation
     {
-        private readonly AsyncCursor<T> _cursor;
+        private readonly IAsyncCursor<T> _cursor;
 
-        public UnifiedCloseCursorOperation(AsyncCursor<T> cursor)
+        public UnifiedCloseCursorOperation(IAsyncCursor<T> cursor)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
         }
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                _cursor.Close(cancellationToken);
+                _cursor.Dispose();
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -46,18 +46,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public async Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                await _cursor.CloseAsync(cancellationToken).ConfigureAwait(false);
-                return OperationResult.Empty();
-            }
-            catch (Exception ex)
-            {
-                return OperationResult.FromException(ex);
-            }
-        }
+        public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) =>
+            Task.FromResult(Execute(cancellationToken));
     }
 
     public class UnifiedCloseCursorOperationBuilder

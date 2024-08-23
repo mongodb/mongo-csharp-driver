@@ -24,7 +24,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenBulkWriteTest : JsonDrivenCollectionTest
+    internal sealed class JsonDrivenBulkWriteTest : JsonDrivenCollectionTest
     {
         // private fields
         private BulkWriteOptions _options = new BulkWriteOptions();

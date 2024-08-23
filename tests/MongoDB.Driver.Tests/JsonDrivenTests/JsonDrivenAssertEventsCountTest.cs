@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertEventsCountTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertEventsCountTest : JsonDrivenTestRunnerTest
     {
         private readonly EventCapturer _eventCapturer;
         private int _count;

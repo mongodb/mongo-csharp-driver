@@ -35,13 +35,11 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var cluster = Mock.Of<ICluster>();
+            var cluster = Mock.Of<IClusterInternal>();
             var serverSession = Mock.Of<ICoreServerSession>();
             var options = new CoreSessionOptions();
 
-#pragma warning disable CS0618 // Type or member is obsolete
             var result = new CoreSession(cluster, serverSession, options);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Cluster.Should().BeSameAs(cluster);
             result.CurrentTransaction.Should().BeNull();
@@ -55,7 +53,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Cluster_should_return_expected_result()
         {
-            var cluster = Mock.Of<ICluster>();
+            var cluster = Mock.Of<IClusterInternal>();
             var subject = CreateSubject(cluster: cluster);
 
             var result = subject.Cluster;
@@ -398,7 +396,7 @@ namespace MongoDB.Driver.Core.Bindings
             return new ServerDescription(serverId, endPoint, state: ServerState.Disconnected, type: ServerType.Unknown);
         }
 
-        private ICluster CreateMockReplicaSetCluster()
+        private IClusterInternal CreateMockReplicaSetCluster()
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -408,7 +406,7 @@ namespace MongoDB.Driver.Core.Bindings
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(clusterId, ClusterConnectionMode.Automatic, ClusterType.ReplicaSet, servers);
 #pragma warning restore CS0618 // Type or member is obsolete
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
             return mockCluster.Object;
         }
@@ -429,21 +427,19 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         private CoreSession CreateSubject(
-            ICluster cluster = null,
+            IClusterInternal cluster = null,
             ICoreServerSession serverSession = null,
             CoreSessionOptions options = null)
         {
             cluster = cluster ?? CreateMockReplicaSetCluster();
             serverSession = serverSession ?? Mock.Of<ICoreServerSession>();
             options = options ?? new CoreSessionOptions();
-#pragma warning disable CS0618 // Type or member is obsolete
             return new CoreSession(cluster, serverSession, options);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private CoreSession CreateSubject(ClusterDescription clusterDescription)
         {
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
             return CreateSubject(cluster: mockCluster.Object);
         }

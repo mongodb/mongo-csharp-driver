@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedTargetedFailPointOperation : IUnifiedFailPointOperation
+    internal sealed class UnifiedTargetedFailPointOperation : IUnifiedFailPointOperation
     {
         private readonly bool _async;
         private readonly BsonDocument _failPointCommand;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedTargetedFailPointOperationBuilder
+    internal sealed class UnifiedTargetedFailPointOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

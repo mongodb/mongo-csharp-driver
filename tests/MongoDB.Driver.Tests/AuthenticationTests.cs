@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Tests
                 {
                     var cancellationToken = CancellationToken.None;
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
-                    var server = client.Cluster.SelectServer(serverSelector, cancellationToken);
+                    var server = client.GetClusterInternal().SelectServer(serverSelector, cancellationToken);
                     var channel = server.GetChannel(cancellationToken);
                     var helloResult = channel.ConnectionDescription.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();

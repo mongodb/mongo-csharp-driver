@@ -22,7 +22,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenRunAdminCommandTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenRunAdminCommandTest : JsonDrivenTestRunnerTest
     {
         // private fields
         private BsonDocument _command;

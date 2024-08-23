@@ -22,71 +22,17 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    /// <summary>
-    /// Represents a connection pool.
-    /// </summary>
-    public interface IConnectionPool : IDisposable
+    internal interface IConnectionPool : IDisposable
     {
-        // properties
-        /// <summary>
-        /// Gets the generation of the connection pool.
-        /// </summary>
-        /// <value>
-        /// The generation.
-        /// </value>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1721:Property names should not match get methods", Justification = "Backward compatibility")]
         int Generation { get; }
-
-        /// <summary>
-        /// Gets the server identifier.
-        /// </summary>
-        /// <value>
-        /// The server identifier.
-        /// </value>
         ServerId ServerId { get; }
 
-        // methods
-        /// <summary>
-        /// Acquires a connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A connection.</returns>
         IConnectionHandle AcquireConnection(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Acquires a connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a connection.</returns>
         Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Clears the connection pool and marks it as paused.
-        /// </summary>
-        /// <param name="closeInUseConnections">Whether in use connections should be closed.</param>
         void Clear(bool closeInUseConnections = false);
-
-        /// <summary>
-        /// Clears the connection pool for the specified service.
-        /// </summary>
-        /// <param name="serviceId">The service id.</param>
         void Clear(ObjectId serviceId);
-
-        /// <summary>
-        /// Gets the current generation for the connection pool (or service).
-        /// </summary>
-        /// <param name="serviceId">The optional service Id.</param>
-        /// <returns>The connection pool generation.</returns>
         int GetGeneration(ObjectId? serviceId);
-
-        /// <summary>
-        /// Marks the pool as ready.
-        /// </summary>
         void SetReady();
-
-        /// <summary>
-        /// Initializes the connection pool.
-        /// </summary>
         void Initialize();
     }
 }

@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 }
                 , null, useMultipleShardRouters: true);
 
-            var failPointServer1 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
-            var failPointServer2 = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
+            var failPointServer1 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
+            var failPointServer2 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
 
             using var failPoint1 = FailPoint.Configure(failPointServer1, NoCoreSession.NewHandle(), failPointCommand);
             using var failPoint2 = FailPoint.Configure(failPointServer2, NoCoreSession.NewHandle(), failPointCommand);
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 }
                 , null, useMultipleShardRouters: false);
 
-            var failPointServer = client.Cluster.SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
+            var failPointServer = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
             using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
 

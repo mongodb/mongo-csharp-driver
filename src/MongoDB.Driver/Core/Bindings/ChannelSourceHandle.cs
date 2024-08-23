@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a channel source.
     /// </summary>
-    public sealed class ChannelSourceHandle : IChannelSourceHandle
+    internal sealed class ChannelSourceHandle : IChannelSourceHandle
     {
         // fields
         private bool _disposed;

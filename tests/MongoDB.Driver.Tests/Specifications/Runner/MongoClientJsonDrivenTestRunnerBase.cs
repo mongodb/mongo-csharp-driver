@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         private IDictionary<string, object> _objectMap = null;
 
-        protected IServer _failPointServer = null;
+        private protected IServer _failPointServer = null;
 
         protected BsonDocument LastKnownClusterTime { get; set; }
 
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             // do nothing by default.
         }
 
-        protected virtual JsonDrivenTestFactory CreateJsonDrivenTestFactory(IMongoClient mongoClient, string databaseName, string collectionName, Dictionary<string, object> objectMap, EventCapturer eventCapturer)
+        private protected virtual JsonDrivenTestFactory CreateJsonDrivenTestFactory(IMongoClient mongoClient, string databaseName, string collectionName, Dictionary<string, object> objectMap, EventCapturer eventCapturer)
         {
             return new JsonDrivenTestFactory(mongoClient, databaseName, collectionName, bucketName: null, objectMap, eventCapturer);
         }
@@ -451,13 +451,13 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
-        protected FailPoint ConfigureFailPoint(BsonDocument test, IMongoClient client)
+        private protected FailPoint ConfigureFailPoint(BsonDocument test, IMongoClient client)
         {
             if (test.TryGetValue(FailPointKey, out var failPoint))
             {
                 Logger.LogDebug("Configuring failpoint");
 
-                var cluster = client.Cluster;
+                var cluster = client.GetClusterInternal();
 
                 var settings = client.Settings.Clone();
                 ConfigureClientSettings(settings, test);

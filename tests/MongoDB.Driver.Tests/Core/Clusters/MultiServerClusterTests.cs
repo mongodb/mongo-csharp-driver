@@ -1215,7 +1215,7 @@ namespace MongoDB.Driver.Core.Clusters
             return new ServerDescription(desc.ServerId, endPoint);
         }
 
-        private void PublishDisconnectedDescription(ICluster cluster, EndPoint endPoint)
+        private void PublishDisconnectedDescription(IClusterInternal cluster, EndPoint endPoint)
         {
             var current = _serverFactory.GetServerDescription(endPoint);
 
@@ -1225,7 +1225,7 @@ namespace MongoDB.Driver.Core.Clusters
             SpinWait.SpinUntil(() => !object.ReferenceEquals(cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
-        private void PublishDescription(ICluster cluster, EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null, EndPoint canonicalEndPoint = null, int? setVersion = null)
+        private void PublishDescription(IClusterInternal cluster, EndPoint endPoint, ServerType serverType, IEnumerable<EndPoint> hosts = null, string setName = null, EndPoint primary = null, ElectionId electionId = null, EndPoint canonicalEndPoint = null, int? setVersion = null)
         {
             var current = _serverFactory.GetServerDescription(endPoint);
 

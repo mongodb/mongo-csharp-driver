@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         public MongoCollectionImplTests()
         {
             var mockClient = new Mock<IMongoClient>();
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
             mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
             _operationExecutor = new MockOperationExecutor();
             _operationExecutor.Client = mockClient.Object;
@@ -3876,7 +3876,7 @@ namespace MongoDB.Driver
                     var databaseNamespace = new DatabaseNamespace(databaseName);
                     var settings = new MongoDatabaseSettings();
                     settings.ApplyDefaultValues(mockClient.Object.Settings);
-                    var cluster = new Mock<ICluster>().Object;
+                    var cluster = new Mock<IClusterInternal>().Object;
                     return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
                 });
             return mockClient;
@@ -3887,12 +3887,10 @@ namespace MongoDB.Driver
             if (usingSession)
             {
                 var client = new Mock<IMongoClient>().Object;
-                var cluster = Mock.Of<ICluster>();
+                var cluster = Mock.Of<IClusterInternal>();
                 var options = new ClientSessionOptions();
                 var coreServerSession = new CoreServerSession();
-#pragma warning disable CS0618 // Type or member is obsolete
                 var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
-#pragma warning restore CS0618 // Type or member is obsolete
                 var coreSessionHandle = new CoreSessionHandle(coreSession);
                 return new ClientSessionHandle(client, options, coreSessionHandle);
             }

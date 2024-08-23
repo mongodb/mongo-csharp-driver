@@ -24,7 +24,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenWithTransactionTest : JsonDrivenSessionTest
+    internal sealed class JsonDrivenWithTransactionTest : JsonDrivenSessionTest
     {
         // private fields
         private Func<IClientSessionHandle, CancellationToken, BsonDocument> _callback = null;

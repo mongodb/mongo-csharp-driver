@@ -35,7 +35,7 @@ namespace MongoDB.Driver
     public class MongoClient : MongoClientBase
     {
         // private fields
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private readonly AutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;

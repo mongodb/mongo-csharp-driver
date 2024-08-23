@@ -18,12 +18,11 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using Xunit;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenTestsStateHolder
+    internal sealed class JsonDrivenTestsStateHolder
     {
         private readonly IDictionary<string, object> _stateHolder = new Dictionary<string, object>();
 
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         }
     }
 
-    public class JsonDrivenTestFactory
+    internal sealed class JsonDrivenTestFactory
     {
         // private fields
         private readonly string _bucketName;

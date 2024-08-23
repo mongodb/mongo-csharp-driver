@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
     [Trait("Category", "SDAM")]
     public class MonitoringTestRunner : LoggableTestClass
     {
-        private ICluster _cluster;
+        private IClusterInternal _cluster;
         private EventCapturer _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
 
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        private ICluster BuildCluster(BsonDocument definition)
+        private IClusterInternal BuildCluster(BsonDocument definition)
         {
             var connectionString = new ConnectionString(definition["uri"].AsString);
             var settings = new ClusterSettings(

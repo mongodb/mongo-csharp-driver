@@ -22,7 +22,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertCollectionNotExistsTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertCollectionNotExistsTest : JsonDrivenTestRunnerTest
     {
         // private fields
         private string _collectionName;

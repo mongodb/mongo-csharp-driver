@@ -32,11 +32,11 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class WritableServerBindingTests
     {
-        private Mock<ICluster> _mockCluster;
+        private Mock<IClusterInternal> _mockCluster;
 
         public WritableServerBindingTests()
         {
-            _mockCluster = new Mock<ICluster>();
+            _mockCluster = new Mock<IClusterInternal>();
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_session_is_null()
         {
-            var cluster = new Mock<ICluster>().Object;
+            var cluster = new Mock<IClusterInternal>().Object;
 
             Action act = () => new WritableServerBinding(cluster, null);
 
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Session_should_return_expected_result()
         {
-            var cluster = new Mock<ICluster>().Object;
+            var cluster = new Mock<IClusterInternal>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var subject = new WritableServerBinding(cluster, session);
 
@@ -301,10 +301,10 @@ namespace MongoDB.Driver.Core.Bindings
 
     internal static class WritableServerBindingReflector
     {
-        public static ICluster _cluster(this WritableServerBinding obj)
+        public static IClusterInternal _cluster(this WritableServerBinding obj)
         {
             var fieldInfo = typeof(WritableServerBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ICluster)fieldInfo.GetValue(obj);
+            return (IClusterInternal)fieldInfo.GetValue(obj);
         }
     }
 }

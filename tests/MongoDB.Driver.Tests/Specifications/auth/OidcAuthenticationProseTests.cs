@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 }
             };
 
-            var cluster = DriverTestConfiguration.Client.Cluster;
+            var cluster = DriverTestConfiguration.Client.GetClusterInternal();
             var session = NoCoreSession.NewHandle();
 
             return FailPoint.Configure(cluster, session, failPointCommand);

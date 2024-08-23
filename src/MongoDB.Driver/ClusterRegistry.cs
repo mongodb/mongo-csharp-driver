@@ -51,10 +51,10 @@ namespace MongoDB.Driver
 
         // fields
         private readonly object _lock = new object();
-        private readonly Dictionary<ClusterKey, ICluster> _registry = new Dictionary<ClusterKey, ICluster>();
+        private readonly Dictionary<ClusterKey, IClusterInternal> _registry = new Dictionary<ClusterKey, IClusterInternal>();
 
         // methods
-        private ICluster CreateCluster(ClusterKey clusterKey)
+        private IClusterInternal CreateCluster(ClusterKey clusterKey)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             var builder = new ClusterBuilder()
@@ -77,7 +77,7 @@ namespace MongoDB.Driver
                 clusterKey.ClusterConfigurator(builder);
             }
 
-            var cluster = builder.BuildCluster();
+            var cluster = builder.BuildClusterInternal();
             cluster.Initialize();
 
             return cluster;
@@ -193,11 +193,11 @@ namespace MongoDB.Driver
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        internal ICluster GetOrCreateCluster(ClusterKey clusterKey)
+        internal IClusterInternal GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
-                ICluster cluster;
+                IClusterInternal cluster;
                 if (!_registry.TryGetValue(clusterKey, out cluster))
                 {
                     cluster = CreateCluster(clusterKey);

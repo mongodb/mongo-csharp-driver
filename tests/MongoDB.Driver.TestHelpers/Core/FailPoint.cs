@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.TestHelpers
 {
-    public static class FailPointName
+    internal static class FailPointName
     {
         // public constants
         public const string FailCommand = "failCommand";
@@ -35,32 +35,18 @@ namespace MongoDB.Driver.Core.TestHelpers
         public const string OnPrimaryTransactionalWrite = "onPrimaryTransactionalWrite";
     }
 
-    public sealed class FailPoint : IDisposable
+    internal sealed class FailPoint : IDisposable
     {
         private const string ApplicationNameTestableSuffix = "_async_";
 
         #region static
-        // public static methods
-        /// <summary>
-        /// Create a FailPoint and executes a configureFailPoint command on the selected server.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="command">The command.</param>
-        /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
+
+        public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
             var server = GetWriteableServer(cluster);
             return FailPoint.Configure(server, session, command, withAsync);
         }
 
-        /// <summary>
-        /// Create a FailPoint and executes a configureFailPoint command on the selected server.
-        /// </summary>
-        /// <param name="server">The server.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="command">The command.</param>
-        /// <returns>A FailPoint containing the proper binding.</returns>
         public static FailPoint Configure(IServer server, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
             var binding = new SingleServerReadWriteBinding(server, session.Fork());
@@ -81,16 +67,8 @@ namespace MongoDB.Driver.Core.TestHelpers
                 throw;
             }
         }
-
-        /// <summary>
-        /// Create a FailPoint and executes a configureFailPoint command on the selected server.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="args">The arguments for the FailPoint.</param>
-        /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, string name, BsonDocument args, bool? withAsync = null)
+  
+        public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, string name, BsonDocument args, bool? withAsync = null)
         {
             Ensure.IsNotNull(name, nameof(name));
             Ensure.IsNotNull(args, nameof(args));
@@ -98,14 +76,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Configure(cluster, session, command, withAsync);
         }
 
-        /// <summary>
-        /// Creates a FailPoint that is always on.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="name">The name.</param>
-        /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint ConfigureAlwaysOn(ICluster cluster, ICoreSessionHandle session, string name, bool? withAsync = null)
+        public static FailPoint ConfigureAlwaysOn(IClusterInternal cluster, ICoreSessionHandle session, string name, bool? withAsync = null)
         {
             var args = new BsonDocument("mode", "alwaysOn");
             return Configure(cluster, session, name, args, withAsync);
@@ -114,7 +85,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         public static string DecorateApplicationName(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
 
         // private static methods
-        private static IServer GetWriteableServer(ICluster cluster)
+        private static IServer GetWriteableServer(IClusterInternal cluster)
         {
             var selector = WritableServerSelector.Instance;
             return cluster.SelectServer(selector, CancellationToken.None);

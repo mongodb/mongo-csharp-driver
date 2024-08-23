@@ -31,7 +31,7 @@ using Moq;
 
 namespace MongoDB.Driver.Core.TestHelpers
 {
-    public class MockClusterableServerFactory : IClusterableServerFactory
+    internal class MockClusterableServerFactory : IClusterableServerFactory
     {
         private readonly Dictionary<EndPoint, ServerTuple> _servers;
         private readonly IEventSubscriber _eventSubscriber;

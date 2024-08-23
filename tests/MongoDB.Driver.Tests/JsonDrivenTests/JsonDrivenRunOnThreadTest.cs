@@ -23,7 +23,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenRunOnThreadTest : JsonDrivenWithThreadTest
+    internal sealed class JsonDrivenRunOnThreadTest : JsonDrivenWithThreadTest
     {
         private readonly JsonDrivenTestFactory _jsonDrivenTestFactory;
         private BsonDocument _operation;

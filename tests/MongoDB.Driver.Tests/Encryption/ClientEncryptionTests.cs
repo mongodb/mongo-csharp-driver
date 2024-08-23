@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Tests.Encryption
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(
                 __clusterId,
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Tests.Encryption
             const string collectionName = "collName";
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(
                 __clusterId,

@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenConfigureFailPointTest : JsonDrivenTestRunnerTest
+    internal class JsonDrivenConfigureFailPointTest : JsonDrivenTestRunnerTest
     {
         protected BsonDocument _failCommand;
 
