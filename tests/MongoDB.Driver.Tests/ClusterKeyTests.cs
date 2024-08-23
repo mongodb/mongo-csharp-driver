@@ -70,7 +70,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("LocalThreshold", true)]
         [InlineData("SchemaMap", true)]
         [InlineData("Scheme", true)]
-        [InlineData("SdamLogFileName", true)]
         [InlineData("SendBufferSize", true)]
         [InlineData("ServerApi", true)]
         [InlineData("Servers", false)]
