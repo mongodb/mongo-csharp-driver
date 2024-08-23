@@ -54,7 +54,6 @@ namespace MongoDB.Driver
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
         private readonly ConnectionStringScheme _scheme;
-        private readonly string _sdamLogFilename;
         private readonly int _sendBufferSize;
         private readonly ServerApi _serverApi;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
@@ -138,7 +137,6 @@ namespace MongoDB.Driver
             _receiveBufferSize = receiveBufferSize;
             _replicaSetName = replicaSetName;
             _scheme = scheme;
-            _sdamLogFilename = sdamLogFilename;
             _sendBufferSize = sendBufferSize;
             _serverApi = serverApi;
             _servers = servers;
@@ -205,7 +203,6 @@ namespace MongoDB.Driver
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
         public ConnectionStringScheme Scheme { get { return _scheme; } }
-        public string SdamLogFilename { get { return _sdamLogFilename; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
         public ServerApi ServerApi { get { return _serverApi; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
@@ -263,7 +260,6 @@ namespace MongoDB.Driver
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
                 _scheme == rhs._scheme &&
-                _sdamLogFilename == rhs._sdamLogFilename &&
                 _sendBufferSize == rhs._sendBufferSize &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&

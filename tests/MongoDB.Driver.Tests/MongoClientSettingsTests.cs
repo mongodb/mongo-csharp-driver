@@ -1564,9 +1564,6 @@ namespace MongoDB.Driver.Tests
             result.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
-#pragma warning disable CS0618 // Type or member is obsolete
-            result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
-#pragma warning restore CS0618 // Type or member is obsolete
             result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
             result.ServerApi.Should().Be(subject.ServerApi);
             result.Servers.Should().Equal(subject.Servers);
