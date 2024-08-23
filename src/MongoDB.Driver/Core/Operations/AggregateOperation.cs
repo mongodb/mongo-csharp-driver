@@ -327,21 +327,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Returns an AggregateExplainOperation for this AggregateOperation.
-        /// </summary>
-        /// <param name="verbosity">The verbosity.</param>
-        /// <returns>An AggregateExplainOperation.</returns>
-        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
-        {
-            return new AggregateExplainOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
-            {
-                AllowDiskUse = _allowDiskUse,
-                Collation = _collation,
-                MaxTime = _maxTime
-            };
-        }
-
         internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
