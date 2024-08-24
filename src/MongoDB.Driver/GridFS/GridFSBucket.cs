@@ -39,7 +39,7 @@ namespace MongoDB.Driver.GridFS
     public class GridFSBucket<TFileId> : IGridFSBucket<TFileId>
     {
         // fields
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
         private readonly IMongoDatabase _database;
         private bool _ensureIndexesDone;
         private SemaphoreSlim _ensureIndexesSemaphore = new SemaphoreSlim(1);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.GridFS
             _database = Ensure.IsNotNull(database, nameof(database));
             _options = options == null ? ImmutableGridFSBucketOptions.Defaults : new ImmutableGridFSBucketOptions(options);
 
-            _cluster = database.Client.Cluster;
+            _cluster = database.Client.GetClusterInternal();
 
             var idSerializer = _options.SerializerRegistry.GetSerializer<TFileId>();
             _idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));

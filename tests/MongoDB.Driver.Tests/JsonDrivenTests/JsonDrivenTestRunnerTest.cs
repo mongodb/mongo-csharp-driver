@@ -20,13 +20,13 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public abstract class JsonDrivenTestRunnerTest : JsonDrivenCommandTest
+    internal abstract class JsonDrivenTestRunnerTest : JsonDrivenCommandTest
     {
         private IClientSessionHandle _session;
         private readonly IJsonDrivenTestRunner _testRunner;
 
         // protected constructors
-        protected JsonDrivenTestRunnerTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
+        private protected JsonDrivenTestRunnerTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(objectMap)
         {
             _testRunner = testRunner;

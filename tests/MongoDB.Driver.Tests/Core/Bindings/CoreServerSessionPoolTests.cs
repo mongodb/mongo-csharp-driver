@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void constructor_should_intialize_instance()
         {
-            var cluster = new Mock<ICluster>().Object;
+            var cluster = new Mock<IClusterInternal>().Object;
 
             var result = new CoreServerSessionPool(cluster);
 
@@ -279,13 +279,13 @@ namespace MongoDB.Driver.Tests
             var clusterDescription = new ClusterDescription(clusterId, connectionMode, type, servers);
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var mockCluster = new Mock<ICluster>();
+            var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
 
             return new CoreServerSessionPool(mockCluster.Object);
         }
 
-        private class TestCluster : ICluster
+        private class TestCluster : IClusterInternal
         {
             public TestCluster(ClusterType clusterType)
             {
@@ -315,10 +315,10 @@ namespace MongoDB.Driver.Tests
 
     internal static class CoreServerSessionPoolReflector
     {
-        public static ICluster _cluster(this CoreServerSessionPool obj)
+        public static IClusterInternal _cluster(this CoreServerSessionPool obj)
         {
             var fieldInfo = typeof(CoreServerSessionPool).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ICluster)fieldInfo.GetValue(obj);
+            return (IClusterInternal)fieldInfo.GetValue(obj);
         }
 
         public static List<ICoreServerSession> _pool(this CoreServerSessionPool obj)

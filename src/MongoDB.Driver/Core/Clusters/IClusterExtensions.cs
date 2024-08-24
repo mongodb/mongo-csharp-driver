@@ -22,13 +22,10 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// This class contains extension methods for ICluster used for server selection with sharded transactions.
-    /// </summary>
     internal static class IClusterExtensions
     {
         public static IServer SelectServerAndPinIfNeeded(
-            this ICluster cluster,
+            this IClusterInternal cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,
@@ -52,7 +49,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
-            this ICluster cluster,
+            this IClusterInternal cluster,
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,

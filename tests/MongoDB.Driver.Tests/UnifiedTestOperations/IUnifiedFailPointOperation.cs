@@ -17,7 +17,7 @@ using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public interface IUnifiedFailPointOperation : IUnifiedTestOperation
+    internal interface IUnifiedFailPointOperation : IUnifiedTestOperation
     {
         void Execute(out FailPoint failPoint);
     }

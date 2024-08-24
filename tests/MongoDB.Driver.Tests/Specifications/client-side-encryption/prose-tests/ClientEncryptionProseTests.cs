@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                   }
             }";
 
-        private readonly ICluster _cluster;
+        private readonly IClusterInternal _cluster;
 
         // public constructors
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)

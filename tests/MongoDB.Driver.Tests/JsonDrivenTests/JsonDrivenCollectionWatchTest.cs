@@ -16,13 +16,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenCollectionWatchTest : JsonDrivenCollectionTest
+    internal sealed class JsonDrivenCollectionWatchTest : JsonDrivenCollectionTest
     {
         // private fields
         private FilterDefinition<BsonDocument> _filter = new BsonDocument();

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenStartThreadTest : JsonDrivenWithThreadTest
+    internal sealed class JsonDrivenStartThreadTest : JsonDrivenWithThreadTest
     {
         public JsonDrivenStartThreadTest(JsonDrivenTestsStateHolder stateHolder, IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(stateHolder, testRunner, objectMap)

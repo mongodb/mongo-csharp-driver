@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    internal class ServerFactory : IClusterableServerFactory
+    internal sealed class ServerFactory : IClusterableServerFactory
     {
         // fields
 #pragma warning disable CS0618 // Type or member is obsolete

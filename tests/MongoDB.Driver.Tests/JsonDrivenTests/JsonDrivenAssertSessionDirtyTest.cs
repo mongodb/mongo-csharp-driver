@@ -20,7 +20,7 @@ using FluentAssertions;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertSessionDirtyTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenAssertSessionDirtyTest : JsonDrivenTestRunnerTest
     {
         public JsonDrivenAssertSessionDirtyTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)

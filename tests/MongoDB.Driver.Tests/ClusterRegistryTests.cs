@@ -199,8 +199,8 @@ namespace MongoDB.Driver.Tests
 
     internal static class ClusterRegistryReflector
     {
-        public static Dictionary<ClusterKey, ICluster> _registry(this ClusterRegistry clusterRegistry) => (Dictionary<ClusterKey, ICluster>)Reflector.GetFieldValue(clusterRegistry, nameof(_registry));
+        public static Dictionary<ClusterKey, IClusterInternal> _registry(this ClusterRegistry clusterRegistry) => (Dictionary<ClusterKey, IClusterInternal>)Reflector.GetFieldValue(clusterRegistry, nameof(_registry));
 
-        public static int _state(this ICluster cluster) => (int)((InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state))).Value;
+        public static int _state(this IClusterInternal cluster) => (int)((InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state))).Value;
     }
 }

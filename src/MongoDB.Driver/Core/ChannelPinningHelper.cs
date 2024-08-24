@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core
 {
     internal static class ChannelPinningHelper
     {
-        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
+        public static IReadBindingHandle CreateReadBinding(IClusterInternal cluster, ICoreSessionHandle session, ReadPreference readPreference)
         {
             IReadBinding readBinding;
             if (session.IsInTransaction &&
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core
             return new ReadBindingHandle(readBinding);
         }
 
-        public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
+        public static IReadWriteBindingHandle CreateReadWriteBinding(IClusterInternal cluster, ICoreSessionHandle session)
         {
             IReadWriteBinding readWriteBinding;
             if (session.IsInTransaction &&

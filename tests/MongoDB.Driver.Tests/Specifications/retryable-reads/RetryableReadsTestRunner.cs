@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             BsonValue failPoint;
             if (test.TryGetValue("failPoint", out failPoint))
             {
-                var cluster = DriverTestConfiguration.Client.Cluster;
+                var cluster = DriverTestConfiguration.Client.GetClusterInternal();
                 var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
                 var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;

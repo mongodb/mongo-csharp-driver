@@ -16,16 +16,8 @@
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a cluster factory.
-    /// </summary>
-    public interface IClusterFactory
+    internal interface IClusterFactory
     {
-        // methods
-        /// <summary>
-        /// Creates a cluster.
-        /// </summary>
-        /// <returns>A cluster.</returns>
-        ICluster CreateCluster();
+        IClusterInternal CreateCluster();
     }
 }

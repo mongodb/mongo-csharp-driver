@@ -607,12 +607,12 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             LongIdGeneratorReflector.__lastId(0);
         }
 
-        private (IConnectionPool, FailPoint, ICluster, Func<object, bool>) SetupConnectionData(BsonDocument test, EventCapturer eventCapturer, bool isUnit)
+        private (IConnectionPool, FailPoint, IClusterInternal, Func<object, bool>) SetupConnectionData(BsonDocument test, EventCapturer eventCapturer, bool isUnit)
         {
             ParseSettings(test, out var connectionPoolSettings, out var connectionSettings);
 
             IConnectionPool connectionPool;
-            ICluster cluster = null;
+            IClusterInternal cluster = null;
             FailPoint failPoint = null;
             Func<object, bool> eventsFilter = _ => true;
 

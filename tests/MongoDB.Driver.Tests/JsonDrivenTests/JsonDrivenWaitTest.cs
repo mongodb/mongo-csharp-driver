@@ -21,7 +21,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenWaitTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenWaitTest : JsonDrivenTestRunnerTest
     {
         private TimeSpan _delay;
 

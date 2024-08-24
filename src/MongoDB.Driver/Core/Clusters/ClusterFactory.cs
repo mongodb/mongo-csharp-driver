@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    internal class ClusterFactory : IClusterFactory
+    internal sealed class ClusterFactory : IClusterFactory
     {
         // fields
         private readonly IEventSubscriber _eventSubscriber;
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
-        public ICluster CreateCluster()
+        public IClusterInternal CreateCluster()
         {
             var settings = _settings;
 

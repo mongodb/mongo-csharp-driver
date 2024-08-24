@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    public static class AsyncCursorReflector
+    internal static class AsyncCursorReflector
     {
         public static int? _batchSize(this AsyncCursor<BsonDocument> obj) => (int?)Reflector.GetFieldValue(obj, nameof(_batchSize));
 

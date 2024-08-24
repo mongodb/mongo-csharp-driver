@@ -21,7 +21,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenClientWatchTest : JsonDrivenClientTest
+    internal sealed class JsonDrivenClientWatchTest : JsonDrivenClientTest
     {
         // private fields
         private FilterDefinition<BsonDocument> _filter = new BsonDocument();

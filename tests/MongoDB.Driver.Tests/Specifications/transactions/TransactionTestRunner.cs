@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -43,10 +42,11 @@ using Xunit.Sdk;
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
     [Trait("Category", "Serverless")]
-    public sealed class TransactionTestRunner : LoggableTestClass, IJsonDrivenTestRunner, IDisposable
+    public sealed class TransactionTestRunner : LoggableTestClass
     {
         #region static
-        private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
+
+        private static readonly HashSet<string> __commandsToNotCapture = new()
         {
             "configureFailPoint",
             "hello",
@@ -57,45 +57,16 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             "saslContinue",
             "getnonce"
         };
+
         #endregion
 
-        // private fields
         private string _collectionName = "test";
         private string _databaseName = "transaction-tests";
-        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+        private readonly JsonDrivenTestRunner _runner = new();
 
-        // public properties
-        public ICluster FailPointCluster
-        {
-            get
-            {
-                var regularClient = DriverTestConfiguration.Client;
-                var client = regularClient.Cluster.Description.Type == ClusterType.Sharded
-                    ? DriverTestConfiguration.ClientWithMultipleShardRouters
-                    : regularClient;
-                return client.Cluster;
-            }
-        }
-
-        public IServer FailPointServer => null;
-
-        // public constructors
         public TransactionTestRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-        }
-
-        // public methods
-        public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
-        {
-            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
-            _disposables.Add(failPoint);
-        }
-
-        public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
-        {
-            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
-            _disposables.Add(failPoint);
         }
 
         [Theory]
@@ -107,10 +78,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         protected override void DisposeInternal()
         {
-            foreach (var disposable in _disposables)
-            {
-                disposable.Dispose();
-            }
+            _runner.Dispose();
         }
 
         // private methods
@@ -366,7 +334,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 return null;
             }
 
-            var cluster = client.Cluster;
+            var cluster = client.GetClusterInternal();
             var timeOut = TimeSpan.FromSeconds(60);
             SpinWait.SpinUntil(() => cluster.Description.Type != ClusterType.Unknown, timeOut).Should().BeTrue();
 
@@ -399,7 +367,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test, bool async)
         {
-            var factory = new JsonDrivenTestFactory(this, client, _databaseName, _collectionName, bucketName: null, objectMap);
+            var factory = new JsonDrivenTestFactory(_runner, client, _databaseName, _collectionName, bucketName: null, objectMap);
 
             foreach (var operation in test["operations"].AsBsonArray.Cast<BsonDocument>())
             {

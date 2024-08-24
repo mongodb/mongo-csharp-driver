@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,12 +29,6 @@ namespace MongoDB.Driver.Core.Clusters
     /// </summary>
     public interface ICluster : IDisposable
     {
-        // events
-        /// <summary>
-        /// Occurs when the cluster description has changed.
-        /// </summary>
-        event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
-
         // properties
         /// <summary>
         /// Gets the cluster identifier.
@@ -59,50 +53,21 @@ namespace MongoDB.Driver.Core.Clusters
         /// The cluster settings.
         /// </value>
         ClusterSettings Settings { get; }
+    }
 
-        // methods
-        /// <summary>
-        /// Acquires a core server session.
-        /// </summary>
-        /// <returns>A core server session.</returns>
+    internal interface IClusterInternal : ICluster
+    {
+        event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
+
         ICoreServerSession AcquireServerSession();
 
-        /// <summary>
-        /// Gets the crypt client.
-        /// </summary>
-        /// <returns>A crypt client.</returns>
-#pragma warning disable CS3003
         CryptClient CryptClient { get; }
-#pragma warning restore
 
-        /// <summary>
-        /// Initializes the cluster.
-        /// </summary>
         void Initialize();
 
-        /// <summary>
-        /// Selects a server from the cluster.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The selected server.</returns>
         IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Selects a server from the cluster.
-        /// </summary>
-        /// <param name="selector">The server selector.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Starts a session.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>
-        /// A session.
-        /// </returns>
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }
 }

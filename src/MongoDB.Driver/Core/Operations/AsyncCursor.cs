@@ -31,20 +31,15 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents an async cursor.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the documents.</typeparam>
-    public class AsyncCursor<TDocument> : IAsyncCursor<TDocument>, ICursorBatchInfo
+    internal class AsyncCursor<TDocument> : IAsyncCursor<TDocument>, ICursorBatchInfo
     {
         #region static
-        // private static fields
+
         private static IBsonSerializer<BsonDocument> __getMoreCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
             "cursor", new PartiallyRawBsonDocumentSerializer(
                 "nextBatch", new RawBsonArraySerializer()));
         #endregion
 
-        // fields
         private readonly int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private IChannelSource _channelSource;
@@ -63,20 +58,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="comment">The comment.</param>
-        /// <param name="firstBatch">The first batch.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="limit">The limit.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="maxTime">The maxTime for each batch.</param>
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -103,102 +84,6 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="firstBatch">The first batch.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="limit">The limit.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="maxTime">The maxTime for each batch.</param>
-        [Obsolete("Use overload without query.")]
-        public AsyncCursor(
-            IChannelSource channelSource,
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            IReadOnlyList<TDocument> firstBatch,
-            long cursorId,
-            int? batchSize,
-            int? limit,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime = null)
-            : this(
-                channelSource,
-                collectionNamespace,
-                query,
-                firstBatch,
-                cursorId,
-                null, // postBatchResumeToken
-                batchSize,
-                limit,
-                serializer,
-                messageEncoderSettings,
-                maxTime)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="firstBatch">The first batch.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="postBatchResumeToken">The post batch resume token.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="limit">The limit.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="maxTime">The maxTime for each batch.</param>
-        [Obsolete("Use overload without query.")]
-        public AsyncCursor(
-            IChannelSource channelSource,
-            CollectionNamespace collectionNamespace,
-            BsonDocument query, // no longer used, so ingore it
-            IReadOnlyList<TDocument> firstBatch,
-            long cursorId,
-            BsonDocument postBatchResumeToken,
-            int? batchSize,
-            int? limit,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime)
-            : this(
-                  channelSource,
-                  collectionNamespace,
-                  comment: null,
-                  firstBatch,
-                  cursorId,
-                  postBatchResumeToken,
-                  batchSize,
-                  limit,
-                  serializer,
-                  messageEncoderSettings,
-                  maxTime)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="comment">The comment.</param>
-        /// <param name="firstBatch">The first batch.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="postBatchResumeToken">The post batch resume token.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="limit">The limit.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="maxTime">The maxTime for each batch.</param>
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -235,8 +120,6 @@ namespace MongoDB.Driver.Core.Operations
             DisposeChannelSourceIfNoLongerNeeded();
         }
 
-        // properties
-        /// <inheritdoc/>
         public IEnumerable<TDocument> Current
         {
             get
@@ -246,26 +129,13 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the first batch was empty or not.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the first batch was empty; otherwise, <c>false</c>.
-        /// </value>
         public bool WasFirstBatchEmpty => _wasFirstBatchEmpty;
 
-        /// <summary>
-        /// Gets the post batch resume token.
-        /// </summary>
-        /// <value>
-        /// The post batch resume token.
-        /// </value>
         public BsonDocument PostBatchResumeToken
         {
             get { return _postBatchResumeToken; }
         }
 
-        // private methods
         private int CalculateGetMoreNumberToReturn()
         {
             var numberToReturn = _batchSize ?? 0;
@@ -280,11 +150,7 @@ namespace MongoDB.Driver.Core.Operations
             return numberToReturn;
         }
 
-        /// <summary>
-        /// Closes the cursor.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        public void Close(CancellationToken cancellationToken = default(CancellationToken))
+        public void Close(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -296,12 +162,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Closes the cursor.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task.</returns>
-        public async Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task CloseAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -449,17 +310,12 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
         }
 
-        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -602,7 +458,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <inheritdoc/>
         public bool MoveNext(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -619,7 +474,6 @@ namespace MongoDB.Driver.Core.Operations
             return true;
         }
 
-        /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

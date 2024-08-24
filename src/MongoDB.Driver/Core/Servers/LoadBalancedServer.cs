@@ -16,21 +16,19 @@
 using System;
 using System.Net;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    internal class LoadBalancedServer : Server
+    internal sealed class LoadBalancedServer : Server
     {
         private readonly ServerDescription _baseDescription;
         private ServerDescription _currentDescription;
-        private readonly object _connectionPoolLock = new object();
+        private readonly object _connectionPoolLock = new();
 
         public LoadBalancedServer(
             ClusterId clusterId,

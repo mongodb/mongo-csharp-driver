@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Tests
             var session = NoCoreSession.NewHandle();
 
             var args = BsonDocument.Parse($"{{ mode : {{ times : 1 }}, data : {{ failCommands : [\"insert\"], errorCode : {errorCode} }} }}");
-            return FailPoint.Configure(client.Cluster, session, "failCommand", args);
+            return FailPoint.Configure(client.GetClusterInternal(), session, "failCommand", args);
         }
 
         private DisposableMongoClient CreateDisposableClient(EventCapturer capturedEvents)

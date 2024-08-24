@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
+            var database = MockHelpers.GetMongoDatabaseMock();
             var options = new GridFSBucketOptions();
 
             var result = new GridFSBucket(database, options);
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_should_use_default_options_when_options_is_null()
         {
-            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
+            var database = MockHelpers.GetMongoDatabaseMock();
 
             var result = new GridFSBucket(database, null);
 
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void Database_get_should_return_the_expected_result()
         {
-            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
+            var database = MockHelpers.GetMongoDatabaseMock();
             var subject = new GridFSBucket(database, null);
 
             var result = subject.Database;
@@ -464,7 +464,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void Options_get_should_return_the_expected_result()
         {
-            var database = (new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock }).Object;
+            var database = MockHelpers.GetMongoDatabaseMock();
             var options = new GridFSBucketOptions();
             var subject = new GridFSBucket(database, options);
 
@@ -705,7 +705,7 @@ namespace MongoDB.Driver.Tests.GridFS
         // private methods
         private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {
-            var cluster = new Mock<ICluster>().Object;
+            var cluster = new Mock<IClusterInternal>().Object;
 
             var mockClient = new Mock<IMongoClient>();
             mockClient.SetupGet(c => c.Cluster).Returns(cluster);

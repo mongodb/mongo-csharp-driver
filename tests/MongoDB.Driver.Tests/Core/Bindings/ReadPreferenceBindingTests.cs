@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadPreferenceBindingTests
     {
-        private Mock<ICluster> _mockCluster;
+        private Mock<IClusterInternal> _mockCluster;
 
         public ReadPreferenceBindingTests()
         {
-            _mockCluster = new Mock<ICluster>();
+            _mockCluster = new Mock<IClusterInternal>();
         }
 
         [Fact]
@@ -202,10 +202,10 @@ namespace MongoDB.Driver.Core.Bindings
 
     internal static class ReadPreferenceBindingReflector
     {
-        public static ICluster _cluster(this ReadPreferenceBinding obj)
+        public static IClusterInternal _cluster(this ReadPreferenceBinding obj)
         {
             var fieldInfo = typeof(ReadPreferenceBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ICluster)fieldInfo.GetValue(obj);
+            return (IClusterInternal)fieldInfo.GetValue(obj);
         }
     }
 }

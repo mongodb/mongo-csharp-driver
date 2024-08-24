@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         }
     }
 
-    public sealed class JsonDrivenRecordPrimaryTest : JsonDrivenTestRunnerTest
+    internal sealed class JsonDrivenRecordPrimaryTest : JsonDrivenTestRunnerTest
     {
         private readonly IMongoClient _client;
         private readonly JsonDrivenRecordedPrimaryState _testState;
