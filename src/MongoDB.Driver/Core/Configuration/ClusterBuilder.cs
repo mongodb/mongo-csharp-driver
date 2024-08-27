@@ -43,9 +43,6 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
         private LoggingSettings _loggingSettings;
-#pragma warning disable CS0618 // Type or member is obsolete
-        private SdamLoggingSettings _sdamLoggingSettings;
-#pragma warning restore CS0618 // Type or member is obsolete
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -58,9 +55,6 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder()
         {
             _clusterSettings = new ClusterSettings();
-#pragma warning disable CS0618 // Type or member is obsolete
-            _sdamLoggingSettings = new SdamLoggingSettings(null);
-#pragma warning restore CS0618 // Type or member is obsolete
             _serverSettings = new ServerSettings();
             _connectionPoolSettings = new ConnectionPoolSettings();
             _connectionSettings = new ConnectionSettings();
@@ -133,29 +127,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             _loggingSettings = configurator(_loggingSettings);
             return this;
-        }
-
-        /// <summary>
-        /// Configures the SDAM logging settings.
-        /// </summary>
-        /// <param name="configurator">The SDAM logging settings configurator delegate.</param>
-        /// <returns>A reconfigured cluster builder.</returns>
-        [Obsolete("Use ConfigureLoggingSettings instead.")]
-        public ClusterBuilder ConfigureSdamLogging(Func<SdamLoggingSettings, SdamLoggingSettings> configurator)
-        {
-            _sdamLoggingSettings = configurator(_sdamLoggingSettings);
-            if (!_sdamLoggingSettings.IsLoggingEnabled)
-            {
-                return this;
-            }
-            var traceSource = new TraceSource(__traceSourceName, SourceLevels.All);
-            traceSource.Listeners.Clear(); // remove the default listener
-            var listener = _sdamLoggingSettings.ShouldLogToStdout
-                ? new TextWriterTraceListener(Console.Out)
-                : new TextWriterTraceListener(new FileStream(_sdamLoggingSettings.LogFilename, FileMode.Append));
-            listener.TraceOutputOptions = TraceOptions.DateTime;
-            traceSource.Listeners.Add(listener);
-            return this.Subscribe(new TraceSourceSdamEventSubscriber(traceSource));
         }
 
         /// <summary>

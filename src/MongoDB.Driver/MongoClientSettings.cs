@@ -68,7 +68,6 @@ namespace MongoDB.Driver
         private bool _retryReads;
         private bool _retryWrites;
         private ConnectionStringScheme _scheme;
-        private string _sdamLogFilename;
         private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
         private ServerMonitoringMode _serverMonitoringMode;
@@ -128,7 +127,6 @@ namespace MongoDB.Driver
             _retryReads = true;
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
-            _sdamLogFilename = null;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverMonitoringMode = ServerMonitoringMode.Auto;
@@ -607,20 +605,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or set the name of the SDAM log file. Null turns logging off. stdout will log to console.
-        /// </summary>
-        [Obsolete("Use LoggerFactory instead.")]
-        public string SdamLogFilename
-        {
-            get { return _sdamLogFilename; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _sdamLogFilename = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the server API.
         /// </summary>
         public ServerApi ServerApi
@@ -1041,7 +1025,6 @@ namespace MongoDB.Driver
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
             clone._scheme = _scheme;
-            clone._sdamLogFilename = _sdamLogFilename;
             clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverMonitoringMode = _serverMonitoringMode;
@@ -1112,7 +1095,6 @@ namespace MongoDB.Driver
                 _retryReads == rhs._retryReads &&
                 _retryWrites == rhs._retryWrites &&
                 _scheme == rhs._scheme &&
-                _sdamLogFilename == rhs._sdamLogFilename &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
@@ -1200,7 +1182,6 @@ namespace MongoDB.Driver
                 .Hash(_retryReads)
                 .Hash(_retryWrites)
                 .Hash(_scheme)
-                .Hash(_sdamLogFilename)
                 .Hash(_serverApi)
                 .HashElements(_servers)
                 .Hash(_serverMonitoringMode)
@@ -1282,10 +1263,6 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("Scheme={0};", _scheme);
             }
-            if (_sdamLogFilename != null)
-            {
-                sb.AppendFormat("SDAMLogFileName={0};", _sdamLogFilename);
-            }
             if (_serverApi != null)
             {
                 sb.AppendFormat("ServerApi={0};", _serverApi);
@@ -1341,7 +1318,6 @@ namespace MongoDB.Driver
                 MongoDefaults.TcpReceiveBufferSize, // TODO: add ReceiveBufferSize to MongoClientSettings?
                 _replicaSetName,
                 _scheme,
-                _sdamLogFilename,
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?
                 _serverApi,
                 _servers.ToList(),

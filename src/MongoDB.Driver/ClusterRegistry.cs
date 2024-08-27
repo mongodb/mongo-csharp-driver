@@ -63,7 +63,6 @@ namespace MongoDB.Driver
                 .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
-                .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -138,13 +137,6 @@ namespace MongoDB.Driver
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime,
                 applicationName: clusterKey.ApplicationName);
-        }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        private SdamLoggingSettings ConfigureSdamLogging(SdamLoggingSettings settings, ClusterKey clusterKey)
-#pragma warning restore CS0618 // Type or member is obsolete
-        {
-            return settings.With(logFilename: clusterKey.SdamLogFilename);
         }
 
         private ServerSettings ConfigureServer(ServerSettings settings, ClusterKey clusterKey)

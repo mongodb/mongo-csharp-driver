@@ -70,7 +70,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("LocalThreshold", true)]
         [InlineData("SchemaMap", true)]
         [InlineData("Scheme", true)]
-        [InlineData("SdamLogFileName", true)]
         [InlineData("SendBufferSize", true)]
         [InlineData("ServerApi", true)]
         [InlineData("Servers", false)]
@@ -218,7 +217,6 @@ namespace MongoDB.Driver.Tests
             var replicaSetName = "abc";
             var schemaMap = new Dictionary<string, BsonDocument>();
             var scheme = ConnectionStringScheme.MongoDB;
-            var sdamLogFileName = "stdout";
             var sendBufferSize = 1;
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
@@ -282,7 +280,6 @@ namespace MongoDB.Driver.Tests
                     case "ReplicaSetName": replicaSetName = "different"; break;
                     case "SchemaMap": schemaMap.Add("db.coll", new BsonDocument()); break;
                     case "Scheme": scheme = ConnectionStringScheme.MongoDBPlusSrv; break;
-                    case "SdamLogFileName": sdamLogFileName = "different"; break;
                     case "SendBufferSize": sendBufferSize = 2; break;
                     case "ServerApi": serverApi = new ServerApi(ServerApiVersion.V1); break;
                     case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
@@ -325,7 +322,6 @@ namespace MongoDB.Driver.Tests
                 receiveBufferSize,
                 replicaSetName,
                 scheme,
-                sdamLogFileName,
                 sendBufferSize,
                 serverApi,
                 servers,
@@ -378,7 +374,6 @@ namespace MongoDB.Driver.Tests
             var replicaSetName = "abc";
             var schemaMap = schemaMapValue ?? new Dictionary<string, BsonDocument>();
             var scheme = ConnectionStringScheme.MongoDB;
-            var sdamLogFileName = "stdout";
             var sendBufferSize = 1;
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
@@ -422,7 +417,6 @@ namespace MongoDB.Driver.Tests
                 receiveBufferSize,
                 replicaSetName,
                 scheme,
-                sdamLogFileName,
                 sendBufferSize,
                 serverApi,
                 servers,

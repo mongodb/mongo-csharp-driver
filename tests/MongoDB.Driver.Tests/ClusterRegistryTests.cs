@@ -107,7 +107,6 @@ namespace MongoDB.Driver.Tests
                 receiveBufferSize: 9,
                 replicaSetName: "rs",
                 scheme: ConnectionStringScheme.MongoDB,
-                sdamLogFilename: "sdam.log",
                 sendBufferSize: 10,
                 serverApi: serverApi,
                 servers: servers,
