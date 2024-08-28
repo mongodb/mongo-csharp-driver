@@ -601,8 +601,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestLocal()
         {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Local));
-            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.ToUniversalTime().ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
-            long milliseconds = (long)(obj.V.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds; //TODO Never used
+            var isoDate = $"ISODate(\"{obj.V.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture)}\")";
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.Equal(expected, json);
