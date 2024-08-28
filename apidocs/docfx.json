@@ -45,7 +45,30 @@
             "memberLayout": "separatePages",
             "EnumSortOrder": "declaringOrder",
             "allowCompilationErrors": false
-        }        
+        },
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Driver.Authentication.Aws/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Driver.Authentication.Aws",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "separatePages",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
+        }
     ],
     "build": {
         "content": [
@@ -53,6 +76,7 @@
                 "files": [
                     "api/MongoDB.Bson/**.yml",
                     "api/MongoDB.Driver/**.yml",
+                    "api/MongoDB.Driver.Authentication.Aws/**.yml",
                     "api/toc.yml",
                     "api/index.md"
                 ]

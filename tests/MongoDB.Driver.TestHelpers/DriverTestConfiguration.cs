@@ -18,13 +18,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Authentication.AWS;
+using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests
@@ -51,6 +53,9 @@ namespace MongoDB.Driver.Tests
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
                 isThreadSafe: true);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
+
+            SaslMechanismRegistry.Instance.RegisterAWSMechanism();
+            KmsProviderRegistry.Instance.RegisterAWSKmsProvider();
         }
 
         // public static properties
@@ -144,7 +149,7 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
             clientSettingsConfigurator?.Invoke(clientSettings);
 
-            if (clientSettings.Credential?.Mechanism == MongoOidcAuthenticator.MechanismName)
+            if (clientSettings.Credential?.Mechanism == OidcSaslMechanism.MechanismName)
             {
                 OidcCallbackAdapterCachingFactory.Instance.Reset();
             }

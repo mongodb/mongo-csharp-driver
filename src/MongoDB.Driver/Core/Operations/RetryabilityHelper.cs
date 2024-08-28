@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;

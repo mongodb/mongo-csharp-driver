@@ -21,7 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;

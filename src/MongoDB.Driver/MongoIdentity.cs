@@ -14,12 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Security.Principal;
-using System.Text;
 
 namespace MongoDB.Driver
 {
@@ -125,7 +119,7 @@ namespace MongoDB.Driver
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
         {

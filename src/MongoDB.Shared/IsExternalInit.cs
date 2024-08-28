@@ -14,11 +14,13 @@
 */
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.Runtime.CompilerServices
 {
     // This class is needed by compiler for supporting init only properties in net core frameworks prior to net5.
     // This class should not be used by developers in the source code.
     [EditorBrowsable(EditorBrowsableState.Never)]
+    [SuppressMessage("Performance", "CA1812")]
     internal class IsExternalInit { }
 }

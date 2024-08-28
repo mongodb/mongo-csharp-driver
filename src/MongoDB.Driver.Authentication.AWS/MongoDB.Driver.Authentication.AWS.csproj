@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.Authentication.AWS</AssemblyTitle>
+    <Product>MongoDB.Driver.Authentication.AWS</Product>
+    <PackageId>MongoDB.Driver.Authentication.AWS</PackageId>
+    <Description>Official MongoDB supported driver for MongoDB. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
+    <PackageDescription>Official .NET driver for MongoDB.</PackageDescription>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj" />
+  </ItemGroup>
+</Project>

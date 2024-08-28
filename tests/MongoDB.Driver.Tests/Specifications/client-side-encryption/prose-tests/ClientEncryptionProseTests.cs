@@ -30,8 +30,8 @@ using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Authentication.External;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
@@ -1781,7 +1781,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             // This test specifically verifies part of the CSFLE specification that
             // KMS providers that include a name do not support automatic credentials.
-            
+
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             var kmsProvider = "aws:name1";

@@ -15,10 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void CreateServerMonitorFactory_should_return_expected_result(int connectTimeoutMilliseconds, int heartbeatTimeoutMilliseconds, int expectedServerMonitorConnectTimeoutMilliseconds, int expectedServerMonitorSocketTimeoutMilliseconds)
         {
             var connectTimeout = TimeSpan.FromMilliseconds(connectTimeoutMilliseconds);
-            var authenticatorFactories = new[] { new AuthenticatorFactory(() => new DefaultAuthenticator(new UsernamePasswordCredential("source", "username", "password"), serverApi: null)) };
+            var authenticatorFactories = new[] { new AuthenticatorFactory(() => Mock.Of<IAuthenticator>()) };
             var heartbeatTimeout = TimeSpan.FromMilliseconds(heartbeatTimeoutMilliseconds);
             var serverMonitoringMode = ServerMonitoringMode.Stream;
             var expectedServerMonitorConnectTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorConnectTimeoutMilliseconds);
@@ -58,8 +57,6 @@ namespace MongoDB.Driver.Core.Configuration
             serverMonitorTcpStreamSettings.ConnectTimeout.Should().Be(expectedServerMonitorConnectTimeout);
             serverMonitorTcpStreamSettings.ReadTimeout.Should().Be(expectedServerMonitorSocketTimeout);
             serverMonitorTcpStreamSettings.WriteTimeout.Should().Be(expectedServerMonitorSocketTimeout);
-
-            var eventSuscriber = result._eventSubscriber();
 
             var serverSettings = result._serverMonitorSettings();
             serverSettings.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
