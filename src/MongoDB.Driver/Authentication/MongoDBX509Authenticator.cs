@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,58 +24,27 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Authentication
 {
-    /// <summary>
-    /// A MongoDB-X509 authenticator.
-    /// </summary>
     internal sealed class MongoDBX509Authenticator : IAuthenticator
     {
-        // static properties
-        /// <summary>
-        /// Gets the name of the mechanism.
-        /// </summary>
-        /// <value>
-        /// The name of the mechanism.
-        /// </value>
         public static string MechanismName
         {
             get { return "MONGODB-X509"; }
         }
 
-        // fields
         private readonly string _username;
         private readonly ServerApi _serverApi;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoDBX509Authenticator"/> class.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        [Obsolete("Use the newest overload instead.")]
-        public MongoDBX509Authenticator(string username)
-            : this(username, serverApi: null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoDBX509Authenticator"/> class.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="serverApi">The server API.</param>
         public MongoDBX509Authenticator(string username, ServerApi serverApi)
         {
             _username = Ensure.IsNullOrNotEmpty(username, nameof(username));
             _serverApi = serverApi; // can be null
         }
 
-        // properties
-        /// <inheritdoc/>
         public string Name
         {
             get { return MechanismName; }
         }
 
-        // public methods
-        /// <inheritdoc/>
         public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
@@ -97,7 +66,6 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
@@ -119,14 +87,11 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        /// <inheritdoc/>
         public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
             helloCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
             return helloCommand;
         }
-
-        // private methods
 
         private BsonDocument CreateAuthenticateCommand()
         {
@@ -155,7 +120,7 @@ namespace MongoDB.Driver.Authentication
 
         private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
         {
-            var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
+            var message = $"Unable to authenticate username '{_username}' using protocol '{Name}'.";
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
     }

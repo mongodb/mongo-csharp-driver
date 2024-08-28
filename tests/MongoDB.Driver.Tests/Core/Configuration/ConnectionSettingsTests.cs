@@ -18,6 +18,7 @@ using FluentAssertions;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings();
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().BeEmpty();
+            subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().BeEmpty();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMinutes(10));
@@ -48,14 +49,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
             argumentException.ParamName.Should().Be("applicationName");
-        }
-
-        [Fact]
-        public void constructor_should_throw_when_authenticators_is_null()
-        {
-            Action action = () => new ConnectionSettings(authenticatorFactories: null);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("authenticatorFactories");
         }
 
         [Fact]
@@ -95,7 +88,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings(applicationName: "app");
 
             subject.ApplicationName.Should().Be("app");
-            subject.AuthenticatorFactories.Should().Equal(__defaults.AuthenticatorFactories);
+            subject.AuthenticatorFactory.Should().Be(__defaults.AuthenticatorFactory);
             subject.Compressors.Should().Equal(__defaults.Compressors);
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
@@ -103,14 +96,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
-        public void constructor_with_authenticatorFactories_should_initialize_instance()
+        public void constructor_with_authenticatorFactory_should_initialize_instance()
         {
-            var authenticatorFactories = new[] { new AuthenticatorFactory(() => null) };
+            var authenticatorFactory = Mock.Of<IAuthenticatorFactory>();
 
-            var subject = new ConnectionSettings(authenticatorFactories: authenticatorFactories);
+            var subject = new ConnectionSettings(authenticatorFactory: authenticatorFactory);
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().Equal(authenticatorFactories);
+            subject.AuthenticatorFactory.Should().Be(authenticatorFactory);
             subject.Compressors.Should().BeEquivalentTo(__defaults.Compressors);
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
@@ -125,7 +118,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings(compressors: compressors);
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().BeEmpty();
+            subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(compressors);
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
@@ -138,7 +131,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings(libraryInfo: new LibraryInfo("lib", "1.0"));
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().Equal(__defaults.AuthenticatorFactories);
+            subject.AuthenticatorFactory.Should().Be(__defaults.AuthenticatorFactory);
             subject.Compressors.Should().Equal(__defaults.Compressors);
             subject.LibraryInfo.Should().Be(new LibraryInfo("lib", "1.0"));
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
@@ -153,7 +146,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings(maxIdleTime: maxIdleTime);
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().BeEmpty();
+            subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(__defaults.Compressors);
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(maxIdleTime);
@@ -168,7 +161,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionSettings(maxLifeTime: maxLifeTime);
 
             subject.ApplicationName.Should().BeNull();
-            subject.AuthenticatorFactories.Should().BeEmpty();
+            subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(__defaults.Compressors);
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
@@ -185,7 +178,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(applicationName: newApplicationName);
 
             result.ApplicationName.Should().Be(newApplicationName);
-            result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(__defaults.Compressors);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
@@ -195,15 +188,15 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_authenticatorFactories_should_return_expected_result()
         {
-            var oldAuthenticatorFactories = new[] { new AuthenticatorFactory(() => null) };
-            var newAuthenticatorFactories = new[] { new AuthenticatorFactory(() => null) };
+            var oldAuthenticatorFactory = Mock.Of<IAuthenticatorFactory>();
+            var newAuthenticatorFactory = Mock.Of<IAuthenticatorFactory>();
 
-            var subject = new ConnectionSettings(authenticatorFactories: oldAuthenticatorFactories);
+            var subject = new ConnectionSettings(authenticatorFactory: oldAuthenticatorFactory);
 
-            var result = subject.With(authenticatorFactories: newAuthenticatorFactories);
+            var result = subject.With(authenticatorFactory: Optional.Create(newAuthenticatorFactory));
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.AuthenticatorFactories.Should().Equal(newAuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(newAuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
@@ -220,7 +213,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(compressors: newCompressors);
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(newCompressors);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
@@ -237,7 +230,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(libraryInfo: newlibraryInfo);
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(__defaults.Compressors);
             result.LibraryInfo.Should().Be(newlibraryInfo);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
@@ -254,7 +247,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(maxIdleTime: newMaxIdleTime);
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(newMaxIdleTime);
@@ -271,7 +264,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(maxLifeTime: newMaxLifeTime);
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.AuthenticatorFactories.Should().Equal(subject.AuthenticatorFactories);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);

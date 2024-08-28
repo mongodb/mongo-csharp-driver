@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Connections
             using var subject = new BinaryConnection(
                 serverId: _serverId,
                 endPoint: _endPoint,
-                settings: new ConnectionSettings(new[] { authenticatorFactoryMock.Object }),
+                settings: new ConnectionSettings(authenticatorFactoryMock.Object),
                 streamFactory: mockStreamFactory.Object,
                 connectionInitializer: connectionInitializer,
                 eventSubscriber: _capturedEvents,

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,39 +20,14 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Authentication
 {
-    /// <summary>
-    /// Represents a connection authenticator.
-    /// </summary>
-    public interface IAuthenticator
+    internal interface IAuthenticator
     {
-        /// <summary>
-        /// Gets the name of the authenticator.
-        /// </summary>
         string Name { get; }
 
-        /// <summary>
-        /// Authenticates the connection.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        /// <param name="description">The connection description.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Authenticates the connection.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        /// <param name="description">The connection description.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Optionally customizes hello or legacy hello command.
-        /// </summary>
-        /// <param name="helloCommand">Initial command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>Optionally mutated command.</returns>
         BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken);
     }
 }

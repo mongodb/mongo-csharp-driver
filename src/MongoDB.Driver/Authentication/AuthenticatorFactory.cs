@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,23 +18,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Authentication
 {
-    /// <summary>
-    /// Represents an authenticator factory.
-    /// </summary>
-    public class AuthenticatorFactory : IAuthenticatorFactory
+    internal sealed class AuthenticatorFactory : IAuthenticatorFactory
     {
         private readonly Func<IAuthenticator> _authenticatorFactoryFunc;
 
-        /// <summary>
-        /// Create an authenticatorFactory.
-        /// </summary>
-        /// <param name="authenticatorFactoryFunc">The authenticatorFactoryFunc.</param>
         public AuthenticatorFactory(Func<IAuthenticator> authenticatorFactoryFunc)
         {
             _authenticatorFactoryFunc = Ensure.IsNotNull(authenticatorFactoryFunc, nameof(authenticatorFactoryFunc));
         }
 
-        /// <inheritdoc/>
         public IAuthenticator Create()
         {
             return _authenticatorFactoryFunc();

@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Configuration
     {
         // fields
         private readonly string _applicationName;
-        private readonly IReadOnlyList<IAuthenticatorFactory> _authenticatorFactories;
+        private readonly IAuthenticatorFactory _authenticatorFactory;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
         private readonly LibraryInfo _libraryInfo;
         private readonly bool _loadBalanced;
@@ -39,7 +39,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSettings" /> class.
         /// </summary>
-        /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
         /// <param name="libraryInfo">The library information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="maxLifeTime">The maximum life time.</param>
         /// <param name="applicationName">The application name.</param>
         public ConnectionSettings(
-            Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,
@@ -55,7 +53,24 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))
         {
-            _authenticatorFactories = Ensure.IsNotNull(authenticatorFactories.WithDefault(Enumerable.Empty<IAuthenticatorFactory>()), nameof(authenticatorFactories)).ToList().AsReadOnly();
+            _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
+            _libraryInfo = libraryInfo.WithDefault(null);
+            _loadBalanced = loadBalanced.WithDefault(false);
+            _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
+            _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
+            _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
+        }
+
+        internal ConnectionSettings(
+            IAuthenticatorFactory authenticatorFactory,
+            Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
+            Optional<LibraryInfo> libraryInfo = default,
+            Optional<bool> loadBalanced = default,
+            Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
+            Optional<string> applicationName = default(Optional<string>))
+        {
+            _authenticatorFactory = authenticatorFactory;
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
@@ -77,14 +92,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the authenticator factories.
+        /// Gets the authenticator factory.
         /// </summary>
         /// <value>
-        /// The authenticator factories.
+        /// The authenticator factory.
         /// </value>
-        public IReadOnlyList<IAuthenticatorFactory> AuthenticatorFactories
+        internal IAuthenticatorFactory AuthenticatorFactory
         {
-            get { return _authenticatorFactories; }
+            get { return _authenticatorFactory; }
         }
 
         /// <summary>
@@ -140,7 +155,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Returns a new ConnectionSettings instance with some settings changed.
         /// </summary>
-        /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
         /// <param name="libraryInfo">The library information.</param>
         /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
@@ -149,7 +163,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="applicationName">The application name.</param>
         /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
-            Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,
@@ -158,7 +171,37 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<string> applicationName = default(Optional<string>))
         {
             return new ConnectionSettings(
-                authenticatorFactories: Optional.Enumerable(authenticatorFactories.WithDefault(_authenticatorFactories)),
+                authenticatorFactory: _authenticatorFactory,
+                compressors: Optional.Enumerable(compressors.WithDefault(_compressors)),
+                libraryInfo: libraryInfo.WithDefault(_libraryInfo),
+                loadBalanced: loadBalanced.WithDefault(_loadBalanced),
+                maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
+                maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime),
+                applicationName: applicationName.WithDefault(_applicationName));
+        }
+
+        /// <summary>
+        /// Returns a new ConnectionSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="authenticatorFactory">The authenticator factories.</param>
+        /// <param name="compressors">The compressors.</param>
+        /// <param name="libraryInfo">The library information.</param>
+        /// <param name="loadBalanced">Whether the load balanced mode is enabled.</param>
+        /// <param name="maxIdleTime">The maximum idle time.</param>
+        /// <param name="maxLifeTime">The maximum life time.</param>
+        /// <param name="applicationName">The application name.</param>
+        /// <returns>A new ConnectionSettings instance.</returns>
+        internal ConnectionSettings With(
+            Optional<IAuthenticatorFactory> authenticatorFactory,
+            Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
+            Optional<LibraryInfo> libraryInfo = default,
+            Optional<bool> loadBalanced = default,
+            Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
+            Optional<string> applicationName = default(Optional<string>))
+        {
+            return new ConnectionSettings(
+                authenticatorFactory: authenticatorFactory.WithDefault(_authenticatorFactory),
                 compressors: Optional.Enumerable(compressors.WithDefault(_compressors)),
                 libraryInfo: libraryInfo.WithDefault(_libraryInfo),
                 loadBalanced: loadBalanced.WithDefault(_loadBalanced),

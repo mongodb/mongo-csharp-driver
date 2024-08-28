@@ -19,12 +19,8 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Authentication
 {
-    /// <summary>
-    /// Represents a username/password credential.
-    /// </summary>
-    public sealed class UsernamePasswordCredential
+    internal sealed class UsernamePasswordCredential
     {
-        // fields
         private readonly Lazy<SecureString> _saslPreppedPassword;
         private string _source;
         private SecureString _password;
@@ -41,7 +37,7 @@ namespace MongoDB.Driver.Authentication
             : this(source, username, SecureStringHelper.ToSecureString(password))
         {
             // Compute saslPreppedPassword immediately and store it securely while the password is already in
-            // managed memory. We don't create a closure over the password so that it will hopefully get 
+            // managed memory. We don't create a closure over the password so that it will hopefully get
             // garbage-collected sooner rather than later.
             var saslPreppedPassword = SecureStringHelper.ToSecureString(SaslPrepHelper.SaslPrepStored(password));
             _saslPreppedPassword = new Lazy<SecureString>(() => saslPreppedPassword);
@@ -68,56 +64,26 @@ namespace MongoDB.Driver.Authentication
                 () => SecureStringHelper.ToSecureString(SaslPrepHelper.SaslPrepStored(GetInsecurePassword())));
         }
 
-        // properties
-        /// <summary>
-        /// Gets the password.
-        /// </summary>
-        /// <value>
-        /// The password.
-        /// </value>
         public SecureString Password
         {
             get { return _password; }
         }
 
-        /// <summary>
-        /// Gets the the SASLprepped password.
-        /// May create a cleartext copy of the password in managed memory the first time it is accessed.
-        /// Use only as needed e.g. for SCRAM-SHA-256.
-        /// </summary> 
-        /// <returns>The SASLprepped password.</returns>
         public SecureString SaslPreppedPassword
         {
             get { return _saslPreppedPassword.Value; }
         }
 
-        /// <summary>
-        /// Gets the source.
-        /// </summary>
-        /// <value>
-        /// The source.
-        /// </value>
         public string Source
         {
             get { return _source; }
         }
 
-        /// <summary>
-        /// Gets the username.
-        /// </summary>
-        /// <value>
-        /// The username.
-        /// </value>
         public string Username
         {
             get { return _username; }
         }
 
-        // methods
-        /// <summary>
-        /// Gets the password (converts the password from a SecureString to a regular string).
-        /// </summary>
-        /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
             return SecureStringHelper.ToInsecureString(_password);

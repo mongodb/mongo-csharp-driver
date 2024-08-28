@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Connections
             var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
             var evidence = new PasswordEvidence("Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
-            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
+            var connectionSettings = new ConnectionSettings(new AuthenticatorFactory(() => authenticator));
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
 
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.Core.Connections
             var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
             var evidence = new PasswordEvidence("Omega-Phi-9-3");
             var authenticator = CreateAuthenticator("default", identity, evidence);
-            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
+            var connectionSettings = new ConnectionSettings(new AuthenticatorFactory(() => authenticator));
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
 
