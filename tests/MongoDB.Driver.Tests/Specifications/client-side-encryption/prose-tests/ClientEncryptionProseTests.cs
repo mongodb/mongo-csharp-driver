@@ -58,6 +58,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         #region static
         private static readonly CollectionNamespace __collCollectionNamespace = CollectionNamespace.FromFullName("db.coll");
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
+
+        static ClientEncryptionProseTests()
+        {
+            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH");
+        }
         #endregion
 
         private const string SchemaMap =

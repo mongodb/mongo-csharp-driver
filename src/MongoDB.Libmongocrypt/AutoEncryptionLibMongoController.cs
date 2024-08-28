@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Logging;
@@ -39,7 +38,7 @@ namespace MongoDB.Libmongocrypt
 
             var cryptClient = CryptClientFactory.Create(client.Cluster.Settings.CryptClientSettings);
 
-            client.Settings.LoggingSettings.CreateLogger<LogCategories.Client>().LogTrace(
+            client.Settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
                 StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
                 client.Cluster.ClusterId,
                 "CryptClient created. Configured shared library version: ",

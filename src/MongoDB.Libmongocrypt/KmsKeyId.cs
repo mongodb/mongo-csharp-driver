@@ -22,7 +22,7 @@ namespace MongoDB.Libmongocrypt
     /// <summary>
     /// Represent a kms key.
     /// </summary>
-    public class KmsKeyId
+    internal class KmsKeyId
     {
         private readonly IReadOnlyList<byte[]> _alternateKeyNameBytes;
         private readonly byte[] _dataKeyOptionsBytes;
@@ -33,6 +33,7 @@ namespace MongoDB.Libmongocrypt
         /// </summary>
         /// <param name="dataKeyOptionsBytes">The byte representation of dataOptions bson document.</param>
         /// <param name="alternateKeyNameBytes">The byte representation of alternate keyName.</param>
+        /// <param name="keyMaterialBytes">The byte representation of key material.</param>
         public KmsKeyId(
             byte[] dataKeyOptionsBytes,
             IEnumerable<byte[]> alternateKeyNameBytes = null,
@@ -44,17 +45,17 @@ namespace MongoDB.Libmongocrypt
         }
 
         /// <summary>
-        /// Alternate key name bytes. 
+        /// Alternate key name bytes.
         /// </summary>
         public IReadOnlyList<byte[]> AlternateKeyNameBytes => _alternateKeyNameBytes;
 
         /// <summary>
-        /// Data key options bytes. 
+        /// Data key options bytes.
         /// </summary>
         public byte[] DataKeyOptionsBytes => _dataKeyOptionsBytes;
 
         /// <summary>
-        /// Key material bytes. 
+        /// Key material bytes.
         /// </summary>
         public byte[] KeyMaterialBytes => _keyMaterialBytes;
 

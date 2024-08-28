@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Libmongocrypt;
-using MongoDB.Driver;
 using System;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 
-namespace drivertest
+namespace MongoDB.Libmongocrypt.Example
 {
     class BsonUtil
     {

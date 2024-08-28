@@ -16,7 +16,7 @@
 
 namespace MongoDB.Libmongocrypt
 {
-    public enum LogLevel {
+    internal enum LogLevel {
         MONGOCRYPT_LOG_LEVEL_FATAL = 0,
         MONGOCRYPT_LOG_LEVEL_ERROR = 1,
         MONGOCRYPT_LOG_LEVEL_WARNING = 2,

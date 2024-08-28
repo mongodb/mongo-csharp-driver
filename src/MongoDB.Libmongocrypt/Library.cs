@@ -22,7 +22,7 @@ namespace MongoDB.Libmongocrypt
     /// <summary>
     /// The low-level interface to libmongocrypt.
     /// </summary>
-    public class Library
+    internal class Library
     {
         static Library()
         {
@@ -48,7 +48,7 @@ namespace MongoDB.Libmongocrypt
             _mongocrypt_ctx_setopt_key_encryption_key = new Lazy<Delegates.mongocrypt_ctx_setopt_key_encryption_key>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_ctx_setopt_key_encryption_key>(
                     ("mongocrypt_ctx_setopt_key_encryption_key")), true);
-            
+
             _mongocrypt_is_crypto_available = new Lazy<Delegates.mongocrypt_is_crypto_available>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_is_crypto_available>("mongocrypt_is_crypto_available"), true);
 
@@ -232,7 +232,7 @@ namespace MongoDB.Libmongocrypt
         internal static Delegates.mongocrypt_setopt_log_handler mongocrypt_setopt_log_handler => _mongocrypt_setopt_log_handler.Value;
         internal static Delegates.mongocrypt_setopt_kms_providers mongocrypt_setopt_kms_providers => _mongocrypt_setopt_kms_providers.Value;
         internal static Delegates.mongocrypt_ctx_setopt_key_encryption_key mongocrypt_ctx_setopt_key_encryption_key => _mongocrypt_ctx_setopt_key_encryption_key.Value;
-        
+
         internal static Delegates.mongocrypt_is_crypto_available mongocrypt_is_crypto_available => _mongocrypt_is_crypto_available.Value;
 
         internal static Delegates.mongocrypt_setopt_aes_256_ecb mongocrypt_setopt_aes_256_ecb => _mongocrypt_setopt_aes_256_ecb.Value;
@@ -311,7 +311,7 @@ namespace MongoDB.Libmongocrypt
 
         private static readonly Lazy<Delegates.mongocrypt_setopt_kms_providers> _mongocrypt_setopt_kms_providers;
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_key_encryption_key> _mongocrypt_ctx_setopt_key_encryption_key;
-        
+
         private static readonly Lazy<Delegates.mongocrypt_is_crypto_available> _mongocrypt_is_crypto_available;
 
         private static readonly Lazy<Delegates.mongocrypt_setopt_aes_256_ecb> _mongocrypt_setopt_aes_256_ecb;
@@ -357,7 +357,7 @@ namespace MongoDB.Libmongocrypt
         private static readonly Lazy<Delegates.mongocrypt_ctx_decrypt_init> _mongocrypt_ctx_decrypt_init;
 
         private static readonly Lazy<Delegates.mongocrypt_ctx_explicit_encrypt_init> _mongocrypt_ctx_explicit_encrypt_init;
-        private static readonly Lazy<Delegates.mongocrypt_ctx_explicit_encrypt_expression_init> _mongocrypt_ctx_explicit_encrypt_expression_init;        
+        private static readonly Lazy<Delegates.mongocrypt_ctx_explicit_encrypt_expression_init> _mongocrypt_ctx_explicit_encrypt_expression_init;
 
         private static readonly Lazy<Delegates.mongocrypt_ctx_explicit_decrypt_init> _mongocrypt_ctx_explicit_decrypt_init;
 
@@ -442,12 +442,12 @@ namespace MongoDB.Libmongocrypt
             /// <summary>
             /// typedef bool (*mongocrypt_crypto_fn) (
             ///     void *ctx,
-            //      mongocrypt_binary_t* key,
-            //      mongocrypt_binary_t *iv,
-            //      mongocrypt_binary_t*in,
-            //      mongocrypt_binary_t*out,
-            //      uint32_t* bytes_written,
-            //      mongocrypt_status_t *status);
+            ///      mongocrypt_binary_t* key,
+            ///      mongocrypt_binary_t *iv,
+            ///      mongocrypt_binary_t*in,
+            ///      mongocrypt_binary_t*out,
+            ///      uint32_t* bytes_written,
+            ///      mongocrypt_status_t *status);
             /// </summary>
             [return: MarshalAs(UnmanagedType.I1)]
             public delegate bool CryptoCallback(

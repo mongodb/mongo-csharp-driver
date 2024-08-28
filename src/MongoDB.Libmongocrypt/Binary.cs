@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
-    /// A pointer and length pair the contains raw bytes to pass or retrive from libmongocrypt.
+    /// A pointer and length pair the contains raw bytes to pass or retrieve from libmongocrypt.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     public class Binary : IDisposable

@@ -21,7 +21,7 @@ namespace MongoDB.Libmongocrypt
     /// <summary>
     /// KMS Credentials.
     /// </summary>
-    public class KmsCredentials
+    internal class KmsCredentials
     {
         private readonly byte[] _credentialsBytes;
 

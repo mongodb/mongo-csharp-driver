@@ -58,8 +58,9 @@ namespace MongoDB.Driver.Examples
             {
                 AutoEncryptionOptions = autoEncryptionOptions
             };
-            
+
             AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+
             var client = new MongoClient(mongoClientSettings);
             var database = client.GetDatabase("test");
             database.DropCollection("coll");
@@ -127,6 +128,9 @@ namespace MongoDB.Driver.Examples
             {
                 AutoEncryptionOptions = autoEncryptionSettings
             };
+
+            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+
             var client = new MongoClient(clientSettings);
             var database = client.GetDatabase("test");
             database.DropCollection("coll");

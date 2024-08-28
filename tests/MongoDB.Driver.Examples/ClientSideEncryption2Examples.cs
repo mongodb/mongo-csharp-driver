@@ -92,6 +92,7 @@ namespace MongoDB.Driver.Examples
             };
 
             AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+
             var autoEncryptionOptions = new AutoEncryptionOptions(KeyVaultNamespace, kmsProviders, encryptedFieldsMap: encryptedFieldsMap);
             var encryptedClient = new MongoClient(new MongoClientSettings { AutoEncryptionOptions = autoEncryptionOptions });
 

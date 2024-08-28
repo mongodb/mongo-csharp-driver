@@ -24,7 +24,7 @@ namespace MongoDB.Libmongocrypt
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="IStatus" />
-    public class CryptContext : IDisposable, IStatus
+    internal class CryptContext : IDisposable, IStatus
     {
         /// <summary>
         /// States of the CryptContext state machine

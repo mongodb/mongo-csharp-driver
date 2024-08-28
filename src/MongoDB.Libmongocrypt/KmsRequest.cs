@@ -23,7 +23,7 @@ namespace MongoDB.Libmongocrypt
     /// Contains a KMS request to make to a remote server.
     /// </summary>
     /// <seealso cref="IStatus" />
-    public class KmsRequest : IStatus
+    internal class KmsRequest : IStatus
     {
         private readonly Status _status;
         private readonly IntPtr _id;

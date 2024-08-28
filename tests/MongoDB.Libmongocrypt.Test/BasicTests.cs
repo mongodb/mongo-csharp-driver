@@ -499,7 +499,7 @@ namespace MongoDB.Libmongocrypt.Test
                     kmsCredentialsDocument = new BsonDocument
                     {
                         {
-                            "kmip", 
+                            "kmip",
                             new BsonDocument
                             {
                                 { "endpoint", "dummy" }
@@ -565,7 +565,7 @@ namespace MongoDB.Libmongocrypt.Test
         private CryptOptions CreateOptions()
         {
             return new CryptOptions(
-                new[] 
+                new[]
                 {
                     CreateKmsCredentials("aws"),
                     CreateKmsCredentials("local")
@@ -677,7 +677,7 @@ namespace MongoDB.Libmongocrypt.Test
             throw new NotImplementedException();
         }
 
-        public CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
+        private CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
             return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null);
         }

@@ -8,6 +8,8 @@
 
     <Platforms>AnyCPU</Platforms>
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
+    <ProjectReference Include="..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
   </ItemGroup>
 
   <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />

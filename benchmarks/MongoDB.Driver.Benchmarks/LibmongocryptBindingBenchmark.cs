@@ -34,8 +34,8 @@ namespace MongoDB.Benchmarks
 
         private byte[] _encryptedValuesDocumentBytes;
         private DisposableMongoClient _disposableKeyVaultClient;
-        private AutoEncryptionLibMongoCryptController _libMongoCryptController;
-        private CryptClient _cryptClient;
+        // private AutoEncryptionLibMongoCryptController _libMongoCryptController;
+        // private CryptClient _cryptClient;
 
         [Params(1, 2, 8, 64)]
         public int ThreadsCount { get; set; }
@@ -43,6 +43,9 @@ namespace MongoDB.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
+
+            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -92,8 +95,8 @@ namespace MongoDB.Benchmarks
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
             // Create libmongocrypt binding that will be used for decryption
-            _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
-            _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
+            // _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
+            // _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
         }
 
         [Benchmark]
@@ -103,7 +106,7 @@ namespace MongoDB.Benchmarks
             {
                 for (int i = 0; i < RepeatCount; i++)
                 {
-                    _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
+                    // _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
                 }
             }, 20000);
         }
@@ -111,7 +114,7 @@ namespace MongoDB.Benchmarks
         [GlobalCleanup]
         public void Cleanup()
         {
-            _cryptClient.Dispose();
+            // _cryptClient.Dispose();
             _disposableKeyVaultClient.Dispose();
         }
     }

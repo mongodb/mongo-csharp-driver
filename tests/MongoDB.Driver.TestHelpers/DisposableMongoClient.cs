@@ -250,7 +250,7 @@ namespace MongoDB.Driver.TestHelpers
 
             if (wrapped is MongoClient mongoClient)
             {
-                mongoClient.LibMongoCryptController.Dispose();
+                mongoClient.LibMongoCryptController?.Dispose();
             }
 
             _logger?.LogDebug(wrapped.Cluster.ClusterId, "Disposed");

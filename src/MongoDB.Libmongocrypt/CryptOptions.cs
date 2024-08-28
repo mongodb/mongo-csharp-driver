@@ -24,7 +24,7 @@ namespace MongoDB.Libmongocrypt
     /// <summary>
     /// Options to configure mongocrypt with.
     /// </summary>
-    public class CryptOptions
+    internal class CryptOptions
     {
         public bool BypassQueryAnalysis { get; }
         public string CryptSharedLibPath { get; }
