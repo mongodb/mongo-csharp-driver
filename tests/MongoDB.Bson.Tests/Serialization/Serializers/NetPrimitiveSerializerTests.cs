@@ -954,7 +954,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeDateTimeOffset()
         {
             var value = new DateTimeOffset(new DateTime(2010, 10, 8, 11, 29, 0), TimeSpan.FromHours(-4));
-            var isoDate = value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
+            var isoDate = value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK", CultureInfo.InvariantCulture);
             var obj = new TestClass
             {
                 A = value,

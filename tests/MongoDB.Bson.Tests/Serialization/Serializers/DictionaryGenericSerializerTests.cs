@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -378,7 +379,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
 
 #pragma warning disable 618
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var guid = Guid.Empty;
             string expectedGuidJson = null;
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
