@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted expression.</returns>
         /// <remarks>
-        /// Only supported for queryType "rangePreview"
+        /// Only supported for queryType "range"
         /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
         /// </remarks>
         public BsonDocument EncryptExpression(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>the encrypted expression.</returns>
         /// <remarks>
-        /// Only supported for queryType "rangePreview"
+        /// Only supported for queryType "range"
         /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
         /// </remarks>
         public async Task<BsonDocument> EncryptExpressionAsync(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
