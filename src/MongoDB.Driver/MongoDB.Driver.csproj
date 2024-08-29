@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.11.1.1" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.12.0" />
   </ItemGroup>
 
   <ItemGroup>

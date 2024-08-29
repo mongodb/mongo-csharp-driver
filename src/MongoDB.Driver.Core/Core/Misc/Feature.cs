@@ -375,6 +375,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the csfle2 range preview algorithm feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release. Please use Csfle2QEv2RangeAlgorithm with server 8.0 and higher.")]
         public static Feature Csfle2QEv2RangePreviewAlgorithm => __csfle2Qev2RangePreviewAlgorithm;
 
         /// <summary>
