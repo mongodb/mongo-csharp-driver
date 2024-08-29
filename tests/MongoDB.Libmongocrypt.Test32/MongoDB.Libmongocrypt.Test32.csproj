@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
+      <ProjectReference Include="..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
     </ItemGroup>
 
     <PropertyGroup>

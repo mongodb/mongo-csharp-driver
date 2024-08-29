@@ -24,7 +24,7 @@ namespace MongoDB.Libmongocrypt
     /// A pointer and length pair the contains raw bytes to pass or retrieve from libmongocrypt.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    public class Binary : IDisposable
+    internal class Binary : IDisposable
     {
         private static readonly byte[] __empty = new byte[0];
 
