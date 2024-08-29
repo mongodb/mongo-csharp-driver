@@ -36,21 +36,21 @@ namespace MongoDB.Driver.Core.Configuration
         public void CreateServerMonitorFactory_should_return_expected_result(int connectTimeoutMilliseconds, int heartbeatTimeoutMilliseconds, int expectedServerMonitorConnectTimeoutMilliseconds, int expectedServerMonitorSocketTimeoutMilliseconds)
         {
             var connectTimeout = TimeSpan.FromMilliseconds(connectTimeoutMilliseconds);
-            var authenticatorFactories = new[] { new AuthenticatorFactory(() => Mock.Of<IAuthenticator>()) };
+            var authenticatorFactory = new AuthenticatorFactory(() => Mock.Of<IAuthenticator>());
             var heartbeatTimeout = TimeSpan.FromMilliseconds(heartbeatTimeoutMilliseconds);
             var serverMonitoringMode = ServerMonitoringMode.Stream;
             var expectedServerMonitorConnectTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorConnectTimeoutMilliseconds);
             var expectedServerMonitorSocketTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorSocketTimeoutMilliseconds);
             var subject = new ClusterBuilder()
                 .ConfigureTcp(s => s.With(connectTimeout: connectTimeout))
-                .ConfigureConnection(s => s.With(authenticatorFactories: authenticatorFactories))
+                .ConfigureConnection(s => s.With(authenticatorFactory: authenticatorFactory))
                 .ConfigureServer(s => s.With(heartbeatTimeout: heartbeatTimeout, serverMonitoringMode: serverMonitoringMode));
 
             var result = (ServerMonitorFactory)subject.CreateServerMonitorFactory();
 
             var serverMonitorConnectionFactory = (BinaryConnectionFactory)result._connectionFactory();
             var serverMonitorConnectionSettings = serverMonitorConnectionFactory._settings();
-            serverMonitorConnectionSettings.AuthenticatorFactories.Should().HaveCount(0);
+            serverMonitorConnectionSettings.AuthenticatorFactory.Should().BeNull();
 
             var serverMonitorStreamFactory = (TcpStreamFactory)serverMonitorConnectionFactory._streamFactory();
             var serverMonitorTcpStreamSettings = serverMonitorStreamFactory._settings();

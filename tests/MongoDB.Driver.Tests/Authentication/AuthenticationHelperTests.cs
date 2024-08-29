@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 new HelloResult(new BsonDocument("ok", 1).Add(new BsonElement("maxWireVersion", WireVersion.Server36))));
 
             var mockAuthenticator = new Mock<IAuthenticator>();
-            var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });
-            var authenticator = settings.AuthenticatorFactories.SingleOrDefault()?.Create();
+            var settings = new ConnectionSettings(authenticatorFactory: new AuthenticatorFactory(() => mockAuthenticator.Object));
+            var authenticator = settings.AuthenticatorFactory?.Create();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 new HelloResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true).Add("maxWireVersion", WireVersion.Server36)));
 
             var mockAuthenticator = new Mock<IAuthenticator>();
-            var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });
-            var authenticator = settings.AuthenticatorFactories.SingleOrDefault()?.Create();
+            var settings = new ConnectionSettings(authenticatorFactory: new AuthenticatorFactory(() => mockAuthenticator.Object));
+            var authenticator = settings.AuthenticatorFactory?.Create();
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.SetupGet(c => c.Description).Returns(description);

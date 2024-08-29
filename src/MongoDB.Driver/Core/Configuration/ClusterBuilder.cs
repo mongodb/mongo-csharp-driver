@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Configuration
         private IServerMonitorFactory CreateServerMonitorFactory()
         {
             var serverMonitorConnectionSettings = _connectionSettings
-                .With(authenticatorFactories: new IAuthenticatorFactory[] { });
+                .With(authenticatorFactory: null);
 
             var heartbeatConnectTimeout = _tcpStreamSettings.ConnectTimeout;
             if (heartbeatConnectTimeout == TimeSpan.Zero || heartbeatConnectTimeout == Timeout.InfiniteTimeSpan)
