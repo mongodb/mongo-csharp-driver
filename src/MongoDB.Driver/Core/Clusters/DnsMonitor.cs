@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var delay = TimeSpan.FromSeconds(60);
 
-            if (srvRecords.Count > 0)
+            if (srvRecords?.Count > 0)
             {
                 var minTimeToLive = srvRecords.Select(s => s.TimeToLive).Min();
                 if (minTimeToLive > delay)
