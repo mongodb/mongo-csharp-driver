@@ -14,15 +14,11 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
-using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -164,12 +160,7 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        /// <summary>
-        /// Registers a stream factory wrapper.
-        /// </summary>
-        /// <param name="wrapper">The stream factory wrapper.</param>
-        /// <returns>A reconfigured cluster builder.</returns>
-        public ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
+        internal ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
         {
             Ensure.IsNotNull(wrapper, nameof(wrapper));
 

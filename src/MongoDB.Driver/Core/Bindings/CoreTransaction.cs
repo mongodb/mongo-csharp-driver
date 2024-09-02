@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <value>
         /// The pinned channel for the current transaction.
         /// </value>
-        public IChannelHandle PinnedChannel
+        internal IChannelHandle PinnedChannel
         {
             get => _pinnedChannel;
         }

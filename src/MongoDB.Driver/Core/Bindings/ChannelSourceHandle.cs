@@ -16,15 +16,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a handle to a channel source.
-    /// </summary>
     internal sealed class ChannelSourceHandle : IChannelSourceHandle
     {
         // fields
@@ -32,10 +28,6 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ReferenceCounted<IChannelSource> _reference;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChannelSourceHandle"/> class.
-        /// </summary>
-        /// <param name="channelSource">The channel source.</param>
         public ChannelSourceHandle(IChannelSource channelSource)
             : this(new ReferenceCounted<IChannelSource>(channelSource))
         {
@@ -47,40 +39,34 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
-        /// <inheritdoc/>
         public IServer Server
         {
             get { return _reference.Instance.Server; }
         }
 
-        /// <inheritdoc/>
         public ServerDescription ServerDescription
         {
             get { return _reference.Instance.ServerDescription; }
         }
 
-        /// <inheritdoc/>
         public ICoreSessionHandle Session
         {
             get { return _reference.Instance.Session; }
         }
 
         // methods
-        /// <inheritdoc/>
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetChannel(cancellationToken);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetChannelAsync(cancellationToken);
         }
 
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -91,7 +77,6 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        /// <inheritdoc/>
         public IChannelSourceHandle Fork()
         {
             ThrowIfDisposed();

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,145 +24,28 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a connection.
-    /// </summary>
-    public interface IConnection : IDisposable
+    internal interface IConnection : IDisposable
     {
-        // properties
-        /// <summary>
-        /// Gets the connection identifier.
-        /// </summary>
-        /// <value>
-        /// The connection identifier.
-        /// </value>
         ConnectionId ConnectionId { get; }
-
-        /// <summary>
-        /// Gets the connection description.
-        /// </summary>
-        /// <value>
-        /// The connection description.
-        /// </value>
         ConnectionDescription Description { get; }
-
-        /// <summary>
-        /// Gets the end point.
-        /// </summary>
-        /// <value>
-        /// The end point.
-        /// </value>
         EndPoint EndPoint { get; }
-
-        /// <summary>
-        /// Gets the generation of the pool when this connection was created.
-        /// </summary>
-        /// <value>
-        /// The generation of the pool when this connection was created.
-        /// </value>
         int Generation { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is expired.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is expired; otherwise, <c>false</c>.
-        /// </value>
         bool IsExpired { get; }
-
-        /// <summary>
-        /// Gets the connection settings.
-        /// </summary>
-        /// <value>
-        /// The connection settings.
-        /// </value>
         ConnectionSettings Settings { get; }
 
-        /// <summary>
-        /// Set read timeout value.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
         void SetReadTimeout(TimeSpan timeout);
-
-        // methods
-        /// <summary>
-        /// Opens the connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
         void Open(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Opens the connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
         Task OpenAsync(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Reauthenticate the connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
         void Reauthenticate(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Reauthenticate the connection.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task.</returns>
         Task ReauthenticateAsync(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Receives a message.
-        /// </summary>
-        /// <param name="responseTo">The id of the sent message for which a response is to be received.</param>
-        /// <param name="encoderSelector">The encoder selector.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The response message.
-        /// </returns>
         ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Receives a message.
-        /// </summary>
-        /// <param name="responseTo">The id of the sent message for which a response is to be received.</param>
-        /// <param name="encoderSelector">The encoder selector.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is the response message.
-        /// </returns>
         Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Sends the messages.
-        /// </summary>
-        /// <param name="messages">The messages.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Sends the messages.
-        /// </summary>
-        /// <param name="messages">The messages.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task.</returns>
         Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// Represents a handle to a connection.
-    /// </summary>
-    public interface IConnectionHandle : IConnection
+    internal interface IConnectionHandle : IConnection
     {
-        // methods
-        /// <summary>
-        /// A new handle to the underlying connection.
-        /// </summary>
-        /// <returns>A connection handle.</returns>
         IConnectionHandle Fork();
     }
 }
