@@ -17,7 +17,6 @@ using System;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
