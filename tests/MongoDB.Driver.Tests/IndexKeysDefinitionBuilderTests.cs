@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -39,6 +40,7 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.Ascending(x => x.FirstName), "{fn: 1}");
             Assert(subject.Ascending("FirstName"), "{fn: 1}");
+            Assert(subject.Ascending(user => user.Interviews.Select(job => job.Title)), "{'Interviews.Title': 1}");
         }
 
         [Fact]
@@ -110,6 +112,7 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.Descending(x => x.FirstName), "{fn: -1}");
             Assert(subject.Descending("FirstName"), "{fn: -1}");
+            Assert(subject.Descending(user => user.Interviews.Select(job => job.Title)), "{'Interviews.Title': -1}");
         }
 
         [Fact]
