@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -457,14 +458,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var json = obj.ToJson();
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
-            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", string.Format("NumberLong('{0}')", utc.Ticks.ToString()));
-            expected = expected.Replace("#String", local.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz"));
-            expected = expected.Replace("#DateOnlyString", local.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#String", local.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz", CultureInfo.InvariantCulture));
+            expected = expected.Replace("#DateOnlyString", local.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : NumberLong('#T') }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -510,14 +511,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var json = obj.ToJson();
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
-            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", string.Format("NumberLong('{0}')", utc.Ticks.ToString()));
-            expected = expected.Replace("#String", unspecified.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz"));
-            expected = expected.Replace("#DateOnlyString", unspecified.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#String", unspecified.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz", CultureInfo.InvariantCulture));
+            expected = expected.Replace("#DateOnlyString", unspecified.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : NumberLong('#T') }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -562,14 +563,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var json = obj.ToJson();
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
-            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Default", utcJson);
             expected = expected.Replace("#Local", utcJson);
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", string.Format("NumberLong('{0}')", utc.Ticks.ToString()));
-            expected = expected.Replace("#String", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFZ"));
-            expected = expected.Replace("#DateOnlyString", utc.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#String", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFZ", CultureInfo.InvariantCulture));
+            expected = expected.Replace("#DateOnlyString", utc.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : NumberLong('#T') }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -600,7 +601,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void TestPrivateFieldWithBsonRepresentation()
         {
             var testValue = new DateTime(2020, 01, 01);
-            var json = $"{{ '_d' : '{testValue:yyyy-MM-ddTHH:mm:ss.FFFZ}' }}";
+            var stringTestValue = testValue.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var json = $"{{ '_d' : '{stringTestValue}' }}";
 
             var deserialized = BsonSerializer.Deserialize<TestClassWithPrivateField>(json);
             Assert.Equal(testValue, deserialized.GetPrivateD());

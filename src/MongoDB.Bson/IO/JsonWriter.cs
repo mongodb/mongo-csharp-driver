@@ -217,7 +217,7 @@ namespace MongoDB.Bson.IO
                     if (value >= 0 && value <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
                     {
                         var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
-                        _textWriter.Write("{{ \"$date\" : \"{0}\" }}", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+                        _textWriter.Write("{{ \"$date\" : \"{0}\" }}", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
                     }
                     else
                     {
@@ -236,7 +236,7 @@ namespace MongoDB.Bson.IO
                         value <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
                     {
                         var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
-                        _textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+                        _textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
                     }
                     else
                     {

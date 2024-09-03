@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -237,8 +238,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -255,8 +256,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -539,8 +540,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -556,8 +557,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -689,8 +690,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -707,8 +708,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
-            var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.Equal(expected, json);
 

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -61,7 +62,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp133
             var date = new DateTime(1980, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var c = new C { S = "xyz", I = "xyz", I2 = date, D = "xyz" };
             var json = c.ToJson();
-            var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ") + "') }").Replace("'", "\"");
+            var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture) + "') }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
