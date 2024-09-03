@@ -38,9 +38,6 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a connection using the binary wire protocol over a binary stream.
-    /// </summary>
     internal sealed class BinaryConnection : IConnection
     {
         // fields

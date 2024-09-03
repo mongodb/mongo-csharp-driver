@@ -22,9 +22,6 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a factory of BinaryConnections.
-    /// </summary>
     internal sealed class BinaryConnectionFactory : IConnectionFactory
     {
         // fields

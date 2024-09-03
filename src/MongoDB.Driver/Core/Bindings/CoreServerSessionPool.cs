@@ -33,7 +33,6 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
         }
 
-        /// <inheritdoc />
         public ICoreServerSession AcquireSession()
         {
             lock (_lock)
@@ -59,7 +58,6 @@ namespace MongoDB.Driver
             return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
         }
 
-        /// <inheritdoc />
         public void ReleaseSession(ICoreServerSession session)
         {
             lock (_lock)
