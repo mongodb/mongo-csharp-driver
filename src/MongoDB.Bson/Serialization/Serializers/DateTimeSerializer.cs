@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    value = default(DateTime);
+                    value = default;
                     _helper.DeserializeMembers(context, (elementName, flag) =>
                     {
                         switch (flag)
