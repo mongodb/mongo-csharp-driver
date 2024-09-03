@@ -27,8 +27,9 @@ public static class AutoEncryptionProviderExtensions
     /// </summary>
     /// <param name="autoEncryptionProvider"></param>
     /// <returns></returns>
-    public static void RegisterAutoEncryption(this AutoEncryptionProvider autoEncryptionProvider)
+    public static AutoEncryptionProvider RegisterAutoEncryption(this AutoEncryptionProvider autoEncryptionProvider)
     {
         autoEncryptionProvider.RegisterAutoCryptClientControllerFactory(AutoEncryptionLibMongoCryptController.Create);
+        return autoEncryptionProvider;
     }
 }

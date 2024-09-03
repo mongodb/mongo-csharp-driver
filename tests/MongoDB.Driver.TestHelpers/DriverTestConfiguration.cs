@@ -18,16 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.AWS;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests

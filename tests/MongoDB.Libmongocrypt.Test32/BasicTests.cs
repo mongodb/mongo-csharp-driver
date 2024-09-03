@@ -21,6 +21,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Libmongocrypt.Test32
 {
+    [Trait("Category", "Libmongocrypt")]
     public class BasicTests
     {
         BsonDocument CreateAwsCredentialsDocument() =>

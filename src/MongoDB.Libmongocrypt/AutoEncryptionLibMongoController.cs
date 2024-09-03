@@ -82,10 +82,9 @@ namespace MongoDB.Libmongocrypt
             _mongocryptdClient = new Lazy<IMongoClient>(() => _mongocryptdFactory.CreateMongocryptdClient(), isThreadSafe: true);
         }
 
-        // internal properties
+        // public methods
         public string CryptSharedLibraryVersion() => _cryptClient.CryptSharedLibraryVersion;
 
-        // public methods
         public byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken)
         {
             try

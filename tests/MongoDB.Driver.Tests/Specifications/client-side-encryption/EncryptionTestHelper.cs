@@ -24,6 +24,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
@@ -379,9 +380,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     AutoEncryptionOptions = autoEncryptionOptions
                 };
 
-                var client = new MongoClient(mongoClientSettings);
+                using var client = new DisposableMongoClient(new MongoClient(mongoClientSettings), null);
 
-                if (client.LibMongoCryptController.CryptSharedLibraryVersion() != null)
+                if (((MongoClient)client.Wrapped).LibMongoCryptController.CryptSharedLibraryVersion() != null)
                 {
                     // csfle shared library code path
                     return (IsValid: true, MongocryptdVersion: null);

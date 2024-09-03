@@ -55,7 +55,7 @@ if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACK
   exit 1
 fi
 
-PACKAGES=("MongoDB.Bson" "MongoDB.Driver" "MongoDB.Driver.Authentication.AWS")
+PACKAGES=("MongoDB.Bson" "MongoDB.Driver" "MongoDB.Driver.Authentication.AWS" "MongoDB.Libmongocrypt")
 
 for package in ${PACKAGES[*]}; do
   dotnet nuget verify ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"

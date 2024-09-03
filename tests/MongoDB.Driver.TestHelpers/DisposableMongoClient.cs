@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.TestHelpers
 {

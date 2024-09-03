@@ -12,9 +12,9 @@
     <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
-  </ItemGroup>
+<!--  <ItemGroup>-->
+<!--    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />-->
+<!--  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />

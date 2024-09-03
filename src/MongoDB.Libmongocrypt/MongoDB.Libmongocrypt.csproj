@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard2.1</TargetFrameworks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>MongoDB.Libmongocrypt.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -29,49 +25,38 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LibMongoCryptBinaries>../../../cmake-build/$(Configuration)</LibMongoCryptBinaries>
+    <LibMongoCryptBinaries>..\..\binaries-to-package</LibMongoCryptBinaries>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.so" Condition="Exists('$(LibMongoCryptBinaries)/libmongocrypt.so')">
+    <Content Include="$(LibMongoCryptBinaries)\linux\libmongocrypt.so" Condition="Exists('$(LibMongoCryptBinaries)\linux\libmongocrypt.so')">
       <Link>libmongocrypt.so</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
 
-    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.dylib" Condition="Exists('$(LibMongoCryptBinaries)/libmongocrypt.dylib')">
+    <Content Include="$(LibMongoCryptBinaries)\macos\libmongocrypt.dylib" Condition="Exists('$(LibMongoCryptBinaries)\macos\libmongocrypt.dylib')">
       <Link>libmongocrypt.dylib</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
 
-    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.dll" Condition="Exists('$(LibMongoCryptBinaries)/mongocrypt.dll')">
+    <Content Include="$(LibMongoCryptBinaries)\windows\mongocrypt.dll" Condition="Exists('$(LibMongoCryptBinaries)\windows\mongocrypt.dll')">
       <Link>mongocrypt.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-
-    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.pdb" Condition="Exists('$(LibMongoCryptBinaries)/mongocrypt.pdb')">
-      <Link>mongocrypt.pdb</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <!-- <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup> -->
   <ItemGroup>
-    <Content Include="$(LibMongoCryptBinaries)/mongocrypt.dll">
+    <Content Include="$(LibMongoCryptBinaries)\windows\mongocrypt.dll">
       <Pack>true</Pack>
-      <PackagePath>runtimes/win/native</PackagePath>
+      <PackagePath>runtimes\win\native</PackagePath>
     </Content>
-    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.so">
+    <Content Include="$(LibMongoCryptBinaries)\linux\libmongocrypt.so">
       <Pack>true</Pack>
-      <PackagePath>runtimes/linux/native</PackagePath>
+      <PackagePath>runtimes\linux\native</PackagePath>
     </Content>
-    <Content Include="$(LibMongoCryptBinaries)/libmongocrypt.dylib">
+    <Content Include="$(LibMongoCryptBinaries)\macos\libmongocrypt.dylib">
       <Pack>true</Pack>
-      <PackagePath>runtimes/osx/native</PackagePath>
+      <PackagePath>runtimes\osx\native</PackagePath>
     </Content>
   </ItemGroup>
 
@@ -92,19 +77,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(Version)'==''">
-    <Version>1.1.0</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <DocumentationFile>bin\x64\Debug\MongoDB.Libmongocrypt.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>bin\x64\Release\MongoDB.Libmongocrypt.xml</DocumentationFile>
-  </PropertyGroup>
 
   <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
 

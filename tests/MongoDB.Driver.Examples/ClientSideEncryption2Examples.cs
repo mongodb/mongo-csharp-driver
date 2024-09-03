@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Tests;
 using MongoDB.Libmongocrypt;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Examples
@@ -37,7 +38,10 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void FLE2AutomaticEncryption()
         {
+            DriverTestConfiguration.Initialize();
+
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             var unencryptedClient = DriverTestConfiguration.Client;
 
@@ -90,8 +94,6 @@ namespace MongoDB.Driver.Examples
                     }
                 }
             };
-
-            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
 
             var autoEncryptionOptions = new AutoEncryptionOptions(KeyVaultNamespace, kmsProviders, encryptedFieldsMap: encryptedFieldsMap);
             var encryptedClient = new MongoClient(new MongoClientSettings { AutoEncryptionOptions = autoEncryptionOptions });

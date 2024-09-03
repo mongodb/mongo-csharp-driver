@@ -220,6 +220,12 @@ Task("TestServerlessNet472").IsDependentOn("TestServerless");
 Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
 Task("TestServerlessNet60").IsDependentOn("TestServerless");
 
+Task("TestLibMongoCrypt")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Libmongocrypt.Test.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
+
 Task("TestLoadBalanced")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -231,7 +237,7 @@ Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNet60").IsDependentOn("TestLoadBalanced");
 
 Task("TestCsfleWithMockedKms")
-    .IsDependentOn("Build")
+    .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
@@ -242,7 +248,7 @@ Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKm
 Task("TestCsfleWithMockedKmsNet60").IsDependentOn("TestCsfleWithMockedKms");
 
 Task("TestCsfleWithMongocryptd")
-    .IsDependentOn("Build")
+    .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
@@ -253,14 +259,14 @@ Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongoc
 Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
 Task("TestCsfleWithAzureKms")
-    .IsDependentOn("Build")
+    .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CsfleAZUREKMS\""));
 
 Task("TestCsfleWithGcpKms")
-    .IsDependentOn("Build")
+    .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>

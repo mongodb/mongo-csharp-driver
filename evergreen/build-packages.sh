@@ -11,5 +11,8 @@ fi
 
 echo Creating nuget package...
 
+# get libmongocrypt binaries to be packaged
+./evergreen/get-libmongocrypt-binaries.sh packaging
+
 dotnet clean ./CSharpDriver.sln
 dotnet pack ./CSharpDriver.sln -o ./artifacts/nuget -c Release -p:Version="$PACKAGE_VERSION" --include-symbols -p:SymbolPackageFormat=snupkg -p:ContinuousIntegrationBuild=true

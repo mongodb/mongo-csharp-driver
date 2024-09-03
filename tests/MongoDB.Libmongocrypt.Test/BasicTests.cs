@@ -24,7 +24,7 @@ using Xunit;
 using System.Text;
 using FluentAssertions;
 using Xunit.Abstractions;
-using MongoDB.Libmongocrypt.Test.Callbacks;
+using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Libmongocrypt.Test
 {
@@ -36,6 +36,7 @@ namespace MongoDB.Libmongocrypt.Test
 
         public BasicTests(ITestOutputHelper output)
         {
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _output = output;
         }
 
