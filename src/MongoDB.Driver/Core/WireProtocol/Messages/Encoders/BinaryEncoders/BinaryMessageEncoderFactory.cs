@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,10 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    /// <summary>
-    /// Represents a factory for binary message encoders.
-    /// </summary>
-    public class BinaryMessageEncoderFactory : IMessageEncoderFactory
+    internal class BinaryMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields
         private readonly ICompressorSource _compressorSource;
@@ -31,12 +28,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private readonly Stream _stream;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryMessageEncoderFactory"/> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
-        /// <param name="compressorSource">The compressor source.</param>
         public BinaryMessageEncoderFactory(
             Stream stream,
             MessageEncoderSettings encoderSettings,
@@ -48,39 +39,33 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandMessageEncoder()
         {
             return new CommandMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandRequestMessageEncoder()
         {
             var wrappedEncoder = (CommandMessageBinaryEncoder)GetCommandMessageEncoder();
             return new CommandRequestMessageBinaryEncoder(wrappedEncoder);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandResponseMessageEncoder()
         {
             var wrappedEncoder = (CommandMessageBinaryEncoder)GetCommandMessageEncoder();
             return new CommandResponseMessageBinaryEncoder(wrappedEncoder);
         }
 
-        /// <inheritdoc />
         public IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector)
         {
             return new CompressedMessageBinaryEncoder(_stream, originalEncoderSelector, _compressorSource, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);

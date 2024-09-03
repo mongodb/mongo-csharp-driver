@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,25 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents an encodable message.
-    /// </summary>
-    public interface IEncodableMessage
+    internal interface IEncodableMessage
     {
-        // methods
-        /// <summary>
-        /// Gets an encoder for the message from an encoder factory.
-        /// </summary>
-        /// <param name="encoderFactory">The encoder factory.</param>
-        /// <returns>A message encoder.</returns>
         IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    internal class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
+    internal sealed class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
         private readonly BsonDocument _additionalOptions;

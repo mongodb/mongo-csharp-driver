@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,21 +15,13 @@
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    /// <summary>
-    /// Represents a base class for response messages.
-    /// </summary>
-    public abstract class ResponseMessage : MongoDBMessage
+    internal abstract class ResponseMessage : MongoDBMessage
     {
         // fields
         private readonly int _requestId;
         private readonly int _responseTo;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResponseMessage"/> class.
-        /// </summary>
-        /// <param name="requestId">The request identifier.</param>
-        /// <param name="responseTo">The identifier of the message this is a response to.</param>
         protected ResponseMessage(int requestId, int responseTo)
         {
             _requestId = requestId;
@@ -37,23 +29,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
-        /// <inheritdoc/>
         public override MongoDBMessageType MessageType
         {
             get { return MongoDBMessageType.Reply; }
         }
 
-        /// <summary>
-        /// Gets the request identifier.
-        /// </summary>
         public int RequestId
         {
             get { return _requestId; }
         }
 
-        /// <summary>
-        /// Gets the identifier of the message this is a response to.
-        /// </summary>
         public int ResponseTo
         {
             get { return _responseTo; }

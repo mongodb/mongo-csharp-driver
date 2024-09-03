@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,24 +17,16 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents a message encoder selector for compressed messages.
-    /// </summary>
-    public class CompressedMessageEncoderSelector : IMessageEncoderSelector
+    internal sealed class CompressedMessageEncoderSelector : IMessageEncoderSelector
     {
         private readonly IMessageEncoderSelector _originalEncoderSelector;
 
-        /// <summary>
-        /// Represents a compressed message encoder selector.
-        /// </summary>
-        /// <param name="originalEncoderSelector">The original encoder.</param>
         public CompressedMessageEncoderSelector(IMessageEncoderSelector originalEncoderSelector)
         {
             _originalEncoderSelector = Ensure.IsNotNull(originalEncoderSelector, nameof(originalEncoderSelector));
         }
 
         // public methods
-        /// <inheritdoc />
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetCompressedMessageEncoder(_originalEncoderSelector);

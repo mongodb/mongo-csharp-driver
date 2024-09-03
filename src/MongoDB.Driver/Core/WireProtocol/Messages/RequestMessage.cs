@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,32 +18,19 @@ using System.Threading;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    /// <summary>
-    /// Represents a base class for request messages.
-    /// </summary>
-    public abstract class RequestMessage : MongoDBMessage
+    internal abstract class RequestMessage : MongoDBMessage
     {
         #region static
         // static fields
         private static int __requestId;
 
         // static properties
-        /// <summary>
-        /// Gets the current global request identifier.
-        /// </summary>
-        /// <value>
-        /// The current global request identifier.
-        /// </value>
         public static int CurrentGlobalRequestId
         {
             get { return __requestId; }
         }
 
         // static methods
-        /// <summary>
-        /// Gets the next request identifier.
-        /// </summary>
-        /// <returns>The next request identifier.</returns>
         public static int GetNextRequestId()
         {
             return Interlocked.Increment(ref __requestId);
@@ -56,11 +43,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private bool _wasSent;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RequestMessage"/> class.
-        /// </summary>
-        /// <param name="requestId">The request identifier.</param>
-        /// <param name="shouldBeSent">A delegate that determines whether this message should be sent.</param>
         protected RequestMessage(int requestId, Func<bool> shouldBeSent = null)
         {
             _requestId = requestId;
@@ -68,34 +50,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
-        /// <summary>
-        /// Gets the request identifier.
-        /// </summary>
-        /// <value>
-        /// The request identifier.
-        /// </value>
         public int RequestId
         {
             get { return _requestId; }
         }
 
-        /// <summary>
-        /// Gets a delegate that determines whether this message should be sent.
-        /// </summary>
-        /// <value>
-        /// A delegate that determines whether this message be sent.
-        /// </value>
         public Func<bool> ShouldBeSent
         {
             get { return _shouldBeSent; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this message was sent.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this message was sent; otherwise, <c>false</c>.
-        /// </value>
         public bool WasSent
         {
             get { return _wasSent; }

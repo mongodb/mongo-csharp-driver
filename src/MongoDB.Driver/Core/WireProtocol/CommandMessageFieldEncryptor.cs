@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    internal class CommandMessageFieldEncryptor
+    internal sealed class CommandMessageFieldEncryptor
     {
         // private fields
         private readonly byte[] _buffer = new byte[1024];

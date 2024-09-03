@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
     }
 
-    public static class CommandResponseMessageBinaryEncoderReflector
+    internal static class CommandResponseMessageBinaryEncoderReflector
     {
         public static CommandMessageBinaryEncoder _wrappedEncoder(this CommandResponseMessageBinaryEncoder obj)
         {

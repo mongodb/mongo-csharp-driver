@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    /// <summary>
-    /// Represents a factory for JSON message encoders.
-    /// </summary>
-    public class JsonMessageEncoderFactory : IMessageEncoderFactory
+    internal sealed class JsonMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields
         private readonly MessageEncoderSettings _encoderSettings;
@@ -30,32 +27,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private readonly TextWriter _textWriter;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
-        /// </summary>
-        /// <param name="textReader">The text reader.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextReader textReader, MessageEncoderSettings encoderSettings)
             : this(Ensure.IsNotNull(textReader, nameof(textReader)), null, encoderSettings)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
-        /// </summary>
-        /// <param name="textWriter">The text writer.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : this(null, Ensure.IsNotNull(textWriter, nameof(textWriter)), encoderSettings)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
-        /// </summary>
-        /// <param name="textReader">The text reader.</param>
-        /// <param name="textWriter">The text writer.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
         {
             Ensure.That(textReader != null || textWriter != null, "textReader and textWriter cannot both be null.");
@@ -65,39 +46,33 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandMessageEncoder()
         {
             return new CommandMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandRequestMessageEncoder()
         {
             var wrappedEncoder = (CommandMessageJsonEncoder)GetCommandMessageEncoder();
             return new CommandRequestMessageJsonEncoder(wrappedEncoder);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetCommandResponseMessageEncoder()
         {
             var wrappedEncoder = (CommandMessageJsonEncoder)GetCommandMessageEncoder();
             return new CommandResponseMessageJsonEncoder(wrappedEncoder);
         }
 
-        /// <inheritdoc />
         public IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector)
         {
             return new CompressedMessageJsonEncoder(_textReader, _textWriter, originalEncoderSelector, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        /// <inheritdoc/>
         public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);

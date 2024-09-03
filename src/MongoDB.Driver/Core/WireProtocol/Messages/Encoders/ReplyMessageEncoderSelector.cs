@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,27 +18,18 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents a message encoder selector for ReplyMessages.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class ReplyMessageEncoderSelector<TDocument> : IMessageEncoderSelector
+    internal sealed class ReplyMessageEncoderSelector<TDocument> : IMessageEncoderSelector
     {
         // fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReplyMessageEncoderSelector{TDocument}"/> class.
-        /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
         public ReplyMessageEncoderSelector(IBsonSerializer<TDocument> documentSerializer)
         {
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
-        // methods        
-        /// <inheritdoc />
+        // methods
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetReplyMessageEncoder<TDocument>(_documentSerializer);

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,48 +17,13 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents a message encoder factory.
-    /// </summary>
-    public interface IMessageEncoderFactory
+    internal interface IMessageEncoderFactory
     {
-        /// <summary>
-        /// Gets an encoder for a Command message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
         IMessageEncoder GetCommandMessageEncoder();
-
-        /// <summary>
-        /// Gets an encoder for a Command request message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
         IMessageEncoder GetCommandRequestMessageEncoder();
-
-        /// <summary>
-        /// Gets an encoder for a Command response message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
         IMessageEncoder GetCommandResponseMessageEncoder();
-
-        /// <summary>
-        /// Gets an encoder for a Compressed message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
-        /// <param name="originalEncoderSelector">The original encoder selector.</param>
         IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
-
-        /// <summary>
-        /// Gets an encoder for a Query message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
         IMessageEncoder GetQueryMessageEncoder();
-
-        /// <summary>
-        /// Gets an encoder for a Reply message.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns>An encoder.</returns>
         IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
     }
 }

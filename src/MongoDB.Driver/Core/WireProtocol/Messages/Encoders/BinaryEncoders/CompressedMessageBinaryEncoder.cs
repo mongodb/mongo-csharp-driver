@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,23 +21,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    /// <summary>
-    /// Represents a binary encoder for a compressed message.
-    /// </summary>
-    public sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
+    internal sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private readonly ICompressorSource _compressorSource;
         private readonly MessageEncoderSettings _encoderSettings;
         private readonly IMessageEncoderSelector _originalEncoderSelector;
         private const int MessageHeaderLength = 16;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompressedMessageBinaryEncoder" /> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="originalEncoderSelector">The original encoder selector.</param>
-        /// <param name="compressorSource">The compressor source.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public CompressedMessageBinaryEncoder(
             Stream stream,
             IMessageEncoderSelector originalEncoderSelector,
@@ -50,10 +40,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             _originalEncoderSelector = originalEncoderSelector;
         }
 
-        /// <summary>
-        /// Reads the message.
-        /// </summary>
-        /// <returns>A message.</returns>
         public CompressedMessage ReadMessage()
         {
             var reader = CreateBinaryReader();
@@ -90,10 +76,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        /// <summary>
-        /// Writes the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         public void WriteMessage(CompressedMessage message)
         {
             Ensure.IsNotNull(message, nameof(message));

@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    internal class CommandUsingCommandMessageWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
+    internal sealed class CommandUsingCommandMessageWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
         private readonly BsonDocument _additionalOptions; // TODO: can these be supported when using CommandMessage?
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             else
             {
-                var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor, _messageEncoderSettings);
+                var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor);
                 return messageFieldDecryptor.DecryptFields(encryptedResponseMessage, cancellationToken);
             }
         }
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             else
             {
-                var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor, _messageEncoderSettings);
+                var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor);
                 return await messageFieldDecryptor.DecryptFieldsAsync(encryptedResponseMessage, cancellationToken).ConfigureAwait(false);
             }
         }

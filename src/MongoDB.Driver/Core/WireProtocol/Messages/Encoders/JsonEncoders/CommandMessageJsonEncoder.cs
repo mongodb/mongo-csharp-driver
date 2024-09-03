@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,29 +25,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    /// <summary>
-    /// Represents a JSON encoder for a CommandMessage.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase" />
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
-    public class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
+    internal sealed class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandMessageJsonEncoder"/> class.
-        /// </summary>
-        /// <param name="textReader">The text reader.</param>
-        /// <param name="textWriter">The text writer.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public CommandMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
         }
 
         // public methods
-        /// <summary>
-        /// Reads the message.
-        /// </summary>
-        /// <returns>A message.</returns>
         public CommandMessage ReadMessage()
         {
             var reader = CreateJsonReader();
@@ -71,10 +56,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             };
         }
 
-        /// <summary>
-        /// Writes the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         public void WriteMessage(CommandMessage message)
         {
             Ensure.IsNotNull(message, nameof(message));

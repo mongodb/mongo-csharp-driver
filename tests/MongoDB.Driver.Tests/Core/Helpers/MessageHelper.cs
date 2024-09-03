@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
@@ -30,10 +28,10 @@ using Moq;
 
 namespace MongoDB.Driver.Core.Helpers
 {
-    public class MessageHelper
+    internal sealed class MessageHelper
     {
-        private static readonly DatabaseNamespace __defaultDatabaseNamespace = new DatabaseNamespace("foo");
-        private static readonly CollectionNamespace __defaultCollectionNamespace = new CollectionNamespace(__defaultDatabaseNamespace, "bar");
+        private static readonly DatabaseNamespace __defaultDatabaseNamespace = new("foo");
+        private static readonly CollectionNamespace __defaultCollectionNamespace = new(__defaultDatabaseNamespace, "bar");
 
         public static CollectionNamespace DefaultCollectionNamespace
         {

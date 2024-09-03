@@ -90,7 +90,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public static MessageEncoderSettings MessageEncoderSettings
+        internal static MessageEncoderSettings MessageEncoderSettings
         {
             get { return __messageEncoderSettings; }
         }

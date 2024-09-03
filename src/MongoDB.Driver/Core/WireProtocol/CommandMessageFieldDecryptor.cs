@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,21 +19,18 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    internal class CommandMessageFieldDecryptor
+    internal sealed class CommandMessageFieldDecryptor
     {
         // private fields
         private readonly IBinaryDocumentFieldDecryptor _documentFieldDecryptor;
-        private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
-        public CommandMessageFieldDecryptor(IBinaryDocumentFieldDecryptor documentFieldDecryptor, MessageEncoderSettings messageEncoderSettings)
+        public CommandMessageFieldDecryptor(IBinaryDocumentFieldDecryptor documentFieldDecryptor)
         {
             _documentFieldDecryptor = documentFieldDecryptor;
-            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // public methods

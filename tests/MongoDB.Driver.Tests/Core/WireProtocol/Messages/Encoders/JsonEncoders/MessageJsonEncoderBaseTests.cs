@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
     }
 
-    public static class MessageJsonEncoderBaseReflector
+    internal static class MessageJsonEncoderBaseReflector
     {
         public static MessageEncoderSettings _encoderSettings(this MessageJsonEncoderBase obj)
         {
