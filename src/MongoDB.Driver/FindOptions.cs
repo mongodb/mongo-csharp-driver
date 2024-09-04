@@ -41,6 +41,7 @@ namespace MongoDB.Driver
         private bool? _oplogReplay;
         private bool? _returnKey;
         private bool? _showRecordId;
+        private ExpressionTranslationOptions _translationOptions;
 
         // constructors
         /// <summary>
@@ -195,6 +196,15 @@ namespace MongoDB.Driver
         {
             get { return _showRecordId; }
             set { _showRecordId = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the translation options.
+        /// </summary>
+        public ExpressionTranslationOptions TranslationOptions
+        {
+            get { return _translationOptions; }
+            set { _translationOptions = value; }
         }
     }
 

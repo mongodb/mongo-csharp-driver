@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -95,8 +97,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : '$NE1', _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(E1.A, E1.B);
+            var exception = Record.Exception(() => queryable.ToList());
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Contain("Cannot deserialize a 'E1' from BsonType 'Null'");
         }
 
         [Fact]
@@ -110,8 +113,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : '$NE1', _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(E2.C, E2.D);
+            var exception = Record.Exception(() => queryable.ToList());
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Contain("Cannot deserialize a 'E2' from BsonType 'Null'");
         }
 
         [Fact]
@@ -126,7 +130,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $project : { _v : '$NE1', _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(E1.A, E1.B);
+            results.Should().Equal(E1.A, null);
         }
 
         [Fact]
@@ -141,7 +145,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $project : { _v : '$NE1', _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(E2.C, E2.D);
+            results.Should().Equal(E2.C, null);
         }
 
         [Fact]
@@ -159,17 +163,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(E1.A, E1.B);
         }
 
-        [Fact]
-        public void Convert_ES1_to_E2_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Convert_ES1_to_E2_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => (E2)x.ES1);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because source enum is not represented as a number");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(E2.C, E2.D);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because source enum is not represented as a number");
+            }
         }
 
         [Fact]
@@ -187,17 +206,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(E1.A, E1.B);
         }
 
-        [Fact]
-        public void Convert_ES1_to_nullable_E2_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Convert_ES1_to_nullable_E2_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => (E2?)x.ES1);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because source enum is not represented as a number");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(E2.C, E2.D);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because source enum is not represented as a number");
+            }
         }
 
         private IMongoCollection<C> GetCollection()
@@ -205,8 +239,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection<C>("test");
             CreateCollection(
                 collection,
-                new C { Id = 1, E1 = E1.A, NE1 = E1.A, ES1 = E1.A, NES1 = E1.A }, 
-                new C { Id = 2, E1 = E1.B, NE1 = E1.B, ES1 = E1.B, NES1 = E1.B });
+                new C { Id = 1, E1 = E1.A, NE1 = E1.A, ES1 = E1.A, NES1 = E1.A },
+                new C { Id = 2, E1 = E1.B, NE1 = null, ES1 = E1.B, NES1 = null });
             return collection;
         }
 

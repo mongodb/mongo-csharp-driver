@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 var sizeExpression = arguments[1];
                 var size = sizeExpression.GetConstantValue<long>(containingExpression: expression);

@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -99,14 +101,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(10.0m, -5.0m, 0.0m, decimal.MaxValue, -decimal.MaxValue);
         }
 
-        [Fact]
-        public void Negate_decimal_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Negate_decimal_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
-            var queryable = Queryable.Select(collection.AsQueryable(), i => -i.DecimalAsString);
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            var queryable = Queryable.Select(collection.AsQueryable(translationOptions), i => -i.DecimalAsString);
+
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(10M, -5M, 0M, decimal.MaxValue, -decimal.MaxValue);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+            }
         }
 
         private IMongoCollection<Data> CreateCollection()

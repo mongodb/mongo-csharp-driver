@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -139,60 +140,136 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new BsonDocument("a", new BsonDocument { { "sale", true }, { "price", 19 } }));
         }
 
-        [Fact]
-        public void OrderBy_on_entire_object_followed_by_ThenBy_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void OrderBy_on_entire_object_followed_by_ThenBy_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
             var collection = CreateEngineersCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => new { Result = x.Team.OrderBy(m => m).ThenBy(m => m.Name) });
 
-            var exception = Record.Exception(() => Translate(collection,queryable));
-            var invalidOperationException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            invalidOperationException.Message.Should().Contain("ThenBy and ThenByDescending cannot be used when OrderBy or OrderByDescending is sorting on the entire object");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var result = queryable.Single();
+                var exception = Record.Exception(() => result.Result.ToList());
+#if NET472_OR_GREATER
+                // .NET Framework throws a different exception than other target frameworks
+                exception.Should().BeOfType<ArgumentException>(); // TeamMembers are not IComparable
+#else
+                exception.Should().BeOfType<InvalidOperationException>(); // TeamMembers are not IComparable
+#endif
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection,queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("ThenBy and ThenByDescending cannot be used when OrderBy or OrderByDescending is sorting on the entire object");
+            }
         }
 
-        [Fact]
-        public void OrderByDescending_on_entire_object_followed_by_ThenBy_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void OrderByDescending_on_entire_object_followed_by_ThenBy_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
             var collection = CreateEngineersCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => new { Result = x.Team.OrderBy(m => m).ThenBy(m => m.Name) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var invalidOperationException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            invalidOperationException.Message.Should().Contain("ThenBy and ThenByDescending cannot be used when OrderBy or OrderByDescending is sorting on the entire object");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var result = queryable.Single();
+                var exception = Record.Exception(() => result.Result.ToList());
+#if NET472_OR_GREATER
+                // .NET Framework throws a different exception than other target frameworks
+                exception.Should().BeOfType<ArgumentException>(); // TeamMembers are not IComparable
+#else
+                exception.Should().BeOfType<InvalidOperationException>(); // TeamMembers are not IComparable
+#endif
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("ThenBy and ThenByDescending cannot be used when OrderBy or OrderByDescending is sorting on the entire object");
+            }
         }
 
-        [Fact]
-        public void ThenBy_on_entire_object_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void ThenBy_on_entire_object_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
             var collection = CreateEngineersCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name).ThenBy(m => m) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var invalidOperationException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            invalidOperationException.Message.Should().Contain("ThenBy and ThenByDescending cannot be used to sort on the entire object");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var result = queryable.Single();
+                result.Result.Select(tm => tm.Name).Should().Equal("Charlie", "Dallas", "Pat");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("ThenBy and ThenByDescending cannot be used to sort on the entire object");
+            }
         }
 
-        [Fact]
-        public void ThenByDescending_on_entire_object_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void ThenByDescending_on_entire_object_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
             var collection = CreateEngineersCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name).ThenByDescending(m => m) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var invalidOperationException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            invalidOperationException.Message.Should().Contain("ThenBy and ThenByDescending cannot be used to sort on the entire object");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var result = queryable.Single();
+                result.Result.Select(tm => tm.Name).Should().Equal("Charlie", "Dallas", "Pat");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("ThenBy and ThenByDescending cannot be used to sort on the entire object");
+            }
         }
 
         [Fact]

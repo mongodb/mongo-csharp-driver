@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -33,7 +35,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
-                var sourceSerializer = pipeline.OutputSerializer;
 
                 var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                 if (selectorLambda.Body == selectorLambda.Parameters[0])
@@ -41,9 +42,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     return pipeline; // ignore identity projection: Select(x => x)
                 }
 
-                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
-                var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
-                pipeline = pipeline.AddStages(projectionSerializer, projectStage);
+                // check for client side projection after handling identity projection
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
+
+                var sourceSerializer = pipeline.OutputSerializer;
+                try
+                {
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
+                    var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
+                    pipeline = pipeline.AddStages(projectionSerializer, projectStage);
+                }
+                catch (ExpressionNotSupportedException) when (context.TranslationOptions?.EnableClientSideProjections ?? false)
+                {
+                    var clientSideProjectionDeserializer = ClientSideProjectionDeserializer.Create(sourceSerializer, selectorLambda);
+                    pipeline = pipeline.AddStages(clientSideProjectionDeserializer, Array.Empty<AstStage>());
+                }
 
                 return pipeline;
             }

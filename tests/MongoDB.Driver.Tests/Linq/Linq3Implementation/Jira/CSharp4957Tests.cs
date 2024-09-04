@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -73,17 +74,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[0].Should().Equal(1, 2);
         }
 
-        [Fact]
-        public void New_array_with_two_items_with_different_serializers_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void New_array_with_two_items_with_different_serializers_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
-                .Select(x => (new[] { x.X, x.Y }));
+            var queryable = collection.AsQueryable(translationOptions)
+                .Select(x => new[] { x.X, x.Y });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("all items in the array must be serialized using the same serializer");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var result = queryable.Single();
+                result.Should().Equal(1, 2);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("all items in the array must be serialized using the same serializer");
+            }
         }
 
         private IMongoCollection<C> GetCollection()
@@ -99,16 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public int X { get; set; }
-            [BsonSerializer(typeof(YSerializer))] public int Y { get; set; }
-        }
-
-        private class YSerializer : StructSerializerBase<int>
-        {
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, int value)
-            {
-                var writer = context.Writer;
-                writer.WriteString($"<{value}>"); // not parsable by int.Parse
-            }
+            [BsonRepresentation(BsonType.String)] public int Y { get; set; }
         }
     }
 }

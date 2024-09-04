@@ -455,7 +455,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new FindOptions<TDocument, TProjection>();
 
-            var renderArgs = GetRenderArgs();
+            var renderArgs = GetRenderArgs(options.TranslationOptions);
             var operation = CreateFindOperation<TProjection>(filter, options, renderArgs);
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
@@ -471,7 +471,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             options = options ?? new FindOptions<TDocument, TProjection>();
 
-            var renderArgs = GetRenderArgs();
+            var renderArgs = GetRenderArgs(options.TranslationOptions);
             var operation = CreateFindOperation<TProjection>(filter, options, renderArgs);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }

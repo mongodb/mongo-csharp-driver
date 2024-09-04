@@ -74,12 +74,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             return client.GetDatabase(databaseName ?? DriverTestConfiguration.DatabaseNamespace.DatabaseName);
         }
 
-        protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
+        protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate) =>
+            Translate(collection, aggregate, out _);
+
+        protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate, out IBsonSerializer<TResult> outputSerializer)
         {
             var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;
             var documentSerializer = collection.DocumentSerializer;
-            var translationOptions = collection.Database.Client.Settings.TranslationOptions;
-            return Translate(pipelineDefinition, documentSerializer, translationOptions);
+            var translationOptions = aggregate.Options?.TranslationOptions.AddMissingOptionsFrom(collection.Database.Client.Settings.TranslationOptions);
+            return Translate(pipelineDefinition, documentSerializer, translationOptions, out outputSerializer);
         }
 
         // in this overload the collection argument is used only to infer the TDocument type
@@ -97,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         protected static List<BsonDocument> Translate<TResult>(IMongoDatabase database, IAggregateFluent<TResult> aggregate)
         {
             var pipelineDefinition = ((AggregateFluent<NoPipelineInput, TResult>)aggregate).Pipeline;
-            var translationOptions = database.Client.Settings.TranslationOptions;
+            var translationOptions = aggregate.Options?.TranslationOptions.AddMissingOptionsFrom(database.Client.Settings.TranslationOptions);
             return Translate(pipelineDefinition, NoPipelineInputSerializer.Instance, translationOptions);
         }
 
@@ -125,11 +128,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
         protected static List<BsonDocument> Translate<TDocument, TResult>(
             PipelineDefinition<TDocument, TResult> pipelineDefinition,
             IBsonSerializer<TDocument> documentSerializer,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions) =>
+                Translate<TDocument, TResult>(pipelineDefinition, documentSerializer, translationOptions, out _);
+
+        protected static List<BsonDocument> Translate<TDocument, TResult>(
+            PipelineDefinition<TDocument, TResult> pipelineDefinition,
+            IBsonSerializer<TDocument> documentSerializer,
+            ExpressionTranslationOptions translationOptions,
+            out IBsonSerializer<TResult> outputSerializer)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             documentSerializer ??= serializerRegistry.GetSerializer<TDocument>();
             var renderedPipeline = pipelineDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
+            outputSerializer = renderedPipeline.OutputSerializer;
             return renderedPipeline.Documents.ToList();
         }
 
@@ -158,20 +169,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
             IMongoCollection<TDocument> collection,
-            IFindFluent<TDocument, TProjection> find)
+            IFindFluent<TDocument, TProjection> find) =>
+                TranslateFindProjection(collection, find, out _);
+
+        protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
+            IMongoCollection<TDocument> collection,
+            IFindFluent<TDocument, TProjection> find,
+            out IBsonSerializer<TProjection> projectionSerializer)
         {
             var projection = ((FindFluent<TDocument, TProjection>)find).Options.Projection;
-            return TranslateFindProjection(collection, projection);
+            var translationOptions = find.Options?.TranslationOptions.AddMissingOptionsFrom(collection.Database.Client.Settings.TranslationOptions);
+            return TranslateFindProjection(collection, projection, translationOptions, out projectionSerializer);
         }
 
         protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
             IMongoCollection<TDocument> collection,
-            ProjectionDefinition<TDocument, TProjection> projection)
+            ProjectionDefinition<TDocument, TProjection> projection,
+            ExpressionTranslationOptions translationOptions) =>
+                TranslateFindProjection(collection, projection, translationOptions, out _);
+
+        protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
+            IMongoCollection<TDocument> collection,
+            ProjectionDefinition<TDocument, TProjection> projection,
+            ExpressionTranslationOptions translationOptions,
+            out IBsonSerializer<TProjection> projectionSerializer)
         {
             var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var translationOptions = collection.Database.Client.Settings.TranslationOptions;
             var renderedProjection = projection.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions, renderForFind: true));
+            projectionSerializer = renderedProjection.ProjectionSerializer;
             return renderedProjection.Document;
         }
     }

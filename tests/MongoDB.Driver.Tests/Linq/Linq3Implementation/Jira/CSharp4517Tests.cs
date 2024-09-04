@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -42,24 +43,41 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             exception.Message.Should().Contain("because operand types are not compatible with each other");
         }
 
-        [Fact]
-        public void Expression_with_comparison_of_different_types_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Expression_with_comparison_of_different_types_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable =
-                collection.AsQueryable()
+                collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.Id == 1 });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because operand types are not compatible with each other");
+                var results = queryable.ToList();
+                results.Select(r => r.R).Should().Equal(true);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because operand types are not compatible with each other");
+            }
         }
 
         private IMongoCollection<MyDocument> CreateCollection()
         {
             var collection = GetCollection<MyDocument>("test");
+            CreateCollection(
+                collection,
+                new MyDocument { Id = new MyId(1), Name = "abc" });
             return collection;
         }
 

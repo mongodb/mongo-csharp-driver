@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var firstExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, firstExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 var secondExpression = arguments[1];
                 var secondValue = secondExpression.Evaluate();
