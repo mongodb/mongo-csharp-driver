@@ -24,14 +24,13 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DateOnlySerializer : StructSerializerBase<DateOnly>, IRepresentationConfigurable<DateOnlySerializer>
     {
-        #region static
+        // static
         private static readonly DateOnlySerializer __instance = new DateOnlySerializer();
 
         /// <summary>
         /// Gets the default DateOnlySerializer.
         /// </summary>
         public static DateOnlySerializer Instance => __instance;
-        #endregion
 
         // private constants
         private static class Flags
