@@ -16,15 +16,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a channel source that is bound to a server.
-    /// </summary>
     internal sealed class ServerChannelSource : IChannelSource
     {
         // fields
@@ -33,11 +29,6 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ICoreSessionHandle _session;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerChannelSource" /> class.
-        /// </summary>
-        /// <param name="server">The server.</param>
-        /// <param name="session">The session.</param>
         public ServerChannelSource(IServer server, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
@@ -45,26 +36,22 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
-        /// <inheritdoc/>
         public IServer Server
         {
             get { return _server; }
         }
 
-        /// <inheritdoc/>
         public ServerDescription ServerDescription
         {
             get { return _server.Description; }
         }
 
-        /// <inheritdoc/>
         public ICoreSessionHandle Session
         {
             get { return _session; }
         }
 
         // methods
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -74,14 +61,12 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        /// <inheritdoc/>
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _server.GetChannel(cancellationToken);
         }
 
-        /// <inheritdoc/>
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,22 +15,9 @@
 
 namespace MongoDB.Driver
 {
-    /// <summary>
-    /// A server session pool.
-    /// </summary>
     internal interface ICoreServerSessionPool
     {
-        // methods
-        /// <summary>
-        /// Acquires a server session.
-        /// </summary>
-        /// <returns>A server session.</returns>
         ICoreServerSession AcquireSession();
-
-        /// <summary>
-        /// Releases a server session.
-        /// </summary>
-        /// <param name="serverSession">The server session.</param>
         void ReleaseSession(ICoreServerSession serverSession);
     }
 }

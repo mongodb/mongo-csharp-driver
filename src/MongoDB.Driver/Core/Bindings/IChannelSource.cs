@@ -16,64 +16,22 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a channel source.
-    /// </summary>
     internal interface IChannelSource : IDisposable
     {
-        /// <summary>
-        /// Gets the server.
-        /// </summary>
-        /// <value>
-        /// The server.
-        /// </value>
         IServer Server { get; }
-
-        /// <summary>
-        /// Gets the server description.
-        /// </summary>
-        /// <value>
-        /// The server description.
-        /// </value>
         ServerDescription ServerDescription { get; }
-
-        /// <summary>
-        /// Gets the session.
-        /// </summary>
-        /// <value>
-        /// The session.
-        /// </value>
         ICoreSessionHandle Session { get; }
 
-        /// <summary>
-        /// Gets a channel.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A channel.</returns>
         IChannelHandle GetChannel(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets a channel.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a channel.</returns>
         Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// Represents a handle to a channel source.
-    /// </summary>
     internal interface IChannelSourceHandle : IChannelSource
     {
-        /// <summary>
-        /// Returns a new handle to the underlying channel source.
-        /// </summary>
-        /// <returns>A handle to a channel source.</returns>
         IChannelSourceHandle Fork();
     }
 }

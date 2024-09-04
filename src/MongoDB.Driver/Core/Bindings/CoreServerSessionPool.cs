@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal class CoreServerSessionPool : ICoreServerSessionPool
+    internal sealed class CoreServerSessionPool : ICoreServerSessionPool
     {
         // private fields
         private readonly ICluster _cluster;
@@ -33,7 +33,6 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
         }
 
-        /// <inheritdoc />
         public ICoreServerSession AcquireSession()
         {
             lock (_lock)
@@ -59,7 +58,6 @@ namespace MongoDB.Driver
             return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
         }
 
-        /// <inheritdoc />
         public void ReleaseSession(ICoreServerSession session)
         {
             lock (_lock)

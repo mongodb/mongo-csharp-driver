@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,36 +13,16 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a stream factory.
-    /// </summary>
-    public interface IStreamFactory
+    internal interface IStreamFactory
     {
-        /// <summary>
-        /// Creates a stream.
-        /// </summary>
-        /// <param name="endPoint">The end point.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Stream.</returns>
-        Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a stream.
-        /// </summary>
-        /// <param name="endPoint">The end point.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the Stream.</returns>
+        Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken);     
         Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken);
     }
 }

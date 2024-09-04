@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,24 +19,10 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a connection factory.
-    /// </summary>
-    public interface IConnectionFactory
+    internal interface IConnectionFactory
     {
-        // properties
-        /// <summary>
-        /// Gets the connection settings.
-        /// </summary>
         ConnectionSettings ConnectionSettings { get; }
 
-        // methods
-        /// <summary>
-        /// Creates the connection.
-        /// </summary>
-        /// <param name="serverId">The server identifier.</param>
-        /// <param name="endPoint">The end point.</param>
-        /// <returns>A connection.</returns>
         IConnection CreateConnection(ServerId serverId, EndPoint endPoint);
     }
 }

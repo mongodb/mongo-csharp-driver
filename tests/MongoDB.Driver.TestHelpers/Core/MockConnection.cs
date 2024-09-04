@@ -29,13 +29,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.TestHelpers
 {
-    public class MockConnection : IConnectionHandle
+    internal sealed class MockConnection : IConnectionHandle
     {
         // fields
         private ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private bool? _isExpired;
-        private readonly TaskCompletionSource<bool> _isExpiredTaskComletionSource;
+        private readonly TaskCompletionSource<bool> _isExpiredTaskCompletionSource;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly Queue<ActionQueueItem> _replyActions;
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             _sentMessages = new List<RequestMessage>();
             _connectionSettings = connectionSettings;
             _connectionId = connectionId;
-            _isExpiredTaskComletionSource = isExpiredTaskCompletionSource;
+            _isExpiredTaskCompletionSource = isExpiredTaskCompletionSource;
 
             if (eventSubscriber != null)
             {
@@ -106,9 +106,9 @@ namespace MongoDB.Driver.Core.TestHelpers
                 {
                     return _isExpired.Value;
                 }
-                else if (_isExpiredTaskComletionSource != null)
+                else if (_isExpiredTaskCompletionSource != null)
                 {
-                    return _isExpiredTaskComletionSource.Task.IsCompleted;
+                    return _isExpiredTaskCompletionSource.Task.IsCompleted;
                 }
                 else
                 {

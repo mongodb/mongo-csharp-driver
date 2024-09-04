@@ -27,46 +27,11 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a channel (similar to a connection but operates at the level of protocols rather than messages).
-    /// </summary>
-    public interface IChannel : IDisposable
+    internal interface IChannel : IDisposable
     {
-        /// <summary>
-        /// Gets the connection.
-        /// </summary>
-        /// <value>
-        /// The connection.
-        /// </value>
         IConnectionHandle Connection { get; }
-
-        /// <summary>
-        /// Gets the connection description.
-        /// </summary>
-        /// <value>
-        /// The connection description.
-        /// </value>
         ConnectionDescription ConnectionDescription { get; }
 
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandPayloads">The command payloads.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="additionalOptions">The additional options.</param>
-        /// <param name="postWriteAction">The post write action.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the Command protocol.
-        /// </returns>
         TResult Command<TResult>(
             ICoreSession session,
             ReadPreference readPreference,
@@ -81,25 +46,6 @@ namespace MongoDB.Driver.Core.Bindings
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandPayloads">The command payloads.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="additionalOptions">The additional options.</param>
-        /// <param name="postWriteAction">The post write action.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is the result of the Command protocol.
-        /// </returns>
         Task<TResult> CommandAsync<TResult>(
             ICoreSession session,
             ReadPreference readPreference,
@@ -114,25 +60,6 @@ namespace MongoDB.Driver.Core.Bindings
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Executes a Query protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="fields">The fields.</param>
-        /// <param name="queryValidator">The query validator.</param>
-        /// <param name="skip">The number of documents to skip.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
-        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
-        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
-        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
-        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Insert protocol.</returns>
         CursorBatch<TDocument> Query<TDocument>(
             CollectionNamespace collectionNamespace,
             BsonDocument query,
@@ -149,26 +76,6 @@ namespace MongoDB.Driver.Core.Bindings
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Executes a Query protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="fields">The fields.</param>
-        /// <param name="queryValidator">The query validator.</param>
-        /// <param name="skip">The number of documents to skip.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
-        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
-        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
-        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
-        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
-        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Insert protocol.</returns>
         [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
         CursorBatch<TDocument> Query<TDocument>(
             CollectionNamespace collectionNamespace,
@@ -187,25 +94,6 @@ namespace MongoDB.Driver.Core.Bindings
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Executes a Query protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="fields">The fields.</param>
-        /// <param name="queryValidator">The query validator.</param>
-        /// <param name="skip">The number of documents to skip.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
-        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
-        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
-        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
-        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Insert protocol.</returns>
         Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
             CollectionNamespace collectionNamespace,
             BsonDocument query,
@@ -222,26 +110,6 @@ namespace MongoDB.Driver.Core.Bindings
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Executes a Query protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="fields">The fields.</param>
-        /// <param name="queryValidator">The query validator.</param>
-        /// <param name="skip">The number of documents to skip.</param>
-        /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
-        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
-        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
-        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
-        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
-        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Insert protocol.</returns>
         [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
         Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
             CollectionNamespace collectionNamespace,
@@ -261,15 +129,8 @@ namespace MongoDB.Driver.Core.Bindings
             CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// Represents a handle to a channel.
-    /// </summary>
-    public interface IChannelHandle : IChannel
+    internal interface IChannelHandle : IChannel
     {
-        /// <summary>
-        /// Returns a new handle to the underlying channel.
-        /// </summary>
-        /// <returns>A channel handle.</returns>
         IChannelHandle Fork();
     }
 }

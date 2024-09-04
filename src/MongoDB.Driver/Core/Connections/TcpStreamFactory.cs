@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a factory for a binary stream over a TCP/IP connection.
     /// </summary>
-    internal class TcpStreamFactory : IStreamFactory
+    internal sealed class TcpStreamFactory : IStreamFactory
     {
         // fields
         private readonly TcpStreamSettings _settings;

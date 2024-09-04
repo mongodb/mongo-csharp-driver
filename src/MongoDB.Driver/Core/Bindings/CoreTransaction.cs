@@ -64,14 +64,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// </value>
         public CoreTransactionState State => _state;
 
-        /// <summary>
-        /// Gets pinned channel for the current transaction.
-        /// Value has meaning if and only if a transaction is in progress.
-        /// </summary>
-        /// <value>
-        /// The pinned channel for the current transaction.
-        /// </value>
-        public IChannelHandle PinnedChannel
+        internal IChannelHandle PinnedChannel
         {
             get => _pinnedChannel;
         }
