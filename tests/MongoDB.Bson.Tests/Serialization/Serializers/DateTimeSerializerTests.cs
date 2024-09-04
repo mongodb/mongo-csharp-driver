@@ -17,7 +17,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
