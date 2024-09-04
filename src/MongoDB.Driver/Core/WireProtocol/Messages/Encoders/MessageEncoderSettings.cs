@@ -24,9 +24,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         // encoder settings used by the binary encoders
         public const string BinaryDocumentFieldDecryptor = nameof(BinaryDocumentFieldDecryptor);
         public const string BinaryDocumentFieldEncryptor = nameof(BinaryDocumentFieldEncryptor);
-        public const string FixOldBinarySubTypeOnInput = nameof(FixOldBinarySubTypeOnInput);
-        public const string FixOldBinarySubTypeOnOutput = nameof(FixOldBinarySubTypeOnOutput);
-        public const string FixOldDateTimeMaxValueOnInput = nameof(FixOldDateTimeMaxValueOnInput);
         [Obsolete("Configure serializers instead.")]
         public const string GuidRepresentation = nameof(GuidRepresentation);
         public const string MaxDocumentSize = nameof(MaxDocumentSize);
@@ -89,11 +86,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
             {
                 return defaultValue;
             }
-        }
-
-        public void Set(string name, object value)
-        {
-            _settings[name] = value;
         }
     }
 }
