@@ -142,10 +142,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj, null)) { return false; }
-            if (ReferenceEquals(this, obj)) { return true; }
-            return
-                base.Equals(obj) &&
+            return base.Equals(obj) &&
                 obj is DateOnlySerializer other &&
                 Representation.Equals(other.Representation);
         }
