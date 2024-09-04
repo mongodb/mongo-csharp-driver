@@ -94,7 +94,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.DateTime:
-                    value = DateOnly.FromDateTime(new DateTime(bsonReader.ReadDateTime(), DateTimeKind.Utc));
+                    var dt = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
+                    VerifyTimeOfDayIsZero(dt);
+                    value = DateOnly.FromDateTime(dt);
                     break;
 
                 case BsonType.Document:
@@ -104,13 +106,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                            case Flags.Ticks: value = DateOnly.FromDateTime(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc)); break;
+                            case Flags.Ticks:
+                                var dtd = new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc);
+                                VerifyTimeOfDayIsZero(dtd);
+                                value = DateOnly.FromDateTime(dtd); break;
                         }
                     });
                     break;
 
                 case BsonType.Int64:
-                    value = DateOnly.FromDateTime(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                    var dti = new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc);
+                    VerifyTimeOfDayIsZero(dti);
+                    value = DateOnly.FromDateTime(dti);
                     break;
 
                 case BsonType.String:
@@ -122,7 +129,29 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             return value;
+
+            void VerifyTimeOfDayIsZero(DateTime dt)
+            {
+                if (dt.TimeOfDay != TimeSpan.Zero)
+                {
+                    throw new FormatException("TimeOfDay component for DateOnly value is not zero.");
+                }
+            }
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null)) { return false; }
+            if (ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
+                obj is DateOnlySerializer other &&
+                Representation.Equals(other.Representation);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => 0;
 
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateOnly value)
@@ -154,7 +183,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    throw new BsonSerializationException($"'{Representation}' is not a valid DateTime representation.");
+                    throw new BsonSerializationException($"'{Representation}' is not a valid DateOnly representation.");
             }
         }
 

@@ -213,6 +213,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         switch (flag)
                         {
+                            //TODO Why for ticks we use Int64Serializer instead of bsonReader.ReadInt64 like we do some lines after?
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
                             case Flags.Ticks: value = new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc); break;
                         }

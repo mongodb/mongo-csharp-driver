@@ -40,6 +40,9 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Char), typeof(CharSerializer) },
                 { typeof(CultureInfo), typeof(CultureInfoSerializer) },
                 { typeof(DateTime), typeof(DateTimeSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(DateOnly), typeof(DateOnlySerializer) },
+#endif
                 { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
                 { typeof(Decimal), typeof(DecimalSerializer) },
                 { typeof(Decimal128), typeof(Decimal128Serializer) },
