@@ -33,17 +33,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static DateOnlySerializer Instance => __instance;
         #endregion
 
+        // private constants
         private static class Flags
         {
             public const long DateTime = 1;
             public const long Ticks = 2;
         }
 
+        // private fields
         private readonly SerializerHelper _helper;
 
-        /// <inheritdoc />
-        public BsonType Representation { get; }
-
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DateOnlySerializer"/> class.
         /// </summary>
@@ -79,6 +79,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             );
         }
 
+        // public properties
+        /// <inheritdoc />
+        public BsonType Representation { get; }
+
+        //public methods
         /// <inheritdoc />
         public override DateOnly Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
@@ -160,6 +165,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return representation == Representation ? this : new DateOnlySerializer(representation);
         }
 
+        // explicit interface implementations
         IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
         {
             return WithRepresentation(representation);
