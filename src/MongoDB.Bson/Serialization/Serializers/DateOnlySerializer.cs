@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 if (dt.TimeOfDay != TimeSpan.Zero)
                 {
-                    throw new FormatException("TimeOfDay component for DateOnly value is not zero.");
+                    throw new FormatException("Deserialized value has a non-zero time component.");
                 }
 
                 return DateOnly.FromDateTime(dt);

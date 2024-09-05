@@ -154,7 +154,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             Action action = () => subject.Deserialize(context);
 
-            action.ShouldThrow<Exception>();
+            action.ShouldThrow<FormatException>().WithMessage("Deserialized value has a non-zero time component.");
         }
 
         [Fact]
