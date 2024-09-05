@@ -71,6 +71,28 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             [DateOnly.FromDateTime(DateTime.Today)],
         ];
 
+        [Theory]
+        [MemberData(nameof(DateOnlyValues))]
+        public void BsonRepresentationAttribute_should_set_correct_representation(DateOnly testValue)
+        {
+            var testObj = new TestClass
+            {
+                DefaultDate = testValue,
+                DateTimeDate = testValue,
+                IntDate = testValue,
+                StringDate = testValue,
+                DocumentDate = testValue,
+            };
+
+            var bsonDocument = testObj.ToBsonDocument();
+
+            Assert.Equal(bsonDocument["DefaultDate"].BsonType, BsonType.DateTime);
+            Assert.Equal(bsonDocument["DateTimeDate"].BsonType, BsonType.DateTime);
+            Assert.Equal(bsonDocument["IntDate"].BsonType, BsonType.Int64);
+            Assert.Equal(bsonDocument["StringDate"].BsonType, BsonType.String);
+            Assert.Equal(bsonDocument["DocumentDate"].BsonType, BsonType.Document);
+        }
+
         [Fact]
         public void Constructor_with_no_arguments_should_return_expected_result()
         {
@@ -88,6 +110,51 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new DateOnlySerializer(representation);
 
             subject.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""","01/01/0001" )]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""","12/31/9999" )]
+        [InlineData("""{ "x" : "2024-10-20" }""","10/20/2024" )]
+        [InlineData("""{ "x" : "0001-01-01" }""","01/01/0001")]
+        [InlineData("""{ "x" : "9999-12-31" }""","12/31/9999" )]
+        [InlineData("""{ "x" : { "$numberLong" : "638649792000000000" } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","01/01/0001" )]
+        [InlineData("""{ "x" : { "$numberLong" : "3155378112000000000" } }""","12/31/9999" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""","01/01/0001" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","12/31/9999" )]
+        public void Deserialize_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "1729382410000" } } }""")]
+        [InlineData("""{ "x" : { "$numberLong" : "638649792100000000" } }""")]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792100000000" } } }""")]
+        public void Deserialize_should_throw_when_date_has_time(string json)
+        {
+            var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            Action action = () => subject.Deserialize(context);
+
+            action.ShouldThrow<Exception>();
         }
 
         [Fact]
@@ -190,46 +257,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 result.Should().BeSameAs(subject);
             }
-        }
-
-        //TODO Order alphabetically
-        //TODO We could remove the input, if we just want to test for the correct representation
-        //TODO We could have specific tests for min value max value?
-        [Theory]
-        [MemberData(nameof(DateOnlyValues))]
-        public void BsonRepresentationAttribute_should_set_correct_representation(DateOnly testValue)
-        {
-            var testObj = new TestClass
-            {
-                DefaultDate = testValue,
-                DateTimeDate = testValue,
-                IntDate = testValue,
-                StringDate = testValue,
-                DocumentDate = testValue,
-            };
-
-            var bsonDocument = testObj.ToBsonDocument();
-
-            Assert.Equal(bsonDocument["DefaultDate"].BsonType, BsonType.DateTime);
-            Assert.Equal(bsonDocument["DateTimeDate"].BsonType, BsonType.DateTime);
-            Assert.Equal(bsonDocument["IntDate"].BsonType, BsonType.Int64);
-            Assert.Equal(bsonDocument["StringDate"].BsonType, BsonType.String);
-            Assert.Equal(bsonDocument["DocumentDate"].BsonType, BsonType.Document);
-
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bsonDocument);
-            Assert.Equal(testObj, rehydrated);
-        }
-
-        [Fact]
-        public void Test2()  //TODO Need a better name (throw exception when date has time part)
-        {
-            var dateTime = new DateTime(2024, 10, 2, 1, 1, 1, DateTimeKind.Utc);
-            var bsonDocument = new BsonDocument
-            {
-                { "DateTimeDate", dateTime}
-            };
-
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bsonDocument);
         }
 
         [Theory]

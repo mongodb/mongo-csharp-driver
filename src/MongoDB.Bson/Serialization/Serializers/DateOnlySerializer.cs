@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.DateTime:
-                    value = VerifyTimeOfDayIsZero(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
+                    value = VerifyAndMakeDateOnly(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
                     break;
 
                 case BsonType.Document:
@@ -105,14 +105,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
                             case Flags.Ticks:
-                                value = VerifyTimeOfDayIsZero(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                                value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
                                 break;
                         }
                     });
                     break;
 
                 case BsonType.Int64:
-                    value = VerifyTimeOfDayIsZero(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
                     break;
 
                 case BsonType.String:
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return value;
 
-            DateOnly VerifyTimeOfDayIsZero(DateTime dt)
+            DateOnly VerifyAndMakeDateOnly(DateTime dt)
             {
                 if (dt.TimeOfDay != TimeSpan.Zero)
                 {
