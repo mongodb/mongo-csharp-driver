@@ -88,15 +88,6 @@
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="macos\" />
-    <Folder Include="windows\" />
-  </ItemGroup>
-
   <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
-
-  <Target Name="PreBuild" BeforeTargets="ControllerTarget">
-    <Exec Command="echo Hi!" />
-  </Target>
 
 </Project>

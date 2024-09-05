@@ -1792,8 +1792,7 @@ tasks:
               export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
               OS='${OS}' \
-                . ./evergreen/get-libmongocrypt-binaries.sh testing
-              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
+              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' OS='${OS}' PROJECT_DIRECTORY='${PROJECT_DIRECTORY}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
 
     - name: test-csfle-with-gcp-kms
       commands:
@@ -1827,9 +1826,7 @@ tasks:
               export GCPKMS_PROJECT=${GCPKMS_PROJECT}
               export GCPKMS_ZONE=${GCPKMS_ZONE}
               export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
-              OS='${OS}' \
-                . ./evergreen/get-libmongocrypt-binaries.sh testing
-              GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
+              GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' PROJECT_DIRECTORY='${PROJECT_DIRECTORY}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
     - name: test-SK
       commands:
