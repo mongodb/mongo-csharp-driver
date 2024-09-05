@@ -22,14 +22,13 @@ namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// A collection of kms requests to make.
-    /// 
-    /// When all requests are done, <c>MarkDone</c> most be called.
+    /// When all requests are done, <c>MarkDone</c> must be called.
     /// </summary>
     /// <seealso cref="System.Collections.Generic.IReadOnlyCollection{MongoDB.Libmongocrypt.KmsRequest}" />
     public class KmsRequestCollection : IReadOnlyCollection<KmsRequest>
     {
-        private List<KmsRequest> _requests;
-        private CryptContext _parent;
+        private readonly List<KmsRequest> _requests;
+        private readonly CryptContext _parent;
 
         internal KmsRequestCollection(List<KmsRequest> requests, CryptContext parent)
         {

@@ -27,8 +27,8 @@ namespace MongoDB.Libmongocrypt
     /// <seealso cref="System.IDisposable" />
     internal class CryptClient : IDisposable, IStatus
     {
-        private MongoCryptSafeHandle _handle;
-        private Status _status;
+        private readonly MongoCryptSafeHandle _handle;
+        private readonly Status _status;
 
         internal CryptClient(MongoCryptSafeHandle handle, Status status)
         {
@@ -77,7 +77,7 @@ namespace MongoDB.Libmongocrypt
         {
             ContextSafeHandle handle = Library.mongocrypt_ctx_new(_handle);
 
-            IntPtr stringPointer = (IntPtr)Marshal.StringToHGlobalAnsi(db);
+            var stringPointer = Marshal.StringToHGlobalAnsi(db);
 
             try
             {

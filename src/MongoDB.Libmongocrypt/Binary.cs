@@ -26,9 +26,9 @@ namespace MongoDB.Libmongocrypt
     /// <seealso cref="System.IDisposable" />
     internal class Binary : IDisposable
     {
-        private static readonly byte[] __empty = new byte[0];
+        private static readonly byte[] __empty = Array.Empty<byte>();
 
-        private BinarySafeHandle _handle;
+        private readonly BinarySafeHandle _handle;
 
         internal Binary()
         {

@@ -72,8 +72,8 @@ namespace MongoDB.Libmongocrypt
             MONGOCRYPT_CTX_NEED_KMS_CREDENTIALS = 7
         }
 
-        private ContextSafeHandle _handle;
-        private Status _status;
+        private readonly ContextSafeHandle _handle;
+        private readonly Status _status;
 
         internal CryptContext(ContextSafeHandle handle)
         {
@@ -170,6 +170,9 @@ namespace MongoDB.Libmongocrypt
             return new KmsRequestCollection(requests, this);
         }
 
+        /// <summary>
+        /// Sets the KMS credentials
+        /// </summary>
         public void SetCredentials(byte[] credentials)
         {
             PinnedBinary.RunAsPinnedBinary(_handle, credentials, _status, (h, b) => Library.mongocrypt_ctx_provide_kms_providers(h, b));

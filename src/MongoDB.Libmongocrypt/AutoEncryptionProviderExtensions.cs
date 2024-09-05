@@ -18,15 +18,14 @@ using MongoDB.Driver.Encryption;
 namespace MongoDB.Libmongocrypt;
 
 /// <summary>
-///
+/// AutoEncryption Provider Extentions.
 /// </summary>
 public static class AutoEncryptionProviderExtensions
 {
     /// <summary>
-    ///
+    /// Registers the AutoEncryption Provider.
     /// </summary>
-    /// <param name="autoEncryptionProvider"></param>
-    /// <returns></returns>
+    /// <param name="autoEncryptionProvider">AutoEncryption Provider.</param>
     public static AutoEncryptionProvider RegisterAutoEncryption(this AutoEncryptionProvider autoEncryptionProvider)
     {
         autoEncryptionProvider.RegisterAutoCryptClientControllerFactory(AutoEncryptionLibMongoCryptController.Create);

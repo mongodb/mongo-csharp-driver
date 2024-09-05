@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.WireProtocol;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    ///
+    /// Represents an AutoCryptClientController.
     /// </summary>
     public interface IAutoEncryptionLibMongoCryptController : IBinaryCommandFieldEncryptor, IBinaryDocumentFieldDecryptor, IDisposable
     {

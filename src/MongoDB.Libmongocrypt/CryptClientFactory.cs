@@ -20,14 +20,13 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// A factory for CryptClients.
     /// </summary>
-    internal class CryptClientFactory
+    internal static class CryptClientFactory
     {
         // MUST be static fields since otherwise these callbacks can be collected via the garbage collector
         // regardless they're used by mongocrypt level or no

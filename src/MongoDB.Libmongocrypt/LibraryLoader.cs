@@ -28,7 +28,7 @@ namespace MongoDB.Libmongocrypt
     /// </summary>
     internal class LibraryLoader
     {
-        private ISharedLibraryLoader _loader;
+        private readonly ISharedLibraryLoader _loader;
         private static readonly string __libmongocryptLibPath = Environment.GetEnvironmentVariable("LIBMONGOCRYPT_PATH");
 
         public LibraryLoader()
@@ -125,7 +125,7 @@ namespace MongoDB.Libmongocrypt
             public const int RTLD_GLOBAL = 0x8;
             public const int RTLD_NOW = 0x2;
 
-            private static readonly string[] __suffixPaths = 
+            private static readonly string[] __suffixPaths =
             {
                 "../../runtimes/osx/native/",
                 "runtimes/osx/native/",
@@ -183,8 +183,8 @@ namespace MongoDB.Libmongocrypt
                     _use_libdl1 = false;
                 }
             }
-            
-            private static readonly string[] __suffixPaths = 
+
+            private static readonly string[] __suffixPaths =
             {
                 "../../runtimes/linux/native/",
                 "runtimes/linux/native/",
@@ -195,11 +195,11 @@ namespace MongoDB.Libmongocrypt
             public LinuxLibrary(List<string> candidatePaths)
             {
                 var path = __libmongocryptLibPath ?? FindLibrary(candidatePaths, __suffixPaths, "libmongocrypt.so");
-                
+
                 _handle = _use_libdl1
                     ? Libdl1.dlopen(path, RTLD_GLOBAL | RTLD_NOW)
                     : Libdl2.dlopen(path, RTLD_GLOBAL | RTLD_NOW);
-                
+
                 if (_handle == IntPtr.Zero)
                 {
                     throw new FileNotFoundException(path);
@@ -217,13 +217,13 @@ namespace MongoDB.Libmongocrypt
         /// </summary>
         private class WindowsLibrary : ISharedLibraryLoader
         {
-            private static readonly string[] __suffixPaths = 
+            private static readonly string[] __suffixPaths =
             {
                 @"..\..\runtimes\win\native\",
                 @".\runtimes\win\native\",
                 string.Empty
             };
-            
+
             private readonly IntPtr _handle;
             public WindowsLibrary(List<string> candidatePaths)
             {
@@ -257,27 +257,27 @@ namespace MongoDB.Libmongocrypt
             [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
             public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
         }
-        
+
         private static class Libdl1
         {
             private const string LibName = "libdl";
-            
+
 #pragma warning disable IDE1006 // Naming Styles
             [DllImport(LibName)]
             public static extern IntPtr dlopen(string filename, int flags);
 
             [DllImport(LibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
             public static extern IntPtr dlsym(IntPtr handle, string symbol);
-            
+
             [DllImport(LibName)]
             public static extern string dlerror();
 #pragma warning restore IDE1006 // Naming Styles
         }
-        
+
         private static class Libdl2
         {
             private const string LibName = "libdl.so.2";
-            
+
 #pragma warning disable IDE1006 // Naming Styles
             [DllImport(LibName)]
             public static extern IntPtr dlopen(string filename, int flags);

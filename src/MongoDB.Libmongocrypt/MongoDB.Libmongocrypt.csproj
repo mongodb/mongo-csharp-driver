@@ -16,7 +16,6 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>Libmongocrypt wrapper for the .NET driver.</PackageDescription>
     <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
-    <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageTags>mongodb;mongo;nosql</PackageTags>
     <PackageLanguage>en-US</PackageLanguage>
     <IncludeSymbols>true</IncludeSymbols>
@@ -57,13 +56,6 @@
     <Content Include="$(LibMongoCryptBinaries)\macos\libmongocrypt.dylib">
       <Pack>true</Pack>
       <PackagePath>runtimes\osx\native</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="License.txt">
-      <Pack>true</Pack>
-      <PackagePath>$(PackageLicenseFile)</PackagePath>
     </Content>
   </ItemGroup>
 

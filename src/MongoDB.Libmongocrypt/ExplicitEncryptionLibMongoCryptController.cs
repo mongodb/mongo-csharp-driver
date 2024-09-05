@@ -476,7 +476,6 @@ namespace MongoDB.Libmongocrypt
         }
 
         // private methods
-
         private FilterDefinition<BsonDocument> CreateFilter(BsonDocument filter) => new BsonDocumentFilterDefinition<BsonDocument>(filter);
         private FilterDefinition<BsonDocument> CreateFilterById(Guid id) => CreateFilterById(new BsonBinaryData(GuidConverter.ToBytes(id, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard));
         private FilterDefinition<BsonDocument> CreateFilterById(BsonBinaryData id) => CreateFilter(new BsonDocument("_id", id));
@@ -550,14 +549,14 @@ namespace MongoDB.Libmongocrypt
             return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
         }
 
-        private BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
+        private static BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
             return filter.Render(new(serializer, registry));
         }
 
-        private Guid UnwrapKeyId(BsonDocument wrappedKeyDocument)
+        private static Guid UnwrapKeyId(BsonDocument wrappedKeyDocument)
         {
             var keyId = wrappedKeyDocument["_id"].AsBsonBinaryData;
             if (keyId.SubType != BsonBinarySubType.UuidStandard)
@@ -567,7 +566,7 @@ namespace MongoDB.Libmongocrypt
             return GuidConverter.FromBytes(keyId.Bytes, GuidRepresentation.Standard);
         }
 
-        private BsonValue UnwrapValue(byte[] encryptedWrappedBytes)
+        private static BsonValue UnwrapValue(byte[] encryptedWrappedBytes)
         {
             var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(encryptedWrappedBytes);
             return bsonDocument["v"];

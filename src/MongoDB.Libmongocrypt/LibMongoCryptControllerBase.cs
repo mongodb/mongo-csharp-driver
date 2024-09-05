@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Libmongocrypt
 {
@@ -267,7 +266,7 @@ namespace MongoDB.Libmongocrypt
             FeedResults(context, results);
         }
 
-        private byte[] ProcessReadyState(CryptContext context)
+        private static byte[] ProcessReadyState(CryptContext context)
         {
             using var binary = context.FinalizeForEncryption();
             return binary.ToArray();
@@ -337,7 +336,7 @@ namespace MongoDB.Libmongocrypt
             }
 
             // private methods
-            private Socket CreateSocket() => new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            private static Socket CreateSocket() => new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
     }
 }

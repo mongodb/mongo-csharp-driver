@@ -47,7 +47,6 @@ collect_binaries() {
 
     # Copy binaries for Linux, Mac, and Windows to the collect folder
     cp "$EXTRACT_DIR/ubuntu1804-64/nocrypto/lib/libmongocrypt.so" "$COLLECT_DIR/linux/"
-    cp "$EXTRACT_DIR/alpine-arm64-earthly/nocrypto/lib/libmongocrypt.so" "$COLLECT_DIR/linux-alpine/"
     cp "$EXTRACT_DIR/macos/lib/libmongocrypt.dylib" "$COLLECT_DIR/macos/"
     cp "$EXTRACT_DIR/windows-test/bin/mongocrypt.dll" "$COLLECT_DIR/windows/"
 

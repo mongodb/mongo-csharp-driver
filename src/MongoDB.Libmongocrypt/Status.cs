@@ -25,7 +25,7 @@ namespace MongoDB.Libmongocrypt
     /// <seealso cref="System.IDisposable" />
     internal class Status : IDisposable
     {
-        private StatusSafeHandle _handle;
+        private readonly StatusSafeHandle _handle;
 
         public Status()
         {
@@ -45,7 +45,7 @@ namespace MongoDB.Libmongocrypt
 
         public void SetStatus(uint code, string msg)
         {
-            IntPtr stringPointer = (IntPtr)Marshal.StringToHGlobalAnsi(msg);
+            var stringPointer = Marshal.StringToHGlobalAnsi(msg);
             try
             {
                 Library.mongocrypt_status_set(_handle, (int)Library.StatusType.MONGOCRYPT_STATUS_ERROR_CLIENT, code, stringPointer, -1);

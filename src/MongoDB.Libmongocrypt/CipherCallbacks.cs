@@ -33,7 +33,7 @@ namespace MongoDB.Libmongocrypt
             IntPtr iv,
             IntPtr @in,
             IntPtr @out,
-            ref uint bytes_written,
+            ref uint bytesWritten,
             IntPtr statusPtr)
         {
             using (var status = new Status(StatusSafeHandle.FromIntPtr(statusPtr)))
@@ -50,7 +50,7 @@ namespace MongoDB.Libmongocrypt
                     byte[] inputBytes = inputBinary.ToArray();
 
                     var outputBytes = AesCrypt(keyBytes, ivBytes, inputBytes, CryptMode.Encrypt, CipherMode.CBC);
-                    bytes_written = (uint)outputBytes.Length;
+                    bytesWritten = (uint)outputBytes.Length;
                     outputBinary.WriteBytes(outputBytes);
                     return true;
                 }
@@ -68,7 +68,7 @@ namespace MongoDB.Libmongocrypt
             IntPtr iv,
             IntPtr @in,
             IntPtr @out,
-            ref uint bytes_written,
+            ref uint bytesWritten,
             IntPtr statusPtr)
         {
             using (var status = new Status(StatusSafeHandle.FromIntPtr(statusPtr)))
@@ -85,7 +85,7 @@ namespace MongoDB.Libmongocrypt
                     byte[] inputBytes = inputBinary.ToArray();
 
                     var outputBytes = AesCrypt(keyBytes, ivBytes, inputBytes, CryptMode.Decrypt, CipherMode.CBC);
-                    bytes_written = (uint)outputBytes.Length;
+                    bytesWritten = (uint)outputBytes.Length;
                     outputBinary.WriteBytes(outputBytes);
 
                     return true;
@@ -104,7 +104,7 @@ namespace MongoDB.Libmongocrypt
             IntPtr iv,
             IntPtr @in,
             IntPtr @out,
-            ref uint bytes_written,
+            ref uint bytesWritten,
             IntPtr statusPtr)
         {
             using (var status = new Status(StatusSafeHandle.FromIntPtr(statusPtr)))
@@ -121,7 +121,7 @@ namespace MongoDB.Libmongocrypt
                     byte[] inputBytes = inputBinary.ToArray();
 
                     var outputBytes = AesCrypt(keyBytes, ivBytes, inputBytes, CryptMode.Encrypt, CipherMode.ECB);
-                    bytes_written = (uint)outputBytes.Length;
+                    bytesWritten = (uint)outputBytes.Length;
                     outputBinary.WriteBytes(outputBytes);
                     return true;
                 }

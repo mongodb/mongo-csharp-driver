@@ -19,22 +19,17 @@ using MongoDB.Driver.Core.Configuration;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    ///
+    /// AutoEncryption Provider.
     /// </summary>
     public class AutoEncryptionProvider
     {
         /// <summary>
-        ///
+        /// AutoEncryption Provider Instance.
         /// </summary>
         public static readonly AutoEncryptionProvider Instance = new AutoEncryptionProvider();
 
         private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="factory"> crypt client factory</param>
-        /// <exception cref="ArgumentException"></exception>
         internal void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  factory)
         {
             if (s_autoCryptClientControllerFactory != null)
