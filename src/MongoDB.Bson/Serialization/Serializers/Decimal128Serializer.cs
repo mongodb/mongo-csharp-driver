@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="Decimal128Serializer"/> class.
         /// </summary>
         public Decimal128Serializer()
-            : this(BsonType.String)
+            : this(BsonType.Decimal128)
         {
         }
 

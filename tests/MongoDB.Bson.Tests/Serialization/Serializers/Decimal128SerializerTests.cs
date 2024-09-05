@@ -17,12 +17,39 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class Decimal128SerializerTests
     {
+        [Fact]
+        public void Constructor_with_no_arguments_should_return_expected_result()
+        {
+            var subject = new Decimal128Serializer();
+
+            subject.Representation.Should().Be(BsonType.Decimal128);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Constructor_with_representation_should_return_expected_result(
+            [Values(BsonType.Decimal128, BsonType.Int32, BsonType.Int64, BsonType.String, BsonType.Double)] BsonType representation)
+        {
+            var subject = new Decimal128Serializer(representation);
+
+            subject.Representation.Should().Be(representation);
+        }
+
+        [Fact]
+        public void Constructor_with_representation_should_throw_when_representation_is_invalid()
+        {
+            var exception = Record.Exception(() => new Decimal128Serializer(BsonType.Null));
+
+            exception.Should().BeOfType<ArgumentException>();
+        }
+
         [Fact]
         public void Equals_derived_should_return_false()
         {
@@ -106,6 +133,23 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WithRepresentation_should_return_expected_result(
+            [Values(BsonType.Decimal128, BsonType.Int32, BsonType.Int64, BsonType.String, BsonType.Double)] BsonType oldRepresentation,
+            [Values(BsonType.Decimal128, BsonType.Int32, BsonType.Int64, BsonType.String, BsonType.Double)] BsonType newRepresentation)
+        {
+            var subject = new Decimal128Serializer(oldRepresentation);
+
+            var result = subject.WithRepresentation(newRepresentation);
+
+            result.Representation.Should().Be(newRepresentation);
+            if (newRepresentation == oldRepresentation)
+            {
+                result.Should().BeSameAs(subject);
+            }
         }
 
         public class DerivedFromDecimal128Serializer : Decimal128Serializer
