@@ -94,9 +94,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.DateTime:
-                    var dt = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
-                    VerifyTimeOfDayIsZero(dt);
-                    value = DateOnly.FromDateTime(dt);
+                    value = VerifyTimeOfDayIsZero(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
                     break;
 
                 case BsonType.Document:
@@ -107,17 +105,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
                             case Flags.Ticks:
-                                var dtd = new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc);
-                                VerifyTimeOfDayIsZero(dtd);
-                                value = DateOnly.FromDateTime(dtd); break;
+                                value = VerifyTimeOfDayIsZero(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                                break;
                         }
                     });
                     break;
 
                 case BsonType.Int64:
-                    var dti = new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc);
-                    VerifyTimeOfDayIsZero(dti);
-                    value = DateOnly.FromDateTime(dti);
+                    value = VerifyTimeOfDayIsZero(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
                     break;
 
                 case BsonType.String:
@@ -130,12 +125,14 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return value;
 
-            void VerifyTimeOfDayIsZero(DateTime dt)
+            DateOnly VerifyTimeOfDayIsZero(DateTime dt)
             {
                 if (dt.TimeOfDay != TimeSpan.Zero)
                 {
                     throw new FormatException("TimeOfDay component for DateOnly value is not zero.");
                 }
+
+                return DateOnly.FromDateTime(dt);
             }
         }
 
