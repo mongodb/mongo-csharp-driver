@@ -2705,7 +2705,7 @@ buildvariants:
 # Package release variants
 - matrix_name: build-packages
   matrix_spec:
-    os: "windows-64" # should produce package on Windows to build .NET framework (net472) packages.
+    os: "ubuntu-2004"
   display_name: "Packages Pack"
   tags: ["build-packages", "release-tag"]
   tasks:
