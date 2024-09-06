@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -587,7 +588,7 @@ namespace MongoDB.Bson.Serialization
 
             if (ShouldSerializeDiscriminator(args.NominalType))
             {
-                SerializeDiscriminator(context, args.NominalType, document);
+                SerializeDiscriminator(context, args.NominalType, document, args.DiscriminatorConvention);
             }
 
             foreach (var memberMap in _classMap.AllMemberMaps)
@@ -631,9 +632,10 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
+        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj, IDiscriminatorConvention discriminatorConvention)
         {
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            discriminatorConvention ??= _classMap.GetDiscriminatorConvention();
+
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();

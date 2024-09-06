@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -24,6 +25,7 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private Type _nominalType;
+        private IDiscriminatorConvention _discriminatorConvention;
         private bool _serializeAsNominalType;
         private bool _serializeIdFirst;
 
@@ -34,14 +36,17 @@ namespace MongoDB.Bson.Serialization
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="serializeAsNominalType">Whether to serialize as the nominal type.</param>
         /// <param name="serializeIdFirst">Whether to serialize the id first.</param>
+        /// <param name="discriminatorConvention">The discriminator convention to be used.</param>
         public BsonSerializationArgs(
             Type nominalType,
             bool serializeAsNominalType,
-            bool serializeIdFirst)
+            bool serializeIdFirst,
+            IDiscriminatorConvention discriminatorConvention)
         {
             _nominalType = nominalType;
             _serializeAsNominalType = serializeAsNominalType;
             _serializeIdFirst = serializeIdFirst;
+            _discriminatorConvention = discriminatorConvention;
         }
 
         // public properties
@@ -55,6 +60,15 @@ namespace MongoDB.Bson.Serialization
         {
             get { return _nominalType; }
             set { _nominalType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the discriminator convention.
+        /// </summary>
+        public IDiscriminatorConvention DiscriminatorConvention
+        {
+            get { return _discriminatorConvention; }
+            set { _discriminatorConvention = value; }
         }
 
         /// <summary>

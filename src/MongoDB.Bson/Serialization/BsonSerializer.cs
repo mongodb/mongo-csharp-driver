@@ -391,8 +391,7 @@ namespace MongoDB.Bson.Serialization
                     }
                     else if (typeInfo.IsInterface)
                     {
-                        // TODO: should convention for interfaces be inherited from parent interfaces?
-                        convention = LookupDiscriminatorConvention(typeof(object));
+                        convention = CreateInterfaceDiscriminatorConvention(type);
                         RegisterDiscriminatorConvention(type, convention);
                     }
                     else
@@ -430,6 +429,12 @@ namespace MongoDB.Bson.Serialization
             {
                 __configLock.ExitWriteLock();
             }
+        }
+
+        private static IDiscriminatorConvention CreateInterfaceDiscriminatorConvention(Type type)
+        {
+            var discriminatorConventionType = typeof(InterfaceDiscriminatorConvention<>).MakeGenericType(type);
+            return (IDiscriminatorConvention) Activator.CreateInstance(discriminatorConventionType, "_t");
         }
 
         /// <summary>
