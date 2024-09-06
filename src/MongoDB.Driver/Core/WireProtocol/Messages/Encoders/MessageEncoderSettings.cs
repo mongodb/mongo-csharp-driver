@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,128 +19,42 @@ using System.Collections.Generic;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents the names of different encoder settings.
-    /// </summary>
-    public static class MessageEncoderSettingsName
+    internal static class MessageEncoderSettingsName
     {
         // encoder settings used by the binary encoders
-        /// <summary>
-        /// The name of the binary document field decryptor setting.
-        /// </summary>
-        public const string BinaryDocumentFieldDecryptor = "BinaryDocumentFieldDecryptor";
-
-        /// <summary>
-        /// The name of the binary document field encryptor setting.
-        /// </summary>
-        public const string BinaryDocumentFieldEncryptor = "BinaryDocumentFieldEncryptor";
-
-        /// <summary>
-        /// The name of the FixOldBinarySubTypeOnInput setting.
-        /// </summary>
-        public const string FixOldBinarySubTypeOnInput = "FixOldBinarySubTypeOnInput";
-
-        /// <summary>
-        /// The name of the FixOldBinarySubTypeOnOutput setting.
-        /// </summary>
-        public const string FixOldBinarySubTypeOnOutput = "FixOldBinarySubTypeOnOutput";
-
-        /// <summary>
-        /// The name of the FixOldDateTimeMaxValueOnInput setting.
-        /// </summary>
-        public const string FixOldDateTimeMaxValueOnInput = "FixOldDateTimeMaxValueOnInput";
-
-        /// <summary>
-        /// The name of the GuidRepresentation setting.
-        /// </summary>
+        public const string BinaryDocumentFieldDecryptor = nameof(BinaryDocumentFieldDecryptor);
+        public const string BinaryDocumentFieldEncryptor = nameof(BinaryDocumentFieldEncryptor);
         [Obsolete("Configure serializers instead.")]
-        public const string GuidRepresentation = "GuidRepresentation";
-
-        /// <summary>
-        /// The name of the MaxDocumentSize setting.
-        /// </summary>
-        public const string MaxDocumentSize = "MaxDocumentSize";
-
-        /// <summary>
-        /// The name of the MaxMessageSize setting.
-        /// </summary>
-        public const string MaxMessageSize = "MaxMessageSize";
-
-        /// <summary>
-        /// The name of the MaxSerializationDepth setting.
-        /// </summary>
-        public const string MaxSerializationDepth = "MaxSerializationDepth";
-
-        /// <summary>
-        /// The maximum wire document size.
-        /// </summary>
+        public const string GuidRepresentation = nameof(GuidRepresentation);
+        public const string MaxDocumentSize = nameof(MaxDocumentSize);
+        public const string MaxMessageSize = nameof(MaxMessageSize);
+        public const string MaxSerializationDepth = nameof(MaxSerializationDepth);
         public const string MaxWireDocumentSize = nameof(MaxWireDocumentSize);
-
-        /// <summary>
-        /// The name of the ReadEncoding setting.
-        /// </summary>
-        public const string ReadEncoding = "ReadEncoding";
-
-        /// <summary>
-        /// The name of the WriteEncoding setting.
-        /// </summary>
-        public const string WriteEncoding = "WriteEncoding";
+        public const string ReadEncoding = nameof(ReadEncoding);
+        public const string WriteEncoding = nameof(WriteEncoding);
 
         // additional encoder settings used by the JSON encoders
-        /// <summary>
-        /// The name of the Indent setting.
-        /// </summary>
-        public const string Indent = "Indent";
-
-        /// <summary>
-        /// The name of the IndentChars setting.
-        /// </summary>
-        public const string IndentChars = "IndentChars";
-
-        /// <summary>
-        /// The name of the NewLineChars setting.
-        /// </summary>
-        public const string NewLineChars = "NewLineChars";
-
-        /// <summary>
-        /// The name of the OutputMode setting.
-        /// </summary>
-        public const string OutputMode = "OutputMode";
-
-        /// <summary>
-        /// The name of the ShellVersion setting.
-        /// </summary>
-        public const string ShellVersion = "ShellVersion";
+        public const string Indent = nameof(Indent);
+        public const string IndentChars = nameof(IndentChars);
+        public const string NewLineChars = nameof(NewLineChars);
+        public const string OutputMode = nameof(OutputMode);
+        public const string ShellVersion = nameof(ShellVersion);
 
         // other encoders (if any) might use additional settings
     }
 
-    /// <summary>
-    /// Represents settings for message encoders.
-    /// </summary>
-    public class MessageEncoderSettings : IEnumerable<KeyValuePair<string, object>>
+    internal sealed class MessageEncoderSettings : IEnumerable<KeyValuePair<string, object>>
     {
         // fields
-        private readonly Dictionary<string, object> _settings = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _settings = new();
 
         // methods
-        /// <summary>
-        /// Adds a setting.
-        /// </summary>
-        /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        /// <returns>The settings.</returns>
         public MessageEncoderSettings Add<T>(string name, T value)
         {
             _settings.Add(name, value);
             return this;
         }
 
-        /// <summary>
-        /// Clones this instance.
-        /// </summary>
-        /// <returns>The clone.</returns>
         public MessageEncoderSettings Clone()
         {
             var clone = new MessageEncoderSettings();
@@ -151,7 +65,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
             return clone;
         }
 
-        /// <inheritdoc/>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return _settings.GetEnumerator();
@@ -162,13 +75,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
             return GetEnumerator();
         }
 
-        /// <summary>
-        /// Gets a setting, or a default value if the setting does not exist.
-        /// </summary>
-        /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="name">The name.</param>
-        /// <param name="defaultValue">The default value.</param>
-        /// <returns>The value of the setting, or a default value if the setting does not exist.</returns>
         public T GetOrDefault<T>(string name, T defaultValue)
         {
             object value;
@@ -180,16 +86,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
             {
                 return defaultValue;
             }
-        }
-
-        /// <summary>
-        /// Sets the specified setting.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        public void Set(string name, object value)
-        {
-            _settings[name] = value;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
     }
 
-    public static class CommandResponseMessageJsonEncoderReflector
+    internal static class CommandResponseMessageJsonEncoderReflector
     {
         public static CommandMessageJsonEncoder _wrappedEncoder(this CommandResponseMessageJsonEncoder obj)
         {

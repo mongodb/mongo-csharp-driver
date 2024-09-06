@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,33 +13,21 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    /// <summary>
-    /// Represents a base class for binary message encoders.
-    /// </summary>
-    public abstract class MessageBinaryEncoderBase
+    internal abstract class MessageBinaryEncoderBase
     {
         // fields
         private readonly MessageEncoderSettings _encoderSettings;
         private readonly Stream _stream;
 
         // constructor
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageBinaryEncoderBase"/> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         protected MessageBinaryEncoderBase(Stream stream, MessageEncoderSettings encoderSettings)
         {
             _stream = Ensure.IsNotNull(stream, nameof(stream));
@@ -47,12 +35,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // properties
-        /// <summary>
-        /// Gets the encoding.
-        /// </summary>
-        /// <value>
-        /// The encoding.
-        /// </value>
         protected UTF8Encoding Encoding
         {
             get
@@ -68,12 +50,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        /// <summary>
-        /// Gets a flag whether encryption has been configured.
-        /// </summary>
-        /// <value>
-        /// The flag whether encryption is configured or not.
-        /// </value>
         protected bool IsEncryptionConfigured
         {
             get
@@ -82,12 +58,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        /// <summary>
-        /// Gets the maximum size of the document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of the document.
-        /// </value>
         protected int? MaxDocumentSize
         {
             get
@@ -96,12 +66,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        /// <summary>
-        /// Gets the maximum size of the message.
-        /// </summary>
-        /// <value>
-        /// The maximum size of the message.
-        /// </value>
         protected int? MaxMessageSize
         {
             get
@@ -110,12 +74,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        /// <summary>
-        /// Gets the maximum size of the wire document.
-        /// </summary>
-        /// <value>
-        /// The maximum size of the wire document.
-        /// </value>
         protected int? MaxWireDocumentSize
         {
             get
@@ -125,18 +83,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        /// <summary>
-        /// Creates a binary reader for this encoder.
-        /// </summary>
-        /// <returns>A binary reader.</returns>
         public BsonBinaryReader CreateBinaryReader()
         {
             var readerSettings = new BsonBinaryReaderSettings();
             if (_encoderSettings != null)
             {
                 readerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, readerSettings.Encoding);
-                readerSettings.FixOldBinarySubTypeOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnInput, readerSettings.FixOldBinarySubTypeOnInput);
-                readerSettings.FixOldDateTimeMaxValueOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, readerSettings.FixOldDateTimeMaxValueOnInput);
 #pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {
@@ -148,17 +100,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new BsonBinaryReader(_stream, readerSettings);
         }
 
-        /// <summary>
-        /// Creates a binary writer for this encoder.
-        /// </summary>
-        /// <returns>A binary writer.</returns>
         public BsonBinaryWriter CreateBinaryWriter()
         {
             var writerSettings = new BsonBinaryWriterSettings();
             if (_encoderSettings != null)
             {
                 writerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.WriteEncoding, writerSettings.Encoding);
-                writerSettings.FixOldBinarySubTypeOnOutput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, writerSettings.FixOldBinarySubTypeOnOutput);
 #pragma warning disable 618
                 if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
                 {

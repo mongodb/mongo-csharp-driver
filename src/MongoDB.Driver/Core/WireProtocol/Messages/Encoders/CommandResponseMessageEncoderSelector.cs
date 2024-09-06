@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,9 @@
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents a message encoder selector for CommandResponseMessages.
-    /// </summary>
-    public class CommandResponseMessageEncoderSelector : IMessageEncoderSelector
+    internal sealed class CommandResponseMessageEncoderSelector : IMessageEncoderSelector
     {
-        // public methods        
-        /// <inheritdoc />
+        // public methods
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetCommandResponseMessageEncoder();

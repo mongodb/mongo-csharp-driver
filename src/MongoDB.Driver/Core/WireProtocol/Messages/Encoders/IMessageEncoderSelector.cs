@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,17 +15,8 @@
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    /// <summary>
-    /// Represents a message encoder selector that gets the appropriate encoder from an encoder factory.
-    /// </summary>
-    public interface IMessageEncoderSelector
+    internal interface IMessageEncoderSelector
     {
-        // methods
-        /// <summary>
-        /// Get the appropriate encoder from an encoder factory.
-        /// </summary>
-        /// <param name="encoderFactory">The encoder factory.</param>
-        /// <returns>A message encoder.</returns>
         IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

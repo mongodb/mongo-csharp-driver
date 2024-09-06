@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,23 +24,12 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    /// <summary>
-    /// Represents a Json encoder for a CompressedMessage.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
-    public class CompressedMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
+    internal sealed class CompressedMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         private readonly MessageEncoderSettings _encoderSettings;
         private readonly IMessageEncoderSelector _originalEncoderSelector;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompressedMessageJsonEncoder"/> class.
-        /// </summary>
-        /// <param name="textReader">The text reader.</param>
-        /// <param name="textWriter">The text writer.</param>
-        /// <param name="originalEncoderSelector">The original encoder selector.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public CompressedMessageJsonEncoder(TextReader textReader, TextWriter textWriter, IMessageEncoderSelector originalEncoderSelector, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
@@ -49,10 +38,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // public methods
-        /// <summary>
-        /// Reads the message.
-        /// </summary>
-        /// <returns>A message.</returns>
         public CompressedMessage ReadMessage()
         {
             var reader = CreateJsonReader();
@@ -78,10 +63,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             }
         }
 
-        /// <summary>
-        /// Writes the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         public void WriteMessage(CompressedMessage message)
         {
             Ensure.IsNotNull(message, nameof(message));
@@ -103,13 +84,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             writer.WriteEndDocument();
         }
 
-        /// <inheritdoc />
         MongoDBMessage IMessageEncoder.ReadMessage()
         {
             return ReadMessage();
         }
 
-        /// <inheritdoc />
         void IMessageEncoder.WriteMessage(MongoDBMessage message)
         {
             WriteMessage((CompressedMessage)message);

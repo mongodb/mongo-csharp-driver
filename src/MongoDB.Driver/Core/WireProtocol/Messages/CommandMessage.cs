@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,11 +22,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    /// <summary>
-    /// Represents a command message.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage" />
-    public sealed class CommandMessage : MongoDBMessage
+    internal sealed class CommandMessage : MongoDBMessage
     {
         // static
         private static readonly HashSet<string> __messagesNotToBeCompressed = new HashSet<string>
@@ -52,13 +48,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly List<CommandMessageSection> _sections;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandMessage" /> class.
-        /// </summary>
-        /// <param name="requestId">The request identifier.</param>
-        /// <param name="responseTo">The response to.</param>
-        /// <param name="sections">The sections.</param>
-        /// <param name="moreToCome">if set to <c>true</c> [more to come].</param>
         public CommandMessage(
             int requestId,
             int responseTo,
@@ -77,19 +66,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets a value indicating whether multiple responses might be returned from the server or not.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server might return multiple responses; otherwise, <c>false</c>.
-        /// </value>
         public bool ExhaustAllowed
         {
             get { return _exhaustAllowed; }
             set { _exhaustAllowed = value; }
         }
 
-        /// <inheritdoc />
         public override bool MayBeCompressed
         {
             get
@@ -107,67 +89,26 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             }
         }
 
-        /// <inheritdoc />
         public override MongoDBMessageType MessageType => MongoDBMessageType.Command;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether another message immediately follows this one with no response expected.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if another message immediately follows this one; otherwise, <c>false</c>.
-        /// </value>
         public bool MoreToCome
         {
             get { return _moreToCome; }
             set { _moreToCome = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the delegate called to after the message has been written by the encoder.
-        /// </summary>
-        /// <value>
-        /// The post write delegate.
-        /// </value>
         public Action<IMessageEncoderPostProcessor> PostWriteAction
         {
             get { return _postWriteAction; }
             set { _postWriteAction = value; }
         }
 
-        /// <summary>
-        /// Gets the request identifier.
-        /// </summary>
-        /// <value>
-        /// The request identifier.
-        /// </value>
         public int RequestId => _requestId;
-
-        /// <summary>
-        /// Gets a value indicating whether a response is expected.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if a response is expected; otherwise, <c>false</c>.
-        /// </value>
         public bool ResponseExpected => !_moreToCome;
-
-        /// <summary>
-        /// Gets the response to.
-        /// </summary>
-        /// <value>
-        /// The response to.
-        /// </value>
         public int ResponseTo => _responseTo;
-
-        /// <summary>
-        /// Gets the sections.
-        /// </summary>
-        /// <value>
-        /// The sections.
-        /// </value>
         public IReadOnlyList<CommandMessageSection> Sections => _sections;
 
         // public methods
-        /// <inheritdoc />
         public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetCommandMessageEncoder();

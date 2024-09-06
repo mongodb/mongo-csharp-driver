@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         protected Driver.CollectionNamespace _collectionNamespace;
         protected DatabaseNamespace _databaseNamespace;
         private bool _hasOncePerFixtureRun;
-        protected MessageEncoderSettings _messageEncoderSettings;
+        private protected MessageEncoderSettings _messageEncoderSettings;
         protected readonly ICoreSessionHandle _session;
 
         public OperationTestBase()

@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseHandling_get_should_return_expected_result(
+        internal void ResponseHandling_get_should_return_expected_result(
             [Values(CommandResponseHandling.Return, CommandResponseHandling.Ignore)] CommandResponseHandling value)
         {
 #pragma warning disable 618
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseHandling_set_should_have_expected_result(
+        internal void ResponseHandling_set_should_have_expected_result(
             [Values(CommandResponseHandling.Return, CommandResponseHandling.Ignore)] CommandResponseHandling value)
         {
 #pragma warning disable 618
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseHandling_set_should_throw_when_value_is_invalid(
+        internal void ResponseHandling_set_should_throw_when_value_is_invalid(
             [Values(-1, CommandResponseHandling.NoResponseExpected)] CommandResponseHandling value)
         {
 #pragma warning disable 618

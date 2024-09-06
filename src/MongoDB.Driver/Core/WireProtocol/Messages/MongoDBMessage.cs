@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,33 +13,15 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    /// <summary>
-    /// Represents a base class for messages.
-    /// </summary>
-    public abstract class MongoDBMessage : IEncodableMessage
+    internal abstract class MongoDBMessage : IEncodableMessage
     {
-        // properties
-        /// <summary>
-        /// Gets the flag whether the message may be compressed or not.
-        /// </summary>
         public virtual bool MayBeCompressed => false;
-
-        /// <summary>
-        /// Gets the type of the message.
-        /// </summary>
         public abstract MongoDBMessageType MessageType { get; }
 
-        // methods        
-        /// <inheritdoc/>
         public abstract IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

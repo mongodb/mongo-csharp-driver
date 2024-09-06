@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,40 +17,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    /// <summary>
-    /// Represents a binary encoder for a CommandResponseMessage.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
-    public class CommandResponseMessageBinaryEncoder : IMessageEncoder
+    internal sealed class CommandResponseMessageBinaryEncoder : IMessageEncoder
     {
         // private fields
         private readonly CommandMessageBinaryEncoder _wrappedEncoder;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandResponseMessageBinaryEncoder" /> class.
-        /// </summary>
-        /// <param name="wrappedEncoder">The wrapped encoder.</param>
         public CommandResponseMessageBinaryEncoder(CommandMessageBinaryEncoder wrappedEncoder)
         {
             _wrappedEncoder = Ensure.IsNotNull(wrappedEncoder, nameof(wrappedEncoder));
         }
 
         // public methods
-        /// <summary>
-        /// Reads the message.
-        /// </summary>
-        /// <returns>A message.</returns>
         public CommandResponseMessage ReadMessage()
         {
             var wrappedMessage = (CommandMessage)_wrappedEncoder.ReadMessage();
             return new CommandResponseMessage(wrappedMessage);
         }
 
-        /// <summary>
-        /// Writes the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         public void WriteMessage(CommandResponseMessage message)
         {
             var wrappedMessage = message.WrappedMessage;

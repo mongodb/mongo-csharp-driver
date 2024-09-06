@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    /// <summary>
-    /// Represents the type of message.
-    /// </summary>
-    public enum MongoDBMessageType
+    internal enum MongoDBMessageType
     {
         /// <summary>
         /// OP MSG

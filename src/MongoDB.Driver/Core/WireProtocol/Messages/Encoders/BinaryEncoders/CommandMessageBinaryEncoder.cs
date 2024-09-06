@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -9,8 +9,7 @@
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing per
-* ssions and
+* See the License for the specific language governing permissions and
 * limitations under the License.
 */
 
@@ -26,29 +25,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    /// <summary>
-    /// Represents a binary encoder for a CommandMessage.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders.MessageBinaryEncoderBase" />
-    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
-    public class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
+    internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandMessageBinaryEncoder" /> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="encoderSettings">The encoder settings.</param>
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
         }
 
         // public methods
-        /// <summary>
-        /// Reads the message.
-        /// </summary>
-        /// <returns>A message.</returns>
         public CommandMessage ReadMessage()
         {
             var reader = CreateBinaryReader();
@@ -77,10 +62,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             };
         }
 
-        /// <summary>
-        /// Writes the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         public void WriteMessage(CommandMessage message)
         {
             Ensure.IsNotNull(message, nameof(message));
