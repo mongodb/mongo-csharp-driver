@@ -144,19 +144,20 @@ functions:
           ${PROJECT_DIRECTORY}/${file}
 
   run-external-script:
-    - command: subprocess.exec
+    - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
-        binary: bash
+        shell: "bash"
         include_expansions_in_env:
           - "OS"
           - "GIT_REPO"
           - "GIT_BRANCH"
           - "LOCAL_PATH"
           - "SCRIPT"
-        args:
-          - evergreen/run-external-script.sh
+        script: |
+          ${PREPARE_SHELL}
+          bash evergreen/run-external-script.sh
 
   upload-mo-artifacts:
     - command: shell.exec
@@ -1924,6 +1925,23 @@ tasks:
               DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
 
+    - name: test-efcore
+      commands:
+        - func: install-dotnet
+        - func: bootstrap-mongo-orchestration
+        - command: expansions.update
+          params:
+            updates:
+              - key: TEST_RESULTS_PATH
+                value: "./efcore/artifacts/test-results/TEST*.xml"
+        - func: run-external-script
+          vars:
+            GIT_REPO: "https://github.com/mongodb/mongo-efcore-provider.git"
+            LOCAL_PATH: ${workdir}/efcore
+            SCRIPT: |
+              ${PREPARE_SHELL}
+              DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
+
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2805,6 +2823,19 @@ buildvariants:
   display_name: "Analyzer tests on ${os}"
   tasks:
     - name: test-analyzer
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+
+- matrix_name: efcore-tests
+  batchtime: 720 # 12 hours
+  matrix_spec:
+    os: ["ubuntu-2004", "windows-64"]
+    version: ["5.0", "8.0", "latest"]
+    topology: "replicaset"
+  display_name: "Efcore tests on ${os} with MongoDB ${version}"
+  tasks:
+    - name: test-efcore
       depends_on:
         - name: push-packages-myget
           variant: ".push-packages-myget"
