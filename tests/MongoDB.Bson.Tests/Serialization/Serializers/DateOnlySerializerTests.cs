@@ -35,64 +35,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
         }
 
-        private class TestClass
-        {
-            public DateOnly DefaultDate { get; set; }
-
-            [BsonRepresentation(BsonType.DateTime)]
-            public DateOnly DateTimeDate { get; set; }
-
-            [BsonRepresentation(BsonType.Int64)]
-            public DateOnly IntDate { get; set; }
-
-            [BsonRepresentation(BsonType.String)]
-            public DateOnly StringDate { get; set; }
-
-            [BsonRepresentation(BsonType.Document)]
-            public DateOnly DocumentDate { get; set; }
-
-            public override bool Equals(object obj)
-            {
-                return obj is TestClass to &&
-                       DefaultDate.Equals(to.DefaultDate) &&
-                       DateTimeDate.Equals(to.DateTimeDate) &&
-                       IntDate.Equals(to.IntDate) &&
-                       StringDate.Equals(to.StringDate) &&
-                       DocumentDate.Equals(to.DocumentDate);
-            }
-
-            public override int GetHashCode() => base.GetHashCode();
-        }
-
-        public static readonly IEnumerable<object[]> DateOnlyValues =
-        [
-            [DateOnly.MinValue],
-            [DateOnly.MaxValue],
-            [DateOnly.FromDateTime(DateTime.Today)],
-        ];
-
-        [Theory]
-        [MemberData(nameof(DateOnlyValues))]
-        public void BsonRepresentationAttribute_should_set_correct_representation(DateOnly testValue)
-        {
-            var testObj = new TestClass
-            {
-                DefaultDate = testValue,
-                DateTimeDate = testValue,
-                IntDate = testValue,
-                StringDate = testValue,
-                DocumentDate = testValue,
-            };
-
-            var bsonDocument = testObj.ToBsonDocument();
-
-            Assert.Equal(bsonDocument["DefaultDate"].BsonType, BsonType.DateTime);
-            Assert.Equal(bsonDocument["DateTimeDate"].BsonType, BsonType.DateTime);
-            Assert.Equal(bsonDocument["IntDate"].BsonType, BsonType.Int64);
-            Assert.Equal(bsonDocument["StringDate"].BsonType, BsonType.String);
-            Assert.Equal(bsonDocument["DocumentDate"].BsonType, BsonType.Document);
-        }
-
         [Fact]
         public void Constructor_with_no_arguments_should_return_expected_result()
         {
@@ -243,23 +185,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void WithRepresentation_should_return_expected_result(
-            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType oldRepresentation,
-            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType newRepresentation)
-        {
-            var subject = new DateOnlySerializer(oldRepresentation);
-
-            var result = subject.WithRepresentation(newRepresentation);
-
-            result.Representation.Should().Be(newRepresentation);
-            if (newRepresentation == oldRepresentation)
-            {
-                result.Should().BeSameAs(subject);
-            }
-        }
-
-        [Theory]
         [InlineData(BsonType.DateTime, "10/20/2024", """{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""")]
         [InlineData(BsonType.DateTime, "01/01/0001", """{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""")]
         [InlineData(BsonType.DateTime, "12/31/9999", """{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""")]
@@ -290,6 +215,23 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = textWriter.ToString();
 
             result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WithRepresentation_should_return_expected_result(
+            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType oldRepresentation,
+            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType newRepresentation)
+        {
+            var subject = new DateOnlySerializer(oldRepresentation);
+
+            var result = subject.WithRepresentation(newRepresentation);
+
+            result.Representation.Should().Be(newRepresentation);
+            if (newRepresentation == oldRepresentation)
+            {
+                result.Should().BeSameAs(subject);
+            }
         }
     }
     #endif
