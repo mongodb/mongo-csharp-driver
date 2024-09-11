@@ -301,6 +301,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -532,6 +535,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
+        [InlineData(true, "{ $match : { } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -617,6 +621,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -840,6 +845,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
+        [InlineData(true, "{ $match : { } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -925,6 +931,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();

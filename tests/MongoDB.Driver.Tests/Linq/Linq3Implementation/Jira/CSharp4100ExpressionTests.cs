@@ -302,6 +302,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R :  false } }, _id : 0 } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -533,6 +534,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
+        [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -618,6 +620,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -841,6 +844,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
+        [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -926,6 +930,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
