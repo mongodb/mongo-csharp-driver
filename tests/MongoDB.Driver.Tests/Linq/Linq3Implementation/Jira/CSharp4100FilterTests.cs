@@ -301,8 +301,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
