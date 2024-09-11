@@ -302,11 +302,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R :  false } }, _id : 0 } }")]
-#if !NETCOREAPP2_1
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
-#endif
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -538,11 +533,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
-#if !NETCOREAPP2_1
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
-        [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
-#endif
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -628,11 +618,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
-#if !NETCOREAPP2_1
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
-#endif
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -856,11 +841,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
-#if !NETCOREAPP2_1
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
-        [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
-#endif
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -946,11 +926,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $project : { _v : { $literal : { R : false } }, _id : 0 } }")]
-#if !NETCOREAPP2_1
-        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
-        // https://github.com/dotnet/runtime/issues/27376
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
-#endif
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();

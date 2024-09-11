@@ -1494,13 +1494,6 @@ tasks:
           vars:
             FRAMEWORK: net472
 
-    - name: test-smoke-tests-netcoreapp21
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: netcoreapp21
-
     - name: test-smoke-tests-netcoreapp31
       commands:
         - func: bootstrap-mongo-orchestration
@@ -2327,7 +2320,6 @@ buildvariants:
     - windows-64-vs2017-test
   tasks:
     - name: stable-api-tests-net472
-    - name: stable-api-tests-netstandard20
     - name: stable-api-tests-netstandard21
 
 # Secure tests
@@ -2617,7 +2609,6 @@ buildvariants:
   batchtime: 1440 # 1 day
   tasks:
     - name: test-smoke-tests-net472
-    - name: test-smoke-tests-netcoreapp21
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
@@ -2628,7 +2619,6 @@ buildvariants:
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-netcoreapp21
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
@@ -2639,7 +2629,6 @@ buildvariants:
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-netcoreapp21
     - name: test-smoke-tests-netcoreapp31
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
