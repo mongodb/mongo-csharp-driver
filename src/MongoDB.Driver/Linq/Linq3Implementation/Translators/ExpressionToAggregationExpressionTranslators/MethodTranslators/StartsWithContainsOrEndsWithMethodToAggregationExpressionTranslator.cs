@@ -84,59 +84,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return true;
             }
 
-#if NETSTANDARD2_0
-            // some String methods are defined in .NET Core 2.1 but not in .NET Standard 2.0 so we have to identify them using reflection in .NET Standard 2.0
-            if (method.DeclaringType == typeof(string) && !method.IsStatic)
-            {
-                var parameters = method.GetParameters();
-                switch (method.Name)
-                {
-                    case "Contains":
-                        switch (parameters.Length)
-                        {
-                            case 1:
-                                if (parameters[0].ParameterType == typeof(char))
-                                {
-                                    return true;
-                                }
-                                break;
-
-                            case 2:
-                                if (parameters[0].ParameterType == typeof(char) &&
-                                    parameters[1].ParameterType == typeof(StringComparison))
-                                {
-                                    return true;
-                                }
-                                if (parameters[0].ParameterType == typeof(string) &&
-                                    parameters[1].ParameterType == typeof(StringComparison))
-                                {
-                                    return true;
-                                }
-                                if (parameters[0].ParameterType == typeof(string) &&
-                                    parameters[1].ParameterType == typeof(CultureInfo))
-                                {
-                                    return true;
-                                }
-                                break;
-                        }
-                        break;
-
-                    case "EndsWith":
-                    case "StartsWith":
-                        switch (parameters.Length)
-                        {
-                            case 1:
-                                if (parameters[0].ParameterType == typeof(char))
-                                {
-                                    return true;
-                                }
-                                break;
-                        }
-                        break;
-                }
-            }
-#endif
-
             return false;
         }
 
@@ -274,19 +221,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return true;
                 }
 
-#if NETSTANDARD2_0
-                // some String methods are defined in .NET Core 2.1 but not in .NET Standard 2.0 so we have to identify them using reflection in .NET Standard 2.0
-                var parameters = method.GetParameters();
-                if (parameters.Length > 0)
-                {
-                    var lastParameter = parameters[parameters.Length - 1];
-                    if (lastParameter.ParameterType == typeof(StringComparison))
-                    {
-                        return true;
-                    }
-                }
-#endif
-
                 return false;
             }
 
@@ -296,21 +230,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     return true;
                 }
-
-#if NETSTANDARD2_0
-                // some String methods are defined in .NET Core 2.1 but not in .NET Standard 2.0 so we have to identify them using reflection in .NET Standard 2.0
-                var parameters = method.GetParameters();
-                if (parameters.Length > 2)
-                {
-                    var nextToLastParameter = parameters[parameters.Length - 2];
-                    var lastParameter = parameters[parameters.Length - 1];
-                    if (nextToLastParameter.ParameterType == typeof(bool) &&
-                        lastParameter.ParameterType == typeof(CultureInfo))
-                    {
-                        return true;
-                    }
-                }
-#endif
 
                 return false;
             }

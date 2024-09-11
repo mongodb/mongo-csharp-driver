@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net472;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0;net6.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsOSX)'!='true'">$(TargetFrameworks);net8.0</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>..\..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
@@ -31,7 +31,7 @@
     <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.2.0" />

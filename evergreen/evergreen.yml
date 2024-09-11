@@ -1149,13 +1149,6 @@ tasks:
           vars:
             FRAMEWORK: net472
 
-    - name: test-netstandard20
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-tests
-          vars:
-            FRAMEWORK: netstandard20
-
     - name: test-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
@@ -1169,13 +1162,6 @@ tasks:
         - func: run-csfle-with-mongocryptd-tests
           vars:
             FRAMEWORK: net472
-
-    - name: test-csfle-with-mongocryptd-netstandard20
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
-          vars:
-            FRAMEWORK: netstandard20
 
     - name: test-csfle-with-mongocryptd-netstandard21
       commands:
@@ -1195,17 +1181,6 @@ tasks:
           vars:
             FRAMEWORK: net472
 
-    - name: test-csfle-with-mocked-kms-tls-netstandard20
-      commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
-        - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
-          vars:
-            FRAMEWORK: netstandard20
-
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
         - func: start-kms-mock-servers
@@ -1216,17 +1191,6 @@ tasks:
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard21
-
-    - name: test-load-balancer-netstandard20
-      commands:
-        - func: bootstrap-mongo-orchestration
-          vars:
-            LOAD_BALANCER: 'true'
-        - func: run-load-balancer
-        - func: run-load-balancer-tests
-          vars:
-            FRAMEWORK: netstandard20
-        - func: stop-load-balancer
 
     - name: test-load-balancer-netstandard21
       commands:
@@ -1253,12 +1217,6 @@ tasks:
         - func: run-gssapi-auth-tests
           vars:
             FRAMEWORK: net472
-
-    - name: test-gssapi-netstandard20
-      commands:
-        - func: run-gssapi-auth-tests
-          vars:
-            FRAMEWORK: netstandard20
 
     - name: test-gssapi-netstandard21
       commands:
@@ -1296,16 +1254,6 @@ tasks:
         - func: run-tests
           vars:
             FRAMEWORK: net472
-            REQUIRE_API_VERSION: true
-
-    - name: stable-api-tests-netstandard20
-      commands:
-        - func: bootstrap-mongo-orchestration
-          vars:
-            REQUIRE_API_VERSION: true
-        - func: run-tests
-          vars:
-            FRAMEWORK: netstandard20
             REQUIRE_API_VERSION: true
 
     - name: stable-api-tests-netstandard21
@@ -2083,10 +2031,6 @@ axes:
         display_name: net472
         variables:
           FRAMEWORK: net472
-      - id: "netstandard20"
-        display_name: netstandard20
-        variables:
-          FRAMEWORK: netstandard20
       - id: "netstandard21"
         display_name: netstandard21
         variables:
@@ -2393,7 +2337,6 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
@@ -2408,7 +2351,6 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "secure-tests-linux-2004"
@@ -2416,7 +2358,6 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 # Unsecure tests
@@ -2426,7 +2367,6 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
@@ -2441,7 +2381,6 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-linux-2004"
@@ -2449,7 +2388,6 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 # Compression tests
@@ -2459,7 +2397,6 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "tests-compression-macOS"
@@ -2474,7 +2411,6 @@ buildvariants:
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 - matrix_name: "tests-compression-linux-2004"
@@ -2482,7 +2418,6 @@ buildvariants:
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard20
     - name: test-netstandard21
 
 # Auth tests
@@ -2546,7 +2481,6 @@ buildvariants:
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
-    - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
 
 - name: gssapi-auth-tests-linux
@@ -2554,7 +2488,6 @@ buildvariants:
     - ubuntu1804-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
-    - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
 
 # Load balancer tests
@@ -2562,26 +2495,24 @@ buildvariants:
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: load-balancer-tests-secure
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 # Serverless tests
 - matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard20", "netstandard21"], serverless: "*" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard21"], serverless: "*" }
   display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   batchtime: 10080  # 7 days
   tasks:
     - name: serverless-task-group
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard20", "netstandard21"], serverless: "*" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard21"], serverless: "*" }
   display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   batchtime: 10080  # 7 days
   tasks:
@@ -2638,28 +2569,22 @@ buildvariants:
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
-    - name: test-csfle-with-mocked-kms-tls-netstandard20
     - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mongocryptd-net472
-    - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-1804"
   matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard20
     - name: test-csfle-with-mocked-kms-tls-netstandard21
-    - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
   matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard20
     - name: test-csfle-with-mocked-kms-tls-netstandard21
-    - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
