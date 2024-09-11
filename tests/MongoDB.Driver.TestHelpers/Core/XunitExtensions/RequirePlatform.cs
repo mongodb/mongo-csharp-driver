@@ -52,18 +52,13 @@ namespace MongoDB.Driver.TestHelpers
             throw new InvalidOperationException($"Unable to determine current operating system.");
         }
 
-
-        public static SupportedTargetFramework GetCurrentTargetFramework()
+        public static SupportedTargetFramework GetCurrentTargetFramework() => TargetFramework.Moniker switch
         {
-#if NET472
-            return SupportedTargetFramework.Net472;
-#endif
-#if NETSTANDARD2_1
-            return SupportedTargetFramework.NetStandard21;
-#endif
+            "net472" => SupportedTargetFramework.Net472,
+            "netstandard21" => SupportedTargetFramework.NetStandard21,
+            _ => throw new InvalidOperationException($"Unable to determine current target framework: {TargetFramework.Moniker}.")
+        };
 
-            throw new InvalidOperationException($"Unable to determine current target framework.");
-        }
         #endregion
 
         public RequirePlatform SkipWhen(SupportedOperatingSystem operatingSystem, params SupportedTargetFramework[] targetFrameworks)

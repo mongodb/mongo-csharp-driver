@@ -150,7 +150,6 @@ Task("Test")
     .DeferOnError();
 
 Task("TestNet472").IsDependentOn("Test");
-Task("TestNetStandard20").IsDependentOn("Test");
 Task("TestNetStandard21").IsDependentOn("Test");
 Task("TestNet60").IsDependentOn("Test");
 
@@ -250,7 +249,6 @@ Task("TestGssapi")
            RunTests(buildConfig, testProject, filter: "Category=\"GssapiMechanism\""));
 
 Task("TestGssapiNet472").IsDependentOn("TestGssapi");
-Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
 Task("TestGssapiNet60").IsDependentOn("TestGssapi");
 
@@ -269,7 +267,6 @@ Task("TestServerless")
             RunTests(buildConfig, testProject, filter: "Category=\"Serverless\""));
 
 Task("TestServerlessNet472").IsDependentOn("TestServerless");
-Task("TestServerlessNetStandard20").IsDependentOn("TestServerless");
 Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
 Task("TestServerlessNet60").IsDependentOn("TestServerless");
 
@@ -280,7 +277,6 @@ Task("TestLoadBalanced")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"SupportLoadBalancing\""));
 
-Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNet60").IsDependentOn("TestLoadBalanced");
 
@@ -292,7 +288,6 @@ Task("TestCsfleWithMockedKms")
             RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
 
 Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
-Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNet60").IsDependentOn("TestCsfleWithMockedKms");
 
@@ -304,7 +299,6 @@ Task("TestCsfleWithMongocryptd")
             RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
 
 Task("TestCsfleWithMongocryptdNet472").IsDependentOn("TestCsfleWithMongocryptd");
-Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
