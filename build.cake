@@ -646,7 +646,6 @@ Setup<BuildConfig>(
         var framework = targetPlatform == "arm64" ? "net6.0" : lowerTarget switch
         {
             string s when s.EndsWith("net472") => "net472",
-            string s when s.EndsWith("netstandard20") || s.EndsWith("netcoreapp21") => "netcoreapp2.1",
             string s when s.EndsWith("netstandard21") || s.EndsWith("netcoreapp31") => "netcoreapp3.1",
             string s when s.EndsWith("net472") => "net472",
             string s when s.EndsWith("net50") => "net5.0",
