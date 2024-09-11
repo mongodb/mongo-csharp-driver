@@ -1094,7 +1094,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 S = decimal.MinValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, -2147483648], 'D128' : NumberDecimal('#D128'), 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
+            var expected = "{ 'X' : NumberDecimal('#D128'), 'A' : [-1, -1, -1, -2147483648], 'D128' : NumberDecimal('#D128'), 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
             expected = expected.Replace("#S", JsonConvert.ToString(decimal.MinValue));
             expected = expected.Replace("#D128", "-9.999999999999999999999999999999999E+6144");
             expected = expected.Replace("#D", "-1.7976931348623157E+308");
@@ -1122,7 +1122,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 S = decimal.MaxValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, 0], 'D128' : NumberDecimal('#D128'), 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
+            var expected = "{ 'X' : NumberDecimal('#D128'), 'A' : [-1, -1, -1, 0], 'D128' : NumberDecimal('#D128'), 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
             expected = expected.Replace("#S", JsonConvert.ToString(decimal.MaxValue));
             expected = expected.Replace("#D128", "9.999999999999999999999999999999999E+6144");
             expected = expected.Replace("#D", "1.7976931348623157E+308");

@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 Type t when t == typeof(ulong) => new UInt64Serializer(),
                 Type t when t == typeof(float) => new SingleSerializer(),
                 Type t when t == typeof(double) => new DoubleSerializer(),
-                Type t when t == typeof(decimal) => DecimalSerializer.Decimal128Instance,
+                Type t when t == typeof(decimal) => DecimalSerializer.Instance,
                 Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
                 Type { IsArray: true } t => (IBsonSerializer)Activator.CreateInstance(typeof(ArraySerializer<>).MakeGenericType(t.GetElementType())),
                 _ => context.KnownSerializersRegistry.GetSerializer(expression) // Required for Coalesce

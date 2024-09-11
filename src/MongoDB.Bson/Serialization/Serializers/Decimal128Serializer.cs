@@ -25,12 +25,12 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class Decimal128Serializer : StructSerializerBase<Decimal128>, IRepresentationConfigurable<Decimal128Serializer>, IRepresentationConverterConfigurable<Decimal128Serializer>
     {
         #region static
-        private static readonly Decimal128Serializer __decimal128Instance = new Decimal128Serializer(BsonType.Decimal128);
+        private static readonly Decimal128Serializer __instance = new Decimal128Serializer();
 
         /// <summary>
         /// Gets a cached instance of a Decimal128Serializer with Decimal128 representation.
         /// </summary>
-        public static Decimal128Serializer Decimal128Instance => __decimal128Instance;
+        public static Decimal128Serializer Instance => __instance;
         #endregion
 
         // private fields
