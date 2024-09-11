@@ -13,13 +13,6 @@
  * limitations under the License.
  */
 
-// Use our vendored version of Rfc2898DeriveBytes for .NET Standard 2.0
-// because this target does not support a version of Rfc2898DeriveBytes that allows to specify the hash algorithm
-#if NETSTANDARD2_0
-using Rfc2898DeriveBytes = MongoDB.Driver.Authentication.Vendored.Rfc2898DeriveBytes;
-#else
-using Rfc2898DeriveBytes = System.Security.Cryptography.Rfc2898DeriveBytes;
-#endif
 using System.Security.Cryptography;
 using System.Text;
 

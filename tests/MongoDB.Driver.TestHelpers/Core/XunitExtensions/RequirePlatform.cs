@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using Xunit;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.TestHelpers
@@ -23,7 +22,6 @@ namespace MongoDB.Driver.TestHelpers
     public enum SupportedTargetFramework
     {
         Net472,
-        NetStandard20,
         NetStandard21
     }
 
@@ -59,9 +57,6 @@ namespace MongoDB.Driver.TestHelpers
         {
 #if NET472
             return SupportedTargetFramework.Net472;
-#endif
-#if NETSTANDARD2_0
-            return SupportedTargetFramework.NetStandard20;
 #endif
 #if NETSTANDARD2_1
             return SupportedTargetFramework.NetStandard21;

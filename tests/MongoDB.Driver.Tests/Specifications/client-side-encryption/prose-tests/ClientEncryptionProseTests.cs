@@ -530,11 +530,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                // it's required only for gcp, but the test design doesn't allow skipping only required steps
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
 
             // this needs only for kmip, but the test design doesn't allow skipping only required steps
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
@@ -700,10 +695,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
-                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
+
             if (kmsProvider == "kmip")
             {
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
@@ -795,10 +787,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             string expectedExceptionInfoForInvalidEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+
             if (kmsType == "kmip")
             {
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
@@ -1444,10 +1433,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => kmsProvider.StartsWith("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
@@ -2327,10 +2312,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // The test description requires configuring all kmsProviders in setup, but leaving only related to the provided income arguments
             // to avoid restrictions on kmip mocking setup for unrelated to kmip tests
             var kmsProviderFilter = EncryptionTestHelper.CreateKmsProviderFilter(srcProvider, dstProvider);
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             if (kmsProviderFilter.Contains("kmip"))
             {
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
@@ -2494,15 +2475,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
                 var exception = Record.Exception(() => _ = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async));
-                if (RequirePlatform.GetCurrentOperatingSystem() != SupportedOperatingSystem.Windows &&
-                    RequirePlatform.GetCurrentTargetFramework() == SupportedTargetFramework.NetStandard20)
-                {
-                    AssertInnerEncryptionException<CryptException>(exception, "error constructing KMS message: Failed to create GCP oauth request signature: RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on frameworks higher or equal to .netstandard2.1.");
-                }
-                else
-                {
-                    exception.Should().BeNull();
-                }
+
+                exception.Should().BeNull();
             }
         }
 

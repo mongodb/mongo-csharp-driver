@@ -6,10 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'=='true'">$(TargetFrameworks);net472</TargetFrameworks>
-    <StandardTargetFrameworks>netstandard2.0;netstandard2.1</StandardTargetFrameworks>
-    <StandardTargetFrameworks Condition="'$(IsWindows)'=='true'">$(StandardTargetFrameworks);net472</StandardTargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net6.0;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
