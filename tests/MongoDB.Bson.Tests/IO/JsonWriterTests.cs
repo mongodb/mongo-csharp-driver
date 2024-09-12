@@ -22,7 +22,6 @@ using System.Text;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -680,6 +679,42 @@ namespace MongoDB.Bson.Tests.IO
 
                 Assert.Equal(expected, bytes);
             }
+        }
+
+        [Fact]
+        public void WriteGuid_should_work()
+        {
+            using var stringWriter = new StringWriter();
+            using var writer = new JsonWriter(stringWriter);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid);
+            writer.WriteEndDocument();
+            var result = stringWriter.ToString();
+
+            result.Should().Be("{ \"v\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
+        }
+
+        [Theory]
+        [InlineData(GuidRepresentation.Standard, "UUID")]
+        [InlineData(GuidRepresentation.CSharpLegacy, "CSUUID")]
+        [InlineData(GuidRepresentation.JavaLegacy, "JUUID")]
+        [InlineData(GuidRepresentation.PythonLegacy, "PYUUID")]
+        public void WriteGuid_GuidRepresentation_should_work(GuidRepresentation guidRepresentation, string representatinoConstructor)
+        {
+            using var stringWriter = new StringWriter();
+            using var writer = new JsonWriter(stringWriter);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid, guidRepresentation);
+            writer.WriteEndDocument();
+            var result = stringWriter.ToString();
+
+            result.Should().Be($"{{ \"v\" : {representatinoConstructor}(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
         }
     }
 }

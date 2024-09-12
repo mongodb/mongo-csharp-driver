@@ -123,6 +123,19 @@ namespace MongoDB.Bson.IO
         void ReadEndDocument();
 
         /// <summary>
+        /// Reads a Guid from the reader.
+        /// </summary>
+        /// <returns>A Guid.</returns>
+        public Guid ReadGuid();
+
+        /// <summary>
+        /// Reads a Guid with the specified representation from the reader.
+        /// </summary>
+        /// <param name="guidRepresentation">The Guid representation.</param>
+        /// <returns>A Guid.</returns>
+        public Guid ReadGuid(GuidRepresentation guidRepresentation);
+
+        /// <summary>
         /// Reads a BSON Int32 from the reader.
         /// </summary>
         /// <returns>An Int32.</returns>

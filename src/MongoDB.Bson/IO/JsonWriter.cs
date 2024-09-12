@@ -379,6 +379,29 @@ namespace MongoDB.Bson.IO
             }
         }
 
+        /// <inheritdoc/>
+        public override void WriteGuid(Guid value, GuidRepresentation guidRepresentation)
+        {
+            if (Disposed) { throw new ObjectDisposedException("JsonWriter"); }
+            if (State != BsonWriterState.Value && State != BsonWriterState.Initial)
+            {
+                ThrowInvalidState("WriteGuid", BsonWriterState.Value, BsonWriterState.Initial);
+            }
+
+            WriteNameHelper(Name);
+            var representationConstructor = guidRepresentation switch
+            {
+                GuidRepresentation.Standard => "UUID",
+                GuidRepresentation.CSharpLegacy => "CSUUID",
+                GuidRepresentation.JavaLegacy => "JUUID",
+                GuidRepresentation.PythonLegacy => "PYUUID",
+                _ => throw new ArgumentException($"Invalid {nameof(guidRepresentation)} value: {guidRepresentation}", nameof(guidRepresentation))
+            };
+            _textWriter.Write($"{representationConstructor}(\"{value}\")");
+
+            State = GetNextState();
+        }
+
         /// <summary>
         /// Writes a BSON Int32 to the writer.
         /// </summary>
