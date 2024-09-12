@@ -55,6 +55,27 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
+        [InlineData("""{ "x" : { "$numberDouble" : "638649792000000000" } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "$numberDecimal" : "638649792000000000" } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","01/01/0001" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberLong" : "638649792000000000" } } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberDecimal" : "638649792000000000" } } }""","10/20/2024" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberInt" : "0" } } }""","01/01/0001" )]
+        public void Deserialize_should_be_forgiving_of_actual_numeric_types(string json, string expectedResult)
+        {
+            var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+        }
+
+        [Theory]
         [InlineData("""{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""","10/20/2024" )]
         [InlineData("""{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""","01/01/0001" )]
         [InlineData("""{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""","12/31/9999" )]

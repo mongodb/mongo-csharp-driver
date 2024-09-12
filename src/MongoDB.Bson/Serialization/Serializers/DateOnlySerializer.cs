@@ -40,6 +40,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private fields
+        private readonly BsonType _representation;
         private readonly SerializerHelper _helper;
 
         // constructors
@@ -69,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new ArgumentException($"{representation} is not a valid representation for a DateOnlySerializer.");
             }
 
-            Representation = representation;
+            _representation = representation;
 
             _helper = new SerializerHelper
             (
@@ -80,7 +81,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public properties
         /// <inheritdoc />
-        public BsonType Representation { get; }
+        public BsonType Representation => _representation;
 
         //public methods
         /// <inheritdoc />
@@ -105,14 +106,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
                             case Flags.Ticks:
-                                value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                                value = VerifyAndMakeDateOnly(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc));
                                 break;
                         }
                     });
                     break;
 
+                case BsonType.Decimal128:
+                case BsonType.Double:
+                case BsonType.Int32:
                 case BsonType.Int64:
-                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
+                    value = VerifyAndMakeDateOnly(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc));
                     break;
 
                 case BsonType.String:
@@ -139,9 +143,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return base.Equals(obj) &&
+            if (object.ReferenceEquals(obj, null)) { return false; }
+            if (object.ReferenceEquals(this, obj)) { return true; }
+            return
+                base.Equals(obj) &&
                 obj is DateOnlySerializer other &&
-                Representation.Equals(other.Representation);
+                _representation.Equals(other._representation);
         }
 
         /// <inheritdoc/>
@@ -155,7 +162,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var utcDateTime = value.ToDateTime(new TimeOnly(0), DateTimeKind.Utc);
             var millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(utcDateTime);
 
-            switch (Representation)
+            switch (_representation)
             {
                 case BsonType.DateTime:
                     bsonWriter.WriteDateTime(millisecondsSinceEpoch);
@@ -177,14 +184,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    throw new BsonSerializationException($"'{Representation}' is not a valid DateOnly representation.");
+                    throw new BsonSerializationException($"'{_representation}' is not a valid DateOnly representation.");
             }
         }
 
         /// <inheritdoc />
         public DateOnlySerializer WithRepresentation(BsonType representation)
         {
-            return representation == Representation ? this : new DateOnlySerializer(representation);
+            return representation == _representation ? this : new DateOnlySerializer(representation);
         }
 
         // explicit interface implementations

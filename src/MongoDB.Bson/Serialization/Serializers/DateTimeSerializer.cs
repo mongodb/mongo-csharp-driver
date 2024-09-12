@@ -138,43 +138,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of DateTimeSerializer with DateOnly=true.
         /// </summary>
-        public static DateTimeSerializer DateOnlyInstance
-        {
-            get { return __dateOnlyInstance; }
-        }
+        public static DateTimeSerializer DateOnlyInstance => __dateOnlyInstance;
 
         /// <summary>
         /// Gets an instance of DateTimeSerializer with Kind=Local.
         /// </summary>
-        public static DateTimeSerializer LocalInstance
-        {
-            get { return __localInstance; }
-        }
+        public static DateTimeSerializer LocalInstance => __localInstance;
 
         /// <summary>
         /// Gets an instance of DateTimeSerializer with Kind=Utc.
         /// </summary>
-        public static DateTimeSerializer UtcInstance
-        {
-            get { return __utcInstance; }
-        }
+        public static DateTimeSerializer UtcInstance => __utcInstance;
 
         // public properties
         /// <summary>
         /// Gets whether this DateTime consists of a Date only.
         /// </summary>
-        public bool DateOnly
-        {
-            get { return _dateOnly; }
-        }
+        public bool DateOnly => _dateOnly;
 
         /// <summary>
         /// Gets the DateTimeKind (Local, Unspecified or Utc).
         /// </summary>
-        public DateTimeKind Kind
-        {
-            get { return _kind; }
-        }
+        public DateTimeKind Kind => _kind;
 
         /// <summary>
         /// Gets the external representation.
@@ -182,10 +167,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <value>
         /// The representation.
         /// </value>
-        public BsonType Representation
-        {
-            get { return _representation; }
-        }
+        public BsonType Representation => _representation;
 
         // public methods
         /// <summary>
@@ -219,8 +201,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     });
                     break;
 
+                case BsonType.Decimal128:
+                case BsonType.Double:
+                case BsonType.Int32:
                 case BsonType.Int64:
-                    value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64()), DateTimeKind.Utc);
+                    value = DateTime.SpecifyKind(new DateTime(Int64Serializer.Instance.Deserialize(context)), DateTimeKind.Utc);
                     break;
 
                 case BsonType.String:
