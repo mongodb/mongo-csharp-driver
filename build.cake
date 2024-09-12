@@ -377,7 +377,6 @@ Task("SmokeTests")
      });
 
 Task("SmokeTestsNet472").IsDependentOn("SmokeTests");
-Task("SmokeTestsNetCoreApp21").IsDependentOn("SmokeTests");
 Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet50").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet60").IsDependentOn("SmokeTests");
@@ -389,7 +388,7 @@ Task("TestsPackaging")
     .DoesForEach(
     () =>
     {
-        var monikers = new[] { "net472", "netcoreapp21", "netcoreapp30", "net50", "net60" };
+        var monikers = new[] { "net472", "netcoreapp30", "net50", "net60" };
         var csprojTypes = new[] { "SDK" };
         var processorArchitectures = new[] { "x64", "arm64" };
         var projectTypes = new[] { "xunit", "console" };
@@ -595,7 +594,6 @@ Setup<BuildConfig>(
         // in a different directory with a x64 dotnet host process. This would further complicate our testing for little additional gain.
         var framework = targetPlatform == "arm64" ? "net6.0" : lowerTarget switch
         {
-            string s when s.EndsWith("net472") => "net472",
             string s when s.EndsWith("netstandard21") || s.EndsWith("netcoreapp31") => "netcoreapp3.1",
             string s when s.EndsWith("net472") => "net472",
             string s when s.EndsWith("net50") => "net5.0",
