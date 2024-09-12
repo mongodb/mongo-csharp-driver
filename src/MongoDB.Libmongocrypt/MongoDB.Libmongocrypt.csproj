@@ -25,51 +25,60 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LibMongoCryptUbuntuSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/r1.11/latest-r1.11/libmongocrypt.tar.gz</LibMongoCryptUbuntuSourceUrl>
-    <LibMongoCryptWindowsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/r1.11/latest-r1.11/libmongocrypt.tar.gz</LibMongoCryptWindowsSourceUrl>
-    <LibMongoCryptMacOsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/r1.11/latest-r1.11/libmongocrypt.tar.gz</LibMongoCryptMacOsSourceUrl>
+    <LibMongoCryptMacOsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/r1.10/940cdb252c3c21ab15984a070ddca70806d4c63f/libmongocrypt.tar.gz</LibMongoCryptMacOsSourceUrl>
+    <LibMongoCryptUbuntuSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/r1.10/940cdb252c3c21ab15984a070ddca70806d4c63f/libmongocrypt.tar.gz</LibMongoCryptUbuntuSourceUrl>
+    <LibMongoCryptWindowsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/r1.10/940cdb252c3c21ab15984a070ddca70806d4c63f/libmongocrypt.tar.gz</LibMongoCryptWindowsSourceUrl>
   </PropertyGroup>
 
-  <Target Name="DownloadNativeBinaries_linux" BeforeTargets="BeforeBuild" Condition="!Exists('$(ProjectDir)\linux\libmongocrypt.so')">
+  <Target Name="DownloadNativeBinaries_linux" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/linux/libmongocrypt.so')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
     <DownloadFile
       SourceUrl="$(LibMongoCryptUbuntuSourceUrl)"
-      DestinationFolder="$(IntermediateOutputPath)linux"/>
-    <Exec Command="tar -zxvf $(IntermediateOutputPath)linux/libmongocrypt.tar.gz --strip-components=2 -C $(IntermediateOutputPath)linux nocrypto/lib/libmongocrypt.so" />
-    <Copy SourceFiles="$(IntermediateOutputPath)linux/libmongocrypt.so" DestinationFolder="$(ProjectDir)/linux" Retries="5" RetryDelayMilliseconds="100"/>
+      DestinationFolder="$(IntermediateOutputPathLSF)linux"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)linux/libmongocrypt.tar.gz --strip-components=2 -C $(IntermediateOutputPathLSF)linux nocrypto/lib/libmongocrypt.so" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)linux/libmongocrypt.so" DestinationFolder="$(MSBuildProjectDirectory)/linux" Retries="5" RetryDelayMilliseconds="100"/>
   </Target>
 
-  <Target Name="DownloadNativeBinaries_macos" BeforeTargets="BeforeBuild" Condition="!Exists('$(ProjectDir)\macos\libmongocrypt.dylib')">
+  <Target Name="DownloadNativeBinaries_macos" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/macos/libmongocrypt.dylib')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
     <DownloadFile
       SourceUrl="$(LibMongoCryptMacOsSourceUrl)"
-      DestinationFolder="$(IntermediateOutputPath)macos"/>
-    <Exec Command="tar -zxvf $(IntermediateOutputPath)macos/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPath)macos lib/libmongocrypt.dylib" />
-    <Copy SourceFiles="$(IntermediateOutputPath)macos/libmongocrypt.dylib" DestinationFolder="$(ProjectDir)/macos" Retries="5" RetryDelayMilliseconds="100"/>
+      DestinationFolder="$(IntermediateOutputPathLSF)macos"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)macos/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPathLSF)macos lib/libmongocrypt.dylib" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)macos/libmongocrypt.dylib" DestinationFolder="$(MSBuildProjectDirectory)/macos" Retries="5" RetryDelayMilliseconds="100"/>
   </Target>
 
-  <Target Name="DownloadNativeBinaries_windows" BeforeTargets="BeforeBuild" Condition="!Exists('$(ProjectDir)\windows\mongocrypt.dll')">
+  <Target Name="DownloadNativeBinaries_windows" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/windows/mongocrypt.dll')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
     <DownloadFile
       SourceUrl="$(LibMongoCryptWindowsSourceUrl)"
-      DestinationFolder="$(IntermediateOutputPath)windows"/>
-    <Exec Command="tar -zxvf $(IntermediateOutputPath)windows/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPath)windows bin/mongocrypt.dll" />
-    <Copy SourceFiles="$(IntermediateOutputPath)windows/mongocrypt.dll" DestinationFolder="$(ProjectDir)/windows" Retries="5" RetryDelayMilliseconds="100"/>
+      DestinationFolder="$(IntermediateOutputPathLSF)windows"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)windows/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPathLSF)windows bin/mongocrypt.dll" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)windows/mongocrypt.dll" DestinationFolder="$(MSBuildProjectDirectory)/windows" Retries="5" RetryDelayMilliseconds="100"/>
   </Target>
 
   <ItemGroup>
-    <Content Include="$(ProjectDir)\linux\libmongocrypt.so">
+    <Content Include="$(MSBuildProjectDirectory)/linux/libmongocrypt.so">
       <Link>libmongocrypt.so</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux\native</PackagePath>
     </Content>
 
-    <Content Include="$(ProjectDir)\macos\libmongocrypt.dylib">
+    <Content Include="$(MSBuildProjectDirectory)/macos/libmongocrypt.dylib">
       <Link>libmongocrypt.dylib</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\osx\native</PackagePath>
     </Content>
 
-    <Content Include="$(ProjectDir)\windows\mongocrypt.dll">
+    <Content Include="$(MSBuildProjectDirectory)/windows/mongocrypt.dll">
       <Link>mongocrypt.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
@@ -86,6 +95,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="obj\" />
   </ItemGroup>
 
   <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
