@@ -96,11 +96,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             result.Should().Be(0);
         }
 
-        public class DerivedFromSerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializeAsNominalTypeSerializer<TActualType, TNominalType>
-             where TActualType : class, TNominalType
-        {
-        }
-
         public class C { }
 
         public class  D : C {  }
