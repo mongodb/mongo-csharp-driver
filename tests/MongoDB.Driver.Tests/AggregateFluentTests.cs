@@ -1380,6 +1380,8 @@ namespace MongoDB.Driver.Tests
         }
 
         // nested types
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(D))]
         public class C
         {
             public int X;

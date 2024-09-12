@@ -40,15 +40,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var nominalType = objectExpression.Type;
                 var actualType = comparandType;
 
-                var discriminatorConvention = objectTranslation.Serializer is ObjectSerializer objectSerializer ?
-                    objectSerializer.DiscriminatorConvention :
-                    BsonSerializer.LookupDiscriminatorConvention(nominalType);
+                var discriminatorConvention = objectTranslation.Serializer.GetDiscriminatorConvention();
                 var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
-                var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                var ast = DiscriminatorAstExpression.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType);
 
-                var ast = discriminatorValue == null ?
-                    AstExpression.IsMissing(discriminatorField) :
-                    AstExpression.Eq(discriminatorField, discriminatorValue);
                 return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
             }
 

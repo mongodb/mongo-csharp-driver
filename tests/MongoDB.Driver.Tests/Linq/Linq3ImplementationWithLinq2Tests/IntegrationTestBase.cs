@@ -287,6 +287,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             public string DerivedProperty { get; set; }
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(RootDescended))]
         public class Root : IRoot
         {
             public ObjectId ObjectId { get; set; }
@@ -351,6 +353,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             public IEnumerable<E> Z { get; set; }
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(V))]
         public class E
         {
             public int F { get; set; }
@@ -387,6 +391,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             public List<OtherChild> Children { get; set; }
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(OtherChild2))]
         public class OtherChild
         {
             public int Y;

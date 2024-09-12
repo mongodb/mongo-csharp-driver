@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
@@ -29,24 +30,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var objectExpression = expression.Expression;
             var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
+
             var nominalType = objectExpression.Type;
             var actualType = expression.TypeOperand;
 
-            var discriminatorConvention = objectTranslation.Serializer is ObjectSerializer objectSerializer ?
-                objectSerializer.DiscriminatorConvention :
-                BsonSerializer.LookupDiscriminatorConvention(nominalType);
-            var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
-            var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-            if (discriminatorValue is BsonArray array)
+            AstExpression ast;
+            if (nominalType == actualType)
             {
-                discriminatorValue = array.Last();
+                ast = AstExpression.Constant(true);
             }
+            else
+            {
+                var discriminatorConvention = objectTranslation.Serializer.GetDiscriminatorConvention();
+                var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
 
-            var ast = AstExpression.Or(
-                AstExpression.Eq(discriminatorField, discriminatorValue),
-                AstExpression.And(
-                    AstExpression.IsArray(discriminatorField),
-                    AstExpression.In(discriminatorValue, discriminatorField)));
+                ast = discriminatorConvention switch
+                {
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    _ => throw new ExpressionNotSupportedException(expression, because: "is operator is not supported with the configured discriminator convention")
+                };
+            }
 
             return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
         }

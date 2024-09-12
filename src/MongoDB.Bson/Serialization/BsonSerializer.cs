@@ -398,13 +398,13 @@ namespace MongoDB.Bson.Serialization
                     else
                     {
                         // inherit the discriminator convention from the closest parent (that isn't object) that has one
-                        // otherwise default to the standard hierarchical convention
+                        // otherwise default to the standard scalar convention
                         Type parentType = typeInfo.BaseType;
                         while (true)
                         {
                             if (parentType == typeof(object))
                             {
-                                convention = StandardDiscriminatorConvention.Hierarchical;
+                                convention = StandardDiscriminatorConvention.Scalar;
                                 break;
                             }
                             if (__discriminatorConventions.TryGetValue(parentType, out convention))

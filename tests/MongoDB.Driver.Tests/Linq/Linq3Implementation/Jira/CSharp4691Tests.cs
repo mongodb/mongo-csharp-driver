@@ -37,6 +37,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var objectSerializer = new ObjectSerializer(discriminatorConvention, allowedTypes);
                 cm.MapMember(x => x.Object).SetSerializer(objectSerializer);
             });
+
+            BsonClassMap.RegisterClassMap<ActivityObject<int>>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIsRootClass(true);
+            });
         }
 
         [Fact]
@@ -88,7 +94,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : { $size : 2 }, 'Object._t.0' : 'MyActivityObject', 'Object._t.1' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
                 results.Select(x => x.Id).Should().Equal(6);
             }
         }
@@ -196,7 +202,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 var filter = TranslateFindFilter(collection, find);
                 var results = find.ToList();
 
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : { $size : 2 }, 'Object._t.0' : 'MyActivityObject',  'Object._t.1' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
                 results.Select(x => x.Id).Should().Equal(6);
             }
         }
@@ -270,9 +276,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
-
                 AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, false);
             }
         }
@@ -292,9 +298,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
-
                 AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
             }
         }
@@ -314,9 +320,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
 
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, true);
             }
         }
@@ -336,9 +342,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
 
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
             }
         }
@@ -358,9 +364,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
-
                 AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, false);
             }
         }
@@ -380,9 +386,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
-
                 AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
             }
         }
@@ -402,9 +408,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
 
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObject'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObject', '$Object._t'] }]  }] } } }");
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, true);
             }
         }
@@ -424,9 +430,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     .Select(x => new { x.Id, R = x.Object is TActivityObject });
 
                 var stages = Translate(collection, queryable);
-                var results = queryable.ToList();
+                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
 
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $or : [{ $eq : ['$Object._t', 'MyActivityObjectDerived'] }, { $and : [{ $isArray : '$Object._t' }, { $in : ['MyActivityObjectDerived', '$Object._t'] }]  }] } } }");
+                var results = queryable.ToList();
                 results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
             }
         }

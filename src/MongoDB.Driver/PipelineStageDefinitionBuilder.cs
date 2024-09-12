@@ -20,9 +20,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Search;
@@ -1174,24 +1178,42 @@ namespace MongoDB.Driver
             IBsonSerializer<TOutput> outputSerializer = null)
                 where TOutput : TInput
         {
-            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TOutput));
-            if (discriminatorConvention == null)
-            {
-                var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));
-                throw new NotSupportedException(message);
-            }
-
-            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TInput), typeof(TOutput));
-            var ofTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
-
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
+                    var nominalType = typeof(TInput);
+                    var actualType = typeof(TOutput);
+
+                    AstFilter ofTypeFilter;
+                    if (nominalType == actualType)
+                    {
+                        ofTypeFilter = AstFilter.MatchesEverything();
+                    }
+                    else
+                    {
+                        var inputSerializer = args.DocumentSerializer;
+                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention();
+                        if (discriminatorConvention == null)
+                        {
+                            var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));
+                            throw new NotSupportedException(message);
+                        }
+
+                        var discriminatorField = new AstFilterField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                        ofTypeFilter = discriminatorConvention switch
+                        {
+                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                            _ => throw new NotSupportedException( "OfType is not supported with the configured discriminator convention.")
+                        };
+                    }
+                    ofTypeFilter = AstSimplifier.SimplifyAndConvert(ofTypeFilter);
+
                     return new RenderedPipelineStageDefinition<TOutput>(
                         operatorName,
-                        new BsonDocument(operatorName, ofTypeFilter),
+                        new BsonDocument(operatorName, ofTypeFilter.Render()),
                         outputSerializer ?? args.GetSerializer<TOutput>());
                 });
 

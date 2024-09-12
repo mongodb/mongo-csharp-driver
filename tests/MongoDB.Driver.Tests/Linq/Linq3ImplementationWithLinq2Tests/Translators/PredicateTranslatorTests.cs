@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             Assert(
                 x => x.G.Any(g => g == c1),
                 1,
-                "{ \"G\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"S\": null, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } }");
+                "{ \"G\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { _t : \"E\", \"F\" : 55, \"H\" : 66, \"S\": null, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } }");
         }
 
         [Fact]

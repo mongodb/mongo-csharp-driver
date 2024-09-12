@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for objects.
     /// </summary>
-    public sealed class ObjectSerializer : ClassSerializerBase<object>
+    public sealed class ObjectSerializer : ClassSerializerBase<object>, IHasDiscriminatorConvention
     {
         #region static
         // private static fields
@@ -447,8 +447,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var discriminator = _discriminatorConvention.GetDiscriminator(typeof(object), actualType);
 
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName(_discriminatorConvention.ElementName);
-                    BsonValueSerializer.Instance.Serialize(context, discriminator);
+                    if (discriminator != null)
+                    {
+                        bsonWriter.WriteName(_discriminatorConvention.ElementName);
+                        BsonValueSerializer.Instance.Serialize(context, discriminator);
+                    }
                     bsonWriter.WriteName("_v");
                     serializer.Serialize(context, value);
                     bsonWriter.WriteEndDocument();

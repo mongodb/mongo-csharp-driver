@@ -16,6 +16,8 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
@@ -47,6 +49,8 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // nested types
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(D))]
         public class C
         {
             public ObjectId Id { get; set; }

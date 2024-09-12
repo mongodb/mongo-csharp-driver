@@ -871,10 +871,12 @@ namespace MongoDB.Driver.Tests
         {
             var mockRootCollection = new Mock<IMongoCollection<TRoot>>();
             mockRootCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockRootCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.LookupSerializer<TRoot>());
             mockRootCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
             var mockDerivedCollection = new Mock<IMongoCollection<TDerived>>();
             mockDerivedCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockDerivedCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.LookupSerializer<TDerived>());
             mockDerivedCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
             var subject = new OfTypeMongoCollection<TRoot, TDerived>(mockRootCollection.Object, mockDerivedCollection.Object, _ofTypeFilter);
