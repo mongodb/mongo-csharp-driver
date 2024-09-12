@@ -44,4 +44,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <returns>The discriminator value.</returns>
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
     }
+
+    /// <summary>
+    /// Represents a discriminator convention where the discriminator for each type in a polymorphic hierarchy is a scalar.
+    /// </summary>
+    public interface IPolymorphicScalarDiscriminatorConvention : IDiscriminatorConvention
+    {
+        /// <summary>
+        /// Returns all the discriminators for a type and all of its known subtypes.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The discriminators.</returns>
+        BsonValue[] GetAllDiscriminatorsForType(Type type);
+    }
 }

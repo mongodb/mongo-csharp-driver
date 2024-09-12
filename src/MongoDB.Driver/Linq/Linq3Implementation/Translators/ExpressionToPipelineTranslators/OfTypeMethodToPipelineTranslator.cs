@@ -16,6 +16,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -50,13 +51,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     discriminatorElementName = wrappedValueOutputSerializer.FieldName + "." + discriminatorElementName;
                 }
                 var discriminatorField = AstFilter.Field(discriminatorElementName, BsonValueSerializer.Instance);
-                var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                if (discriminatorValue.IsBsonArray)
+
+                AstFilter filter;
+                if (discriminatorConvention is IPolymorphicScalarDiscriminatorConvention polymorphicScalarDiscriminatorConvention)
                 {
-                    discriminatorValue = discriminatorValue.AsBsonArray.Last();
+                    var discriminatorValues = polymorphicScalarDiscriminatorConvention.GetAllDiscriminatorsForType(actualType);
+                    filter = discriminatorValues.Length > 1
+                        ? AstFilter.In(discriminatorField, discriminatorValues)
+                        : AstFilter.Eq(discriminatorField, discriminatorValues.Single());
+                }
+                else
+                {
+                    var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                    if (discriminatorValue.IsBsonArray)
+                    {
+                        discriminatorValue = discriminatorValue.AsBsonArray.Last();
+                    }
+
+                    filter = AstFilter.Eq(discriminatorField, discriminatorValue); // note: OfType only works with hierarchical discriminators
                 }
 
-                var filter = AstFilter.Eq(discriminatorField, discriminatorValue); // note: OfType only works with hierarchical discriminators
                 var actualSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 if (wrappedValueOutputSerializer != null)
                 {
