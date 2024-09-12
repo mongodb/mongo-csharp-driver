@@ -28,7 +28,7 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
     public class DateOnlySerializerTests
     {
         private class DerivedFromDateOnlySerializer : DateOnlySerializer
@@ -255,5 +255,5 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
     }
-    #endif
+#endif
 }

@@ -18,7 +18,7 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
-    #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
     /// <summary>
     /// Represents a serializer for DateOnlys.
     /// </summary>
@@ -200,6 +200,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithRepresentation(representation);
         }
     }
-    #endif
+#endif
 }
 
