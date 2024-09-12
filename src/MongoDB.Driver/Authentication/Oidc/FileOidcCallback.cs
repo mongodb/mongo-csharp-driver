@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Authentication.Oidc
 
         public async Task<OidcAccessToken> GetOidcAccessTokenAsync(OidcCallbackParameters parameters, CancellationToken cancellationToken)
         {
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             var accessToken = await File.ReadAllTextAsync(_path, cancellationToken).ConfigureAwait(false);
 #else
             using var streamReader = new StreamReader(_path, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
