@@ -22,7 +22,8 @@ namespace MongoDB.Driver.TestHelpers
     public enum SupportedTargetFramework
     {
         Net472,
-        NetStandard21
+        NetStandard21,
+        Net60
     }
 
     public enum SupportedOperatingSystem
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.TestHelpers
         {
             "net472" => SupportedTargetFramework.Net472,
             "netstandard21" => SupportedTargetFramework.NetStandard21,
+            "net60" => SupportedTargetFramework.Net60,
             _ => throw new InvalidOperationException($"Unable to determine current target framework: {TargetFramework.Moniker}.")
         };
 

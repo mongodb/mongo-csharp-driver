@@ -158,6 +158,10 @@ namespace MongoDB.Driver.Core.Servers
                     _connection.Dispose();
                 }
                 _roundTripTimeMonitor.Dispose();
+                _heartbeatDelay?.Dispose();
+
+                _heartbeatCancellationTokenSource.Cancel();
+                _heartbeatCancellationTokenSource.Dispose();
 
                 _logger?.LogDebug(_serverId, "Disposed");
             }
@@ -481,10 +485,8 @@ namespace MongoDB.Driver.Core.Servers
                     lock (_lock)
                     {
                         newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
-                        if (_heartbeatDelay != null)
-                        {
-                            _heartbeatDelay.Dispose();
-                        }
+
+                        _heartbeatDelay?.Dispose();
                         _heartbeatDelay = newHeartbeatDelay;
                     }
                     newHeartbeatDelay.Wait(monitorCancellationToken); // corresponds to wait method in spec

@@ -23,7 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Core.Misc.Tests
 {
     public class DecryptedSecureStringTests
     {

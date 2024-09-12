@@ -15,6 +15,7 @@
 
 using System.Linq;
 using System.Security;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver.Authentication.ScramSha

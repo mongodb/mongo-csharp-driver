@@ -25,7 +25,9 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryWriter : BsonWriter
     {
         // private fields
+#pragma warning disable CA2213 // Disposable never disposed
         private readonly Stream _baseStream;
+#pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryWriterContext _context;
 

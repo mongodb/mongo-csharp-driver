@@ -26,7 +26,9 @@ namespace MongoDB.Driver
     internal sealed class ServerSession : IServerSession
     {
         // private fields
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly ICoreServerSession _coreServerSession;
+#pragma warning restore CA2213 // Disposable fields should be disposed
 
         // constructors
         public ServerSession(ICoreServerSession coreServerSession)

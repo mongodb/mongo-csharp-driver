@@ -41,7 +41,11 @@ namespace MongoDB.Driver.Authentication.ScramSha
 
         public byte[] Hmac(UTF8Encoding encoding, byte[] data, string key)
         {
+#if NET6_0_OR_GREATER
+            using (var hmac = new HMACSHA1(data))
+#else
             using (var hmac = new HMACSHA1(data, useManagedSha1: true))
+#endif
             {
                 return hmac.ComputeHash(encoding.GetBytes(key));
             }

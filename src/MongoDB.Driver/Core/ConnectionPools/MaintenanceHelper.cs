@@ -23,7 +23,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
     // Not thread safe class. Start and Stop MUST be synchronized.
     internal sealed class MaintenanceHelper : IDisposable
     {
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly ExclusiveConnectionPool _connectionPool;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly CancellationToken _globalCancellationToken;
         private readonly CancellationTokenSource _globalCancellationTokenSource;
         private readonly TimeSpan _interval;

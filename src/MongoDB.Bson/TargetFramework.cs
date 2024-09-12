@@ -22,6 +22,8 @@ namespace MongoDB.Bson
             "net472";
 #elif NETSTANDARD2_1
             "netstandard21";
+#elif NET6_0
+            "net60";
 #endif
     }
 }
