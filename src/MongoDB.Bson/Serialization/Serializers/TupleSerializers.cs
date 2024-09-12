@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for a <see cref="Tuple{T1}"/>.
     /// </summary>
     /// <typeparam name="T1">The type of item 1.</typeparam>
-    public class TupleSerializer<T1> : SealedClassSerializerBase<Tuple<T1>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1> : SealedClassSerializerBase<Tuple<T1>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="T1">The type of item 1.</typeparam>
     /// <typeparam name="T2">The type of item 2.</typeparam>
-    public class TupleSerializer<T1, T2> : SealedClassSerializerBase<Tuple<T1, T2>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2> : SealedClassSerializerBase<Tuple<T1, T2>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -306,7 +306,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T1">The type of item 1.</typeparam>
     /// <typeparam name="T2">The type of item 2.</typeparam>
     /// <typeparam name="T3">The type of item 3.</typeparam>
-    public class TupleSerializer<T1, T2, T3> : SealedClassSerializerBase<Tuple<T1, T2, T3>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3> : SealedClassSerializerBase<Tuple<T1, T2, T3>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -430,7 +430,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T2">The type of item 2.</typeparam>
     /// <typeparam name="T3">The type of item 3.</typeparam>
     /// <typeparam name="T4">The type of item 4.</typeparam>
-    public class TupleSerializer<T1, T2, T3, T4> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3, T4> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -571,7 +571,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T3">The type of item 3.</typeparam>
     /// <typeparam name="T4">The type of item 4.</typeparam>
     /// <typeparam name="T5">The type of item 5.</typeparam>
-    public class TupleSerializer<T1, T2, T3, T4, T5> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3, T4, T5> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -728,7 +728,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T4">The type of item 4.</typeparam>
     /// <typeparam name="T5">The type of item 5.</typeparam>
     /// <typeparam name="T6">The type of item 6.</typeparam>
-    public class TupleSerializer<T1, T2, T3, T4, T5, T6> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3, T4, T5, T6> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -901,7 +901,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T5">The type of item 5.</typeparam>
     /// <typeparam name="T6">The type of item 6.</typeparam>
     /// <typeparam name="T7">The type of item 7.</typeparam>
-    public class TupleSerializer<T1, T2, T3, T4, T5, T6, T7> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3, T4, T5, T6, T7> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -1090,7 +1090,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T6">The type of item 6.</typeparam>
     /// <typeparam name="T7">The type of item 7.</typeparam>
     /// <typeparam name="TRest">The type of the rest item.</typeparam>
-    public class TupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>, IBsonTupleSerializer
+    public sealed class TupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : SealedClassSerializerBase<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TActualType">The actual type.</typeparam>
     /// <typeparam name="TNominalType">The nominal type.</typeparam>
-    public class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializerBase<TActualType> where TActualType : class, TNominalType
+    public sealed class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializerBase<TActualType> where TActualType : class, TNominalType
     {
         // private fields
         private readonly Lazy<IBsonSerializer<TNominalType>> _lazyNominalTypeSerializer;

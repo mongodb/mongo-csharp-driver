@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for RawBsonArrays.
     /// </summary>
-    public class RawBsonArraySerializer : BsonValueSerializerBase<RawBsonArray>
+    public sealed class RawBsonArraySerializer : BsonValueSerializerBase<RawBsonArray>
     {
         // constructors
         /// <summary>

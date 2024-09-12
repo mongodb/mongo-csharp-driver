@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonUndefineds.
     /// </summary>
-    public class BsonUndefinedSerializer : BsonValueSerializerBase<BsonUndefined>
+    public sealed class BsonUndefinedSerializer : BsonValueSerializerBase<BsonUndefined>
     {
         // private static fields
         private static BsonUndefinedSerializer __instance = new BsonUndefinedSerializer();

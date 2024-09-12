@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Chars.
     /// </summary>
-    public class CharSerializer : StructSerializerBase<char>, IRepresentationConfigurable<CharSerializer>
+    public sealed class CharSerializer : StructSerializerBase<char>, IRepresentationConfigurable<CharSerializer>
     {
         // private fields
         private readonly BsonType _representation;

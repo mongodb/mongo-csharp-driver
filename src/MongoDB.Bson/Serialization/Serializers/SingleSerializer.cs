@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Singles.
     /// </summary>
-    public class SingleSerializer : StructSerializerBase<float>, IRepresentationConfigurable<SingleSerializer>, IRepresentationConverterConfigurable<SingleSerializer>
+    public sealed class SingleSerializer : StructSerializerBase<float>, IRepresentationConfigurable<SingleSerializer>, IRepresentationConverterConfigurable<SingleSerializer>
     {
         // private fields
         private readonly BsonType _representation;

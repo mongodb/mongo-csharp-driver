@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for CultureInfos.
     /// </summary>
-    public class CultureInfoSerializer : ClassSerializerBase<CultureInfo>
+    public sealed class CultureInfoSerializer : ClassSerializerBase<CultureInfo>
     {
         // private constants
         private static class Flags

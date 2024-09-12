@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer that serializes values as a discriminator/value pair.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class DiscriminatedWrapperSerializer<TValue> : SerializerBase<TValue>
+    public sealed class DiscriminatedWrapperSerializer<TValue> : SerializerBase<TValue>
     {
         // private constants
         private static class Flags

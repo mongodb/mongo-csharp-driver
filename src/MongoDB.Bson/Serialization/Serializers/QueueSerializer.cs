@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Queues.
     /// </summary>
-    public class QueueSerializer :
+    public sealed class QueueSerializer :
         EnumerableSerializerBase<Queue>,
         IChildSerializerConfigurable,
         IBsonArraySerializer
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for Queues.
     /// </summary>
     /// <typeparam name="TItem">The type of the elements.</typeparam>
-    public class QueueSerializer<TItem> :
+    public sealed class QueueSerializer<TItem> :
         EnumerableSerializerBase<Queue<TItem>, TItem>,
         IChildSerializerConfigurable,
         IBsonArraySerializer

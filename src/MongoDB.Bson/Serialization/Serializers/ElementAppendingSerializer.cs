@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <seealso cref="MongoDB.Bson.Serialization.IBsonSerializer{TDocument}" />
-    public class ElementAppendingSerializer<TDocument> : IBsonSerializer<TDocument>
+    public sealed class ElementAppendingSerializer<TDocument> : IBsonSerializer<TDocument>
     {
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;

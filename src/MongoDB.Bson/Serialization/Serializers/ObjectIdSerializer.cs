@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for ObjectIds.
     /// </summary>
-    public class ObjectIdSerializer : StructSerializerBase<ObjectId>, IRepresentationConfigurable<ObjectIdSerializer>
+    public sealed class ObjectIdSerializer : StructSerializerBase<ObjectId>, IRepresentationConfigurable<ObjectIdSerializer>
     {
         #region static
         private static readonly ObjectIdSerializer __instance = new ObjectIdSerializer();
