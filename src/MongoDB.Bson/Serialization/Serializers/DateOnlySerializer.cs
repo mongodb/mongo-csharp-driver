@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -42,6 +43,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly BsonType _representation;
         private readonly SerializerHelper _helper;
+        private readonly RepresentationConverter _converter;
 
         // constructors
         /// <summary>
@@ -71,6 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _converter = new RepresentationConverter(false, false);
 
             _helper = new SerializerHelper
             (
@@ -113,10 +116,19 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Decimal128:
+                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
+                    break;
+
                 case BsonType.Double:
+                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDouble()), DateTimeKind.Utc));
+                    break;
+
                 case BsonType.Int32:
+                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt32(), DateTimeKind.Utc));
+                    break;
+
                 case BsonType.Int64:
-                    value = VerifyAndMakeDateOnly(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc));
+                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
                     break;
 
                 case BsonType.String:
