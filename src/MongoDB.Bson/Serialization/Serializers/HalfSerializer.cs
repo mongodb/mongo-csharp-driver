@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Halfs.
     /// </summary>
-    public class HalfSerializer
+    public class HalfSerializer : StructSerializerBase<Half>
     {
 
     }
