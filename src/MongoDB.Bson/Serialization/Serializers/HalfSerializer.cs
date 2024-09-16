@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Halfs.
     /// </summary>
-    public class HalfSerializer : StructSerializerBase<Half>, IRepresentationConfigurable<HalfSerializer>, IRepresentationConverterConfigurable<HalfSerializer>
+    public sealed class HalfSerializer : StructSerializerBase<Half>, IRepresentationConfigurable<HalfSerializer>, IRepresentationConverterConfigurable<HalfSerializer>
     {
         #region static
         // private static fields
@@ -93,7 +93,29 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public override Half Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return base.Deserialize(context, args);
+            var bsonReader = context.Reader;
+
+            var bsonType = bsonReader.GetCurrentBsonType();
+            switch (bsonType)
+            {
+                case BsonType.Decimal128:
+                    return _converter.ToHalf(bsonReader.ReadDecimal128());
+
+                case BsonType.Double:
+                    return _converter.ToHalf(bsonReader.ReadDouble());
+
+                case BsonType.Int32:
+                    return _converter.ToHalf(bsonReader.ReadInt32());
+
+                case BsonType.Int64:
+                    return _converter.ToHalf(bsonReader.ReadInt64());
+
+                case BsonType.String:
+                    return JsonConvert.ToHalf(bsonReader.ReadString());
+
+                default:
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
+            }
         }
 
         /// <inheritdoc/>

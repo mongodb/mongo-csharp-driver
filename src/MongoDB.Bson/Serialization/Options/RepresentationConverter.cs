@@ -244,6 +244,227 @@ namespace MongoDB.Bson.Serialization.Options
             return (Decimal128)value;
         }
 
+#if NET5_0_OR_GREATER
+        //TODO Implement all of this and put in the right place
+        /// <summary>
+        /// Converts a Half to a Decimal128.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(Half value)
+        {
+            if (value == Half.MaxValue)
+            {
+                return Decimal128.MaxValue;
+            }
+
+            if (value == Half.MinValue)
+            {
+                return Decimal128.MinValue;
+            }
+
+            if (Half.IsPositiveInfinity(value))
+            {
+                return Decimal128.PositiveInfinity;
+            }
+
+            if (Half.IsNegativeInfinity(value))
+            {
+                return Decimal128.NegativeInfinity;
+            }
+
+            if (Half.IsNaN(value))
+            {
+                return Decimal128.QNaN;
+            }
+
+            var decimal128Value = (Decimal128)value;
+            if (value != (Half)decimal128Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return decimal128Value;
+        }
+
+        /// <summary>
+        /// Converts a Half to a Double.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(Half value)
+        {
+            if (value == Half.MinValue)
+            {
+                return double.MinValue;
+            }
+
+            if (value == Half.MaxValue)
+            {
+                return double.MaxValue;
+            }
+
+            if (Half.IsNegativeInfinity(value))
+            {
+                return double.NegativeInfinity;
+            }
+
+            if (Half.IsPositiveInfinity(value))
+            {
+                return double.PositiveInfinity;
+            }
+
+            if (Half.IsNaN(value))
+            {
+                return double.NaN;
+            }
+
+            return (double)value;
+        }
+
+        /// <summary>
+        /// Converts a Half to an Int32.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int32.</returns>
+        public int ToInt32(Half value)
+        {
+            var int32Value = (int)value;
+            if (value != (Half)int32Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int32Value;
+        }
+
+        /// <summary>
+        /// Converts a Half to an Int64.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int64.</returns>
+        public long ToInt64(Half value)
+        {
+            var int64Value = (long)value;
+            if (value != (Half)int64Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int64Value;
+        }
+
+        /// <summary>
+        /// Converts a Decimal128 to a Half.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A Half to.</returns>
+        public Half ToHalf(Decimal128 value)
+        {
+            if (Decimal128.IsNegativeInfinity(value))
+            {
+                return Half.NegativeInfinity;
+            }
+
+            if (Decimal128.IsPositiveInfinity(value))
+            {
+                return Half.PositiveInfinity;
+            }
+
+            if (Decimal128.IsNaN(value))
+            {
+                return Half.NaN;
+            }
+
+            var halfValue = (Half)value;
+            if (value < (Decimal128)Half.MinValue || value > (Decimal128)Half.MaxValue && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            if (value != (Decimal128)halfValue && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return halfValue;
+        }
+
+        /// <summary>
+        /// Converts a Double to a Half.
+        /// </summary>
+        /// <param name="value">A double.</param>
+        /// <returns>A Half.</returns>
+        public Half ToHalf(double value)
+        {
+            if (value == double.MinValue)
+            {
+                return Half.MinValue;
+            }
+
+            if (value == double.MaxValue)
+            {
+                return Half.MaxValue;
+            }
+
+            if (double.IsNegativeInfinity(value))
+            {
+                return Half.NegativeInfinity;
+            }
+
+            if (double.IsPositiveInfinity(value))
+            {
+                return Half.PositiveInfinity;
+            }
+
+            if (double.IsNaN(value))
+            {
+                return Half.NaN;
+            }
+
+            var halfValue = (Half)value;
+            if (value < (double)Half.MinValue || value > (double)Half.MaxValue && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            if (value != (double)halfValue && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return halfValue;
+        }
+
+        /// <summary>
+        /// Converts an Int32 to a Half.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Half.</returns>
+        public Half ToHalf(int value)
+        {
+            if ((value > (int)Half.MaxValue || value < (int)Half.MinValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            return (Half)value;
+        }
+
+        /// <summary>
+        /// Converts an Int64 to a Half.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Half to.</returns>
+        public Half ToHalf(long value)
+        {
+            if ((value > (long)Half.MaxValue || value < (long)Half.MinValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            return (Half)value;
+        }
+#endif
+
         /// <summary>
         /// Converts a Decimal to a Double.
         /// </summary>
