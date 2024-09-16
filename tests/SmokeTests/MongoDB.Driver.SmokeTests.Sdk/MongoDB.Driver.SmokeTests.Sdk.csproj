@@ -19,7 +19,9 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="[0.0.0.0]" Condition="'$(ReferenceDriverAsPackage)' == 'true'" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="[0.0.0.0]" Condition="'$(ReferenceDriverAsPackage)' == 'true'" />
     <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(ReferenceDriverAsPackage)' != 'true'" />
+    <ProjectReference Include="..\..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" Condition="'$(ReferenceDriverAsPackage)' != 'true'" />
   </ItemGroup>
 
   <ItemGroup>

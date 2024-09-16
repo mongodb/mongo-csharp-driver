@@ -15,19 +15,25 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.SmokeTests.Sdk
 {
     internal static class InfrastructureUtilities
     {
-        public static void ValidateMongoDBPackageVersion()
+        public static void ValidateMongoDBPackageVersion(string package)
         {
             var packageShaExpected = Environment.GetEnvironmentVariable("SmokeTestsPackageSha");
 
             if (!string.IsNullOrEmpty(packageShaExpected))
             {
-                var fileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location);
+                var fileVersionInfo = package switch
+                {
+                    "driver" => FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location),
+                    "libmongocrypt" => FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location)
+                };
 
                 fileVersionInfo.ProductVersion.Contains(packageShaExpected)
                     .Should().BeTrue("Expected package sha {0} in {1}", packageShaExpected, fileVersionInfo.ProductVersion);

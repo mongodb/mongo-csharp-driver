@@ -285,7 +285,8 @@ Task("PackageNugetPackages")
         var projects = new[]
         {
             "MongoDB.Bson",
-            "MongoDB.Driver"
+            "MongoDB.Driver",
+            "MongoDB.Libmongocrypt"
         };
 
         foreach (var project in projects)
@@ -368,7 +369,13 @@ Task("SmokeTests")
         DotNetTool(
             testProject.FullPath,
             "add package MongoDB.Driver",
-            $"--version [{buildConfig.PackageVersion}]",
+            $"--no-restore --version [{buildConfig.PackageVersion}]",
+            toolSettings);
+
+        DotNetTool(
+            testProject.FullPath,
+            "add package MongoDB.Libmongocrypt",
+            $"--no-restore --version [{buildConfig.PackageVersion}]",
             toolSettings);
 
         RunTests(
