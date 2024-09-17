@@ -48,6 +48,9 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Decimal128), typeof(Decimal128Serializer) },
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(Half), typeof(HalfSerializer) },
+#endif
                 { typeof(Int16), typeof(Int16Serializer) },
                 { typeof(Int32), typeof(Int32Serializer) },
                 { typeof(Int64), typeof(Int64Serializer) },
