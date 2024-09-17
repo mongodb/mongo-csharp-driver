@@ -161,7 +161,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    throw new BsonSerializationException($"'{_representation}' is not a valid Single representation.");
+                    throw new BsonSerializationException($"'{_representation}' is not a valid Half representation.");
             }
         }
 

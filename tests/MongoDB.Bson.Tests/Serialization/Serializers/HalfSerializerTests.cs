@@ -322,8 +322,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "NaN" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "NaN" } }""")]
-        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "0" } }""")] //TODO Is this what we want? Same behaviour for single serializer
-        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "0" } }""")] //TODO Is this what we want? Same behaviour for single serializer
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "0" } }""")]
         [InlineData(BsonType.String, """{ "x" : "NaN" }""")]
         public void Serialize_of_nan_should_have_expected_result(BsonType representation,
             string expectedResult)
