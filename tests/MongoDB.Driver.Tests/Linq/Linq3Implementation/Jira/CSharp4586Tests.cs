@@ -14,6 +14,8 @@
 */
 
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 #if NET6_0_OR_GREATER
@@ -114,6 +116,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_View2_with_initializer_should_work()
         {
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = CreateCollection();
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
