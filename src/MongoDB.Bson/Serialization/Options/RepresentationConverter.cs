@@ -213,39 +213,7 @@ namespace MongoDB.Bson.Serialization.Options
             return decimal128Value;
         }
 
-        /// <summary>
-        /// Converts an Int32 to a Decimal128.
-        /// </summary>
-        /// <param name="value">An Int32.</param>
-        /// <returns>A Decimal128.</returns>
-        public Decimal128 ToDecimal128(int value)
-        {
-            return (Decimal128)value;
-        }
-
-        /// <summary>
-        /// Converts an Int64 to a Decimal128.
-        /// </summary>
-        /// <param name="value">An Int64.</param>
-        /// <returns>A Decimal128.</returns>
-        public Decimal128 ToDecimal128(long value)
-        {
-            return (Decimal128)value;
-        }
-
-        /// <summary>
-        /// Converts a UInt64 to a Decimal128.
-        /// </summary>
-        /// <param name="value">A UInt64.</param>
-        /// <returns>A Decimal128.</returns>
-        [CLSCompliant(false)]
-        public Decimal128 ToDecimal128(ulong value)
-        {
-            return (Decimal128)value;
-        }
-
 #if NET5_0_OR_GREATER
-        //TODO Implement all of this and put in the right place
         /// <summary>
         /// Converts a Half to a Decimal128.
         /// </summary>
@@ -286,7 +254,150 @@ namespace MongoDB.Bson.Serialization.Options
 
             return decimal128Value;
         }
+#endif
 
+        /// <summary>
+        /// Converts an Int32 to a Decimal128.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(int value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts an Int64 to a Decimal128.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(long value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a UInt64 to a Decimal128.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>A Decimal128.</returns>
+        [CLSCompliant(false)]
+        public Decimal128 ToDecimal128(ulong value)
+        {
+            return (Decimal128)value;
+        }
+
+        /// <summary>
+        /// Converts a Decimal to a Double.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(decimal value)
+        {
+            if (value == decimal.MinValue)
+            {
+                return double.MinValue;
+            }
+            else if (value == decimal.MaxValue)
+            {
+                return double.MaxValue;
+            }
+
+            var doubleValue = (double)value;
+            if (value != (decimal)doubleValue)
+            {
+                if (!_allowTruncation) { throw new TruncationException(); }
+            }
+            return doubleValue;
+        }
+
+        /// <summary>
+        /// Converts a Decimal128 to a Double.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(Decimal128 value)
+        {
+            if (value == Decimal128.MaxValue)
+            {
+                return double.MaxValue;
+            }
+            else if (value == Decimal128.MinValue)
+            {
+                return double.MinValue;
+            }
+            else if (Decimal128.IsPositiveInfinity(value))
+            {
+                return double.PositiveInfinity;
+            }
+            else if (Decimal128.IsNegativeInfinity(value))
+            {
+                return double.NegativeInfinity;
+            }
+            else if (Decimal128.IsNaN(value))
+            {
+                return double.NaN;
+            }
+
+            double doubleValue;
+            if (_allowOverflow)
+            {
+                try { doubleValue = (double)value; } catch (OverflowException) { doubleValue = Decimal128.IsNegative(value) ? double.MinValue : double.MaxValue; }
+            }
+            else
+            {
+                doubleValue = (double)value;
+            }
+
+            if (!_allowTruncation && value != (Decimal128)doubleValue)
+            {
+                throw new TruncationException();
+            }
+
+            return doubleValue;
+        }
+
+        /// <summary>
+        /// Converts a Double to a Double.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(double value)
+        {
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a Single to a Double.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(float value)
+        {
+            if (value == float.MinValue)
+            {
+                return double.MinValue;
+            }
+            else if (value == float.MaxValue)
+            {
+                return double.MaxValue;
+            }
+            else if (float.IsNegativeInfinity(value))
+            {
+                return double.NegativeInfinity;
+            }
+            else if (float.IsPositiveInfinity(value))
+            {
+                return double.PositiveInfinity;
+            }
+            else if (float.IsNaN(value))
+            {
+                return double.NaN;
+            }
+            return value;
+        }
+
+#if NET5_0_OR_GREATER
         /// <summary>
         /// Converts a Half to a Double.
         /// </summary>
@@ -321,37 +432,82 @@ namespace MongoDB.Bson.Serialization.Options
 
             return (double)value;
         }
+#endif
 
         /// <summary>
-        /// Converts a Half to an Int32.
+        /// Converts an Int32 to a Double.
         /// </summary>
-        /// <param name="value">A Half.</param>
-        /// <returns>An Int32.</returns>
-        public int ToInt32(Half value)
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(int value)
         {
-            var int32Value = (int)value;
-            if (value != (Half)int32Value && !_allowTruncation)
-            {
-                throw new TruncationException();
-            }
-            return int32Value;
+            return value;
         }
 
         /// <summary>
-        /// Converts a Half to an Int64.
+        /// Converts an Int64 to a Double.
         /// </summary>
-        /// <param name="value">A Half.</param>
-        /// <returns>An Int64.</returns>
-        public long ToInt64(Half value)
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(long value)
         {
-            var int64Value = (long)value;
-            if (value != (Half)int64Value && !_allowTruncation)
+            var doubleValue = (double)value;
+            if (value != (long)doubleValue)
             {
-                throw new TruncationException();
+                if (!_allowTruncation) { throw new TruncationException(); }
             }
-            return int64Value;
+            return doubleValue;
         }
 
+        /// <summary>
+        /// Converts an Int16 to a Double.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(short value)
+        {
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a UInt32 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
+        public double ToDouble(uint value)
+        {
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a UInt64 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
+        public double ToDouble(ulong value)
+        {
+            var doubleValue = (double)value;
+            if (value != (ulong)doubleValue)
+            {
+                if (!_allowTruncation) { throw new TruncationException(); }
+            }
+            return doubleValue;
+        }
+
+        /// <summary>
+        /// Converts a UInt16 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
+        public double ToDouble(ushort value)
+        {
+            return value;
+        }
+
+#if NET5_0_OR_GREATER
         /// <summary>
         /// Converts a Decimal128 to a Half.
         /// </summary>
@@ -474,189 +630,6 @@ namespace MongoDB.Bson.Serialization.Options
             return (Half)value;
         }
 #endif
-
-        /// <summary>
-        /// Converts a Decimal to a Double.
-        /// </summary>
-        /// <param name="value">A Decimal.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(decimal value)
-        {
-            if (value == decimal.MinValue)
-            {
-                return double.MinValue;
-            }
-            else if (value == decimal.MaxValue)
-            {
-                return double.MaxValue;
-            }
-
-            var doubleValue = (double)value;
-            if (value != (decimal)doubleValue)
-            {
-                if (!_allowTruncation) { throw new TruncationException(); }
-            }
-            return doubleValue;
-        }
-
-        /// <summary>
-        /// Converts a Decimal128 to a Double.
-        /// </summary>
-        /// <param name="value">A Decimal.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(Decimal128 value)
-        {
-            if (value == Decimal128.MaxValue)
-            {
-                return double.MaxValue;
-            }
-            else if (value == Decimal128.MinValue)
-            {
-                return double.MinValue;
-            }
-            else if (Decimal128.IsPositiveInfinity(value))
-            {
-                return double.PositiveInfinity;
-            }
-            else if (Decimal128.IsNegativeInfinity(value))
-            {
-                return double.NegativeInfinity;
-            }
-            else if (Decimal128.IsNaN(value))
-            {
-                return double.NaN;
-            }
-
-            double doubleValue;
-            if (_allowOverflow)
-            {
-                try { doubleValue = (double)value; } catch (OverflowException) { doubleValue = Decimal128.IsNegative(value) ? double.MinValue : double.MaxValue; }
-            }
-            else
-            {
-                doubleValue = (double)value;
-            }
-
-            if (!_allowTruncation && value != (Decimal128)doubleValue)
-            {
-                throw new TruncationException();
-            }
-
-            return doubleValue;
-        }
-
-        /// <summary>
-        /// Converts a Double to a Double.
-        /// </summary>
-        /// <param name="value">A Double.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(double value)
-        {
-            return value;
-        }
-
-        /// <summary>
-        /// Converts a Single to a Double.
-        /// </summary>
-        /// <param name="value">A Single.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(float value)
-        {
-            if (value == float.MinValue)
-            {
-                return double.MinValue;
-            }
-            else if (value == float.MaxValue)
-            {
-                return double.MaxValue;
-            }
-            else if (float.IsNegativeInfinity(value))
-            {
-                return double.NegativeInfinity;
-            }
-            else if (float.IsPositiveInfinity(value))
-            {
-                return double.PositiveInfinity;
-            }
-            else if (float.IsNaN(value))
-            {
-                return double.NaN;
-            }
-            return value;
-        }
-
-        /// <summary>
-        /// Converts an Int32 to a Double.
-        /// </summary>
-        /// <param name="value">An Int32.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(int value)
-        {
-            return value;
-        }
-
-        /// <summary>
-        /// Converts an Int64 to a Double.
-        /// </summary>
-        /// <param name="value">An Int64.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(long value)
-        {
-            var doubleValue = (double)value;
-            if (value != (long)doubleValue)
-            {
-                if (!_allowTruncation) { throw new TruncationException(); }
-            }
-            return doubleValue;
-        }
-
-        /// <summary>
-        /// Converts an Int16 to a Double.
-        /// </summary>
-        /// <param name="value">An Int16.</param>
-        /// <returns>A Double.</returns>
-        public double ToDouble(short value)
-        {
-            return value;
-        }
-
-        /// <summary>
-        /// Converts a UInt32 to a Double.
-        /// </summary>
-        /// <param name="value">A UInt32.</param>
-        /// <returns>A Double.</returns>
-        [CLSCompliant(false)]
-        public double ToDouble(uint value)
-        {
-            return value;
-        }
-
-        /// <summary>
-        /// Converts a UInt64 to a Double.
-        /// </summary>
-        /// <param name="value">A UInt64.</param>
-        /// <returns>A Double.</returns>
-        [CLSCompliant(false)]
-        public double ToDouble(ulong value)
-        {
-            var doubleValue = (double)value;
-            if (value != (ulong)doubleValue)
-            {
-                if (!_allowTruncation) { throw new TruncationException(); }
-            }
-            return doubleValue;
-        }
-
-        /// <summary>
-        /// Converts a UInt16 to a Double.
-        /// </summary>
-        /// <param name="value">A UInt16.</param>
-        /// <returns>A Double.</returns>
-        [CLSCompliant(false)]
-        public double ToDouble(ushort value)
-        {
-            return value;
-        }
 
         /// <summary>
         /// Converts a Decimal128 to an Int16.
@@ -844,6 +817,23 @@ namespace MongoDB.Bson.Serialization.Options
             return int32Value;
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to an Int32.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int32.</returns>
+        public int ToInt32(Half value)
+        {
+            var int32Value = (int)value;
+            if (value != (Half)int32Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int32Value;
+        }
+#endif
+
         /// <summary>
         /// Converts an Int32 to an Int32.
         /// </summary>
@@ -1022,6 +1012,24 @@ namespace MongoDB.Bson.Serialization.Options
             }
             return int64Value;
         }
+
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to an Int64.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int64.</returns>
+        public long ToInt64(Half value)
+        {
+            var int64Value = (long)value;
+            if (value != (Half)int64Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int64Value;
+        }
+#endif
 
         /// <summary>
         /// Converts an Int32 to an Int64.
