@@ -359,6 +359,16 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>A Half to.</returns>
         public Half ToHalf(Decimal128 value)
         {
+            if (value == Decimal128.MinValue)
+            {
+                return Half.MinValue;
+            }
+
+            if (value == Decimal128.MaxValue)
+            {
+                return Half.MaxValue;
+            }
+
             if (Decimal128.IsNegativeInfinity(value))
             {
                 return Half.NegativeInfinity;
@@ -375,7 +385,7 @@ namespace MongoDB.Bson.Serialization.Options
             }
 
             var halfValue = (Half)value;
-            if (value < (Decimal128)Half.MinValue || value > (Decimal128)Half.MaxValue && !_allowOverflow)
+            if ((value < (Decimal128)Half.MinValue || value > (Decimal128)Half.MaxValue) && !_allowOverflow)
             {
                 throw new OverflowException();
             }
@@ -421,7 +431,7 @@ namespace MongoDB.Bson.Serialization.Options
             }
 
             var halfValue = (Half)value;
-            if (value < (double)Half.MinValue || value > (double)Half.MaxValue && !_allowOverflow)
+            if ((value < (double)Half.MinValue || value > (double)Half.MaxValue) && !_allowOverflow)
             {
                 throw new OverflowException();
             }

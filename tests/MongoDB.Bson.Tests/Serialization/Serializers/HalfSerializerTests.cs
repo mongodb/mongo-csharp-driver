@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Globalization;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -46,6 +45,133 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(representation);
 
             subject.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "18" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "18" } }""")]
+        [InlineData("""{ "x" : { "$numberLong" : "18" } }""")]
+        [InlineData("""{ "x" : { "$numberInt" : "18" } }""")]
+        [InlineData("""{ "x" : "18" }""")]
+        public void Deserialize_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = (Half)18;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "18.5" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "18.5" } }""")]
+        [InlineData("""{ "x" : "18.5" }""")]
+        public void Deserialize_with_floating_point_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = (Half)18.5;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "9.999999999999999999999999999999999E+6144" } }""")] //Decimal128.MaxValue
+        [InlineData("""{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")] //double.MaxValue
+        [InlineData("""{ "x" : { "$numberLong" : "65504" } }""")]
+        [InlineData("""{ "x" : { "$numberInt" : "65504" } }""")]
+        [InlineData("""{ "x" : "65500" }""")]
+        public void Deserialize_of_max_value_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = Half.MaxValue;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "-9.999999999999999999999999999999999E+6144" } }""")] //Decimal128.MinValue
+        [InlineData("""{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")] //double.MinValue
+        [InlineData("""{ "x" : { "$numberLong" : "-65504" } }""")]
+        [InlineData("""{ "x" : { "$numberInt" : "-65504" } }""")]
+        [InlineData("""{ "x" : "-65500" }""")]
+        public void Deserialize_of_min_value_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = Half.MinValue;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "NaN" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "NaN" } }""")]
+        [InlineData("""{ "x" : "NaN" }""")]
+        public void Deserialize_of_nan_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = Half.NaN;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "-Infinity" } }""")]
+        [InlineData("""{ "x" : { "$numberLong" : "-9223372036854775808" } }""")] //long.MinValue
+        [InlineData("""{ "x" : { "$numberInt" : "-2147483648" } }""")]  //int.MinValue
+        [InlineData("""{ "x" : "-Infinity" }""")]
+        public void Deserialize_of_negative_infinity_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = Half.NegativeInfinity;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "Infinity" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "Infinity" } }""")]
+        [InlineData("""{ "x" : { "$numberLong" : "9223372036854775807" } }""")] //long.MaxValue
+        [InlineData("""{ "x" : { "$numberInt" : "2147483647" } }""")] //int.MaxValue
+        [InlineData("""{ "x" : "Infinity" }""")]
+        public void Deserialize_of_positive_infinity_should_have_expected_result(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = Half.PositiveInfinity;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "9.759" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "9.759" } }""")]
+        public void Deserialize_without_truncation_allowed_and_enough_digits_should_throw(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, false));
+
+            TestDeserializeWithException<TruncationException>(subject, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "9.759" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "9.759" } }""")]
+        public void Deserialize_with_truncation_allowed_should_have_expected_results(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var expectedValue = (Half)9.76;
+
+            TestDeserialize(subject, expectedValue, json);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "$numberDecimal" : "75000" } }""")]
+        [InlineData("""{ "x" : { "$numberDouble" : "75000" } }""")]
+        [InlineData("""{ "x" : { "$numberLong" : "75000" } }""")]
+        [InlineData("""{ "x" : { "$numberInt" : "75000" } }""")]
+        public void Deserialize_without_overflow_allowed_and_over_range_values_should_throw(string json)
+        {
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, true));
+
+            TestDeserializeWithException<OverflowException>(subject, json);
         }
 
         [Fact]
@@ -125,35 +251,118 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.Decimal128, "18.5", """{ "x" : { "$numberDecimal" : "18.5" } }""")]
-        [InlineData(BsonType.Double, "18.5", """{ "x" : { "$numberDouble" : "18.5" } }""")]
-        [InlineData(BsonType.Int64, "18.5", """{ "x" : { "$numberLong" : "18" } }""")]
-        [InlineData(BsonType.Int32, "18.5", """{ "x" : { "$numberInt" : "18" } }""")]
-        [InlineData(BsonType.String, "18.5", """{ "x" : "18.5" }""")]
-        public void Serialize_should_have_expected_result(BsonType representation, string value,
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "18.5" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "18.5" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "18" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "18" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "18.5" }""")]
+        public void Serialize_should_have_expected_result(BsonType representation, string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = (Half)18.5;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "0" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "0" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "0" }""")]
+        public void Serialize_of_zero_should_have_expected_result(BsonType representation, string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = (Half)0;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.Int32)]
+        public void Serialize_without_truncation_allowed_and_floating_point_should_throw(BsonType representation)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, false));
+            var halfValue = (Half)18.5;
+
+            TestSerializeWithException<TruncationException>(subject, halfValue);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "9.999999999999999999999999999999999E+6144" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "65504" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "65504" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "65500" }""")]
+        public void Serialize_of_max_value_should_have_expected_result(BsonType representation,
             string expectedResult)
         {
             var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
-            var halfValue = Half.Parse(value, CultureInfo.InvariantCulture);
+            var halfValue = Half.MaxValue;
 
-            using var textWriter = new StringWriter();
-            using var writer = new JsonWriter(textWriter,
-                new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson });
-
-            var context = BsonSerializationContext.CreateRoot(writer);
-            writer.WriteStartDocument();
-            writer.WriteName("x");
-            subject.Serialize(context, halfValue);
-            writer.WriteEndDocument();
-            var result = textWriter.ToString();
-
-            result.Should().Be(expectedResult);
+            TestSerialize(subject, halfValue, expectedResult);
         }
 
-        /** To test:
-         * - Serialization/Deserialization from MaxValue / MinValue
-         * - Serialization/Deserialization for PositiveInfinity / NegativeInfinity
-         */
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-9.999999999999999999999999999999999E+6144" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "-65504" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "-65504" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "-65500" }""")]
+        public void Serialize_of_min_value_should_have_expected_result(BsonType representation,
+            string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = Half.MinValue;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "NaN" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "NaN" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "0" } }""")] //TODO Is this what we want? Same behaviour for single serializer
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "0" } }""")] //TODO Is this what we want? Same behaviour for single serializer
+        [InlineData(BsonType.String, """{ "x" : "NaN" }""")]
+        public void Serialize_of_nan_should_have_expected_result(BsonType representation,
+            string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = Half.NaN;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-Infinity" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "-9223372036854775808" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "-2147483648" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "-Infinity" }""")]
+        public void Serialize_of_negative_infinity_should_have_expected_result(BsonType representation,
+            string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = Half.NegativeInfinity;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "Infinity" } }""")]
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "Infinity" } }""")]
+        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "9223372036854775807" } }""")]
+        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "2147483647" } }""")]
+        [InlineData(BsonType.String, """{ "x" : "Infinity" }""")]
+        public void Serialize_of_positive_infinity_should_have_expected_result(BsonType representation,
+            string expectedResult)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(true, true));
+            var halfValue = Half.PositiveInfinity;
+
+            TestSerialize(subject, halfValue, expectedResult);
+        }
 
         [Theory]
         [ParameterAttributeData]
@@ -170,6 +379,59 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 result.Should().BeSameAs(subject);
             }
+        }
+
+        private static void TestDeserialize(HalfSerializer subject, Half expectedValue, string json)
+        {
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(expectedValue);
+        }
+
+        private static void TestDeserializeWithException<T>(HalfSerializer subject, string json) where T : Exception
+        {
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            Action action = () => subject.Deserialize(context);
+
+            action.ShouldThrow<T>();
+        }
+
+        private static void TestSerialize(HalfSerializer subject, Half value, string expectedResult)
+        {
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter,
+                new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson });
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+            subject.Serialize(context, value);
+            writer.WriteEndDocument();
+            var result = textWriter.ToString();
+
+            result.Should().Be(expectedResult);
+        }
+
+        private static void TestSerializeWithException<T>(HalfSerializer subject, Half value) where T : Exception
+        {
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter,
+                new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson });
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+            var action = () => subject.Serialize(context, value);
+
+            action.ShouldThrow<T>();
         }
     }
 #endif
