@@ -1662,14 +1662,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
                 catch (XunitException)
                 {
+
+#if NET6_0_OR_GREATER
+                    var innerException = "Unable to write data to the transport connection: Connection reset by peer.";
+#else
+                    var innerException =  async
+                        ? "Unable to read data from the transport connection: Connection reset by peer."
+                        : "Unable to write data to the transport connection: Connection reset by peer.";
+#endif
+
                     // With Tls1.3, there is no report of a failed handshake if the client certificate verification fails
                     // since the client receives a 'Finished' message from the server before sending its certificate, it assumes
                     // authentication and we will not know if there was an error until we next read/write from the server.
-                    AssertInnerEncryptionException<SocketException>(
-                        exception,
-                        async
-                            ? "Unable to read data from the transport connection: Connection reset by peer."
-                            : "Unable to write data to the transport connection: Connection reset by peer.");
+                    AssertInnerEncryptionException<SocketException>(exception, innerException);
                 }
             }
 
@@ -1677,14 +1682,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 try
                 {
-                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
-                        exception,
-#if NET472
-                        "A call to SSPI failed, see inner exception.",
+                    string[] innerExceptions =
+#if NET6_0_OR_GREATER
+                        ["Authentication failed because the remote party sent a TLS alert"];
+#elif NET472
+                        ["A call to SSPI failed, see inner exception.", "The message received was unexpected or badly formatted"];
 #else
-                        "Authentication failed, see inner exception.",
+                        ["Authentication failed, see inner exception.", "The message received was unexpected or badly formatted"];
 #endif
-                        "The message received was unexpected or badly formatted");
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, innerExceptions);
                 }
                 catch (XunitException) // assertation failed
                 {

@@ -37,7 +37,9 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly IClusterClock _clusterClock;
         private readonly ClusterId _clusterId;
         private readonly ClusterType _clusterType = ClusterType.LoadBalanced;
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private CryptClient _cryptClient = null;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private ClusterDescription _description;
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
         private Thread _dnsMonitorThread;

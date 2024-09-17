@@ -27,7 +27,9 @@ namespace MongoDB.Bson.IO
     public class JsonWriter : BsonWriter
     {
         // private fields
-        private TextWriter _textWriter;
+#pragma warning disable CA2213 // Disposable never disposed
+        private readonly TextWriter _textWriter;
+#pragma warning restore CA2213 // Disposable never disposed
         private JsonWriterContext _context;
 
         // constructors

@@ -272,7 +272,9 @@ namespace MongoDB.Driver.Core.Connections
                         KeepAliveTime = 120000, // 120 seconds in milliseconds
                         KeepAliveInterval = 10000 // 10 seconds in milliseconds
                     };
+#pragma warning disable CA1416 //  Validate platform compatibility
                     socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
+#pragma warning restore CA1416 //  Validate platform compatibility
                 }
                 else
                 {

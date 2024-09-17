@@ -32,7 +32,9 @@ namespace MongoDB.Driver.Core.Bindings
     public sealed class CoreSession : ICoreSession
     {
         // private fields
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private CoreTransaction _currentTransaction;
         private bool _disposed;

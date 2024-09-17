@@ -50,7 +50,9 @@ namespace MongoDB.Driver.Authentication.Oidc
         {
             var metadataInfo = GetHttpRequestParams(parameters);
 
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = WebRequest.CreateHttp(metadataInfo.Uri);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
             request.Method = "GET";
             foreach (var header in metadataInfo.headers)
             {

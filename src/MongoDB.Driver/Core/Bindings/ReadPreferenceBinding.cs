@@ -26,7 +26,9 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class ReadPreferenceBinding : IReadBinding
     {
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServerSelector _serverSelector;

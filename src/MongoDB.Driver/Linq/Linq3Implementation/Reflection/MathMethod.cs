@@ -69,16 +69,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __absSByte = ReflectionInfo.Method((sbyte value) => Math.Abs(value));
             __absSingle = ReflectionInfo.Method((float value) => Math.Abs(value));
             __acos = ReflectionInfo.Method((double d) => Math.Acos(d));
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             __acosh = ReflectionInfo.Method((double d) => Math.Acosh(d));
 #endif
             __asin = ReflectionInfo.Method((double d) => Math.Asin(d));
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             __asinh = ReflectionInfo.Method((double d) => Math.Asinh(d));
 #endif
             __atan = ReflectionInfo.Method((double d) => Math.Atan(d));
             __atan2 = ReflectionInfo.Method((double x, double y) => Math.Atan2(x, y));
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             __atanh = ReflectionInfo.Method((double d) => Math.Atanh(d));
 #endif
             __ceilingWithDecimal = ReflectionInfo.Method((decimal d) => Math.Ceiling(d));

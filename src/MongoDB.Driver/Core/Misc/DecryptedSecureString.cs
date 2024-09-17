@@ -27,7 +27,9 @@ namespace MongoDB.Driver.Core.Misc
         private GCHandle _charsHandle;
         private IntPtr _charsIntPtr;
         private bool _disposed;
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly SecureString _secureString;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private byte[] _utf8Bytes;
         private GCHandle _utf8BytesHandle;
 

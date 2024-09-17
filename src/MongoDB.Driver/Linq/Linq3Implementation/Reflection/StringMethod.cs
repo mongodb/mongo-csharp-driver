@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         // static constructor
         static StringMethod()
         {
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             __containsWithChar = ReflectionInfo.Method((string s, char value) => s.Contains(value));
             __containsWithCharAndComparisonType = ReflectionInfo.Method((string s, char value, StringComparison comparisonType) => s.Contains(value, comparisonType));
             __containsWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Contains(value, comparisonType));

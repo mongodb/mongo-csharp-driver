@@ -68,7 +68,9 @@ namespace MongoDB.Driver.Core.Operations
         }
         #endregion
 
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IReadBinding _binding;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;

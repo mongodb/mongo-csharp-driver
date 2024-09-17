@@ -1156,6 +1156,13 @@ tasks:
           vars:
             FRAMEWORK: netstandard21
 
+    - name: test-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: net60
+
     - name: test-csfle-with-mongocryptd-net472
       commands:
         - func: bootstrap-mongo-orchestration
@@ -1169,6 +1176,13 @@ tasks:
         - func: run-csfle-with-mongocryptd-tests
           vars:
             FRAMEWORK: netstandard21
+
+    - name: test-csfle-with-mongocryptd-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-csfle-with-mongocryptd-tests
+          vars:
+            FRAMEWORK: net60
 
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
@@ -1192,6 +1206,17 @@ tasks:
           vars:
             FRAMEWORK: netstandard21
 
+    - name: test-csfle-with-mocked-kms-tls-net60
+      commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-mock-kmip-server
+        - func: start-kms-mock-gcp-server
+        - func: start-kms-mock-azure-imds-server
+        - func: bootstrap-mongo-orchestration
+        - func: run-csfle-with-mocked-kms-tests
+          vars:
+            FRAMEWORK: net60
+
     - name: test-load-balancer-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
@@ -1201,6 +1226,17 @@ tasks:
         - func: run-load-balancer-tests
           vars:
             FRAMEWORK: netstandard21
+        - func: stop-load-balancer
+
+    - name: test-load-balancer-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            LOAD_BALANCER: 'true'
+        - func: run-load-balancer
+        - func: run-load-balancer-tests
+          vars:
+            FRAMEWORK: net60
         - func: stop-load-balancer
 
     - name: atlas-connectivity-tests
@@ -1223,6 +1259,12 @@ tasks:
         - func: run-gssapi-auth-tests
           vars:
             FRAMEWORK: netstandard21
+
+    - name: test-gssapi-net60
+      commands:
+        - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: net60
 
     - name: plain-auth-tests
       commands:
@@ -1264,6 +1306,16 @@ tasks:
         - func: run-tests
           vars:
             FRAMEWORK: netstandard21
+            REQUIRE_API_VERSION: true
+
+    - name: stable-api-tests-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: run-tests
+          vars:
+            FRAMEWORK: net60
             REQUIRE_API_VERSION: true
 
     - name: atlas-data-lake-test
@@ -2028,6 +2080,10 @@ axes:
         display_name: netstandard21
         variables:
           FRAMEWORK: netstandard21
+      - id: "net60"
+        display_name: net60
+        variables:
+          FRAMEWORK: net60
 
   - id: serverless
     display_name: Serverless
@@ -2321,6 +2377,7 @@ buildvariants:
   tasks:
     - name: stable-api-tests-net472
     - name: stable-api-tests-netstandard21
+    - name: stable-api-tests-net60
 
 # Secure tests
 - matrix_name: "secure-tests-windows"
@@ -2330,6 +2387,7 @@ buildvariants:
   tasks:
     - name: test-net472
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "secure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
@@ -2337,6 +2395,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "secure-tests-linux-1804"
   matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
@@ -2344,6 +2403,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "secure-tests-linux-2004"
   matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
@@ -2351,6 +2411,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60    
 
 # Unsecure tests
 - matrix_name: "unsecure-tests-windows"
@@ -2360,6 +2421,7 @@ buildvariants:
   tasks:
     - name: test-net472
     - name: test-netstandard21
+    - name: test-net60    
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
@@ -2367,6 +2429,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-1804"
   matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
@@ -2374,6 +2437,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-2004"
   matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
@@ -2381,6 +2445,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 # Compression tests
 - matrix_name: "tests-compression-windows"
@@ -2390,6 +2455,7 @@ buildvariants:
   tasks:
     - name: test-net472
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "tests-compression-macOS"
   matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
@@ -2397,6 +2463,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "tests-compression-linux-1804"
   matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
@@ -2404,6 +2471,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 - matrix_name: "tests-compression-linux-2004"
   matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
@@ -2411,6 +2479,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
+    - name: test-net60
 
 # Auth tests
 - matrix_name: plain-auth-tests
@@ -2474,6 +2543,7 @@ buildvariants:
   tasks:
     - name: test-gssapi-net472
     - name: test-gssapi-netstandard21
+    - name: test-gssapi-net60
 
 - name: gssapi-auth-tests-linux
   run_on:
@@ -2481,6 +2551,7 @@ buildvariants:
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard21
+    - name: test-gssapi-net60
 
 # Load balancer tests
 - matrix_name: load-balancer-tests
@@ -2488,23 +2559,25 @@ buildvariants:
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard21"
+    - name: "test-load-balancer-net60"
 
 - matrix_name: load-balancer-tests-secure
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard21"
+    - name: "test-load-balancer-net60"
 
 # Serverless tests
 - matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard21"], serverless: "*" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard21", "net60"], serverless: "*" }
   display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   batchtime: 10080  # 7 days
   tasks:
     - name: serverless-task-group
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard21"], serverless: "*" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard21", "net60"], serverless: "*" }
   display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
   batchtime: 10080  # 7 days
   tasks:
@@ -2562,29 +2635,37 @@ buildvariants:
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
     - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-net472
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-1804"
   matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
   matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
   matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
@@ -2593,6 +2674,7 @@ buildvariants:
   tasks:
     - name: testazurekms-task-group
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-gcp-kms-tests-linux"
   matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
@@ -2601,6 +2683,7 @@ buildvariants:
   tasks:
     - name: testgcpkms-task-group
     - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
 
 # Smoke tests
 - matrix_name: "smoke-tests-windows"

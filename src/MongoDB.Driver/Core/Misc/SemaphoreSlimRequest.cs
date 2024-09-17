@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,7 +27,9 @@ namespace MongoDB.Driver.Core.Misc
         // private fields
         private readonly CancellationTokenSource _disposeCancellationTokenSource;
         private readonly CancellationTokenSource _linkedCancellationTokenSource;
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly SemaphoreSlim _semaphore;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly Task _task;
 
         // constructors
@@ -41,7 +40,6 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="cancellationToken">The cancellation token.</param>
         public SemaphoreSlimRequest(SemaphoreSlim semaphore, CancellationToken cancellationToken)
         {
-
             _semaphore = Ensure.IsNotNull(semaphore, nameof(semaphore));
 
             _disposeCancellationTokenSource = new CancellationTokenSource();

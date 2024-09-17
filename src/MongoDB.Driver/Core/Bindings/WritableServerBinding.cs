@@ -26,7 +26,9 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class WritableServerBinding : IReadWriteBinding
     {
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
         private readonly ICoreSessionHandle _session;
 
