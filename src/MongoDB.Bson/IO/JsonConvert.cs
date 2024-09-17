@@ -90,6 +90,18 @@ namespace MongoDB.Bson.IO
             return double.Parse(value, NumberFormatInfo.InvariantInfo);
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a string to a Half.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A Half.</returns>
+        public static Half ToHalf(string value)
+        {
+            return Half.Parse(value, NumberFormatInfo.InvariantInfo);
+        }
+#endif
+
         /// <summary>
         /// Converts a string to an Int16.
         /// </summary>
@@ -199,6 +211,18 @@ namespace MongoDB.Bson.IO
         {
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
         }
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to a string.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
+        public static string ToString(Half value)
+        {
+            return value.ToString("R", NumberFormatInfo.InvariantInfo);
+        }
+#endif
 
         /// <summary>
         /// Converts an Int32 to a string.
