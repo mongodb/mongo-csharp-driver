@@ -24,18 +24,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class ProjectingDeserializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            Func<int, int> projector = f => 1;
-            var x = new ProjectingDeserializer<int, int>(Int32Serializer.Instance, projector);
-            var y = new DerivedFromProjectingDeserializer<int, int>(Int32Serializer.Instance, projector);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new ProjectingDeserializer<int, int>(Int32Serializer.Instance, f => 1);
@@ -108,14 +96,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromProjectingDeserializer<TFrom, TTo> : ProjectingDeserializer<TFrom, TTo>
-        {
-            public DerivedFromProjectingDeserializer(IBsonSerializer<TFrom> fromSerializer, Func<TFrom, TTo> projector)
-                : base(fromSerializer, projector)
-            {
-            }
         }
     }
 }

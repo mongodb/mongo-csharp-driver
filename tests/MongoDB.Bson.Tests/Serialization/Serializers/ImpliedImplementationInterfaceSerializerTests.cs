@@ -99,10 +99,5 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromImpliedImplementationInterfaceSerializer<TInterface, TImplementation> : ImpliedImplementationInterfaceSerializer<TInterface, TImplementation>
-             where TImplementation : class, TInterface
-        {
-        }
     }
 }

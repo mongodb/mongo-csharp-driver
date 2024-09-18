@@ -114,11 +114,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromDictionaryInterfaceImplementerSerializer<TDictionary> : DictionaryInterfaceImplementerSerializer<TDictionary>
-                where TDictionary : class, IDictionary, new()
-        {
-        }
     }
 
     public class DictionaryInterfaceImplementerSerializerGenericTests

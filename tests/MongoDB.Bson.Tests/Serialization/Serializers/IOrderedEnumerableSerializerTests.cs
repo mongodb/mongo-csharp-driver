@@ -105,13 +105,5 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromIOrderedEnumerableSerializer<TItem> : IOrderedEnumerableSerializer<TItem>
-        {
-            public DerivedFromIOrderedEnumerableSerializer(IBsonSerializer<TItem> itemSerializer, string thenByExceptionMessage)
-                : base(itemSerializer, thenByExceptionMessage)
-            {
-            }
-        }
     }
 }

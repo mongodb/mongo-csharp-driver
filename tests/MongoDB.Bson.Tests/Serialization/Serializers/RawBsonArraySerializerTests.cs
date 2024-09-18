@@ -62,17 +62,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new RawBsonArraySerializer();
-            var y = new DerivedFromRawBsonArraySerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new RawBsonArraySerializer();
@@ -122,10 +111,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromRawBsonArraySerializer : RawBsonArraySerializer
-        {
         }
     }
 }

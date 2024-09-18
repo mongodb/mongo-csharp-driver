@@ -95,14 +95,5 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromDowncastingSerializer<TBase, TDerived> : DowncastingSerializer<TBase, TDerived>
-            where TDerived : TBase
-        {
-            public DerivedFromDowncastingSerializer(IBsonSerializer<TDerived> derivedSerializer)
-                : base(derivedSerializer)
-            {
-            }
-        }
     }
 }

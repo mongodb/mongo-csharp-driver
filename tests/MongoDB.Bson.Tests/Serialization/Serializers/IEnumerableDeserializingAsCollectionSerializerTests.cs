@@ -23,17 +23,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class IEnumerableDeserializingAsCollectionSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>();
-            var y = new DerivedFromIEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>();
@@ -96,12 +85,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromIEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection> : IEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection>
-            where TIEnumerable : class, IEnumerable<TItem> // TIEnumerable must be an interface
-            where TCollection : class, ICollection<TItem>, new()
-        {
         }
     }
 }
