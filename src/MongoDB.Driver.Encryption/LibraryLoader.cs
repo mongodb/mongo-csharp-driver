@@ -130,6 +130,7 @@ namespace MongoDB.Driver.Encryption
             {
                 "../../runtimes/osx/native/",
                 "runtimes/osx/native/",
+                "libmongocrypt/macos",
                 string.Empty
             };
 
@@ -248,6 +249,7 @@ namespace MongoDB.Driver.Encryption
             {
                 @"..\..\runtimes\win\native\",
                 @".\runtimes\win\native\",
+                @".\libmongocrypt\windows\",
                 string.Empty
             };
 

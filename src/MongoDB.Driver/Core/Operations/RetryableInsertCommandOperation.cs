@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
+        protected override IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
             BatchableSource<TDocument> documents;
             if (attempt == 1)

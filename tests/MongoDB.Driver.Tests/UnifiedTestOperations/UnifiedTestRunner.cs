@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 19, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 21, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -349,7 +349,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 actualResult.Exception.Should().NotBeNull();
                 actualResult.Result.Should().BeNull();
 
-                new UnifiedErrorMatcher().AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
+                new UnifiedErrorMatcher(entityMap).AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
             }
             else
             {

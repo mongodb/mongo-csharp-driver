@@ -27,6 +27,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
+        private const int EncryptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
+
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
@@ -243,18 +246,40 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             writer.BsonStream.WriteByte((byte)section.PayloadType);
 
-            switch (section.PayloadType)
+            switch (section)
             {
-                case PayloadType.Type0:
-                    WriteType0Section(writer, (Type0CommandMessageSection)section);
+                case Type0CommandMessageSection type0Section:
+                    __type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
-
-                case PayloadType.Type1:
-                    WriteType1Section(writer, (Type1CommandMessageSection)section, messageStartPosition);
+                case Type1CommandMessageSection type1Section:
+                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize());
+                    type1SectionFormatter.FormatSection(type1Section, writer);
                     break;
+                case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
+                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize()))
+                    {
+                        bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
+                    }
 
+                    break;
                 default:
-                    throw new ArgumentException("Invalid payload type.", nameof(section));
+                    throw new NotSupportedException($"Cannot format command message section of type '{section.GetType().FullName}'.");
+            }
+
+            long? GetSectionMaxSize()
+            {
+                int? maxMessageSize;
+                if (IsEncryptionConfigured)
+                {
+                    var maxMessageEndPosition = writer.BsonStream.Position + EncryptedMaxBatchSize;
+                    maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
+                }
+                else
+                {
+                    maxMessageSize = MaxMessageSize;
+                }
+
+                return messageStartPosition + maxMessageSize - writer.BsonStream.Position;
             }
         }
 
@@ -264,68 +289,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 WriteSection(writer, section, messageStartPosition);
             }
-        }
-
-        private void WriteType0Section(BsonBinaryWriter writer, Type0CommandMessageSection section)
-        {
-            var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
-            serializer.Serialize(context, section.Document);
-        }
-
-        private void WriteType1Section(BsonBinaryWriter writer, Type1CommandMessageSection section, long messageStartPosition)
-        {
-            var stream = writer.BsonStream;
-            var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
-
-            int? maxMessageSize;
-            if (IsEncryptionConfigured)
-            {
-                var maxBatchSize = 2 * 1024 * 1024; // 2 MiB
-                var maxMessageEndPosition = stream.Position + maxBatchSize;
-                maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
-            }
-            else
-            {
-                maxMessageSize = MaxMessageSize;
-            }
-
-            var payloadStartPosition = stream.Position;
-            stream.WriteInt32(0); // size
-            stream.WriteCString(section.Identifier);
-
-            var batch = section.Documents;
-            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
-            writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
-            writer.PushElementNameValidator(section.ElementNameValidator);
-            try
-            {
-                var maxBatchCount = Math.Min(batch.Count, section.MaxBatchCount ?? int.MaxValue);
-                var processedCount = maxBatchCount;
-                for (var i = 0; i < maxBatchCount; i++)
-                {
-                    var documentStartPosition = stream.Position;
-                    var document = batch.Items[batch.Offset + i];
-                    serializer.Serialize(context, document);
-
-                    var messageSize = stream.Position - messageStartPosition;
-                    if (messageSize > maxMessageSize && batch.CanBeSplit && i > 0)
-                    {
-                        stream.Position = documentStartPosition;
-                        stream.SetLength(documentStartPosition);
-                        processedCount = i;
-                        break;
-                    }
-                }
-                batch.SetProcessedCount(processedCount);
-            }
-            finally
-            {
-                writer.PopElementNameValidator();
-                writer.PopSettings();
-            }
-            stream.BackpatchSize(payloadStartPosition);
         }
 
         // nested types

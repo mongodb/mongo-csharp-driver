@@ -20,8 +20,10 @@ using System.Threading;
 using MongoDB.Driver.Authentication.AWS;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
@@ -187,6 +189,17 @@ namespace MongoDB.Driver.Tests
             clientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             return clientSettings;
+        }
+
+        public static ConnectionDescription GetConnectionDescription()
+        {
+            var cluster = Client.GetClusterInternal();
+            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+            using (var channelSource = binding.GetWriteChannelSource(default))
+            using (var channel = channelSource.GetChannel(default))
+            {
+                return channel.ConnectionDescription;
+            }
         }
 
         public static bool IsReplicaSet(IMongoClient client)

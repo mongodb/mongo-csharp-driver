@@ -24,6 +24,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedErrorMatcher
     {
+        private readonly UnifiedEntityMap _entityMap;
+
+        public UnifiedErrorMatcher(UnifiedEntityMap entityMap)
+        {
+            _entityMap = entityMap;
+        }
+
         public void AssertErrorsMatch(Exception actualException, BsonDocument expectedError)
         {
             if (expectedError.ElementCount == 0)
@@ -56,8 +63,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "errorLabelsOmit":
                         AssertErrorLabelsOmit(actualException, element.Value.AsBsonArray.Select(x => x.AsString));
                         break;
+                    case "errorResponse":
+                        AssertErrorResponse(actualException, element.Value.AsBsonDocument);
+                        break;
                     case "expectResult":
                         AssertExpectResult(actualException, element.Value.AsBsonDocument);
+                        break;
+                    case "writeConcernErrors":
+                        AssertWriteConcernErrors(actualException, element.Value.AsBsonArray);
+                        break;
+                    case "writeErrors":
+                        AssertWriteErrors(actualException, element.Value.AsBsonDocument);
                         break;
                     default:
                         throw new FormatException($"Unrecognized error assertion: '{element.Name}'.");
@@ -65,16 +81,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
         }
 
+        private void AssertErrorResponse(Exception actualException, BsonDocument expected)
+        {
+            actualException = UnwrapCommandException(actualException);
+            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
+            var valueMatcher = new UnifiedValueMatcher(_entityMap);
+            valueMatcher.AssertValuesMatch(mongoCommandException.Result, expected);
+        }
+
         private void AssertErrorCode(Exception actualException, int expectedErrorCode)
         {
-            actualException = UnwrapConnectionException(actualException);
+            actualException = UnwrapCommandException(actualException);
             var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.Code.Should().Be(expectedErrorCode);
         }
 
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
         {
-            actualException = UnwrapConnectionException(actualException);
+            actualException = UnwrapCommandException(actualException);
             var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.CodeName.Should().Be(expectedErrorCodeName);
         }
@@ -102,35 +126,44 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertExpectResult(Exception actualException, BsonDocument expectedResult)
         {
-            var bulkWriteException = actualException.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Subject;
-            var bulkWriteResult = bulkWriteException.Result;
-            var actualResult = new BsonDocument
-            {
-                { "deletedCount", bulkWriteResult.DeletedCount },
-                { "insertedCount", bulkWriteResult.InsertedCount },
-                { "matchedCount", bulkWriteResult.MatchedCount },
-                { "modifiedCount", bulkWriteResult.ModifiedCount },
-                { "upsertedCount", bulkWriteResult.Upserts.Count },
-                { "upsertedIds", new BsonDocument(bulkWriteResult.Upserts.Select(x => new BsonElement(x.Index.ToString(), x.Id))) }
-            };
+            BsonDocument actualResult;
 
-            new UnifiedValueMatcher(null).AssertValuesMatch(actualResult, expectedResult);
+            switch (actualException)
+            {
+                case MongoBulkWriteException<BsonDocument> bulkWriteException:
+                    actualResult =  UnifiedBulkWriteOperationResultConverter.Convert(bulkWriteException.Result);
+                break;
+
+                case ClientBulkWriteException clientBulkWriteException:
+                    actualResult = UnifiedClientBulkWriteOperation.ConvertClientBulkWriteResult(clientBulkWriteException.PartialResult);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unrecognized exception type: '{actualException.GetType().FullName}'.");
+            }
+
+            new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualResult, expectedResult);
         }
 
         private void AssertIsClientError(Exception actualException, bool expectedIsClientError)
         {
-            var actualIsClientError = actualException is
-                MongoClientException or
-                BsonException or
-                MongoConnectionException or
-                NotSupportedException or
-                TimeoutException;
+            var actualIsClientError = IsClientError(actualException) ||
+                (actualException is ClientBulkWriteException bulkWriteException && IsClientError(bulkWriteException.InnerException));
 
             if (actualIsClientError != expectedIsClientError)
             {
                 var message = $"Expected exception to {(expectedIsClientError ? "" : "not ")}be a client exception, but found {actualException}.";
                 throw new AssertionException(message);
             }
+
+            bool IsClientError(Exception exception)
+                => exception is
+                    ArgumentException or
+                    MongoClientException or
+                    BsonException or
+                    MongoConnectionException or
+                    NotSupportedException or
+                    TimeoutException;
         }
 
         private void AssertIsError(Exception actualException, bool expectedIsError)
@@ -143,11 +176,44 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             actualException.Should().NotBeNull();
         }
 
-        private static Exception UnwrapConnectionException(Exception ex)
+        private void AssertWriteConcernErrors(Exception actualException, BsonArray expectedWriteConcernErrors)
+        {
+            var clientBulkWriteException = actualException.Should().BeAssignableTo<ClientBulkWriteException>().Subject;
+            var actualErrors = new BsonArray(
+                clientBulkWriteException.WriteConcernErrors.Select(
+                    e => new BsonDocument
+                    {
+                        { "code", e.Code },
+                        { "message", e.Message }
+                    }));
+
+            new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualErrors, expectedWriteConcernErrors);
+        }
+
+        private void AssertWriteErrors(Exception actualException, BsonDocument expectedWriteErrors)
+        {
+            var clientBulkWriteException = actualException.Should().BeAssignableTo<ClientBulkWriteException>().Subject;
+            var actualErrors = new BsonDocument(
+                clientBulkWriteException.WriteErrors.ToDictionary(
+                    k => k.Key.ToString(),
+                    v => new BsonDocument
+                    {
+                        { "code", v.Value.Code }
+                    }));
+
+            new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualErrors, expectedWriteErrors);
+        }
+
+        private static Exception UnwrapCommandException(Exception ex)
         {
             if (ex is MongoConnectionException connectionException)
             {
                 ex = connectionException.InnerException;
+            }
+
+            if (ex is ClientBulkWriteException bulkWriteException)
+            {
+                ex = bulkWriteException.InnerException;
             }
 
             return ex;

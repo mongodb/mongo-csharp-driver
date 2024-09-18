@@ -91,6 +91,20 @@ namespace MongoDB.Driver
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
+        /// <inheritdoc/>
+        public override int Code
+        {
+            get
+            {
+                if (WriteConcernResult.Response["writeConcernError"].AsBsonDocument.TryGetValue("code", out var code))
+                {
+                    return code.AsInt32;
+                }
+
+                return base.Code;
+            }
+        }
+
         // properties
         /// <summary>
         /// Gets the mapped write concern result exception.
