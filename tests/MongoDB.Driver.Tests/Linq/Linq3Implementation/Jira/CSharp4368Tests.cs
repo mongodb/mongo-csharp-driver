@@ -24,7 +24,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
@@ -79,11 +78,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             CreateTestCase<DateTime>("ISODate('2021-01-02T03:04:05.123')", x => (BsonValue)x.V),
             CreateTestCase<DateTime?>("ISODate('2021-01-02T03:04:05.123')", x => (BsonValue)x.V),
             CreateTestCase<DateTime?>("null", x => (BsonValue)x.V),
-            CreateTestCase<decimal>("'1'", x => (BsonValue)x.V),
-            CreateTestCase<decimal?>("'1'", x => (BsonValue)x.V),
+            CreateTestCase<decimal>("{ $numberDecimal : '1.0' }", x => (BsonValue)x.V),
+            CreateTestCase<decimal?>("{ $numberDecimal : '1.0' }", x => (BsonValue)x.V),
             CreateTestCase<decimal?>("null", x => (BsonValue)x.V),
-            CreateTestCase<Decimal128>("'1'", x => (BsonValue)x.V),
-            CreateTestCase<Decimal128?>("'1'", x => (BsonValue)x.V),
+            CreateTestCase<Decimal128>("{ $numberDecimal : '1.0' }", x => (BsonValue)x.V),
+            CreateTestCase<Decimal128?>("{ $numberDecimal : '1.0' }", x => (BsonValue)x.V),
             CreateTestCase<Decimal128?>("null", x => (BsonValue)x.V),
             CreateTestCase<double>("{ $numberDouble : '1.0' }", x => (BsonValue)x.V),
             CreateTestCase<double?>("{ $numberDouble : '1.0' }", x => (BsonValue)x.V),

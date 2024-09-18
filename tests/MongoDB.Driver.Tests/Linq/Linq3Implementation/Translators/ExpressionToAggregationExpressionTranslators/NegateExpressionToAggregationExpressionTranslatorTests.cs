@@ -129,6 +129,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public long Long { get; set; }
             public float Single { get; set; }
             public double Double { get; set; }
+            [BsonRepresentation(BsonType.String)]
             public decimal DecimalAsString { get; set; }
             [BsonRepresentation(BsonType.Decimal128)]
             public decimal DecimalAsDecimal128 { get; set; }

@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         private static readonly IBsonSerializer<Nullable<bool>> __nullableBooleanSerializer = new NullableSerializer<bool>(BooleanSerializer.Instance);
         private static readonly IBsonSerializer<Nullable<DateTime>> __nullableDateTimeSerializer = new NullableSerializer<DateTime>(DateTimeSerializer.UtcInstance);
-        private static readonly IBsonSerializer<Nullable<Decimal>> __nullableDecimalSerializer = new NullableSerializer<Decimal>(DecimalSerializer.Decimal128Instance);
-        private static readonly IBsonSerializer<Nullable<Decimal128>> __nullableDecimal128Serializer = new NullableSerializer<Decimal128>(Decimal128Serializer.Decimal128Instance);
+        private static readonly IBsonSerializer<Nullable<Decimal>> __nullableDecimalSerializer = new NullableSerializer<Decimal>(DecimalSerializer.Instance);
+        private static readonly IBsonSerializer<Nullable<Decimal128>> __nullableDecimal128Serializer = new NullableSerializer<Decimal128>(Decimal128Serializer.Instance);
         private static readonly IBsonSerializer<Nullable<double>> __nullableDoubleSerializer = new NullableSerializer<Double>(DoubleSerializer.Instance);
         private static readonly IBsonSerializer<Nullable<Guid>> __nullableGuidSerializer = new NullableSerializer<Guid>(GuidSerializer.StandardInstance);
         private static readonly IBsonSerializer<Nullable<int>> __nullableInt32Serializer = new NullableSerializer<int>(Int32Serializer.Instance);
@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case "AsBsonValue": return AstFilter.Field(field.Path, fieldSerializer);
                     case "AsByteArray": return AstFilter.Field(field.Path, ByteArraySerializer.Instance);
                     case "AsDateTime": return AstFilter.Field(field.Path, DateTimeSerializer.UtcInstance);
-                    case "AsDecimal": return AstFilter.Field(field.Path, DecimalSerializer.Decimal128Instance);
-                    case "AsDecimal128": return AstFilter.Field(field.Path, Decimal128Serializer.Decimal128Instance);
+                    case "AsDecimal": return AstFilter.Field(field.Path, DecimalSerializer.Instance);
+                    case "AsDecimal128": return AstFilter.Field(field.Path, Decimal128Serializer.Instance);
                     case "AsDouble": return AstFilter.Field(field.Path, DoubleSerializer.Instance);
                     case "AsGuid": return AstFilter.Field(field.Path, GuidSerializer.StandardInstance);
                     case "AsInt32": return AstFilter.Field(field.Path, Int32Serializer.Instance);

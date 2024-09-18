@@ -138,7 +138,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new C { Obj = value };
 
             var json = c.ToJson();
-            json.Should().Be("{ \"Obj\" : { \"_t\" : \"System.Decimal\", \"_v\" : \"1.5\" } }");
+            json.Should().Be("""{ "Obj" : { "_t" : "System.Decimal", "_v" : NumberDecimal("1.5") } }""");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
