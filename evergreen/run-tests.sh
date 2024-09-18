@@ -134,15 +134,15 @@ if [[ "$CLIENT_PEM" != "nil" ]]; then
 fi
 
 if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-    # technically the above condiion will be always true since CLIENT_PEM is always set and 
-    # convert-client-cert-to-pkcs12 always assigns these env variables, but leaving this condition in case 
+    # technically the above condiion will be always true since CLIENT_PEM is always set and
+    # convert-client-cert-to-pkcs12 always assigns these env variables, but leaving this condition in case
     # if we make CLIENT_PEM input parameter conditional
     export MONGO_X509_CLIENT_CERTIFICATE_PATH=${MONGO_X509_CLIENT_CERTIFICATE_PATH}
     export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
 fi
 
 if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe .\\build.ps1 --target=$TARGET
+  powershell.exe .\\build.ps1 --target=$TARGET --environment="Evergreen"
 else
-  ./build.sh --target=$TARGET
+  ./build.sh --target=$TARGET --environment="Evergreen"
 fi

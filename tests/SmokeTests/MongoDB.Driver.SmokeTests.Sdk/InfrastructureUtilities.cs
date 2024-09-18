@@ -32,7 +32,8 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 var fileVersionInfo = package switch
                 {
                     "driver" => FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location),
-                    "libmongocrypt" => FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location)
+                    "libmongocrypt" => FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location),
+                    _ => throw new ArgumentOutOfRangeException(nameof(package), package, "Unknown package used in smoke tests.")
                 };
 
                 fileVersionInfo.ProductVersion.Contains(packageShaExpected)

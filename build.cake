@@ -352,30 +352,30 @@ Task("TestsPackagingProjectReference")
             RunTests(buildConfig, testProject, filter: "Category=\"Packaging\""));
 
 Task("SmokeTests")
-    .IsDependentOn("PackageNugetPackages")
     .DoesForEach(
         GetFiles("./**/SmokeTests/**/*.SmokeTests*.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-     {
+    {
         var environmentVariables = new Dictionary<string, string>
         {
            { "SmokeTestsPackageSha", gitVersion.Sha }
         };
 
         var toolSettings = new DotNetToolSettings { EnvironmentVariables = environmentVariables };
+        var packageVersion = Environment.GetEnvironmentVariable("PACKAGE_VERSION");
 
-        Information($"Updating MongoDB package: {buildConfig.PackageVersion} sha: {gitVersion.Sha}");
+        Information($"Updating MongoDB package: {packageVersion} sha: {gitVersion.Sha}");
 
         DotNetTool(
             testProject.FullPath,
             "add package MongoDB.Driver",
-            $"--no-restore --version [{buildConfig.PackageVersion}]",
+            $"--no-restore --version [{packageVersion}]",
             toolSettings);
 
         DotNetTool(
             testProject.FullPath,
             "add package MongoDB.Libmongocrypt",
-            $"--no-restore --version [{buildConfig.PackageVersion}]",
+            $"--no-restore --version [{packageVersion}]",
             toolSettings);
 
         RunTests(
@@ -387,7 +387,7 @@ Task("SmokeTests")
                 settings.NoRestore = false;
                 settings.EnvironmentVariables = environmentVariables;
             });
-     });
+    });
 
 Task("SmokeTestsNet472").IsDependentOn("SmokeTests");
 Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
