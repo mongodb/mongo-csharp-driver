@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for DateOnlys.
     /// </summary>
-    public class DateOnlySerializer : StructSerializerBase<DateOnly>, IRepresentationConfigurable<DateOnlySerializer>
+    public sealed class DateOnlySerializer : StructSerializerBase<DateOnly>, IRepresentationConfigurable<DateOnlySerializer>
     {
         // static
         private static readonly DateOnlySerializer __instance = new DateOnlySerializer();
@@ -41,9 +41,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private fields
-        private readonly BsonType _representation;
-        private readonly SerializerHelper _helper;
         private readonly RepresentationConverter _converter;
+        private readonly SerializerHelper _helper;
+        private readonly BsonType _representation;
 
         // constructors
         /// <summary>
