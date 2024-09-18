@@ -425,7 +425,8 @@ namespace MongoDB.Driver
                             ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,
                             Hint = updateOneModel.Hint,
-                            IsUpsert = updateOneModel.IsUpsert
+                            IsUpsert = updateOneModel.IsUpsert,
+                            Sort = updateOneModel.Sort, //TODO Need to find a way to test this
                         };
                     default:
                         throw new MongoInternalException("Request type is invalid.");
