@@ -1,0 +1,670 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Interface IOrderedMongoQueryable&lt;T&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Interface IOrderedMongoQueryable&lt;T&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/v2.x/apiSpec/new?filename=MongoDB_Driver_Linq_IOrderedMongoQueryable_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Linq.IOrderedMongoQueryable%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Linq.IOrderedMongoQueryable`1">
+
+
+
+  <h1 id="MongoDB_Driver_Linq_IOrderedMongoQueryable_1" data-uid="MongoDB.Driver.Linq.IOrderedMongoQueryable`1" class="text-break">
+    Interface IOrderedMongoQueryable&lt;T&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/v2.x/src/MongoDB.Driver/Linq/IMongoQueryable.cs/#L70"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Linq.html">Linq</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents the result of a sorting operation.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IOrderedMongoQueryable&lt;T&gt; : IMongoQueryable&lt;T&gt;, IMongoQueryable, IAsyncCursorSource&lt;T&gt;, IOrderedQueryable&lt;T&gt;, IOrderedQueryable, IQueryable&lt;T&gt;, IEnumerable&lt;T&gt;, IQueryable, IEnumerable</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>T</code></dt>
+    <dd><p>The type of the data in the data source.
+This type parameter is covariant.
+That is, you can use either the type you specified or any type that is more
+derived. For more information about covariance and contravariance, see Covariance
+and Contravariance in Generics.</p>
+</dd>
+  </dl>
+
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Driver.Linq.IMongoQueryable.LoggedStages.html#MongoDB_Driver_Linq_IMongoQueryable_LoggedStages">IMongoQueryable.LoggedStages</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.Linq.IMongoQueryable.Provider.html#MongoDB_Driver_Linq_IMongoQueryable_Provider">IMongoQueryable.Provider</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.Linq.IMongoQueryable.GetExecutionModel.html#MongoDB_Driver_Linq_IMongoQueryable_GetExecutionModel">IMongoQueryable.GetExecutionModel()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSource-1.ToCursor.html#MongoDB_Driver_IAsyncCursorSource_1_ToCursor_System_Threading_CancellationToken_">IAsyncCursorSource&lt;T&gt;.ToCursor(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSource-1.ToCursorAsync.html#MongoDB_Driver_IAsyncCursorSource_1_ToCursorAsync_System_Threading_CancellationToken_">IAsyncCursorSource&lt;T&gt;.ToCursorAsync(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1.getenumerator">IEnumerable&lt;T&gt;.GetEnumerator()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable.elementtype">IQueryable.ElementType</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable.expression">IQueryable.Expression</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.AnyAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_AnyAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.AnyAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.Any.html#MongoDB_Driver_IAsyncCursorSourceExtensions_Any__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.Any&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.FirstAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.FirstOrDefaultAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefaultAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstOrDefaultAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.FirstOrDefault.html#MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefault__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.FirstOrDefault&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.First.html#MongoDB_Driver_IAsyncCursorSourceExtensions_First__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.First&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ForEachAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Action___0_System_Int32__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Action&lt;TDocument, int&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ForEachAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Action___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Action&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ForEachAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Func___0_System_Int32_System_Threading_Tasks_Task__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Func&lt;TDocument, int, Task&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ForEachAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Func___0_System_Threading_Tasks_Task__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ForEachAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, Func&lt;TDocument, Task&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.SingleAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.SingleOrDefaultAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefaultAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleOrDefaultAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.SingleOrDefault.html#MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefault__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.SingleOrDefault&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.Single.html#MongoDB_Driver_IAsyncCursorSourceExtensions_Single__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.Single&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ToEnumerable.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToEnumerable__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToEnumerable&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ToListAsync.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToListAsync&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IAsyncCursorSourceExtensions.ToList.html#MongoDB_Driver_IAsyncCursorSourceExtensions_ToList__1_MongoDB_Driver_IAsyncCursorSource___0__System_Threading_CancellationToken_">IAsyncCursorSourceExtensions.ToList&lt;TDocument&gt;(IAsyncCursorSource&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.OfType.html#MongoDB_Driver_Linq_MongoQueryable_OfType__1_MongoDB_Driver_Linq_IMongoQueryable_">MongoQueryable.OfType&lt;TResult&gt;(IMongoQueryable)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AnyAsync.html#MongoDB_Driver_Linq_MongoQueryable_AnyAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.AnyAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AnyAsync.html#MongoDB_Driver_Linq_MongoQueryable_AnyAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.AnyAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AppendStage.html#MongoDB_Driver_Linq_MongoQueryable_AppendStage__2_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_PipelineStageDefinition___0___1__MongoDB_Bson_Serialization_IBsonSerializer___1__">MongoQueryable.AppendStage&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, PipelineStageDefinition&lt;TSource, TResult&gt;, IBsonSerializer&lt;TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.As.html#MongoDB_Driver_Linq_MongoQueryable_As__2_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Bson_Serialization_IBsonSerializer___1__">MongoQueryable.As&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, IBsonSerializer&lt;TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.AverageAsync.html#MongoDB_Driver_Linq_MongoQueryable_AverageAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___System_Threading_CancellationToken_">MongoQueryable.AverageAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.CountAsync.html#MongoDB_Driver_Linq_MongoQueryable_CountAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.CountAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.CountAsync.html#MongoDB_Driver_Linq_MongoQueryable_CountAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.CountAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Densify.html#MongoDB_Driver_Linq_MongoQueryable_Densify__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_System_Linq_Expressions_Expression_System_Func___0_System_Object____">MongoQueryable.Densify&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, object&gt;&gt;, DensifyRange, IEnumerable&lt;Expression&lt;Func&lt;TSource, object&gt;&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Densify.html#MongoDB_Driver_Linq_MongoQueryable_Densify__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Linq_Expressions_Expression_System_Func___0_System_Object_____">MongoQueryable.Densify&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, object&gt;&gt;, DensifyRange, params Expression&lt;Func&lt;TSource, object&gt;&gt;[])</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Distinct.html#MongoDB_Driver_Linq_MongoQueryable_Distinct__1_MongoDB_Driver_Linq_IMongoQueryable___0__">MongoQueryable.Distinct&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.FirstAsync.html#MongoDB_Driver_Linq_MongoQueryable_FirstAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.FirstAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.FirstAsync.html#MongoDB_Driver_Linq_MongoQueryable_FirstAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.FirstAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.FirstOrDefaultAsync.html#MongoDB_Driver_Linq_MongoQueryable_FirstOrDefaultAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.FirstOrDefaultAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.FirstOrDefaultAsync.html#MongoDB_Driver_Linq_MongoQueryable_FirstOrDefaultAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.FirstOrDefaultAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.GroupBy.html#MongoDB_Driver_Linq_MongoQueryable_GroupBy__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.GroupBy&lt;TSource, TKey&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.GroupBy.html#MongoDB_Driver_Linq_MongoQueryable_GroupBy__3_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___1_System_Collections_Generic_IEnumerable___0____2___">MongoQueryable.GroupBy&lt;TSource, TKey, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;, Expression&lt;Func&lt;TKey, IEnumerable&lt;TSource&gt;, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.GroupJoin.html#MongoDB_Driver_Linq_MongoQueryable_GroupJoin__4_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____3___">MongoQueryable.GroupJoin&lt;TOuter, TInner, TKey, TResult&gt;(IMongoQueryable&lt;TOuter&gt;, IMongoCollection&lt;TInner&gt;, Expression&lt;Func&lt;TOuter, TKey&gt;&gt;, Expression&lt;Func&lt;TInner, TKey&gt;&gt;, Expression&lt;Func&lt;TOuter, IEnumerable&lt;TInner&gt;, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.GroupJoin.html#MongoDB_Driver_Linq_MongoQueryable_GroupJoin__4_MongoDB_Driver_Linq_IMongoQueryable___0__System_Collections_Generic_IEnumerable___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____3___">MongoQueryable.GroupJoin&lt;TOuter, TInner, TKey, TResult&gt;(IMongoQueryable&lt;TOuter&gt;, IEnumerable&lt;TInner&gt;, Expression&lt;Func&lt;TOuter, TKey&gt;&gt;, Expression&lt;Func&lt;TInner, TKey&gt;&gt;, Expression&lt;Func&lt;TOuter, IEnumerable&lt;TInner&gt;, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Join.html#MongoDB_Driver_Linq_MongoQueryable_Join__4_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0___1___3___">MongoQueryable.Join&lt;TOuter, TInner, TKey, TResult&gt;(IMongoQueryable&lt;TOuter&gt;, IMongoCollection&lt;TInner&gt;, Expression&lt;Func&lt;TOuter, TKey&gt;&gt;, Expression&lt;Func&lt;TInner, TKey&gt;&gt;, Expression&lt;Func&lt;TOuter, TInner, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Join.html#MongoDB_Driver_Linq_MongoQueryable_Join__4_MongoDB_Driver_Linq_IMongoQueryable___0__System_Collections_Generic_IEnumerable___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0___1___3___">MongoQueryable.Join&lt;TOuter, TInner, TKey, TResult&gt;(IMongoQueryable&lt;TOuter&gt;, IEnumerable&lt;TInner&gt;, Expression&lt;Func&lt;TOuter, TKey&gt;&gt;, Expression&lt;Func&lt;TInner, TKey&gt;&gt;, Expression&lt;Func&lt;TOuter, TInner, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.LongCountAsync.html#MongoDB_Driver_Linq_MongoQueryable_LongCountAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.LongCountAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.LongCountAsync.html#MongoDB_Driver_Linq_MongoQueryable_LongCountAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.LongCountAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.MaxAsync.html#MongoDB_Driver_Linq_MongoQueryable_MaxAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.MaxAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.MaxAsync.html#MongoDB_Driver_Linq_MongoQueryable_MaxAsync__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Threading_CancellationToken_">MongoQueryable.MaxAsync&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TResult&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.MinAsync.html#MongoDB_Driver_Linq_MongoQueryable_MinAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.MinAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.MinAsync.html#MongoDB_Driver_Linq_MongoQueryable_MinAsync__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Threading_CancellationToken_">MongoQueryable.MinAsync&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TResult&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.OrderByDescending.html#MongoDB_Driver_Linq_MongoQueryable_OrderByDescending__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.OrderByDescending&lt;TSource, TKey&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.OrderBy.html#MongoDB_Driver_Linq_MongoQueryable_OrderBy__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.OrderBy&lt;TSource, TKey&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Sample.html#MongoDB_Driver_Linq_MongoQueryable_Sample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Int64_">MongoQueryable.Sample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SearchMeta.html#MongoDB_Driver_Linq_MongoQueryable_SearchMeta__1_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_Search_SearchDefinition___0__System_String_MongoDB_Driver_Search_SearchCountOptions_">MongoQueryable.SearchMeta&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, SearchDefinition&lt;TSource&gt;, string, SearchCountOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Search.html#MongoDB_Driver_Linq_MongoQueryable_Search__1_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchHighlightOptions___0__System_String_MongoDB_Driver_Search_SearchCountOptions_System_Boolean_System_Boolean_">MongoQueryable.Search&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, SearchDefinition&lt;TSource&gt;, SearchHighlightOptions&lt;TSource&gt;, string, SearchCountOptions, bool, bool)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Search.html#MongoDB_Driver_Linq_MongoQueryable_Search__1_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchOptions___0__">MongoQueryable.Search&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, SearchDefinition&lt;TSource&gt;, SearchOptions&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SelectMany.html#MongoDB_Driver_Linq_MongoQueryable_SelectMany__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____">MongoQueryable.SelectMany&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, IEnumerable&lt;TResult&gt;&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SelectMany.html#MongoDB_Driver_Linq_MongoQueryable_SelectMany__3_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0___1___2___">MongoQueryable.SelectMany&lt;TSource, TCollection, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, IEnumerable&lt;TCollection&gt;&gt;&gt;, Expression&lt;Func&lt;TSource, TCollection, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Select.html#MongoDB_Driver_Linq_MongoQueryable_Select__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.Select&lt;TSource, TResult&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TResult&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SingleAsync.html#MongoDB_Driver_Linq_MongoQueryable_SingleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.SingleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SingleAsync.html#MongoDB_Driver_Linq_MongoQueryable_SingleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.SingleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SingleOrDefaultAsync.html#MongoDB_Driver_Linq_MongoQueryable_SingleOrDefaultAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">MongoQueryable.SingleOrDefaultAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SingleOrDefaultAsync.html#MongoDB_Driver_Linq_MongoQueryable_SingleOrDefaultAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Threading_CancellationToken_">MongoQueryable.SingleOrDefaultAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Skip.html#MongoDB_Driver_Linq_MongoQueryable_Skip__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Int32_">MongoQueryable.Skip&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Skip.html#MongoDB_Driver_Linq_MongoQueryable_Skip__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Int64_">MongoQueryable.Skip&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulationAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulationAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationPopulationAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationPopulation__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___">MongoQueryable.StandardDeviationPopulation&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSampleAsync.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSampleAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___System_Threading_CancellationToken_">MongoQueryable.StandardDeviationSampleAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoQueryable_StandardDeviationSample__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___">MongoQueryable.StandardDeviationSample&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Decimal___System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Double___System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int32___System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Int64___System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Decimal____System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, decimal?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Double____System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, double?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int32____System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, int?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Int64____System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, long?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Nullable_System_Single____System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float?&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.SumAsync.html#MongoDB_Driver_Linq_MongoQueryable_SumAsync__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Single___System_Threading_CancellationToken_">MongoQueryable.SumAsync&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, float&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Take.html#MongoDB_Driver_Linq_MongoQueryable_Take__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Int32_">MongoQueryable.Take&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Take.html#MongoDB_Driver_Linq_MongoQueryable_Take__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Int64_">MongoQueryable.Take&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.VectorSearch.html#MongoDB_Driver_Linq_MongoQueryable_VectorSearch__2_MongoDB_Driver_Linq_IMongoQueryable___0__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__">MongoQueryable.VectorSearch&lt;TSource, TField&gt;(IMongoQueryable&lt;TSource&gt;, FieldDefinition&lt;TSource&gt;, QueryVector, int, VectorSearchOptions&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.VectorSearch.html#MongoDB_Driver_Linq_MongoQueryable_VectorSearch__2_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__">MongoQueryable.VectorSearch&lt;TSource, TField&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TField&gt;&gt;, QueryVector, int, VectorSearchOptions&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.Where.html#MongoDB_Driver_Linq_MongoQueryable_Where__1_MongoDB_Driver_Linq_IMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">MongoQueryable.Where&lt;TSource&gt;(IMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, bool&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.ThenByDescending.html#MongoDB_Driver_Linq_MongoQueryable_ThenByDescending__2_MongoDB_Driver_Linq_IOrderedMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.ThenByDescending&lt;TSource, TKey&gt;(IOrderedMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoQueryable.ThenBy.html#MongoDB_Driver_Linq_MongoQueryable_ThenBy__2_MongoDB_Driver_Linq_IOrderedMongoQueryable___0__System_Linq_Expressions_Expression_System_Func___0___1___">MongoQueryable.ThenBy&lt;TSource, TKey&gt;(IOrderedMongoQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, TKey&gt;&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.AllElements.html#MongoDB_Driver_Linq_MongoEnumerable_AllElements__1_System_Collections_Generic_IEnumerable___0__">MongoEnumerable.AllElements&lt;TSource&gt;(IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.AllMatchingElements.html#MongoDB_Driver_Linq_MongoEnumerable_AllMatchingElements__1_System_Collections_Generic_IEnumerable___0__System_String_">MongoEnumerable.AllMatchingElements&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.BottomN.html#MongoDB_Driver_Linq_MongoEnumerable_BottomN__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__System_Int32_">MongoEnumerable.BottomN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.BottomN.html#MongoDB_Driver_Linq_MongoEnumerable_BottomN__3_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.BottomN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.Bottom.html#MongoDB_Driver_Linq_MongoEnumerable_Bottom__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__">MongoEnumerable.Bottom&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.FirstMatchingElement.html#MongoDB_Driver_Linq_MongoEnumerable_FirstMatchingElement__1_System_Collections_Generic_IEnumerable___0__">MongoEnumerable.FirstMatchingElement&lt;TSource&gt;(IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.FirstN.html#MongoDB_Driver_Linq_MongoEnumerable_FirstN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_">MongoEnumerable.FirstN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.FirstN.html#MongoDB_Driver_Linq_MongoEnumerable_FirstN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.FirstN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.LastN.html#MongoDB_Driver_Linq_MongoEnumerable_LastN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_">MongoEnumerable.LastN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.LastN.html#MongoDB_Driver_Linq_MongoEnumerable_LastN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.LastN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.MaxN.html#MongoDB_Driver_Linq_MongoEnumerable_MaxN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_">MongoEnumerable.MaxN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.MaxN.html#MongoDB_Driver_Linq_MongoEnumerable_MaxN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.MaxN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.MinN.html#MongoDB_Driver_Linq_MongoEnumerable_MinN__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Int32_">MongoEnumerable.MinN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.MinN.html#MongoDB_Driver_Linq_MongoEnumerable_MinN__3_System_Collections_Generic_IEnumerable___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.MinN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Decimal__">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Double__">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32__">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int64__">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Decimal___">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Double___">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int32___">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int64___">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Single___">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationPopulation.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationPopulation__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Single__">MongoEnumerable.StandardDeviationPopulation&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Decimal__">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Double__">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32__">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int64__">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Decimal___">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, decimal?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Double___">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, double?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int32___">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, int?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Int64___">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, long?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Nullable_System_Single___">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float?&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.StandardDeviationSample.html#MongoDB_Driver_Linq_MongoEnumerable_StandardDeviationSample__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Single__">MongoEnumerable.StandardDeviationSample&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, float&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.TopN.html#MongoDB_Driver_Linq_MongoEnumerable_TopN__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__System_Int32_">MongoEnumerable.TopN&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.TopN.html#MongoDB_Driver_Linq_MongoEnumerable_TopN__3_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___2____1_System_Func___1_System_Int32__">MongoEnumerable.TopN&lt;TSource, TKey, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;, TKey, Func&lt;TKey, int&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.Top.html#MongoDB_Driver_Linq_MongoEnumerable_Top__2_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_SortDefinition___0__System_Func___0___1__">MongoEnumerable.Top&lt;TSource, TResult&gt;(IEnumerable&lt;TSource&gt;, SortDefinition&lt;TSource&gt;, Func&lt;TSource, TResult&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.MongoEnumerable.Where.html#MongoDB_Driver_Linq_MongoEnumerable_Where__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Boolean__System_Int32_">MongoEnumerable.Where&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource, bool&gt;, int)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

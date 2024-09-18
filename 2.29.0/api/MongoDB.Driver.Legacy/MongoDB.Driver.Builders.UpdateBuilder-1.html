@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class UpdateBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class UpdateBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/v2.x/apiSpec/new?filename=MongoDB_Driver_Builders_UpdateBuilder_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Builders.UpdateBuilder%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Builders.UpdateBuilder`1">
+
+
+
+  <h1 id="MongoDB_Driver_Builders_UpdateBuilder_1" data-uid="MongoDB.Driver.Builders.UpdateBuilder`1" class="text-break">
+    Class UpdateBuilder&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/v2.x/src/MongoDB.Driver.Legacy/Builders/UpdateBuilder.cs/#L2268"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Builders.html">Builders</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A builder for creating update modifiers.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Serializable]
+[BsonSerializer(typeof(UpdateBuilder&lt;&gt;.Serializer))]
+public class UpdateBuilder&lt;TDocument&gt; : BuilderBase, IConvertibleToBsonDocument, IMongoUpdate</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the document.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="MongoDB.Driver.Builders.BuilderBase.html">BuilderBase</a></div>
+      <div><span class="xref">UpdateBuilder&lt;TDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="../MongoDB.Bson/MongoDB.Bson.IConvertibleToBsonDocument.html">IConvertibleToBsonDocument</a></div>
+      <div><a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Driver.Builders.BuilderBase.ToString.html#MongoDB_Driver_Builders_BuilderBase_ToString">BuilderBase.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.-ctor.html#MongoDB_Driver_Builders_UpdateBuilder_1__ctor">UpdateBuilder()</a></dt>
+    <dd><p>Initializes a new instance of the UpdateBuilder class.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.AddToSetEach.html#MongoDB_Driver_Builders_UpdateBuilder_1_AddToSetEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">AddToSetEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.AddToSet.html#MongoDB_Driver_Builders_UpdateBuilder_1_AddToSet__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AddToSet&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Adds a value to a named array element if the value is not already in the array (see $addToSet).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseAnd.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseAnd_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_">BitwiseAnd(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseAnd.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseAnd_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_">BitwiseAnd(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise and of its value with another value (see $bit with &quot;and&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseOr.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseOr_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_">BitwiseOr(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseOr.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseOr_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_">BitwiseOr(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise or of its value with another value (see $bit with &quot;or&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseXor.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseXor_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_">BitwiseXor(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)</a></dt>
+    <dd><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.BitwiseXor.html#MongoDB_Driver_Builders_UpdateBuilder_1_BitwiseXor_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_">BitwiseXor(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)</a></dt>
+    <dd><p>Sets the named element to the bitwise xor of its value with another value (see $bit with &quot;xor&quot;).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Combine.html#MongoDB_Driver_Builders_UpdateBuilder_1_Combine_MongoDB_Driver_IMongoUpdate_">Combine(IMongoUpdate)</a></dt>
+    <dd><p>Combines another UpdateBuilder into this one.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.CurrentDate.html#MongoDB_Driver_Builders_UpdateBuilder_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_MongoDB_Bson_BsonDateTime___">CurrentDate(Expression&lt;Func&lt;TDocument, BsonDateTime&gt;&gt;)</a></dt>
+    <dd><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.CurrentDate.html#MongoDB_Driver_Builders_UpdateBuilder_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_MongoDB_Bson_BsonTimestamp___">CurrentDate(Expression&lt;Func&lt;TDocument, BsonTimestamp&gt;&gt;)</a></dt>
+    <dd><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.CurrentDate.html#MongoDB_Driver_Builders_UpdateBuilder_1_CurrentDate_System_Linq_Expressions_Expression_System_Func__0_System_DateTime___">CurrentDate(Expression&lt;Func&lt;TDocument, DateTime&gt;&gt;)</a></dt>
+    <dd><p>Sets the value of the named element to the current date (see $currentDate).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Inc.html#MongoDB_Driver_Builders_UpdateBuilder_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_">Inc(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Inc.html#MongoDB_Driver_Builders_UpdateBuilder_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_">Inc(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Inc.html#MongoDB_Driver_Builders_UpdateBuilder_1_Inc_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_">Inc(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)</a></dt>
+    <dd><p>Increments the named element by a value (see $inc).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Max.html#MongoDB_Driver_Builders_UpdateBuilder_1_Max__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Max&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Updates the named element if and only if the provided value is greater than its current value (see $max).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Min.html#MongoDB_Driver_Builders_UpdateBuilder_1_Min__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Min&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Updates the named element if and only if the provided value is less than its current value (see $max).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Mul.html#MongoDB_Driver_Builders_UpdateBuilder_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Double___System_Double_">Mul(Expression&lt;Func&lt;TDocument, double&gt;&gt;, double)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Mul.html#MongoDB_Driver_Builders_UpdateBuilder_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Int32___System_Int32_">Mul(Expression&lt;Func&lt;TDocument, int&gt;&gt;, int)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Mul.html#MongoDB_Driver_Builders_UpdateBuilder_1_Mul_System_Linq_Expressions_Expression_System_Func__0_System_Int64___System_Int64_">Mul(Expression&lt;Func&lt;TDocument, long&gt;&gt;, long)</a></dt>
+    <dd><p>Multiplies the named element by a value (see $mul).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PopFirst.html#MongoDB_Driver_Builders_UpdateBuilder_1_PopFirst__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____">PopFirst&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;)</a></dt>
+    <dd><p>Removes the first value from the named array element (see $pop).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PopLast.html#MongoDB_Driver_Builders_UpdateBuilder_1_PopLast__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____">PopLast&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;)</a></dt>
+    <dd><p>Removes the last value from the named array element (see $pop).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PullAll.html#MongoDB_Driver_Builders_UpdateBuilder_1_PullAll__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">PullAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to any of a list of values (see $pullAll).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Pull.html#MongoDB_Driver_Builders_UpdateBuilder_1_Pull__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Func_MongoDB_Driver_Builders_QueryBuilder___0__MongoDB_Driver_IMongoQuery__">Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Func&lt;QueryBuilder&lt;TValue&gt;, IMongoQuery&gt;)</a></dt>
+    <dd><p>Removes all values from the named array element that match some query (see $pull).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Pull.html#MongoDB_Driver_Builders_UpdateBuilder_1_Pull__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">Pull&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Removes all values from the named array element that are equal to some value (see $pull).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PushAll.html#MongoDB_Driver_Builders_UpdateBuilder_1_PushAll__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">PushAll&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $pushAll).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PushEach.html#MongoDB_Driver_Builders_UpdateBuilder_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_Builders_PushEachOptions_System_Collections_Generic_IEnumerable___0__">PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, PushEachOptions, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PushEach.html#MongoDB_Driver_Builders_UpdateBuilder_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Action_MongoDB_Driver_Builders_PushEachOptionsBuilder___0___System_Collections_Generic_IEnumerable___0__">PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, Action&lt;PushEachOptionsBuilder&lt;TValue&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.PushEach.html#MongoDB_Driver_Builders_UpdateBuilder_1_PushEach__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">PushEach&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, IEnumerable&lt;TValue&gt;)</a></dt>
+    <dd><p>Adds a list of values to the end of the named array element (see $push and $each).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Push.html#MongoDB_Driver_Builders_UpdateBuilder_1_Push__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">Push&lt;TValue&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TValue&gt;&gt;&gt;, TValue)</a></dt>
+    <dd><p>Adds a value to the end of the named array element (see $push).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.SetOnInsert.html#MongoDB_Driver_Builders_UpdateBuilder_1_SetOnInsert__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">SetOnInsert&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Sets the value of the named element to the specified value only when an insert occurs
+as part of an upsert operation (see $setOnInsert).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Set.html#MongoDB_Driver_Builders_UpdateBuilder_1_Set__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Set&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;, TMember)</a></dt>
+    <dd><p>Sets the value of the named element to a new value (see $set).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.ToBsonDocument.html#MongoDB_Driver_Builders_UpdateBuilder_1_ToBsonDocument">ToBsonDocument()</a></dt>
+    <dd><p>Converts this object to a BsonDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.UpdateBuilder-1.Unset.html#MongoDB_Driver_Builders_UpdateBuilder_1_Unset__1_System_Linq_Expressions_Expression_System_Func__0___0___">Unset&lt;TMember&gt;(Expression&lt;Func&lt;TDocument, TMember&gt;&gt;)</a></dt>
+    <dd><p>Removes the named element from the document (see $unset).</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

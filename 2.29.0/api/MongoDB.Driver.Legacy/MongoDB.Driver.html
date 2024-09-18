@@ -1,0 +1,662 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Namespace MongoDB.Driver
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Namespace MongoDB.Driver
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/blob/v2.x/apidocs/namespaces/MongoDB.Driver/MongoDB.Driver.md/#L2">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver">
+
+  <h1 id="MongoDB_Driver" data-uid="MongoDB.Driver" class="text-break">Namespace MongoDB.Driver
+</h1>
+  <div class="markdown level0 summary">
+<p>The MongoDB.Driver namespace contains all the basic types and classes that compose the MongoDB driver. It contains the classes needed for most interactions with the database.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+
+    <h3 id="classes">
+Classes
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.AggregateArgs.html">AggregateArgs</a></dt>
+      <dd><p>Represents options for the Aggregate command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.BulkUpdateRequestBuilder-1.html">BulkUpdateRequestBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents a fluent builder for one update request.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.BulkWriteOperation-1.html">BulkWriteOperation&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents a fluent builder for a bulk operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.BulkWriteRequestBuilder-1.html">BulkWriteRequestBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents a fluent builder for a write request (either a remove or an update).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CollectionOptionsDocument.html">CollectionOptionsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoCollectionOptions is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CollectionStatsResult.html">CollectionStatsResult</a></dt>
+      <dd><p>Represents the results of the collection stats command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CollectionStatsResult.IndexSizesResult.html">CollectionStatsResult.IndexSizesResult</a></dt>
+      <dd><p>Represents a collection of index sizes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CommandDocument.html">CommandDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoCommand is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CommandResult.html">CommandResult</a></dt>
+      <dd><p>Represents the result of a command (there are also subclasses for various commands).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CommandResultSerializer-1.html">CommandResultSerializer&lt;TCommandResult&gt;</a></dt>
+      <dd><p>Represents a serializer for a CommandResult.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CountArgs.html">CountArgs</a></dt>
+      <dd><p>Represents arguments for the Count command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CreateViewOptionsDocument.html">CreateViewOptionsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoCreateViewOptions is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.DatabaseStatsResult.html">DatabaseStatsResult</a></dt>
+      <dd><p>Represents the result of the database stats command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.DistinctArgs.html">DistinctArgs</a></dt>
+      <dd><p>Represents arguments for the Distinct command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.EvalArgs.html">EvalArgs</a></dt>
+      <dd><p>Represents arguments for the Eval command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FieldsDocument.html">FieldsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoFields is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FindAndModifyArgs.html">FindAndModifyArgs</a></dt>
+      <dd><p>Represents options for the FindAndModify command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FindAndModifyResult.html">FindAndModifyResult</a></dt>
+      <dd><p>Represents the result of a FindAndModify command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FindAndRemoveArgs.html">FindAndRemoveArgs</a></dt>
+      <dd><p>Represents options for the FindAndRemove command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FindOneArgs.html">FindOneArgs</a></dt>
+      <dd><p>Represents arguments to the FindOne method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchArgs.html">GeoHaystackSearchArgs</a></dt>
+      <dd><p>Represents the arguments to the GeoHaystackSearch method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchOptionsDocument.html">GeoHaystackSearchOptionsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoGeoHaystackSearchOptions is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult.html">GeoHaystackSearchResult</a></dt>
+      <dd><p>Represents the result of a GeoHaystackSearch command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult.GeoHaystackSearchHit.html">GeoHaystackSearchResult.GeoHaystackSearchHit</a></dt>
+      <dd><p>Represents a GeoHaystackSearch hit.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult.GeoHaystackSearchHits.html">GeoHaystackSearchResult.GeoHaystackSearchHits</a></dt>
+      <dd><p>Represents a collection of GeoHaystackSearch hits.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult.GeoHaystackSearchStats.html">GeoHaystackSearchResult.GeoHaystackSearchStats</a></dt>
+      <dd><p>Represents the stats of a GeoHaystackSearch command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult-1.html">GeoHaystackSearchResult&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents the result of a GeoHaystackSearch command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult-1.GeoHaystackSearchHit.html">GeoHaystackSearchResult&lt;TDocument&gt;.GeoHaystackSearchHit</a></dt>
+      <dd><p>Represents a GeoHaystackSearch hit.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoHaystackSearchResult-1.GeoHaystackSearchHits.html">GeoHaystackSearchResult&lt;TDocument&gt;.GeoHaystackSearchHits</a></dt>
+      <dd><p>Represents a collection of GeoHaystackSearch hits.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearArgs.html">GeoNearArgs</a></dt>
+      <dd><p>Represents the arguments to the GeoNear method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearOptionsDocument.html">GeoNearOptionsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoGeoNearOptions is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearPoint.html">GeoNearPoint</a></dt>
+      <dd><p>Represents a GeoNearPoint (wraps either an XYPoint or a GeoJsonPoint).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearPoint.GeoJson-1.html">GeoNearPoint.GeoJson&lt;TCoordinates&gt;</a></dt>
+      <dd><p>Represents a GeoNearPoint that wraps a GeoJsonPoint.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearPoint.Legacy.html">GeoNearPoint.Legacy</a></dt>
+      <dd><p>Represents a GeoNearPoint that wraps an XYPoint.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult.html">GeoNearResult</a></dt>
+      <dd><p>Represents the result of a GeoNear command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult.GeoNearHit.html">GeoNearResult.GeoNearHit</a></dt>
+      <dd><p>Represents a GeoNear hit.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult.GeoNearHits.html">GeoNearResult.GeoNearHits</a></dt>
+      <dd><p>Represents a collection of GeoNear hits.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult.GeoNearStats.html">GeoNearResult.GeoNearStats</a></dt>
+      <dd><p>Represents the stats of a GeoNear command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult-1.html">GeoNearResult&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents the result of a GeoNear command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult-1.GeoNearHit.html">GeoNearResult&lt;TDocument&gt;.GeoNearHit</a></dt>
+      <dd><p>Represents a GeoNear hit.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GeoNearResult-1.GeoNearHits.html">GeoNearResult&lt;TDocument&gt;.GeoNearHits</a></dt>
+      <dd><p>Represents a collection of GeoNear hits.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GetIndexesResult.html">GetIndexesResult</a></dt>
+      <dd><p>Represents the result of GetIndexes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GetProfilingLevelResult.html">GetProfilingLevelResult</a></dt>
+      <dd><p>Represents the results of a GetProfilingLevel command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GetStatsArgs.html">GetStatsArgs</a></dt>
+      <dd><p>Represents arguments for the GetStats command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GroupArgs.html">GroupArgs</a></dt>
+      <dd><p>Represents arguments for the Group command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.GroupByDocument.html">GroupByDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoGroupBy is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IndexInfo.html">IndexInfo</a></dt>
+      <dd><p>Represents information about an index.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IndexKeysDocument.html">IndexKeysDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoIndexKeys is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IndexOptionsDocument.html">IndexOptionsDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoIndexOptions is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MapReduceArgs.html">MapReduceArgs</a></dt>
+      <dd><p>Represents arguments for the MapReduce command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MapReduceResult.html">MapReduceResult</a></dt>
+      <dd><p>Represents the result of a map-reduce command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoClientExtensions.html">MongoClientExtensions</a></dt>
+      <dd><p>Represents extension methods on MongoClient.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></dt>
+      <dd><p>Represents a MongoDB collection and the settings used to access it. This class is thread-safe.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.html">MongoCollection&lt;TDefaultDocument&gt;</a></dt>
+      <dd><p>Represents a MongoDB collection and the settings used to access it as well as a default document type. This class is thread-safe.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoCursor.html">MongoCursor</a></dt>
+      <dd><p>An object that can be enumerated to fetch the results of a query. The query is not sent
+to the server until you begin enumerating the results.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoCursor-1.html">MongoCursor&lt;TDocument&gt;</a></dt>
+      <dd><p>An object that can be enumerated to fetch the results of a query. The query is not sent
+to the server until you begin enumerating the results.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoDatabase.html">MongoDatabase</a></dt>
+      <dd><p>Represents a MongoDB database and the settings used to access it. This class is thread-safe.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoInsertOptions.html">MongoInsertOptions</a></dt>
+      <dd><p>Represents the options to use for an Insert or InsertBatch operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoServer.html">MongoServer</a></dt>
+      <dd><p>Represents a MongoDB server (either a single instance or a replica set) and the settings used to access it. This class is thread-safe.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoServerInstance.html">MongoServerInstance</a></dt>
+      <dd><p>Represents an instance of a MongoDB server host.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoServerSettings.html">MongoServerSettings</a></dt>
+      <dd><p>The settings used to access a MongoDB server.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoUpdateOptions.html">MongoUpdateOptions</a></dt>
+      <dd><p>Represents the options to use for an Update operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoUser.html">MongoUser</a></dt>
+      <dd><p>Represents a MongoDB user.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ParallelScanArgs.html">ParallelScanArgs</a></dt>
+      <dd><p>Represents arguments for the ParallelScan command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ParallelScanArgs-1.html">ParallelScanArgs&lt;TDocument&gt;</a></dt>
+      <dd><p>Represents arguments for the ParallelScan command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.QueryDocument.html">QueryDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoQuery is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.RemoveArgs.html">RemoveArgs</a></dt>
+      <dd><p>Represents arguments to the Remove method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ScopeDocument.html">ScopeDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoScope is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SortByDocument.html">SortByDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoSortBy is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileInfo.html">SystemProfileInfo</a></dt>
+      <dd><p>Represents a document from the system.profile collection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileInfoSerializer.html">SystemProfileInfoSerializer</a></dt>
+      <dd><p>Represents a serializer for SystemProfileInfo.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileLockStatistics.html">SystemProfileLockStatistics</a></dt>
+      <dd><p>Statistics about locks for a system.profile document.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileLockStatisticsSerializer.html">SystemProfileLockStatisticsSerializer</a></dt>
+      <dd><p>Serializer for SystemProfileLockStatistics</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileReadWriteLockStatistics.html">SystemProfileReadWriteLockStatistics</a></dt>
+      <dd><p>Statistics about system.profile read and write time spent in locks.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer.html">SystemProfileReadWriteLockStatisticsSerializer</a></dt>
+      <dd><p>Serializer for SystemProfileReadWriteLockStatistics</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.UpdateDocument.html">UpdateDocument</a></dt>
+      <dd><p>Represents a BSON document that can be used where an IMongoUpdate is expected.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ValidateCollectionArgs.html">ValidateCollectionArgs</a></dt>
+      <dd><p>Represents arguments for the Validate collection command helper method.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ValidateCollectionResult.html">ValidateCollectionResult</a></dt>
+      <dd><p>Represents the results of a validate collection command.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ValidateCollectionResult.ExtentDetails.html">ValidateCollectionResult.ExtentDetails</a></dt>
+      <dd><p>Represents the details of the first extent of the collection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.XYPoint.html">XYPoint</a></dt>
+      <dd><p>Represents a 2D point represented using x, y coordinates.</p>
+</dd>
+    </dl>
+    <h3 id="interfaces">
+Interfaces
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionOptions.html">IMongoCollectionOptions</a></dt>
+      <dd><p>A marker interface that represents options for creating a collection (see CollectionOptionsDocument and the CollectionOptions builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoCommand.html">IMongoCommand</a></dt>
+      <dd><p>A marker interface that represents a command (see CommandDocument).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoCreateViewOptions.html">IMongoCreateViewOptions</a></dt>
+      <dd><p>A marker interface that represents options for creating a view (see CreateViewOptionsDocument and the CreateViewOptions builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoFields.html">IMongoFields</a></dt>
+      <dd><p>A marker interface that represents a list of fields (see FieldsDocument and the Fields builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoGeoHaystackSearchOptions.html">IMongoGeoHaystackSearchOptions</a></dt>
+      <dd><p>A marker interface that represents geo haystack search options (see GeoSearchHaystackOptionsDocument and the GeoHaystackSearchOptions builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoGeoNearOptions.html">IMongoGeoNearOptions</a></dt>
+      <dd><p>A marker interface that represents geo search options (see GeoNearOptionsDocument and the GeoNearOptions builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoGroupBy.html">IMongoGroupBy</a></dt>
+      <dd><p>A marker interface that represents what to group by (see GroupByDocument and the GroupBy builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoIndexKeys.html">IMongoIndexKeys</a></dt>
+      <dd><p>A marker interface that represents the keys of an index (see IndexKeysDocument and the IndexKeys builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoIndexOptions.html">IMongoIndexOptions</a></dt>
+      <dd><p>A marker interface that represents options for creating an index (see IndexOptionsDocument and the IndexOptions builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoQuery.html">IMongoQuery</a></dt>
+      <dd><p>A marker interface that represents a query (see QueryDocument and the Query builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoScope.html">IMongoScope</a></dt>
+      <dd><p>A marker interface that represents a scope (a set of variables with values, see ScopeDocument).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoSortBy.html">IMongoSortBy</a></dt>
+      <dd><p>A marker interface that represents a sort order (see SortByDocument and the SortBy builder).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.IMongoUpdate.html">IMongoUpdate</a></dt>
+      <dd><p>A marker interface that represents an update modifier (see UpdateDocument and the Update builder).</p>
+</dd>
+    </dl>
+    <h3 id="enums">
+Enums
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.AggregateOutputMode.html">AggregateOutputMode</a></dt>
+      <dd><p>Represents the output mode for an aggregate operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CollectionSystemFlags.html">CollectionSystemFlags</a></dt>
+      <dd><p>Represents collection system flags.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.CollectionUserFlags.html">CollectionUserFlags</a></dt>
+      <dd><p>Represents collection user flags.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.EvalFlags.html">EvalFlags</a></dt>
+      <dd><p>Flags used with the Eval method in MongoDatabase.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FeatureId.html">FeatureId</a></dt>
+      <dd><p>Represents the Id of a feature.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.FindAndModifyDocumentVersion.html">FindAndModifyDocumentVersion</a></dt>
+      <dd><p>Represents a version of a document (original or modified).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.InsertFlags.html">InsertFlags</a></dt>
+      <dd><p>Flags used with the Insert method in MongoCollection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MapReduceOutputMode.html">MapReduceOutputMode</a></dt>
+      <dd><p>Represents the output mode for a map-reduce operation.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoServerInstanceType.html">MongoServerInstanceType</a></dt>
+      <dd><p>Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.MongoServerState.html">MongoServerState</a></dt>
+      <dd><p>The state of a MongoServer instance.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.ProfilingLevel.html">ProfilingLevel</a></dt>
+      <dd><p>Represents what level of profile information to write.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.QueryFlags.html">QueryFlags</a></dt>
+      <dd><p>Flags used with queries (see the SetQueryFlags method of MongoCursor).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.RemoveFlags.html">RemoveFlags</a></dt>
+      <dd><p>Flags used with the Remove method of MongoCollection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.UpdateFlags.html">UpdateFlags</a></dt>
+      <dd><p>Flags used with the Update method in MongoCollection.</p>
+</dd>
+    </dl>
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

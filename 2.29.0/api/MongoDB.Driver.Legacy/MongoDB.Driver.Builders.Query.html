@@ -1,0 +1,431 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class Query
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class Query
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/v2.x/apiSpec/new?filename=MongoDB_Driver_Builders_Query.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Builders.Query%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Builders.Query">
+
+
+
+  <h1 id="MongoDB_Driver_Builders_Query" data-uid="MongoDB.Driver.Builders.Query" class="text-break">
+    Class Query
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/v2.x/src/MongoDB.Driver.Legacy/Builders/QueryBuilder.cs/#L30"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Builders.html">Builders</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A builder for creating queries.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class Query</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">Query</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Empty.html#MongoDB_Driver_Builders_Query_Empty">Empty</a></dt>
+    <dd><p>Gets an empty query.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Null.html#MongoDB_Driver_Builders_Query_Null">Null</a></dt>
+    <dd><p>Gets a null value with a type of IMongoQuery.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.All.html#MongoDB_Driver_Builders_Query_All_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">All(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Tests that the named array element contains all of the values (see $all).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.And.html#MongoDB_Driver_Builders_Query_And_MongoDB_Driver_IMongoQuery___">And(params IMongoQuery[])</a></dt>
+    <dd><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.And.html#MongoDB_Driver_Builders_Query_And_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__">And(IEnumerable&lt;IMongoQuery&gt;)</a></dt>
+    <dd><p>Tests that all the queries are true (see $and in newer versions of the server).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.BitsAllClear.html#MongoDB_Driver_Builders_Query_BitsAllClear_System_String_System_Int64_">BitsAllClear(string, long)</a></dt>
+    <dd><p>Tests that the value of the named element has all of the specified bits clear.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.BitsAllSet.html#MongoDB_Driver_Builders_Query_BitsAllSet_System_String_System_Int64_">BitsAllSet(string, long)</a></dt>
+    <dd><p>Tests that the value of the named element has all of the specified bits set.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.BitsAnyClear.html#MongoDB_Driver_Builders_Query_BitsAnyClear_System_String_System_Int64_">BitsAnyClear(string, long)</a></dt>
+    <dd><p>Tests that the value of the named element has any of the specified bits clear.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.BitsAnySet.html#MongoDB_Driver_Builders_Query_BitsAnySet_System_String_System_Int64_">BitsAnySet(string, long)</a></dt>
+    <dd><p>Tests that the value of the named element has any of the specified bits set.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Create.html#MongoDB_Driver_Builders_Query_Create_MongoDB_Bson_BsonDocument_">Create(BsonDocument)</a></dt>
+    <dd><p>Creates a query manually.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Create.html#MongoDB_Driver_Builders_Query_Create_System_String_MongoDB_Bson_BsonValue_">Create(string, BsonValue)</a></dt>
+    <dd><p>Creates a query manually.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.EQ.html#MongoDB_Driver_Builders_Query_EQ_System_String_MongoDB_Bson_BsonValue_">EQ(string, BsonValue)</a></dt>
+    <dd><p>Tests that the value of the named element is equal to some value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.ElemMatch.html#MongoDB_Driver_Builders_Query_ElemMatch_System_String_MongoDB_Driver_IMongoQuery_">ElemMatch(string, IMongoQuery)</a></dt>
+    <dd><p>Tests that at least one item of the named array element matches a query (see $elemMatch).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Exists.html#MongoDB_Driver_Builders_Query_Exists_System_String_">Exists(string)</a></dt>
+    <dd><p>Tests that an element of that name exists (see $exists).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.GT.html#MongoDB_Driver_Builders_Query_GT_System_String_MongoDB_Bson_BsonValue_">GT(string, BsonValue)</a></dt>
+    <dd><p>Tests that the value of the named element is greater than some value (see $gt).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.GTE.html#MongoDB_Driver_Builders_Query_GTE_System_String_MongoDB_Bson_BsonValue_">GTE(string, BsonValue)</a></dt>
+    <dd><p>Tests that the value of the named element is greater than or equal to some value (see $gte).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.GeoIntersects.html#MongoDB_Driver_Builders_Query_GeoIntersects__1_System_String_MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__">GeoIntersects&lt;TCoordinates&gt;(string, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that a location element specified by name intersects with the geometry (see $geoIntersects).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.In.html#MongoDB_Driver_Builders_Query_In_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">In(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is equal to one of a list of values (see $in).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.LT.html#MongoDB_Driver_Builders_Query_LT_System_String_MongoDB_Bson_BsonValue_">LT(string, BsonValue)</a></dt>
+    <dd><p>Tests that the value of the named element is less than some value (see $lt).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.LTE.html#MongoDB_Driver_Builders_Query_LTE_System_String_MongoDB_Bson_BsonValue_">LTE(string, BsonValue)</a></dt>
+    <dd><p>Tests that the value of the named element is less than or equal to some value (see $lte).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Matches.html#MongoDB_Driver_Builders_Query_Matches_System_String_MongoDB_Bson_BsonRegularExpression_">Matches(string, BsonRegularExpression)</a></dt>
+    <dd><p>Tests that the value of the named element matches a regular expression (see $regex).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Mod.html#MongoDB_Driver_Builders_Query_Mod_System_String_System_Int64_System_Int64_">Mod(string, long, long)</a></dt>
+    <dd><p>Tests that the modulus of the value of the named element matches some value (see $mod).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.NE.html#MongoDB_Driver_Builders_Query_NE_System_String_MongoDB_Bson_BsonValue_">NE(string, BsonValue)</a></dt>
+    <dd><p>Tests that an element does not equal the value (see $ne).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near_System_String_System_Double_System_Double_">Near(string, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near_System_String_System_Double_System_Double_System_Double_">Near(string, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near_System_String_System_Double_System_Double_System_Double_System_Boolean_">Near(string, double, double, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near__1_System_String_MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__">Near&lt;TCoordinates&gt;(string, GeoJsonPoint&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is near a point (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near__1_System_String_MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_">Near&lt;TCoordinates&gt;(string, GeoJsonPoint&lt;TCoordinates&gt;, double)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Near.html#MongoDB_Driver_Builders_Query_Near__1_System_String_MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_System_Boolean_">Near&lt;TCoordinates&gt;(string, GeoJsonPoint&lt;TCoordinates&gt;, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is near some location (see $near).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Not.html#MongoDB_Driver_Builders_Query_Not_MongoDB_Driver_IMongoQuery_">Not(IMongoQuery)</a></dt>
+    <dd><p>Tests that the inverse of the query is true (see $not).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.NotExists.html#MongoDB_Driver_Builders_Query_NotExists_System_String_">NotExists(string)</a></dt>
+    <dd><p>Tests that an element of that name does not exist (see $exists).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.NotIn.html#MongoDB_Driver_Builders_Query_NotIn_System_String_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonValue__">NotIn(string, IEnumerable&lt;BsonValue&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is not equal to any item in a list of values (see $nin).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Or.html#MongoDB_Driver_Builders_Query_Or_MongoDB_Driver_IMongoQuery___">Or(params IMongoQuery[])</a></dt>
+    <dd><p>Tests that at least one of the subqueries is true (see $or).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Or.html#MongoDB_Driver_Builders_Query_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_IMongoQuery__">Or(IEnumerable&lt;IMongoQuery&gt;)</a></dt>
+    <dd><p>Tests that at least one of the subqueries is true (see $or).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Size.html#MongoDB_Driver_Builders_Query_Size_System_String_System_Int32_">Size(string, int)</a></dt>
+    <dd><p>Tests that the size of the named array is equal to some value (see $size).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.SizeGreaterThan.html#MongoDB_Driver_Builders_Query_SizeGreaterThan_System_String_System_Int32_">SizeGreaterThan(string, int)</a></dt>
+    <dd><p>Tests that the size of the named array is greater than some value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.SizeGreaterThanOrEqual.html#MongoDB_Driver_Builders_Query_SizeGreaterThanOrEqual_System_String_System_Int32_">SizeGreaterThanOrEqual(string, int)</a></dt>
+    <dd><p>Tests that the size of the named array is greater than or equal to some value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.SizeLessThan.html#MongoDB_Driver_Builders_Query_SizeLessThan_System_String_System_Int32_">SizeLessThan(string, int)</a></dt>
+    <dd><p>Tests that the size of the named array is less than some value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.SizeLessThanOrEqual.html#MongoDB_Driver_Builders_Query_SizeLessThanOrEqual_System_String_System_Int32_">SizeLessThanOrEqual(string, int)</a></dt>
+    <dd><p>Tests that the size of the named array is less than or equal to some value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Text.html#MongoDB_Driver_Builders_Query_Text_System_String_">Text(string)</a></dt>
+    <dd><p>Generate a text search query that tests whether the given search string is present.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Text.html#MongoDB_Driver_Builders_Query_Text_System_String_MongoDB_Driver_TextSearchOptions_">Text(string, TextSearchOptions)</a></dt>
+    <dd><p>Generate a text search query that tests whether the given search string is present using the specified language's rules.
+Specifies use of language appropriate stop words, stemming rules etc.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Text.html#MongoDB_Driver_Builders_Query_Text_System_String_System_String_">Text(string, string)</a></dt>
+    <dd><p>Generate a text search query that tests whether the given search string is present using the specified language's rules.
+Specifies use of language appropriate stop words, stemming rules etc.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Type.html#MongoDB_Driver_Builders_Query_Type_System_String_MongoDB_Bson_BsonType_">Type(string, BsonType)</a></dt>
+    <dd><p>Tests that the type of the named element is equal to some type (see $type).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Type.html#MongoDB_Driver_Builders_Query_Type_System_String_System_String_">Type(string, string)</a></dt>
+    <dd><p>Tests that the type of the named element is equal to some type (see $type).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Where.html#MongoDB_Driver_Builders_Query_Where_MongoDB_Bson_BsonJavaScript_">Where(BsonJavaScript)</a></dt>
+    <dd><p>Tests that a JavaScript expression is true (see $where).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.WithinCircle.html#MongoDB_Driver_Builders_Query_WithinCircle_System_String_System_Double_System_Double_System_Double_">WithinCircle(string, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.WithinCircle.html#MongoDB_Driver_Builders_Query_WithinCircle_System_String_System_Double_System_Double_System_Double_System_Boolean_">WithinCircle(string, double, double, double, bool)</a></dt>
+    <dd><p>Tests that the value of the named element is within a circle (see $within and $center).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.WithinPolygon.html#MongoDB_Driver_Builders_Query_WithinPolygon_System_String_System_Double_0__0___">WithinPolygon(string, double[,])</a></dt>
+    <dd><p>Tests that the value of the named element is within a polygon (see $within and $polygon).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.WithinRectangle.html#MongoDB_Driver_Builders_Query_WithinRectangle_System_String_System_Double_System_Double_System_Double_System_Double_">WithinRectangle(string, double, double, double, double)</a></dt>
+    <dd><p>Tests that the value of the named element is within a rectangle (see $within and $box).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Builders.Query.Within.html#MongoDB_Driver_Builders_Query_Within__1_System_String_MongoDB_Driver_GeoJsonObjectModel_GeoJsonPolygon___0__">Within&lt;TCoordinates&gt;(string, GeoJsonPolygon&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Tests that the value of the named element is within the specified geometry (see $within).</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
