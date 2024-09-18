@@ -815,7 +815,8 @@ namespace MongoDB.Driver
                         CorrelationId = index,
                         Hint = updateOneModel.Hint,
                         IsMulti = false,
-                        IsUpsert = updateOneModel.IsUpsert
+                        IsUpsert = updateOneModel.IsUpsert,
+                        Sort = updateOneModel.Sort,
                     };
                 default:
                     throw new InvalidOperationException("Unknown type of WriteModel provided.");

@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 new[]
                 {
                     "MongoDB.Driver.Tests.Specifications.crud.tests.v1",
-                    "MongoDB.Driver.Tests.Specifications.crud.tests.v2"
+                    "MongoDB.Driver.Tests.Specifications.crud.tests.v2"  //TODO I don't think we have v2 anymore?
                 };
 
             // protected methods

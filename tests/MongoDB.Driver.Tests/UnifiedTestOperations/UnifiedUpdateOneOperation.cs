@@ -112,6 +112,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    //TODO Why don't we create UpdateOptions beforehand?
                     case "comment":
                         options ??= new UpdateOptions();
                         options.Comment = argument.Value;
@@ -129,6 +130,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "sort":
+                        options ??= new UpdateOptions();
+                        options.Sort = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
                         options ??= new UpdateOptions();
