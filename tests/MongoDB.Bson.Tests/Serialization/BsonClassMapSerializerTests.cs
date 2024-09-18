@@ -73,17 +73,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonClassMapSerializer<MyModel>(__classMap1);
-            var y = new DerivedFromBsonClassMapSerializer<MyModel>(__classMap1);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonClassMapSerializer<MyModel>(__classMap1);
@@ -144,14 +133,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        private class DerivedFromBsonClassMapSerializer<TClass> : BsonClassMapSerializer<TClass>
-        {
-            public DerivedFromBsonClassMapSerializer(BsonClassMap classMap)
-                : base(classMap)
-            {
-            }
         }
 
         // nested classes

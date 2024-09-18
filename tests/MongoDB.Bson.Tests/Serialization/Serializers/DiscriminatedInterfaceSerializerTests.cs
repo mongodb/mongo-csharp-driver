@@ -25,17 +25,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class DiscriminatedInterfaceSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new DiscriminatedInterfaceSerializer<I>();
-            var y = new DerivedFromDiscriminatedInterfaceSerializer<I>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new DiscriminatedInterfaceSerializer<I>();

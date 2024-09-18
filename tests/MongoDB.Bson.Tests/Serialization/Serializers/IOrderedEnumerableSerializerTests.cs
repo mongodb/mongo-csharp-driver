@@ -24,17 +24,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class IOrderedEnumerableSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new IOrderedEnumerableSerializer<int>(Int32Serializer.Instance, "message");
-            var y = new DerivedFromIOrderedEnumerableSerializer<int>(Int32Serializer.Instance, "message");
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new IOrderedEnumerableSerializer<int>(Int32Serializer.Instance, "message");

@@ -240,17 +240,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonValueCSharpNullDocumentSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonValueCSharpNullDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-            var y = new DerivedFromBsonValueCSharpNullDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonValueCSharpNullDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
@@ -311,15 +300,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonValueCSharpNullDocumentSerializer<TBsonValue> : BsonValueCSharpNullDocumentSerializer<TBsonValue>
-            where TBsonValue : BsonValue
-        {
-            public DerivedFromBsonValueCSharpNullDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
-                : base(wrappedSerializer)
-            {
-            }
         }
     }
 

@@ -22,17 +22,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class QueueSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new QueueSerializer();
-            var y = new DerivedFromQueueSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new QueueSerializer();

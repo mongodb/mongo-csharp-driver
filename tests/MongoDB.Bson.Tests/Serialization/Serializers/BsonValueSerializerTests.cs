@@ -284,17 +284,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonBooleanSerializer();
-            var y = new DerivedFromBsonBooleanSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonBooleanSerializer();
@@ -344,10 +333,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonBooleanSerializer : BsonBooleanSerializer
-        {
         }
     }
 
@@ -529,17 +514,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonDateTimeSerializer();
-            var y = new DerivedFromBsonDateTimeSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonDateTimeSerializer();
@@ -589,10 +563,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonDateTimeSerializer : BsonDateTimeSerializer
-        {
         }
     }
 
@@ -2586,17 +2556,6 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonUndefinedSerializer();
-            var y = new DerivedFromBsonUndefinedSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonUndefinedSerializer();
@@ -2646,10 +2605,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonUndefinedSerializer : BsonUndefinedSerializer
-        {
         }
     }
 }

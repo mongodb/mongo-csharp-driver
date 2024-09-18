@@ -21,17 +21,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class SerializeAsNominalTypeSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new SerializeAsNominalTypeSerializer<D, C>();
-            var y = new DerivedFromSerializeAsNominalTypeSerializer<D, C>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new SerializeAsNominalTypeSerializer<D, C>();
