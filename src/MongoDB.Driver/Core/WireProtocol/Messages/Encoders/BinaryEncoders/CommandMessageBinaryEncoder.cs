@@ -27,6 +27,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __typo0SectionFormatter = new Type0SectionFormatter();
+        private static readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> __typo1SectionFormatter = new Type1SectionFormatter();
+
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
@@ -243,18 +246,31 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             writer.BsonStream.WriteByte((byte)section.PayloadType);
 
-            switch (section.PayloadType)
+            if (section is Type0CommandMessageSection type0Section)
             {
-                case PayloadType.Type0:
-                    WriteType0Section(writer, (Type0CommandMessageSection)section);
-                    break;
+                __typo0SectionFormatter.FormatSection(type0Section, writer, null);
+            }
+            else if(section is Type1CommandMessageSection type1Section)
+            {
+                int? maxMessageSize;
+                if (IsEncryptionConfigured)
+                {
+                    var maxBatchSize = 2 * 1024 * 1024; // 2 MiB
+                    var maxMessageEndPosition = writer.BsonStream.Position + maxBatchSize;
+                    maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
+                }
+                else
+                {
+                    maxMessageSize = MaxMessageSize;
+                }
 
-                case PayloadType.Type1:
-                    WriteType1Section(writer, (Type1CommandMessageSection)section, messageStartPosition);
-                    break;
+                var sectionMaxSize = messageStartPosition + maxMessageSize - writer.BsonStream.Position;
 
-                default:
-                    throw new ArgumentException("Invalid payload type.", nameof(section));
+                __typo1SectionFormatter.FormatSection(type1Section, writer, sectionMaxSize);
+            }
+            else
+            {
+                throw new NotSupportedException($"Cannot format command message section of type '{section.GetType().FullName}'.");
             }
         }
 
@@ -264,68 +280,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 WriteSection(writer, section, messageStartPosition);
             }
-        }
-
-        private void WriteType0Section(BsonBinaryWriter writer, Type0CommandMessageSection section)
-        {
-            var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
-            serializer.Serialize(context, section.Document);
-        }
-
-        private void WriteType1Section(BsonBinaryWriter writer, Type1CommandMessageSection section, long messageStartPosition)
-        {
-            var stream = writer.BsonStream;
-            var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
-
-            int? maxMessageSize;
-            if (IsEncryptionConfigured)
-            {
-                var maxBatchSize = 2 * 1024 * 1024; // 2 MiB
-                var maxMessageEndPosition = stream.Position + maxBatchSize;
-                maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
-            }
-            else
-            {
-                maxMessageSize = MaxMessageSize;
-            }
-
-            var payloadStartPosition = stream.Position;
-            stream.WriteInt32(0); // size
-            stream.WriteCString(section.Identifier);
-
-            var batch = section.Documents;
-            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
-            writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
-            writer.PushElementNameValidator(section.ElementNameValidator);
-            try
-            {
-                var maxBatchCount = Math.Min(batch.Count, section.MaxBatchCount ?? int.MaxValue);
-                var processedCount = maxBatchCount;
-                for (var i = 0; i < maxBatchCount; i++)
-                {
-                    var documentStartPosition = stream.Position;
-                    var document = batch.Items[batch.Offset + i];
-                    serializer.Serialize(context, document);
-
-                    var messageSize = stream.Position - messageStartPosition;
-                    if (messageSize > maxMessageSize && batch.CanBeSplit && i > 0)
-                    {
-                        stream.Position = documentStartPosition;
-                        stream.SetLength(documentStartPosition);
-                        processedCount = i;
-                        break;
-                    }
-                }
-                batch.SetProcessedCount(processedCount);
-            }
-            finally
-            {
-                writer.PopElementNameValidator();
-                writer.PopSettings();
-            }
-            stream.BackpatchSize(payloadStartPosition);
         }
 
         // nested types
