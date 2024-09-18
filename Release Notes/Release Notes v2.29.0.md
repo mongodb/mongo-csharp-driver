@@ -4,8 +4,8 @@ This is the general availability release for the 2.29.0 version of the driver.
 
 Version 2.29.0 of the driver has been tested against MongoDB Server version 8.0 and adds support for the following new features in server version 8.0:
 
-+ Support for v2 Queryable Encryption range protocol - [CSHARP-4959](https://jira.mongodb.org/browse/CSHARP-4959)
-+ Support Range Indexes - [CSHARP-5057](https://jira.mongodb.org/browse/CSHARP-5057)
++ Support for v2 of the Queryable Encryption range protocol - [CSHARP-4959](https://jira.mongodb.org/browse/CSHARP-4959)
++ Range indexes for Queryable Encryption are now GA - [CSHARP-5057](https://jira.mongodb.org/browse/CSHARP-5057)
 
 The following server 8.0 features are not yet supported and will be supported in a later release of the driver:
 
