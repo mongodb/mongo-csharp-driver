@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _hint;
         private bool _isMulti;
         private bool _isUpsert;
+        private BsonDocument _sort;
         private readonly BsonValue _update;
         private UpdateType _updateType;
 
@@ -128,6 +129,15 @@ namespace MongoDB.Driver.Core.Operations
         public UpdateType UpdateType
         {
             get { return _updateType; }
+        }
+
+        /// <summary>
+        /// Gets or sets the sort document.
+        /// </summary>
+        public BsonDocument Sort
+        {
+            get { return _sort; }
+            set { _sort = value; }
         }
 
         // public methods

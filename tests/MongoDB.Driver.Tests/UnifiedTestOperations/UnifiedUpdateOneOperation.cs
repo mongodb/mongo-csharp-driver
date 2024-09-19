@@ -130,6 +130,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;
+                    case "sort":
+                        options ??= new UpdateOptions();
+                        options.Sort = argument.Value.AsBsonDocument;
+                        break;
                     case "upsert":
                         options ??= new UpdateOptions();
                         options.IsUpsert = argument.Value.AsBoolean;
