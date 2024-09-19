@@ -117,9 +117,13 @@ namespace MongoDB.Bson
         /// <returns>A hex string.</returns>
         public static string ToHexString(byte[] bytes)
         {
+#if NET5_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(bytes);
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+#else
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
 
             var length = bytes.Length;
@@ -133,6 +137,7 @@ namespace MongoDB.Bson
             }
 
             return new string(c);
+#endif
         }
 
         /// <summary>
