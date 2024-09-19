@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Booleans.
     /// </summary>
-    public class BooleanSerializer : StructSerializerBase<bool>, IRepresentationConfigurable<BooleanSerializer>
+    public sealed class BooleanSerializer : StructSerializerBase<bool>, IRepresentationConfigurable<BooleanSerializer>
     {
         #region static
         private static readonly BooleanSerializer __instance = new BooleanSerializer();

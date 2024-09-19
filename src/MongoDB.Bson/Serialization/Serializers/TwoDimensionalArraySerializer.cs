@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for two-dimensional arrays.
     /// </summary>
     /// <typeparam name="TItem">The type of the elements.</typeparam>
-    public class TwoDimensionalArraySerializer<TItem> :
+    public sealed class TwoDimensionalArraySerializer<TItem> :
         SealedClassSerializerBase<TItem[,]>,
         IChildSerializerConfigurable
     {

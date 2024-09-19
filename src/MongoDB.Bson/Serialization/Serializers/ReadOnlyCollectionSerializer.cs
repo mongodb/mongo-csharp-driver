@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for readonly collection.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
-    public class ReadOnlyCollectionSerializer<TItem> :
+    public sealed class ReadOnlyCollectionSerializer<TItem> :
         EnumerableInterfaceImplementerSerializerBase<ReadOnlyCollection<TItem>, TItem>
     {
         // constructors

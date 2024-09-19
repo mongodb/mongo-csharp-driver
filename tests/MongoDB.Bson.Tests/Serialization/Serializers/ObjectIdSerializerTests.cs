@@ -22,17 +22,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class ObjectIdSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new ObjectIdSerializer();
-            var y = new DerivedFromObjectIdSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new ObjectIdSerializer();
@@ -93,10 +82,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromObjectIdSerializer : ObjectIdSerializer
-        {
         }
     }
 }

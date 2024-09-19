@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonMinKeys.
     /// </summary>
-    public class BsonMinKeySerializer : BsonValueSerializerBase<BsonMinKey>
+    public sealed class BsonMinKeySerializer : BsonValueSerializerBase<BsonMinKey>
     {
         // private static fields
         private static BsonMinKeySerializer __instance = new BsonMinKeySerializer();

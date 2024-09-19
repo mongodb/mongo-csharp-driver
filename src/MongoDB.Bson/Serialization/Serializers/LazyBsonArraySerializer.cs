@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for LazyBsonArrays.
     /// </summary>
-    public class LazyBsonArraySerializer : BsonValueSerializerBase<LazyBsonArray>
+    public sealed class LazyBsonArraySerializer : BsonValueSerializerBase<LazyBsonArray>
     {
         // constructors
         /// <summary>

@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonInt64s.
     /// </summary>
-    public class BsonInt64Serializer : BsonValueSerializerBase<BsonInt64>
+    public sealed class BsonInt64Serializer : BsonValueSerializerBase<BsonInt64>
     {
         // private static fields
         private static BsonInt64Serializer __instance = new BsonInt64Serializer();

@@ -24,17 +24,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class ReadOnlyCollectionSubclassSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new ReadOnlyCollectionSubclassSerializer<ReadOnlyCollectionSubclass<int>, int>();
-            var y = new DerivedFromReadOnlyCollectionSubclassSerializer<ReadOnlyCollectionSubclass<int>, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new ReadOnlyCollectionSubclassSerializer<ReadOnlyCollectionSubclass<int>, int>();
@@ -97,11 +86,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromReadOnlyCollectionSubclassSerializer<TValue, TItem> : ReadOnlyCollectionSubclassSerializer<TValue, TItem>
-            where TValue : ReadOnlyCollection<TItem>
-        {
         }
 
         public class ReadOnlyCollectionSubclass<TItem> : ReadOnlyCollection<TItem>

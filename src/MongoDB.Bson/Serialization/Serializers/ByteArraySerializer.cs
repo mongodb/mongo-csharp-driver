@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for ByteArrays.
     /// </summary>
-    public class ByteArraySerializer : SealedClassSerializerBase<byte[]>, IRepresentationConfigurable<ByteArraySerializer>
+    public sealed class ByteArraySerializer : SealedClassSerializerBase<byte[]>, IRepresentationConfigurable<ByteArraySerializer>
     {
         #region static
         private static readonly ByteArraySerializer __instance = new ByteArraySerializer();

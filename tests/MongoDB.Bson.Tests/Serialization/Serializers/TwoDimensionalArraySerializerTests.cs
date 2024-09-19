@@ -211,17 +211,6 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TwoDimensionalArraySerializer<int>();
-            var y = new DerivedFromTwoDimensionalArraySerializer<int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new TwoDimensionalArraySerializer<int>();
@@ -284,10 +273,6 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromTwoDimensionalArraySerializer<TItem> : TwoDimensionalArraySerializer<TItem>
-        {
         }
     }
 }

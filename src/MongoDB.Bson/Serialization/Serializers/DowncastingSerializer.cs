@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TBase">The base type.</typeparam>
     /// <typeparam name="TDerived">The derived type.</typeparam>
-    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonArraySerializer, IBsonDocumentSerializer, IDowncastingSerializer
+    public sealed class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonArraySerializer, IBsonDocumentSerializer, IDowncastingSerializer
         where TDerived : TBase
     {
         private readonly IBsonSerializer<TDerived> _derivedSerializer;

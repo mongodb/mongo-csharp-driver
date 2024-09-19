@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for a BsonDocument with some parts raw.
     /// </summary>
-    public class PartiallyRawBsonDocumentSerializer : SerializerBase<BsonDocument>
+    public sealed class PartiallyRawBsonDocumentSerializer : SerializerBase<BsonDocument>
     {
         // private fields
         private readonly string _name;

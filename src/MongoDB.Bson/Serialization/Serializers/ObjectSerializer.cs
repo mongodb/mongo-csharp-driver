@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for objects.
     /// </summary>
-    public class ObjectSerializer : ClassSerializerBase<object>
+    public sealed class ObjectSerializer : ClassSerializerBase<object>
     {
         #region static
         // private static fields

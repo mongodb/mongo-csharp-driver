@@ -21,17 +21,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BooleanSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BooleanSerializer();
-            var y = new DerivedFromBooleanSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BooleanSerializer();
@@ -92,10 +81,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBooleanSerializer : BooleanSerializer
-        {
         }
     }
 }

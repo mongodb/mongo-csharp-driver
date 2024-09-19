@@ -22,17 +22,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TupleWith1ItemSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int>();
-            var y = new DerivedFromTupleSerializer<int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new TupleSerializer<int>();
@@ -96,25 +85,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1> : TupleSerializer<T1>
-        {
-        }
     }
 
     public class TupleWith2ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int>();
-            var y = new DerivedFromTupleSerializer<int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -186,25 +160,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2> : TupleSerializer<T1, T2>
-        {
-        }
     }
 
     public class TupleWith3ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int>();
-            var y = new DerivedFromTupleSerializer<int, int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -278,25 +237,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3> : TupleSerializer<T1, T2, T3>
-        {
-        }
     }
 
     public class TupleWith4ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int, int>();
-            var y = new DerivedFromTupleSerializer<int, int, int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -372,25 +316,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3, T4> : TupleSerializer<T1, T2, T3, T4>
-        {
-        }
     }
 
     public class TupleWith5ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int, int, int>();
-            var y = new DerivedFromTupleSerializer<int, int, int, int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -468,25 +397,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3, T4, T5> : TupleSerializer<T1, T2, T3, T4, T5>
-        {
-        }
     }
 
     public class TupleWith6ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int, int, int, int>();
-            var y = new DerivedFromTupleSerializer<int, int, int, int, int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -566,25 +480,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3, T4, T5, T6> : TupleSerializer<T1, T2, T3, T4, T5, T6>
-        {
-        }
     }
 
     public class TupleWith7ItemsSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int, int, int, int, int>();
-            var y = new DerivedFromTupleSerializer<int, int, int, int, int, int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -666,25 +565,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3, T4, T5, T6, T7> : TupleSerializer<T1, T2, T3, T4, T5, T6, T7>
-        {
-        }
     }
 
     public class TupleWith7ItemsAndRestSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new TupleSerializer<int, int, int, int, int, int, int, Tuple<int>>();
-            var y = new DerivedFromTupleSerializer<int, int, int, int, int, int, int, Tuple<int>>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -769,10 +653,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromTupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : TupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest>
-        {
         }
     }
 }

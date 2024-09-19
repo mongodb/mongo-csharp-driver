@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TKey">The type of the keys.</typeparam>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    public class KeyValuePairSerializer<TKey, TValue> :
+    public sealed class KeyValuePairSerializer<TKey, TValue> :
         StructSerializerBase<KeyValuePair<TKey, TValue>>,
         IBsonDocumentSerializer,
         IKeyValuePairSerializer
