@@ -32,23 +32,9 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>A friendly class name.</returns>
-        public static string GetFriendlyTypeName(Type type)
+        public static string GetFriendlyTypeName(this Type type)
         {
-            var typeInfo = type.GetTypeInfo();
-            if (!typeInfo.IsGenericType)
-            {
-                return type.Name;
-            }
-
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0}<", Regex.Replace(type.Name, @"\`\d+$", ""));
-            foreach (var typeParameter in typeInfo.GetGenericArguments())
-            {
-                sb.AppendFormat("{0}, ", GetFriendlyTypeName(typeParameter));
-            }
-            sb.Remove(sb.Length - 2, 2);
-            sb.Append(">");
-            return sb.ToString();
+            return !type.IsGenericType ? type.Name : BuildGenericTypeName(type);
         }
 
         /// <summary>
@@ -276,6 +262,53 @@ namespace MongoDB.Bson
 
             value = 0;
             return false;
+        }
+        
+        // private static methods
+        private static string BuildGenericTypeName(Type type)
+        {
+            var genericArgs = type.GetGenericArguments();
+            var typeName = type.Name;
+            var backtickIndex = typeName.IndexOf('`');
+
+            if (backtickIndex > 0) typeName = typeName.Substring(0, backtickIndex);
+            
+            var estimatedLength = typeName.Length + 2 + genericArgs.Length * 8;
+
+            Span<char> initialBuffer = stackalloc char[256]; 
+            var result = initialBuffer;
+
+            if (estimatedLength > initialBuffer.Length)
+                result = new char[estimatedLength];
+
+            var position = 0;
+            position += CopyString(typeName, result);
+            result[position++] = '<';
+
+            for (var i = 0; i < genericArgs.Length; i++)
+            {
+                if (i > 0) result[position++] = ',';
+                var argName = GetFriendlyTypeName(genericArgs[i]);
+                if (position + argName.Length >= result.Length)
+                {
+                    var newBuffer = new char[result.Length * 2];
+                    result.CopyTo(newBuffer);
+                    result = newBuffer;
+                }
+
+                position += CopyString(argName, result.Slice(position));
+            }
+
+            result[position++] = '>';
+
+            return new string(result.Slice(0, position));
+        }
+        
+        // private static methods
+        private static int CopyString(string source, Span<char> destination)
+        {
+            source.AsSpan().CopyTo(destination);
+            return source.Length;
         }
     }
 }
