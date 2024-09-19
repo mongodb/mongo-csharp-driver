@@ -112,7 +112,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
-                    //TODO Why don't we create UpdateOptions beforehand?
                     case "comment":
                         options ??= new UpdateOptions();
                         options.Comment = argument.Value;
