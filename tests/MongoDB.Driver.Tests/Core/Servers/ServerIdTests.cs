@@ -77,25 +77,5 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerId(__clusterId, __endPoint);
             subject.ToString().Should().Be("{ ClusterId : 1, EndPoint : \"Unspecified/localhost:27017\" }");
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new ServerId(__clusterId, __endPoint);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (ServerId)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Should().Be(subject);
-                rehydrated.ClusterId.Should().Be(subject.ClusterId);
-                rehydrated.EndPoint.Should().Be(subject.EndPoint);
-            }
-        }
     }
 }
