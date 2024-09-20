@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // private fields
         private readonly BsonDocument _additionalOptions; // TODO: can these be supported when using CommandMessage?
         private readonly BsonDocument _command;
-        private readonly List<Type1CommandMessageSection> _commandPayloads;
+        private readonly List<BatchableCommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator; // TODO: how can this be supported when using CommandMessage?
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly IBinaryDocumentFieldDecryptor _documentFieldDecryptor;
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
-            IEnumerable<Type1CommandMessageSection> commandPayloads,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
             CommandResponseHandling responseHandling,

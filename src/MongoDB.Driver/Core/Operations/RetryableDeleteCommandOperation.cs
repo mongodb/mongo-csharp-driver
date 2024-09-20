@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
+        protected override IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
             BatchableSource<DeleteRequest> deletes;
             if (attempt == 1)

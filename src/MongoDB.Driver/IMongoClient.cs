@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -37,6 +38,13 @@ namespace MongoDB.Driver
         /// Gets the settings.
         /// </summary>
         MongoClientSettings Settings { get; }
+
+        // /// <summary>
+        // /// Executes a list of mixed write operations.
+        // /// </summary>
+        // /// <param name="models">List of operations to execute.</param>
+        // /// <param name="options">The bulk write options.</param>
+        //void BulkWrite(IEnumerable<BulkWriteModel> models, ClientBulkWriteOptions options = null);
 
         /// <summary>
         /// Drops the database with the specified name.
@@ -239,7 +247,7 @@ namespace MongoDB.Driver
         /// Lists the databases on the server.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="options">The options.</param>        
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A Task whose result is a cursor.

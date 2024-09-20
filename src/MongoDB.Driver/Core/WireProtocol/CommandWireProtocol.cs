@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private IWireProtocol<TCommandResult> _cachedWireProtocol;
         private ConnectionId _cachedConnectionId;
         private readonly BsonDocument _command;
-        private readonly List<Type1CommandMessageSection> _commandPayloads;
+        private readonly List<BatchableCommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
-            IEnumerable<Type1CommandMessageSection> commandPayloads,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
