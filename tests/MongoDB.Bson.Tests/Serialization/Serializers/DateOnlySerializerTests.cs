@@ -48,12 +48,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : { "$numberDouble" : "638649792000000000" } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "$numberDecimal" : "638649792000000000" } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","0001/01/01" )]
-        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberDecimal" : "638649792000000000" } } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberInt" : "0" } } }""","0001/01/01" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "638649792000000000" } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "$numberDecimal" : "638649792000000000" } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberDecimal" : "638649792000000000" } } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "DateTime" : "ignored", "Ticks" : { "$numberInt" : "0" } } }""","0001-01-01" )]
         public void Deserialize_should_be_forgiving_of_actual_numeric_types(string json, string expectedResult)
         {
             var subject = new DateOnlySerializer();
@@ -69,18 +69,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""","0001/01/01" )]
-        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""","9999/12/31" )]
-        [InlineData("""{ "x" : "2024-10-20" }""","2024/10/20" )]
-        [InlineData("""{ "x" : "0001-01-01" }""","0001/01/01")]
-        [InlineData("""{ "x" : "9999-12-31" }""","9999/12/31" )]
-        [InlineData("""{ "x" : { "$numberLong" : "638649792000000000" } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","0001/01/01" )]
-        [InlineData("""{ "x" : { "$numberLong" : "3155378112000000000" } }""","9999/12/31" )]
-        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024/10/20" )]
-        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""","0001/01/01" )]
-        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","9999/12/31" )]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""","9999-12-31" )]
+        [InlineData("""{ "x" : "2024-10-20" }""","2024-10-20" )]
+        [InlineData("""{ "x" : "0001-01-01" }""","0001-01-01")]
+        [InlineData("""{ "x" : "9999-12-31" }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "$numberLong" : "638649792000000000" } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "$numberLong" : "3155378112000000000" } }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","9999-12-31" )]
         public void Deserialize_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new DateOnlySerializer();
@@ -109,8 +109,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var context = BsonDeserializationContext.CreateRoot(reader);
 
             var exception = Record.Exception(() => subject.Deserialize(context));
-            exception!.Should().BeOfType<FormatException>();
-            exception!.Message.Should().Be("Deserialized value has a non-zero time component.");
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Be("Deserialized value has a non-zero time component.");
         }
 
         [Fact]
@@ -188,18 +188,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.DateTime, "2024/10/20", """{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""")]
-        [InlineData(BsonType.DateTime, "0001/01/01", """{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""")]
-        [InlineData(BsonType.DateTime, "9999/12/31", """{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""")]
-        [InlineData(BsonType.String, "2024/10/20", """{ "x" : "2024-10-20" }""")]
-        [InlineData(BsonType.String, "0001/01/01", """{ "x" : "0001-01-01" }""")]
-        [InlineData(BsonType.String, "9999/12/31", """{ "x" : "9999-12-31" }""")]
-        [InlineData(BsonType.Int64, "2024/10/20", """{ "x" : { "$numberLong" : "638649792000000000" } }""")]
-        [InlineData(BsonType.Int64, "0001/01/01", """{ "x" : { "$numberLong" : "0" } }""")]
-        [InlineData(BsonType.Int64, "9999/12/31", """{ "x" : { "$numberLong" : "3155378112000000000" } }""")]
-        [InlineData(BsonType.Document, "2024/10/20", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""")]
-        [InlineData(BsonType.Document, "0001/01/01", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""")]
-        [InlineData(BsonType.Document, "9999/12/31", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""")]
+        [InlineData(BsonType.DateTime, "2024-10-20", """{ "x" : { "$date" : { "$numberLong" : "1729382400000" } } }""")]
+        [InlineData(BsonType.DateTime, "0001-01-01", """{ "x" : { "$date" : { "$numberLong" : "-62135596800000" } } }""")]
+        [InlineData(BsonType.DateTime, "9999-12-31", """{ "x" : { "$date" : { "$numberLong" : "253402214400000" } } }""")]
+        [InlineData(BsonType.String, "2024-10-20", """{ "x" : "2024-10-20" }""")]
+        [InlineData(BsonType.String, "0001-01-01", """{ "x" : "0001-01-01" }""")]
+        [InlineData(BsonType.String, "9999-12-31", """{ "x" : "9999-12-31" }""")]
+        [InlineData(BsonType.Int64, "2024-10-20", """{ "x" : { "$numberLong" : "638649792000000000" } }""")]
+        [InlineData(BsonType.Int64, "0001-01-01", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Int64, "9999-12-31", """{ "x" : { "$numberLong" : "3155378112000000000" } }""")]
+        [InlineData(BsonType.Document, "2024-10-20", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""")]
+        [InlineData(BsonType.Document, "0001-01-01", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""")]
+        [InlineData(BsonType.Document, "9999-12-31", """{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""")]
         public void Serialize_should_have_expected_result(BsonType representation, string valueString,
             string expectedResult)
         {
