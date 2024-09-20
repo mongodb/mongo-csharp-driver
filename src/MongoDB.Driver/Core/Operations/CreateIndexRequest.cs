@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         public TimeSpan? ExpireAfter { get; set; }
         public bool? Hidden { get; set; }
         public string LanguageOverride { get; set; }
-        public BsonDocument Keys { get; set; }
+        public BsonDocument Keys { get; }
         public double? Max { get; set; }
         public double? Min { get; set; }
         public string Name { get; set; }

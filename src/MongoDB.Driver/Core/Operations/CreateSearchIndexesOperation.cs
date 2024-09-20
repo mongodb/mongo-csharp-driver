@@ -34,8 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly IEnumerable<
-            CreateSearchIndexRequest> _requests;
+        private readonly IEnumerable<CreateSearchIndexRequest> _requests;
 
         // constructors
         /// <summary>
