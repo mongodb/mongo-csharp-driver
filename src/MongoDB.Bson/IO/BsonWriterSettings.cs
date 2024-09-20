@@ -20,7 +20,6 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents settings for a BsonWriter.
     /// </summary>
-    [Serializable]
     public abstract class BsonWriterSettings
     {
         // private fields

@@ -25,7 +25,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array.
     /// </summary>
-    [Serializable]
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue>
     {
         // private fields
