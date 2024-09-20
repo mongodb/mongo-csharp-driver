@@ -44,28 +44,5 @@ namespace MongoDB.Driver
             subject.Result.Should().Be(_writeConcernResult.Response);
             subject.WriteConcernResult.Should().Be(_writeConcernResult);
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoDuplicateKeyException(_connectionId, _message, _writeConcernResult);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoDuplicateKeyException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Command.Should().BeNull();
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.InnerException.Should().BeNull();
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().Be(subject.Result);
-                rehydrated.WriteConcernResult.Should().BeUsing(subject.WriteConcernResult, EqualityComparerRegistry.Default);
-            }
-        }
     }
 }

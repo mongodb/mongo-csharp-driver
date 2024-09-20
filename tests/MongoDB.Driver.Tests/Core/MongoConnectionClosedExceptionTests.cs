@@ -37,25 +37,5 @@ namespace MongoDB.Driver
             subject.InnerException.Should().BeNull();
             subject.Message.Should().BeSameAs("The connection was closed while we were waiting our turn to use it.");
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoConnectionClosedException(_connectionId);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoConnectionClosedException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.InnerException.Should().BeNull();
-                rehydrated.Message.Should().Be(subject.Message);
-            }
-        }
     }
 }

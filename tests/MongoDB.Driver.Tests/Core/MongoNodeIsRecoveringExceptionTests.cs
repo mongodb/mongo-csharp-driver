@@ -75,27 +75,5 @@ namespace MongoDB.Driver
             result.Command.Should().BeSameAs(_command);
             result.Result.Should().BeSameAs(serverResult);
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoNodeIsRecoveringException(_connectionId, _command, _serverResult);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoNodeIsRecoveringException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.InnerException.Should().BeNull();
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Command.Should().Be(subject.Command);
-                rehydrated.Result.Should().Be(subject.Result);
-            }
-        }
     }
 }
