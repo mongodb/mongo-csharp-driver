@@ -30,10 +30,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public Collation Collation { get; set; }
-        public BsonDocument Filter { get; set; }
-        public BsonValue Hint { get; set; }
-        public int Limit { get; set; }
+        public Collation Collation { get; init; }
+        public BsonDocument Filter { get; init; }
+        public BsonValue Hint { get; init; }
+        public int Limit { get; init; }
 
         // public methods
         public override bool IsRetryable(ConnectionDescription connectionDescription) => Limit != 0;

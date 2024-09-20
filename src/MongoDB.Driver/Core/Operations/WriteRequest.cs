@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public int? CorrelationId { get; set; }
-        public WriteRequestType RequestType { get; set; }
+        public int? CorrelationId { get; init; }
+        public WriteRequestType RequestType { get; init; }
 
         // public methods
         public abstract bool IsRetryable(ConnectionDescription connectionDescription);

@@ -33,14 +33,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public IEnumerable<BsonDocument> ArrayFilters { get; set; }
-        public Collation Collation { get; set; }
-        public BsonDocument Filter { get; set; }
-        public BsonValue Hint { get; set; }
-        public bool IsMulti { get; set; }
-        public bool IsUpsert { get; set; }
-        public BsonValue Update { get; set; }
-        public UpdateType UpdateType { get; set; }
+        public IEnumerable<BsonDocument> ArrayFilters { get; init; }
+        public Collation Collation { get; init; }
+        public BsonDocument Filter { get; init; }
+        public BsonValue Hint { get; init; }
+        public bool IsMulti { get; init; }
+        public bool IsUpsert { get; init; }
+        public BsonValue Update { get; init; }
+        public UpdateType UpdateType { get; init; }
 
         // public methods
         public override bool IsRetryable(ConnectionDescription connectionDescription) => !IsMulti;
