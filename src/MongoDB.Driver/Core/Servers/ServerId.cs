@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-    [Serializable]
-    public sealed class ServerId : IEquatable<ServerId>, ISerializable
+    public sealed class ServerId : IEquatable<ServerId>, ISerializable  //TODO this one also implements ISerializable, do we need it?
     {
         // fields
         private readonly ClusterId _clusterId;

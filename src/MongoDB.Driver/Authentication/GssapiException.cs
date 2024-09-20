@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Authentication
     /// <summary>
     /// Thrown from a GSSAPI-related method.
     /// </summary>
-    [Serializable]
     public class GssapiException : Exception
     {
         /// <summary>

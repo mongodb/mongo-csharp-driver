@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Credential to access a MongoDB database.
     /// </summary>
-    [Serializable]
     public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields

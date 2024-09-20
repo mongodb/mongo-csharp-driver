@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection identifier.
     /// </summary>
-    [Serializable]
     public sealed class ConnectionId : IEquatable<ConnectionId>
     {
         // fields

@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a request to write something to the database.
     /// </summary>
-    [Serializable]
     public abstract class WriteRequest
     {
         // fields

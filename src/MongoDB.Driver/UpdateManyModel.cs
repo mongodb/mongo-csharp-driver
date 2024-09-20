@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     /// Model for updating many documents.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    [Serializable]
     public sealed class UpdateManyModel<TDocument> : WriteModel<TDocument>
     {
         // fields

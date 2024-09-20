@@ -21,7 +21,6 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFS exception.
     /// </summary>
-    [Serializable]
     public class GridFSException : MongoException
     {
         // constructors

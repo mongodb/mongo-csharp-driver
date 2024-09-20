@@ -24,7 +24,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB server exception.
     /// </summary>
-    [Serializable]
     public class MongoServerException : MongoException
     {
         #region static

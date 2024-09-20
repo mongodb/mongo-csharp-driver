@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection exception.
     /// </summary>
-    [Serializable]
     public class MongoConnectionException : MongoException
     {
         // fields

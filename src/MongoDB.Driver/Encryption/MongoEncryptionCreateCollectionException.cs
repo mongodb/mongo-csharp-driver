@@ -22,7 +22,6 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
-    [Serializable]
     public class MongoEncryptionCreateCollectionException : MongoEncryptionException
     {
         private readonly BsonDocument _encryptedFields;

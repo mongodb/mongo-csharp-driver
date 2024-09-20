@@ -26,7 +26,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
-    [Serializable]
     public abstract class MongoBulkWriteException : MongoServerException
     {
         // private fields
@@ -132,7 +131,6 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    [Serializable]
     public sealed class MongoBulkWriteException<TDocument> : MongoBulkWriteException
     {
         // private fields

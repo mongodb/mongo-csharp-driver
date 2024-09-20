@@ -18,7 +18,6 @@ using System.Collections.Generic;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [Serializable]
     internal abstract class BulkWriteOperationResult
     {
         private readonly IReadOnlyList<WriteRequest> _processedRequests;
