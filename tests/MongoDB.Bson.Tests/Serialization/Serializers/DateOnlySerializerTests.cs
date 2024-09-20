@@ -220,6 +220,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().Be(expectedResult);
         }
 
+        [Fact]
+        public void Serializer_should_be_registered()
+        {
+            var serializer = BsonSerializer.LookupSerializer(typeof(DateOnly));
+
+            serializer.Should().Be(new DateOnlySerializer());
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void WithRepresentation_should_return_expected_result(
