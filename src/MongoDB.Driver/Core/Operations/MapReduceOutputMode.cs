@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,28 +17,11 @@ using System;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the map-reduce output mode.
-    /// </summary>
     [Obsolete("Use Aggregation pipeline instead.")]
-    public enum MapReduceOutputMode
+    internal enum MapReduceOutputMode
     {
-        /// <summary>
-        /// The output of the map-reduce operation replaces the output collection.
-        /// </summary>
         Replace = 0,
-
-        /// <summary>
-        /// The output of the map-reduce operation is merged with the output collection.
-        /// If an existing document has the same key as the new result, overwrite the existing document.
-        /// </summary>
         Merge,
-
-        /// <summary>
-        /// The output of the map-reduce operation is merged with the output collection.
-        /// If an existing document has the same key as the new result, apply the reduce function to both
-        /// the new and the existing documents and overwrite the existing document with the result.
-        /// </summary>
         Reduce
     }
 }

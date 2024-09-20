@@ -20,11 +20,8 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the details of a write concern error.
-    /// </summary>
     [Serializable]
-    public sealed class BulkWriteConcernError
+    internal sealed class BulkWriteConcernError
     {
         // fields
         private readonly int _code;
@@ -34,37 +31,16 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _message;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteConcernError"/> class.
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="details">The details.</param>
         public BulkWriteConcernError(int code, string message, BsonDocument details)
             : this(code, null, message, details)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteConcernError" /> class.
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <param name="codeName">The name of the code.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="details">The details.</param>
         public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details)
             : this(code, codeName, message, details, new string[0])
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteConcernError" /> class.
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <param name="codeName">The name of the code.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="details">The details.</param>
-        /// <param name="errorLabels">The error labels.</param>
         public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details, IEnumerable<string> errorLabels)
         {
             _code = code;
@@ -75,56 +51,26 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        /// <summary>
-        /// Gets the error code.
-        /// </summary>
-        /// <value>
-        /// The error code.
-        /// </value>
         public int Code
         {
             get { return _code; }
         }
 
-        /// <summary>
-        /// Gets the name of the error code.
-        /// </summary>
-        /// <value>
-        /// The name of the error code.
-        /// </value>
         public string CodeName
         {
             get { return _codeName; }
         }
 
-        /// <summary>
-        /// Gets the error details.
-        /// </summary>
-        /// <value>
-        /// The error details.
-        /// </value>
         public BsonDocument Details
         {
             get { return _details; }
         }
 
-        /// <summary>
-        /// Gets the error labels.
-        /// </summary>
-        /// <value>
-        /// The error labels.
-        /// </value>
         public IEnumerable<string> ErrorLabels
         {
             get { return _errorLabels; }
         }
 
-        /// <summary>
-        /// Gets the error message.
-        /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
         public string Message
         {
             get { return _message; }

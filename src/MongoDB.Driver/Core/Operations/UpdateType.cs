@@ -13,28 +13,12 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the update type.
-    /// </summary>
-    public enum UpdateType
+    internal enum UpdateType
     {
-        /// <summary>
-        /// The update type is unknown.
-        /// </summary>
         Unknown,
-
-        /// <summary>
-        /// This update uses an update specification to update an existing document.
-        /// </summary>
         Update,
-
-        /// <summary>
-        /// This update completely replaces an existing document  with a new one.
-        /// </summary>
         Replacement
     }
 }

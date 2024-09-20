@@ -18,55 +18,20 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a request to write something to the database.
-    /// </summary>
     [Serializable]
-    public abstract class WriteRequest
+    internal abstract class WriteRequest
     {
-        // fields
-        private int? _correlationId;
-        private readonly WriteRequestType _requestType;
-
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WriteRequest" /> class.
-        /// </summary>
-        /// <param name="requestType">The request type.</param>
         protected WriteRequest(WriteRequestType requestType)
         {
-            _requestType = requestType;
+            RequestType = requestType;
         }
 
         // properties
-        /// <summary>
-        /// Gets or sets the correlation identifier.
-        /// </summary>
-        public int? CorrelationId
-        {
-            get { return _correlationId; }
-            set { _correlationId = value; }
-        }
-
-        /// <summary>
-        /// Gets the request type.
-        /// </summary>
-        /// <value>
-        /// The request type.
-        /// </value>
-        public WriteRequestType RequestType
-        {
-            get { return _requestType; }
-        }
+        public int? CorrelationId { get; set; }
+        public WriteRequestType RequestType { get; set; }
 
         // public methods
-        /// <summary>
-        /// Determines whether the request is retryable on a given connection.
-        /// </summary>
-        /// <param name="connectionDescription">The connection description.</param>
-        /// <returns>
-        ///   <c>true</c> if the request is retryable; otherwise, <c>false</c>.
-        /// </returns>
         public abstract bool IsRetryable(ConnectionDescription connectionDescription);
     }
 }

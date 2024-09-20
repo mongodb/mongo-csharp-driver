@@ -14,131 +14,39 @@
 */
 
 using System;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a request to update one or more documents.
-    /// </summary>
-    public sealed class UpdateRequest : WriteRequest
+    internal sealed class UpdateRequest : WriteRequest
     {
-        // fields
-        private IEnumerable<BsonDocument> _arrayFilters;
-        private Collation _collation;
-        private readonly BsonDocument _filter;
-        private BsonValue _hint;
-        private bool _isMulti;
-        private bool _isUpsert;
-        private readonly BsonValue _update;
-        private UpdateType _updateType;
-
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateRequest" /> class.
-        /// </summary>
-        /// <param name="updateType">The update type.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="update">The update.</param>
         public UpdateRequest(UpdateType updateType, BsonDocument filter, BsonValue update)
             : base(WriteRequestType.Update)
         {
-            _updateType = updateType;
-            _filter = Ensure.IsNotNull(filter, nameof(filter));
-            _update = EnsureUpdateIsValid(update, updateType);
+            UpdateType = updateType;
+            Filter = Ensure.IsNotNull(filter, nameof(filter));
+            Update = EnsureUpdateIsValid(update, updateType);
         }
 
         // properties
-        /// <summary>
-        /// Gets or sets the array filters.
-        /// </summary>
-        /// <value>
-        /// The array filters.
-        /// </value>
-        public IEnumerable<BsonDocument> ArrayFilters
-        {
-            get { return _arrayFilters; }
-            set { _arrayFilters = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets the filter.
-        /// </summary>
-        public BsonDocument Filter
-        {
-            get { return _filter; }
-        }
-
-        /// <summary>
-        /// Gets or sets the hint.
-        /// </summary>
-        public BsonValue Hint
-        {
-            get { return _hint; }
-            set { _hint = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this update should affect all matching documents.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this update should affect all matching documents; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-            set { _isMulti = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether a document should be inserted if no matching document is found.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if a document should be inserted if no matching document is found; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
-        }
-
-        /// <summary>
-        /// Gets the update specification.
-        /// </summary>
-        public BsonValue Update
-        {
-            get { return _update; }
-        }
-
-        /// <summary>
-        /// Gets the update type.
-        /// </summary>
-        public UpdateType UpdateType
-        {
-            get { return _updateType; }
-        }
+        public IEnumerable<BsonDocument> ArrayFilters { get; set; }
+        public Collation Collation { get; set; }
+        public BsonDocument Filter { get; set; }
+        public BsonValue Hint { get; set; }
+        public bool IsMulti { get; set; }
+        public bool IsUpsert { get; set; }
+        public BsonValue Update { get; set; }
+        public UpdateType UpdateType { get; set; }
 
         // public methods
-        /// <inheritdoc />
-        public override bool IsRetryable(ConnectionDescription connectionDescription)
-        {
-            return !_isMulti;
-        }
+        public override bool IsRetryable(ConnectionDescription connectionDescription) => !IsMulti;
 
         // private methods
-        private BsonValue EnsureUpdateIsValid(BsonValue update, UpdateType updateType)
+        private static BsonValue EnsureUpdateIsValid(BsonValue update, UpdateType updateType)
         {
             Ensure.IsNotNull(update, nameof(update));
 
