@@ -39,8 +39,6 @@ namespace MongoDB.Driver.Authentication.External
         public string AccessToken => _accessToken;
         public DateTime? Expiration => _expiration;
         public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : true;
-
-        public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
     internal sealed class AzureAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AzureCredentials>

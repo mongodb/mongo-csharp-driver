@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson;
 
 namespace MongoDB.Driver.Authentication.External
 {
@@ -22,6 +21,5 @@ namespace MongoDB.Driver.Authentication.External
     {
         DateTime? Expiration { get; }
         bool ShouldBeRefreshed { get; }
-        BsonDocument GetKmsCredentials();
     }
 }

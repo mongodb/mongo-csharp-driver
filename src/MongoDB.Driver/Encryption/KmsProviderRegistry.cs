@@ -27,7 +27,15 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Kms Provider Registry Instance.
         /// </summary>
-        public static readonly KmsProviderRegistry Instance = new KmsProviderRegistry();
+        public static readonly KmsProviderRegistry Instance = CreateDefaultInstance();
+
+        private static KmsProviderRegistry CreateDefaultInstance()
+        {
+            var registry =  new KmsProviderRegistry();
+            registry.Register(GcpKmsProvider.ProviderName, () => GcpKmsProvider.Instance);
+            registry.Register(AzureKmsProvider.ProviderName, () => AzureKmsProvider.Instance);
+            return registry;
+        }
 
         private readonly ConcurrentDictionary<string, Func<IKmsProvider>> _registry = new();
 
