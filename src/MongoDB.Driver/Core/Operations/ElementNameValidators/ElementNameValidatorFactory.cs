@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,16 +17,8 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
-    /// <summary>
-    /// Represents a factory for element name validators based on the update type.
-    /// </summary>
-    public static class ElementNameValidatorFactory
+    internal static class ElementNameValidatorFactory
     {
-        /// <summary>
-        /// Returns an element name validator for the update type.
-        /// </summary>
-        /// <param name="updateType">Type of the update.</param>
-        /// <returns>An element name validator.</returns>
         public static IElementNameValidator ForUpdateType(UpdateType updateType)
         {
             switch (updateType)

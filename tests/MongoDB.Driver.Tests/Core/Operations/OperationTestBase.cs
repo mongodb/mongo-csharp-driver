@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Core.Operations
             return await operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
-        protected void CreateIndexes(params CreateIndexRequest[] requests)
+        private protected void CreateIndexes(params CreateIndexRequest[] requests)
         {
             var operation = new CreateIndexesOperation(
                 _collectionNamespace,

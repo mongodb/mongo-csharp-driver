@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,359 +19,92 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a create index request.
-    /// </summary>
-    public class CreateIndexRequest
+    internal sealed class CreateIndexRequest
     {
-        // fields
-        private BsonDocument _additionalOptions;
-        private bool? _background;
-        private int? _bits;
-        private double? _bucketSize;
-        private Collation _collation;
-        private string _defaultLanguage;
-        private TimeSpan? _expireAfter;
-        private bool? _hidden;
-        private string _languageOverride;
-        private readonly BsonDocument _keys;
-        private double? _max;
-        private double? _min;
-        private string _name;
-        private BsonDocument _partialFilterExpression;
-        private bool? _sparse;
-        private int? _sphereIndexVersion;
-        private BsonDocument _storageEngine;
-        private int? _textIndexVersion;
-        private bool? _unique;
-        private int? _version;
-        private BsonDocument _weights;
-        private BsonDocument _wildcardProjection;
-
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateIndexRequest"/> class.
-        /// </summary>
-        /// <param name="keys">The keys.</param>
         public CreateIndexRequest(BsonDocument keys)
         {
-            _keys = Ensure.IsNotNull(keys, nameof(keys));
+            Keys = Ensure.IsNotNull(keys, nameof(keys));
         }
 
         // properties
-        /// <summary>
-        /// Gets or sets the additional options.
-        /// </summary>
-        /// <value>
-        /// The additional options.
-        /// </value>
-        public BsonDocument AdditionalOptions
-        {
-            get { return _additionalOptions; }
-            set { _additionalOptions = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the index should be created in the background.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the index should be created in the background.
-        /// </value>
-        public bool? Background
-        {
-            get { return _background; }
-            set { _background = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the bits of precision of the geohash values for 2d geo indexes.
-        /// </summary>
-        /// <value>
-        /// The bits of precision of the geohash values for 2d geo indexes.
-        /// </value>
-        public int? Bits
-        {
-            get { return _bits; }
-            set { _bits = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the size of the bucket for geo haystack indexes.
-        /// </summary>
-        /// <value>
-        /// The size of the bucket for geo haystack indexes.
-        /// </value>
+        public BsonDocument AdditionalOptions { get; set; }
+        public bool? Background { get; set; }
+        public int? Bits { get; set; }
         [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public double? BucketSize
-        {
-            get { return _bucketSize; }
-            set { _bucketSize = value; }
-        }
+        public double? BucketSize { get; set; }
+        public Collation Collation { get; set; }
+        public string DefaultLanguage { get; set; }
+        public TimeSpan? ExpireAfter { get; set; }
+        public bool? Hidden { get; set; }
+        public string LanguageOverride { get; set; }
+        public BsonDocument Keys { get; }
+        public double? Max { get; set; }
+        public double? Min { get; set; }
+        public string Name { get; set; }
+        public BsonDocument PartialFilterExpression { get; set; }
+        public bool? Sparse { get; set; }
+        public int? SphereIndexVersion { get; set; }
+        public BsonDocument StorageEngine { get; set; }
+        public int? TextIndexVersion { get; set; }
+        public bool? Unique { get; set; }
+        public int? Version { get; set; }
+        public BsonDocument Weights { get; set; }
+        public BsonDocument WildcardProjection { get; set; }
 
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the default language for text indexes.
-        /// </summary>
-        /// <value>
-        /// The default language for text indexes.
-        /// </value>
-        public string DefaultLanguage
-        {
-            get { return _defaultLanguage; }
-            set { _defaultLanguage = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets when documents in a TTL collection expire.
-        /// </summary>
-        /// <value>
-        /// When documents in a TTL collection expire.
-        /// </value>
-        public TimeSpan? ExpireAfter
-        {
-            get { return _expireAfter; }
-            set { _expireAfter = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the index is hidden.
-        /// </summary>
-        public bool? Hidden
-        {
-            get { return _hidden; }
-            set { _hidden = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the language override for text indexes.
-        /// </summary>
-        /// <value>
-        /// The language override for text indexes.
-        /// </value>
-        public string LanguageOverride
-        {
-            get { return _languageOverride; }
-            set { _languageOverride = value; }
-        }
-
-        /// <summary>
-        /// Gets the keys.
-        /// </summary>
-        /// <value>
-        /// The keys.
-        /// </value>
-        public BsonDocument Keys
-        {
-            get { return _keys; }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum coordinate value for 2d indexes.
-        /// </summary>
-        /// <value>
-        /// The maximum coordinate value for 2d indexesThe maximum.
-        /// </value>
-        public double? Max
-        {
-            get { return _max; }
-            set { _max = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the minimum coordinate value for 2d indexes.
-        /// </summary>
-        /// <value>
-        /// The minimum coordinate value for 2d indexes.
-        /// </value>
-        public double? Min
-        {
-            get { return _min; }
-            set { _min = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the index name.
-        /// </summary>
-        /// <value>
-        /// The index name.
-        /// </value>
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the partial filter expression.
-        /// </summary>
-        /// <value>
-        /// The partial filter expression.
-        /// </value>
-        public BsonDocument PartialFilterExpression
-        {
-            get { return _partialFilterExpression; }
-            set { _partialFilterExpression = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the index is a sparse index.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the index is a sparse index.
-        /// </value>
-        public bool? Sparse
-        {
-            get { return _sparse; }
-            set { _sparse = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the 2dsphere index version.
-        /// </summary>
-        /// <value>
-        /// The 2dsphere index version.
-        /// </value>
-        public int? SphereIndexVersion
-        {
-            get { return _sphereIndexVersion; }
-            set { _sphereIndexVersion = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the storage engine options.
-        /// </summary>
-        /// <value>
-        /// The storage engine options.
-        /// </value>
-        public BsonDocument StorageEngine
-        {
-            get { return _storageEngine; }
-            set { _storageEngine = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the text index version.
-        /// </summary>
-        /// <value>
-        /// The text index version.
-        /// </value>
-        public int? TextIndexVersion
-        {
-            get { return _textIndexVersion; }
-            set { _textIndexVersion = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the index enforces the uniqueness of the key values.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the index enforces the uniqueness of the key values.
-        /// </value>
-        public bool? Unique
-        {
-            get { return _unique; }
-            set { _unique = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the index version.
-        /// </summary>
-        /// <value>
-        /// The index version.
-        /// </value>
-        public int? Version
-        {
-            get { return _version; }
-            set { _version = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the weights for text indexes.
-        /// </summary>
-        /// <value>
-        /// The weights for text indexes.
-        /// </value>
-        public BsonDocument Weights
-        {
-            get { return _weights; }
-            set { _weights = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the wildcard projection.
-        /// </summary>
-        /// <value>
-        /// The wildcardProjection for indexes.
-        /// </value>
-        public BsonDocument WildcardProjection
-        {
-            get { return _wildcardProjection; }
-            set { _wildcardProjection = value; }
-        }
-
-        // publuc methods
-        /// <summary>
-        /// Gets the name of the index.
-        /// </summary>
-        /// <returns>The name of the index.</returns>
+        // public methods
         public string GetIndexName()
         {
-            if (_name != null)
+            if (Name != null)
             {
-                return _name;
+                return Name;
             }
 
-            if (_additionalOptions != null)
+            if (AdditionalOptions != null)
             {
                 BsonValue name;
-                if (_additionalOptions.TryGetValue("name", out name))
+                if (AdditionalOptions.TryGetValue("name", out name))
                 {
                     return name.AsString;
                 }
             }
 
-            return IndexNameHelper.GetIndexName(_keys);
+            return IndexNameHelper.GetIndexName(Keys);
         }
 
         // methods
-        internal BsonDocument CreateIndexDocument()
+        public BsonDocument CreateIndexDocument()
         {
             var document = new BsonDocument
             {
-                { "key", _keys },
+                { "key", Keys },
                 { "name", GetIndexName() },
-                { "background", () => _background.Value, _background.HasValue },
-                { "bits", () => _bits.Value, _bits.HasValue },
-                { "bucketSize", () => _bucketSize.Value, _bucketSize.HasValue },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "default_language", () => _defaultLanguage, _defaultLanguage != null },
-                { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
-                { "hidden", () => _hidden.Value, _hidden.HasValue },
-                { "language_override", () => _languageOverride, _languageOverride != null },
-                { "max", () => _max.Value, _max.HasValue },
-                { "min", () => _min.Value, _min.HasValue },
-                { "partialFilterExpression", _partialFilterExpression, _partialFilterExpression != null },
-                { "sparse", () => _sparse.Value, _sparse.HasValue },
-                { "2dsphereIndexVersion", () => _sphereIndexVersion.Value, _sphereIndexVersion.HasValue },
-                { "storageEngine", () => _storageEngine, _storageEngine != null },
-                { "textIndexVersion", () => _textIndexVersion.Value, _textIndexVersion.HasValue },
-                { "unique", () => _unique.Value, _unique.HasValue },
-                { "v", () => _version.Value, _version.HasValue },
-                { "weights", () => _weights, _weights != null },
-                { "wildcardProjection", _wildcardProjection, _wildcardProjection != null }
+                { "background", () => Background.Value, Background.HasValue },
+                { "bits", () => Bits.Value, Bits.HasValue },
+#pragma warning disable CS0618 // Type or member is obsolete
+                { "bucketSize", () => BucketSize.Value, BucketSize.HasValue },
+#pragma warning restore CS0618 // Type or member is obsolete
+                { "collation", () => Collation.ToBsonDocument(), Collation != null },
+                { "default_language", () => DefaultLanguage, DefaultLanguage != null },
+                { "expireAfterSeconds", () => ExpireAfter.Value.TotalSeconds, ExpireAfter.HasValue },
+                { "hidden", () => Hidden.Value, Hidden.HasValue },
+                { "language_override", () => LanguageOverride, LanguageOverride != null },
+                { "max", () => Max.Value, Max.HasValue },
+                { "min", () => Min.Value, Min.HasValue },
+                { "partialFilterExpression", PartialFilterExpression, PartialFilterExpression != null },
+                { "sparse", () => Sparse.Value, Sparse.HasValue },
+                { "2dsphereIndexVersion", () => SphereIndexVersion.Value, SphereIndexVersion.HasValue },
+                { "storageEngine", () => StorageEngine, StorageEngine != null },
+                { "textIndexVersion", () => TextIndexVersion.Value, TextIndexVersion.HasValue },
+                { "unique", () => Unique.Value, Unique.HasValue },
+                { "v", () => Version.Value, Version.HasValue },
+                { "weights", () => Weights, Weights != null },
+                { "wildcardProjection", WildcardProjection, WildcardProjection != null }
             };
 
-            if (_additionalOptions != null)
+            if (AdditionalOptions != null)
             {
-                document.Merge(_additionalOptions, overwriteExistingElements: false);
+                document.Merge(AdditionalOptions, overwriteExistingElements: false);
             }
             return document;
         }

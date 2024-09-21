@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -34,23 +32,5 @@ namespace MongoDB.Driver
         /// A tailable cursor with a built-in server sleep.
         /// </summary>
         TailableAwait
-    }
-
-    internal static class CursorTypeExtensions
-    {
-        public static Core.Operations.CursorType ToCore(this CursorType cursorType)
-        {
-            switch (cursorType)
-            {
-                case CursorType.NonTailable:
-                    return Core.Operations.CursorType.NonTailable;
-                case CursorType.Tailable:
-                    return Core.Operations.CursorType.Tailable;
-                case CursorType.TailableAwait:
-                    return Core.Operations.CursorType.TailableAwait;
-                default:
-                    throw new ArgumentException("Unrecognized CursorType.", "cursorType");
-            }
-        }
     }
 }
