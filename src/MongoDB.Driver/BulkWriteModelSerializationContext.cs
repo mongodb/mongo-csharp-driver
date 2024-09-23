@@ -16,22 +16,15 @@
 using System.Collections.Generic;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
+namespace MongoDB.Driver
 {
-    internal sealed class ClientBulkWriteOpsSectionFormatter : ICommandMessageSectionFormatter<ClientBulkWriteOpsCommandMessageSection>
+    internal sealed class BulkWriteModelSerializationContext
     {
-        public void FormatSection(ClientBulkWriteOpsCommandMessageSection section, BsonBinaryWriter writer, long? maxSize)
-        {
-            throw new System.NotImplementedException();
-        }
+        public List<string> NsInfo { get; init; }
 
-        private void EncodeInsertOneOperation(BsonSerializationContext context, BulkInsertOneOperation op, int nsInfoIndex)
-        {
+        public IBsonSerializerRegistry SerializerRegistry { get; init; }
 
-        }
-
+        public IBsonWriter Writer { get; init; }
     }
 }

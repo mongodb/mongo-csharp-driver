@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -43,5 +45,16 @@ namespace MongoDB.Driver
         /// The document to insert
         /// </summary>
         public TDocument Document { get; init; }
+
+        internal override int WriteTo(BulkWriteModelSerializationContext context)
+        {
+            var writer = context.Writer;
+            writer.WriteStartDocument();
+            writer.WriteName("insert");
+            writer.WriteInt32(context.NsInfo.IndexOf(Namespace.FullName));
+            writer.WriteName("document");
+            BsonDocumentSerializer.Instance.Serialize(context, Document);
+            writer.WriteEndDocument();
+        }
     }
 }

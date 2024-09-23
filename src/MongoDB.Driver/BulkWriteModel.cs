@@ -26,7 +26,10 @@ namespace MongoDB.Driver
         protected BulkWriteModel()
         {}
 
-        //
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteModel"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
         protected BulkWriteModel(CollectionNamespace collectionNamespace)
         {
             Namespace = collectionNamespace;
@@ -36,5 +39,7 @@ namespace MongoDB.Driver
         /// The namespace on which to perform the operation.
         /// </summary>
         public CollectionNamespace Namespace { get; init; }
+
+        internal abstract int WriteTo(BulkWriteModelSerializationContext context);
     }
 }
