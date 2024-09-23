@@ -33,8 +33,6 @@ namespace MongoDB.Driver.Authentication.External
         public DateTime? Expiration => null;
 
         public bool ShouldBeRefreshed => true;
-
-        public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
     internal sealed class GcpAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<GcpCredentials>

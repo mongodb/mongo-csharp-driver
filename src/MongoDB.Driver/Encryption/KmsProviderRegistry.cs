@@ -27,7 +27,15 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Kms Provider Registry Instance.
         /// </summary>
-        public static readonly KmsProviderRegistry Instance = new KmsProviderRegistry();
+        public static readonly KmsProviderRegistry Instance = CreateDefaultInstance();
+
+        private static KmsProviderRegistry CreateDefaultInstance()
+        {
+            var registry =  new KmsProviderRegistry();
+            registry.Register(GcpKmsProvider.ProviderName, () => GcpKmsProvider.Instance);
+            registry.Register(AzureKmsProvider.ProviderName, () => AzureKmsProvider.Instance);
+            return registry;
+        }
 
         private readonly ConcurrentDictionary<string, Func<IKmsProvider>> _registry = new();
 
@@ -51,7 +59,13 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        internal bool TryCreate(string providerName, out IKmsProvider provider)
+        /// <summary>
+        /// Creates KMS provider if possible.
+        /// </summary>
+        /// <param name="providerName">The requested provider name.</param>
+        /// <param name="provider">When this method succeeds contains the created provider, otherwise <value>null</value>.</param>
+        /// <returns><value>true</value> if the requested provider was created, otherwise <value>false</value>.</returns>
+        public bool TryCreate(string providerName, out IKmsProvider provider)
         {
             Ensure.IsNotNullOrEmpty(providerName, nameof(providerName));
 
