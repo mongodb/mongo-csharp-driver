@@ -68,11 +68,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     () => testCase.Name.Contains("fle2v2"),
                     SupportedOperatingSystem.MacOS);
 
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
-
             RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH");
 
             SetupAndRunTest(testCase);

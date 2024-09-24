@@ -41,11 +41,7 @@ namespace MongoDB.Libmongocrypt.Example
 
         public static byte[] ToBytes(BsonDocument doc)
         {
-            BsonBinaryWriterSettings settings = new BsonBinaryWriterSettings()
-            {
-                // C# driver "magically" changes UUIDs underneath by default so tell it not to
-                GuidRepresentation = GuidRepresentation.Standard
-            };
+            BsonBinaryWriterSettings settings = new BsonBinaryWriterSettings();
             return doc.ToBson(null, settings);
         }
 
@@ -326,7 +322,7 @@ namespace MongoDB.Libmongocrypt.Example
 
                                 { "encrypt" , new BsonDocument
                                     {
-                                    { "keyId" , new BsonArray( new BsonValue[] { keyID } ) },
+                                    { "keyId" , new BsonArray( new Guid[] { keyID } ) },
                                     {  "bsonType" , "string"},
                                     { "algorithm" , "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic" },
                                     }
@@ -357,9 +353,6 @@ namespace MongoDB.Libmongocrypt.Example
 
         static void Main(string[] args)
         {
-            // The C# driver transmutes data unless you specify this stupid line!
-            BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
-
             Console.WriteLine("Using url: " + args);
             // or change me to use the mock
             Uri kmsURL = Environment.GetEnvironmentVariable("FLE_AWS_SECRET_ACCESS_KEY") != null ? null : new Uri("https://localhost:8000");

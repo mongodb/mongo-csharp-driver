@@ -36,11 +36,7 @@ namespace MongoDB.Libmongocrypt.Test
 
         public static byte[] ToBytes(BsonDocument doc)
         {
-            BsonBinaryWriterSettings settings = new BsonBinaryWriterSettings()
-            {
-                // C# driver "magically" changes UUIDs underneath by default so tell it not to
-                GuidRepresentation = GuidRepresentation.Standard
-            };
+            BsonBinaryWriterSettings settings = new BsonBinaryWriterSettings();
             return doc.ToBson(null, settings);
         }
 
@@ -71,7 +67,7 @@ namespace MongoDB.Libmongocrypt.Test
 
         public static BsonDocument FromJSON(string str)
         {
-            var jsonReaderSettings = new JsonReaderSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+            var jsonReaderSettings = new JsonReaderSettings();
             using (var jsonReader = new JsonReader(str, jsonReaderSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(jsonReader);
