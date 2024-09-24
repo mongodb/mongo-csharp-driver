@@ -169,9 +169,18 @@ namespace MongoDB.Libmongocrypt
             public const int RTLD_GLOBAL = 0x100;
             public const int RTLD_NOW = 0x2;
             private static readonly bool _use_libdl1;
+            private static readonly string[] __suffixPaths;
 
             static LinuxLibrary()
             {
+                var finalpath = IsAlpine() ? "alpine/" : "";
+
+                __suffixPaths = new []{
+                    $"../../runtimes/linux/native/{finalpath}",
+                    $"runtimes/linux/native/{finalpath}",
+                    string.Empty
+                };
+
                 try
                 {
                     Libdl1.dlerror();
@@ -182,13 +191,6 @@ namespace MongoDB.Libmongocrypt
                     _use_libdl1 = false;
                 }
             }
-
-            private static readonly string[] __suffixPaths =
-            {
-                "../../runtimes/linux/native/",
-                "runtimes/linux/native/",
-                string.Empty
-            };
 
             private readonly IntPtr _handle;
             public LinuxLibrary(List<string> candidatePaths)
@@ -208,6 +210,24 @@ namespace MongoDB.Libmongocrypt
             public IntPtr GetFunction(string name)
             {
                 return _use_libdl1 ? Libdl1.dlsym(_handle, name) : Libdl2.dlsym(_handle, name);
+            }
+
+            private static bool IsAlpine()
+            {
+                var osRealesePath = "/etc/os-release";
+                var prettyName = "PRETTY_NAME";
+
+                if (File.Exists(osRealesePath))
+                {
+                    foreach(var line in File.ReadAllLines(osRealesePath))
+                    {
+                        if (line.StartsWith(prettyName))
+                        {
+                            return line.Contains("Alpine");
+                        }
+                    }
+                }
+                return false;
             }
         }
 
