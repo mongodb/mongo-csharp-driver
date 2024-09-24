@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             RemoveCollectionData(databaseName, collectionName);
             PrepareData(databaseName, collectionName, definition);
 
-            using (var client = CreateDisposableClient(_capturedEvents))
+            using (var client = CreateMongoClient(_capturedEvents))
             {
                 var database = client.GetDatabase(databaseName);
                 var operations = test.Contains("operation")
@@ -134,9 +133,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             }
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer)
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer)
         {
-            return DriverTestConfiguration.CreateDisposableClient(
+            return DriverTestConfiguration.CreateMongoClient(
                 (MongoClientSettings settings) =>
                 {
                     settings.ClusterConfigurator = c =>
@@ -145,8 +144,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         c.Subscribe(eventCapturer);
                         c.ConfigureServer(ss => ss.With(heartbeatInterval: Timeout.InfiniteTimeSpan));
                     };
-                },
-                LoggingSettings);
+                    settings.LoggingSettings = LoggingSettings;
+                });
         }
 
         private void ExecuteOperation(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)

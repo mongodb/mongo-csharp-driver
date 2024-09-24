@@ -40,14 +40,14 @@ namespace MongoDB.Driver.Core.Logging
         [InlineData("MongoDB.Driver.Core.TestHelpers.NameSpace.SomeType", "MongoDB.Tests.SomeType")]
         [InlineData("MongoDB", "MongoDB")]
         [InlineData("Random", "Random")]
-        internal void DecorateCategories_should_return_correct_category(string providedCategory, string expectedCatergory)
+        internal void DecorateCategories_should_return_correct_category(string providedCategory, string expectedCategory)
         {
             var underlyingFactory = new Mock<ILoggerFactory>();
             var loggingSettings = new LoggingSettings(underlyingFactory.Object);
             var decoratedFactory = loggingSettings.ToInternalLoggerFactory();
 
             decoratedFactory.CreateLogger(providedCategory);
-            underlyingFactory.Verify(f => f.CreateLogger(expectedCatergory), Times.Once);
+            underlyingFactory.Verify(f => f.CreateLogger(expectedCategory), Times.Once);
         }
     }
 }

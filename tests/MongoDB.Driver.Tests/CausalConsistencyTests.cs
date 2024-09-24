@@ -221,9 +221,9 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private DisposableMongoClient GetClient(EventCapturer capturer)
+        private IMongoClient GetClient(EventCapturer capturer)
         {
-            return DriverTestConfiguration.CreateDisposableClient(capturer);
+            return DriverTestConfiguration.CreateMongoClient(capturer);
         }
     }
 }

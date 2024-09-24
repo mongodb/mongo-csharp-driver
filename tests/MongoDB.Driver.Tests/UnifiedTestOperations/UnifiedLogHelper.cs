@@ -56,6 +56,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public static string ParseCategory(string category) =>
            category switch
            {
+               "client" => LogCategoryHelper.GetCategoryName<LogCategories.Client>(),
                "command" => LogCategoryHelper.GetCategoryName<LogCategories.Command>(),
                "connection" => LogCategoryHelper.GetCategoryName<LogCategories.Connection>(),
                "topology" => LogCategoryHelper.GetCategoryName<LogCategories.SDAM>(),

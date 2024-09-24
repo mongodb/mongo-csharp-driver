@@ -21,7 +21,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -32,7 +31,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer, applicationName))
+            using (var client = CreateMongoClient(eventCapturer, applicationName))
             {
                 var slowServer = client.GetClusterInternal().SelectServer(WritableServerSelector.Instance, default);
                 var fastServer = client.GetClusterInternal().SelectServer(new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)), default);
@@ -166,17 +165,17 @@ namespace MongoDB.Driver.Tests
             collection.InsertOne(new BsonDocument());
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer, string applicationName)
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer, string applicationName)
         {
             // Increase localThresholdMS and wait until all nodes are discovered to avoid false positives.
-            var client = DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
                 {
                     settings.Servers = settings.Servers.Take(2).ToArray();
                     settings.ApplicationName = applicationName;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
+                    settings.LoggingSettings = LoggingSettings;
                 },
-                LoggingSettings,
                 true);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);

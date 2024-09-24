@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.Search
 
         #endregion
 
-        private readonly DisposableMongoClient _disposableMongoClient;
+        private readonly IMongoClient _mongoClient;
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
@@ -64,10 +64,10 @@ namespace MongoDB.Driver.Tests.Search
             var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
-            _disposableMongoClient = new(new MongoClient(atlasSearchUri), CreateLogger<DisposableMongoClient>());
+            _mongoClient = new MongoClient(atlasSearchUri);
         }
 
-        protected override void DisposeInternal() => _disposableMongoClient.Dispose();
+        protected override void DisposeInternal() => _mongoClient.Dispose();
 
         [Fact]
         public void Autocomplete()
@@ -616,23 +616,23 @@ namespace MongoDB.Driver.Tests.Search
                 .Project(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                 .ToList();
 
-        private IMongoCollection<HistoricalDocument> GetTestCollection() => _disposableMongoClient
+        private IMongoCollection<HistoricalDocument> GetTestCollection() => _mongoClient
             .GetDatabase("sample_training")
             .GetCollection<HistoricalDocument>("posts");
 
-        private IMongoCollection<T> GetTestCollection<T>() => _disposableMongoClient
+        private IMongoCollection<T> GetTestCollection<T>() => _mongoClient
             .GetDatabase("sample_training")
             .GetCollection<T>("posts");
 
-        private IMongoCollection<Movie> GetSynonymTestCollection() => _disposableMongoClient
+        private IMongoCollection<Movie> GetSynonymTestCollection() => _mongoClient
             .GetDatabase("sample_mflix")
             .GetCollection<Movie>("movies");
 
-        private IMongoCollection<AirbnbListing> GetGeoTestCollection() => _disposableMongoClient
+        private IMongoCollection<AirbnbListing> GetGeoTestCollection() => _mongoClient
             .GetDatabase("sample_airbnb")
             .GetCollection<AirbnbListing>("listingsAndReviews");
 
-        private IMongoCollection<EmbeddedMovie> GetEmbeddedMoviesCollection() => _disposableMongoClient
+        private IMongoCollection<EmbeddedMovie> GetEmbeddedMoviesCollection() => _mongoClient
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
 

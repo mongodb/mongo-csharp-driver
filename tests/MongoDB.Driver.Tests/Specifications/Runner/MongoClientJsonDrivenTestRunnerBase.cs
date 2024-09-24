@@ -32,7 +32,6 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -225,7 +224,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             LastKnownClusterTime = session.ClusterTime;
         }
 
-        protected virtual MongoClient CreateClientForTestSetup()
+        protected virtual IMongoClient CreateClientForTestSetup()
         {
             return DriverTestConfiguration.Client;
         }
@@ -240,7 +239,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             return new JsonDrivenTestFactory(mongoClient, databaseName, collectionName, bucketName: null, objectMap, eventCapturer);
         }
 
-        protected virtual void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
+        protected virtual void DropCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
             Logger.LogDebug("Dropping collection {0} in {1} db", databaseName, collectionName);
 
@@ -318,7 +317,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         {
             Logger.LogDebug("Running test");
 
-            using (var client = CreateDisposableClient(test, eventCapturer))
+            using (var client = CreateMongoClient(test, eventCapturer))
             {
                 Logger.LogDebug("Disposable client created with cluster:{0}", client.Cluster.ClusterId);
 
@@ -326,7 +325,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
-        protected virtual void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)
+        protected virtual void TestInitialize(IMongoClient client, BsonDocument test, BsonDocument shared)
         {
             // do nothing by default.
         }
@@ -473,12 +472,12 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             return null;
         }
 
-        protected DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
+        protected IMongoClient CreateMongoClient(BsonDocument test, EventCapturer eventCapturer)
         {
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
             RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
 
-            return DriverTestConfiguration.CreateDisposableClient(
+            return DriverTestConfiguration.CreateMongoClient(
                 settings =>
                 {
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
@@ -487,8 +486,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     {
                         settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     }
+                    settings.LoggingSettings = LoggingSettings;
                 },
-                LoggingSettings,
                 useMultipleShardRouters);
         }
 

@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient())
+            using (var client = DriverTestConfiguration.CreateMongoClient())
             {
                 client.GetDatabase("admin").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
             }
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
             var settings = DriverTestConfiguration.Client.Settings.Clone();
             settings.Credential = MongoCredential.FromComponents(mechanism: "SCRAM-SHA-1", source, username, password);
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(settings))
             {
                 client.GetDatabase("admin").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
             }
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
             var settings = DriverTestConfiguration.Client.Settings.Clone();
             settings.Credential = MongoCredential.FromComponents(mechanism: "SCRAM-SHA-256", source, username, password);
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(settings))
             {
                 client.GetDatabase("admin").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
             }
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
                 .Capture<CommandStartedEvent>(x => "killCursors" == x.CommandName)
                 .Capture<CommandSucceededEvent>(x => new[] { "killCursors", "find" }.Contains(x.CommandName));
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
+            using (var client = DriverTestConfiguration.CreateMongoClient(eventCapturer))
             {
                 var cursor = client
                     .GetDatabase(databaseName)

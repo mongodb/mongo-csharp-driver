@@ -16,11 +16,10 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 .ClusterType(ClusterType.ReplicaSet)
                 .StorageEngine("mmapv1");
 
-            using (var client = CreateDisposableMongoClient())
+            using (var client = CreateIMongoClient())
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -64,9 +63,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         }
 
         // private methods
-        private DisposableMongoClient CreateDisposableMongoClient()
-        {
-            return DriverTestConfiguration.CreateDisposableClient(s => s.RetryWrites = true, LoggingSettings);
-        }
+        private IMongoClient CreateIMongoClient() =>
+            DriverTestConfiguration.CreateMongoClient(s =>
+            {
+                s.RetryWrites = true;
+                s.LoggingSettings  = LoggingSettings;
+            });
     }
 }

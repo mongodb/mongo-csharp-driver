@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             }
         }
 
-        protected override MongoClient CreateClientForTestSetup()
+        protected override IMongoClient CreateClientForTestSetup()
         {
             var clientSettings = DriverTestConfiguration.GetClientSettings().Clone();
             return new MongoClient(clientSettings);
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             }
         }
 
-        protected override void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
+        protected override void DropCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
             if (shared.TryGetValue("encrypted_fields", out var encrypted_fields))
             {

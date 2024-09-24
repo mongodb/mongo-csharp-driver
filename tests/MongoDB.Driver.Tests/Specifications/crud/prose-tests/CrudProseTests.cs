@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -99,7 +98,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             var collectionOptions = new CreateCollectionOptions<BsonDocument> { Validator = collectionValidator };
 
             Exception exception;
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 database.CreateCollection(collectionName, collectionOptions);
@@ -160,14 +159,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             return FailPoint.Configure(cluster, session, BsonDocument.Parse(failpointCommand));
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer)
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer)
         {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            return DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
             {
                 settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-            },
-            LoggingSettings);
+                settings.LoggingSettings = LoggingSettings;
+            });
         }
     }
 }

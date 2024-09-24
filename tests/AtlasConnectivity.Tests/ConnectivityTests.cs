@@ -18,7 +18,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,7 +50,7 @@ namespace AtlasConnectivity.Tests
             var connectionString = Environment.GetEnvironmentVariable(environmentVariableName);
             connectionString.Should().NotBeNull();
 
-            using (var client = CreateDisposableClient(connectionString))
+            using (var client = CreateMongoClient(connectionString))
             {
                 // test that a command that doesn't require auth completes normally
                 var adminDatabase = client.GetDatabase("admin");
@@ -67,11 +66,12 @@ namespace AtlasConnectivity.Tests
         }
 
         // private methods
-        private DisposableMongoClient CreateDisposableClient(string connectionString)
+        private IMongoClient CreateMongoClient(string connectionString)
         {
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            var client = new MongoClient(clientSettings);
-            return new DisposableMongoClient(client, CreateLogger<DisposableMongoClient>());
+            clientSettings.ClusterSource = DisposingClusterSource.Instance;
+
+            return new MongoClient(clientSettings);
         }
     }
 }

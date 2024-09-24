@@ -120,14 +120,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         }
 
         // private methods
-        private DisposableMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
+        private IMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
         {
             var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
             clonedClientSettings.ApplicationName = applicationName;
             clonedClientSettings.HeartbeatInterval = heartbeatInterval;
             clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
 
-            return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
+            return DriverTestConfiguration.CreateMongoClient(clonedClientSettings);
         }
     }
 }

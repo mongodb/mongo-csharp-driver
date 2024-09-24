@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(_mongoClientSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(_mongoClientSettings))
             {
                 if (_session == null)
                 {
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(_mongoClientSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(_mongoClientSettings))
             {
                 if (_session == null)
                 {

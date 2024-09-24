@@ -30,7 +30,7 @@ namespace MongoDB.Benchmarks.ParallelBench
     [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class MultiFileExportBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private string _tmpDirectoryPath;
@@ -42,7 +42,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
             _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
             _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpLDJSON";

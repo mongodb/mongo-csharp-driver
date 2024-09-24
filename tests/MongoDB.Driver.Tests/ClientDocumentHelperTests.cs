@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => e.CommandName == OppressiveLanguageConstants.LegacyHelloCommandName || e.CommandName == "hello");
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
+            using (var client = DriverTestConfiguration.CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase("db");
                 if (async)

@@ -17,8 +17,8 @@ using System.Collections.Concurrent;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.ParallelBench
@@ -27,7 +27,7 @@ namespace MongoDB.Benchmarks.ParallelBench
     [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class GridFSMultiFileDownloadBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private GridFSBucket _gridFsBucket;
         private string _tmpDirectoryPath;
         private ConcurrentQueue<(string, int)> _filesToDownload;
@@ -38,7 +38,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
             _gridFsBucket.Drop();
             _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpGridFS";

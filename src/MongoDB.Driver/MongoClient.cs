@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -39,6 +40,7 @@ namespace MongoDB.Driver
         private readonly IAutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
+        private readonly ILogger<LogCategories.Client> _logger;
 
         // constructors
         /// <summary>
@@ -56,7 +58,9 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
+            _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
+
+            _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
             {
@@ -127,6 +131,35 @@ namespace MongoDB.Driver
             UsingImplicitSession(session => DropDatabase(session, name, cancellationToken), cancellationToken);
         }
 
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
+
+                    _settings.ClusterSource.Return(_cluster);
+
+                    // TODO BEFORE MERGE Rebase onto CSFLE PR
+                    //foreach (var clientToDispose in new[] { _libMongoCryptController?.InternalClient, _libMongoCryptController?.MongoCryptdClient })
+                    //{
+                    //    if (clientToDispose != null)
+                    //    {
+                    //        _settings.ClusterSource.ReturnCluster(clientToDispose.GetClusterInternal());
+                    //    }
+                    //}
+
+                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposed");
+                }
+
+                _disposed = true;
+            }
+
+            base.Dispose(disposing);
+        }
+
         /// <inheritdoc/>
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -166,7 +199,7 @@ namespace MongoDB.Driver
 
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoDatabase(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
+            return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, GetCluster(), _operationExecutor);
         }
 
         /// <inheritdoc />
@@ -460,13 +493,13 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Read preference in a transaction must be primary.");
             }
 
-            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
+            var binding = new ReadPreferenceBinding(GetCluster(), readPreference, session.WrappedCoreSession.Fork());
             return new ReadBindingHandle(binding);
         }
 
         private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
         {
-            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
+            var binding = new WritableServerBinding(GetCluster(), session.WrappedCoreSession.Fork());
             return new ReadWriteBindingHandle(binding);
         }
 
@@ -516,6 +549,9 @@ namespace MongoDB.Driver
             }
         }
 
+        private IClusterInternal GetCluster() =>
+            !_disposed ? _cluster : throw new ObjectDisposedException(GetType().Name);
+
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
             var messageEncoderSettings = new MessageEncoderSettings
@@ -532,7 +568,7 @@ namespace MongoDB.Driver
         private IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
-            ICoreSessionHandle coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
+            ICoreSessionHandle coreSession = GetCluster().StartSession(options.ToCore(isImplicit: true));
             return new ClientSessionHandle(this, options, coreSession);
         }
 
@@ -544,7 +580,7 @@ namespace MongoDB.Driver
             }
 
             options = options ?? new ClientSessionOptions();
-            var coreSession = _cluster.StartSession(options.ToCore());
+            var coreSession = GetCluster().StartSession(options.ToCore());
 
             return new ClientSessionHandle(this, options, coreSession);
         }

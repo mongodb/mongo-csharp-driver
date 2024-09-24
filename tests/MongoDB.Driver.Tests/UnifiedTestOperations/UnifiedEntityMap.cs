@@ -29,7 +29,6 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GridFS;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Driver.Encryption;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private readonly Dictionary<string, IGridFSBucket> _buckets;
         private readonly Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> _changeStreams;
-        private readonly Dictionary<string, DisposableMongoClient> _clients;
+        private readonly Dictionary<string, IMongoClient> _clients;
         private readonly Dictionary<string, ClientEncryption> _clientEncryptions;
         private readonly Dictionary<string, EventCapturer> _clientEventCapturers;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             bool async,
             Dictionary<string, IGridFSBucket> buckets = null,
             Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> changeStreams = null,
-            Dictionary<string, DisposableMongoClient> clients = null,
+            Dictionary<string, IMongoClient> clients = null,
             Dictionary<string, ClientEncryption> clientEncryptions = null,
             Dictionary<string, EventCapturer> clientEventCapturers = null,
             Dictionary<string, Dictionary<string, LogLevel>> loggingComponents = null,
@@ -136,7 +135,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public Dictionary<string, DisposableMongoClient> Clients
+        public Dictionary<string, IMongoClient> Clients
         {
             get
             {
@@ -360,7 +359,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var changeStreams = new Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>>();
                 var clientEventCapturers = new Dictionary<string, EventCapturer>();
                 var loggingComponents = new Dictionary<string, Dictionary<string, LogLevel>>();
-                var clients = new Dictionary<string, DisposableMongoClient>();
+                var clients = new Dictionary<string, IMongoClient>();
                 var clientEncryptions = new Dictionary<string, ClientEncryption>();
                 var collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
                 var cursors = new Dictionary<string, IEnumerator<BsonDocument>>();
@@ -494,7 +493,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 return new GridFSBucket(database);
             }
 
-            private (DisposableMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers, Dictionary<string, LogLevel> LoggingComponents) CreateClient(BsonDocument entity, bool async)
+            private (IMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers, Dictionary<string, LogLevel> LoggingComponents) CreateClient(BsonDocument entity, bool async)
             {
                 string appName = null;
                 string authMechanism = null;
@@ -728,12 +727,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
 
                 var eventCapturers = clientEventCapturers.Select(c => c.Value).ToArray();
-                var client = DriverTestConfiguration.CreateDisposableClient(
+                var client = DriverTestConfiguration.CreateMongoClient(
                     settings =>
                     {
                         settings.ApplicationName = FailPoint.DecorateApplicationName(appName, async);
                         settings.ConnectTimeout = connectTimeout.GetValueOrDefault(defaultValue: settings.ConnectTimeout);
                         settings.LoadBalanced = loadBalanced.GetValueOrDefault(defaultValue: settings.LoadBalanced);
+                        settings.LoggingSettings = _loggingSettings;
                         settings.MaxConnecting = maxConnecting.GetValueOrDefault(defaultValue: settings.MaxConnecting);
                         settings.MaxConnectionIdleTime = maxIdleTime.GetValueOrDefault(defaultValue: settings.MaxConnectionIdleTime);
                         settings.MaxConnectionPoolSize = maxPoolSize.GetValueOrDefault(defaultValue: settings.MaxConnectionPoolSize);
@@ -779,13 +779,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             }
                         }
                     },
-                    _loggingSettings,
                     useMultipleShardRouters);
 
                 return (client, clientEventCapturers, loggingComponents);
             }
 
-            private ClientEncryption CreateClientEncryption(Dictionary<string, DisposableMongoClient> clients, BsonDocument entity)
+            private ClientEncryption CreateClientEncryption(Dictionary<string, IMongoClient> clients, BsonDocument entity)
             {
                 ClientEncryptionOptions options = null;
                 foreach (var element in entity)
@@ -883,7 +882,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 return database.GetCollection<BsonDocument>(collectionName, settings);
             }
 
-            private IMongoDatabase CreateDatabase(BsonDocument entity, Dictionary<string, DisposableMongoClient> clients)
+            private IMongoDatabase CreateDatabase(BsonDocument entity, Dictionary<string, IMongoClient> clients)
             {
                 IMongoClient client = null;
                 string databaseName = null;
@@ -1001,7 +1000,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 return eventCapturer;
             }
 
-            private IClientSessionHandle CreateSession(BsonDocument entity, Dictionary<string, DisposableMongoClient> clients)
+            private IClientSessionHandle CreateSession(BsonDocument entity, Dictionary<string, IMongoClient> clients)
             {
                 IMongoClient client = null;
                 ClientSessionOptions options = null;

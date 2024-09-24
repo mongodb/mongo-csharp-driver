@@ -25,7 +25,7 @@ namespace MongoDB.Benchmarks.SingleDoc
     [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class InsertOneLargeBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private BsonDocument _largeDocument;
@@ -36,7 +36,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
             _largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
         }

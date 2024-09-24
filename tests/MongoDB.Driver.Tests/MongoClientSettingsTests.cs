@@ -106,6 +106,19 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestCloneClusterSource()
+        {
+            var clusterSource = new Mock<IClusterSource>().Object;
+            var settings = new MongoClientSettings()
+            {
+                ClusterSource = clusterSource
+            };
+
+            var clone = settings.Clone();
+            Assert.Equal(settings, clone);
+        }
+
+        [Fact]
         public void TestCloneDirectConnection()
         {
             // set everything to non default values to test that all settings are cloned
@@ -162,6 +175,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestClusterSource()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
+
+            var newClusterSource = new Mock<IClusterSource>();
+            settings.ClusterSource = newClusterSource.Object;
+            Assert.Equal(newClusterSource.Object, settings.ClusterSource);
+
+            settings.Freeze();
+            Assert.Equal(newClusterSource.Object, settings.ClusterSource);
+            Assert.Throws<InvalidOperationException>(() => { settings.ClusterSource = newClusterSource.Object; });
+        }
+
+        [Fact]
         public void TestCompressors()
         {
             var settings = new MongoClientSettings();
@@ -211,6 +239,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(false, settings.AllowInsecureTls);
             Assert.Equal(null, settings.ApplicationName);
+            Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
             Assert.Equal(Enumerable.Empty<CompressorConfiguration>(), settings.Compressors);
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.Null(settings.Credential);
@@ -296,6 +325,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.ApplicationName = "app2";
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.ClusterSource = (new Mock<IClusterSource>()).Object;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -556,6 +589,7 @@ namespace MongoDB.Driver.Tests
             var settings = MongoClientSettings.FromUrl(url);
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
+            Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
             Assert.Equal(url.Compressors, settings.Compressors);
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
             Assert.NotNull(settings.Credential);

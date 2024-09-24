@@ -30,7 +30,7 @@ namespace MongoDB.Benchmarks.ParallelBench
     [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class MultiFileImportBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private ConcurrentQueue<(string, int)> _filesToUpload;
@@ -41,7 +41,7 @@ namespace MongoDB.Benchmarks.ParallelBench
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
             _filesToUpload = new ConcurrentQueue<(string, int)>();
         }

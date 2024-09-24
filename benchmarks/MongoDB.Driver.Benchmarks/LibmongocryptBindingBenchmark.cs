@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Benchmarks
 {
@@ -31,7 +30,7 @@ namespace MongoDB.Benchmarks
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
         private byte[] _encryptedValuesDocumentBytes;
-        private DisposableMongoClient _disposableKeyVaultClient;
+        private IMongoClient _disposableKeyVaultClient;
         private IAutoEncryptionLibMongoCryptController _libMongoCryptController;
 
         [Params(1)]
@@ -56,8 +55,9 @@ namespace MongoDB.Benchmarks
 
             var clientSettings = MongoClientSettings.FromConnectionString("mongodb://localhost");
             clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            clientSettings.ClusterSource = DisposingClusterSource.Instance;
 
-            _disposableKeyVaultClient = new DisposableMongoClient(new MongoClient(clientSettings), null);
+            _disposableKeyVaultClient = new MongoClient(clientSettings);
 
             var keyVaultDatabase = _disposableKeyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
             keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);

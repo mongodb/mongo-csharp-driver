@@ -43,6 +43,7 @@ namespace MongoDB.Driver
         private string _applicationName;
         private AutoEncryptionOptions _autoEncryptionOptions;
         private Action<ClusterBuilder> _clusterConfigurator;
+        private IClusterSource _clusterSource;
         private IReadOnlyList<CompressorConfiguration> _compressors;
         private TimeSpan _connectTimeout;
         private MongoCredential _credential;
@@ -95,6 +96,7 @@ namespace MongoDB.Driver
             _allowInsecureTls = false;
             _applicationName = null;
             _autoEncryptionOptions = null;
+            _clusterSource = DefaultClusterSource.Instance;
             _compressors = new CompressorConfiguration[0];
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _directConnection = false;
@@ -132,6 +134,17 @@ namespace MongoDB.Driver
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Acknowledged;
             _writeEncoding = null;
+        }
+
+        // internal properties
+        internal IClusterSource ClusterSource
+        {
+            get => _clusterSource;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _clusterSource = Ensure.IsNotNull(value, nameof(value));
+            }
         }
 
         // public properties
@@ -892,6 +905,9 @@ namespace MongoDB.Driver
             clone._autoEncryptionOptions = _autoEncryptionOptions;
             clone._compressors = _compressors;
             clone._clusterConfigurator = _clusterConfigurator;
+            clone._clusterSource = _clusterSource;
+            clone._connectionMode = _connectionMode;
+            clone._connectionModeSwitch = _connectionModeSwitch;
             clone._connectTimeout = _connectTimeout;
             clone._credential = _credential;
             clone._directConnection = _directConnection;
@@ -959,6 +975,7 @@ namespace MongoDB.Driver
                 _applicationName == rhs._applicationName &&
                 object.Equals(_autoEncryptionOptions, rhs._autoEncryptionOptions) &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
+                object.Equals(_clusterSource, rhs._clusterSource) &&
                 _compressors.SequenceEqual(rhs._compressors) &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credential == rhs._credential &&
@@ -1046,6 +1063,7 @@ namespace MongoDB.Driver
                 .Hash(_applicationName)
                 .Hash(_autoEncryptionOptions)
                 .Hash(_clusterConfigurator)
+                .Hash(_clusterSource)
                 .HashElements(_compressors)
                 .Hash(_connectTimeout)
                 .Hash(_credential)

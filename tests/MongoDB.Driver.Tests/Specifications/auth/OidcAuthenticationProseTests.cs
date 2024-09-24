@@ -559,7 +559,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             settings.ServerMonitoringMode = ServerMonitoringMode.Poll;
             settings.HeartbeatInterval = TimeSpan.FromSeconds(30);
             settings.ClusterConfigurator = (builder) => builder.Subscribe(eventCapturer);
-            var client = DriverTestConfiguration.CreateDisposableClient(settings);
+            var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             var db = client.GetDatabase(DatabaseName);
             var collection = db.GetCollection<BsonDocument>(CollectionName);

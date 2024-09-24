@@ -15,8 +15,8 @@
 
 using System.IO;
 using BenchmarkDotNet.Attributes;
+using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
@@ -25,7 +25,7 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class GridFsUploadBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private byte[] _fileBytes;
         private GridFSBucket _gridFsBucket;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _fileBytes = File.ReadAllBytes($"{DataFolderPath}single_and_multi_document/gridfs_large.bin");
             _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
         }

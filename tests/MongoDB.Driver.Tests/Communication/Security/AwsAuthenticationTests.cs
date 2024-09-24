@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         {
             RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED");
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient())
+            using (var client = DriverTestConfiguration.CreateMongoClient())
             {
                 // test that a command that doesn't require auth completes normally
                 var adminDatabase = client.GetDatabase("admin");

@@ -22,7 +22,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void MongoClient_should_log()
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(LoggingSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(LoggingSettings))
             {
                 client.ListDatabases(new ListDatabasesOptions());
             }
@@ -57,7 +56,7 @@ namespace MongoDB.Driver.Tests
                 Connection("Connection ready"),
                 Connection("Connection added"),
                 Connection("Connection checked out"),
-                TestsDebug<DisposableMongoClient>("Disposing"),
+                Client("MongoClient disposing"),
                 SDAM("Stopping topology monitoring"),
                 SDAM("Removing server"),
                 SDAM("Stopping server monitoring"),
@@ -68,20 +67,19 @@ namespace MongoDB.Driver.Tests
                 SDAM("Removed server"),
                 SDAM("Topology description changed"),
                 SDAM("Stopped topology monitoring"),
-                TestsDebug<DisposableMongoClient>("Cluster unregistered and disposed"),
-                TestsDebug<DisposableMongoClient>("Disposed")
+                Client("MongoClient disposed")
             },
             logs);
 
+            (LogLevel, string, string) Client(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.Client>(), message);
             (LogLevel, string, string) Connection(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.Connection>(), message);
             (LogLevel, string, string) SDAM(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.SDAM>(), message);
-            (LogLevel, string, string) TestsDebug<T>(string message) => (LogLevel.Debug, $"MongoDB.Tests.{typeof(T).Name}", message);
         }
 
         [Fact]
         public void MongoClient_should_not_throw_when_factory_is_null()
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings: null))
+            using (var client = DriverTestConfiguration.CreateMongoClient(loggingSettings: null))
             {
                 client.ListDatabases(new ListDatabasesOptions());
             }
@@ -102,7 +100,7 @@ namespace MongoDB.Driver.Tests
             var loggingSettings = maxDocumentSize == null
                 ? new LoggingSettings(LoggerFactory)
                 : new LoggingSettings(LoggerFactory, maxDocumentSize.Value);
-            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(loggingSettings))
             {
                 
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -136,7 +134,7 @@ namespace MongoDB.Driver.Tests
             const int truncationSize = 5;
             const int maxDocumentSize = truncationSize + 3; // 3 to account for '...'
             var loggingSettings = new LoggingSettings(LoggerFactory, truncationSize);
-            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(loggingSettings))
             {
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
 

@@ -23,9 +23,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedCloseClientOperation : IUnifiedEntityTestOperation
     {
-        private readonly DisposableMongoClient _client;
+        private readonly IMongoClient _client;
 
-        public UnifiedCloseClientOperation(DisposableMongoClient client)
+        public UnifiedCloseClientOperation(IMongoClient client)
         {
             _client = client;
         }

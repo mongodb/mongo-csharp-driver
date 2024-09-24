@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             return collection.AsQueryable();
         }
 
-        private MongoClient GetClient()
+        private IMongoClient GetClient()
         {
             return DriverTestConfiguration.Client;
         }
