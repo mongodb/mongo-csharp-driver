@@ -20,8 +20,6 @@
     <CMakeCurrentSourceDir>.</CMakeCurrentSourceDir>
   </PropertyGroup>
 
-  <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
-
   <ItemGroup>
     <None Include="$(CMakeCurrentSourceDir)/xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

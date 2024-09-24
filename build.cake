@@ -344,13 +344,6 @@ Task("DumpGitVersion")
         Information(gitVersion.Dump());
     });
 
-Task("TestsPackagingProjectReference")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        items: GetFiles("./**/*.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-            RunTests(buildConfig, testProject, filter: "Category=\"Packaging\""));
-
 Task("SmokeTests")
     .DoesForEach(
         GetFiles("./**/SmokeTests/**/*.SmokeTests*.csproj"),
@@ -362,20 +355,19 @@ Task("SmokeTests")
         };
 
         var toolSettings = new DotNetToolSettings { EnvironmentVariables = environmentVariables };
-        var packageVersion = Environment.GetEnvironmentVariable("PACKAGE_VERSION");
 
-        Information($"Updating MongoDB package: {packageVersion} sha: {gitVersion.Sha}");
+        Information($"Updating MongoDB package: {buildConfig.PackageVersion} sha: {gitVersion.Sha}");
 
         DotNetTool(
             testProject.FullPath,
             "add package MongoDB.Driver",
-            $"--no-restore --version [{packageVersion}]",
+            $"--no-restore --version [{buildConfig.PackageVersion}]",
             toolSettings);
 
         DotNetTool(
             testProject.FullPath,
             "add package MongoDB.Libmongocrypt",
-            $"--no-restore --version [{packageVersion}]",
+            $"--no-restore --version [{buildConfig.PackageVersion}]",
             toolSettings);
 
         RunTests(
@@ -394,202 +386,6 @@ Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet50").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet60").IsDependentOn("SmokeTests");
 Task("SmokeTestsNet80").IsDependentOn("SmokeTests");
-
-Task("TestsPackaging")
-    .IsDependentOn("TestsPackagingProjectReference")
-    .IsDependentOn("Package")
-    .DoesForEach(
-    () =>
-    {
-        var monikers = new[] { "net472", "netcoreapp30", "net50", "net60" };
-        var csprojTypes = new[] { "SDK" };
-        var processorArchitectures = new[] { "x64", "arm64" };
-        var projectTypes = new[] { "xunit", "console" };
-
-        return
-            from moniker in monikers
-            from csprojType in csprojTypes
-            from processorArchitecture in processorArchitectures
-            from projectType in projectTypes
-            select new { Moniker = moniker, CsprojType = csprojType, ProcessorArchitecture = processorArchitecture, ProjectType = projectType };
-    },
-    (testDetails) =>
-    {
-        var moniker = testDetails.Moniker;
-        var csprojFormat = testDetails.CsprojType;
-        var projectType = testDetails.ProjectType;
-        var processorArchitecture = testDetails.ProcessorArchitecture;
-        var localNugetSourceName = "LocalPackages";
-
-        Information($"Moniker: {moniker}, csproj style: {csprojFormat}");
-
-        var monikerTestFolder = artifactsPackagingTestsDirectory.Combine($"{moniker}_{csprojFormat}_{projectType}_{processorArchitecture}");
-        Information($"Moniker test folder: {monikerTestFolder}");
-        EnsureDirectoryExists(monikerTestFolder);
-        CleanDirectory(monikerTestFolder);
-
-        var csprojFileName = $"{monikerTestFolder.GetDirectoryName()}.csproj";
-        var csprojFullPath = monikerTestFolder.CombineWithFilePath(csprojFileName);
-
-        switch (projectType)
-        {
-            case "xunit":
-                {
-                    if (moniker == "net472")
-                    {
-                        // CSHARP-3806
-                        return;
-                    }
-
-                    Information("Creating test project...");
-                    DotNetTool(csprojFullPath, "new xunit", $"--target-framework-override {moniker} --language C# ");
-                    Information("Created test project");
-
-                    // the below two packages are added just to allow using the same code as in xunit
-                    Information($"Adding FluentAssertions...");
-                    DotNetTool(
-                        csprojFullPath,
-                        "add package FluentAssertions",
-                        $"--framework {moniker} --version 4.12.0"
-                    );
-                    Information($"Added FluentAssertions");
-
-                    var mongoDriverPackageVersion = ConfigureAndGetTestedDriverVersion(monikerTestFolder, localNugetSourceName);
-
-                    Information($"Adding test package...");
-                    DotNetTool(
-                        csprojFullPath,
-                        $"add package {mongoDbDriverPackageName}",
-                        $"--framework {moniker} --version {mongoDriverPackageVersion}"
-                    );
-                    Information("Added tested package");
-
-                    DeleteFile(monikerTestFolder.CombineWithFilePath("UnitTest1.cs")); // Remove a default unit test
-                    var packagingTestsDirectory	= testsDirectory.Combine("MongoDB.Driver.Tests").Combine("Packaging");
-                    Console.WriteLine($"Original test file {packagingTestsDirectory}");
-                    var files = GetFiles($"{packagingTestsDirectory}/*.cs").ToList();
-                    CopyFiles(files, monikerTestFolder); // copy tests content
-
-                    Information("Running tests...");
-                    DotNetTest(
-                        csprojFullPath.ToString(),
-                        new DotNetTestSettings
-                        {
-                            Framework = moniker,
-                            Configuration = configuration,
-                            ArgumentCustomization = args =>
-                                args
-                                .Append("/p:LangVersion=9")
-                                .Append($"-- RunConfiguration.TargetPlatform={processorArchitecture}")
-                        }
-                    );
-                }
-                break;
-            case "console":
-                {
-                    if (moniker == "netcoreapp21")
-                    {
-                        // https://github.com/dotnet/sdk/issues/8662
-                        // The described solution works but it's tricky to implement it via scripts
-                        return;
-                    }
-
-                    Information("Creating console project...");
-                    DotNetTool(csprojFullPath, "new console", $"--target-framework-override {moniker} --language C# --langVersion 9");
-                    Information("Created test project");
-
-                    // the below two packages are added just to allow using the same code as in xunit
-                    Information($"Adding FluentAssertions...");
-                    DotNetTool(
-                        csprojFullPath,
-                        "add package FluentAssertions",
-                        $"--framework {moniker} --version 4.12.0"
-                    );
-                    Information($"Added FluentAssertions");
-
-                    Information($"Adding xunit...");
-                    DotNetTool(
-                        csprojFullPath,
-                        "add package xunit",
-                        $"--framework {moniker} --version 2.4.0"
-                    );
-                    Information($"Added xunit");
-
-                    var mongoDriverPackageVersion = ConfigureAndGetTestedDriverVersion(monikerTestFolder, localNugetSourceName);
-
-                    Information($"Adding tested package...");
-                    DotNetTool(
-                        csprojFullPath,
-                        $"add package {mongoDbDriverPackageName}",
-                        $"--framework {moniker} --version {mongoDriverPackageVersion}"
-                    );
-                    Information("Added test package");
-
-                    DeleteFile(monikerTestFolder.CombineWithFilePath("Program.cs")); // Remove a default .cs file
-                    var packagingTestsDirectory	= testsDirectory.Combine("MongoDB.Driver.Tests").Combine("Packaging");
-                    Console.WriteLine($"Original test file {packagingTestsDirectory}");
-                    var files = GetFiles($"{packagingTestsDirectory}/*.cs").ToList();
-                    CopyFiles(files, monikerTestFolder); // copy tests content
-
-                    Information("Running console app...");
-                    DotNetRun(
-                        csprojFullPath.ToString(),
-                        new DotNetRunSettings
-                        {
-                            EnvironmentVariables = new Dictionary<string, string>()
-                            {
-                                { "DefineConstants", "CONSOLE_TEST" },
-                                { "PlatformTarget", processorArchitecture }
-                            },
-                            Framework = moniker,
-                            Configuration = configuration
-                        }
-                    );
-                }
-                break;
-            default: throw new NotSupportedException($"Packaging tests for {projectType} is not supported.");
-        }
-
-        string ConfigureAndGetTestedDriverVersion(DirectoryPath directoryPath, string localNugetSourceName)
-        {
-            CreateNugetConfig(directoryPath, localNugetSourceName);
-
-            var packagesList = NuGetList(
-            new NuGetListSettings {
-                AllVersions = true,
-                Prerelease = true,
-                Source = new [] { $"{localNugetSourceName}" }, // corresponds to artifacts Nuget.config
-                WorkingDirectory = directoryPath
-            });
-
-            foreach(var package in packagesList)
-            {
-                Information("Found package {0}, version {1}", package.Name, package.Version);
-            }
-            if (packagesList.Count(p => p.Name == mongoDbDriverPackageName) != 1)
-            {
-                throw new Exception($"Package {mongoDbDriverPackageName} must be presented and unique.");
-            }
-            var mongoDriverPackageVersion = packagesList.Single(p => p.Name == mongoDbDriverPackageName).Version;
-            Information($"Package version {mongoDriverPackageVersion}");
-            return mongoDriverPackageVersion;
-
-            void CreateNugetConfig(DirectoryPath directoryPath, string localNugetSourceName)
-            {
-                var nugetConfigPath = directoryPath.CombineWithFilePath("nuget.config");
-                if (FileExists(nugetConfigPath)) DeleteFile(nugetConfigPath);
-
-                DotNetTool(nugetConfigPath, "new nugetconfig"); // create a default nuget.config
-
-                // <packageSources>
-                //     <add key="{localNugetSourceName}" value="..\..\packages" />
-                // </packageSources>
-                XmlPoke(nugetConfigPath, "/configuration/packageSources/add/@key", $"{localNugetSourceName}");
-                XmlPoke(nugetConfigPath, $"/configuration/packageSources/add[@key = '{localNugetSourceName}']/@value", @"..\..\packages");
-            }
-        }
-    })
-    .DeferOnError();
 
 Setup<BuildConfig>(
     setupContext =>
@@ -616,7 +412,7 @@ Setup<BuildConfig>(
         };
 
         var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
-        var packageVersion = lowerTarget.StartsWith("smoketests") ? gitVersion.FullSemVer.Replace('+', '-') : gitVersion.LegacySemVer;
+        var packageVersion = lowerTarget.StartsWith("smoketests") ? Environment.GetEnvironmentVariable("PACKAGE_VERSION") : gitVersion.LegacySemVer;
 
         Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}, PackageVersion: {packageVersion}");
 

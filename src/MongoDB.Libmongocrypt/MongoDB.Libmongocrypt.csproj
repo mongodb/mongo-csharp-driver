@@ -106,16 +106,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="MongoDB.Libmongocrypt.targets">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
   </ItemGroup>
   
-  <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
-
 </Project>
