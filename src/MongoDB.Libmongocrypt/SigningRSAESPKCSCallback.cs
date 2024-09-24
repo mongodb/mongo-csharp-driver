@@ -15,7 +15,7 @@
  */
 
 using System;
-#if NETSTANDARD2_1
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Security.Cryptography;
 #endif
 
@@ -59,7 +59,7 @@ namespace MongoDB.Libmongocrypt
 
         public static byte[] HashAndSignBytes(byte[] dataToSign, byte[] key)
         {
-#if NETSTANDARD2_1
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             using (var rsaProvider = new RSACryptoServiceProvider())
             {
                 rsaProvider.ImportPkcs8PrivateKey(key, out _);
@@ -67,7 +67,7 @@ namespace MongoDB.Libmongocrypt
                 return rsaProvider.SignData(dataToSign, SHA256.Create());
             }
 #else
-            throw new System.PlatformNotSupportedException("RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on frameworks higher or equal to .netstandard2.1.");
+            throw new System.PlatformNotSupportedException("RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on netcore 3.0 and above.");
 #endif
         }
     }
