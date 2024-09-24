@@ -192,19 +192,19 @@ namespace MongoDB.Driver.Encryption
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
+            if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (AutoEncryptionOptions)obj;
 
             return
                 _bypassAutoEncryption.Equals(rhs._bypassAutoEncryption) &&
                 _bypassQueryAnalysis == rhs._bypassQueryAnalysis &&
                 ExtraOptionsEquals(_extraOptions, rhs._extraOptions) &&
-                ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
+                object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
                 KmsProvidersEqualityHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
-                _schemaMap.IsEquivalentTo(rhs._schemaMap, Equals) &&
-               _tlsOptions.IsEquivalentTo(rhs._tlsOptions, Equals) &&
-               _encryptedFieldsMap.IsEquivalentTo(rhs._encryptedFieldsMap, Equals);
+                _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
+               _tlsOptions.IsEquivalentTo(rhs._tlsOptions, object.Equals) &&
+               _encryptedFieldsMap.IsEquivalentTo(rhs._encryptedFieldsMap, object.Equals);
         }
 
         /// <inheritdoc />
@@ -280,12 +280,12 @@ namespace MongoDB.Driver.Encryption
 
         private bool ExtraOptionEquals(object x, object y)
         {
-            if (ReferenceEquals(x, y))
+            if (object.ReferenceEquals(x, y))
             {
                 return true;
             }
 
-            if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null))
             {
                 return false;
             }

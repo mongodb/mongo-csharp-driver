@@ -47,7 +47,6 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
-        // private ICryptClient _cryptClient = null;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
@@ -105,11 +104,6 @@ namespace MongoDB.Driver.Core.Clusters
             get { return _clusterId; }
         }
 
-        // public ICryptClient CryptClient
-        // {
-        //     get { return _cryptClient; }
-        // }
-
         public ClusterDescription Description
         {
             get
@@ -131,10 +125,6 @@ namespace MongoDB.Driver.Core.Clusters
         {
             return _serverSessionPool.AcquireSession();
         }
-
-        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client,
-            AutoEncryptionOptions autoEncryptionOptions) =>
-            throw new NotImplementedException();
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
@@ -171,7 +161,6 @@ namespace MongoDB.Driver.Core.Clusters
                 UpdateClusterDescription(newClusterDescription);
 
                 _rapidHeartbeatTimer.Dispose();
-                // _cryptClient?.Dispose();
 
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposed");
             }
@@ -217,17 +206,6 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
-
-                // if (_settings.CryptClientSettings != null)
-                // {
-                //     _cryptClient = AutoEncryptionProvider.Instance.CreateCryptClient(_settings.CryptClientSettings);
-                //
-                //     _clusterEventLogger.Logger?.LogTrace(
-                //         StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
-                //         _clusterId,
-                //         "CryptClient created. Configured shared library version: ",
-                //         _cryptClient.CryptSharedLibraryVersion ?? "None");
-                // }
             }
         }
 

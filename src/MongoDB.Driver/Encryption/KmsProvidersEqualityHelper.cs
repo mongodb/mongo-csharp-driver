@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Encryption
             }
             else
             {
-                return Equals(x, y);
+                return object.Equals(x, y);
             }
         }
     }

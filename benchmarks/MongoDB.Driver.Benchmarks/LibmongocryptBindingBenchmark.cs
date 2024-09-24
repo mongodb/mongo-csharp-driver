@@ -94,7 +94,6 @@ namespace MongoDB.Benchmarks
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
             // Create libmongocrypt binding that will be used for decryption
-            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
             _libMongoCryptController = AutoEncryptionProvider.Instance.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
         }
 

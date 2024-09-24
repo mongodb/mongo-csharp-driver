@@ -142,7 +142,7 @@ if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFI
 fi
 
 if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe .\\build.ps1 --target=$TARGET --environment="Evergreen"
+  powershell.exe .\\build.ps1 --target=$TARGET
 else
-  ./build.sh --target=$TARGET --environment="Evergreen"
+  ./build.sh --target=$TARGET
 fi
