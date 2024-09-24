@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using System;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -73,16 +73,6 @@ namespace MongoDB.Driver.Encryption
         /// Gets the sparsity.
         /// </summary>
         public long Sparsity => _sparsity;
-
-        // internal methods
-        internal BsonDocument CreateDocument() =>
-            new BsonDocument
-            {
-                { "min", _min, _min != null },
-                { "max", _max, _max != null },
-                { "precision", _precision, _precision != null },
-                { "sparsity", _sparsity }
-            };
     }
 
     /// <summary>

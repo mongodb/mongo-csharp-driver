@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -61,6 +62,12 @@ namespace MongoDB.Driver
             if (settings.AutoEncryptionOptions != null)
             {
                 _libMongoCryptController = AutoEncryptionProvider.Instance.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
+
+                _settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
+                    StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
+                    _cluster.ClusterId,
+                    "CryptClient created. Configured shared library version: ",
+                    _libMongoCryptController.CryptSharedLibraryVersion() ?? "None");
             }
         }
 

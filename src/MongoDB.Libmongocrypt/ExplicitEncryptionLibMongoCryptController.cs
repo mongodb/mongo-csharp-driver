@@ -36,7 +36,7 @@ namespace MongoDB.Libmongocrypt
             ClientEncryptionOptions clientEncryptionOptions)
             : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),
-                  clientEncryptionOptions)
+                  clientEncryptionOptions.KeyVaultNamespace, clientEncryptionOptions.KmsProviders, clientEncryptionOptions.TlsOptions)
         {
         }
 

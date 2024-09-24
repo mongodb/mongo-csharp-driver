@@ -111,8 +111,10 @@ namespace MongoDB.Driver
             }
         }
 
-        // internal properties
-        internal X509CertificateCollection ClientCertificateCollection
+        /// <summary>
+        /// Gets the client certificate collection.
+        /// </summary>
+        public X509CertificateCollection ClientCertificateCollection
         {
             get { return _clientCertificateCollection; }
         }

@@ -13,14 +13,13 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Encryption;
-using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Libmongocrypt;
 using Xunit;
 
 namespace MongoDB.Driver.Tests

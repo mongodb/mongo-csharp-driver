@@ -14,6 +14,9 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -830,6 +833,41 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the error message to be used by the feature support checks.
         /// </summary>
         public string NotSupportedMessage => _notSupportedMessage;
+
+        /// <summary>
+        /// Throws an exception if the feature is not supported in the server used by the client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public void ThrowIfNotSupported(IMongoClient client,  CancellationToken cancellationToken = default)
+        {
+            var cluster = client.GetClusterInternal();
+            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            {
+                // Use WireVersion from a connection since server level value may be null
+                ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
+            }
+        }
+
+        /// <summary>
+        /// Throws an exception if the feature is not supported in the server used by the client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public async Task ThrowIfNotSupportedAsync(IMongoClient client,  CancellationToken cancellationToken = default)
+        {
+            var cluster = client.GetClusterInternal();
+            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            {
+                // Use WireVersion from a connection since server level value may be null
+                ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
+            }
+        }
+
 
         internal bool IsSupported(int wireVersion)
         {

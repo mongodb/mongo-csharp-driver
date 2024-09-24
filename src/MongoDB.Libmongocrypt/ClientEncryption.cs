@@ -15,12 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
@@ -121,15 +120,15 @@ namespace MongoDB.Libmongocrypt
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
-            EnsureFeatureSupported(database.Client.GetClusterInternal(), Feature.Csfle2QEv2, cancellationToken);
+            Feature.Csfle2QEv2.ThrowIfNotSupported(database.Client, cancellationToken);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
             {
-                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
                 {
                     var dataKey = CreateDataKey(kmsProvider, new DataKeyOptions(masterKey: masterKey), cancellationToken);
-                    EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                    ModifyEncryptedFields(fieldDocument, dataKey);
                 }
 
                 var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
@@ -184,15 +183,15 @@ namespace MongoDB.Libmongocrypt
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
-            await EnsureFeatureSupportedAsync(database.Client.GetClusterInternal(), Feature.Csfle2QEv2, cancellationToken).ConfigureAwait(false);
+            await Feature.Csfle2QEv2.ThrowIfNotSupportedAsync(database.Client, cancellationToken).ConfigureAwait(false);
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
             {
-                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
                 {
                     var dataKey = await CreateDataKeyAsync(kmsProvider, new DataKeyOptions(masterKey: masterKey), cancellationToken).ConfigureAwait(false);
-                    EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                    ModifyEncryptedFields(fieldDocument, dataKey);
                 }
 
                 var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
@@ -443,26 +442,28 @@ namespace MongoDB.Libmongocrypt
             }
         }
 
-        private void EnsureFeatureSupported(IClusterInternal cluster, Feature feature, CancellationToken cancellationToken)
+        private static IEnumerable<BsonDocument> IterateEmptyKeyIds(CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
         {
-            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            if (encryptedFields == null)
             {
-                // Use WireVersion from a connection since server level value may be null
-                feature.ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
+                throw new InvalidOperationException("There are no encrypted fields defined for the collection.");
+            }
+
+            if (encryptedFields.TryGetValue("fields", out var fields) && fields is BsonArray fieldsArray)
+            {
+                foreach (var field in fieldsArray.OfType<BsonDocument>()) // If `F` is not a document element, skip it.
+                {
+                    if (field.TryGetElement("keyId", out var keyId) && keyId.Value == BsonNull.Value)
+                    {
+                        yield return field;
+                    }
+                }
             }
         }
 
-        private async Task EnsureFeatureSupportedAsync(IClusterInternal cluster, Feature feature, CancellationToken cancellationToken)
+        private static void ModifyEncryptedFields(BsonDocument fieldDocument, Guid dataKey)
         {
-            using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            {
-                // Use WireVersion from a connection since server level value may be null
-                feature.ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
-            }
+            fieldDocument["keyId"] = new BsonBinaryData(dataKey, GuidRepresentation.Standard);
         }
     }
 }

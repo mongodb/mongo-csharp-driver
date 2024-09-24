@@ -18,60 +18,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using MongoDB.Driver.Core;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
-    internal static class EncryptionExtraOptionsHelper
-    {
-        private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
-        {
-            { "cryptSharedLibPath", new [] { typeof(string) } },
-            { "cryptSharedLibRequired", new [] { typeof(bool) } },
-            { "mongocryptdURI", new [] { typeof(string) } },
-            { "mongocryptdBypassSpawn", new [] { typeof(bool) } },
-            { "mongocryptdSpawnPath", new [] { typeof(string) } },
-            { "mongocryptdSpawnArgs", new [] { typeof(string), typeof(IEnumerable<string>) } }
-        };
-
-        public static void EnsureThatExtraOptionsAreValid(IReadOnlyDictionary<string, object> extraOptions)
-        {
-            if (extraOptions == null)
-            {
-                return;
-            }
-
-            foreach (var extraOption in extraOptions)
-            {
-                if (__supportedExtraOptions.TryGetValue(extraOption.Key, out var validTypes))
-                {
-                    var extraOptionValue = Ensure.IsNotNull(extraOption.Value, nameof(extraOptions));
-                    var extraOptionValueType = extraOptionValue.GetType();
-                    var isExtraOptionValueTypeValid = validTypes.Any(t => t.GetTypeInfo().IsAssignableFrom(extraOptionValueType));
-                    if (!isExtraOptionValueTypeValid)
-                    {
-                        throw new ArgumentException($"Extra option {extraOption.Key} has invalid type: {extraOptionValueType}.", nameof(extraOptions));
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException($"Invalid extra option key: {extraOption.Key}.", nameof(extraOptions));
-                }
-            }
-        }
-
-        public static string ExtractCryptSharedLibPath(IReadOnlyDictionary<string, object> dict) =>
-            dict.GetValueOrDefault<string, string, object>("cryptSharedLibPath");
-
-        public static bool? ExtractCryptSharedLibRequired(IReadOnlyDictionary<string, object> dict) =>
-            dict.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired");
-
-    }
-
     internal class MongocryptdFactory
     {
         private readonly bool? _bypassQueryAnalysis;

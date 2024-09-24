@@ -20,7 +20,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 
@@ -31,18 +30,12 @@ namespace MongoDB.Libmongocrypt
         #region static
         public static IAutoEncryptionLibMongoCryptController Create(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
         {
+            var cryptClient = CryptClientFactory.Create(client.Cluster.Settings.CryptClientSettings);
+
             var lazyInternalClient = new Lazy<IMongoClient>(() => CreateInternalClient());
             var keyVaultClient = autoEncryptionOptions.KeyVaultClient ?? lazyInternalClient.Value;
             var metadataClient = autoEncryptionOptions.BypassAutoEncryption ? null : lazyInternalClient.Value;
             var internalClient = lazyInternalClient.IsValueCreated ? lazyInternalClient.Value : null;
-
-            var cryptClient = CryptClientFactory.Create(client.Cluster.Settings.CryptClientSettings);
-
-            client.Settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
-                StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
-                client.Cluster.ClusterId,
-                "CryptClient created. Configured shared library version: ",
-                cryptClient.CryptSharedLibraryVersion ?? "None");
 
             return new AutoEncryptionLibMongoCryptController(
                 internalClient,
@@ -74,7 +67,7 @@ namespace MongoDB.Libmongocrypt
             IMongoClient metadataClient,
             CryptClient cryptClient,
             AutoEncryptionOptions autoEncryptionOptions)
-            : base(cryptClient, keyVaultClient, autoEncryptionOptions)
+            : base(cryptClient, keyVaultClient, autoEncryptionOptions.KeyVaultNamespace, autoEncryptionOptions.KmsProviders, autoEncryptionOptions.TlsOptions)
         {
             _internalClient = internalClient; // can be null
             _metadataClient = metadataClient; // can be null

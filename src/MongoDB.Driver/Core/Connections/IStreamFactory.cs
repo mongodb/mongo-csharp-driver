@@ -20,9 +20,25 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    internal interface IStreamFactory
+    /// <summary>
+    ///
+    /// </summary>
+    public interface IStreamFactory
     {
-        Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken);     
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="endPoint"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="endPoint"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken);
     }
 }

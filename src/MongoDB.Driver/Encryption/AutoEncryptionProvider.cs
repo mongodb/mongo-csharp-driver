@@ -14,7 +14,6 @@
  */
 
 using System;
-using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -30,7 +29,12 @@ namespace MongoDB.Driver.Encryption
 
         private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
 
-        internal void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  factory)
+        /// <summary>
+        /// Registers an AutoCryptClientControllerFactory.
+        /// </summary>
+        /// <param name="factory">The AutoCryptClientControllerFactory.</param>
+        /// <exception cref="MongoConfigurationException"></exception>
+        public void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  factory)
         {
             if (s_autoCryptClientControllerFactory != null)
             {

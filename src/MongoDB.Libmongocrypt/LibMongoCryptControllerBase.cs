@@ -49,16 +49,17 @@ namespace MongoDB.Libmongocrypt
         protected LibMongoCryptControllerBase(
              CryptClient cryptClient,
              IMongoClient keyVaultClient,
-             IEncryptionOptions encryptionOptions)
+             CollectionNamespace keyVaultNamespace,
+             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+             IReadOnlyDictionary<string, SslSettings> tlsOptions)
         {
-            Ensure.IsNotNull<IEncryptionOptions>(encryptionOptions, nameof(encryptionOptions));
             _cryptClient = Ensure.IsNotNull(cryptClient, nameof(cryptClient));
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)); // _keyVaultClient might not be fully constructed at this point, don't call any instance methods on it yet
-            _keyVaultNamespace = Ensure.IsNotNull(encryptionOptions.KeyVaultNamespace, nameof(encryptionOptions.KeyVaultNamespace));
+            _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _keyVaultCollection = new Lazy<IMongoCollection<BsonDocument>>(GetKeyVaultCollection); // delay use _keyVaultClient
-            _kmsProviders = Ensure.IsNotNull(encryptionOptions.KmsProviders, nameof(encryptionOptions.KmsProviders));
+            _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _networkStreamFactory = new NetworkStreamFactory();
-            _tlsOptions = Ensure.IsNotNull(encryptionOptions.TlsOptions, nameof(encryptionOptions.TlsOptions));
+            _tlsOptions = Ensure.IsNotNull(tlsOptions, nameof(tlsOptions));
         }
 
         // public properties
