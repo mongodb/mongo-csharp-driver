@@ -15,10 +15,10 @@
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
+namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
     internal interface ICommandMessageSectionFormatter<in TSection>
     {
-        void FormatSection(TSection section, BsonBinaryWriter writer, long? maxSize);
+        void FormatSection(TSection section, IBsonWriter writer);
     }
 }

@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -40,6 +42,6 @@ namespace MongoDB.Driver
         /// </summary>
         public CollectionNamespace Namespace { get; init; }
 
-        internal abstract int WriteTo(BulkWriteModelSerializationContext context);
+        internal abstract void Visit(IBulkWriteModelVisitor visitor);
     }
 }

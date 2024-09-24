@@ -148,12 +148,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal sealed class ClientBulkWriteOpsCommandMessageSection : BatchableCommandMessageSection
     {
+        private readonly IBatchableSource<BulkWriteModel> _operations;
+
         public ClientBulkWriteOpsCommandMessageSection(
             IBatchableSource<BulkWriteModel> operations,
             int? maxBatchCount,
             int? maxDocumentSize)
         : base(operations, maxBatchCount, maxDocumentSize)
         {
+            _operations = operations;
         }
+
+        public new IBatchableSource<BulkWriteModel> Documents => _operations;
     }
 }

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
             IReadOnlyList<BulkWriteModel> writeModels,
             ClientBulkWriteOptions options,
             MessageEncoderSettings messageEncoderSettings)
-        : base(new DatabaseNamespace("admin"), messageEncoderSettings)
+        : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
             WriteModels = new BatchableSource<BulkWriteModel>(writeModels, true);
             BypassDocumentValidation = options?.BypassDocumentValidation;

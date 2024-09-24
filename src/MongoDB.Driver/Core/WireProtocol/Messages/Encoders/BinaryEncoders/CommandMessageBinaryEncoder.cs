@@ -27,8 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
-        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __typo0SectionFormatter = new Type0SectionFormatter();
-        private static readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> __typo1SectionFormatter = new Type1SectionFormatter();
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
 
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
@@ -248,9 +247,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             if (section is Type0CommandMessageSection type0Section)
             {
-                __typo0SectionFormatter.FormatSection(type0Section, writer, null);
+                __type0SectionFormatter.FormatSection(type0Section, writer);
             }
-            else if(section is Type1CommandMessageSection type1Section)
+            else if(section is BatchableCommandMessageSection batchableSection)
             {
                 int? maxMessageSize;
                 if (IsEncryptionConfigured)
@@ -266,7 +265,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
                 var sectionMaxSize = messageStartPosition + maxMessageSize - writer.BsonStream.Position;
 
-                __typo1SectionFormatter.FormatSection(type1Section, writer, sectionMaxSize);
+                switch (batchableSection)
+                {
+                    case Type1CommandMessageSection type1Section:
+                        var type1SectionFormatter = new Type1SectionFormatter(sectionMaxSize);
+                        type1SectionFormatter.FormatSection(type1Section, writer);
+                        break;
+                    case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
+                        var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(sectionMaxSize);
+                        bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+
+
             }
             else
             {

@@ -64,5 +64,8 @@ namespace MongoDB.Driver
         /// The index to use.
         /// </summary>
         public BsonValue Hint { get; init; }
+
+        internal override void Visit(IBulkWriteModelVisitor visitor)
+            => visitor.VisitDeleteOne(this);
     }
 }

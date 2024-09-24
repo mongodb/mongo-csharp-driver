@@ -89,5 +89,8 @@ namespace MongoDB.Driver
         /// Update definition.
         /// </summary>
         public UpdateDefinition<TDocument> Update { get; init; }
+
+        internal override void Visit(IBulkWriteModelVisitor visitor)
+            => visitor.VisitUpdateOne(this);
     }
 }

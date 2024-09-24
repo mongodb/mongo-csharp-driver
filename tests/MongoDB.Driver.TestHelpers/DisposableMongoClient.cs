@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,16 @@ namespace MongoDB.Driver.TestHelpers
         public MongoClientSettings Settings => wrapped.Settings;
 
         public IMongoClient Wrapped => wrapped;
+
+        public void BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            wrapped.BulkWrite(models, options, cancellationToken);
+        }
+
+        public void BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            wrapped.BulkWrite(session, models, options, cancellationToken);
+        }
 
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {

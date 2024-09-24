@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class Type0SectionFormatter : ICommandMessageSectionFormatter<Type0CommandMessageSection>
     {
-        public void FormatSection(Type0CommandMessageSection section, BsonBinaryWriter writer, long? maxSize)
+        public void FormatSection(Type0CommandMessageSection section, IBsonWriter writer)
         {
             var serializer = section.DocumentSerializer;
             var context = BsonSerializationContext.CreateRoot(writer);

@@ -13,13 +13,24 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.IO;
+using System.Collections.Generic;
+using MongoDB.Bson;
+using Xunit;
 
-namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
+namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 {
-    internal interface ICommandMessageSectionFormatter<in TSection>
+    public class BulkWriteProseTests
     {
-        void FormatSection(TSection section, IBsonWriter writer);
+        [Fact]
+        public void Do()
+        {
+            var client = DriverTestConfiguration.Client;
+            client.BulkWrite(new[]
+            {
+                new BulkWriteInsertOneModel<BsonDocument>(
+                    CollectionNamespace.FromFullName("testDb.TestCollection"),
+                    new BsonDocument(new Dictionary<string, object>(){["a"] = 123}))
+            });
+        }
     }
 }
-

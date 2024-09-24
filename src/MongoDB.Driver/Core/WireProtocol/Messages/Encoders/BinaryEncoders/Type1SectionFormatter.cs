@@ -21,21 +21,32 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class Type1SectionFormatter : ICommandMessageSectionFormatter<Type1CommandMessageSection>
     {
-        public void FormatSection(Type1CommandMessageSection section, BsonBinaryWriter writer, long? maxSize)
+        private readonly long? _maxSize;
+
+        public Type1SectionFormatter(long? maxSize)
         {
-            var stream = writer.BsonStream;
+            _maxSize = maxSize;
+        }
+
+        public void FormatSection(Type1CommandMessageSection section, IBsonWriter writer)
+        {
+            if (writer is not BsonBinaryWriter binaryWriter)
+            {
+                throw new ArgumentException("Writer must be an instance of BsonBinaryWriter");
+            }
+
+            var stream = binaryWriter.BsonStream;
             var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
+            var context = BsonSerializationContext.CreateRoot(binaryWriter);
             var startPosition = stream.Position;
 
-            var payloadStartPosition = stream.Position;
             stream.WriteInt32(0); // size
             stream.WriteCString(section.Identifier);
 
             var batch = section.Documents;
-            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
-            writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
-            writer.PushElementNameValidator(section.ElementNameValidator);
+            var maxDocumentSize = section.MaxDocumentSize ?? binaryWriter.Settings.MaxDocumentSize;
+            binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
+            binaryWriter.PushElementNameValidator(section.ElementNameValidator);
             try
             {
                 var maxBatchCount = Math.Min(batch.Count, section.MaxBatchCount ?? int.MaxValue);
@@ -47,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     serializer.Serialize(context, document);
 
                     var writtenSize = stream.Position - startPosition;
-                    if (writtenSize > maxSize && batch.CanBeSplit && i > 0)
+                    if (writtenSize > _maxSize && batch.CanBeSplit && i > 0)
                     {
                         stream.Position = documentStartPosition;
                         stream.SetLength(documentStartPosition);
@@ -62,7 +73,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 writer.PopElementNameValidator();
                 writer.PopSettings();
             }
-            stream.BackpatchSize(payloadStartPosition);
+            stream.BackpatchSize(startPosition);
         }
     }
 }

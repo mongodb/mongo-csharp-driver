@@ -39,12 +39,22 @@ namespace MongoDB.Driver
         /// </summary>
         MongoClientSettings Settings { get; }
 
-        // /// <summary>
-        // /// Executes a list of mixed write operations.
-        // /// </summary>
-        // /// <param name="models">List of operations to execute.</param>
-        // /// <param name="options">The bulk write options.</param>
-        //void BulkWrite(IEnumerable<BulkWriteModel> models, ClientBulkWriteOptions options = null);
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Drops the database with the specified name.

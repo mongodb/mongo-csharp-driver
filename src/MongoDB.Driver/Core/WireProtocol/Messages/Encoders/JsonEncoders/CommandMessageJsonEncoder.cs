@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     internal sealed class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
-        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __typo0SectionFormatter = new Type0SectionFormatter();
-        private static readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> __typo1SectionFormatter = new Type1SectionFormatter();
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
+        private static readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> __type1SectionFormatter = new Type1SectionFormatter();
 
         public CommandMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
@@ -143,11 +143,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             switch (section)
             {
                 case Type0CommandMessageSection type0Section:
-                    __typo0SectionFormatter.FormatSection(type0Section, writer);
+                    __type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
 
                 case Type1CommandMessageSection type1Section:
-                    __typo1SectionFormatter.FormatSection(type1Section, writer);
+                    __type1SectionFormatter.FormatSection(type1Section, writer);
                     break;
 
                 default:

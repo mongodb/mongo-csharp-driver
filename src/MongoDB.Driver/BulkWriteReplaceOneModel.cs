@@ -80,5 +80,8 @@ namespace MongoDB.Driver
         /// Update definition.
         /// </summary>
         public TDocument Replacement { get; init; }
+
+        internal override void Visit(IBulkWriteModelVisitor visitor)
+            => visitor.VisitReplaceOne(this);
     }
 }
