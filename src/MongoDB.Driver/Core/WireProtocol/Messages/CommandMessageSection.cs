@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -35,41 +36,37 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class Type0CommandMessageSection : CommandMessageSection
     {
         // private fields
-        private readonly object _document;
-        private readonly IBsonSerializer _documentSerializer;
 
         // constructors
         public Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
         {
             Ensure.IsNotNull((object)document, nameof(document));
-            _document = document;
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Document = document;
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public object Document => _document;
-        public IBsonSerializer DocumentSerializer => _documentSerializer;
+        public object Document { get; }
+        public IBsonSerializer DocumentSerializer { get; }
         public override PayloadType PayloadType => PayloadType.Type0;
     }
 
     internal sealed class Type0CommandMessageSection<TDocument> : Type0CommandMessageSection
     {
         // private fields
-        private readonly TDocument _document;
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
 
         // constructors
         public Type0CommandMessageSection(TDocument document, IBsonSerializer<TDocument> documentSerializer)
             : base(document, documentSerializer)
         {
             Ensure.IsNotNull((object)document, nameof(document));
-            _document = document;
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Document = document;
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public new TDocument Document => _document;
-        public new IBsonSerializer<TDocument> DocumentSerializer => _documentSerializer;
+        public new TDocument Document { get; }
+        public new IBsonSerializer<TDocument> DocumentSerializer { get; }
     }
 
     internal abstract class BatchableCommandMessageSection : CommandMessageSection
@@ -93,9 +90,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class Type1CommandMessageSection : BatchableCommandMessageSection
     {
         // private fields
-        private readonly IBsonSerializer _documentSerializer;
-        private readonly IElementNameValidator _elementNameValidator;
-        private readonly string _identifier;
 
         // constructors
         public Type1CommandMessageSection(
@@ -107,24 +101,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int? maxDocumentSize)
         : base(documents, maxBatchCount, maxDocumentSize)
         {
-            _identifier = Ensure.IsNotNull(identifier, nameof(identifier));
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
+            Identifier = Ensure.IsNotNull(identifier, nameof(identifier));
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            ElementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
 
         }
 
         // public properties
-        public IBsonSerializer DocumentSerializer => _documentSerializer;
+        public IBsonSerializer DocumentSerializer { get; }
         public abstract Type DocumentType { get; }
-        public IElementNameValidator ElementNameValidator => _elementNameValidator;
-        public string Identifier => _identifier;
+        public IElementNameValidator ElementNameValidator { get; }
+        public string Identifier { get; }
     }
 
     internal sealed class Type1CommandMessageSection<TDocument> : Type1CommandMessageSection where TDocument : class
     {
         // private fields
-        private readonly IBatchableSource<TDocument> _documents;
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
 
         // constructors
         public Type1CommandMessageSection(
@@ -136,29 +128,30 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int? maxDocumentSize)
             : base(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize)
         {
-            _documents = Ensure.IsNotNull(documents, nameof(documents));
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Documents = Ensure.IsNotNull(documents, nameof(documents));
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public new IBatchableSource<TDocument> Documents => _documents;
-        public new IBsonSerializer<TDocument> DocumentSerializer => _documentSerializer;
+        public new IBatchableSource<TDocument> Documents { get; }
+        public new IBsonSerializer<TDocument> DocumentSerializer { get; }
         public override Type DocumentType => typeof(TDocument);
     }
 
     internal sealed class ClientBulkWriteOpsCommandMessageSection : BatchableCommandMessageSection
     {
-        private readonly IBatchableSource<BulkWriteModel> _operations;
-
         public ClientBulkWriteOpsCommandMessageSection(
             IBatchableSource<BulkWriteModel> operations,
             int? maxBatchCount,
-            int? maxDocumentSize)
+            int? maxDocumentSize,
+            RenderArgs<BsonDocument> renderArgs)
         : base(operations, maxBatchCount, maxDocumentSize)
         {
-            _operations = operations;
+            Documents = operations;
+            RenderArgs = renderArgs;
         }
 
-        public new IBatchableSource<BulkWriteModel> Documents => _operations;
+        public new IBatchableSource<BulkWriteModel> Documents { get; }
+        public RenderArgs<BsonDocument> RenderArgs { get; }
     }
 }

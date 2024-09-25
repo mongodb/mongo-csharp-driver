@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-using MongoDB.Bson;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
@@ -25,12 +23,171 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         public void Do()
         {
             var client = DriverTestConfiguration.Client;
-            client.BulkWrite(new[]
+            client.BulkWrite(new BulkWriteModel[]
             {
-                new BulkWriteInsertOneModel<BsonDocument>(
-                    CollectionNamespace.FromFullName("testDb.TestCollection"),
-                    new BsonDocument(new Dictionary<string, object>(){["a"] = 123}))
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection1",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection2",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 123 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 234 }),
+                new BulkWriteInsertOneModel<MyModel>(
+                    "testDb.TestCollection3",
+                    new MyModel { A = 345 }),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection1",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 123)),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection1",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 234)),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection1",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 345)),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection2",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 123)),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection2",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 234)),
+                new BulkWriteDeleteManyModel<MyModel>(
+                    "testDb.TestCollection2",
+                    Builders<MyModel>.Filter.Eq(m => m.A, 345))
             });
+
+            //
+            // BulkWrite.InsertOne(CollectionNamespace.FromFullName("testDb.TestCollection"), new MyModel { A = 234 });
+            // BulkWrite.InsertOne(CollectionNamespace.FromFullName("testDb.TestCollection"), new MyModel { A = 234 })
+        }
+
+        private class MyModel
+        {
+            public int A { get; set; }
         }
     }
 }

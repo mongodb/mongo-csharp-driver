@@ -23,11 +23,25 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteReplaceOneModel<TDocument> : BulkWriteModel
+        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteReplaceOneModel{TDocument}"/> class.
         /// </summary>
-        public BulkWriteReplaceOneModel()
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="replacement">Update definition.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        public BulkWriteReplaceOneModel(
+            string collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            TDocument replacement,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert)
         {
         }
 
@@ -47,10 +61,10 @@ namespace MongoDB.Driver
             Collation collation = null,
             BsonValue hint = null,
             bool isUpsert = false)
+            : base(collectionNamespace)
         {
-            Namespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             Filter = Ensure.IsNotNull(filter, nameof(filter));
-            Replacement = replacement;
+            Replacement = Ensure.IsNotNull(replacement, nameof(replacement));
             Collation = collation;
             Hint = hint;
             IsUpsert = isUpsert;
@@ -64,7 +78,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The filter to apply.
         /// </summary>
-        public FilterDefinition<TDocument> Filter { get; init; }
+        public FilterDefinition<TDocument> Filter { get; }
 
         /// <summary>
         /// The index to use.
@@ -79,7 +93,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Update definition.
         /// </summary>
-        public TDocument Replacement { get; init; }
+        public TDocument Replacement { get; }
 
         internal override void Visit(IBulkWriteModelVisitor visitor)
             => visitor.VisitReplaceOne(this);

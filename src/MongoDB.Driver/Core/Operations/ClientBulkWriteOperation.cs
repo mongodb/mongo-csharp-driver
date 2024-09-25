@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -28,9 +30,11 @@ namespace MongoDB.Driver.Core.Operations
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
             ClientBulkWriteOptions options,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            RenderArgs<BsonDocument> renderArgs)
         : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
+            RenderArgs = renderArgs;
             WriteModels = new BatchableSource<BulkWriteModel>(writeModels, true);
             BypassDocumentValidation = options?.BypassDocumentValidation;
             Comment = options?.Comment;
@@ -45,6 +49,8 @@ namespace MongoDB.Driver.Core.Operations
         public bool ErrorsOnly { get; init; }
 
         public BsonDocument Let { get; init; }
+
+        public RenderArgs<BsonDocument> RenderArgs { get; init; }
 
         public IBatchableSource<BulkWriteModel> WriteModels { get; }
 
@@ -77,8 +83,30 @@ namespace MongoDB.Driver.Core.Operations
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
-            var payload = new ClientBulkWriteOpsCommandMessageSection(operations, maxBatchCount, maxDocumentSize);
-            return new ClientBulkWriteOpsCommandMessageSection[] { payload };
+            var payload = new ClientBulkWriteOpsCommandMessageSection(operations, maxBatchCount, maxDocumentSize, RenderArgs);
+            return new[] { payload };
+        }
+
+        public override BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            while (!WriteModels.AllItemsWereProcessed)
+            {
+                base.Execute(binding, cancellationToken);
+                WriteModels.AdvancePastProcessedItems();
+            }
+
+            return null;
+        }
+
+        public override async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        {
+            while (!WriteModels.AllItemsWereProcessed)
+            {
+                await base.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                WriteModels.AdvancePastProcessedItems();
+            }
+
+            return null;
         }
     }
 }

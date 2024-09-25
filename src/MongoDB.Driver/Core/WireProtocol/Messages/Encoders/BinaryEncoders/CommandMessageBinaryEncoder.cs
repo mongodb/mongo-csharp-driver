@@ -272,8 +272,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                         type1SectionFormatter.FormatSection(type1Section, writer);
                         break;
                     case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
-                        var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(sectionMaxSize);
-                        bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
+                        using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(sectionMaxSize))
+                        {
+                            bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
+                        }
+
                         break;
                     default:
                         throw new NotSupportedException();

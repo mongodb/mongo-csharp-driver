@@ -23,11 +23,21 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteDeleteOneModel<TDocument> : BulkWriteModel
+        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteDeleteOneModel{TDocument}"/> class.
         /// </summary>
-        public BulkWriteDeleteOneModel()
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        public BulkWriteDeleteOneModel(
+            string collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            Collation collation = null,
+            BsonValue hint = null)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, collation, hint)
         {
         }
 
@@ -43,8 +53,8 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             Collation collation = null,
             BsonValue hint = null)
+            : base(collectionNamespace)
         {
-            Namespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             Filter = Ensure.IsNotNull(filter, nameof(filter));
             Collation = collation;
             Hint = hint;
@@ -58,7 +68,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The filter to apply.
         /// </summary>
-        public FilterDefinition<TDocument> Filter { get; init; }
+        public FilterDefinition<TDocument> Filter { get; }
 
         /// <summary>
         /// The index to use.

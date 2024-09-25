@@ -19,17 +19,23 @@ namespace MongoDB.Driver
     {
         void Visit(BulkWriteModel bulkWriteModel);
 
-        void VisitDeleteMany<TDocument>(BulkWriteDeleteManyModel<TDocument> deleteManyModel);
+        void VisitDeleteMany<TDocument>(BulkWriteDeleteManyModel<TDocument> deleteManyModel)
+            where TDocument: class;
 
-        void VisitDeleteOne<TDocument>(BulkWriteDeleteOneModel<TDocument> deleteOneModel);
+        void VisitDeleteOne<TDocument>(BulkWriteDeleteOneModel<TDocument> deleteOneModel)
+            where TDocument: class;
 
-        void VisitInsertOne<TDocument>(BulkWriteInsertOneModel<TDocument> insertOneModel);
+        void VisitInsertOne<TDocument>(BulkWriteInsertOneModel<TDocument> insertOneModel)
+            where TDocument: class;
 
-        void VisitReplaceOne<TDocument>(BulkWriteReplaceOneModel<TDocument> replaceOneModel);
+        void VisitReplaceOne<TDocument>(BulkWriteReplaceOneModel<TDocument> replaceOneModel)
+            where TDocument: class;
 
-        void VisitUpdateMany<TDocument>(BulkWriteUpdateManyModel<TDocument> updateOneModel);
+        void VisitUpdateMany<TDocument>(BulkWriteUpdateManyModel<TDocument> updateOneModel)
+            where TDocument: class;
 
-        void VisitUpdateOne<TDocument>(BulkWriteUpdateOneModel<TDocument> updateManyModel);
+        void VisitUpdateOne<TDocument>(BulkWriteUpdateOneModel<TDocument> updateManyModel)
+            where TDocument: class;
     }
 }
 

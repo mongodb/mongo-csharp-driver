@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -25,22 +26,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteModel"/> class.
         /// </summary>
-        protected BulkWriteModel()
-        {}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteModel"/> class.
-        /// </summary>
         /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
         protected BulkWriteModel(CollectionNamespace collectionNamespace)
         {
-            Namespace = collectionNamespace;
+            Namespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
         }
 
         /// <summary>
         /// The namespace on which to perform the operation.
         /// </summary>
-        public CollectionNamespace Namespace { get; init; }
+        public CollectionNamespace Namespace { get; }
 
         internal abstract void Visit(IBulkWriteModelVisitor visitor);
     }

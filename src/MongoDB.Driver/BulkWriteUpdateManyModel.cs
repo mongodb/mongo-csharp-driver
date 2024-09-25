@@ -24,11 +24,27 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteUpdateManyModel<TDocument> : BulkWriteModel
+        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteUpdateManyModel{TDocument}"/> class.
         /// </summary>
-        public BulkWriteUpdateManyModel()
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="update">Update definition.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="arrayFilters">A set of filters specifying to which array elements an update should apply.</param>
+        public BulkWriteUpdateManyModel(
+            string collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            UpdateDefinition<TDocument> update,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false,
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters)
         {
         }
 
@@ -50,8 +66,8 @@ namespace MongoDB.Driver
             BsonValue hint = null,
             bool isUpsert = false,
             IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            : base(collectionNamespace)
         {
-            Namespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             Filter = Ensure.IsNotNull(filter, nameof(filter));
             Update = Ensure.IsNotNull(update, nameof(update));
             Collation = collation;
@@ -73,7 +89,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The filter to apply.
         /// </summary>
-        public FilterDefinition<TDocument> Filter { get; init; }
+        public FilterDefinition<TDocument> Filter { get; }
 
         /// <summary>
         /// The index to use.
@@ -88,7 +104,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Update definition.
         /// </summary>
-        public UpdateDefinition<TDocument> Update { get; init; }
+        public UpdateDefinition<TDocument> Update { get; }
 
         internal override void Visit(IBulkWriteModelVisitor visitor)
             => visitor.VisitUpdateMany(this);

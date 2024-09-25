@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-using MongoDB.Bson.Serialization;
-
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -22,11 +20,17 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteInsertOneModel<TDocument> : BulkWriteModel
+        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteInsertOneModel{TDocument}"/> class.
         /// </summary>
-        public BulkWriteInsertOneModel()
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="document">The document.</param>
+        public BulkWriteInsertOneModel(
+            string collectionNamespace,
+            TDocument document)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), document)
         {
         }
 
@@ -35,21 +39,18 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
         /// <param name="document">The document.</param>
-        public BulkWriteInsertOneModel(CollectionNamespace collectionNamespace, TDocument document)
+        public BulkWriteInsertOneModel(
+            CollectionNamespace collectionNamespace,
+            TDocument document)
+        : base(collectionNamespace)
         {
-            Namespace = collectionNamespace;
             Document = document;
         }
 
         /// <summary>
         /// The document to insert
         /// </summary>
-        public TDocument Document { get; init; }
-
-        /// <summary>
-        /// Document serializer.
-        /// </summary>
-        public IBsonSerializer<TDocument> Serializer { get; init; }
+        public TDocument Document { get; }
 
         internal override void Visit(IBulkWriteModelVisitor visitor)
             => visitor.VisitInsertOne(this);
