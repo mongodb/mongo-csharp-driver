@@ -310,8 +310,8 @@ namespace MongoDB.Bson
 
         private static class HexParser
         {
-            private static readonly int s_min = Math.Min(Math.Min('a', '0'), 'A');
-            private static readonly int s_max = Math.Max(Math.Max('f', '9'), 'f');
+            private static readonly int s_min = Math.Min(Math.Min('a', 'A'), '0');
+            private static readonly int s_max = Math.Max(Math.Max('f', 'F'), '9');
 
             private static readonly byte[] s_lookup = CreateLookup();
 
@@ -389,7 +389,7 @@ namespace MongoDB.Bson
             public static bool TryParseChar(char ch, out byte result)
             {
                 int index = ch - s_min;
-                if (0 <= index && index < s_lookup.Length && s_lookup[index] < byte.MaxValue)
+                if (0 <= index && index < s_lookup.Length && s_lookup[index] != byte.MaxValue)
                 {
                     result = s_lookup[index];
                     return true;
