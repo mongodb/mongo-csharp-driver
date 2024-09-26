@@ -34,9 +34,10 @@ namespace MongoDB.Driver.Examples
 
         private readonly ITestOutputHelper _output;
 
+        static ClientEncryptionExamples() => AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+
         public ClientEncryptionExamples(ITestOutputHelper output)
         {
-            DriverTestConfiguration.Initialize();
             _output = output;
         }
 

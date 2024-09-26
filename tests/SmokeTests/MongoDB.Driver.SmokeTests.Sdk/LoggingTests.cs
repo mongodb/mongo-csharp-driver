@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
@@ -33,8 +29,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         public LoggingTests(ITestOutputHelper output)
         {
-            InfrastructureUtilities.ValidateMongoDBPackageVersion("driver");
-
+            InfrastructureUtilities.ValidateMongoDBPackageVersion();
             _output = output;
         }
 
@@ -55,7 +50,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             }
 
             using var logsTracer = new LogsTraceListener();
-            using (var loggerFactory = GetLoggerFactory(logsTracer, categories))
+            using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
             {
                 var settings = GetMongoClientSettings();
                 settings.LoggingSettings = new LoggingSettings(loggerFactory);
@@ -75,7 +70,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
             try
             {
-                AssertLogs(expectedLogs, actualLogs);
+                InfrastructureUtilities.AssertLogs(expectedLogs, actualLogs);
 
                 if (categoryName != null)
                 {
@@ -125,51 +120,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
             LogEntry Connection(string message) => new LogEntry(LogLevel.Debug, "MongoDB.Connection", message);
             LogEntry SDAM(string message) => new LogEntry(LogLevel.Debug, "MongoDB.SDAM", message);
-        }
-
-        private static void AssertLogs(LogEntry[] expectedLogs, LogEntry[] actualLogs)
-        {
-            var actualLogIndex = 0;
-            foreach (var logEntryExpected in expectedLogs)
-            {
-                var newIndex = Array.FindIndex(actualLogs, actualLogIndex, Match);
-
-                if (newIndex < 0)
-                {
-                    throw new Exception($"Log entry '{logEntryExpected}' not found. Previous matched log entry {actualLogs[actualLogIndex]}");
-                }
-
-                actualLogIndex = newIndex;
-
-                bool Match(LogEntry logEntryActual) =>
-                    logEntryActual.LogLevel == logEntryExpected.LogLevel &&
-                    logEntryActual.Category.Contains(logEntryExpected.Category) &&
-                    logEntryActual.Message.Contains(logEntryExpected.Message);
-            }
-        }
-
-        private static ILoggerFactory GetLoggerFactory(TraceListener traceListener, (string Category, string LogLevel)[] categoriesVerbosity = null)
-        {
-            var configurationKeyValuePairs = categoriesVerbosity?.Select(p =>
-                new KeyValuePair<string, string>(p.Category, p.LogLevel)) ??
-                new[] { new KeyValuePair<string, string>("LogLevel:Default", "Trace") };
-
-            var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(configurationKeyValuePairs)
-                .Build();
-
-            var testSwitch = new SourceSwitch("TestSwitch");
-            testSwitch.Level = SourceLevels.All;
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging(builder => builder
-                .AddConfiguration(config)
-                .AddTraceSource(testSwitch, traceListener));
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-
-            return loggerFactory;
         }
 
         private static MongoClientSettings GetMongoClientSettings()

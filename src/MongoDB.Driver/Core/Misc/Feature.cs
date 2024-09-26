@@ -839,7 +839,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public void ThrowIfNotSupported(IMongoClient client,  CancellationToken cancellationToken = default)
+        public void ThrowIfNotSupported(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
@@ -856,7 +856,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public async Task ThrowIfNotSupportedAsync(IMongoClient client,  CancellationToken cancellationToken = default)
+        public async Task ThrowIfNotSupportedAsync(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
@@ -867,8 +867,7 @@ namespace MongoDB.Driver.Core.Misc
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
             }
         }
-
-
+        
         internal bool IsSupported(int wireVersion)
         {
             return _supportRemovedWireVersion.HasValue

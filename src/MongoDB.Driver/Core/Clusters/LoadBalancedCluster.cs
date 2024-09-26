@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Core.Clusters
 {

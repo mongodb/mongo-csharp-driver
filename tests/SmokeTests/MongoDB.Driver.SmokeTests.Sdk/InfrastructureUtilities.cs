@@ -14,31 +14,79 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
+using System.Linq;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.SmokeTests.Sdk
 {
     internal static class InfrastructureUtilities
     {
-        public static void ValidateMongoDBPackageVersion(string package)
+        public static void ValidateMongoDBPackageVersion()
         {
             var packageShaExpected = Environment.GetEnvironmentVariable("SmokeTestsPackageSha");
 
             if (!string.IsNullOrEmpty(packageShaExpected))
             {
-                var fileVersionInfo = package switch
-                {
-                    "driver" => FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location),
-                    "libmongocrypt" => FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location),
-                    _ => throw new ArgumentOutOfRangeException(nameof(package), package, "Unknown package used in smoke tests.")
-                };
+                var driverFileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location);
+                var libmongocryptFileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location);
 
-                fileVersionInfo.ProductVersion.Contains(packageShaExpected)
-                    .Should().BeTrue("Expected package sha {0} in {1}", packageShaExpected, fileVersionInfo.ProductVersion);
+                driverFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
+                    .Should().BeTrue("Expected package sha {0} in {1} for driver package version.", packageShaExpected, driverFileVersionInfo.ProductVersion);
+
+                libmongocryptFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
+                    .Should().BeTrue("Expected package sha {0} in {1} for libmongocrypt package version.", packageShaExpected, libmongocryptFileVersionInfo.ProductVersion);
             }
+        }
+
+        public static void AssertLogs(LogEntry[] expectedLogs, LogEntry[] actualLogs)
+        {
+            var actualLogIndex = 0;
+            foreach (var logEntryExpected in expectedLogs)
+            {
+                var newIndex = Array.FindIndex(actualLogs, actualLogIndex, Match);
+
+                if (newIndex < 0)
+                {
+                    throw new Exception($"Log entry '{logEntryExpected}' not found. Previous matched log entry {actualLogs[actualLogIndex]}");
+                }
+
+                actualLogIndex = newIndex;
+
+                bool Match(LogEntry logEntryActual) =>
+                    logEntryActual.LogLevel == logEntryExpected.LogLevel &&
+                    logEntryActual.Category.Contains(logEntryExpected.Category) &&
+                    logEntryActual.Message.Contains(logEntryExpected.Message);
+            }
+        }
+
+        public static ILoggerFactory GetLoggerFactory(TraceListener traceListener, (string Category, string LogLevel)[] categoriesVerbosity = null)
+        {
+            var configurationKeyValuePairs = categoriesVerbosity?.Select(p =>
+                                                 new KeyValuePair<string, string>(p.Category, p.LogLevel)) ??
+                                             new[] { new KeyValuePair<string, string>("LogLevel:Default", "Trace") };
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(configurationKeyValuePairs)
+                .Build();
+
+            var testSwitch = new SourceSwitch("TestSwitch");
+            testSwitch.Level = SourceLevels.All;
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(builder => builder
+                .AddConfiguration(config)
+                .AddTraceSource(testSwitch, traceListener));
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+
+            return loggerFactory;
         }
     }
 }

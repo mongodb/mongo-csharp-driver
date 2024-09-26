@@ -20,12 +20,12 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// AutoEncryption Provider.
     /// </summary>
-    public class AutoEncryptionProvider
+    public sealed class AutoEncryptionProvider
     {
         /// <summary>
         /// AutoEncryption Provider Instance.
         /// </summary>
-        public static readonly AutoEncryptionProvider Instance = new AutoEncryptionProvider();
+        public static readonly AutoEncryptionProvider Instance = new();
 
         private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
 
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="factory">The AutoCryptClientControllerFactory.</param>
         /// <exception cref="MongoConfigurationException"></exception>
-        public void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  factory)
+        public void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {
             if (s_autoCryptClientControllerFactory != null)
             {

@@ -38,8 +38,6 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void FLE2AutomaticEncryption()
         {
-            DriverTestConfiguration.Initialize();
-
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
             RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 

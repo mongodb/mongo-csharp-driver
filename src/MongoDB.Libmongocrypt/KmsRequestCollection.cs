@@ -25,7 +25,7 @@ namespace MongoDB.Libmongocrypt
     /// When all requests are done, <c>MarkDone</c> must be called.
     /// </summary>
     /// <seealso cref="System.Collections.Generic.IReadOnlyCollection{MongoDB.Libmongocrypt.KmsRequest}" />
-    public class KmsRequestCollection : IReadOnlyCollection<KmsRequest>
+    internal class KmsRequestCollection : IReadOnlyCollection<KmsRequest>
     {
         private readonly List<KmsRequest> _requests;
         private readonly CryptContext _parent;
