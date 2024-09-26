@@ -178,6 +178,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 new BulkWriteDeleteManyModel<MyModel>(
                     "testDb.TestCollection2",
                     Builders<MyModel>.Filter.Eq(m => m.A, 345))
+            }, new ClientBulkWriteOptions
+            {
+                VerboseResult = true,
+                WriteConcern = WriteConcern.Unacknowledged
             });
 
             //

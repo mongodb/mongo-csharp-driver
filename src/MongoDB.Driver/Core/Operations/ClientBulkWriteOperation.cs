@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
             RenderArgs<BsonDocument> renderArgs)
         : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
-            RenderArgs = renderArgs;
+            Ensure.IsNotNullOrEmpty(writeModels, nameof(writeModels));
             WriteModels = new BatchableSource<BulkWriteModel>(writeModels, true);
             BypassDocumentValidation = options?.BypassDocumentValidation;
             Comment = options?.Comment;
@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             ErrorsOnly = !(options?.VerboseResult).GetValueOrDefault(false);
             Let = options?.Let;
             WriteConcern = options?.WriteConcern;
+            RenderArgs = renderArgs;
         }
 
         public bool? BypassDocumentValidation { get; init; }
@@ -89,10 +90,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public override BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
+            var i = 0;
             while (!WriteModels.AllItemsWereProcessed)
             {
-                base.Execute(binding, cancellationToken);
+                var response = base.Execute(binding, cancellationToken);
                 WriteModels.AdvancePastProcessedItems();
+                i += response.ElementCount;
             }
 
             return null;

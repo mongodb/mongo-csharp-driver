@@ -34,7 +34,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public ClientBulkWriteOpsSectionFormatter(long? maxSize)
         {
-            _maxSize = maxSize;
+            //_maxSize = (maxSize ?? long.MaxValue) - 1000; // according to spec we should leave some extra space for further overhead
+            _maxSize = 1000;
+            if (_maxSize <= 0)
+            {
+                throw new InvalidOperationException("Section's size limit is too small.");
+            }
+
             _nsInfos = new Dictionary<string, int>();
             _nsInfoWriter = new BsonBinaryWriter(new MemoryStream());
         }
@@ -45,7 +51,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             if (writer is not BsonBinaryWriter binaryWriter)
             {
-                throw new ArgumentException("Writer must be an instance of BsonBinaryWriter");
+                throw new ArgumentException("Writer must be an instance of BsonBinaryWriter.");
             }
 
             _renderArgs = section.RenderArgs;
@@ -73,7 +79,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     document.Visit(this);
 
                     var writtenSize = stream.Position - startPosition;
-                    if (writtenSize > (_maxSize - _nsInfoWriter.Position - 1000) && batch.CanBeSplit && i > 0)
+                    if (writtenSize > (_maxSize - _nsInfoWriter.Position) && batch.CanBeSplit && i > 0)
                     {
                         stream.Position = documentStartPosition;
                         stream.SetLength(documentStartPosition);
