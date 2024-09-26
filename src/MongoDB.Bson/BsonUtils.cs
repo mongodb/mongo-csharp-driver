@@ -202,9 +202,6 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentException("Length of character span should be 2 times the length of byte span");
             }
-#if NET5_0_OR_GREATER
-            Convert.ToHexString(bytes).AsSpan().ToLowerInvariant(chars);
-#else
             int length = bytes.Length;
             for (int i = 0, j = 0; i < length; i++)
             {
@@ -212,7 +209,6 @@ namespace MongoDB.Bson
                 chars[j++] = ToHexChar(b >> 4);
                 chars[j++] = ToHexChar(b & 0x0f);
             }
-#endif
         }
 
         /// <summary>
