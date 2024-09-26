@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static bool IsConvertToDerivedType(Type sourceType, Type targetType)
         {
-            return targetType.IsSubclassOf(sourceType);
+            return targetType.IsSubclassOf(sourceType) || sourceType.IsAssignableFrom(targetType);
         }
 
         private static bool IsConvertToNullableType(Type targetType)

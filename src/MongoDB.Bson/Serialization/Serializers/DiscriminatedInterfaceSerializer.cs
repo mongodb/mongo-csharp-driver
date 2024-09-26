@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
-            : this(discriminatorConvention, CreateInterfaceSerializer())
+            : this(discriminatorConvention, CreateInterfaceSerializer(), null)
         {
         }
 
@@ -86,6 +86,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer)
+            : this(discriminatorConvention, interfaceSerializer, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DiscriminatedInterfaceSerializer{TInterface}" /> class.
+        /// </summary>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        /// <param name="interfaceSerializer">The interface serializer (necessary to support LINQ queries).</param>
+        /// <param name="objectSerializer">The serializer that is used to serialize any objects.</param>
+        /// <exception cref="System.ArgumentException">interfaceType</exception>
+        /// <exception cref="System.ArgumentNullException">interfaceType</exception>
+        public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer, IBsonSerializer<object> objectSerializer)
         {
             var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
             if (!interfaceTypeInfo.IsInterface)
@@ -96,7 +109,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface));
-            _objectSerializer = BsonSerializer.LookupSerializer<object>();
+            _objectSerializer = objectSerializer ?? new ObjectSerializer(type => typeof(TInterface).IsAssignableFrom(type));
             if (_objectSerializer is ObjectSerializer standardObjectSerializer)
             {
                 _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);
