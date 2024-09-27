@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -51,6 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly SerializerHelper _helper;
         private readonly DateTimeKind _kind;
         private readonly BsonType _representation;
+        private readonly RepresentationConverter _converter;
 
         // constructors
         /// <summary>
@@ -126,6 +128,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             _dateOnly = dateOnly;
             _kind = kind;
             _representation = representation;
+            _converter = new RepresentationConverter(false, false);
 
             _helper = new SerializerHelper
             (
@@ -138,43 +141,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of DateTimeSerializer with DateOnly=true.
         /// </summary>
-        public static DateTimeSerializer DateOnlyInstance
-        {
-            get { return __dateOnlyInstance; }
-        }
+        public static DateTimeSerializer DateOnlyInstance => __dateOnlyInstance;
 
         /// <summary>
         /// Gets an instance of DateTimeSerializer with Kind=Local.
         /// </summary>
-        public static DateTimeSerializer LocalInstance
-        {
-            get { return __localInstance; }
-        }
+        public static DateTimeSerializer LocalInstance => __localInstance;
 
         /// <summary>
         /// Gets an instance of DateTimeSerializer with Kind=Utc.
         /// </summary>
-        public static DateTimeSerializer UtcInstance
-        {
-            get { return __utcInstance; }
-        }
+        public static DateTimeSerializer UtcInstance => __utcInstance;
 
         // public properties
         /// <summary>
         /// Gets whether this DateTime consists of a Date only.
         /// </summary>
-        public bool DateOnly
-        {
-            get { return _dateOnly; }
-        }
+        public bool DateOnly => _dateOnly;
 
         /// <summary>
         /// Gets the DateTimeKind (Local, Unspecified or Utc).
         /// </summary>
-        public DateTimeKind Kind
-        {
-            get { return _kind; }
-        }
+        public DateTimeKind Kind => _kind;
 
         /// <summary>
         /// Gets the external representation.
@@ -182,10 +170,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <value>
         /// The representation.
         /// </value>
-        public BsonType Representation
-        {
-            get { return _representation; }
-        }
+        public BsonType Representation => _representation;
 
         // public methods
         /// <summary>
@@ -208,7 +193,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    value = default(DateTime);
+                    value = default;
                     _helper.DeserializeMembers(context, (elementName, flag) =>
                     {
                         switch (flag)
@@ -217,6 +202,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case Flags.Ticks: value = new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc); break;
                         }
                     });
+                    break;
+
+                case BsonType.Decimal128:
+                    value = DateTime.SpecifyKind(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128())), DateTimeKind.Utc);
+                    break;
+
+                case BsonType.Double:
+                    value = DateTime.SpecifyKind(new DateTime(_converter.ToInt64(bsonReader.ReadDouble())), DateTimeKind.Utc);
+                    break;
+
+                case BsonType.Int32:
+                    value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt32()), DateTimeKind.Utc);
                     break;
 
                 case BsonType.Int64:
