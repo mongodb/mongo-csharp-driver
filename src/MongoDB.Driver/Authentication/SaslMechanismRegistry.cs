@@ -23,17 +23,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Authentication
 {
-    /// <summary>
-    /// SASL Mechanism Registry.
-    /// </summary>
-    public sealed class SaslMechanismRegistry
+    internal sealed class SaslMechanismRegistry : ISaslMechanismRegistry
     {
-        /// <summary>
-        /// SASL Mechanism Registry Instance.
-        /// </summary>
-        public static readonly SaslMechanismRegistry Instance = CreateDefaultInstance();
-
-        private static SaslMechanismRegistry CreateDefaultInstance()
+        internal static SaslMechanismRegistry CreateDefaultInstance()
         {
             var registry = new SaslMechanismRegistry();
             registry.Register(PlainSaslMechanism.MechanismName, PlainSaslMechanism.Create);
@@ -47,15 +39,6 @@ namespace MongoDB.Driver.Authentication
 
         private readonly ConcurrentDictionary<string, Func<SaslContext, ISaslMechanism>> _registry = new();
 
-        internal SaslMechanismRegistry()
-        {
-        }
-
-        /// <summary>
-        /// Registers new SASL mechanism factory.
-        /// </summary>
-        /// <param name="mechanismName">Mechanism name.</param>
-        /// <param name="factory">Factory method.</param>
         public void Register(string mechanismName, Func<SaslContext, ISaslMechanism> factory)
         {
             Ensure.IsNotNullOrEmpty(mechanismName, nameof(mechanismName));
@@ -67,7 +50,7 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        internal bool TryCreate(SaslContext context, out ISaslMechanism mechanism)
+        public bool TryCreate(SaslContext context, out ISaslMechanism mechanism)
         {
             Ensure.IsNotNull(context, nameof(context));
 

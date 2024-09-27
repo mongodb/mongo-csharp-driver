@@ -55,8 +55,7 @@ namespace MongoDB.Driver.Tests
                 isThreadSafe: true);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
 
-            SaslMechanismRegistry.Instance.RegisterAWSMechanism();
-            KmsProviderRegistry.Instance.RegisterAWSKmsProvider();
+            MongoClientSettings.Extensions.AddAWSAuthentication();
         }
 
         // public static properties
