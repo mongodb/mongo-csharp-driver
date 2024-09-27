@@ -86,6 +86,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Id.Should().Be(2);
         }
 
+        [Fact]
+        public void Filter_using_field_from_implementing_type_should_work()
+        {
+            var collection = GetInterfaceCollection();
+
+            var filter = Builders<IData>.Filter.Eq(x => ((Data)x).AdditionalValue, "value");
+
+            var result = collection.Find(filter).Single();
+            result.Id.Should().Be(2);
+        }
+
         private IMongoCollection<Data> GetCollection()
         {
             var collection = GetCollection<Data>("test");
@@ -96,13 +107,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             return collection;
         }
 
-        private class Data
+        private IMongoCollection<IData> GetInterfaceCollection()
+        {
+            var collection = GetCollection<IData>("test");
+            CreateCollection(
+                collection,
+                new Data { Id = 1, Enum = Enum.One, NullableEnum = Enum.One, EnumAsInt = 1, EnumAsNullableInt = 1 },
+                new Data { Id = 2, Enum = Enum.Two, NullableEnum = Enum.Two, EnumAsInt = 2, EnumAsNullableInt = 2, AdditionalValue = "value"});
+            return collection;
+        }
+
+        private interface IData
         {
             public int Id { get; set; }
             public Enum Enum { get; set; }
             public Enum? NullableEnum { get; set; }
             public int EnumAsInt { get; set; }
             public int? EnumAsNullableInt { get; set; }
+        }
+
+        private class Data : IData
+        {
+            public int Id { get; set; }
+            public Enum Enum { get; set; }
+            public Enum? NullableEnum { get; set; }
+            public int EnumAsInt { get; set; }
+            public int? EnumAsNullableInt { get; set; }
+            public string AdditionalValue { get; set; }
         }
 
         private enum Enum
