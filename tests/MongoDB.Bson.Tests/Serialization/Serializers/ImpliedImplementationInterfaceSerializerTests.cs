@@ -23,17 +23,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class ImpliedImplementationInterfaceSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new ImpliedImplementationInterfaceSerializer<IEnumerable<int>, List<int>>();
-            var y = new DerivedFromImpliedImplementationInterfaceSerializer<IEnumerable<int>, List<int>>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new ImpliedImplementationInterfaceSerializer<IEnumerable<int>, List<int>>();
@@ -98,11 +87,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromImpliedImplementationInterfaceSerializer<TInterface, TImplementation> : ImpliedImplementationInterfaceSerializer<TInterface, TImplementation>
-             where TImplementation : class, TInterface
-        {
         }
     }
 }

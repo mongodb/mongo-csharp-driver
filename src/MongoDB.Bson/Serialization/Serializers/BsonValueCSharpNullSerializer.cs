@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for a BsonValue that can round trip C# null and implements IBsonArraySerializer and IBsonDocumentSerializer.
     /// </summary>
     /// <typeparam name="TBsonValue">The type of the bson value.</typeparam>
-    public class BsonValueCSharpNullArrayAndDocumentSerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonArraySerializer, IBsonDocumentSerializer
+    public sealed class BsonValueCSharpNullArrayAndDocumentSerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonArraySerializer, IBsonDocumentSerializer
         where TBsonValue : BsonValue
     {
         // constructors
@@ -175,7 +175,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for a BsonValue that can round trip C# null and implements IBsonArraySerializer.
     /// </summary>
     /// <typeparam name="TBsonValue">The type of the bson value.</typeparam>
-    public class BsonValueCSharpNullArraySerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonArraySerializer
+    public sealed class BsonValueCSharpNullArraySerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonArraySerializer
          where TBsonValue : BsonValue
     {
         // constructors
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for a BsonValue that can round trip C# null and implements IBsonDocumentSerializer.
     /// </summary>
     /// <typeparam name="TBsonValue">The type of the bson value.</typeparam>
-    public class BsonValueCSharpNullDocumentSerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonDocumentSerializer
+    public sealed class BsonValueCSharpNullDocumentSerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonDocumentSerializer
           where TBsonValue : BsonValue
     {
         // constructors

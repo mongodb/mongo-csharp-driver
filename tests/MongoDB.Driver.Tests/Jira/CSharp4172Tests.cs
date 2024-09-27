@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Jira
             Refund
         }
 
-        public class CamelCaseEnumSerializer<T> : EnumSerializer<T>
+        public class CamelCaseEnumSerializer<T> : StructSerializerBase<T>
             where T : struct, Enum
         {
             private static string ToCamelCase(string s)

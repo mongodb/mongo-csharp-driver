@@ -155,6 +155,12 @@ namespace MongoDB.Bson.IO
             }
 
             var bytes = _bsonStream.ReadBytes(size);
+            if ((subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) &&
+                bytes.Length != 16)
+            {
+                throw new FormatException($"Length must be 16, not {bytes.Length}, when subType is {subType}.");
+            }
+
             var binaryData = new BsonBinaryData(bytes, subType);
 
             State = GetNextState();

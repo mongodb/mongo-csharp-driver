@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Uris.
     /// </summary>
-    public class UriSerializer : ClassSerializerBase<Uri>
+    public sealed class UriSerializer : ClassSerializerBase<Uri>
     {
         // constructors
         /// <summary>

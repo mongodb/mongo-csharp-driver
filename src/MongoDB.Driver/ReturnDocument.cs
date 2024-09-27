@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -30,21 +28,5 @@ namespace MongoDB.Driver
         /// Return the document after the modification.
         /// </summary>
         After
-    }
-
-    internal static class ReturnDocumentExtensions
-    {
-        public static Core.Operations.ReturnDocument ToCore(this ReturnDocument returnDocument)
-        {
-            switch (returnDocument)
-            {
-                case ReturnDocument.Before:
-                    return Core.Operations.ReturnDocument.Before;
-                case ReturnDocument.After:
-                    return Core.Operations.ReturnDocument.After;
-                default:
-                    throw new ArgumentException("Unrecognized ReturnDocument.", "returnDocument");
-            }
-        }
     }
 }

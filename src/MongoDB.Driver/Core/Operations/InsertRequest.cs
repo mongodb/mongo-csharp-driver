@@ -13,50 +13,25 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a request to insert a document.
-    /// </summary>
-    public sealed class InsertRequest : WriteRequest
+    internal sealed class InsertRequest : WriteRequest
     {
-        // fields
-        private readonly BsonDocument _document;
-
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InsertRequest" /> class.
-        /// </summary>
-        /// <param name="document">The document.</param>
         public InsertRequest(BsonDocument document)
             : base(WriteRequestType.Insert)
         {
-            _document = Ensure.IsNotNull(document, nameof(document));
+            Document = Ensure.IsNotNull(document, nameof(document));
         }
 
         // properties
-        /// <summary>
-        /// Gets or sets the document.
-        /// </summary>
-        /// <value>
-        /// The document.
-        /// </value>
-        public BsonDocument Document
-        {
-            get { return _document; }
-        }
+        public BsonDocument Document { get; }
 
         // public methods
-        /// <inheritdoc />
-        public override bool IsRetryable(ConnectionDescription connectionDescription)
-        {
-            return true;
-        }
+        public override bool IsRetryable(ConnectionDescription connectionDescription) => true;
     }
 }

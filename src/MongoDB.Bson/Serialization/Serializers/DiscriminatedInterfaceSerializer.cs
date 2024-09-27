@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for Interfaces.
     /// </summary>
     /// <typeparam name="TInterface">The type of the interface.</typeparam>
-    public class DiscriminatedInterfaceSerializer<TInterface> :
+    public sealed class DiscriminatedInterfaceSerializer<TInterface> :
         SerializerBase<TInterface>,
         IBsonDocumentSerializer,
         IDiscriminatedInterfaceSerializer

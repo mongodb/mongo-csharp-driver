@@ -22,17 +22,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDecimal128SerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonDecimal128Serializer();
-            var y = new DerivedFromBsonDecimal128Serializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonDecimal128Serializer();
@@ -82,10 +71,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonDecimal128Serializer : BsonDecimal128Serializer
-        {
         }
     }
 }

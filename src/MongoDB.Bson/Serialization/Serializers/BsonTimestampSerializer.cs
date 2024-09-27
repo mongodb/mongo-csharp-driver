@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonTimestamps.
     /// </summary>
-    public class BsonTimestampSerializer : BsonValueSerializerBase<BsonTimestamp>
+    public sealed class BsonTimestampSerializer : BsonValueSerializerBase<BsonTimestamp>
     {
         // private static fields
         private static BsonTimestampSerializer __instance = new BsonTimestampSerializer();

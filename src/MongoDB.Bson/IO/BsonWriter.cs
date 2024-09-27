@@ -211,6 +211,18 @@ namespace MongoDB.Bson.IO
         public virtual void WriteEndDocument()
             => ExitSerializationScope();
 
+        /// <inheritdoc/>
+        public virtual void WriteGuid(Guid value) => WriteGuid(value, GuidRepresentation.Standard);
+
+        /// <inheritdoc/>
+        public virtual void WriteGuid(Guid value, GuidRepresentation guidRepresentation)
+        {
+            var bytes = GuidConverter.ToBytes(value, guidRepresentation);
+            var subType = GuidConverter.GetSubType(guidRepresentation);
+            var binaryData = new BsonBinaryData(bytes, subType);
+            WriteBinaryData(binaryData);
+        }
+
         /// <summary>
         /// Writes a BSON Int32 to the writer.
         /// </summary>

@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -1144,7 +1143,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
-                ReturnDocument = options.ReturnDocument.ToCore(),
+                ReturnDocument = options.ReturnDocument,
                 Sort = options.Sort?.Render(renderArgs),
                 WriteConcern = _settings.WriteConcern,
                 RetryRequested = _database.Client.Settings.RetryWrites
@@ -1176,7 +1175,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
-                ReturnDocument = options.ReturnDocument.ToCore(),
+                ReturnDocument = options.ReturnDocument,
                 Sort = options.Sort?.Render(renderArgs),
                 WriteConcern = _settings.WriteConcern,
                 RetryRequested = _database.Client.Settings.RetryWrites
@@ -1201,7 +1200,7 @@ namespace MongoDB.Driver
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
                 Comment = options.Comment,
-                CursorType = options.CursorType.ToCore(),
+                CursorType = options.CursorType,
                 Filter = filter.Render(renderArgs),
                 Hint = options.Hint,
                 Let = options.Let,

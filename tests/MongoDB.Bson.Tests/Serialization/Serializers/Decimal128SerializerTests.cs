@@ -51,17 +51,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new Decimal128Serializer();
-            var y = new DerivedFromDecimal128Serializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new Decimal128Serializer();
@@ -150,10 +139,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 result.Should().BeSameAs(subject);
             }
-        }
-
-        public class DerivedFromDecimal128Serializer : Decimal128Serializer
-        {
         }
     }
 }

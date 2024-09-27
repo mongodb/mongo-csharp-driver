@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TInterface">The type of the interface.</typeparam>
     /// <typeparam name="TImplementation">The type of the implementation.</typeparam>
-    public class ImpliedImplementationInterfaceSerializer<TInterface, TImplementation> :
+    public sealed class ImpliedImplementationInterfaceSerializer<TInterface, TImplementation> :
         SerializerBase<TInterface>,
         IBsonArraySerializer,
         IBsonDictionarySerializer,

@@ -52,17 +52,6 @@ namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new KeyValuePairSerializer<int, int>();
-            var y = new DerivedFromKeyValuePairSerializer<int, int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new KeyValuePairSerializer<int, int>();
@@ -138,10 +127,6 @@ namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromKeyValuePairSerializer<TKey, TValue> : KeyValuePairSerializer<TKey, TValue>
-        {
         }
     }
 }

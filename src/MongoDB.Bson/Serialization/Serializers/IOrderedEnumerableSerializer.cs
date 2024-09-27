@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for IOrderedEnumerable<typeparamref name="TItem"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of the items.</typeparam>
-    public class IOrderedEnumerableSerializer<TItem> : SerializerBase<IOrderedEnumerable<TItem>>, IBsonArraySerializer
+    public sealed class IOrderedEnumerableSerializer<TItem> : SerializerBase<IOrderedEnumerable<TItem>>, IBsonArraySerializer
     {
         // private fields
         private readonly IBsonSerializer<TItem> _itemSerializer;

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for IPAddresses.
     /// </summary>
-    public class IPAddressSerializer : ClassSerializerBase<IPAddress>
+    public sealed class IPAddressSerializer : ClassSerializerBase<IPAddress>
     {
         // constructors
         /// <summary>

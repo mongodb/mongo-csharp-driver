@@ -333,8 +333,7 @@ namespace MongoDB.Bson.Serialization
             BsonSerializer.ConfigLock.EnterReadLock();
             try
             {
-                BsonClassMap classMap;
-                if (__classMaps.TryGetValue(classType, out classMap))
+                if (__classMaps.TryGetValue(classType, out var classMap))
                 {
                     if (classMap.IsFrozen)
                     {
@@ -347,19 +346,22 @@ namespace MongoDB.Bson.Serialization
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
 
+            // automatically create a new classMap for classType and register it (unless another thread does first)
+            // do the work of speculatively creating a new class map outside of holding any lock
+            var classMapDefinition = typeof(BsonClassMap<>);
+            var classMapType = classMapDefinition.MakeGenericType(classType);
+            var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+            newClassMap.AutoMap();
+
             BsonSerializer.ConfigLock.EnterWriteLock();
             try
             {
-                BsonClassMap classMap;
-                if (!__classMaps.TryGetValue(classType, out classMap))
+                if (!__classMaps.TryGetValue(classType, out var classMap))
                 {
-                    // automatically create a classMap for classType and register it
-                    var classMapDefinition = typeof(BsonClassMap<>);
-                    var classMapType = classMapDefinition.MakeGenericType(classType);
-                    classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-                    classMap.AutoMap();
-                    RegisterClassMap(classMap);
+                    RegisterClassMap(newClassMap);
+                    classMap = newClassMap;
                 }
+
                 return classMap.Freeze();
             }
             finally

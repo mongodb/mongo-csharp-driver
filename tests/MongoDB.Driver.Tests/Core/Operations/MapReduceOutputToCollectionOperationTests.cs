@@ -156,9 +156,10 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void OutputMode_get_and_set_should_work(
 #pragma warning disable CS0618 // Type or member is obsolete
-            [Values(MapReduceOutputMode.Merge, MapReduceOutputMode.Reduce)]
-            MapReduceOutputMode value)
+            [Values((int)MapReduceOutputMode.Merge, (int)MapReduceOutputMode.Reduce)]
+            int valueInt)
         {
+            var value = (MapReduceOutputMode)valueInt;
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             subject.OutputMode = value;

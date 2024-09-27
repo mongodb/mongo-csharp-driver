@@ -99,5 +99,49 @@ namespace MongoDB.Bson.Tests.IO
                 action.ShouldThrow<FormatException>();
             }
         }
+
+        [Fact]
+        public void WriteGuid_should_work()
+        {
+            using var memoryStream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(memoryStream);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid);
+            writer.WriteEndDocument();
+
+            var documentBytes = memoryStream.ToArray();
+            var subType = (BsonBinarySubType)documentBytes[11];
+            var guidBytes = documentBytes.Skip(12).Take(16).ToArray();
+
+            subType.Should().Be(BsonBinarySubType.UuidStandard);
+            guidBytes.Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+        }
+
+        [Theory]
+        [InlineData(GuidRepresentation.Standard, BsonBinarySubType.UuidStandard, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })]
+        [InlineData(GuidRepresentation.CSharpLegacy, BsonBinarySubType.UuidLegacy, new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 })]
+        [InlineData(GuidRepresentation.JavaLegacy, BsonBinarySubType.UuidLegacy, new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 })]
+        [InlineData(GuidRepresentation.PythonLegacy, BsonBinarySubType.UuidLegacy, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })]
+        public void WriteGuid_with_guidRepresentation_should_work(GuidRepresentation guidRepresentation, BsonBinarySubType expectedSubType, byte[] expectedGuidBytes)
+        {
+            using var memoryStream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(memoryStream);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid, guidRepresentation);
+            writer.WriteEndDocument();
+
+            var documentBytes = memoryStream.ToArray();
+            var subType = (BsonBinarySubType)documentBytes[11];
+            var guidBytes = documentBytes.Skip(12).Take(16).ToArray();
+
+            subType.Should().Be(expectedSubType);
+            guidBytes.Should().Equal(expectedGuidBytes);
+        }
     }
 }

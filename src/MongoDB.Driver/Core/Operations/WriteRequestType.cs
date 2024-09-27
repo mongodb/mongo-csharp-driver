@@ -15,24 +15,10 @@
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the type of a write request.
-    /// </summary>
-    public enum WriteRequestType
+    internal enum WriteRequestType
     {
-        /// <summary>
-        /// A delete request.
-        /// </summary>
         Delete,
-
-        /// <summary>
-        /// An insert request.
-        /// </summary>
         Insert,
-
-        /// <summary>
-        /// An udpate request.
-        /// </summary>
         Update
     }
 }

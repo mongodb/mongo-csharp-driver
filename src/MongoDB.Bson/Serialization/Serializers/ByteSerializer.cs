@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Bytes.
     /// </summary>
-    public class ByteSerializer : StructSerializerBase<byte>, IRepresentationConfigurable<ByteSerializer>
+    public sealed class ByteSerializer : StructSerializerBase<byte>, IRepresentationConfigurable<ByteSerializer>
     {
         // private fields
         private readonly BsonType _representation;

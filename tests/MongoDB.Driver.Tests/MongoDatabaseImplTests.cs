@@ -240,7 +240,7 @@ namespace MongoDB.Driver
             findOperation.Collation.Should().BeSameAs(options.Collation);
             findOperation.CollectionNamespace.FullName.Should().Be(outputCollection.CollectionNamespace.FullName);
             findOperation.Comment.Should().BeNull();
-            findOperation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
+            findOperation.CursorType.Should().Be(CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);

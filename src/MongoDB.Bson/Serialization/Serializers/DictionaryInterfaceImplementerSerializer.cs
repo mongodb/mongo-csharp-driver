@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for a class that implements IDictionary.
     /// </summary>
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
-    public class DictionaryInterfaceImplementerSerializer<TDictionary> :
+    public sealed class DictionaryInterfaceImplementerSerializer<TDictionary> :
         DictionarySerializerBase<TDictionary>,
         IChildSerializerConfigurable,
         IDictionaryRepresentationConfigurable

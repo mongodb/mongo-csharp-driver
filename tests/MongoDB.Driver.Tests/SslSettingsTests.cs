@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
 using System;
 using System.IO;
 using System.Linq;
@@ -21,6 +20,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = false,
                 ClientCertificates = new[] { new X509Certificate2(certificateFileName, "password") },
                 ClientCertificateSelectionCallback = ClientCertificateSelectionCallback,
-                EnabledSslProtocols = SslProtocols.Tls,
+                EnabledSslProtocols = SslProtocols.Tls12,
                 ServerCertificateValidationCallback = ServerCertificateValidationCallback
             };
 
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
             settings.CheckCertificateRevocation.Should().BeFalse();
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
-            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12, settings.EnabledSslProtocols);
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
@@ -157,9 +157,9 @@ namespace MongoDB.Driver.Tests
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
-            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
+            Assert.Equal(SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12, settings.EnabledSslProtocols);
 
-            var enabledSslProtocols = SslProtocols.Tls;
+            var enabledSslProtocols = SslProtocols.Tls12;
             settings.EnabledSslProtocols = enabledSslProtocols;
             Assert.Equal(enabledSslProtocols, settings.EnabledSslProtocols);
 

@@ -28,17 +28,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         private static readonly IBsonSerializer<C> __wrappedSerializer2 = new CSerializer2();
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new DiscriminatedWrapperSerializer<C>(__discriminatorConvention1, __wrappedSerializer1);
-            var y = new DerivedFromDiscriminatedWrapperSerializer<C>(__discriminatorConvention1, __wrappedSerializer1);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new DiscriminatedWrapperSerializer<C>(__discriminatorConvention1, __wrappedSerializer1);
@@ -106,16 +95,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromDiscriminatedWrapperSerializer<TValue> : DiscriminatedWrapperSerializer<TValue>
-        {
-            public DerivedFromDiscriminatedWrapperSerializer(
-                IDiscriminatorConvention discriminatorConvention,
-                IBsonSerializer<TValue> wrappedSerializer)
-                    : base(discriminatorConvention, wrappedSerializer)
-            {
-            }
         }
 
         public class C { }

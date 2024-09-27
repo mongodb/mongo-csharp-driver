@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int16s.
     /// </summary>
-    public class Int16Serializer : StructSerializerBase<short>, IRepresentationConfigurable<Int16Serializer>, IRepresentationConverterConfigurable<Int16Serializer>
+    public sealed class Int16Serializer : StructSerializerBase<short>, IRepresentationConfigurable<Int16Serializer>, IRepresentationConverterConfigurable<Int16Serializer>
     {
         // private fields
         private readonly BsonType _representation;

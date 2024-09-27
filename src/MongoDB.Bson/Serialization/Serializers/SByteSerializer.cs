@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for SBytes.
     /// </summary>
     [CLSCompliant(false)]
-    public class SByteSerializer : StructSerializerBase<sbyte>, IRepresentationConfigurable<SByteSerializer>
+    public sealed class SByteSerializer : StructSerializerBase<sbyte>, IRepresentationConfigurable<SByteSerializer>
     {
         // private fields
         private readonly BsonType _representation;

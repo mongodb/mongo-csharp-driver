@@ -31,13 +31,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _message;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteOperationError"/> class.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <param name="code">The code.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="details">The details.</param>
         public BulkWriteOperationError(int index, int code, string message, BsonDocument details)
         {
             _code = code;
@@ -47,12 +40,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        /// <summary>
-        /// Gets the error category.
-        /// </summary>
-        /// <value>
-        /// The error category.
-        /// </value>
         public ServerErrorCategory Category
         {
             get
@@ -71,52 +58,28 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        /// <summary>
-        /// Gets the error code.
-        /// </summary>
-        /// <value>
-        /// The error code.
-        /// </value>
         public int Code
         {
             get { return _code; }
         }
 
-        /// <summary>
-        /// Gets the error details.
-        /// </summary>
-        /// <value>
-        /// The error details.
-        /// </value>
         public BsonDocument Details
         {
             get { return _details; }
         }
 
-        /// <summary>
-        /// Gets the index of the request that had an error.
-        /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
         public int Index
         {
             get { return _index; }
         }
 
-        /// <summary>
-        /// Gets the error message.
-        /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
         public string Message
         {
             get { return _message; }
         }
 
         // methods
-        internal BulkWriteOperationError WithMappedIndex(IndexMap indexMap)
+        public BulkWriteOperationError WithMappedIndex(IndexMap indexMap)
         {
             var mappedIndex = indexMap.Map(_index);
             return (_index == mappedIndex) ? this : new BulkWriteOperationError(mappedIndex, Code, Message, Details);
