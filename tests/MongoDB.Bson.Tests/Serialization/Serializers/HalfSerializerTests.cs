@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = (Half)18;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = (Half)18.5;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = Half.MaxValue;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = Half.MinValue;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = Half.NaN;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = Half.NegativeInfinity;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -138,7 +138,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = Half.PositiveInfinity;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
             var expectedValue = (Half)9.76;
 
-            TestDeserialize(subject, expectedValue, json);
+            TestDeserialize(subject, json, expectedValue);
         }
 
         [Theory]
@@ -381,7 +381,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             }
         }
 
-        private static void TestDeserialize(HalfSerializer subject, Half expectedValue, string json)
+        private static void TestDeserialize(HalfSerializer subject, string json, Half expectedResult)
         {
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -390,7 +390,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(expectedValue);
+            result.Should().Be(expectedResult);
         }
 
         private static void TestDeserializeWithException<T>(HalfSerializer subject, string json) where T : Exception
@@ -399,9 +399,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             reader.ReadStartDocument();
             reader.ReadName("x");
             var context = BsonDeserializationContext.CreateRoot(reader);
-            Action action = () => subject.Deserialize(context);
 
-            action.ShouldThrow<T>();
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<T>();
         }
 
         private static void TestSerialize(HalfSerializer subject, Half value, string expectedResult)
