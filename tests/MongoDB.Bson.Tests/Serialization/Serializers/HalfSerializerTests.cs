@@ -101,6 +101,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestDeserialize(subject, json, expectedValue);
         }
 
+        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData("""{ "x" : { "$numberDecimal" : "NaN" } }""")]
         [InlineData("""{ "x" : { "$numberDouble" : "NaN" } }""")]
@@ -319,11 +321,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
+        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "NaN" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "NaN" } }""")]
-        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "0" } }""")]
-        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "0" } }""")]
         [InlineData(BsonType.String, """{ "x" : "NaN" }""")]
         public void Serialize_of_nan_should_have_expected_result(BsonType representation,
             string expectedResult)
@@ -334,11 +336,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
+        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-Infinity" } }""")]
-        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "-9223372036854775808" } }""")]
-        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "-2147483648" } }""")]
         [InlineData(BsonType.String, """{ "x" : "-Infinity" }""")]
         public void Serialize_of_negative_infinity_should_have_expected_result(BsonType representation,
             string expectedResult)
@@ -349,11 +351,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
+        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "Infinity" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "Infinity" } }""")]
-        [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "9223372036854775807" } }""")]
-        [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "2147483647" } }""")]
         [InlineData(BsonType.String, """{ "x" : "Infinity" }""")]
         public void Serialize_of_positive_infinity_should_have_expected_result(BsonType representation,
             string expectedResult)
