@@ -19,10 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the details of a write error for a particular request.
-    /// </summary>
-    public sealed class BulkWriteOperationError
+    internal sealed class BulkWriteOperationError
     {
         // fields
         private readonly int _code;

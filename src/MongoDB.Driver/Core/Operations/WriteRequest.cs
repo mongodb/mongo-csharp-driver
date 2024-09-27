@@ -18,10 +18,7 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a request to write something to the database.
-    /// </summary>
-    public abstract class WriteRequest
+    internal abstract class WriteRequest
     {
         // fields
         private int? _correlationId;

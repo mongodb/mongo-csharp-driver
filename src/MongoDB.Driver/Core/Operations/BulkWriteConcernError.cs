@@ -20,10 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents the details of a write concern error.
-    /// </summary>
-    public sealed class BulkWriteConcernError
+    internal sealed class BulkWriteConcernError
     {
         // fields
         private readonly int _code;
