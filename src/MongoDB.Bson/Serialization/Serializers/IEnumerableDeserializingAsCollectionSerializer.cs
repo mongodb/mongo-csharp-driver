@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TIEnumerable">The type of an IEnumerable interface.</typeparam>
     /// <typeparam name="TItem">The type of the items.</typeparam>
     /// <typeparam name="TCollection">The type of the collection used when deserializing.</typeparam>
-    public class IEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection> :
+    public sealed class IEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection> :
         SerializerBase<TIEnumerable>,
         IBsonArraySerializer,
         IChildSerializerConfigurable

@@ -22,10 +22,10 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
-                EnabledSslProtocols = SslProtocols.Tls
+                EnabledSslProtocols = SslProtocols.Tls12
             };
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>()
             {

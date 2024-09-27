@@ -18,24 +18,11 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a create search index request.
-    /// </summary>
-    public sealed class CreateSearchIndexRequest
+    internal sealed class CreateSearchIndexRequest
     {
-        /// <summary>Gets the index name.</summary>
-        /// <value>The name.</value>
         public string Name { get; }
-
-        /// <summary>Gets the definition.</summary>
-        /// <value>The definition.</value>
         public BsonDocument Definition { get; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateSearchIndexRequest"/> class.
-        /// </summary>
-        /// <param name="name">The index name.</param>
-        /// <param name="definition">The index definition.</param>
         public CreateSearchIndexRequest(string name, BsonDocument definition)
         {
             Name = name;

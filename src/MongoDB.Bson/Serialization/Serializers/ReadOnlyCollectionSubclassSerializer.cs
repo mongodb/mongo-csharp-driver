@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <typeparam name="TItem">The type of the item.</typeparam>
-    public class ReadOnlyCollectionSubclassSerializer<TValue, TItem> : EnumerableInterfaceImplementerSerializerBase<TValue, TItem> where TValue : ReadOnlyCollection<TItem>
+    public sealed class ReadOnlyCollectionSubclassSerializer<TValue, TItem> : EnumerableInterfaceImplementerSerializerBase<TValue, TItem> where TValue : ReadOnlyCollection<TItem>
     {
         // constructors
         /// <summary>

@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return _valueSerializer; }
         }
 
-        // public methods        
+        // public methods
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {

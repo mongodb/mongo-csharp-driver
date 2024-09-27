@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Decimals.
     /// </summary>
-    public class DecimalSerializer : StructSerializerBase<decimal>, IRepresentationConfigurable<DecimalSerializer>, IRepresentationConverterConfigurable<DecimalSerializer>
+    public sealed class DecimalSerializer : StructSerializerBase<decimal>, IRepresentationConfigurable<DecimalSerializer>, IRepresentationConverterConfigurable<DecimalSerializer>
     {
         #region static
         private static readonly DecimalSerializer __instance = new DecimalSerializer();

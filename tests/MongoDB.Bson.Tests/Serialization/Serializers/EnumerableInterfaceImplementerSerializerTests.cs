@@ -37,17 +37,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new EnumerableInterfaceImplementerSerializer<List<int>>(__itemSerializer1);
-            var y = new DerivedFromEnumerableInterfaceImplementerSerializer<List<int>>(__itemSerializer1);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new EnumerableInterfaceImplementerSerializer<List<int>>(__itemSerializer1);
@@ -109,15 +98,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromEnumerableInterfaceImplementerSerializer<TValue> : EnumerableInterfaceImplementerSerializer<TValue>
-            where TValue : class, IList, new()
-        {
-            public DerivedFromEnumerableInterfaceImplementerSerializer(IBsonSerializer itemSerializer)
-                : base(itemSerializer)
-            {
-            }
-        }
     }
 
     public class EnumerableInterfaceImplementerSerializerGenericTests
@@ -173,17 +153,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 var json = stringWriter.ToString();
                 json.Should().Be("[[]]");
             }
-        }
-
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new EnumerableInterfaceImplementerSerializer<List<int>, int>(__itemSerializer1);
-            var y = new DerivedFromEnumerableInterfaceImplementerSerializer<List<int>, int>(__itemSerializer1);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
         }
 
         [Fact]
@@ -247,15 +216,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromEnumerableInterfaceImplementerSerializer<TValue, TItem> : EnumerableInterfaceImplementerSerializer<TValue, TItem>
-            where TValue : class, IEnumerable<TItem>
-        {
-            public DerivedFromEnumerableInterfaceImplementerSerializer(IBsonSerializer<TItem> itemSerializer)
-                : base(itemSerializer)
-            {
-            }
         }
 
         private IBsonSerializer<C> CreateSubject()

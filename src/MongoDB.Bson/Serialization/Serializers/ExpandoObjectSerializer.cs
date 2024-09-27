@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// To get the best experience out of using an <see cref="ExpandoObject"/>, any member wanting to be used
     /// as an array should use <see cref="List{Object}"/>.
     /// </remarks>
-    public class ExpandoObjectSerializer : DynamicDocumentBaseSerializer<ExpandoObject>
+    public sealed class ExpandoObjectSerializer : DynamicDocumentBaseSerializer<ExpandoObject>
     {
         // private fields
         private readonly IBsonSerializer<List<object>> _listSerializer;

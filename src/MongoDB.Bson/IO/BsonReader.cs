@@ -210,6 +210,45 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public abstract void ReadEndDocument();
 
+        /// <inheritdoc/>
+        public virtual Guid ReadGuid()
+        {
+            var binaryData = ReadBinaryData();
+            var bytes = binaryData.Bytes;
+            var subType = binaryData.SubType;
+
+            if (subType != BsonBinarySubType.UuidStandard)
+            {
+                throw new FormatException($"GuidRepresentation is unknown for binary subtype {binaryData.SubType}.");
+            }
+            if (bytes.Length != 16)
+            {
+                throw new FormatException($"Expected length to be 16, not {bytes.Length}.");
+            }
+
+            return GuidConverter.FromBytes(bytes, GuidRepresentation.Standard);
+        }
+
+        /// <inheritdoc/>
+        public virtual Guid ReadGuid(GuidRepresentation guidRepresentation)
+        {
+            var binaryData = ReadBinaryData();
+            var bytes = binaryData.Bytes;
+            var subType = binaryData.SubType;
+
+            var expectedSubType = GuidConverter.GetSubType(guidRepresentation);
+            if (subType != expectedSubType)
+            {
+                throw new FormatException($"Expected BsonBinarySubType to be {expectedSubType}, but it is {subType}.");
+            }
+            if (bytes.Length != 16)
+            {
+                throw new FormatException($"Expected length to be 16, not {bytes.Length}.");
+            }
+
+            return GuidConverter.FromBytes(bytes, guidRepresentation);
+        }
+
         /// <summary>
         /// Reads a BSON Int32 from the reader.
         /// </summary>

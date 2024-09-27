@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for IPEndPoints.
     /// </summary>
-    public class IPEndPointSerializer : ClassSerializerBase<IPEndPoint>
+    public sealed class IPEndPointSerializer : ClassSerializerBase<IPEndPoint>
     {
         // constructors
         /// <summary>

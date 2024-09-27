@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Regex.
     /// </summary>
-    public class RegexSerializer : SealedClassSerializerBase<Regex>, IRepresentationConfigurable<RegexSerializer>
+    public sealed class RegexSerializer : SealedClassSerializerBase<Regex>, IRepresentationConfigurable<RegexSerializer>
     {
         #region static
         private static readonly RegexSerializer __regularExpressionInstance = new RegexSerializer(BsonType.RegularExpression);

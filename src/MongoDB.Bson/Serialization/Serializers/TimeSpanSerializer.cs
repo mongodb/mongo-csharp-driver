@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Timespans.
     /// </summary>
-    public class TimeSpanSerializer : StructSerializerBase<TimeSpan>, IRepresentationConfigurable<TimeSpanSerializer>
+    public sealed class TimeSpanSerializer : StructSerializerBase<TimeSpan>, IRepresentationConfigurable<TimeSpanSerializer>
     {
         // private fields
         private readonly BsonType _representation;

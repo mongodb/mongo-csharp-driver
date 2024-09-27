@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int64s.
     /// </summary>
-    public class Int64Serializer : StructSerializerBase<long>, IRepresentationConfigurable<Int64Serializer>, IRepresentationConverterConfigurable<Int64Serializer>
+    public sealed class Int64Serializer : StructSerializerBase<long>, IRepresentationConfigurable<Int64Serializer>, IRepresentationConverterConfigurable<Int64Serializer>
     {
         #region static
         private static readonly Int64Serializer __instance = new Int64Serializer();

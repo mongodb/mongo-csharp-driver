@@ -24,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Authentication.External;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -246,19 +245,7 @@ namespace MongoDB.Driver.Encryption
             var newCredentialsList = new List<BsonElement>();
             foreach (var kmsProvider in _kmsProviders.Where(k => k.Value.Count == 0))
             {
-                // TODO: Refactor all KMS providers to use Registry instead of the hardcoded switch.
-                IExternalCredentials credentialsBody = kmsProvider.Key switch
-                {
-                    "azure" => await ExternalCredentialsAuthenticators.Instance.Azure.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
-                    "gcp" => await ExternalCredentialsAuthenticators.Instance.Gcp.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
-                    _ => null,
-                };
-
-                if (credentialsBody != null)
-                {
-                    newCredentialsList.Add(new BsonElement(kmsProvider.Key, credentialsBody.GetKmsCredentials()));
-                }
-                else if (KmsProviderRegistry.Instance.TryCreate(kmsProvider.Key, out var provider))
+                if (KmsProviderRegistry.Instance.TryCreate(kmsProvider.Key, out var provider))
                 {
                     var credentials = await provider.GetKmsCredentialsAsync(cancellationToken).ConfigureAwait(false);
                     newCredentialsList.Add(new BsonElement(kmsProvider.Key, credentials));

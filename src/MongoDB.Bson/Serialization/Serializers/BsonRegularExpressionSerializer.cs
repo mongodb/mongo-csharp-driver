@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonRegularExpressions.
     /// </summary>
-    public class BsonRegularExpressionSerializer : BsonValueSerializerBase<BsonRegularExpression>
+    public sealed class BsonRegularExpressionSerializer : BsonValueSerializerBase<BsonRegularExpression>
     {
         // private static fields
         private static BsonRegularExpressionSerializer __instance = new BsonRegularExpressionSerializer();

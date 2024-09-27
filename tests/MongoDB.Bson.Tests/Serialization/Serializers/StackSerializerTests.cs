@@ -21,17 +21,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class StackSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new StackSerializer();
-            var y = new DerivedFromStackSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new StackSerializer();
@@ -95,25 +84,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromStackSerializer : StackSerializer
-        {
-        }
     }
 
     public class StackSerializerGenericTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new StackSerializer<int>();
-            var y = new DerivedFromStackSerializer<int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -177,10 +151,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromStackSerializer<TItem> : StackSerializer<TItem>
-        {
         }
     }
 }

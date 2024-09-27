@@ -203,6 +203,20 @@ namespace MongoDB.Bson.IO
             _wrapped.WriteEndDocument();
         }
 
+        /// <inheritdoc/>
+        public virtual void WriteGuid(Guid value)
+        {
+            ThrowIfDisposed();
+            _wrapped.WriteGuid(value);
+        }
+
+        /// <inheritdoc/>
+        public virtual void WriteGuid(Guid value, GuidRepresentation guidRepresentation)
+        {
+            ThrowIfDisposed();
+            _wrapped.WriteGuid(value, guidRepresentation);
+        }
+
         /// <inheritdoc />
         public virtual void WriteInt32(int value)
         {

@@ -108,17 +108,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonValueCSharpNullArrayAndDocumentSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonValueCSharpNullArrayAndDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-            var y = new DerivedFromBsonValueCSharpNullArrayAndDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new BsonValueCSharpNullArrayAndDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
@@ -180,30 +169,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromBsonValueCSharpNullArrayAndDocumentSerializer<TBsonValue> : BsonValueCSharpNullArrayAndDocumentSerializer<TBsonValue>
-            where TBsonValue : BsonValue
-        {
-            public DerivedFromBsonValueCSharpNullArrayAndDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
-                : base(wrappedSerializer)
-            {
-            }
-        }
     }
 
     public class BsonValueCSharpNullArraySerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonValueCSharpNullArraySerializer<BsonValue>(BsonValueSerializer.Instance);
-            var y = new DerivedFromBsonValueCSharpNullArraySerializer<BsonValue>(BsonValueSerializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -266,30 +235,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromBsonValueCSharpNullArraySerializer<TBsonValue> : BsonValueCSharpNullArraySerializer<TBsonValue>
-            where TBsonValue : BsonValue
-        {
-            public DerivedFromBsonValueCSharpNullArraySerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
-                : base(wrappedSerializer)
-            {
-            }
-        }
     }
 
     public class BsonValueCSharpNullDocumentSerializerTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new BsonValueCSharpNullDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-            var y = new DerivedFromBsonValueCSharpNullDocumentSerializer<BsonValue>(BsonValueSerializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -351,15 +300,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromBsonValueCSharpNullDocumentSerializer<TBsonValue> : BsonValueCSharpNullDocumentSerializer<TBsonValue>
-            where TBsonValue : BsonValue
-        {
-            public DerivedFromBsonValueCSharpNullDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
-                : base(wrappedSerializer)
-            {
-            }
         }
     }
 

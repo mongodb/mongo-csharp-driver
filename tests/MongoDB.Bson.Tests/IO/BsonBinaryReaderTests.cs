@@ -20,7 +20,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -142,6 +141,109 @@ namespace MongoDB.Bson.Tests.IO
 
                 action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
             }
+        }
+
+        [Theory]
+        [InlineData("{v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        public void ReadGuid_should_return_expected_result(string json, string expectedResult)
+        {
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var result = reader.ReadGuid();
+            reader.ReadEndDocument();
+
+            result.Should().Be(Guid.Parse(expectedResult));
+        }
+
+        [Theory]
+        [InlineData("{v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }")]
+        public void ReadGuid_should_throw_when_guid_representation_is_unknown(string json)
+        {
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid());
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [InlineData("{ v : HexData(128, '01') }", BsonBinarySubType.UuidStandard)]
+        [InlineData("{ v : HexData(128, '0102030405060708090a0b0c0d0e0f1111') }", BsonBinarySubType.UuidStandard)]
+        public void ReadGuid_should_throw_when_length_is_invalid(string json, BsonBinarySubType subType)
+        {
+            var document = BsonSerializer.Deserialize<BsonDocument>(json);
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            bytes[Array.IndexOf(bytes, (byte)128)] = (byte)subType; // hack to create invalid length subtype 3 or 4
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid());
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [InlineData("{v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard, "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{v : HexData(3, '0403020106050807090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy, "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{v : HexData(3, '0807060504030201100f0e0d0c0b0a09') }", GuidRepresentation.JavaLegacy, "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy, "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        public void ReadGuid_with_guidRepresentation_should_return_expected_result(string json, GuidRepresentation guidRepresentation, string expectedResult)
+        {
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var result = reader.ReadGuid(guidRepresentation);
+            reader.ReadEndDocument();
+
+            result.Should().Be(Guid.Parse(expectedResult));
+        }
+
+        [Theory]
+        [InlineData("{v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        public void ReadGuid_with_guidRepresentation_should_throw_when_subtype_is_invalid(string json, GuidRepresentation guidRepresentation)
+        {
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [InlineData("{v : HexData(128, '01') }", BsonBinarySubType.UuidStandard, GuidRepresentation.Standard)]
+        [InlineData("{v : HexData(128, '01') }", BsonBinarySubType.UuidLegacy, GuidRepresentation.CSharpLegacy)]
+        [InlineData("{v : HexData(128, '0102030405060708090a0b0c0d0e0f1011') }", BsonBinarySubType.UuidStandard, GuidRepresentation.Standard)]
+        [InlineData("{v : HexData(128, '0102030405060708090a0b0c0d0e0f1011') }", BsonBinarySubType.UuidLegacy, GuidRepresentation.CSharpLegacy)]
+        public void ReadGuid_with_guidRepresentation_should_throw_when_length_is_invalid(string json, BsonBinarySubType subType, GuidRepresentation guidRepresentation)
+        {
+            var bytes = BsonSerializer.Deserialize<BsonDocument>(json).ToBson();
+            bytes[Array.IndexOf(bytes, (byte)128)] = (byte)subType; // hack to create invalid length subtype 3 or 4
+            using var memoryStream = new MemoryStream(bytes);
+            using var reader = new BsonBinaryReader(memoryStream);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
+
+            exception.Should().BeOfType<FormatException>();
         }
 
         [Fact]

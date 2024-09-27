@@ -250,7 +250,7 @@ namespace MongoDB.Driver
             findOperation.Collation.Should().BeSameAs(options.Collation);
             findOperation.CollectionNamespace.FullName.Should().Be(outputCollection.CollectionNamespace.FullName);
             findOperation.Comment.Should().BeNull();
-            findOperation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
+            findOperation.CursorType.Should().Be(CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
@@ -1461,7 +1461,7 @@ namespace MongoDB.Driver
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Comment.Should().Be((BsonValue)"funny");
-            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
+            operation.CursorType.Should().Be(CursorType.TailableAwait);
             operation.Filter.Should().Be(filterDocument);
             operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
@@ -1549,7 +1549,7 @@ namespace MongoDB.Driver
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Comment.Should().Be((BsonValue)"funny");
-            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
+            operation.CursorType.Should().Be(CursorType.TailableAwait);
             operation.Filter.Should().Be(new BsonDocument("x", 1));
             operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
@@ -1810,7 +1810,7 @@ namespace MongoDB.Driver
             operation.Projection.Should().Be(projectionDocument);
             operation.Replacement.Should().Be(replacement);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
-            operation.ReturnDocument.Should().Be((Core.Operations.ReturnDocument)returnDocument);
+            operation.ReturnDocument.Should().Be(returnDocument);
             operation.Sort.Should().Be(sortDocument);
             operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);
         }
@@ -1945,7 +1945,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Projection.Should().Be(projectionDocument);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
-            operation.ReturnDocument.Should().Be((Core.Operations.ReturnDocument)returnDocument);
+            operation.ReturnDocument.Should().Be(returnDocument);
             operation.Sort.Should().Be(sortDocument);
             operation.Update.Should().Be(updateDocument);
             operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);

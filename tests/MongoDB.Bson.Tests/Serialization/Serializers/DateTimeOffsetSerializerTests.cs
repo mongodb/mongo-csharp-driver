@@ -70,8 +70,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("{ x : '1970-01-01T00:00:00-01:00' }", "1970-01-01T00:00:00-01:00")]
         public void Deserialize_should_return_expected_result(string json, string expectedResult)
         {
-            var x = DateTimeOffset.Parse(expectedResult);
-            var m = BsonUtils.ToMillisecondsSinceEpoch(x.UtcDateTime);
             var subject = new DateTimeOffsetSerializer();
 
             DateTimeOffset result;
@@ -98,8 +96,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("{ x : { DateTime : 'ignored', Ticks : { $numberDouble : '621355968000000000' }, Offset : { $numberDouble : '-60' } } }", "1970-01-01T00:00:00-01:00")]
         public void Deserialize_should_be_forgiving_of_actual_numeric_types(string json, string expectedResult)
         {
-            var x = DateTimeOffset.Parse(expectedResult);
-            var m = BsonUtils.ToMillisecondsSinceEpoch(x.UtcDateTime);
             var subject = new DateTimeOffsetSerializer();
 
             DateTimeOffset result;
@@ -151,6 +147,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(expectedResult);
         }
+
         [Theory]
         [ParameterAttributeData]
         public void WithRepresentation_should_return_expected_result(

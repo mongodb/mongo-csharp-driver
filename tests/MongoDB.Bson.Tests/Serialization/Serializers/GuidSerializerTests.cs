@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         [Theory]
         [MemberData(nameof(Deserialize_should_return_expected_result_when_representation_is_binary_MemberData))]
-        public void Deserializer_should_return_expected_result_when_representation_is_binary(
+        public void Deserialize_should_return_expected_result_when_representation_is_binary(
             GuidRepresentation serializerGuidRepresentation)
         {
             var subject = new GuidSerializer(serializerGuidRepresentation);
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData(17)]
         public void Deserialize_should_throw_when_representation_is_binary_and_length_is_invalid(int length)
         {
-            var subject = new GuidSerializer(BsonType.Binary);
+            var subject = new GuidSerializer(GuidRepresentation.Standard);
             var document = new BsonDocument("x", new BsonBinaryData(new byte[length]));
             var documentBytes = document.ToBson();
             var readerSettings = new BsonBinaryReaderSettings();
@@ -167,7 +167,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData(BsonBinarySubType.UserDefined)]
         public void Deserialize_should_throw_when_representation_is_binary_and_sub_type_is_invalid(BsonBinarySubType documentSubType)
         {
-            var subject = new GuidSerializer(BsonType.Binary);
+            var subject = new GuidSerializer(GuidRepresentation.Standard);
             var documentBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             documentBytes[11] = (byte)documentSubType;
             var readerSettings = new BsonBinaryReaderSettings();
@@ -314,7 +314,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Fact]
-        public void Serialize_should_throw_when_effectiveGuidRepresentation_is_Unspecified()
+        public void Serialize_should_throw_when_guidRepresentation_is_Unspecified()
         {
             var subject = new GuidSerializer(GuidRepresentation.Unspecified);
             var memoryStream = new MemoryStream();
@@ -332,7 +332,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Fact]
-        public void Serialize_shoud_write_expected_string_when_representation_is_string()
+        public void Serialize_should_write_expected_string_when_representation_is_string()
         {
             var subject = new GuidSerializer(BsonType.String);
             var stringWriter = new StringWriter();
@@ -367,17 +367,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Representation.Should().Be(BsonType.String);
             result.GuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
-        }
-
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new GuidSerializer();
-            var y = new DerivedFromGuidSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
         }
 
         [Fact]
@@ -448,11 +437,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromGuidSerializer : GuidSerializer
-        {
-            public DerivedFromGuidSerializer() : base() { }
         }
     }
 }

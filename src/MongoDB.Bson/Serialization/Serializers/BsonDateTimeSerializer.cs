@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonDateTimes.
     /// </summary>
-    public class BsonDateTimeSerializer : BsonValueSerializerBase<BsonDateTime>
+    public sealed class BsonDateTimeSerializer : BsonValueSerializerBase<BsonDateTime>
     {
         // private static fields
         private static BsonDateTimeSerializer __instance = new BsonDateTimeSerializer();

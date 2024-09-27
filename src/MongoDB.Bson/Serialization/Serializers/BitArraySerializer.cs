@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BitArrays.
     /// </summary>
-    public class BitArraySerializer : SealedClassSerializerBase<BitArray>, IRepresentationConfigurable<BitArraySerializer>
+    public sealed class BitArraySerializer : SealedClassSerializerBase<BitArray>, IRepresentationConfigurable<BitArraySerializer>
     {
         // private constants
         private static class Flags

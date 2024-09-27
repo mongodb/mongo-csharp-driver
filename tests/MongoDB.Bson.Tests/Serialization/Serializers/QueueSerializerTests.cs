@@ -22,17 +22,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class QueueSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new QueueSerializer();
-            var y = new DerivedFromQueueSerializer();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new QueueSerializer();
@@ -96,25 +85,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             result.Should().Be(0);
         }
-
-        public class DerivedFromQueueSerializer : QueueSerializer
-        {
-        }
     }
 
     public class QueueSerializerGenericTests
     {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new QueueSerializer<int>();
-            var y = new DerivedFromQueueSerializer<int>();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -178,10 +152,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromQueueSerializer<TItem> : QueueSerializer<TItem>
-        {
         }
     }
 }

@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for nullable values.
     /// </summary>
     /// <typeparam name="T">The underlying type.</typeparam>
-    public class NullableSerializer<T> :
+    public sealed class NullableSerializer<T> :
         SerializerBase<Nullable<T>>,
         IChildSerializerConfigurable,
         INullableSerializer

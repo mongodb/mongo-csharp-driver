@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TFrom">The type of from.</typeparam>
     /// <typeparam name="TTo">The type of to.</typeparam>
-    public class ProjectingDeserializer<TFrom, TTo> : SerializerBase<TTo>
+    public sealed class ProjectingDeserializer<TFrom, TTo> : SerializerBase<TTo>
     {
         // private fields
         private readonly IBsonSerializer<TFrom> _fromSerializer;

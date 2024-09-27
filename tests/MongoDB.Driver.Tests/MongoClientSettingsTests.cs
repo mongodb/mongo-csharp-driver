@@ -1400,7 +1400,7 @@ namespace MongoDB.Driver.Tests
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
-                EnabledSslProtocols = SslProtocols.Tls
+                EnabledSslProtocols = SslProtocols.Tls12
             };
 
             var subject = new MongoClientSettings

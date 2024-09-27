@@ -89,14 +89,8 @@
 <a href="xref:MongoDB.Driver.Core.Misc"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Misc.md)]
 
-<a href="xref:MongoDB.Driver.Core.Operations"></a>
-:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Operations.md)]
-
 <a href="xref:MongoDB.Driver.Core.Servers"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Servers.md)]
-
-<a href="xref:MongoDB.Driver.Core.Operations"></a>
-:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Operations.md)]
 
 <a href="xref:MongoDB.Driver.Core.WireProtocol"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.WireProtocol.md)]

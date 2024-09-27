@@ -63,7 +63,6 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-
         [Fact]
         public void TestArrayEmpty()
         {
@@ -1626,6 +1625,155 @@ namespace MongoDB.Bson.Tests.IO
 
                 result.Should().BeTrue();
             }
+        }
+
+        [Theory]
+        [InlineData("{ v : { $uuid : '01020304-0506-0708-090a-0b0c0d0e0f10' } }", BsonBinarySubType.UuidStandard, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", BsonBinarySubType.UuidStandard, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidStandard, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0403020106050807090a0b0c0d0e0f10")]
+        [InlineData("{ v : JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0807060504030201100f0e0d0c0b0a09")]
+        [InlineData("{ v : PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : new HexData(4, '0102030405060708090a0b0c0d0e0f10') }", BsonBinarySubType.UuidStandard, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : new UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidStandard, "0102030405060708090a0b0c0d0e0f10")]
+        [InlineData("{ v : new CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0403020106050807090a0b0c0d0e0f10")]
+        [InlineData("{ v : new JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0807060504030201100f0e0d0c0b0a09")]
+        [InlineData("{ v : new PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", BsonBinarySubType.UuidLegacy, "0102030405060708090a0b0c0d0e0f10")]
+        public void ReadBinaryData_with_UUIDs_should_work(string json, BsonBinarySubType expectedSubType, string expectedBytes)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var result = reader.ReadBinaryData();
+            reader.ReadEndDocument();
+
+            result.SubType.Should().Be(expectedSubType);
+            result.Bytes.Should().Equal(BsonUtils.ParseHexString(expectedBytes));
+        }
+
+        [Theory]
+        [InlineData("{ v : { $uuid : '0102030405060708090a0b0c0d0e0f10' } }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : new UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : new CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : new JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        [InlineData("{ v : new PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", "01020304-0506-0708-090a-0b0c0d0e0f10")]
+        public void ReadGuid_should_work(string json, string expectedResult)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var result = reader.ReadGuid();
+            reader.ReadEndDocument();
+
+            result.Should().Be(Guid.Parse((expectedResult)));
+        }
+
+        [Theory]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }")]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f10') }")]
+        public void ReadGuid_should_throw_when_guid_representation_is_unknown(string json)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid());
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [InlineData("{ v : { $uuid : '0102030405060708090a0b0c0d0e0f10' } }", GuidRepresentation.Standard)]
+        [InlineData("{ v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : HexData(3, '0403020106050807090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : HexData(3, '0807060504030201100f0e0d0c0b0a09') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : new HexData(3, '0403020106050807090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new HexData(3, '0807060504030201100f0e0d0c0b0a09') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new UUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : new CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new CSUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new JUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new PYUUID('01020304-0506-0708-090a-0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        public void ReadGuid_with_guidRepresentation_should_work(string json, GuidRepresentation guidRepresentation)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var result = reader.ReadGuid(guidRepresentation);
+            reader.ReadEndDocument();
+
+            result.Should().Be(Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10"));
+        }
+
+        [Theory]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : HexData(4, '0403020106050807090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : HexData(4, '0807060504030201100f0e0d0c0b0a09') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : new HexData(4, '0403020106050807090a0b0c0d0e0f10') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new HexData(4, '0807060504030201100f0e0d0c0b0a09') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new HexData(4, '0102030405060708090a0b0c0d0e0f10') }", GuidRepresentation.PythonLegacy)]
+        public void ReadGuid_with_guidRepresentation_should_throw_when_subType_is_invalid(string json, GuidRepresentation guidRepresentation)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            reader.ReadName("v");
+            var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [InlineData("{ v : HexData(4, '01') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : HexData(3, '01') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : HexData(3, '01') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : HexData(3, '01') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new HexData(4, '01') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : new HexData(3, '01') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new HexData(3, '01') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new HexData(3, '01') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : HexData(4, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.PythonLegacy)]
+        [InlineData("{ v : new HexData(4, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.Standard)]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.CSharpLegacy)]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.JavaLegacy)]
+        [InlineData("{ v : new HexData(3, '0102030405060708090a0b0c0d0e0f1011') }", GuidRepresentation.PythonLegacy)]
+        public void ReadGuid_with_guidRepresentation_should_throw_when_length_is_invalid(string json, GuidRepresentation guidRepresentation)
+        {
+            using var reader = new JsonReader(json);
+
+            reader.ReadStartDocument();
+            var exception = Record.Exception(() =>
+            {
+                reader.ReadName("v"); // sometimes exception is thrown earlier than ReadGuid
+                reader.ReadGuid(guidRepresentation);
+            });
+
+            exception.Should().BeOfType<FormatException>();
         }
     }
 

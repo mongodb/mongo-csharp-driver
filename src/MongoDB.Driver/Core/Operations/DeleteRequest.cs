@@ -19,76 +19,23 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    /// <summary>
-    /// Represents a request to delete one or more documents.
-    /// </summary>
-    public sealed class DeleteRequest : WriteRequest
+    internal sealed class DeleteRequest : WriteRequest
     {
-        // fields
-        private Collation _collation;
-        private readonly BsonDocument _filter;
-        private BsonValue _hint;
-        private int _limit;
-
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest" /> class.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
         public DeleteRequest(BsonDocument filter)
             : base(WriteRequestType.Delete)
         {
-            _filter = Ensure.IsNotNull(filter, nameof(filter));
-            _limit = 1;
+            Filter = Ensure.IsNotNull(filter, nameof(filter));
+            Limit = 1;
         }
 
         // properties
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        public BsonDocument Filter
-        {
-            get { return _filter; }
-        }
-
-        /// <summary>
-        /// Gets or sets the hint.
-        /// </summary>
-        public BsonValue Hint
-        {
-            get { return _hint; }
-            set { _hint = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a limit on the number of documents that should be deleted.
-        /// </summary>
-        /// <remarks>
-        /// The server only supports 0 or 1, and 0 means that all matching documents should be deleted.
-        /// </remarks>
-        /// <value>
-        /// A limit on the number of documents that should be deleted.
-        /// </value>
-        public int Limit
-        {
-            get { return _limit; }
-            set { _limit = value; }
-        }
+        public Collation Collation { get; init; }
+        public BsonDocument Filter { get; init; }
+        public BsonValue Hint { get; init; }
+        public int Limit { get; init; }
 
         // public methods
-        /// <inheritdoc />
-        public override bool IsRetryable(ConnectionDescription connectionDescription)
-        {
-            return _limit != 0;
-        }
+        public override bool IsRetryable(ConnectionDescription connectionDescription) => Limit != 0;
     }
 }

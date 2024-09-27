@@ -232,17 +232,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
-            var y = new DerivedFromElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new ElementAppendingSerializer<C>(__documentSerializer1, __elements1, __writerSettingsConfigurator1);
@@ -312,17 +301,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromElementAppendingSerializer<TDocument> : ElementAppendingSerializer<TDocument>
-        {
-            public DerivedFromElementAppendingSerializer(
-                IBsonSerializer<TDocument> documentSerializer,
-                IEnumerable<BsonElement> elements,
-                Action<BsonWriterSettings> writerSettingsConfigurator)
-                    : base(documentSerializer, elements, writerSettingsConfigurator)
-            {
-            }
         }
 
         // private methods

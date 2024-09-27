@@ -23,17 +23,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class DowncastingSerializerTests
     {
         [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new DowncastingSerializer<object, int>(Int32Serializer.Instance);
-            var y = new DerivedFromDowncastingSerializer<object, int>(Int32Serializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
         public void Equals_null_should_return_false()
         {
             var x = new DowncastingSerializer<object, int>(Int32Serializer.Instance);
@@ -94,15 +83,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
-        }
-
-        public class DerivedFromDowncastingSerializer<TBase, TDerived> : DowncastingSerializer<TBase, TDerived>
-            where TDerived : TBase
-        {
-            public DerivedFromDowncastingSerializer(IBsonSerializer<TDerived> derivedSerializer)
-                : base(derivedSerializer)
-            {
-            }
         }
     }
 }

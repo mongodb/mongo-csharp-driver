@@ -130,6 +130,19 @@ namespace MongoDB.Bson.IO
         void WriteEndDocument();
 
         /// <summary>
+        /// Writes a Guid in Standard representation to the writer.
+        /// </summary>
+        /// <param name="guid">The Guid value.</param>
+        void WriteGuid(Guid guid);
+
+        /// <summary>
+        /// Writes a Guid in the specified representation to the writer.
+        /// </summary>
+        /// <param name="guid">The Guid value.</param>
+        /// <param name="guidRepresentation">The GuidRepresentation.</param>
+        void WriteGuid(Guid guid, GuidRepresentation guidRepresentation);
+
+        /// <summary>
         /// Writes a BSON Int32 to the writer.
         /// </summary>
         /// <param name="value">The Int32 value.</param>

@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonDecimal128s.
     /// </summary>
-    public class BsonDecimal128Serializer : BsonValueSerializerBase<BsonDecimal128>
+    public sealed class BsonDecimal128Serializer : BsonValueSerializerBase<BsonDecimal128>
     {
         // private static fields
         private static BsonDecimal128Serializer __instance = new BsonDecimal128Serializer();

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for three-dimensional arrays.
     /// </summary>
     /// <typeparam name="TItem">The type of the elements.</typeparam>
-    public class ThreeDimensionalArraySerializer<TItem> :
+    public sealed class ThreeDimensionalArraySerializer<TItem> :
         SealedClassSerializerBase<TItem[,,]>,
         IChildSerializerConfigurable
     {

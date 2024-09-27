@@ -13,7 +13,8 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
+using System;
+using FluentAssertions;
 using MongoDB.Bson.IO;
 using Xunit;
 
@@ -1524,6 +1525,72 @@ namespace MongoDB.Bson.Tests.IO
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : undefined, 'b' : undefined } }".Replace("'", "\"");
             Assert.Equal(expected, json);
+        }
+
+        [Fact]
+        public void WriteGuid_should_work()
+        {
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid);
+            writer.WriteEndDocument();
+
+            var binaryData = document["v"].AsBsonBinaryData;
+            binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
+            binaryData.Bytes.Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+        }
+
+        [Theory]
+        [InlineData(GuidRepresentation.Standard)]
+        [InlineData(GuidRepresentation.CSharpLegacy)]
+        [InlineData(GuidRepresentation.JavaLegacy)]
+        [InlineData(GuidRepresentation.PythonLegacy)]
+        public void WriteGuid_with_GuidRepresentation_should_work(GuidRepresentation guidRepresentation)
+        {
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+            writer.WriteStartDocument();
+            writer.WriteName("v");
+            writer.WriteGuid(guid, guidRepresentation);
+            writer.WriteEndDocument();
+
+            BsonBinarySubType expectedSubType;
+            byte[] expectedBytes;
+            switch (guidRepresentation)
+            {
+                case GuidRepresentation.Standard:
+                    expectedSubType = BsonBinarySubType.UuidStandard;
+                    expectedBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+                    break;
+
+                case GuidRepresentation.CSharpLegacy:
+                    expectedSubType = BsonBinarySubType.UuidLegacy;
+                    expectedBytes = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
+                    break;
+
+                case GuidRepresentation.JavaLegacy:
+                    expectedSubType = BsonBinarySubType.UuidLegacy;
+                    expectedBytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 };
+                    break;
+
+                case GuidRepresentation.PythonLegacy:
+                    expectedSubType = BsonBinarySubType.UuidLegacy;
+                    expectedBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+                    break;
+
+                default:
+                    throw new ArgumentException($"Invalid guidRepresentation: {guidRepresentation}", nameof(guidRepresentation));
+            }
+
+            var binaryData = document["v"].AsBsonBinaryData;
+            binaryData.SubType.Should().Be(expectedSubType);
+            binaryData.Bytes.Should().Equal(expectedBytes);
         }
     }
 }

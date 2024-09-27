@@ -1539,40 +1539,10 @@ tasks:
             OCSP_ALGORITHM: "rsa"
             OCSP_TLS_SHOULD_SUCCEED: "false"
 
-    - name: test-smoke-tests-net472
+    - name: test-smoke-tests
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net472
-
-    - name: test-smoke-tests-netcoreapp31
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: netcoreapp31
-
-    - name: test-smoke-tests-net50
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net50
-
-    - name: test-smoke-tests-net60
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net60
-
-    - name: test-smoke-tests-net80
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net80
 
     - name: performance-tests-net80-server-v6.0
       commands:
@@ -2085,6 +2055,25 @@ axes:
         variables:
           FRAMEWORK: net60
 
+  - id: runtime_framework
+    display_name: Runtime .net
+    values:
+      - id: "net472"
+        variables:
+          FRAMEWORK: net472
+      - id: "netcoreapp31"
+        variables:
+          FRAMEWORK: netcoreapp31
+      - id: "net50"
+        variables:
+          FRAMEWORK: net50
+      - id: "net60"
+        variables:
+          FRAMEWORK: net60
+      - id: "net80"
+        variables:
+          FRAMEWORK: net80
+
   - id: serverless
     display_name: Serverless
     values:
@@ -2411,7 +2400,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
-    - name: test-net60    
+    - name: test-net60
 
 # Unsecure tests
 - matrix_name: "unsecure-tests-windows"
@@ -2421,7 +2410,7 @@ buildvariants:
   tasks:
     - name: test-net472
     - name: test-netstandard21
-    - name: test-net60    
+    - name: test-net60
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
@@ -2686,36 +2675,27 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 # Smoke tests
-- matrix_name: "smoke-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
+- matrix_name: "smoke-tests"
+  matrix_spec:
+    os: ["ubuntu-2004", "macos-14", "windows-64"]
+    ssl: "nossl"
+    version: ["5.0", "6.0", "7.0", "8.0", "latest"]
+    topology: ["replicaset"]
+    runtime_framework: "*"
+  exclude_spec:
+    # We do not support net472 for non-Windows platforms
+    - os: ["ubuntu-2004", "macos-14"]
+      ssl: "*"
+      version: "*"
+      topology: "*"
+      runtime_framework: "net472"
+  display_name: "smoke-tests ${version} on ${os} ${runtime_framework}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-net472
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
-
-- matrix_name: "smoke-tests-linux"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
-  batchtime: 1440 # 1 day
-  tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
-
-- matrix_name: "smoke-tests-macOS"
-  matrix_spec: { os: "macos-14", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
-  batchtime: 1440 # 1 day
-  tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
+    - name: test-smoke-tests
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
 
 # Package release variants
 - matrix_name: build-packages
