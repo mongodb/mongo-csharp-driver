@@ -56,9 +56,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = (Half)18;
+            var expectedResult = (Half)18;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -68,9 +68,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_with_floating_point_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = (Half)18.5;
+            var expectedResult = (Half)18.5;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -82,9 +82,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_of_max_value_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = Half.MaxValue;
+            var expectedResult = Half.MaxValue;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -96,9 +96,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_of_min_value_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = Half.MinValue;
+            var expectedResult = Half.MinValue;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
@@ -110,9 +110,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_of_nan_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = Half.NaN;
+            var expectedResult = Half.NaN;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -124,9 +124,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_of_negative_infinity_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = Half.NegativeInfinity;
+            var expectedResult = Half.NegativeInfinity;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -138,9 +138,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_of_positive_infinity_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = Half.PositiveInfinity;
+            var expectedResult = Half.PositiveInfinity;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -159,9 +159,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_with_truncation_allowed_should_have_expected_results(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
-            var expectedValue = (Half)9.76;
+            var expectedResult = (Half)9.76;
 
-            TestDeserialize(subject, json, expectedValue);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
