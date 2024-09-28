@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestDeserialize(subject, json, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // Int32 and Int64 are not tested because the conversion between NaN and integral values
         // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData("""{ "x" : { "$numberDecimal" : "NaN" } }""")]
@@ -321,7 +321,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // Int32 and Int64 are not tested because the conversion between NaN values and integral values
         // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "NaN" } }""")]
@@ -336,7 +336,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
+        // Int32 and Int64 are not tested because the conversion between NaN values and integral values
         // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
@@ -364,6 +364,28 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var halfValue = Half.PositiveInfinity;
 
             TestSerialize(subject, halfValue, expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Serialize_of_positive_infinity_with_integer_representation_should_throw(
+            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
+            var halfValue = Half.PositiveInfinity;
+
+            TestSerializeWithException<ArithmeticException>(subject, halfValue);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Serialize_of_negative_infinity_with_integer_representation_should_throw(
+            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
+            var halfValue = Half.NegativeInfinity;
+
+            TestSerializeWithException<ArithmeticException>(subject, halfValue);
         }
 
         [Theory]

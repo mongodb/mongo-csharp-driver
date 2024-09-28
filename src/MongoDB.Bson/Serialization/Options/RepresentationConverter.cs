@@ -826,6 +826,10 @@ namespace MongoDB.Bson.Serialization.Options
         public int ToInt32(Half value)
         {
             var int32Value = (int)value;
+            if (Half.IsInfinity(value) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
             if (value != (Half)int32Value && !_allowTruncation)
             {
                 throw new TruncationException();
@@ -1023,6 +1027,10 @@ namespace MongoDB.Bson.Serialization.Options
         public long ToInt64(Half value)
         {
             var int64Value = (long)value;
+            if (Half.IsInfinity(value) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
             if (value != (Half)int64Value && !_allowTruncation)
             {
                 throw new TruncationException();
