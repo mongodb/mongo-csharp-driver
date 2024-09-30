@@ -70,6 +70,15 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
+        public void JsonWriter_should_have_releaxed_extendend_json_as_default()
+        {
+            using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonWriter(stringWriter);
+
+            jsonWriter.Settings.OutputMode.Should().Be(JsonOutputMode.RelaxedExtendedJson);
+        }
+
+        [Fact]
         public void TestEmptyDocument()
         {
             BsonDocument document = new BsonDocument();
