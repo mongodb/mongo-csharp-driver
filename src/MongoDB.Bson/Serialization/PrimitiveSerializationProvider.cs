@@ -61,6 +61,9 @@ namespace MongoDB.Bson.Serialization
                 { typeof(SByte), typeof(SByteSerializer) },
                 { typeof(Single), typeof(SingleSerializer) },
                 { typeof(String), typeof(StringSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(TimeOnly), typeof(TimeOnlySerializer) },
+#endif
                 { typeof(TimeSpan), typeof(TimeSpanSerializer) },
                 { typeof(Tuple<>), typeof(TupleSerializer<>) },
                 { typeof(Tuple<,>), typeof(TupleSerializer<,>) },
