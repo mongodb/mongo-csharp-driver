@@ -23,17 +23,6 @@ namespace MongoDB.Driver.Tests
     public class MongoCredentialTests
     {
         [Fact]
-        public void TestCreateMongoCRCredential()
-        {
-#pragma warning disable 618
-            var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
-#pragma warning restore 618
-            Assert.Equal("MONGODB-CR", credential.Mechanism);
-            Assert.Equal("username", credential.Username);
-            Assert.Equal(new PasswordEvidence("password"), credential.Evidence);
-        }
-
-        [Fact]
         public void TestCreateMongoX509Credential()
         {
             var credential = MongoCredential.CreateMongoX509Credential("username");
@@ -80,57 +69,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestEquals()
-        {
-#pragma warning disable 618
-            var a = MongoCredential.CreateMongoCRCredential("db", "user1", "password");
-            var b = MongoCredential.CreateMongoCRCredential("db", "user1", "password");
-            var c = MongoCredential.CreateMongoCRCredential("db", "user2", "password");
-            var d = MongoCredential.CreateMongoCRCredential("db", "user2", "password1");
-            var e = MongoCredential.CreateMongoCRCredential("db", "user2", "password1").WithMechanismProperty("TEST", true);
-            var f = MongoCredential.CreateMongoCRCredential("db", "user2", "password1").WithMechanismProperty("TEST", true);
-            var n = (MongoCredential)null;
-#pragma warning restore 618
-
-            Assert.True(object.Equals(a, b));
-            Assert.False(object.Equals(a, c));
-            Assert.False(a.Equals(n));
-            Assert.False(a.Equals(null));
-            Assert.False(c.Equals(d));
-            Assert.False(d.Equals(e));
-            Assert.True(e.Equals(f));
-
-            Assert.True(a == b);
-            Assert.False(a == c);
-            Assert.False(a == null);
-            Assert.False(null == a);
-            Assert.True(n == null);
-            Assert.True(null == n);
-            Assert.False(c == d);
-            Assert.False(d == e);
-            Assert.True(e == f);
-
-            Assert.False(a != b);
-            Assert.True(a != c);
-            Assert.True(a != null);
-            Assert.True(null != a);
-            Assert.False(n != null);
-            Assert.False(null != n);
-            Assert.True(c != d);
-            Assert.True(d != e);
-            Assert.False(e != f);
-        }
-
-        [Fact]
-        public void TestPassword()
-        {
-#pragma warning disable 618
-            var credentials = MongoCredential.CreateMongoCRCredential("database", "username", "password");
-            Assert.Equal("password", credentials.Password);
-#pragma warning restore 618
-        }
-
-        [Fact]
         public void TestCreateGssapiCredentialWithOnlyUsername()
         {
             var username = "testuser";
@@ -151,24 +89,6 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("PLAIN", credential.Mechanism);
             Assert.Equal("$external", credential.Source);
             Assert.Equal(new PasswordEvidence("b"), credential.Evidence);
-        }
-
-        [Fact]
-        public void TestMechanismProperty()
-        {
-#pragma warning disable 618
-            var credential = MongoCredential.CreateMongoCRCredential("database", "username", "password");
-#pragma warning restore 618
-            var withProperties = credential
-                .WithMechanismProperty("SPN", "awesome")
-                .WithMechanismProperty("OTHER", 10);
-
-
-            Assert.NotSame(credential, withProperties);
-            Assert.Null(credential.GetMechanismProperty<string>("SPN", null));
-            Assert.Equal(0, credential.GetMechanismProperty<int>("OTHER", 0));
-            Assert.Equal("awesome", withProperties.GetMechanismProperty<string>("SPN", null));
-            Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
         }
     }
 }
