@@ -374,7 +374,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
             var halfValue = Half.PositiveInfinity;
 
-            TestSerializeWithException<ArithmeticException>(subject, halfValue);
+            TestSerializeWithException<OverflowException>(subject, halfValue);
         }
 
         [Theory]
@@ -385,7 +385,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
             var halfValue = Half.NegativeInfinity;
 
-            TestSerializeWithException<ArithmeticException>(subject, halfValue);
+            TestSerializeWithException<OverflowException>(subject, halfValue);
         }
 
         [Theory]
