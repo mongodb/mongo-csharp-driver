@@ -50,7 +50,9 @@ namespace MongoDB.Libmongocrypt
                 kmsProviders = new List<KmsCredentials>();
                 foreach (var kmsProvider in cryptClientSettings.KmsProviders)
                 {
+#pragma warning disable CA1304
                     var kmsTypeDocumentKey = kmsProvider.Key.ToLower();
+#pragma warning restore CA1304
                     var kmsProviderDocument = CreateProviderDocument(kmsTypeDocumentKey, kmsProvider.Value);
                     var kmsCredentials = new KmsCredentials(credentialsBytes: kmsProviderDocument.ToBson());
                     kmsProviders.Add(kmsCredentials);

@@ -20,7 +20,9 @@ namespace MongoDB.Libmongocrypt
     /// <summary>
     /// An exception that indicates that an error occured while loading a library.
     /// </summary>
+#pragma warning disable CA1032
     public class LibraryLoadingException : Exception
+#pragma warning restore CA1032
     {
         /// <summary>
         /// Initializes an instance of a <see cref="LibraryLoadingException"/>
@@ -29,6 +31,5 @@ namespace MongoDB.Libmongocrypt
         public LibraryLoadingException(string message) : base(message)
         {
         }
-
     }
 }

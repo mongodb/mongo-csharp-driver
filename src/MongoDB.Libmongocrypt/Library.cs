@@ -24,7 +24,9 @@ namespace MongoDB.Libmongocrypt
     /// </summary>
     internal class Library
     {
+#pragma warning disable CA1810
         static Library()
+#pragma warning restore CA1810
         {
             _mongocrypt_version = new Lazy<Delegates.mongocrypt_version>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_version>("mongocrypt_version"), true);

@@ -125,7 +125,7 @@ namespace MongoDB.Libmongocrypt
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
             {
-                foreach (var fieldDocument in IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in IterateEmptyKeyIds(encryptedFields))
                 {
                     var dataKey = CreateDataKey(kmsProvider, new DataKeyOptions(masterKey: masterKey), cancellationToken);
                     ModifyEncryptedFields(fieldDocument, dataKey);
@@ -188,7 +188,7 @@ namespace MongoDB.Libmongocrypt
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
             try
             {
-                foreach (var fieldDocument in IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in IterateEmptyKeyIds(encryptedFields))
                 {
                     var dataKey = await CreateDataKeyAsync(kmsProvider, new DataKeyOptions(masterKey: masterKey), cancellationToken).ConfigureAwait(false);
                     ModifyEncryptedFields(fieldDocument, dataKey);
@@ -442,7 +442,7 @@ namespace MongoDB.Libmongocrypt
             }
         }
 
-        private static IEnumerable<BsonDocument> IterateEmptyKeyIds(CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
+        private static IEnumerable<BsonDocument> IterateEmptyKeyIds(BsonDocument encryptedFields)
         {
             if (encryptedFields == null)
             {

@@ -197,6 +197,7 @@ namespace MongoDB.Libmongocrypt
             {
                 // Free the handle
                 _handle.Dispose();
+                _status.Dispose();
             }
         }
         #endregion

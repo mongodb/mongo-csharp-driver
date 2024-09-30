@@ -66,7 +66,7 @@ namespace MongoDB.Libmongocrypt
         public IMongoClient KeyVaultClient => _keyVaultClient;
 
         // protected methods
-        protected void FeedResult(CryptContext context, BsonDocument document)
+        protected static void FeedResult(CryptContext context, BsonDocument document)
         {
             var writerSettings = new BsonBinaryWriterSettings();
             var documentBytes = document.ToBson(writerSettings: writerSettings);
@@ -74,7 +74,7 @@ namespace MongoDB.Libmongocrypt
             context.MarkDone();
         }
 
-        protected void FeedResults(CryptContext context, IEnumerable<BsonDocument> documents)
+        protected static void FeedResults(CryptContext context, IEnumerable<BsonDocument> documents)
         {
             var writerSettings = new BsonBinaryWriterSettings();
             foreach (var document in documents)
@@ -155,6 +155,7 @@ namespace MongoDB.Libmongocrypt
             return result;
         }
 
+#pragma warning disable CA1822
         protected byte[] ToBsonIfNotNull(BsonValue value, int estimatedBsonSize = 0)
         {
             if (value != null)
@@ -164,6 +165,7 @@ namespace MongoDB.Libmongocrypt
             }
             return null;
         }
+#pragma warning restore CA1822
 
         // private methods
         private IMongoCollection<BsonDocument> GetKeyVaultCollection()
@@ -178,7 +180,7 @@ namespace MongoDB.Libmongocrypt
             return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName, collectionSettings);
         }
 
-        private DnsEndPoint CreateKmsEndPoint(string value)
+        private static DnsEndPoint CreateKmsEndPoint(string value)
         {
             var match = Regex.Match(value, @"^(?<host>.*):(?<port>\d+)$");
             string host;
@@ -186,7 +188,9 @@ namespace MongoDB.Libmongocrypt
             if (match.Success)
             {
                 host = match.Groups["host"].Value;
+#pragma warning disable CA1305
                 port = int.Parse(match.Groups["port"].Value);
+#pragma warning restore CA1305
             }
             else
             {

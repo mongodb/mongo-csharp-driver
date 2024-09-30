@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -24,7 +23,6 @@ namespace MongoDB.Libmongocrypt
     /// A collection of kms requests to make.
     /// When all requests are done, <c>MarkDone</c> must be called.
     /// </summary>
-    /// <seealso cref="System.Collections.Generic.IReadOnlyCollection{MongoDB.Libmongocrypt.KmsRequest}" />
     internal class KmsRequestCollection : IReadOnlyCollection<KmsRequest>
     {
         private readonly List<KmsRequest> _requests;

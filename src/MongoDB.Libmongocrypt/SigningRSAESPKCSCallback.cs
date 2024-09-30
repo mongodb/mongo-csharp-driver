@@ -57,6 +57,7 @@ namespace MongoDB.Libmongocrypt
             }
         }
 
+#pragma warning disable CA1801
         public static byte[] HashAndSignBytes(byte[] dataToSign, byte[] key)
         {
 #if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -70,5 +71,6 @@ namespace MongoDB.Libmongocrypt
             throw new System.PlatformNotSupportedException("RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on netcore 3.0 and above.");
 #endif
         }
+#pragma warning restore CA1801
     }
 }

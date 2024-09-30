@@ -6,7 +6,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net472;net6.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
-<!--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

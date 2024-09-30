@@ -100,7 +100,9 @@ namespace MongoDB.Libmongocrypt
 
         }
 
+#pragma warning disable CA1032
         public class FunctionNotFoundException : Exception
+#pragma warning restore CA1032
         {
             public FunctionNotFoundException(string message) : base(message) { }
         }
@@ -171,7 +173,9 @@ namespace MongoDB.Libmongocrypt
             private static readonly bool _use_libdl1;
             private static readonly string[] __suffixPaths;
 
+#pragma warning disable CA1810
             static LinuxLibrary()
+#pragma warning restore CA1810
             {
                 var finalpath = IsAlpine() ? "alpine/" : "";
 
@@ -261,7 +265,7 @@ namespace MongoDB.Libmongocrypt
             public IntPtr GetFunction(string name)
             {
                 var ptr = GetProcAddress(_handle, name);
-                if (ptr == null)
+                if (ptr == IntPtr.Zero)
                 {
                     var gle = Marshal.GetLastWin32Error();
                     throw new FunctionNotFoundException(name + ", Windows Error: " + gle);

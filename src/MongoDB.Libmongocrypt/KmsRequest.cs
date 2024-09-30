@@ -23,10 +23,11 @@ namespace MongoDB.Libmongocrypt
     /// Contains a KMS request to make to a remote server.
     /// </summary>
     /// <seealso cref="IStatus" />
-    internal class KmsRequest : IStatus
+    internal class KmsRequest : IStatus, IDisposable
     {
         private readonly Status _status;
         private readonly IntPtr _id;
+        private bool disposed = false;
 
         internal KmsRequest(IntPtr id)
         {
@@ -119,6 +120,25 @@ namespace MongoDB.Libmongocrypt
             if (!success)
             {
                 _status.Check(this);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    _status?.Dispose();
+                }
+                disposed = true;
             }
         }
     }

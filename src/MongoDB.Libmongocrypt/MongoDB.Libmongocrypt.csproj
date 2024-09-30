@@ -22,6 +22,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
     <BuildInParallel>false</BuildInParallel>
+    <NoWarn>CA1060;CA2101;CA1307;SYSLIB0022;SYSLIB0004</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -117,5 +118,5 @@
   </ItemGroup>
 
   <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
-  
+
 </Project>

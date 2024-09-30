@@ -476,10 +476,10 @@ namespace MongoDB.Libmongocrypt
         }
 
         // private methods
-        private FilterDefinition<BsonDocument> CreateFilter(BsonDocument filter) => new BsonDocumentFilterDefinition<BsonDocument>(filter);
-        private FilterDefinition<BsonDocument> CreateFilterById(Guid id) => CreateFilterById(new BsonBinaryData(GuidConverter.ToBytes(id, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard));
-        private FilterDefinition<BsonDocument> CreateFilterById(BsonBinaryData id) => CreateFilter(new BsonDocument("_id", id));
-        private UpdateDefinition<BsonDocument> CreateRemoveAlternateKeyNameUpdatePipeline(string keyAlterName) =>
+        private static FilterDefinition<BsonDocument> CreateFilter(BsonDocument filter) => new BsonDocumentFilterDefinition<BsonDocument>(filter);
+        private static FilterDefinition<BsonDocument> CreateFilterById(Guid id) => CreateFilterById(new BsonBinaryData(GuidConverter.ToBytes(id, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard));
+        private static FilterDefinition<BsonDocument> CreateFilterById(BsonBinaryData id) => CreateFilter(new BsonDocument("_id", id));
+        private static UpdateDefinition<BsonDocument> CreateRemoveAlternateKeyNameUpdatePipeline(string keyAlterName) =>
             new EmptyPipelineDefinition<BsonDocument>()
                 .AppendStage<BsonDocument, BsonDocument, BsonDocument>(
                     // Better to have this spec defined $set query in a raw string form for better visibility
@@ -504,6 +504,7 @@ namespace MongoDB.Libmongocrypt
                             }}
                         }}
                     }}"));
+#pragma warning disable CA1822
         private IEnumerable<UpdateOneModel<BsonDocument>> CreateRewrapManyDataKeysBulkUpdateRequests(byte[] rewrappedDocumentBytes) =>
             UnwrapValue(rewrappedDocumentBytes)
                 .AsBsonArray
@@ -515,6 +516,7 @@ namespace MongoDB.Libmongocrypt
                             .CurrentDate("updateDate") // update date
                             .Set("keyMaterial", document["keyMaterial"]) // update new fields
                             .Set("masterKey", document["masterKey"])));
+#pragma warning restore CA1822
 
         private KmsKeyId GetKmsKeyId(string kmsProvider, DataKeyOptions dataKeyOptions)
         {
@@ -523,7 +525,9 @@ namespace MongoDB.Libmongocrypt
             BsonDocument dataKeyDocument = null;
             if (kmsProvider != null)
             {
+#pragma warning disable CA1308
                 dataKeyDocument = new BsonDocument("provider", kmsProvider.ToLowerInvariant());
+#pragma warning restore CA1308
                 if (dataKeyOptions?.MasterKey != null)
                 {
                     dataKeyDocument.AddRange(dataKeyOptions.MasterKey.Elements);

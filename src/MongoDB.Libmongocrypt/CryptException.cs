@@ -22,7 +22,9 @@ namespace MongoDB.Libmongocrypt
     /// An exception from libmongocrypt.
     /// </summary>
     /// <seealso cref="System.Exception" />
+#pragma warning disable CA1032
     public class CryptException : Exception
+#pragma warning restore CA1032
     {
         private readonly uint _code;
         private readonly Library.StatusType _statusType;

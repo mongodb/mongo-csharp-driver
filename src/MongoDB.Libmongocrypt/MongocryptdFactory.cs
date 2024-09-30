@@ -182,7 +182,7 @@ namespace MongoDB.Libmongocrypt
             }
         }
 
-        private void StartProcess(string path, string args)
+        private static void StartProcess(string path, string args)
         {
             try
             {

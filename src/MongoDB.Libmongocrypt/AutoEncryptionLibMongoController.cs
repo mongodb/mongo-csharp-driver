@@ -266,7 +266,9 @@ namespace MongoDB.Libmongocrypt
             while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
             {
                 var clusterDescription = _mongocryptdClient.Value.Cluster?.Description;
+#pragma warning disable CA1826
                 var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
+#pragma warning restore CA1826
                 if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
                 {
                     return;
@@ -281,7 +283,9 @@ namespace MongoDB.Libmongocrypt
             while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
             {
                 var clusterDescription = _mongocryptdClient.Value.Cluster?.Description;
+#pragma warning disable CA1826
                 var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
+#pragma warning restore CA1826
                 if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
                 {
                     return;
