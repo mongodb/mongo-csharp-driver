@@ -141,7 +141,7 @@ if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFI
     export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
 fi
 
-if [ "$TARGET" == "SmokeTests" ]; then
+if [[ "$TARGET" =~ "SmokeTests" ]]; then
     ./evergreen/add-myget-source.sh
 fi
 
