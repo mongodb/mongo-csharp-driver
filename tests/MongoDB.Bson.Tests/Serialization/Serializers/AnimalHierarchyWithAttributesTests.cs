@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -65,7 +66,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = (Bear)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsType<Bear>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
+            var json = rehydrated.ToJson<Animal>(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }, args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Bear'], 'Age' : 123, 'Name' : 'Panda Bear' }".Replace("'", "\"");
             Assert.Equal(expected, json);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
@@ -86,7 +87,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = (Tiger)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsType<Tiger>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
+            var json = rehydrated.ToJson<Animal>(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }, args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Cat', 'Tiger'], 'Age' : 234, 'Name' : 'Striped Tiger' }".Replace("'", "\"");
             Assert.Equal(expected, json);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));
@@ -107,7 +108,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = (Lion)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsType<Lion>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true });
+            var json = rehydrated.ToJson<Animal>(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }, args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), '_t' : ['Animal', 'Cat', 'Lion'], 'Age' : 234, 'Name' : 'King Lion' }".Replace("'", "\"");
             Assert.Equal(expected, json);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson<Animal>(args: new BsonSerializationArgs { SerializeIdFirst = true })));

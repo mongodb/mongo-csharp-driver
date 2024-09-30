@@ -15,6 +15,7 @@
 
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -32,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void TestNull()
         {
             var c = new C { A = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -45,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test0x0()
         {
             var c = new C { A = new int[0, 0] };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -58,7 +59,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test1x0()
         {
             var c = new C { A = new int[1, 0] };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -71,7 +72,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test1x1()
         {
             var c = new C { A = new int[1, 1] { { 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -84,7 +85,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test1x2()
         {
             var c = new C { A = new int[1, 2] { { 1, 2 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -97,7 +98,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test1x3()
         {
             var c = new C { A = new int[1, 3] { { 1, 2, 3 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2, 3]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -110,7 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test2x0()
         {
             var c = new C { A = new int[2, 0] };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[], []] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -123,7 +124,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test2x1()
         {
             var c = new C { A = new int[2, 1] { { 1 }, { 2 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1], [2]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -136,7 +137,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test2x2()
         {
             var c = new C { A = new int[2, 2] { { 1, 2 }, { 3, 4 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2], [3, 4]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -149,7 +150,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test2x3()
         {
             var c = new C { A = new int[2, 3] { { 1, 2, 3 }, { 4, 5, 6 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2, 3], [4, 5, 6]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -162,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test3x0()
         {
             var c = new C { A = new int[3, 0] };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[], [], []] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -175,7 +176,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test3x1()
         {
             var c = new C { A = new int[3, 1] { { 1 }, { 2 }, { 3 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1], [2], [3]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -188,7 +189,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test3x2()
         {
             var c = new C { A = new int[3, 2] { { 1, 2 }, { 3, 4 }, { 5, 6 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2], [3, 4], [5, 6]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -201,7 +202,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
         public void Test3x3()
         {
             var c = new C { A = new int[3, 3] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : [[1, 2, 3], [4, 5, 6], [7, 8, 9]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

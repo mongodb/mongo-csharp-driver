@@ -175,7 +175,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             string result;
             using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter, new JsonWriterSettings()))
+            using (var writer = new JsonWriter(textWriter, new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }))
             {
                 var context = BsonSerializationContext.CreateRoot(writer);
                 var args = new BsonSerializationArgs { NominalType = typeof(BsonDocument) };

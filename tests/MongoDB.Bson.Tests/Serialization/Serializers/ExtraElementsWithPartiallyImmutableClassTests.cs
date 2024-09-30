@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'X' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : { 'D' : 4, 'E' : 'xyz' } }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4, 'D' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
     }
 
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -171,7 +171,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'X' : 4 }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -179,7 +179,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : { 'D' : 4, 'E' : 'xyz' } }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, 'C' : 4, 'D' : 'xyz' }".Replace("'", "\"");
             var c = BsonSerializer.Deserialize<C>(json);
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -230,7 +230,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = BsonSerializer.Deserialize<C>(new JsonReader(json, new JsonReaderSettings()));
 
             // round trip it both ways before checking individual values
-            json = c.ToJson(new JsonWriterSettings());
+            json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             c = BsonSerializer.Deserialize<C>(new JsonReader(json, new JsonReaderSettings()));
 
             Assert.IsType<List<object>>(c.X["XArray"]);

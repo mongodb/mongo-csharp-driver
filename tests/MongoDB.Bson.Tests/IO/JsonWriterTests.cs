@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Tests.IO
             string documentSeparator)
         {
             var document = new BsonDocument("x", 1);
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expectedResult = Enumerable.Repeat(json, numberOfDocuments).Aggregate("", (a, j) => a + j + documentSeparator);
 
             using (var stringWriter = new StringWriter())
@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestEmptyDocument()
         {
             BsonDocument document = new BsonDocument();
-            string json = document.ToJson();
+            string json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             string expected = "{ }";
             Assert.Equal(expected, json);
         }
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestSingleString()
         {
             BsonDocument document = new BsonDocument() { { "abc", "xyz" } };
-            string json = document.ToJson();
+            string json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             string expected = "{ \"abc\" : \"xyz\" }";
             Assert.Equal(expected, json);
         }
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = new BsonDecimal128(test.Value).ToJson();
+                var json = new BsonDecimal128(test.Value).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<Decimal128>(json));
             }
@@ -207,7 +207,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson();
+                var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<double>(json));
             }
@@ -219,7 +219,7 @@ namespace MongoDB.Bson.Tests.IO
             RequireProcess.Check().Bits(64);
             var value = 0.6822871999174; // see: https://msdn.microsoft.com/en-us/library/dwhawy9k(v=vs.110).aspx#RFormatString
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rehydrated = BsonSerializer.Deserialize<double>(json);
 
             rehydrated.Should().Be(value);
@@ -240,7 +240,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson();
+                var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<long>(json));
             }
@@ -277,7 +277,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 { "doc", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
-            string json = document.ToJson();
+            string json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             string expected = "{ \"doc\" : { \"a\" : 1, \"b\" : 2 } }";
             Assert.Equal(expected, json);
         }
@@ -302,7 +302,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 { "array", new BsonArray { 1, 2, 3 } }
             };
-            string json = document.ToJson();
+            string json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             string expected = "{ \"array\" : [1, 2, 3] }";
             Assert.Equal(expected, json);
         }
@@ -321,7 +321,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson(new JsonWriterSettings());
+                var json = test.Value.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
             }
@@ -368,7 +368,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson();
+                var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
             }
@@ -410,7 +410,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "f", new BsonJavaScript("function f() { return 1; }") }
             };
             string expected = "{ \"f\" : { \"$code\" : \"function f() { return 1; }\" } }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -422,7 +422,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "f", new BsonJavaScriptWithScope("function f() { return n; }", new BsonDocument("n", 1)) }
             };
             string expected = "{ \"f\" : { \"$code\" : \"function f() { return n; }\", \"$scope\" : { \"n\" : 1 } } }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -433,7 +433,7 @@ namespace MongoDB.Bson.Tests.IO
             var guidBytes = GuidConverter.ToBytes(guid, GuidRepresentation.Standard);
 
             var binary = new BsonBinaryData(guidBytes, BsonBinarySubType.UuidStandard); // GuidRepresentation is Unspecified
-            var result = binary.ToJson(writerSettings: new JsonWriterSettings());
+            var result = binary.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             result.Should().Be("UUID(\"00112233-4455-6677-8899-aabbccddeeff\")");
         }
 
@@ -445,7 +445,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "maxkey", BsonMaxKey.Value }
             };
             string expected = "{ \"maxkey\" : MaxKey }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -457,7 +457,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "minkey", BsonMinKey.Value }
             };
             string expected = "{ \"minkey\" : MinKey }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -469,7 +469,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "null", BsonNull.Value }
             };
             string expected = "{ \"null\" : null }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -477,7 +477,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestObjectIdShell()
         {
             var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
-            var json = objectId.ToJson();
+            var json = objectId.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
             Assert.Equal(expected, json);
             Assert.Equal(objectId, BsonSerializer.Deserialize<ObjectId>(json));
@@ -513,7 +513,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson();
+                var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
             }
@@ -573,7 +573,7 @@ namespace MongoDB.Bson.Tests.IO
             };
             foreach (var test in tests)
             {
-                var json = test.Value.ToJson();
+                var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<string>(json));
             }
@@ -587,7 +587,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "symbol", BsonSymbolTable.Lookup("name") }
             };
             string expected = "{ \"symbol\" : { \"$symbol\" : \"name\" } }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -599,7 +599,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "timestamp", new BsonTimestamp(1, 2) }
             };
             string expected = "{ \"timestamp\" : Timestamp(1, 2) }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 
@@ -611,7 +611,7 @@ namespace MongoDB.Bson.Tests.IO
                 { "undefined", BsonUndefined.Value }
             };
             string expected = "{ \"undefined\" : undefined }";
-            string actual = document.ToJson();
+            string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, actual);
         }
 

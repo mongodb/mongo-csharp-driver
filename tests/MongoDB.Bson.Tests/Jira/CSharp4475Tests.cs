@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -61,7 +62,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Object = new Allowed { X = 1 } };
 
-            var result = c.ToJson();
+            var result = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             result.Should().Be("{ \"Object\" : { \"_t\" : \"Allowed\", \"X\" : 1 } }");
         }
@@ -71,7 +72,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Object = new NotAllowed { X = 1 } };
 
-            var exception = Record.Exception(() => c.ToJson());
+            var exception = Record.Exception(() => c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             exception.Should().BeOfType<BsonSerializationException>();
             exception.Message.Should().Be("An error occurred while serializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");

@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -50,7 +51,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C1 { Id = 1, G = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10") };
 
-            var exception = Record.Exception(() => c.ToJson());
+            var exception = Record.Exception(() => c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             exception.Should().BeOfType<BsonSerializationException>();
             exception.Message.Should().Contain("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified");
@@ -61,7 +62,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C2 { Id = 1, G = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10") };
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"_id\" : 1, \"G\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
         }

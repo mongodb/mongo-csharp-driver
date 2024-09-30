@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -44,7 +45,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp122
         {
             var c = new C { N = 4, A = 2, V = 3 };
             ((B)c).N = 1;
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'B.N' : 1, 'A' : 2, 'V' : 3, 'C.N' : 4 }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

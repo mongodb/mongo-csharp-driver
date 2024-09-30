@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var c1 = new C { X = 1, BsonArray = array };
             Assert.Throws<BsonSerializationException>(() => c1.ToBson());
             Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument());
-            Assert.Throws<BsonSerializationException>(() => c1.ToJson());
+            Assert.Throws<BsonSerializationException>(() => c1.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Tests.Serialization
             c1.NestedDocument = c1;
             Assert.Throws<BsonSerializationException>(() => c1.ToBson());
             Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument());
-            Assert.Throws<BsonSerializationException>(() => c1.ToJson());
+            Assert.Throws<BsonSerializationException>(() => c1.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var c2 = new C { X = 2 };
             var c1 = new C { X = 1, NestedDocument = c2 };
 
-            var json = c1.ToJson();
+            var json = c1.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'X' : 1, 'NestedDocument' : { 'X' : 2, 'NestedDocument' : null, 'BsonArray' : { '_csharpnull' : true } }, 'BsonArray' : { '_csharpnull' : true } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

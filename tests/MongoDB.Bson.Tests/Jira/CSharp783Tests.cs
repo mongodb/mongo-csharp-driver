@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -40,7 +41,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -54,7 +55,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -68,7 +69,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestNull()
         {
             var c = new C { S = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -80,7 +81,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [1] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -97,7 +98,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = new[]
             {
                 "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [1, 2] } }",
@@ -116,7 +117,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [1] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -133,7 +134,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : { '_t' : 'System.Collections.Generic.SortedSet`1[System.Int32]', '_v' : [1, 2] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -160,7 +161,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -174,7 +175,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -188,7 +189,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestNull()
         {
             var c = new C { S = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -200,7 +201,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -217,7 +218,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = new[]
             {
                 "{ 'S' : [1, 2] }",
@@ -236,7 +237,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -253,7 +254,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = string.Format("{{ 'S' : [1, 2] }}").Replace("'", "\""); // always sorted
             Assert.Equal(expected, json);
 
@@ -280,7 +281,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptyHashSet()
         {
             var c = new C { S = new HashSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -294,7 +295,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestEmptySortedSet()
         {
             var c = new C { S = new SortedSet<int>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -308,7 +309,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestNull()
         {
             var c = new C { S = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -320,7 +321,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetOneInt()
         {
             var c = new C { S = new HashSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -337,7 +338,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestHashSetTwoInts(int x, int y)
         {
             var c = new C { S = new HashSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = new[]
             {
                 "{ 'S' : [1, 2] }",
@@ -356,7 +357,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetOneInt()
         {
             var c = new C { S = new SortedSet<int> { 1 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : [1] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -373,7 +374,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         public void TestSortedSetTwoInts(int x, int y)
         {
             var c = new C { S = new SortedSet<int> { x, y } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = string.Format("{{ 'S' : [1, 2] }}").Replace("'", "\""); // always sorted
             Assert.Equal(expected, json);
 

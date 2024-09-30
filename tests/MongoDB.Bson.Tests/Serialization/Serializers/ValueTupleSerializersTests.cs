@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Moq;
@@ -90,7 +91,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -178,7 +179,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -270,7 +271,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -367,7 +368,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -467,7 +468,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -570,7 +571,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -678,7 +679,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3, true] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }
@@ -791,7 +792,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var value = CreateValue();
             var expectedJson = "{ \"_id\" : 1, \"T\" : [false, 1, true, 2, false, 3, true, [4]] }";
 
-            var json = value.ToJson();
+            var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             Assert.Equal(expectedJson, json);
         }

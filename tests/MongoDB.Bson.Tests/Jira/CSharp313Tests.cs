@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
@@ -57,7 +58,7 @@ namespace MongoDB.Bson.Tests.Jira
             // but the new ObjectSerializer can round trip them either at the top level or as properties
             foreach (var scalarValue in __scalarValues)
             {
-                var json = scalarValue.ToJson();
+                var json = scalarValue.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 var rehydrated = BsonSerializer.Deserialize<object>(json);
                 Assert.Equal(scalarValue, rehydrated);
 
@@ -69,7 +70,7 @@ namespace MongoDB.Bson.Tests.Jira
                 rehydrated = BsonSerializer.Deserialize<object>(document);
                 Assert.Equal(scalarValue, rehydrated);
 
-                json = new C { ScalarValue = scalarValue }.ToJson();
+                json = new C { ScalarValue = scalarValue }.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
                 var c = BsonSerializer.Deserialize<C>(json);
                 Assert.Equal(scalarValue, c.ScalarValue);
 

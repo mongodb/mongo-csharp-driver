@@ -15,6 +15,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
@@ -34,7 +35,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionaryEmpty()
         {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { } } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -47,7 +48,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionaryOneElement()
         {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { 'x' : 1 } } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -60,7 +61,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableEmpty()
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 #if NET472 || NETCOREAPP3_1_OR_GREATER
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib
@@ -81,7 +82,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableOneElement()
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 #if NET472 || NETCOREAPP3_1_OR_GREATER
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib

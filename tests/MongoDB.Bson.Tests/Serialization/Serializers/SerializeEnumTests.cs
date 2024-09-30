@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -44,7 +45,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -63,7 +64,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -76,7 +77,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -89,7 +90,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -140,7 +141,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -159,7 +160,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -172,7 +173,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -185,7 +186,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -236,7 +237,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -255,7 +256,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -268,7 +269,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -281,7 +282,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -332,7 +333,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -351,7 +352,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -364,7 +365,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -377,7 +378,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -428,7 +429,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -447,7 +448,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -460,7 +461,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -473,7 +474,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -524,7 +525,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -543,7 +544,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -556,7 +557,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -569,7 +570,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -620,7 +621,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -639,7 +640,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -652,7 +653,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -665,7 +666,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -716,7 +717,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -735,7 +736,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -748,7 +749,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -761,7 +762,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

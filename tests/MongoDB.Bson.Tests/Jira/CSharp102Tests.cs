@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -44,7 +45,7 @@ namespace MongoDB.Bson.Tests.Jira
             Assert.Equal("Id", classMap.IdMemberMap.MemberName);
 
             var test = new Test { Normal = "normal" };
-            var json = test.ToJson();
+            var json = test.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'Normal' : 'normal' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
