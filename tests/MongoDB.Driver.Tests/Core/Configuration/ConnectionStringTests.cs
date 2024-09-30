@@ -519,7 +519,6 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost?authMechanism=GSSAPI", "GSSAPI")]
-        [InlineData("mongodb://localhost?authMechanism=MONGODB-CR", "MONGODB-CR")]
         [InlineData("mongodb://localhost?authMechanism=PLAIN", "PLAIN")]
         [InlineData("mongodb://localhost?authMechanism=MONGODB-X509", "MONGODB-X509")]
         public void When_authMechanism_is_specified(string connectionString, string authMechanism)

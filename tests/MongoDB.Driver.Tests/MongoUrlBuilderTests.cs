@@ -256,7 +256,6 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost")]
-        [InlineData("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
         [InlineData("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
         [InlineData("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
         [InlineData("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
