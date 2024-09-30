@@ -69,6 +69,55 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestEquals()
+        {
+            var a = MongoCredential.CreateCredential("db", "user1", "password");
+            var b = MongoCredential.CreateCredential("db", "user1", "password");
+            var c = MongoCredential.CreateCredential("db", "user2", "password");
+            var d = MongoCredential.CreateCredential("db", "user2", "password1");
+            var e = MongoCredential.CreateCredential("db", "user2", "password1").WithMechanismProperty("TEST", true);
+            var f = MongoCredential.CreateCredential("db", "user2", "password1").WithMechanismProperty("TEST", true);
+            var n = (MongoCredential)null;
+
+            Assert.True(object.Equals(a, b));
+            Assert.False(object.Equals(a, c));
+            Assert.False(a.Equals(n));
+            Assert.False(a.Equals(null));
+            Assert.False(c.Equals(d));
+            Assert.False(d.Equals(e));
+            Assert.True(e.Equals(f));
+
+            Assert.True(a == b);
+            Assert.False(a == c);
+            Assert.False(a == null);
+            Assert.False(null == a);
+            Assert.True(n == null);
+            Assert.True(null == n);
+            Assert.False(c == d);
+            Assert.False(d == e);
+            Assert.True(e == f);
+
+            Assert.False(a != b);
+            Assert.True(a != c);
+            Assert.True(a != null);
+            Assert.True(null != a);
+            Assert.False(n != null);
+            Assert.False(null != n);
+            Assert.True(c != d);
+            Assert.True(d != e);
+            Assert.False(e != f);
+        }
+
+        [Fact]
+        public void TestPassword()
+        {
+            var credentials = MongoCredential.CreateCredential("database", "username", "password");
+#pragma warning disable 618
+            Assert.Equal("password", credentials.Password);
+#pragma warning restore 618
+        }
+
+        [Fact]
         public void TestCreateGssapiCredentialWithOnlyUsername()
         {
             var username = "testuser";
