@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests.Encryption
                 encryptedFieldsMap: encryptedFieldsMap);
 
             var result = subject.ToString();
-            result.Should().Be("{ BypassAutoEncryption : True, BypassQueryAnalysis : False, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : new BinData(0, \"ABEiM0RVZneImaq7zN3u/w==\") } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : UUID(\"00112233-4455-6677-8899-aabbccddeeff\") } }, TlsOptions : [{ \"local\" : \"<hidden>\" }], EncryptedFieldsMap : { \"db.test\" : { \"dummy\" : \"doc\" } } }");
+            result.Should().Be("{ BypassAutoEncryption : True, BypassQueryAnalysis : False, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : { \"$binary\" : { \"base64\" : \"ABEiM0RVZneImaq7zN3u/w==\", \"subType\" : \"00\" } } } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : { \"$binary\" : { \"base64\" : \"ABEiM0RVZneImaq7zN3u/w==\", \"subType\" : \"04\" } } } }, TlsOptions : [{ \"local\" : \"<hidden>\" }], EncryptedFieldsMap : { \"db.test\" : { \"dummy\" : \"doc\" } } }");
         }
 
         // private methods
