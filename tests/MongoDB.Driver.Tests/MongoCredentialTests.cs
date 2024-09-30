@@ -90,5 +90,21 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("$external", credential.Source);
             Assert.Equal(new PasswordEvidence("b"), credential.Evidence);
         }
+
+        [Fact]
+        public void TestMechanismProperty()
+        {
+            var credential = MongoCredential.CreateCredential("database", "username", "password");
+            var withProperties = credential
+                .WithMechanismProperty("SPN", "awesome")
+                .WithMechanismProperty("OTHER", 10);
+
+
+            Assert.NotSame(credential, withProperties);
+            Assert.Null(credential.GetMechanismProperty<string>("SPN", null));
+            Assert.Equal(0, credential.GetMechanismProperty<int>("OTHER", 0));
+            Assert.Equal("awesome", withProperties.GetMechanismProperty<string>("SPN", null));
+            Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
+        }
     }
 }
