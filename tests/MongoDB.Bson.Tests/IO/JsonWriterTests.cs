@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void JsonWriter_should_have_releaxed_extendend_json_as_default()
+        public void JsonWriter_should_have_relaxed_extended_json_as_default()
         {
             using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonWriter(stringWriter);

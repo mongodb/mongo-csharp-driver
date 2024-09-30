@@ -14,9 +14,9 @@
 */
 
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
-using MongoDB.Bson.IO;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
