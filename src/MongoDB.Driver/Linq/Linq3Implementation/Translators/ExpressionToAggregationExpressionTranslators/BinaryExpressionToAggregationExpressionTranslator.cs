@@ -53,12 +53,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression, because: "operand types are not compatible with each other");
             }
 
-            if (IsArithmeticExpression(expression))
-            {
-                leftExpression = ConvertHelper.RemoveWideningConvert(leftExpression);
-                rightExpression = ConvertHelper.RemoveWideningConvert(rightExpression);
-            }
-
             if (IsEnumExpression(expression))
             {
                 return TranslateEnumExpression(context, expression);
@@ -81,38 +75,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
             }
 
+            var leftAst = leftTranslation.Ast;
+            var rightAst = rightTranslation.Ast;
             if (IsArithmeticExpression(expression))
             {
-                SerializationHelper.EnsureRepresentationIsNumeric(leftExpression, leftTranslation);
-                SerializationHelper.EnsureRepresentationIsNumeric(rightExpression, rightTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, leftExpression, leftTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, rightExpression, rightTranslation);
+
+                leftAst = ConvertHelper.RemoveWideningConvert(leftTranslation);
+                rightAst = ConvertHelper.RemoveWideningConvert(rightTranslation);
             }
 
             var ast = expression.NodeType switch
             {
-                ExpressionType.Add => AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
                 ExpressionType.And => expression.Type == typeof(bool) ?
-                    AstExpression.And(leftTranslation.Ast, rightTranslation.Ast) :
-                    AstExpression.BitAnd(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.AndAlso => AstExpression.And(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Coalesce => AstExpression.IfNull(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Divide => AstExpression.Divide(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Equal => AstExpression.Eq(leftTranslation.Ast, rightTranslation.Ast),
+                    AstExpression.And(leftAst, rightAst) :
+                    AstExpression.BitAnd(leftAst, rightAst),
+                ExpressionType.AndAlso => AstExpression.And(leftAst, rightAst),
+                ExpressionType.Coalesce => AstExpression.IfNull(leftAst, rightAst),
+                ExpressionType.Divide => AstExpression.Divide(leftAst, rightAst),
+                ExpressionType.Equal => AstExpression.Eq(leftAst, rightAst),
                 ExpressionType.ExclusiveOr => expression.Type == typeof(bool) ?
                     throw new ExpressionNotSupportedException(expression, because: "MongoDB does not have an $xor operator") :
-                    AstExpression.BitXor(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.GreaterThan => AstExpression.Gt(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.LessThan => AstExpression.Lt(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.LessThanOrEqual => AstExpression.Lte(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Modulo => AstExpression.Mod(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Multiply => AstExpression.Multiply(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.NotEqual => AstExpression.Ne(leftTranslation.Ast, rightTranslation.Ast),
+                    AstExpression.BitXor(leftAst, rightAst),
+                ExpressionType.GreaterThan => AstExpression.Gt(leftAst, rightAst),
+                ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftAst, rightAst),
+                ExpressionType.LessThan => AstExpression.Lt(leftAst, rightAst),
+                ExpressionType.LessThanOrEqual => AstExpression.Lte(leftAst, rightAst),
+                ExpressionType.Modulo => AstExpression.Mod(leftAst, rightAst),
+                ExpressionType.Multiply => AstExpression.Multiply(leftAst, rightAst),
+                ExpressionType.NotEqual => AstExpression.Ne(leftAst, rightAst),
                 ExpressionType.Or => expression.Type == typeof(bool) ?
-                    AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast) :
-                    AstExpression.BitOr(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.OrElse => AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Power => AstExpression.Pow(leftTranslation.Ast, rightTranslation.Ast),
-                ExpressionType.Subtract => AstExpression.Subtract(leftTranslation.Ast, rightTranslation.Ast),
+                    AstExpression.Or(leftAst, rightAst) :
+                    AstExpression.BitOr(leftAst, rightAst),
+                ExpressionType.OrElse => AstExpression.Or(leftAst, rightAst),
+                ExpressionType.Power => AstExpression.Pow(leftAst, rightAst),
+                ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
                 _ => throw new ExpressionNotSupportedException(expression)
             };
             var serializer = expression.Type switch

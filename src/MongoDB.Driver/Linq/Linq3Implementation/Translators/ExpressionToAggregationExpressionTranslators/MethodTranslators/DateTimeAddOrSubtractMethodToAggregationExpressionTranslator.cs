@@ -126,7 +126,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var thisTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, thisExpression);
-                valueExpression = ConvertHelper.RemoveWideningConvert(valueExpression);
 
                 AstExpression unit, amount;
                 if (method.IsOneOf(__dateTimeAddOrSubtractWithTimeSpanMethods))
@@ -144,19 +143,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         {
                             throw new ExpressionNotSupportedException(valueExpression, expression);
                         }
-                        SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, timeSpanSerializer);
+                        SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, timeSpanSerializer);
 
+                        var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                         var serializerUnits = timeSpanSerializer.Units;
                         (unit, amount) = serializerUnits switch
                         {
-                            TimeSpanUnits.Ticks => ("millisecond", AstExpression.Divide(valueTranslation.Ast, (double)TimeSpan.TicksPerMillisecond)),
-                            TimeSpanUnits.Nanoseconds => ("millisecond", AstExpression.Divide(valueTranslation.Ast, 1000000.0)),
-                            TimeSpanUnits.Microseconds => ("millisecond", AstExpression.Divide(valueTranslation.Ast, 1000.0)),
-                            TimeSpanUnits.Milliseconds => ("millisecond", valueTranslation.Ast),
-                            TimeSpanUnits.Seconds => ("second", valueTranslation.Ast),
-                            TimeSpanUnits.Minutes => ("minute", valueTranslation.Ast),
-                            TimeSpanUnits.Hours => ("hour", valueTranslation.Ast),
-                            TimeSpanUnits.Days => ("day", valueTranslation.Ast),
+                            TimeSpanUnits.Ticks => ("millisecond", AstExpression.Divide(valueAst, (double)TimeSpan.TicksPerMillisecond)),
+                            TimeSpanUnits.Nanoseconds => ("millisecond", AstExpression.Divide(valueAst, 1000000.0)),
+                            TimeSpanUnits.Microseconds => ("millisecond", AstExpression.Divide(valueAst, 1000.0)),
+                            TimeSpanUnits.Milliseconds => ("millisecond", valueAst),
+                            TimeSpanUnits.Seconds => ("second", valueAst),
+                            TimeSpanUnits.Minutes => ("minute", valueAst),
+                            TimeSpanUnits.Hours => ("hour", valueAst),
+                            TimeSpanUnits.Days => ("day", valueAst),
                             _ => throw new ExpressionNotSupportedException(valueExpression, expression)
                         };
                     }
@@ -164,27 +164,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else if (method.IsOneOf(__dateTimeAddOrSubtractWithUnitMethods))
                 {
                     var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                     var unitExpression = arguments[2];
                     var unitConstant = unitExpression.GetConstantValue<DateTimeUnit>(expression);
-                    (unit, amount) = (unitConstant.Unit, valueTranslation.Ast);
+                    (unit, amount) = (unitConstant.Unit, valueAst);
                 }
                 else
                 {
                     var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                    SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, valueTranslation);
+                    SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, valueTranslation);
 
+                    var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                     (unit, amount) = method.Name switch
                     {
-                        "AddTicks" => ("millisecond", AstExpression.Divide(valueTranslation.Ast, (double)TimeSpan.TicksPerMillisecond)),
-                        "AddMilliseconds" => ("millisecond", valueTranslation.Ast),
-                        "AddSeconds" => ("second", valueTranslation.Ast),
-                        "AddMinutes" => ("minute", valueTranslation.Ast),
-                        "AddHours" => ("hour", valueTranslation.Ast),
-                        "AddDays" => ("day", valueTranslation.Ast),
-                        "AddWeeks" => ("week", valueTranslation.Ast),
-                        "AddMonths" => ("month", valueTranslation.Ast),
-                        "AddQuarters" => ("quarter", valueTranslation.Ast),
-                        "AddYears" => ("year", valueTranslation.Ast),
+                        "AddTicks" => ("millisecond", AstExpression.Divide(valueAst, (double)TimeSpan.TicksPerMillisecond)),
+                        "AddMilliseconds" => ("millisecond", valueAst),
+                        "AddSeconds" => ("second", valueAst),
+                        "AddMinutes" => ("minute", valueAst),
+                        "AddHours" => ("hour", valueAst),
+                        "AddDays" => ("day", valueAst),
+                        "AddWeeks" => ("week", valueAst),
+                        "AddMonths" => ("month", valueAst),
+                        "AddQuarters" => ("quarter", valueAst),
+                        "AddYears" => ("year", valueAst),
                         _ => throw new ExpressionNotSupportedException(expression)
                     };
                 }
