@@ -18,14 +18,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.Linq;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -35,6 +33,11 @@ namespace MongoDB.Driver
     /// </summary>
     public class MongoClientSettings : IEquatable<MongoClientSettings>, IInheritableMongoClientSettings
     {
+        /// <summary>
+        /// Extension Manager provides a way to configure extensions for the driver.
+        /// </summary>
+        public static readonly IExtensionManager Extensions = new ExtensionManager();
+
         // private fields
         private bool _allowInsecureTls;
         private string _applicationName;

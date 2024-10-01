@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Authentication
                 MechanismProperties = mechanismProperties
             };
 
-            if (SaslMechanismRegistry.Instance.TryCreate(context, out var saslMechanism))
+            if (MongoClientSettings.Extensions.SaslMechanisms.TryCreate(context, out var saslMechanism))
             {
                 authenticator = new SaslAuthenticator(saslMechanism, serverApi);
                 return true;
