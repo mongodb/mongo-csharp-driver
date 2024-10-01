@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="DateTimeOffsetSerializer"/> class.
         /// </summary>
         public DateTimeOffsetSerializer()
-            : this(BsonType.Array)
+            : this(BsonType.Document)
         {
         }
 
