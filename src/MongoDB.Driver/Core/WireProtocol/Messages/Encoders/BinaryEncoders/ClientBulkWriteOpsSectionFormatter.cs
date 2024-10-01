@@ -136,6 +136,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             => WriteOperation("insert", insertOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+                documentSerializer.EnsureIdAssigned(null, model.Document);
                 context.Writer.WriteName("document");
                 documentSerializer.Serialize(_serializationContext, model.Document);
             });
