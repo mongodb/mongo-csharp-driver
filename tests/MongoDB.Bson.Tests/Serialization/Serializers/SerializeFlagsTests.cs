@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -44,7 +45,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeZero()
         {
             C c = new C { IF = 0, SF = 0 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'IF' : 0, 'SF' : '0' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -57,7 +58,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeA()
         {
             C c = new C { IF = F.A, SF = F.A };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'IF' : 1, 'SF' : 'A' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -70,7 +71,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeB()
         {
             C c = new C { IF = F.B, SF = F.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'IF' : 2, 'SF' : 'B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -83,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeAB()
         {
             C c = new C { IF = F.A | F.B, SF = F.A | F.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'IF' : 3, 'SF' : 'A, B' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -96,7 +97,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInvalid()
         {
             C c = new C { IF = (F)127, SF = (F)127 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'IF' : 127, 'SF' : '127' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

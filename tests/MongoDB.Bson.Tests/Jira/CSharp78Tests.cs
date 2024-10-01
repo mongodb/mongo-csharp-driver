@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -31,7 +32,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestShortSerialization()
         {
             var c = new C { S = 1, O = (short)2 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : 1, 'O' : 2 }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

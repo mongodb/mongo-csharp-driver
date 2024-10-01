@@ -14,6 +14,7 @@
 */
 
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
 using Xunit;
@@ -121,7 +122,7 @@ namespace MongoDB.Bson.Tests
         {
             var c = new C { X = 1 };
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"X\" : 1 }");
         }

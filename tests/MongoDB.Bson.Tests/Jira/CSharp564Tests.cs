@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
@@ -34,7 +35,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp564
         public void TestPersonWhateverNull()
         {
             var p = new Person();
-            var json = p.ToJson();
+            var json = p.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Whatever' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -46,7 +47,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp564
         public void TestPersonWhateverNotNull()
         {
             var p = new Person() { Whatever = new Whatever() };
-            var json = p.ToJson();
+            var json = p.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Whatever' : { '_t' : 'Whatever' } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

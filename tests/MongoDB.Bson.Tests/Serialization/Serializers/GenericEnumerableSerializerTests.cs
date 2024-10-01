@@ -17,6 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -46,7 +47,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
         public void TestNull()
         {
             var obj = new TestClass { Addresses = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -66,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
@@ -91,7 +92,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
         public void TestNull()
         {
             var obj = new TestClass { Addresses = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -111,7 +112,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
@@ -136,7 +137,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
         public void TestNull()
         {
             var obj = new TestClass { Addresses = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -152,7 +153,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
             {
                 Addresses = new List<Address>()
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : [] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -172,7 +173,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : [#A1] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("'", "\"");
@@ -195,7 +196,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
@@ -238,7 +239,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
         public void TestNull()
         {
             var obj = new TestClass { Addresses = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -254,7 +255,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
             {
                 Addresses = new AddressCollection()
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : { '_t' : 'AddressCollection', '_v' : [] } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -274,7 +275,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : { '_t' : 'AddressCollection', '_v' : [#A1] } }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("'", "\"");
@@ -297,7 +298,7 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Addresses' : { '_t' : 'AddressCollection', '_v' : [#A1, #A2] } }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var find = collection.Find(x => x.Id == id);
 
             var rendered = find.ToString();
-            rendered.Should().Be("find({ \"_id\" : ObjectId(\"0102030405060708090a0b0c\") })");
+            rendered.Should().Be("find({ \"_id\" : { \"$oid\" : \"0102030405060708090a0b0c\" } })");
 
             var results = find.ToList();
             results.Count.Should().Be(1);

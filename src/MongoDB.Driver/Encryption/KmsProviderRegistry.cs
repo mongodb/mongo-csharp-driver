@@ -19,17 +19,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {
-    /// <summary>
-    /// Kms Provider Registry.
-    /// </summary>
-    public sealed class KmsProviderRegistry
+    internal sealed class KmsProviderRegistry : IKmsProviderRegistry
     {
-        /// <summary>
-        /// Kms Provider Registry Instance.
-        /// </summary>
-        public static readonly KmsProviderRegistry Instance = CreateDefaultInstance();
-
-        private static KmsProviderRegistry CreateDefaultInstance()
+        internal static KmsProviderRegistry CreateDefaultInstance()
         {
             var registry =  new KmsProviderRegistry();
             registry.Register(GcpKmsProvider.ProviderName, () => GcpKmsProvider.Instance);
@@ -39,15 +31,6 @@ namespace MongoDB.Driver.Encryption
 
         private readonly ConcurrentDictionary<string, Func<IKmsProvider>> _registry = new();
 
-        internal KmsProviderRegistry()
-        {
-        }
-
-        /// <summary>
-        /// Registers new Kms Provider.
-        /// </summary>
-        /// <param name="kmsProviderName">Kms Provider Name.</param>
-        /// <param name="factory">Factory method.</param>
         public void Register(string kmsProviderName, Func<IKmsProvider> factory)
         {
             Ensure.IsNotNullOrEmpty(kmsProviderName, nameof(kmsProviderName));
@@ -59,12 +42,6 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        /// <summary>
-        /// Creates KMS provider if possible.
-        /// </summary>
-        /// <param name="providerName">The requested provider name.</param>
-        /// <param name="provider">When this method succeeds contains the created provider, otherwise <value>null</value>.</param>
-        /// <returns><value>true</value> if the requested provider was created, otherwise <value>false</value>.</returns>
         public bool TryCreate(string providerName, out IKmsProvider provider)
         {
             Ensure.IsNotNullOrEmpty(providerName, nameof(providerName));

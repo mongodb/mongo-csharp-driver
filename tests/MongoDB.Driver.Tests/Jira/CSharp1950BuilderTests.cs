@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
@@ -465,7 +466,7 @@ namespace MongoDB.Driver.Tests.Jira
 
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<C>();
-            var renderedFilter = filter.Render(new(serializer, registry)).ToJson();
+            var renderedFilter = filter.Render(new(serializer, registry)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             renderedFilter.Should().Be(expectedFilter);
 
             var results = collection.FindSync(filter).ToList().OrderBy(x => x.Id).ToList();

@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
 using MongoDB.Bson.Serialization;
@@ -66,7 +67,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp648
         public void TestNoId()
         {
             var c = new C { Id = 1, U1 = new U1 { Id = 1 }, U2 = new U2 { Id = 2 }, U3 = new U3 { Id = 3 } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : 1, 'U1' : { 'Id' : 1 }, 'U2' : { 'Id' : 2 }, 'U3' : { 'Id' : 3 } }".Replace("'", "\"");
             Assert.Equal(expected, json);
         }

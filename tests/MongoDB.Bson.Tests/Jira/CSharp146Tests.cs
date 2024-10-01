@@ -15,6 +15,7 @@
 
 using System.Collections;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -43,7 +44,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp146
         public void TestClass()
         {
             var c = new C { E = E.B, O = E.B };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'E' : 1, 'O' : 1 }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -62,7 +63,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp146
             table["Enum"] = E.B;
             var doc = new Doc { Values = table };
 
-            var json = doc.ToJson();
+            var json = doc.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             // var expected = "{ 'Values' : { 'Text' : 'hello', 'Enum' : 1 } }".Replace("'", "\"");
             // Assert.Equal(expected, json);
             var rehydrated = BsonSerializer.Deserialize<Doc>(json);

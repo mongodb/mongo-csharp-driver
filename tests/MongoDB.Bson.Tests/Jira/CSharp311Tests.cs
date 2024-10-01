@@ -16,6 +16,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -75,7 +76,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionarySerializedAsDocument()
         {
             var c = new C1 { D = new Dictionary<string, object> { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : { 'x' : 1 } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -88,7 +89,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionarySerializedAsArrayOfArrays()
         {
             var c = new C2 { D = new Dictionary<string, object> { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : [['x', 1]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -101,7 +102,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionarySerializedAsArrayOfDocuments()
         {
             var c = new C3 { D = new Dictionary<string, object> { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : [{ 'k' : 'x', 'v' : 1 }] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -114,7 +115,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDictionarySerializedAsBsonArray()
         {
             var c = new C4 { D = new Dictionary<string, object> { { "x", 1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : [['x', 1]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -127,7 +128,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableSerializedAsDocument()
         {
             var d = new D1 { H = new Hashtable { { "x", 1 } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'H' : { 'x' : 1 } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -140,7 +141,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableSerializedAsArrayOfArrays()
         {
             var d = new D2 { H = new Hashtable { { "x", 1 } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -153,7 +154,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableSerializedAsArrayOfDocuments()
         {
             var d = new D3 { H = new Hashtable { { "x", 1 } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'H' : [{ 'k' : 'x', 'v' : 1 }] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -166,7 +167,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestHashtableSerializedAsBsonArray()
         {
             var d = new D4 { H = new Hashtable { { "x", 1 } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
