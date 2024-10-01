@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp2480Tests
     {
-        [Fact(Skip = "No need to run the test, we just need to be sure that the method calls non-ambiguous")]
+        [Fact(Skip = "No need to run the test, we just need to be sure that the method calls are non-ambiguous")]
         public void Test()
         {
             var collection = new Mock<IMongoCollection<Person>>().Object;
@@ -32,6 +32,9 @@ namespace MongoDB.Driver.Tests.Jira
             var updateDefinition = new ObjectUpdateDefinition<Person>(new Person());
             collection.FindOneAndUpdate(c => c.Name == "Test", updateDefinition, new FindOneAndUpdateOptions<Person>());
             collection.FindOneAndUpdateAsync(c => c.Name == "Test", updateDefinition, new FindOneAndUpdateOptions<Person>());
+
+            collection.FindOneAndDelete(c => c.Name == "Test", new FindOneAndDeleteOptions<Person>());
+            collection.FindOneAndDeleteAsync(c => c.Name == "Test", new FindOneAndDeleteOptions<Person>());
         }
 
         private class Person
