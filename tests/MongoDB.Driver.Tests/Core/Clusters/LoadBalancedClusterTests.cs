@@ -19,7 +19,6 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -28,6 +27,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
@@ -64,15 +64,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData()]
-        public void Constructor_should_handle_directConnection_correctly([Values(null, false, true)] bool? directConnection)
+        public void Constructor_should_handle_directConnection_correctly([Values(null, false, true)]bool directConnection)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            _settings = _settings.With(connectionModeSwitch: ConnectionModeSwitch.UseDirectConnection, directConnection: directConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
+            _settings = _settings.With(directConnection: directConnection);
 
             var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, null));
 
-            if (directConnection.GetValueOrDefault())
+            if (directConnection)
             {
                 exception.Should().BeOfType<ArgumentException>();
             }
@@ -91,28 +89,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory));
 
             if (!loadBalanced)
-            {
-                exception.Should().BeOfType<ArgumentException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
-        }
-
-        [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ConnectionModeSwitch.UseConnectionMode, true)]
-        [InlineData(ConnectionModeSwitch.UseDirectConnection, false)]
-        [InlineData(ConnectionModeSwitch.NotSet, false)]
-        public void Constructor_should_throw_when_ConnectionModeSwitch_is_invalid(ConnectionModeSwitch connectionModeSwitch, bool shouldThrow)
-#pragma warning restore CS0618 // Type or member is obsolete
-        {
-            _settings = _settings.With(connectionModeSwitch: connectionModeSwitch);
-
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
-
-            if (shouldThrow)
             {
                 exception.Should().BeOfType<ArgumentException>();
             }

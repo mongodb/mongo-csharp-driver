@@ -232,16 +232,8 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionPoolFactory = CreateConnectionPoolFactory();
             var serverMonitorFactory = CreateServerMonitorFactory();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            var connectionModeSwitch = _clusterSettings.ConnectionModeSwitch;
-            var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _clusterSettings.ConnectionMode : default;
-            var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _clusterSettings.DirectConnection : default;
-#pragma warning restore CS0618 // Type or member is obsolete
-
             return new ServerFactory(
-                connectionMode,
-                connectionModeSwitch,
-                directConnection,
+                _clusterSettings.DirectConnection,
                 _serverSettings,
                 connectionPoolFactory,
                 serverMonitorFactory,

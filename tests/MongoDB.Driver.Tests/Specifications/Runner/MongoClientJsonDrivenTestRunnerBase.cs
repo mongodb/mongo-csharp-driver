@@ -24,7 +24,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -37,7 +36,6 @@ using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.Runner
 {
@@ -376,19 +374,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
                 case "directConnection":
                     var isDirectConnection = option.Value.ToBoolean();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-                    settings.ConnectionMode = ConnectionMode.Automatic;
-                    settings._connectionModeSwitch( ConnectionModeSwitch.UseDirectConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
                     settings.DirectConnection = isDirectConnection;
 
                     if (isDirectConnection)
                     {
-                        settings.Servers = new MongoServerAddress[]
-                        {
-                            settings.Servers.First()
-                        };
+                        settings.Servers = [settings.Servers.First()];
                     }
                     break;
 
@@ -462,10 +452,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 var settings = client.Settings.Clone();
                 ConfigureClientSettings(settings, test);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection &&
-#pragma warning restore CS0618 // Type or member is obsolete
-                    settings.DirectConnection == true)
+                if (settings.DirectConnection == true)
                 {
                     var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
 
@@ -607,13 +594,5 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 AssertOutcome(test);
             }
         }
-    }
-
-    internal static class MongoClientSettingsReflection
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-        public static void _connectionModeSwitch(this MongoClientSettings obj, ConnectionModeSwitch connectionModeSwitch)
-            => Reflector.SetFieldValue(obj, nameof(_connectionModeSwitch), connectionModeSwitch);
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

@@ -21,7 +21,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -31,6 +30,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -335,22 +335,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         {
             var connectionString = new ConnectionString(definition["uri"].AsString);
             var settings = new ClusterSettings(
-#pragma warning disable CS0618
-                connectionModeSwitch: connectionString.ConnectionModeSwitch,
-#pragma warning restore CS0618
+                directConnection: connectionString.DirectConnection,
                 endPoints: Optional.Enumerable(connectionString.Hosts),
                 replicaSetName: connectionString.ReplicaSet,
                 loadBalanced: connectionString.LoadBalanced);
-#pragma warning disable CS0618
-            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                settings = settings.With(directConnection: connectionString.DirectConnection);
-            }
-            else
-            {
-                settings = settings.With(connectionMode: connectionString.Connect);
-            }
-#pragma warning restore CS0618
 
             _eventSubscriber = new EventCapturer();
             _eventSubscriber.Capture<ClusterOpeningEvent>(e => true);

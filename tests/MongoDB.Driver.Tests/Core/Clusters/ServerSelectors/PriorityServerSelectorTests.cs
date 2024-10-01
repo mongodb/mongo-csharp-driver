@@ -37,13 +37,12 @@ public class PriorityServerSelectorTests
         _server2 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018));
         _server3 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019));
 
-#pragma warning disable CS0618 // Type or member is obsolete
         _description = new ClusterDescription(
             clusterId,
-            ClusterConnectionMode.Sharded,
+            false,
+            null,
             ClusterType.Sharded,
-            new[] { _server1, _server2, _server3 });
-#pragma warning restore CS0618 // Type or member is obsolete
+            [_server1, _server2, _server3]);
     }
 
     [Fact]

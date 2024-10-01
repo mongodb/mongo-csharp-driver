@@ -106,13 +106,13 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
-#pragma warning disable CS0618 // Type or member is obsolete
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [new ServerDescription(new ServerId(clusterId, endPoint), endPoint)]);
+
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
@@ -152,13 +152,13 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
-#pragma warning disable CS0618 // Type or member is obsolete
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [new ServerDescription(new ServerId(clusterId, endPoint), endPoint)]);
+
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 

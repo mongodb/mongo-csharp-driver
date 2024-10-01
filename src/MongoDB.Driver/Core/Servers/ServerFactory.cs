@@ -27,12 +27,8 @@ namespace MongoDB.Driver.Core.Servers
     internal sealed class ServerFactory : IClusterableServerFactory
     {
         // fields
-#pragma warning disable CS0618 // Type or member is obsolete
-        private readonly ClusterConnectionMode _clusterConnectionMode;
-        private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConnectionPoolFactory _connectionPoolFactory;
-        private readonly bool? _directConnection;
+        private readonly bool _directConnection;
         private readonly IServerMonitorFactory _serverMonitorFactory;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ServerApi _serverApi;
@@ -41,11 +37,7 @@ namespace MongoDB.Driver.Core.Servers
 
         // constructors
         public ServerFactory(
-#pragma warning disable CS0618 // Type or member is obsolete
-            ClusterConnectionMode clusterConnectionMode,
-            ConnectionModeSwitch connectionModeSwitch,
-#pragma warning restore CS0618 // Type or member is obsolete
-            bool? directConnection,
+            bool directConnection,
             ServerSettings settings,
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory serverMonitoryFactory,
@@ -53,10 +45,6 @@ namespace MongoDB.Driver.Core.Servers
             ServerApi serverApi,
             ILoggerFactory loggerFactory)
         {
-            ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
-
-            _clusterConnectionMode = clusterConnectionMode;
-            _connectionModeSwitch = connectionModeSwitch;
             _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
@@ -85,8 +73,6 @@ namespace MongoDB.Driver.Core.Servers
                     new DefaultServer(
                         clusterId,
                         clusterClock,
-                        _clusterConnectionMode,
-                        _connectionModeSwitch,
                         _directConnection,
                         _settings,
                         endPoint,

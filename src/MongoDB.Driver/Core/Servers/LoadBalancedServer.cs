@@ -41,11 +41,7 @@ namespace MongoDB.Driver.Core.Servers
             : base(
                   clusterId,
                   clusterClock,
-#pragma warning disable CS0618 // Type or member is obsolete
-                  ClusterConnectionMode.Automatic,
-                  ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                  directConnection: null,
+                  directConnection: false,
                   serverSettings,
                   endPoint,
                   connectionPoolFactory,

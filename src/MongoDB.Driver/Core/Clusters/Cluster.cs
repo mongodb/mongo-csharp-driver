@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Clusters
             _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
 
             _clusterId = new ClusterId();
-            _description = CreateInitialDescription();
+            _description = ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
 
@@ -82,16 +82,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
-
-            ClusterDescription CreateInitialDescription()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                var connectionModeSwitch = _settings.ConnectionModeSwitch;
-                var clusterConnectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _settings.ConnectionMode : default;
-                var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _settings.DirectConnection : default;
-                return ClusterDescription.CreateInitial(_clusterId, clusterConnectionMode, _settings.ConnectionModeSwitch, directConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
         }
 
         // events
@@ -142,20 +132,12 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposing");
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                var connectionModeSwitch = _description.ConnectionModeSwitch;
-                var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _description.ConnectionMode : default;
-                var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _description.DirectConnection : default;
-
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
-                    connectionMode,
-                    connectionModeSwitch,
-                    directConnection,
+                    _description.DirectConnection,
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
-#pragma warning restore CS0618 // Type or member is obsolete
 
                 UpdateClusterDescription(newClusterDescription);
 

@@ -125,13 +125,14 @@ namespace MongoDB.Driver.Tests.Encryption
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<IClusterInternal>();
-#pragma warning disable CS0618 // Type or member is obsolete
+
             var clusterDescription = new ClusterDescription(
                 __clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { serverDescription });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [serverDescription]);
+
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
@@ -214,13 +215,13 @@ namespace MongoDB.Driver.Tests.Encryption
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<IClusterInternal>();
-#pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(
                 __clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { serverDescription });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [serverDescription]);
+
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
