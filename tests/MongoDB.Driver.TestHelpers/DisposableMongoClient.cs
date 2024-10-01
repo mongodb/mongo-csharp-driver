@@ -45,15 +45,11 @@ namespace MongoDB.Driver.TestHelpers
 
         public IMongoClient Wrapped => wrapped;
 
-        public void BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-        {
-            wrapped.BulkWrite(models, options, cancellationToken);
-        }
+        public IBulkWriteResults BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+            => wrapped.BulkWrite(models, options, cancellationToken);
 
-        public void BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-        {
-            wrapped.BulkWrite(session, models, options, cancellationToken);
-        }
+        public IBulkWriteResults BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+            => wrapped.BulkWrite(session, models, options, cancellationToken);
 
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {

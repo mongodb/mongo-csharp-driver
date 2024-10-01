@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                return Execute(context, cancellationToken);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 

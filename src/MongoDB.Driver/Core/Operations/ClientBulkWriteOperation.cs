@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -25,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase
+    internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase, IWriteOperation<IBulkWriteResults>
     {
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
@@ -88,20 +90,35 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public override BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public new IBulkWriteResults Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var i = 0;
+            var bulkWriteResults = new BulkWriteRawResults();
             while (!WriteModels.AllItemsWereProcessed)
             {
-                var response = base.Execute(binding, cancellationToken);
-                WriteModels.AdvancePastProcessedItems();
-                i += response.ElementCount;
+                using (var context = RetryableWriteContext.Create(binding, false, cancellationToken))
+                {
+                    var response = base.Execute(context, cancellationToken);
+
+                    if (response != null)
+                    {
+                        PopulateBulkWriteResponse(response, bulkWriteResults);
+                        if (TryGetIndividualResults(context, response, out var cursor))
+                        {
+                            while (cursor.MoveNext(cancellationToken))
+                            {
+                                PopulateIndividualResponses(cursor.Current, bulkWriteResults, 0);
+                            }
+                        }
+                    }
+
+                    WriteModels.AdvancePastProcessedItems();
+                }
             }
 
             return null;
         }
 
-        public override async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public new async Task<IBulkWriteResults> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             while (!WriteModels.AllItemsWereProcessed)
             {
@@ -111,5 +128,85 @@ namespace MongoDB.Driver.Core.Operations
 
             return null;
         }
+
+        private bool TryGetIndividualResults(RetryableWriteContext context, BsonDocument bulkWriteResponse, out AsyncCursor<BsonDocument> cursor)
+        {
+            if (!bulkWriteResponse.TryGetElement("cursor", out var cursorElement))
+            {
+                cursor = null;
+                return false;
+            }
+
+            var cursorDocument = cursorElement.Value.AsBsonDocument;
+
+            cursor = new AsyncCursor<BsonDocument>(
+                context.ChannelSource,
+                CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
+                null,
+                cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
+                cursorDocument["id"].AsInt64,
+                0,
+                0,
+                BsonDocumentSerializer.Instance,
+                MessageEncoderSettings);
+            return true;
+        }
+
+        private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResults bulkWriteResults)
+        {
+            if (bulkWriteResponse.TryGetValue("nErrors", out var errorCount))
+            {
+                bulkWriteResults.ErrorCount += errorCount.AsInt32;
+            }
+
+            if (bulkWriteResponse.TryGetValue("nDeleted", out var deletedCount))
+            {
+                bulkWriteResults.DeletedCount += deletedCount.AsInt32;
+            }
+
+            if (bulkWriteResponse.TryGetValue("nInserted", out var insertedCount))
+            {
+                bulkWriteResults.InsertedCount += insertedCount.AsInt32;
+            }
+
+            if (bulkWriteResponse.TryGetValue("nMatched", out var matchedCount))
+            {
+                bulkWriteResults.MatchedCount += matchedCount.AsInt32;
+            }
+
+            if (bulkWriteResponse.TryGetValue("nModified", out var modifiedCount))
+            {
+                bulkWriteResults.ModifiedCount += modifiedCount.AsInt32;
+            }
+
+            if (bulkWriteResponse.TryGetValue("nUpserted", out var upsertedCount))
+            {
+                bulkWriteResults.UpsertedCount += upsertedCount.AsInt32;
+            }
+        }
+
+        private void PopulateIndividualResponses(IEnumerable<BsonDocument> individualResponses, BulkWriteRawResults bulkWriteResults, int offset)
+        {
+            foreach (var operationResponse in individualResponses)
+            {
+                bulkWriteResults.ErrorCount++;
+            }
+        }
+
+        private class BulkWriteRawResults
+        {
+            public long DeletedCount { get; set; }
+            public long ErrorCount { get; set; }
+            public long InsertedCount { get; set; }
+            public long MatchedCount { get; set; }
+            public long ModifiedCount { get; set; }
+            public long UpsertedCount { get; set; }
+            public Dictionary<long, BulkWriteDeleteResult> DeleteResults { get; set; }
+            public Dictionary<long, BulkWriteOperationError> Errors { get; set; }
+            public Dictionary<long, BulkWriteInsertOneResult> InsertResults { get; set; }
+            public Dictionary<long, BulkWriteUpdateResult> UpdateResults { get; set; }
+        }
+
+
     }
 }

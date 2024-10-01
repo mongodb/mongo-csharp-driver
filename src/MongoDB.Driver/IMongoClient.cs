@@ -45,7 +45,7 @@ namespace MongoDB.Driver
         /// <param name="models">List of operations to execute.</param>
         /// <param name="options">The bulk write options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+        IBulkWriteResults BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Executes a list of mixed write operations.
@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// <param name="models">List of operations to execute.</param>
         /// <param name="options">The bulk write options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+        IBulkWriteResults BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Drops the database with the specified name.
