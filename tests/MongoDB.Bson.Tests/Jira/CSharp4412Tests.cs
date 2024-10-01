@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -50,7 +51,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var document = new ClassWithIEnumerableIds { Ids = value };
 
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
@@ -81,7 +82,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var document = new ClassWithICollectionIds { Ids = value };
 
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
@@ -110,7 +111,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var document = new ClassWithIListIds { Ids = value };
 
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
@@ -137,7 +138,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var document = new ClassWithISetIds { Ids = value };
 
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
             json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }

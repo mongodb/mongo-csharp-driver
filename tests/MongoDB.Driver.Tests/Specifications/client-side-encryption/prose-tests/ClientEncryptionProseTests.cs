@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Authentication.External;
 using MongoDB.Driver.Core;
@@ -2169,8 +2170,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value6.ToJson()} }} }},
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value200.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value6.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value200.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2192,8 +2193,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value0.ToJson()} }} }},
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value6.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value0.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value6.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2214,7 +2215,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gt"" :  {value30.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gt"" :  {value30.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2234,7 +2235,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {{
                                     ""$and"" :
                                     [
-                                        {{ ""$lt"" : [ ""${encryptedKeyWithRangeSupportedType}"", {value30.ToJson()} ] }}
+                                        {{ ""$lt"" : [ ""${encryptedKeyWithRangeSupportedType}"", {value30.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} ] }}
                                     ]
                                }}"),
                                async);

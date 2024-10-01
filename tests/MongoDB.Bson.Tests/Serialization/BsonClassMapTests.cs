@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers;
@@ -366,7 +367,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new ClassA();
             c.AsOfUtc = DateTime.MinValue;
             c.LocalName = "Saleem";
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'LocalName' : 'Saleem' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -374,7 +375,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var date = new DateTime(2011, 4, 24, 0, 0, 0, DateTimeKind.Utc);
             c.AsOfUtc = date;
             expected = "{ 'LocalName' : 'Saleem', 'AsOfUtc' : ISODate('2011-04-24T00:00:00Z') }".Replace("'", "\"");
-            json = c.ToJson();
+            json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             Assert.Equal(expected, json);
         }
 

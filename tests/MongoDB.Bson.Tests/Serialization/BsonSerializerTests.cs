@@ -17,6 +17,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -123,7 +124,7 @@ namespace MongoDB.Bson.Tests.Serialization
                     new OrderDetail { Product = "Ruler", Quantity = 2 }
                 }
             };
-            var json = order.ToJson();
+            var json = order.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Customer' : 'John', 'OrderDetails' : # }";
             expected = expected.Replace("#", "[{ 'Product' : 'Pen', 'Quantity' : 1 }, { 'Product' : 'Ruler', 'Quantity' : 2 }]");
             expected = expected.Replace("'", "\"");

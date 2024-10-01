@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -29,7 +30,7 @@ namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
         public void TestNullKey()
         {
             var kvp = new KeyValuePair<string, object>(null, "value");
-            var json = kvp.ToJson();
+            var json = kvp.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'k' : null, 'v' : 'value' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -42,7 +43,7 @@ namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
         public void TestNullValue()
         {
             var kvp = new KeyValuePair<string, object>("key", null);
-            var json = kvp.ToJson();
+            var json = kvp.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'k' : 'key', 'v' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

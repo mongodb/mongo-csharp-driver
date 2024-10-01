@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Tests
         {
             var arrayList = new ArrayList { 1 };
             var array = new BsonArray(arrayList);
-            var json = array.ToJson();
+            var json = array.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "[1]".Replace("'", "\"");
             Assert.Equal(expected, json);
         }
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Tests
         {
             var arrayList = new ArrayList { 1, 2 };
             var array = new BsonArray(arrayList);
-            var json = array.ToJson();
+            var json = array.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "[1, 2]".Replace("'", "\"");
             Assert.Equal(expected, json);
         }
@@ -57,7 +57,7 @@ namespace MongoDB.Bson.Tests
         {
             var hashtable = new Hashtable { { "A", 1 } };
             var document = new BsonDocument(hashtable);
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'A' : 1 }".Replace("'", "\"");
             Assert.Equal(expected, json);
         }
@@ -360,7 +360,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
             Assert.Equal(true, document.ToBoolean());
             Assert.Same(document, document.ToBsonDocument());
-            Assert.Equal("{ }", document.ToJson());
+            Assert.Equal("{ }", document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
             Assert.Equal(0, document.Values.Count());
         }
 

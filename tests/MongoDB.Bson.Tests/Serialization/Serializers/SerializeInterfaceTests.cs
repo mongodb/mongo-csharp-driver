@@ -14,6 +14,7 @@
 */
 
 using System.Linq;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
@@ -42,7 +43,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeAasA()
         {
             A a = new A { FX = "a" };
-            var json = a.ToJson();
+            var json = a.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FX' : 'a' }").Replace("'", "\""); // no discriminator
             Assert.Equal(expected, json);
 
@@ -55,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeAasIX()
         {
             IX a = new A { FX = "a" };
-            var json = a.ToJson();
+            var json = a.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'A', 'FX' : 'a' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -69,7 +70,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeBasB()
         {
             B b = new B { FX = "b" };
-            var json = b.ToJson();
+            var json = b.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FX' : 'b' }").Replace("'", "\""); // no discriminator
             Assert.Equal(expected, json);
 
@@ -82,7 +83,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeBasIX()
         {
             IX b = new B { FX = "b" };
-            var json = b.ToJson();
+            var json = b.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'B', 'FX' : 'b' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

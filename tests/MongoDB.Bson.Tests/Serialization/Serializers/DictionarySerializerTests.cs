@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         public void TestNull()
         {
             var obj = new T { HT = null, ID = null, LD = null, OD = null, SL = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "null";
             var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ }";
             var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -140,7 +140,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : { '_t' : 'DictionarySerializers.C', 'P' : 'x' } }";
             var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 1 }";
             var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 'x' }";
             var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -231,7 +231,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Hashtable
             {
                 { "A", "{ '_t' : 'DictionarySerializers.C', 'P' : 'x' }"},
@@ -278,7 +278,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Hashtable
             {
                 { "A", "1"},
@@ -325,7 +325,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Hashtable
             {
                 { "A", "'x'"},
@@ -390,7 +390,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson(new JsonWriterSettings());
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Hashtable
             {
                 { "A", "true" },
@@ -591,7 +591,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         public void TestSerializeNull()
         {
             C c = new C { Hashtable = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Hashtable' : null }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -604,7 +604,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         public void TestSerializeEmpty()
         {
             C c = new C { Hashtable = new Hashtable() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Hashtable' : { } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -617,7 +617,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         public void TestSerialize1()
         {
             C c = new C { Hashtable = new Hashtable { { "a", E.A } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Hashtable' : { \"a\" : 1 } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -630,7 +630,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         public void TestSerialize2()
         {
             D d = new D { Hashtable = new SortedList { { "a", E.A }, { "b", E.B } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Hashtable' : { \"a\" : 1, \"b\" : 2 } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

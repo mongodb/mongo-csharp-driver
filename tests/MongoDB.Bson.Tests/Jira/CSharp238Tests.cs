@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -43,7 +44,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp238
             var obj = new C { Points = new Dictionary<Point, Point>() };
             obj.Points.Add(new Point { X = 1, Y = 1 }, new Point { X = 2, Y = 2 });
             obj.Points.Add(new Point { X = 2, Y = 2 }, new Point { X = 3, Y = 3 });
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Points' : [#1, #2] }";
             expected = expected.Replace("#1", "[{ 'X' : 1, 'Y' : 1 }, { 'X' : 2, 'Y' : 2 }]");
             expected = expected.Replace("#2", "[{ 'X' : 2, 'Y' : 2 }, { 'X' : 3, 'Y' : 3 }]");

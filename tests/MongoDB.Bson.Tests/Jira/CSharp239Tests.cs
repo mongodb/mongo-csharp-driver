@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -41,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp239
                 Left = new Tree { Node = "left" },
                 Right = new Tree { Node = "right" }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Node' : 'top', 'Left' : { 'Node' : 'left' }, 'Right' : { 'Node' : 'right' } }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

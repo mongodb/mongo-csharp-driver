@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -90,7 +91,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new IReadOnlyDictionaryBox { Map = new ReadOnlyDictionary<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -106,7 +107,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new IReadOnlyDictionaryBox { Map = new CustomIReadOnlyDictionary<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -122,7 +123,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new IReadOnlyDictionaryBox { Map = new ReadOnlyDictionarySubclass<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -140,7 +141,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new ReadOnlyDictionaryBox { Map = new ReadOnlyDictionary<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -156,7 +157,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new ReadOnlyDictionaryBox { Map = new ReadOnlyDictionarySubclass<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -174,7 +175,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new ReadOnlyDictionarySubclassBox { Map = new ReadOnlyDictionarySubclass<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -191,7 +192,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var map = new Dictionary<object, object> { { "A", 42 } };
             var obj = new CustomIReadOnlyDictionaryBox { Map = new CustomIReadOnlyDictionary<object, object>(map) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 42 }";
             var expected = "{ 'Map' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);

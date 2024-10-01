@@ -15,6 +15,7 @@
 
 using System.Collections.ObjectModel;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -36,7 +37,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp170
                 Collection = new Collection<int> { 1, 2, 3 },
                 Observable = new ObservableCollection<int> { 1, 2, 3 }
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'Collection' : [1, 2, 3], 'Observable' : [1, 2, 3] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

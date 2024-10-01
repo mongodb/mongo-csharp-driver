@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -172,7 +173,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestKeyValuePair1()
         {
             var p = new KeyValuePair<string, int>("a", 42);
-            var json = p.ToJson();
+            var json = p.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ \"k\" : \"a\", \"v\" : 42 }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

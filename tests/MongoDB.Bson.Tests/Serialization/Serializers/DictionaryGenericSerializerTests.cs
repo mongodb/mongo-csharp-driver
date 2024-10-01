@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestNull()
         {
             var obj = new T { D = null, ID = null, IROD = null, ROD = null, SD = null, SL = null };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "null";
 
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
 
@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -169,7 +169,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 1 }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : 'x' }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -239,7 +239,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Dictionary<object, object>
             {
                 { "A", "{ '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' }"},
@@ -285,7 +285,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Dictionary<object, object>
             {
                 { "A", "1"},
@@ -331,7 +331,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Dictionary<object, object>
             {
                 { "A", "'x'"},
@@ -395,7 +395,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson(new JsonWriterSettings());
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var reps = new Dictionary<object, object>
             {
                 { "A", "true" },
@@ -487,7 +487,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = id, IROD = irod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
             var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -578,7 +578,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerializeNull()
         {
             C c = new C { Dictionary = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -591,7 +591,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerializeEmpty()
         {
             C c = new C { Dictionary = new Dictionary<string, E>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -604,7 +604,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerialize1()
         {
             C c = new C { Dictionary = new Dictionary<string, E> { { "a", E.A } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { \"a\" : \"A\" } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -617,7 +617,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerialize2()
         {
             D d = new D { Dictionary = new SortedList<string, E> { { "a", E.A }, { "b", E.B } } };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -642,7 +642,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerializeNull()
         {
             C c = new C { Dictionary = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -655,7 +655,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerializeEmpty()
         {
             C c = new C { Dictionary = new Dictionary<string, string>() };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -668,7 +668,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerialize1()
         {
             C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -681,7 +681,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestSerialize2()
         {
             C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected1 = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\"), \"b\" : ObjectId(\"432109876543210987654321\") } }").Replace("'", "\"");
             var expected2 = ("{ 'Dictionary' : { \"b\" : ObjectId(\"432109876543210987654321\"), \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
             if (json != expected1 && json != expected2)

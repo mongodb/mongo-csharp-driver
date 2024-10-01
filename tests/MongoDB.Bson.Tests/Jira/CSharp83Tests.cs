@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestSerialization()
         {
             var student = new Student { Id = ObjectId.Empty, Scores = new List<int> { 1, 2 } };
-            var json = student.ToJson();
+            var json = student.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'Scores' : [1, 2] }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

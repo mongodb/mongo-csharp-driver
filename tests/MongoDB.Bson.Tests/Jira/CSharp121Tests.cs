@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -34,7 +35,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp121
         public void TestGuidStringRepresentation()
         {
             var c = new C { PhotoId = Guid.Empty };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'PhotoId' : #S }";
             expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
             expected = expected.Replace("'", "\"");
