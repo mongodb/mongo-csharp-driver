@@ -52,7 +52,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             using var logsTracer = new LogsTraceListener();
             using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
             {
-                var settings = GetMongoClientSettings();
+                var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
                 settings.LoggingSettings = new LoggingSettings(loggerFactory);
                 var mongoClient = new MongoClient(settings);
 
@@ -120,15 +120,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
             LogEntry Connection(string message) => new LogEntry(LogLevel.Debug, "MongoDB.Connection", message);
             LogEntry SDAM(string message) => new LogEntry(LogLevel.Debug, "MongoDB.SDAM", message);
-        }
-
-        private static MongoClientSettings GetMongoClientSettings()
-        {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ??
-                Environment.GetEnvironmentVariable("MONGO_URI") ??
-                "mongodb://localhost";
-
-            return MongoClientSettings.FromConnectionString(uri);
         }
     }
 }

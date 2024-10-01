@@ -7,20 +7,8 @@
 
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Libmongocrypt</AssemblyTitle>
-    <Product>MongoDB.Libmongocrypt</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2019–present MongoDB Inc.</Copyright>
     <Description>Libmongocrypt wrapper for the .NET driver.</Description>
-    <Authors>MongoDB Inc.</Authors>
-    <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>Libmongocrypt wrapper for the .NET driver.</PackageDescription>
-    <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
-    <PackageTags>mongodb;mongo;nosql</PackageTags>
-    <PackageLanguage>en-US</PackageLanguage>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
     <BuildInParallel>false</BuildInParallel>
     <NoWarn>CA1060;CA2101;CA1307;SYSLIB0022;SYSLIB0004</NoWarn>
   </PropertyGroup>

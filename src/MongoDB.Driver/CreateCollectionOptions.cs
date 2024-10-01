@@ -187,7 +187,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Clones a CreateCollectionOptions.
+        /// Clones the CreateCollectionOptions.
         /// </summary>
         /// <returns>The cloned CreateCollectionOptions.</returns>
         public virtual CreateCollectionOptions Clone() =>

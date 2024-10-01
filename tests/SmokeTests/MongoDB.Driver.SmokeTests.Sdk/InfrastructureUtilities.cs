@@ -27,6 +27,10 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 {
     internal static class InfrastructureUtilities
     {
+        public static readonly string MongoUri = Environment.GetEnvironmentVariable("MONGODB_URI") ??
+                                        Environment.GetEnvironmentVariable("MONGO_URI") ??
+                                        "mongodb://localhost";
+
         public static void ValidateMongoDBPackageVersion()
         {
             var packageShaExpected = Environment.GetEnvironmentVariable("SmokeTestsPackageSha");
@@ -67,9 +71,8 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         public static ILoggerFactory GetLoggerFactory(TraceListener traceListener, (string Category, string LogLevel)[] categoriesVerbosity = null)
         {
-            var configurationKeyValuePairs = categoriesVerbosity?.Select(p =>
-                                                 new KeyValuePair<string, string>(p.Category, p.LogLevel)) ??
-                                             new[] { new KeyValuePair<string, string>("LogLevel:Default", "Trace") };
+            var configurationKeyValuePairs = categoriesVerbosity?
+                .Select(p => new KeyValuePair<string, string>(p.Category, p.LogLevel)) ?? new[] { new KeyValuePair<string, string>("LogLevel:Default", "Trace") };
 
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection(configurationKeyValuePairs)

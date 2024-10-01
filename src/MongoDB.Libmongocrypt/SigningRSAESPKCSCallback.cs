@@ -15,9 +15,7 @@
  */
 
 using System;
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Security.Cryptography;
-#endif
 
 namespace MongoDB.Libmongocrypt
 {
@@ -60,7 +58,7 @@ namespace MongoDB.Libmongocrypt
 #pragma warning disable CA1801
         public static byte[] HashAndSignBytes(byte[] dataToSign, byte[] key)
         {
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if !NET472
             using (var rsaProvider = new RSACryptoServiceProvider())
             {
                 rsaProvider.ImportPkcs8PrivateKey(key, out _);
@@ -68,7 +66,7 @@ namespace MongoDB.Libmongocrypt
                 return rsaProvider.SignData(dataToSign, SHA256.Create());
             }
 #else
-            throw new System.PlatformNotSupportedException("RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on netcore 3.0 and above.");
+            throw new System.PlatformNotSupportedException("RSACryptoServiceProvider.ImportPkcs8PrivateKey is not supported on .NET framework.");
 #endif
         }
 #pragma warning restore CA1801

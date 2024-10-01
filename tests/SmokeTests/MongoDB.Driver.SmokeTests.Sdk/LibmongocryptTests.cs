@@ -42,10 +42,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         [Fact]
         public void Explicit_encryption_with_libmongocrypt_package_works()
         {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ??
-                      Environment.GetEnvironmentVariable("MONGO_URI") ??
-                      "mongodb://localhost";
-
             var categories = new[] {("LogLevel:MongoDB.Client", "Trace")};
 
             using var logsTracer = new LogsTraceListener();
@@ -100,7 +96,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                         { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
                     });
 
-                var clientSettings = MongoClientSettings.FromConnectionString(uri);
+                var clientSettings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
                 clientSettings.AutoEncryptionOptions = autoEncryptionSettings;
                 clientSettings.LoggingSettings = new LoggingSettings(loggerFactory);
 
