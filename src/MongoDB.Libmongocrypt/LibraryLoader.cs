@@ -177,7 +177,11 @@ namespace MongoDB.Libmongocrypt
             static LinuxLibrary()
 #pragma warning restore CA1810
             {
-                var finalpath = IsAlpine() ? "alpine/" : "";
+#pragma warning disable CA1304
+                var osArchitecture = RuntimeInformation.OSArchitecture.ToString().ToLower();
+#pragma warning restore CA1304
+
+                var finalpath = IsAlpine() ? $"alpine/{osArchitecture}" : $"{osArchitecture}";
 
                 __suffixPaths = new []{
                     $"../../runtimes/linux/native/{finalpath}",
