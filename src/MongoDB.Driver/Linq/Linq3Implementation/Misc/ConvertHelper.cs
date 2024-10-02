@@ -19,6 +19,8 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -149,20 +151,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return expression;
         }
 
-        public static Expression RemoveWideningConvert(Expression expression)
+        public static AstExpression RemoveWideningConvert(AggregationExpression translation)
         {
-            if (expression.NodeType == ExpressionType.Convert)
+            if (translation.Expression is UnaryExpression convertExpression &&
+                convertExpression.NodeType == ExpressionType.Convert &&
+                convertExpression.Operand.Type is var sourceType &&
+                convertExpression.Type is var targetType &&
+                IsWideningConvert(sourceType, targetType) &&
+                translation.Ast is AstUnaryExpression astUnaryExpression &&
+                astUnaryExpression.Operator.IsConvertOperator())
             {
-                var convertExpression = (UnaryExpression)expression;
-                var sourceType = convertExpression.Operand.Type;
-                var targetType = expression.Type;
-                if (IsWideningConvert(sourceType, targetType))
-                {
-                    return convertExpression.Operand;
-                }
+                return astUnaryExpression.Arg;
             }
 
-            return expression;
+            return translation.Ast;
         }
     }
 }
