@@ -373,10 +373,10 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "directConnection":
-                    var isDirectConnection = option.Value.ToBoolean();
-                    settings.DirectConnection = isDirectConnection;
+                    var DirectConnection = option.Value.ToBoolean();
+                    settings.DirectConnection = DirectConnection;
 
-                    if (isDirectConnection)
+                    if (DirectConnection)
                     {
                         settings.Servers = [settings.Servers.First()];
                     }

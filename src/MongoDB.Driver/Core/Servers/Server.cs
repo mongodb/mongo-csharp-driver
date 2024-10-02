@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.Servers
 
         protected abstract void InitializeSubClass();
 
-        protected bool IsDirectConnection => _directConnection;
+        protected bool DirectConnection => _directConnection;
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 
@@ -599,7 +599,7 @@ namespace MongoDB.Driver.Core.Servers
 
             private bool GetEffectiveSecondaryOk(bool secondaryOk)
             {
-                if (_server.IsDirectConnection && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.DirectConnection && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }

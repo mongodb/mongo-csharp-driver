@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 case "Single":
                     if (cluster is SingleServerCluster || cluster is MultiServerCluster)
                     {
-                        cluster.Settings.DirectConnection.Should().Be(clusterDescription.IsDirectConnection);
+                        cluster.Settings.DirectConnection.Should().Be(clusterDescription.DirectConnection);
                         cluster.Description.Type.Should().Be(ClusterType.Standalone);
                     }
                     else

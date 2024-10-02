@@ -742,38 +742,46 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-//        [Theory]
-//#pragma warning disable CS0618 // Type or member is obsolete
-//        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.ShardRouter)]
-//        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.Standalone)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetArbiter)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetGhost)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetOther)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
-//        [InlineData(ClusterConnectionMode.Sharded, ServerType.Standalone)]
-//        public void Should_hide_a_seedlist_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
-//        {
-//            _settings = _settings.With(
-//                endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
-//                connectionMode: connectionMode,
-//                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode);
-//#pragma warning restore CS0618 // Type or member is obsolete
+        [Theory]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ShardRouter)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.Standalone)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetArbiter)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetGhost)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetOther)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
+        [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ShardRouter)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.Standalone)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetArbiter)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetGhost)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetOther)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
+        [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
+        public void Should_hide_a_seedlist_server_of_the_wrong_type(ServerType initialType, ServerType wrongType)
+        {
+            _settings = _settings.With(
+                endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
-//            var subject = CreateSubject();
-//            subject.Initialize();
-//            _capturedEvents.Clear();
+            var subject = CreateSubject();
+            subject.Initialize();
 
-//            PublishDescription(subject, _secondEndPoint, wrongType);
+            // Set cluster to its initial type
+            PublishDescription(subject, _firstEndPoint, initialType);
+            _capturedEvents.Clear();
 
-//            var description = subject.Description;
-//            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _thirdEndPoint), _serverDescriptionComparer);
+            // Publish non compatible server description
+            PublishDescription(subject, _secondEndPoint, wrongType);
 
-//            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
-//            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
-//            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
-//            _capturedEvents.Any().Should().BeFalse();
-//        }
+            var description = subject.Description;
+            description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _thirdEndPoint), _serverDescriptionComparer);
+
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
+        }
 
         [Theory]
         [InlineData(ServerType.ShardRouter)]
@@ -1157,11 +1165,8 @@ namespace MongoDB.Driver.Core.Clusters
             return mockDnsMonitorFactory;
         }
 
-        private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
-        {
-            settings = settings ?? _settings;
-            return new MultiServerCluster(settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
-        }
+        private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null) =>
+            new(settings ?? _settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
 
         private void TimeSpanShouldBeShort(TimeSpan value)
         {
@@ -1195,7 +1200,7 @@ namespace MongoDB.Driver.Core.Clusters
             var current = _serverFactory.GetServerDescription(endPoint);
 
             var config = new ReplicaSetConfig(
-                hosts ?? new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
+                hosts ?? [_firstEndPoint, _secondEndPoint, _thirdEndPoint],
                 setName ?? "test",
                 primary,
                 setVersion);

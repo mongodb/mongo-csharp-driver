@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
         private static IEnumerable<ServerDescription> SelectServersThatDetermineWhetherSessionsAreSupported(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             var connectedServers = servers.Where(s => s.State == ServerState.Connected);
-            if (cluster.IsDirectConnection)
+            if (cluster.DirectConnection)
             {
                 return connectedServers;
             }
@@ -144,14 +144,6 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 return _servers.All(s => s.IsCompatibleWithDriver);
             }
-        }
-
-        /// <summary>
-        /// Gets whether the connection mode or the direct connection flag are configured as a direct connection.
-        /// </summary>
-        public bool IsDirectConnection
-        {
-            get { return _directConnection; }
         }
 
         /// <summary>

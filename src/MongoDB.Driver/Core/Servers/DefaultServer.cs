@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Servers
             else
             {
                 if (newDescription.IsDataBearing ||
-                    (newDescription.Type != ServerType.Unknown && IsDirectConnection))
+                    (newDescription.Type != ServerType.Unknown && DirectConnection))
                 {
                     // The spec requires to check (server.type != Unknown and newTopologyDescription.type == Single)
                     // in C# driver servers in single topology will be only selectable if direct connection was requested
