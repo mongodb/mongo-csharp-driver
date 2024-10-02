@@ -35,13 +35,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly RepresentationConverter _converter;
         private readonly BsonType _representation;
+        private readonly TimeOnlyUnits _units;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeOnlySerializer"/> class.
         /// </summary>
         public TimeOnlySerializer()
-            : this(BsonType.Int64)
+            : this(BsonType.Int64, TimeOnlyUnits.Ticks)
         {
         }
 
@@ -50,9 +51,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public TimeOnlySerializer(BsonType representation)
+            : this(representation, TimeOnlyUnits.Ticks)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeOnlySerializer"/> class.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="units">The units.</param>
+        public TimeOnlySerializer(BsonType representation, TimeOnlyUnits units)
         {
             switch (representation)
             {
+                case BsonType.Double:
+                case BsonType.Int32:
                 case BsonType.Int64:
                 case BsonType.String:
                     break;
@@ -63,11 +76,20 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _representation = representation;
             _converter = new RepresentationConverter(false, false);
+            _units = units;
         }
 
         // public properties
         /// <inheritdoc />
         public BsonType Representation => _representation;
+
+        /// <summary>
+        /// Gets the units.
+        /// </summary>
+        /// <value>
+        /// The units.
+        /// </value>
+        public TimeOnlyUnits Units => _units;
 
         // public methods
         /// <inheritdoc/>
@@ -79,10 +101,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             return bsonType switch
             {
                 BsonType.String => TimeOnly.ParseExact(bsonReader.ReadString(), "o"),
-                BsonType.Int64 =>  new TimeOnly(bsonReader.ReadInt64()),
-                BsonType.Int32 =>  new TimeOnly(bsonReader.ReadInt32()),
-                BsonType.Double =>  new TimeOnly(_converter.ToInt64(bsonReader.ReadDouble())),
-                BsonType.Decimal128 =>  new TimeOnly(_converter.ToInt64(bsonReader.ReadDecimal128())),
+                BsonType.Int64 =>  FromInt64(bsonReader.ReadInt64(), _units),
+                BsonType.Int32 =>  FromInt32(bsonReader.ReadInt32(), _units),
+                BsonType.Double =>  FromDouble(bsonReader.ReadDouble(), _units),
                 _ => throw CreateCannotDeserializeFromBsonTypeException(bsonType)
             };
         }
@@ -97,7 +118,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 base.Equals(obj) &&
                 obj is TimeOnlySerializer other &&
                 _representation.Equals(other._representation) &&
-                _converter.Equals(other._converter);
+                _units.Equals(other._units);
         }
 
         /// <inheritdoc/>
@@ -110,8 +131,16 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             switch (_representation)
             {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(ToDouble(value, _units));
+                    break;
+
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(ToInt32(value, _units));
+                    break;
+
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(value.Ticks);
+                    bsonWriter.WriteInt64(ToInt64(value, _units));
                     break;
 
                 case BsonType.String:
@@ -127,6 +156,69 @@ namespace MongoDB.Bson.Serialization.Serializers
         public TimeOnlySerializer WithRepresentation(BsonType representation)
         {
             return representation == _representation ? this : new TimeOnlySerializer(representation);
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation and units.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="units">The units.</param>
+        /// <returns>
+        /// The reconfigured serializer.
+        /// </returns>
+        public TimeOnlySerializer WithRepresentation(BsonType representation, TimeOnlyUnits units)
+        {
+            if (representation == _representation && units == _units)
+            {
+                return this;
+            }
+
+            return new TimeOnlySerializer(representation, units);
+        }
+
+        // private methods
+        private TimeOnly FromDouble(double value, TimeOnlyUnits units)
+        {
+            return new TimeOnly((long)(value * TicksPerUnit(units)));
+        }
+
+        private TimeOnly FromInt32(int value, TimeOnlyUnits units)
+        {
+            return new TimeOnly(value * TicksPerUnit(units));
+        }
+
+        private TimeOnly FromInt64(long value, TimeOnlyUnits units)
+        {
+            return new TimeOnly(value * TicksPerUnit(units));
+        }
+
+        private long TicksPerUnit(TimeOnlyUnits units)
+        {
+            return units switch
+            {
+                TimeOnlyUnits.Hours => TimeSpan.TicksPerHour,
+                TimeOnlyUnits.Minutes => TimeSpan.TicksPerMinute,
+                TimeOnlyUnits.Seconds => TimeSpan.TicksPerSecond,
+                TimeOnlyUnits.Milliseconds => TimeSpan.TicksPerMillisecond,
+                TimeOnlyUnits.Microseconds => TimeSpan.TicksPerMillisecond / 1000,
+                TimeOnlyUnits.Ticks => 1,
+                _ => throw new ArgumentException($"Invalid TimeOnlyUnits value: {units}.")
+            };
+        }
+
+        private double ToDouble(TimeOnly timeOnly, TimeOnlyUnits units)
+        {
+            return timeOnly.Ticks / (double)TicksPerUnit(units);
+        }
+
+        private int ToInt32(TimeOnly timeOnly, TimeOnlyUnits units)
+        {
+            return (int)(timeOnly.Ticks / TicksPerUnit(units));
+        }
+
+        private long ToInt64(TimeOnly timeOnly, TimeOnlyUnits units)
+        {
+            return timeOnly.Ticks / TicksPerUnit(units);
         }
 
         // explicit interface implementations

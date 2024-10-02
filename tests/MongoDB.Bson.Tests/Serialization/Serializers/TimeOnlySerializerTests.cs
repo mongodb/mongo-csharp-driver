@@ -18,6 +18,8 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -28,40 +30,53 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     public class TimeOnlySerializerTests
     {
         [Fact]
+        public void Attribute_should_set_correct_units()
+        {
+            var timeOnly = new TimeOnly(13, 24, 53);
+
+            var testObj = new TestClass
+            {
+                Hours = timeOnly,
+                Minutes = timeOnly,
+                Seconds = timeOnly,
+                Milliseconds = timeOnly,
+                Microseconds = timeOnly,
+                Ticks = timeOnly,
+            };
+
+            var json = testObj.ToJson();
+
+            var expected = "{ \"Hours\" : NumberLong(13), "
+                           + "\"Minutes\" : NumberLong(804), "
+                           + "\"Seconds\" : NumberLong(48293), "
+                           + "\"Milliseconds\" : NumberLong(48293000), "
+                           + "\"Microseconds\" : NumberLong(\"48293000000\"), "
+                           + "\"Ticks\" : NumberLong(\"482930000000\") }";
+            Assert.Equal(expected, json);
+        }
+
+        [Fact]
         public void Constructor_with_no_arguments_should_return_expected_result()
         {
             var subject = new TimeOnlySerializer();
 
             subject.Representation.Should().Be(BsonType.Int64);
+            subject.Units.Should().Be(TimeOnlyUnits.Ticks);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Constructor_with_representation_should_return_expected_result(
-            [Values(BsonType.String, BsonType.Int64)]
-            BsonType representation)
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)]
+            BsonType representation,
+            [Values(TimeOnlyUnits.Ticks, TimeOnlyUnits.Hours, TimeOnlyUnits.Minutes, TimeOnlyUnits.Seconds,
+                TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Ticks)]
+            TimeOnlyUnits units)
         {
-            var subject = new TimeOnlySerializer(representation);
+            var subject = new TimeOnlySerializer(representation, units);
 
             subject.Representation.Should().Be(representation);
-        }
-
-        [Theory]
-        [InlineData("""{ "x" : { "$numberDouble" : "907255698" } }""","00:01:30.7255698" )]
-        [InlineData("""{ "x" : { "$numberDecimal" : "907255698" } }""","00:01:30.7255698" )]
-        [InlineData("""{ "x" : { "$numberInt" : "907255698" } }""","00:01:30.7255698" )]
-        public void Deserialize_should_be_forgiving_of_actual_numeric_types(string json, string expectedResult)
-        {
-            var subject = new TimeOnlySerializer();
-
-            using var reader = new JsonReader(json);
-            reader.ReadStartDocument();
-            reader.ReadName("x");
-            var context = BsonDeserializationContext.CreateRoot(reader);
-            var result = subject.Deserialize(context);
-            reader.ReadEndDocument();
-
-            result.Should().Be(TimeOnly.ParseExact(expectedResult, "o"));
+            subject.Units.Should().Be(units);
         }
 
         [Theory]
@@ -71,18 +86,96 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : { "$numberLong" : "307255946583" } }""","08:32:05.5946583" )]
         [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
         [InlineData("""{ "x" : { "$numberLong" : "863999999999" } }""","23:59:59.9999999" )]
-        public void Deserialize_should_have_expected_result(string json, string expectedResult)
+        [InlineData("""{ "x" : { "$numberDouble" : "307255946583" } }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "863999999999" } }""","23:59:59.9999999" )]
+        [InlineData("""{ "x" : { "$numberInt" : "27624525" } }""","00:00:02.7624525" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "2147483647" } }""","00:03:34.7483647" )] //int.MaxValue
+        public void Deserialize_with_ticks_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer();
+            TestDeserialize(subject, json, expectedResult);
+        }
 
-            using var reader = new JsonReader(json);
-            reader.ReadStartDocument();
-            reader.ReadName("x");
-            var context = BsonDeserializationContext.CreateRoot(reader);
-            var result = subject.Deserialize(context);
-            reader.ReadEndDocument();
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "14" } }""","14:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "14" } }""","14:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "15.54" } }""","15:32:24.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "14" } }""","14:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_hours_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Hours);
+            TestDeserialize(subject, json, expectedResult);
+        }
 
-            result.Should().Be(TimeOnly.ParseExact(expectedResult, "o"));
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "145" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "145" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "145.5" } }""","02:25:30.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "145" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_minutes_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Minutes);
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700.25" } }""","02:25:00.2500000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "8700" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_seconds_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Seconds);
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700250.43" } }""","02:25:00.2504300" )]
+        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_milliseconds_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Milliseconds);
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700250430.5" } }""","02:25:00.2504305" )]
+        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""","00:00:08.7000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_microseconds_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Microseconds);
+            TestDeserialize(subject, json, expectedResult);
         }
 
         [Theory]
@@ -169,10 +262,144 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData(BsonType.Int64, "08:32:05.5946583", """{ "x" : { "$numberLong" : "307255946583" } }""")]
         [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
         [InlineData(BsonType.Int64, "23:59:59.9999999", """{ "x" : { "$numberLong" : "863999999999" } }""")]
-        public void Serialize_should_have_expected_result(BsonType representation, string valueString,
+        [InlineData(BsonType.Double, "08:32:05.5946583", """{ "x" : { "$numberDouble" : "307255946583.0" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Double, "23:59:59.9999999", """{ "x" : { "$numberDouble" : "863999999999.0" } }""")]
+        [InlineData(BsonType.Int32, "00:00:02.7624525", """{ "x" : { "$numberInt" : "27624525" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        [InlineData(BsonType.Int32, "00:03:34.7483647", """{ "x" : { "$numberInt" : "2147483647" } }""")] //int.MaxValue
+        public void Serialize_with_ticks_should_have_expected_result(BsonType representation, string valueString,
             string expectedResult)
         {
-            var subject = new TimeOnlySerializer(representation);
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Ticks);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "14:32:24.0000000", """{ "x" : { "$numberLong" : "14" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "14:32:24.0000000", """{ "x" : { "$numberDouble" : "14.539999999999999" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "14:32:24.0000000", """{ "x" : { "$numberInt" : "14" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_hours_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Hours);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "02:25:30.0000000", """{ "x" : { "$numberLong" : "145" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "02:25:30.0000000", """{ "x" : { "$numberDouble" : "145.5" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "02:25:30.0000000", """{ "x" : { "$numberInt" : "145" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_minutes_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Minutes);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "02:25:00.2500000", """{ "x" : { "$numberLong" : "8700" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "02:25:00.2500000", """{ "x" : { "$numberDouble" : "8700.25" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "02:25:00.2500000", """{ "x" : { "$numberInt" : "8700" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_seconds_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Seconds);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "02:25:00.2504300", """{ "x" : { "$numberLong" : "8700250" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "02:25:00.2504300", """{ "x" : { "$numberDouble" : "8700250.4299999997" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "02:25:00.2504300", """{ "x" : { "$numberInt" : "8700250" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_milliseconds_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Milliseconds);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "02:25:00.2504305", """{ "x" : { "$numberLong" : "8700250430" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "02:25:00.2504305", """{ "x" : { "$numberDouble" : "8700250430.5" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "00:00:08.7000000", """{ "x" : { "$numberInt" : "8700000" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_microseconds_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Microseconds);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Fact]
+        public void Serializer_should_be_registered()
+        {
+            var serializer = BsonSerializer.LookupSerializer(typeof(TimeOnly));
+
+            serializer.Should().Be(new TimeOnlySerializer());
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WithRepresentation_should_return_expected_result(
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)] BsonType oldRepresentation,
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)] BsonType newRepresentation)
+        {
+            var subject = new TimeOnlySerializer(oldRepresentation);
+
+            var result = subject.WithRepresentation(newRepresentation);
+
+            result.Representation.Should().Be(newRepresentation);
+            if (newRepresentation == oldRepresentation)
+            {
+                result.Should().BeSameAs(subject);
+            }
+        }
+
+        private static void TestDeserialize(TimeOnlySerializer subject, string json, string expectedResult)
+        {
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(TimeOnly.ParseExact(expectedResult, "o"));
+        }
+
+        private static void TestSerialize(TimeOnlySerializer subject, string valueString, string expectedResult)
+        {
             var value = TimeOnly.ParseExact(valueString, "o");
 
             using var textWriter = new StringWriter();
@@ -189,29 +416,25 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void Serializer_should_be_registered()
+        private class TestClass
         {
-            var serializer = BsonSerializer.LookupSerializer(typeof(TimeOnly));
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Hours )]
+            public TimeOnly Hours { get; set; }
 
-            serializer.Should().Be(new TimeOnlySerializer());
-        }
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Minutes )]
+            public TimeOnly Minutes { get; set; }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void WithRepresentation_should_return_expected_result(
-            [Values(BsonType.Int64, BsonType.String)] BsonType oldRepresentation,
-            [Values(BsonType.Int64, BsonType.String)] BsonType newRepresentation)
-        {
-            var subject = new TimeOnlySerializer(oldRepresentation);
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Seconds )]
+            public TimeOnly Seconds { get; set; }
 
-            var result = subject.WithRepresentation(newRepresentation);
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Milliseconds )]
+            public TimeOnly Milliseconds { get; set; }
 
-            result.Representation.Should().Be(newRepresentation);
-            if (newRepresentation == oldRepresentation)
-            {
-                result.Should().BeSameAs(subject);
-            }
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Microseconds )]
+            public TimeOnly Microseconds { get; set; }
+
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Ticks )]
+            public TimeOnly Ticks { get; set; }
         }
     }
 #endif
