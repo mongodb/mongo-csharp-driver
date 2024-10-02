@@ -15,9 +15,11 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Encryption;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Range options.

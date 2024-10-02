@@ -13,27 +13,26 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Encryption
+using MongoDB.Bson;
+
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
-    /// Rewrap many data keys result.
+    /// Represents the result of a create encrypted collection.
     /// </summary>
-    public sealed class RewrapManyDataKeyResult
+    public sealed class CreateEncryptedCollectionResult
     {
-        /// <summary>
-        /// Create RewrapManyDataKeyResult.
-        /// </summary>
-        public RewrapManyDataKeyResult() { }
+        private readonly BsonDocument _encryptedFields;
 
         /// <summary>
-        /// Create RewrapManyDataKeyResult.
+        /// Initializes a new instance of the <see cref="CreateEncryptedCollectionResult"/> class.
         /// </summary>
-        /// <param name="bulkWriteResult">The bulkWriteResult.</param>
-        public RewrapManyDataKeyResult(BulkWriteResult bulkWriteResult) => BulkWriteResult = bulkWriteResult;
+        /// <param name="encryptedFields">The encrypted fields document.</param>
+        public CreateEncryptedCollectionResult(BsonDocument encryptedFields) => _encryptedFields = encryptedFields;
 
         /// <summary>
-        /// Bulk write result.
+        /// The encrypted fields document.
         /// </summary>
-        public BulkWriteResult BulkWriteResult { get; }
+        public BsonDocument EncryptedFields => _encryptedFields;
     }
 }

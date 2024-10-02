@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Auto encryption options.
     /// </summary>
-    public class AutoEncryptionOptions : IEncryptionOptions
+    public sealed class AutoEncryptionOptions
     {
         // private fields
         private readonly bool _bypassAutoEncryption;

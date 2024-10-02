@@ -15,8 +15,9 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Options for creating a data key.

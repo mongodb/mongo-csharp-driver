@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Represents an encryption algorithm.
@@ -23,11 +23,15 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Deterministic algorithm.
         /// </summary>
+#pragma warning disable CA1707
         AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic,
+#pragma warning restore CA1707
         /// <summary>
         /// Random algorithm.
         /// </summary>
+#pragma warning disable CA1707
         AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+#pragma warning restore CA1707
         /// <summary>
         /// Indexed algorithm.
         /// </summary>

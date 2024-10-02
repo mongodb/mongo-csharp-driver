@@ -14,9 +14,10 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Rewrap many data keys options.

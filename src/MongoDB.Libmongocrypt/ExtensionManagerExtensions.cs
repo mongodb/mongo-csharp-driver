@@ -18,7 +18,7 @@ using MongoDB.Driver;
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
-    /// AutoEncryption Provider Extensions.
+    /// IExtensionManager extensions.
     /// </summary>
     public static class ExtensionManagerExtensions
     {
@@ -26,12 +26,10 @@ namespace MongoDB.Libmongocrypt
         /// Registers the AutoEncryption Provider.
         /// </summary>
         /// <param name="extensionManager">The extension manager.</param>
-        /// <returns></returns>
         public static IExtensionManager AddAutoEncryption(this IExtensionManager extensionManager)
         {
             extensionManager.AutoEncryptionProvider.Register(AutoEncryptionLibMongoCryptController.Create);
             return extensionManager;
         }
-
     }
 }

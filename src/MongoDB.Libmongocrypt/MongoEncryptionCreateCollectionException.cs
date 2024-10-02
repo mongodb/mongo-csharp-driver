@@ -16,13 +16,16 @@
 using System;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
+#pragma warning disable CA1032
     public class MongoEncryptionCreateCollectionException : MongoEncryptionException
+#pragma warning restore CA1032
     {
         private readonly BsonDocument _encryptedFields;
 
