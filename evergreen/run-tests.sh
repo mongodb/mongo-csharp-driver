@@ -141,7 +141,10 @@ if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFI
     export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
 fi
 
+. ./evergreen/export-libmongocrypt-path.sh
+
 if [[ "$TARGET" =~ "SmokeTests" ]]; then
+    unset LIBMONGOCRYPT_PATH
     # add/adjust nuget.config pointing to myget so intermediate versions could be restored
     if [ -f "./nuget.config" ]; then
       echo "Adding myget into nuget.config"

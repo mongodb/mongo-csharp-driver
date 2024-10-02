@@ -246,6 +246,12 @@ namespace MongoDB.Libmongocrypt.Test
         }
 
         [Fact]
+        public static void LibmongocryptLibraryShouldProvideLibraryVersion()
+        {
+            Library.Version.Should().Be("1.10.0");
+        }
+
+        [Fact]
         public void TestAwsKeyCreationWithEndPoint()
         {
             var endpoint = "kms.us-east-1.amazonaws.com";

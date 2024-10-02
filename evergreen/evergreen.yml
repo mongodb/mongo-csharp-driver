@@ -411,8 +411,6 @@ functions:
           export AZURE_IMDS_MOCK_ENDPOINT="localhost:8080"
           ${PREPARE_SHELL}
           OS=${OS} \
-            . ./evergreen/export-libmongocrypt-path.sh
-          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -447,8 +445,6 @@ functions:
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
-          OS=${OS} \
-            . ./evergreen/export-libmongocrypt-path.sh
           OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
