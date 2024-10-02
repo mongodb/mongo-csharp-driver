@@ -18,23 +18,15 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// AutoEncryption Provider.
+    /// AutoEncryption Provider Registry.
     /// </summary>
-    public sealed class AutoEncryptionProvider
+    internal sealed class AutoEncryptionProviderRegistry : IAutoEncryptionProviderRegistry
     {
-        /// <summary>
-        /// AutoEncryption Provider Instance.
-        /// </summary>
-        public static readonly AutoEncryptionProvider Instance = new();
+        internal static AutoEncryptionProviderRegistry CreateDefaultInstance() => new AutoEncryptionProviderRegistry();
 
         private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
 
-        /// <summary>
-        /// Registers an AutoCryptClientControllerFactory.
-        /// </summary>
-        /// <param name="factory">The AutoCryptClientControllerFactory.</param>
-        /// <exception cref="MongoConfigurationException"></exception>
-        public void RegisterAutoCryptClientControllerFactory(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
+        public void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {
             if (s_autoCryptClientControllerFactory != null)
             {

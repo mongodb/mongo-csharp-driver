@@ -13,23 +13,25 @@
  * limitations under the License.
  */
 
-using MongoDB.Driver.Encryption;
+using MongoDB.Driver;
 
 namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// AutoEncryption Provider Extensions.
     /// </summary>
-    public static class AutoEncryptionProviderExtensions
+    public static class ExtensionManagerExtensions
     {
         /// <summary>
         /// Registers the AutoEncryption Provider.
         /// </summary>
-        /// <param name="autoEncryptionProvider">AutoEncryption Provider.</param>
-        public static AutoEncryptionProvider RegisterAutoEncryption(this AutoEncryptionProvider autoEncryptionProvider)
+        /// <param name="extensionManager">The extension manager.</param>
+        /// <returns></returns>
+        public static IExtensionManager AddAutoEncryption(this IExtensionManager extensionManager)
         {
-            autoEncryptionProvider.RegisterAutoCryptClientControllerFactory(AutoEncryptionLibMongoCryptController.Create);
-            return autoEncryptionProvider;
+            extensionManager.AutoEncryptionProvider.Register(AutoEncryptionLibMongoCryptController.Create);
+            return extensionManager;
         }
+
     }
 }

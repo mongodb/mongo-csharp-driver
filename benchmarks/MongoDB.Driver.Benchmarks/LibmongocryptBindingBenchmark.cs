@@ -20,7 +20,6 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
@@ -36,14 +35,13 @@ namespace MongoDB.Benchmarks
         private DisposableMongoClient _disposableKeyVaultClient;
         private IAutoEncryptionLibMongoCryptController _libMongoCryptController;
 
-        [Params(1, 2, 8, 64)]
+        [Params(1)]
         public int ThreadsCount { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
-
-            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+            MongoClientSettings.Extensions.AddAutoEncryption();
 
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -94,7 +92,9 @@ namespace MongoDB.Benchmarks
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
             // Create libmongocrypt binding that will be used for decryption
-            _libMongoCryptController = AutoEncryptionProvider.Instance.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
+            _libMongoCryptController =
+                ((AutoEncryptionProviderRegistry)MongoClientSettings.Extensions.AutoEncryptionProvider)
+                .CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
         }
 
         [Benchmark]

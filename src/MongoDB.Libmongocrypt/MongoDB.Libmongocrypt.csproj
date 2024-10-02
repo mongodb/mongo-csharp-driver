@@ -78,35 +78,35 @@
 
   <ItemGroup>
     <Content Include="$(MSBuildProjectDirectory)/linux/x64/libmongocrypt.so">
-      <Link>x64\libmongocrypt.so</Link>
+      <Link>libmongocrypt\linux-x64\libmongocrypt.so</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux\native\x64</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/linux/arm64/libmongocrypt.so">
-      <Link>arm64\libmongocrypt.so</Link>
+      <Link>libmongocrypt\linux-arm64\libmongocrypt.so</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux\native\arm64</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/linux/alpine/libmongocrypt.so">
-      <Link>alpine\libmongocrypt.so</Link>
+      <Link>libmongocrypt\linux-alpine\libmongocrypt.so</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux\native\alpine</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/macos/libmongocrypt.dylib">
-      <Link>libmongocrypt.dylib</Link>
+      <Link>libmongocrypt\macos\libmongocrypt.dylib</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\osx\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/windows/mongocrypt.dll">
-      <Link>mongocrypt.dll</Link>
+      <Link>libmongocrypt\windows\mongocrypt.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
       <PackagePath>runtimes\win\native</PackagePath>

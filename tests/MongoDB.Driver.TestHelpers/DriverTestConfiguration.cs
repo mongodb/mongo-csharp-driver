@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests
 {
@@ -53,6 +54,7 @@ namespace MongoDB.Driver.Tests
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
 
             MongoClientSettings.Extensions.AddAWSAuthentication();
+            MongoClientSettings.Extensions.AddAutoEncryption();
         }
 
         // public static properties

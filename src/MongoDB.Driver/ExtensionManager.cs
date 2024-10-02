@@ -24,10 +24,13 @@ namespace MongoDB.Driver
         {
             SaslMechanisms = SaslMechanismRegistry.CreateDefaultInstance();
             KmsProviders = KmsProviderRegistry.CreateDefaultInstance();
+            AutoEncryptionProvider = AutoEncryptionProviderRegistry.CreateDefaultInstance();
         }
 
         public ISaslMechanismRegistry SaslMechanisms { get; }
 
         public IKmsProviderRegistry KmsProviders { get; }
+
+        public IAutoEncryptionProviderRegistry AutoEncryptionProvider { get; }
     }
 }

@@ -35,7 +35,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         public LibmongocryptTests(ITestOutputHelper output)
         {
             InfrastructureUtilities.ValidateMongoDBPackageVersion();
-            AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+            MongoClientSettings.Extensions.AddAutoEncryption();
             _output = output;
         }
 

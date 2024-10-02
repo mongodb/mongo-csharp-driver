@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.Tests;
 using MongoDB.Libmongocrypt;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.Examples
 
         private readonly ITestOutputHelper _output;
 
-        static ClientEncryptionExamples() => AutoEncryptionProvider.Instance.RegisterAutoEncryption();
+        static ClientEncryptionExamples() => MongoClientSettings.Extensions.AddAutoEncryption();
 
         public ClientEncryptionExamples(ITestOutputHelper output)
         {
