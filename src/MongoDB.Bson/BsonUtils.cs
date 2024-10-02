@@ -76,8 +76,7 @@ namespace MongoDB.Bson
         /// Parses a hex string into its equivalent byte array.
         /// </summary>
         /// <param name="s">The hex string to parse.</param>
-        /// <param name="bytes">The hex string to parse.</param>
-        /// <returns>The output buffer containing the byte equivalent of the hex string.</returns>
+        /// <param name="bytes">The output buffer containing the byte equivalent of the hex string.</param>
         public static void ParseHexChars(ReadOnlySpan<char> s, Span<byte> bytes)
         {
             if (s == null)
