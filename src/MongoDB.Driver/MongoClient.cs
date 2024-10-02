@@ -534,7 +534,11 @@ namespace MongoDB.Driver
             return messageEncoderSettings;
         }
 
-        private IClientSessionHandle StartImplicitSession()
+        /// <summary>
+        /// Starts an implicit Core Session.
+        /// </summary>
+        /// <returns>A handle to an underlying reference counted <see cref="IClientSession"/>.</returns>
+        protected virtual IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
             ICoreSessionHandle coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
