@@ -63,18 +63,13 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
                         break;
 
                     case "options":
-                        ParseOptions((BsonDocument)argument.Value);
+                        _options = new GridFSDownloadOptions();
                         break;
 
                     default:
                         throw new ArgumentException(string.Format("Invalid argument name: {0}.", argument.Name));
                 }
             }
-        }
-
-        private void ParseOptions(BsonDocument options)
-        {
-            _options = _options ?? new GridFSDownloadOptions(); //TODO check if this is necessary at all
         }
     }
 
