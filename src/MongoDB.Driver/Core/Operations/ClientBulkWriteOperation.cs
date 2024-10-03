@@ -21,13 +21,14 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase, IWriteOperation<IBulkWriteResults>
+    internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase, IWriteOperation<BulkWriteResults>
     {
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
@@ -90,46 +91,178 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public new IBulkWriteResults Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public new BulkWriteResults Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
             var bulkWriteResults = new BulkWriteRawResults();
-            while (!WriteModels.AllItemsWereProcessed)
+            while (true)
             {
-                using (var context = RetryableWriteContext.Create(binding, false, cancellationToken))
+                using var context = RetryableWriteContext.Create(binding, false, cancellationToken);
+                BsonDocument serverResponse = null;
+                try
                 {
-                    var response = base.Execute(context, cancellationToken);
+                    serverResponse = base.Execute(context, cancellationToken);
+                }
+                catch (MongoWriteConcernException concernException)
+                {
+                    bulkWriteResults.ConcernErrors.Add(concernException.WriteConcernResult);
+                    serverResponse = concernException.WriteConcernResult.Response;
+                }
+                catch (MongoCommandException commandException) when (commandException.Result != null)
+                {
+                    bulkWriteResults.TopLevelException = commandException;
+                    serverResponse = commandException.Result;
+                }
+                catch (Exception exception)
+                {
+                    bulkWriteResults.TopLevelException = exception;
+                }
 
-                    if (response != null)
+                if (serverResponse != null)
+                {
+                    IAsyncCursor<BsonDocument> individualResultsCursor = null;
+                    try
                     {
-                        PopulateBulkWriteResponse(response, bulkWriteResults);
-                        if (TryGetIndividualResults(context, response, out var cursor))
+                        PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
+                        if (TryGetIndividualResults(context, serverResponse, out individualResultsCursor))
                         {
-                            while (cursor.MoveNext(cancellationToken))
+                            if (bulkWriteResults.TopLevelException == null)
                             {
-                                PopulateIndividualResponses(cursor.Current, bulkWriteResults, 0);
+                                while (individualResultsCursor.MoveNext(cancellationToken))
+                                {
+                                    PopulateIndividualResponses(individualResultsCursor.Current, bulkWriteResults);
+                                }
                             }
                         }
                     }
+                    finally
+                    {
+                        individualResultsCursor?.Dispose();
+                    }
+                }
 
-                    WriteModels.AdvancePastProcessedItems();
+                WriteModels.AdvancePastProcessedItems();
+                EnsureCanProceedNextBatch(context.Channel.ConnectionDescription.ConnectionId, bulkWriteResults);
+
+                if (WriteModels.AllItemsWereProcessed)
+                {
+                    return ToFinalResultsOrThrow(context.Channel.ConnectionDescription.ConnectionId, bulkWriteResults);
                 }
             }
-
-            return null;
         }
 
-        public new async Task<IBulkWriteResults> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public new async Task<BulkWriteResults> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            while (!WriteModels.AllItemsWereProcessed)
+            var bulkWriteResults = new BulkWriteRawResults();
+            while (true)
             {
-                await base.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                using var context = RetryableWriteContext.Create(binding, false, cancellationToken);
+                BsonDocument serverResponse = null;
+                try
+                {
+                    serverResponse = await base.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                }
+                catch (MongoWriteConcernException concernException)
+                {
+                    bulkWriteResults.ConcernErrors.Add(concernException.WriteConcernResult);
+                    serverResponse = concernException.WriteConcernResult.Response;
+                }
+                catch (MongoCommandException commandException) when (commandException.Result != null)
+                {
+                    bulkWriteResults.TopLevelException = commandException;
+                    serverResponse = commandException.Result;
+                }
+                catch (Exception exception)
+                {
+                    bulkWriteResults.TopLevelException = exception;
+                }
+
+                if (serverResponse != null)
+                {
+                    IAsyncCursor<BsonDocument> individualResultsCursor = null;
+                    try
+                    {
+                        PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
+                        if (TryGetIndividualResults(context, serverResponse, out individualResultsCursor))
+                        {
+                            if (bulkWriteResults.TopLevelException == null)
+                            {
+                                while (await individualResultsCursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                                {
+                                    PopulateIndividualResponses(individualResultsCursor.Current, bulkWriteResults);
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        individualResultsCursor?.Dispose();
+                    }
+                }
+
                 WriteModels.AdvancePastProcessedItems();
+                EnsureCanProceedNextBatch(context.Channel.ConnectionDescription.ConnectionId, bulkWriteResults);
+
+                if (WriteModels.AllItemsWereProcessed)
+                {
+                    return ToFinalResultsOrThrow(context.Channel.ConnectionDescription.ConnectionId, bulkWriteResults);
+                }
+            }
+        }
+
+        private void EnsureCanProceedNextBatch(ConnectionId connectionId, BulkWriteRawResults bulkWriteResults)
+        {
+            if (bulkWriteResults.TopLevelException != null)
+            {
+                var partialResults = ToBulkResults(bulkWriteResults);
+                throw new BulkWriteException(
+                    connectionId,
+                    "An error occured while bulkWrite operation. See InnerException for more details.",
+                    bulkWriteResults.Errors,
+                    partialResults,
+                    bulkWriteResults.ConcernErrors,
+                    bulkWriteResults.TopLevelException);
             }
 
-            return null;
+            if (bulkWriteResults.Errors.Count > 0 && IsOrdered)
+            {
+                var partialResults = ToBulkResults(bulkWriteResults);
+                throw new BulkWriteException(
+                    connectionId,
+                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    bulkWriteResults.Errors,
+                    partialResults,
+                    bulkWriteResults.ConcernErrors);
+            }
         }
 
-        private bool TryGetIndividualResults(RetryableWriteContext context, BsonDocument bulkWriteResponse, out AsyncCursor<BsonDocument> cursor)
+        private BulkWriteResults ToFinalResultsOrThrow(ConnectionId connectionId, BulkWriteRawResults bulkWriteResults)
+        {
+            var results = ToBulkResults(bulkWriteResults);
+
+            if (bulkWriteResults.Errors.Count > 0)
+            {
+                throw new BulkWriteException(
+                    connectionId,
+                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    bulkWriteResults.Errors,
+                    results,
+                    bulkWriteResults.ConcernErrors);
+            }
+
+            if (bulkWriteResults.ConcernErrors.Count > 0)
+            {
+                throw new BulkWriteException(
+                    connectionId,
+                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    bulkWriteResults.Errors,
+                    results,
+                    bulkWriteResults.ConcernErrors);
+            }
+
+            return results;
+        }
+
+        private bool TryGetIndividualResults(RetryableWriteContext context, BsonDocument bulkWriteResponse, out IAsyncCursor<BsonDocument> cursor)
         {
             if (!bulkWriteResponse.TryGetElement("cursor", out var cursorElement))
             {
@@ -185,12 +318,81 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private void PopulateIndividualResponses(IEnumerable<BsonDocument> individualResponses, BulkWriteRawResults bulkWriteResults, int offset)
+        private void PopulateIndividualResponses(IEnumerable<BsonDocument> individualResponses, BulkWriteRawResults bulkWriteResults)
         {
             foreach (var operationResponse in individualResponses)
             {
-                bulkWriteResults.ErrorCount++;
+                var isSucceeded = operationResponse["ok"].AsDouble != 0;
+                var operationIndex = WriteModels.Offset + operationResponse["idx"].AsInt32;
+
+                if (isSucceeded)
+                {
+                    var writeModel = WriteModels.Items[operationIndex];
+                    var writeModelType = writeModel.GetType().GetGenericTypeDefinition();
+
+                    if (writeModelType == typeof(BulkWriteInsertOneModel<>))
+                    {
+                        bulkWriteResults.InsertResults.Add(operationIndex, new BulkWriteInsertOneResult
+                        {
+                        });
+                    }
+                    else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))
+                    {
+                        operationResponse.TryGetValue("upserted", out var upsertedId);
+                        bulkWriteResults.UpdateResults.Add(operationIndex, new BulkWriteUpdateResult
+                        {
+                            MatchedCount = operationResponse["n"].AsInt32,
+                            ModifiedCount = operationResponse["nModified"].AsInt32,
+                            UpsertedId = upsertedId
+                        });
+                    }
+                    else if (writeModelType == typeof(BulkWriteDeleteOneModel<>) || writeModelType == typeof(BulkWriteDeleteManyModel<>))
+                    {
+                        bulkWriteResults.DeleteResults.Add(operationIndex, new BulkWriteDeleteResult
+                        {
+                            DeletedCount = operationResponse["n"].AsInt32,
+                        });
+                    }
+                }
+                else
+                {
+                    BsonDocument errInfo = null;
+                    if (operationResponse.TryGetElement("errInfo", out var errInfoElement))
+                    {
+                        errInfo = errInfoElement.Value.AsBsonDocument;
+                    }
+
+                    var operationError = new BulkWriteOperationError(
+                        operationIndex,
+                        operationResponse["code"].AsInt32,
+                        operationResponse["errmsg"]?.AsString,
+                        errInfo);
+
+                    bulkWriteResults.Errors.Add(
+                        operationIndex,
+                        new WriteError(operationError.Category, operationError.Code, operationError.Message, operationError.Details));
+                }
             }
+        }
+
+        private BulkWriteResults ToBulkResults(BulkWriteRawResults rawResults)
+        {
+            if (WriteConcern?.Equals(WriteConcern.Unacknowledged) == true)
+            {
+                return null;
+            }
+
+            return new BulkWriteResults.Acknowledged
+            {
+                InsertedCount = rawResults.InsertedCount,
+                DeletedCount = rawResults.DeletedCount,
+                MatchedCount = rawResults.MatchedCount,
+                ModifiedCount = rawResults.ModifiedCount,
+                UpsertedCount = rawResults.UpsertedCount,
+                DeleteResults = rawResults.DeleteResults,
+                InsertResults = rawResults.InsertResults,
+                UpdateResults = rawResults.UpdateResults
+            };
         }
 
         private class BulkWriteRawResults
@@ -201,12 +403,12 @@ namespace MongoDB.Driver.Core.Operations
             public long MatchedCount { get; set; }
             public long ModifiedCount { get; set; }
             public long UpsertedCount { get; set; }
-            public Dictionary<long, BulkWriteDeleteResult> DeleteResults { get; set; }
-            public Dictionary<long, BulkWriteOperationError> Errors { get; set; }
-            public Dictionary<long, BulkWriteInsertOneResult> InsertResults { get; set; }
-            public Dictionary<long, BulkWriteUpdateResult> UpdateResults { get; set; }
+            public Exception TopLevelException { get; set; }
+            public List<WriteConcernResult> ConcernErrors { get; set; } = new();
+            public Dictionary<int, BulkWriteDeleteResult> DeleteResults { get; } = new();
+            public Dictionary<int, WriteError> Errors { get; } = new();
+            public Dictionary<int, BulkWriteInsertOneResult> InsertResults { get; } = new();
+            public Dictionary<int, BulkWriteUpdateResult> UpdateResults { get; } = new();
         }
-
-
     }
 }

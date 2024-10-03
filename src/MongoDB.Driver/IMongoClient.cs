@@ -45,7 +45,7 @@ namespace MongoDB.Driver
         /// <param name="models">List of operations to execute.</param>
         /// <param name="options">The bulk write options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        IBulkWriteResults BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+        BulkWriteResults BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Executes a list of mixed write operations.
@@ -54,7 +54,24 @@ namespace MongoDB.Driver
         /// <param name="models">List of operations to execute.</param>
         /// <param name="options">The bulk write options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        IBulkWriteResults BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+        BulkWriteResults BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        Task<BulkWriteResults> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        Task<BulkWriteResults> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Drops the database with the specified name.

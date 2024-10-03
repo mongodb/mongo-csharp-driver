@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Driver
@@ -20,87 +21,102 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents BulkWrite operation results.
     /// </summary>
-    public interface IBulkWriteResults
+    public abstract class BulkWriteResults
     {
         /// <summary>
         /// The total number of documents inserted across all insert operations.
         /// </summary>
-        long InsertedCount { get; }
+        public virtual long InsertedCount { get; init; }
 
         /// <summary>
         /// The total number of documents upserted across all update operations.
         /// </summary>
-        long UpsertedCount { get; }
+        public virtual long UpsertedCount { get; init; }
 
         /// <summary>
         /// The total number of documents matched across all update operations.
         /// </summary>
-        long MatchedCount { get; }
+        public virtual long MatchedCount { get; init; }
 
         /// <summary>
         /// The total number of documents modified across all update operations.
         /// </summary>
-        long ModifiedCount { get; }
+        public virtual long ModifiedCount { get; init; }
 
         /// <summary>
         /// The total number of documents deleted across all delete operations.
         /// </summary>
-        long DeletedCount { get; }
+        public virtual long DeletedCount { get; init; }
 
         /// <summary>
         /// The results of each individual insert operation that was successfully performed.
         /// </summary>
-        IReadOnlyDictionary<long, BulkWriteInsertOneResult> InsertResults { get; }
+        public virtual IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults { get; init; }
 
         /// <summary>
         /// The results of each individual update operation that was successfully performed.
         /// </summary>
-        IReadOnlyDictionary<long, BulkWriteUpdateResult> UpdateResults { get; }
+        public virtual IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults { get; init; }
 
         /// <summary>
         /// The results of each individual delete operation that was successfully performed.
         /// </summary>
-        IReadOnlyDictionary<long, BulkWriteDeleteResult> DeleteResults { get; }
+        public virtual IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults { get; init; }
+
+        /// <summary>
+        /// Represents BulkWrite operation acknowledged results.
+        /// </summary>
+        public sealed class Acknowledged : BulkWriteResults
+        {}
+
+        /// <summary>
+        /// Represents BulkWrite operation unacknowledged results.
+        /// </summary>
+        public sealed class Unacknowledged : BulkWriteResults
+        {
+            /// <inheritdoc/>
+            public override long InsertedCount
+            {
+                get { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
+                init { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
+            }
+
+            /// <inheritdoc/>
+            public override long UpsertedCount
+            {
+                get { throw new NotSupportedException("Only acknowledged writes support the UpsertedCount property."); }
+                init { throw new NotSupportedException("Only acknowledged writes support the UpsertedCount property."); }
+            }
+
+            /// <inheritdoc/>
+            public override long MatchedCount
+            {
+                get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+                init { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+            }
+
+            /// <inheritdoc/>
+            public override long ModifiedCount
+            {
+                get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
+                init { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
+            }
+
+            /// <inheritdoc/>
+            public override long DeletedCount
+            {
+                get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
+                init { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
+            }
+
+            /// <inheritdoc/>
+            public override IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults { get; init; }
+
+            /// <inheritdoc/>
+            public override IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults { get; init; }
+
+            /// <inheritdoc/>
+            public override IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults { get; init; }
+        }
     }
-
-    /// <summary>
-    /// Represents BulkWrite operation acknowledged results.
-    /// </summary>
-    public sealed class AcknowledgedBulkWriteResults : IBulkWriteResults
-    {
-        /// <inheritdoc/>
-        public long InsertedCount { get; set; }
-
-        /// <inheritdoc/>
-        public long UpsertedCount { get; set; }
-
-        /// <inheritdoc/>
-        public long MatchedCount { get; set; }
-
-        /// <inheritdoc/>
-        public long ModifiedCount { get; set; }
-
-        /// <inheritdoc/>
-        public long DeletedCount { get; set; }
-
-        /// <inheritdoc/>
-        IReadOnlyDictionary<long, BulkWriteInsertOneResult> IBulkWriteResults.InsertResults
-            => InsertResults;
-
-        /// <inheritdoc/>
-        IReadOnlyDictionary<long, BulkWriteUpdateResult> IBulkWriteResults.UpdateResults
-            => UpdateResults;
-
-        /// <inheritdoc/>
-        IReadOnlyDictionary<long, BulkWriteDeleteResult> IBulkWriteResults.DeleteResults
-            => DeleteResults;
-
-        internal Dictionary<long, BulkWriteInsertOneResult> InsertResults { get; set; }
-
-        internal Dictionary<long, BulkWriteUpdateResult> UpdateResults { get; set; }
-
-        internal Dictionary<long, BulkWriteDeleteResult> DeleteResults { get; set; }
-    }
-
-    //TODO: add UnAcknowledged
 }

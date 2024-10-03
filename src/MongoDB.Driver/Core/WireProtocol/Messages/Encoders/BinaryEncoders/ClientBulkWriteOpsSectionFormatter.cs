@@ -20,6 +20,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
@@ -34,8 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public ClientBulkWriteOpsSectionFormatter(long? maxSize)
         {
-            //_maxSize = (maxSize ?? long.MaxValue) - 1000; // according to spec we should leave some extra space for further overhead
-            _maxSize = 1000;
+            _maxSize = (maxSize ?? long.MaxValue) - 1000; // according to spec we should leave some extra space for further overhead
             if (_maxSize <= 0)
             {
                 throw new InvalidOperationException("Section's size limit is too small.");
@@ -147,8 +148,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
-                context.Writer.WriteName("updateMods");
-                documentSerializer.Serialize(_serializationContext, model.Replacement);
+                WriteUpdate(context, model.Replacement, documentSerializer, UpdateType.Replacement);
                 WriteBoolean(context, "upsert", model.IsUpsert);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);
@@ -265,12 +265,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             writer.WriteEndDocument();
         }
 
+
+
         private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, UpdateDefinition<TDocument> updateDefinition, IBsonSerializer<TDocument> documentSerializer)
         {
-            serializationContext.Writer.WriteName("updateMods");
             var renderArgs = _renderArgs.WithNewDocumentType(documentSerializer);
-            var filterDocument = updateDefinition.Render(renderArgs);
-            BsonDocumentSerializer.Instance.Serialize(serializationContext, filterDocument);
+            var filterDocument = updateDefinition.Render(renderArgs).AsBsonDocument;
+
+            WriteUpdate(serializationContext, filterDocument, BsonDocumentSerializer.Instance, UpdateType.Update);
+        }
+
+        private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, TDocument updateDefinition, IBsonSerializer<TDocument> documentSerializer, UpdateType updateType)
+        {
+            serializationContext.Writer.WriteName("updateMods");
+            serializationContext.Writer.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
+            try
+            {
+                documentSerializer.Serialize(serializationContext, updateDefinition);
+            }
+            finally
+            {
+                serializationContext.Writer.PopElementNameValidator();
+            }
         }
     }
 }
