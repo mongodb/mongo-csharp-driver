@@ -74,19 +74,7 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
 
         private void ParseOptions(BsonDocument options)
         {
-            foreach (var option in options.Elements)
-            {
-                _options = _options ?? new GridFSDownloadOptions();
-                switch (option.Name)
-                {
-                    case "checkMD5":
-                        _options.CheckMD5 = option.Value.ToBoolean();
-                        break;
-
-                    default:
-                        throw new ArgumentException(string.Format("Invalid option name: {0}.", option.Name));
-                }
-            }
+            _options = _options ?? new GridFSDownloadOptions(); //TODO check if this is necessary at all
         }
     }
 
