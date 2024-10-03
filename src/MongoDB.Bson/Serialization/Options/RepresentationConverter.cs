@@ -1027,7 +1027,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int64.</returns>
         public long ToInt64(Half value)
         {
-            if (Half.IsInfinity(value) || Half.IsNaN((value)))
+            if (Half.IsInfinity(value) || Half.IsNaN(value))
             {
                 throw new OverflowException();
             }

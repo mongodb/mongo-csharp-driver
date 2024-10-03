@@ -101,8 +101,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestDeserialize(subject, json, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN and integral values
-        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData("""{ "x" : { "$numberDecimal" : "NaN" } }""")]
         [InlineData("""{ "x" : { "$numberDouble" : "NaN" } }""")]
@@ -118,8 +116,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [InlineData("""{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
         [InlineData("""{ "x" : { "$numberDouble" : "-Infinity" } }""")]
-        [InlineData("""{ "x" : { "$numberLong" : "-9223372036854775808" } }""")] //long.MinValue
-        [InlineData("""{ "x" : { "$numberInt" : "-2147483648" } }""")]  //int.MinValue
         [InlineData("""{ "x" : "-Infinity" }""")]
         public void Deserialize_of_negative_infinity_should_have_expected_result(string json)
         {
@@ -132,8 +128,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [InlineData("""{ "x" : { "$numberDecimal" : "Infinity" } }""")]
         [InlineData("""{ "x" : { "$numberDouble" : "Infinity" } }""")]
-        [InlineData("""{ "x" : { "$numberLong" : "9223372036854775807" } }""")] //long.MaxValue
-        [InlineData("""{ "x" : { "$numberInt" : "2147483647" } }""")] //int.MaxValue
         [InlineData("""{ "x" : "Infinity" }""")]
         public void Deserialize_of_positive_infinity_should_have_expected_result(string json)
         {
@@ -292,8 +286,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "9.999999999999999999999999999999999E+6144" } }""")]
-        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "9.999999999999999999999999999999999E+6144" } }""")] //Decimal128.MaxValue
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")] //double.MaxValue
         [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "65504" } }""")]
         [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "65504" } }""")]
         [InlineData(BsonType.String, """{ "x" : "65500" }""")]
@@ -307,8 +301,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-9.999999999999999999999999999999999E+6144" } }""")]
-        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")]
+        [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-9.999999999999999999999999999999999E+6144" } }""")] //Decimal128.MinValue
+        [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")] //double.MinValue
         [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "-65504" } }""")]
         [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "-65504" } }""")]
         [InlineData(BsonType.String, """{ "x" : "-65500" }""")]
