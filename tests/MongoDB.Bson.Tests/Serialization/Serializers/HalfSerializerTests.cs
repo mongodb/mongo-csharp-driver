@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")] //double.MaxValue
         [InlineData("""{ "x" : { "$numberLong" : "65504" } }""")]
         [InlineData("""{ "x" : { "$numberInt" : "65504" } }""")]
-        [InlineData("""{ "x" : "65500" }""")]
+        [InlineData("""{ "x" : "65504" }""")]
         public void Deserialize_of_max_value_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, false));
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")] //double.MinValue
         [InlineData("""{ "x" : { "$numberLong" : "-65504" } }""")]
         [InlineData("""{ "x" : { "$numberInt" : "-65504" } }""")]
-        [InlineData("""{ "x" : "-65500" }""")]
+        [InlineData("""{ "x" : "-65504" }""")]
         public void Deserialize_of_min_value_should_have_expected_result(string json)
         {
             var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
@@ -290,7 +290,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "1.7976931348623157E+308" } }""")] //double.MaxValue
         [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "65504" } }""")]
         [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "65504" } }""")]
-        [InlineData(BsonType.String, """{ "x" : "65500" }""")]
+        [InlineData(BsonType.String, """{ "x" : "65504" }""")]
         public void Serialize_of_max_value_should_have_expected_result(BsonType representation,
             string expectedResult)
         {
@@ -305,7 +305,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-1.7976931348623157E+308" } }""")] //double.MinValue
         [InlineData(BsonType.Int64, """{ "x" : { "$numberLong" : "-65504" } }""")]
         [InlineData(BsonType.Int32, """{ "x" : { "$numberInt" : "-65504" } }""")]
-        [InlineData(BsonType.String, """{ "x" : "-65500" }""")]
+        [InlineData(BsonType.String, """{ "x" : "-65504" }""")]
         public void Serialize_of_min_value_should_have_expected_result(BsonType representation,
             string expectedResult)
         {

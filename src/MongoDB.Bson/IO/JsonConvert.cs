@@ -220,7 +220,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A string.</returns>
         public static string ToString(Half value)
         {
-            return value.ToString("R", NumberFormatInfo.InvariantInfo);
+            return value.ToString("G5", NumberFormatInfo.InvariantInfo);
         }
 #endif
 
